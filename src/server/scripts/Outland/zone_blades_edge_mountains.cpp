@@ -595,7 +595,7 @@ class npc_simon_bunny : public CreatureScript
                 _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2s);
 
                 if (GameObject* relic = me->FindNearestGameObject(large ? GO_APEXIS_MONUMENT : GO_APEXIS_RELIC, searchDistance))
-                    relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    relic->SetFlag(GO_FLAG_NOT_SELECTABLE);
             }
 
             // Called when despawning the bunny. Sets all the node GOs to their default states.
@@ -605,14 +605,14 @@ class npc_simon_bunny : public CreatureScript
 
                 for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; clusterId++)
                     if (GameObject* cluster = me->FindNearestGameObject(clusterIds[clusterId], searchDistance))
-                        cluster->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        cluster->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                 for (uint32 auraId = GO_AURA_BLUE; auraId <= GO_AURA_YELLOW; auraId++)
                     if (GameObject* auraGo = me->FindNearestGameObject(auraId, searchDistance))
                         auraGo->RemoveFromWorld();
 
                 if (GameObject* relic = me->FindNearestGameObject(large ? GO_APEXIS_MONUMENT : GO_APEXIS_RELIC, searchDistance))
-                    relic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    relic->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                 me->DespawnOrUnsummon(1s);
             }
@@ -655,7 +655,7 @@ class npc_simon_bunny : public CreatureScript
             {
                 for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; clusterId++)
                     if (GameObject* cluster = me->FindNearestGameObject(clusterIds[clusterId], searchDistance))
-                        cluster->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        cluster->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                 if (clustersOnly)
                     return;
@@ -709,7 +709,7 @@ class npc_simon_bunny : public CreatureScript
                 {
                     if (GameObject* cluster = me->FindNearestGameObject(clusterIds[clusterId], 2.0f*searchDistance))
                     {
-                        cluster->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        cluster->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                         // break since we don't need glowing auras for large clusters
                         if (large)

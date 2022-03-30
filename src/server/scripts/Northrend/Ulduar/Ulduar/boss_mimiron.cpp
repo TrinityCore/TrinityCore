@@ -432,7 +432,7 @@ class boss_mimiron : public CreatureScript
                 DoCast(me->GetVehicleBase(), SPELL_SEAT_6);
 
                 if (GameObject* button = instance->GetGameObject(DATA_MIMIRON_BUTTON))
-                    button->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    button->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                 if (_fireFighter)
                     events.ScheduleEvent(EVENT_SUMMON_FLAMES, 3s);
@@ -474,7 +474,7 @@ class boss_mimiron : public CreatureScript
                 if (GameObject* button = instance->GetGameObject(DATA_MIMIRON_BUTTON))
                 {
                     button->SetGoState(GO_STATE_READY);
-                    button->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    button->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                 }
 
                 _fireFighter = false;
@@ -1683,14 +1683,14 @@ class go_mimiron_hardmode_button : public GameObjectScript
 
             bool OnGossipHello(Player* /*player*/) override
             {
-                if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
+                if (me->HasFlag(GO_FLAG_NOT_SELECTABLE))
                     return true;
 
                 if (Creature* computer = instance->GetCreature(DATA_COMPUTER))
                     computer->AI()->DoAction(DO_ACTIVATE_COMPUTER);
 
                 me->SetGoState(GO_STATE_ACTIVE);
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetFlag(GO_FLAG_NOT_SELECTABLE);
                 return true;
             }
         };

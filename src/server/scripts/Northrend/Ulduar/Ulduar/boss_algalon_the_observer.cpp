@@ -974,7 +974,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
 
     bool OnReportUse(Player* player) override
     {
-        if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+        if (me->HasFlag(GO_FLAG_IN_USE))
             return true;
 
         bool hasKey = true;
@@ -998,7 +998,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
             return false;
 
         // Start Algalon event
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        me->SetFlag(GO_FLAG_IN_USE);
         _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5s);
         if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannIntroSpawnPos))
             brann->AI()->DoAction(ACTION_START_INTRO);

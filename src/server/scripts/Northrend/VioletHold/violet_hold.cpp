@@ -502,7 +502,7 @@ struct npc_sinclari_vh : public ScriptedAI
                     if (GameObject* mainDoor = _instance->GetGameObject(DATA_MAIN_DOOR))
                     {
                         mainDoor->SetGoState(GO_STATE_READY);
-                        mainDoor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        mainDoor->SetFlag(GO_FLAG_LOCKED);
                     }
                     task.Repeat(Seconds(5));
                     break;

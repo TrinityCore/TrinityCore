@@ -57,7 +57,7 @@ struct go_blackfathom_fire : public GameObjectAI
     bool OnGossipHello(Player* /*player*/) override
     {
         me->SetGoState(GO_STATE_ACTIVE);
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
         return true;
     }

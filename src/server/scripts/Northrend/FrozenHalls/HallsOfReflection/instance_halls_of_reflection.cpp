@@ -340,7 +340,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 break;
                             case DONE:
                                 if (GameObject* chest = instance->GetGameObject(CaptainsChestGUID))
-                                    chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                                    chest->RemoveFlag(GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
 
                                 DoUseDoorOrButton(CaveInGUID, 15);
 

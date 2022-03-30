@@ -303,7 +303,7 @@ struct go_chromaggus_lever : public GameObjectAI
                 _instance->HandleGameObject(ObjectGuid::Empty, true, go);
         }
 
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
         me->SetGoState(GO_STATE_ACTIVE);
 
         return true;

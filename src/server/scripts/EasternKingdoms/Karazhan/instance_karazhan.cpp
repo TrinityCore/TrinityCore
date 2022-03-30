@@ -162,7 +162,7 @@ public:
                         HandleGameObject(StageDoorLeftGUID, true);
                         HandleGameObject(StageDoorRightGUID, true);
                         if (GameObject* sideEntrance = instance->GetGameObject(SideEntranceDoor))
-                            sideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                            sideEntrance->RemoveFlag(GO_FLAG_LOCKED);
                         UpdateEncounterStateForKilledCreature(16812, nullptr);
                     }
                     break;
@@ -224,9 +224,9 @@ public:
                 case GO_SIDE_ENTRANCE_DOOR:
                     SideEntranceDoor = go->GetGUID();
                     if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        go->SetFlag(GO_FLAG_LOCKED);
                     else
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        go->RemoveFlag(GO_FLAG_LOCKED);
                     break;
                 case GO_DUST_COVERED_CHEST:
                     DustCoveredChest = go->GetGUID();

@@ -202,7 +202,7 @@ struct boss_palehoof : public BossAI
         if (GameObject* go = instance->GetGameObject(DATA_GORTOK_PALEHOOF_SPHERE))
         {
             go->SetGoState(GO_STATE_READY);
-            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         }
     }
 
@@ -512,7 +512,7 @@ struct go_palehoof_sphere : public GameObjectAI
         {
             if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
             {
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetFlag(GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);
                 palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
             }

@@ -132,7 +132,7 @@ class boss_broggok : public CreatureScript
                         instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
                         if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
                         {
-                            lever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                            lever->RemoveFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
                             lever->SetGoState(GO_STATE_READY);
                         }
                         break;
@@ -261,7 +261,7 @@ class go_broggok_lever : public GameObjectScript
                         broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
                 }
 
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                me->SetFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
                 me->SetGoState(GO_STATE_ACTIVE);
 
                 return true;

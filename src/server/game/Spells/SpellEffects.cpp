@@ -1871,9 +1871,9 @@ void Spell::EffectOpenLock()
             if (gameObjTarget)
             {
                 // Allow one skill-up until respawned
-                if (!gameObjTarget->IsInSkillupList(player->GetGUID().GetCounter()) &&
+                if (!gameObjTarget->IsInSkillupList(player->GetGUID()) &&
                     player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue))
-                    gameObjTarget->AddToSkillupList(player->GetGUID().GetCounter());
+                    gameObjTarget->AddToSkillupList(player->GetGUID());
             }
             else if (itemTarget)
             {
@@ -3657,7 +3657,7 @@ void Spell::EffectDuel()
     }
 
     pGameObj->SetFaction(caster->GetFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, caster->GetLevel() + 1);
+    pGameObj->SetLevel(caster->GetLevel() + 1);
     int32 duration = m_spellInfo->GetDuration();
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
@@ -4000,7 +4000,7 @@ void Spell::EffectSummonObject()
     }
 
     go->SetFaction(unitCaster->GetFaction());
-    go->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->GetLevel());
+    go->SetLevel(unitCaster->GetLevel());
     int32 duration = m_spellInfo->GetDuration();
     go->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);

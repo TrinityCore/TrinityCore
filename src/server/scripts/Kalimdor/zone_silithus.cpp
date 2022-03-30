@@ -1418,7 +1418,7 @@ class go_wind_stone : public GameObjectScript
                 void Reset() override
                 {
                     // Allow despawning
-                    me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
+                    me->RemoveFlag(GO_FLAG_NODESPAWN);
                     isSummoning = false;
                 }
         };

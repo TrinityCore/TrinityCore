@@ -1515,7 +1515,7 @@ public:
 
         bool OnGossipHello(Player* /*player*/) override
         {
-            me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             if (Creature* controller = me->FindNearestCreature(NPC_RAZORSCALE_CONTROLLER, 5.0f))
             {
                 // Prevent 2 players clicking at "same time"
@@ -1555,7 +1555,7 @@ public:
 
         void Reset() override
         {
-            me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
             {
                 me->UseDoorOrButton();

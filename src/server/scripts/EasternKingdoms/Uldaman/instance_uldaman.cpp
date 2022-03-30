@@ -121,7 +121,7 @@ class instance_uldaman : public InstanceMapScript
 
                     case GO_ANCIENT_VAULT_DOOR:
                         go->SetGoState(GO_STATE_READY);
-                        go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
+                        go->ReplaceAllFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN);
                         ancientVaultDoor = go->GetGUID();
 
                         if (m_auiEncounter[1] == DONE)
@@ -141,7 +141,7 @@ class instance_uldaman : public InstanceMapScript
                         if (m_auiEncounter[2] == DONE)
                         {
                             HandleGameObject(ObjectGuid::Empty, true, go);
-                            go->SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                            go->SetFlag(GO_FLAG_INTERACT_COND);
                         }
                         break;
                 }
@@ -171,7 +171,7 @@ class instance_uldaman : public InstanceMapScript
                 if (!go)
                     return;
 
-                go->SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                go->SetFlag(GO_FLAG_INTERACT_COND);
             }
 
             void ActivateStoneKeepers()

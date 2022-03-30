@@ -212,7 +212,7 @@ class instance_oculus : public InstanceMapScript
                             if (GameObject* cache = instance->GetGameObject(EregosCacheGUID))
                             {
                                 cache->SetRespawnTime(cache->GetRespawnDelay());
-                                cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                cache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             }
                         }
                         break;

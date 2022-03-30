@@ -1898,7 +1898,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScript
         Creature* caster = GetCaster()->ToCreature();
         if (InstanceScript* instance = caster->GetInstanceScript())
             if (GameObject* platform = caster->GetMap()->GetGameObject(instance->GetGuidData(DATA_PLATFORM)))
-                platform->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                platform->SetFlag(GO_FLAG_DESTROYED);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2119,13 +2119,13 @@ private:
         if (Creature* target = GetTarget()->ToCreature())
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
             {
-                _alexstraszaGift->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                _alexstraszaGift->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                 if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetGuidData(DATA_HEART_OF_MAGIC_GUID)))
                 {
-                    heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    heartMagic->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                     // TO DO: This is hack, core doesn't have support for these flags,
                     // remove line below if it ever gets supported otherwise object won't be accessible.
-                    heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    heartMagic->RemoveFlag(GO_FLAG_INTERACT_COND);
                 }
             }
     }

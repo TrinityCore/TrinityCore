@@ -757,7 +757,7 @@ struct npc_icc_orb_controller : public ScriptedAI
             UpdateValidGuids();
             ScheduleVisualChannel(true);
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
-                orb->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                orb->SetFlag(GO_FLAG_NOT_SELECTABLE);
         }
     }
 
@@ -825,7 +825,7 @@ struct DarkFallenAI : public ScriptedAI
     {
         if (action == ACTION_SIPHON_INTERRUPTED)
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 10.0f))
-                orb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                orb->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
     }
 
     void SetGUID(ObjectGuid const& guid, int32 id) override
@@ -1132,7 +1132,7 @@ struct go_empowering_blood_orb : public GameObjectAI
 
     void HandleObjectUse()
     {
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        me->SetFlag(GO_FLAG_IN_USE);
         me->SetGoAnimProgress(255);
         me->SetGoState(GO_STATE_DESTROYED);
         if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))

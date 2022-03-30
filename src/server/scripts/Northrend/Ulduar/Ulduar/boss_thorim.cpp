@@ -488,7 +488,7 @@ class boss_thorim : public CreatureScript
                     me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
 
                 if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
-                    lever->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    lever->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                 // Remove trigger auras
                 if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
@@ -636,7 +636,7 @@ class boss_thorim : public CreatureScript
                 }
 
                 if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
-                    lever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    lever->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                 // Summon Sif
                 me->SummonCreature(NPC_SIF, SifSpawnPosition);

@@ -258,7 +258,7 @@ public:
 
                             if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
                             {
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 SetEscortPaused(true);
                             }
                             break;

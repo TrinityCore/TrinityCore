@@ -160,7 +160,7 @@ struct boss_arlokk : public BossAI
     {
         BossAI::EnterEvadeMode(why);
         if (GameObject* object = instance->GetGameObject(DATA_GONG_BETHEKK))
-            object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            object->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         me->DespawnOrUnsummon(4s);
     }
 
@@ -426,7 +426,7 @@ struct go_gong_of_bethekk : public GameObjectAI
 
     bool OnGossipHello(Player* /*player*/) override
     {
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         me->SendCustomAnim(0);
         me->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10min);
         return true;

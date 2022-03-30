@@ -323,7 +323,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
         SetFaction(goOverride->Faction);
-        SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
+        ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
     }
 
     SetEntry(goinfo->entry);
@@ -333,7 +333,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     SetDisplayId(goinfo->displayId);
 
-    m_model = CreateModel();
+    CreateModel();
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     m_prevGoState = go_state;
@@ -352,7 +352,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
             SetGoAnimProgress(255);
             break;
         case GAMEOBJECT_TYPE_TRANSPORT:
-            SetUInt32Value(GAMEOBJECT_LEVEL, goinfo->transport.pause);
+            SetLevel(goinfo->transport.pause);
             SetGoState(goinfo->transport.startOpen ? GO_STATE_ACTIVE : GO_STATE_READY);
             SetGoAnimProgress(animprogress);
             m_goValue.Transport.PathProgress = 0;
@@ -505,7 +505,7 @@ void GameObject::Update(uint32 diff)
                         if (caster && caster->GetTypeId() == TYPEID_PLAYER)
                         {
                             SetGoState(GO_STATE_ACTIVE);
-                            SetUInt32Value(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
+                            ReplaceAllFlags(GO_FLAG_NODESPAWN);
 
                             UpdateData udata;
                             WorldPacket packet;
@@ -694,7 +694,7 @@ void GameObject::Update(uint32 diff)
                 case GAMEOBJECT_TYPE_GOOBER:
                     if (GameTime::GetGameTimeMS() >= m_cooldownTime)
                     {
-                        RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                        RemoveFlag(GO_FLAG_IN_USE);
                         SetLootState(GO_JUST_DEACTIVATED);
                     }
                     break;
@@ -823,7 +823,7 @@ void GameObject::Update(uint32 diff)
                 SendObjectDeSpawnAnim(GetGUID());
                 //reset flags
                 if (GameObjectOverride const* goOverride = GetGameObjectOverride())
-                    SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
+                    ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
             }
 
             if (!m_respawnDelayTime)
@@ -918,7 +918,7 @@ void GameObject::Delete()
     SetGoState(GO_STATE_READY);
 
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
-        SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
+        ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
 
     uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
     if (poolid)
@@ -1069,7 +1069,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
         if (!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction())
         {
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
+            SetFlag(GO_FLAG_NODESPAWN);
             m_respawnDelayTime = 0;
             m_respawnTime = 0;
         }
@@ -1411,7 +1411,7 @@ void GameObject::ResetDoorOrButton()
     if (m_lootState == GO_READY || m_lootState == GO_JUST_DEACTIVATED)
         return;
 
-    RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    RemoveFlag(GO_FLAG_IN_USE);
     SetGoState(m_prevGoState);
 
     SetLootState(GO_JUST_DEACTIVATED);
@@ -1452,8 +1452,10 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
                 Use(unitCaster);
             break;
         case GameObjectActions::Unlock:
+            RemoveFlag(GO_FLAG_LOCKED);
+            break;
         case GameObjectActions::Lock:
-            ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED, action == GameObjectActions::Lock);
+            SetFlag(GO_FLAG_LOCKED);
             break;
         case GameObjectActions::Open:
             if (unitCaster)
@@ -1463,7 +1465,7 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
             if (unitCaster)
             {
                 UseDoorOrButton(0, false, unitCaster);
-                RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                RemoveFlag(GO_FLAG_LOCKED);
             }
             break;
         case GameObjectActions::Close:
@@ -1486,12 +1488,14 @@ void GameObject::ActivateObject(GameObjectActions action, WorldObject* spellCast
             DespawnOrUnsummon();
             break;
         case GameObjectActions::MakeInert:
+            SetFlag(GO_FLAG_NOT_SELECTABLE);
+            break;
         case GameObjectActions::MakeActive:
-            ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE, action == GameObjectActions::MakeInert);
+            RemoveFlag(GO_FLAG_NOT_SELECTABLE);
             break;
         case GameObjectActions::CloseAndLock:
             ResetDoorOrButton();
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            SetFlag(GO_FLAG_LOCKED);
             break;
         case GameObjectActions::UseArtKit0:
         case GameObjectActions::UseArtKit1:
@@ -1548,9 +1552,9 @@ void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType l
 void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false */)
 {
     if (activate)
-        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        SetFlag(GO_FLAG_IN_USE);
     else
-        RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        RemoveFlag(GO_FLAG_IN_USE);
 
     if (GetGoState() == GO_STATE_READY)                      //if closed -> open
         SetGoState(alternative ? GO_STATE_DESTROYED : GO_STATE_ACTIVE);
@@ -1749,7 +1753,7 @@ void GameObject::Use(Unit* user)
             if (uint32 trapEntry = info->goober.linkedTrapId)
                 TriggeringLinkedGameObject(trapEntry, user);
 
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            SetFlag(GO_FLAG_IN_USE);
             SetLootState(GO_ACTIVATED, user);
 
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
@@ -2351,7 +2355,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
     switch (state)
     {
         case GO_DESTRUCTIBLE_INTACT:
-            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
+            RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
             SetDisplayId(m_goInfo->displayId);
             if (setHealth)
             {
@@ -2365,8 +2369,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             EventInform(m_goInfo->building.damagedEvent, attackerOrHealer);
             AI()->Damaged(attackerOrHealer, m_goInfo->building.damagedEvent);
 
-            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+            RemoveFlag(GO_FLAG_DESTROYED);
+            SetFlag(GO_FLAG_DAMAGED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
@@ -2394,8 +2398,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 if (Battleground* bg = player->GetBattleground())
                     bg->DestroyGate(player, this);
 
-            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+            RemoveFlag(GO_FLAG_DAMAGED);
+            SetFlag(GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
@@ -2414,7 +2418,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_REBUILDING:
         {
             EventInform(m_goInfo->building.rebuildingEvent, attackerOrHealer);
-            RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
+            RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
@@ -2527,7 +2531,7 @@ void GameObject::UpdateModel()
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
     delete m_model;
-    m_model = CreateModel();
+    CreateModel();
     if (m_model)
         GetMap()->InsertGameObjectModel(*m_model);
 }
@@ -2762,9 +2766,9 @@ private:
     GameObject* _owner;
 };
 
-GameObjectModel* GameObject::CreateModel()
+void GameObject::CreateModel()
 {
-    return GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
+    m_model = GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
 }
 
 std::string GameObject::GetDebugInfo() const

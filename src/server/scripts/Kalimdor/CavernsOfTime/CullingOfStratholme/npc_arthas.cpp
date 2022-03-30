@@ -1419,7 +1419,7 @@ public:
                             malganis->CastSpell(malganis, SPELL_MALGANIS_QUEST_CREDIT, true);
                             malganis->CastSpell(malganis, SPELL_MALGANIS_KILL_CREDIT, true);
                             if (GameObject* chest = malganis->FindNearestGameObject(RAID_MODE(GO_CHEST_NORMAL, GO_CHEST_HEROIC), 100.0f))
-                                chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                chest->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         events.ScheduleEvent(RP5_EVENT_MALGANIS12, 3s);
                         events.ScheduleEvent(RP5_EVENT_MALGANIS_LEAVE, 19s);

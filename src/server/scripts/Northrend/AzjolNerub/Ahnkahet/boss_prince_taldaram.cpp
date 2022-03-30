@@ -387,7 +387,7 @@ struct go_prince_taldaram_sphere : public GameObjectAI
         Creature* princeTaldaram = instance->GetCreature(DATA_PRINCE_TALDARAM);
         if (princeTaldaram && princeTaldaram->IsAlive())
         {
-            me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             me->SetGoState(GO_STATE_ACTIVE);
 
             switch (me->GetEntry())

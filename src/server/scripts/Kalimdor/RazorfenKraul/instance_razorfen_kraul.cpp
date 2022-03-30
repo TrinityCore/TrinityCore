@@ -79,7 +79,7 @@ public:
             if (WardKeeperDeath == WARD_KEEPERS_NR)
                 if (GameObject* go = instance->GetGameObject(DoorWardGUID))
                 {
-                    go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
+                    go->ReplaceAllFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN);
                     go->SetGoState(GO_STATE_ACTIVE);
                 }
         }

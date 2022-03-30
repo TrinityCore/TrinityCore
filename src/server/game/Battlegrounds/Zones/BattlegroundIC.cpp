@@ -240,7 +240,7 @@ void BattlegroundIC::StartingEventOpenDoors()
     DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_2);
 
     for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTERS_SPAWNS; ++i)
-        GetBGObject(BG_IC_Teleporters[i].type)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        GetBGObject(BG_IC_Teleporters[i].type)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
     for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTER_EFFECTS_SPAWNS; ++i)
         GetBGObject(BG_IC_TeleporterEffects[i].type)->SetGoState(GO_STATE_ACTIVE);
@@ -809,12 +809,12 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
     if (player->GetTeamId() == TEAM_ALLIANCE)
     {
         DoorOpen(BG_IC_GO_HORDE_KEEP_PORTCULLIS);
-        GetBGObject(BG_IC_GO_HORDE_BANNER)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        GetBGObject(BG_IC_GO_HORDE_BANNER)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
     }
     else
     {
         DoorOpen(BG_IC_GO_DOODAD_PORTCULLISACTIVE02);
-        GetBGObject(BG_IC_GO_ALLIANCE_BANNER)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        GetBGObject(BG_IC_GO_ALLIANCE_BANNER)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
     }
 
     uint32 textId;

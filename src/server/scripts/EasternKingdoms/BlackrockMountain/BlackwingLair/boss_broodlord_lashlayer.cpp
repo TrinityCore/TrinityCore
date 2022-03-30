@@ -194,7 +194,7 @@ struct go_suppression_device : public GameObjectAI
         if (me->GetGoState() == GO_STATE_ACTIVE)
             me->SetGoState(GO_STATE_READY);
         me->SetLootState(GO_READY);
-        me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         _events.ScheduleEvent(EVENT_SUPPRESSION_CAST, 0s);
     }
 
@@ -204,7 +204,7 @@ struct go_suppression_device : public GameObjectAI
             return;
         _active = false;
         me->SetGoState(GO_STATE_ACTIVE);
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         _events.CancelEvent(EVENT_SUPPRESSION_CAST);
     }
 
