@@ -93,632 +93,389 @@ enum Texts
     SAY_DEATH                       = 9
 };
 
-enum AuraStacks
+struct boss_forgemaster_throngus : public BossAI
 {
-    STACK_AMOUNT_DISORIENTING_ROAR_HC = 3
-};
+    boss_forgemaster_throngus(Creature* creature) : BossAI(creature, DATA_FORGEMASTER_THRONGUS),
+        _lastWeapon(WEAPON_TO_BE_DECIDED) { }
 
-class boss_forgemaster_throngus : public CreatureScript
-{
-    public:
-        boss_forgemaster_throngus() : CreatureScript("boss_forgemaster_throngus") { }
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO, who);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        events.ScheduleEvent(EVENT_MIGHTY_STOMP, 7s);
+        events.ScheduleEvent(EVENT_PICK_WEAPON, 10s);
+    }
 
-        struct boss_forgemaster_throngusAI : public BossAI
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->IsPlayer())
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH, killer);
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _DespawnAtEvade();
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            boss_forgemaster_throngusAI(Creature* creature) : BossAI(creature, DATA_FORGEMASTER_THRONGUS)
+            case ACTION_PICK_WEAPON:
             {
-                Initialize();
-            }
+                std::unordered_set<int8> availableWeaponSet = { WEAPON_PERSONAL_PHALANX, WEAPON_MACE, WEAPON_DUAL_BLADES };
 
-            void Initialize()
-            {
-                _lastWeapon = WEAPON_TO_BE_DECIDED;
-            }
+                if (_lastWeapon != WEAPON_TO_BE_DECIDED)
+                    availableWeaponSet.erase(_lastWeapon);
 
-            void Reset() override
-            {
-                Initialize();
-                _Reset();
-            }
+                uint8 selectedWeapon = Trinity::Containers::SelectRandomContainerElement(availableWeaponSet);
 
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_MIGHTY_STOMP, Seconds(6) + Milliseconds(500));
-                events.ScheduleEvent(EVENT_PICK_WEAPON, Seconds(10));
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-                summons.DespawnAll();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _EnterEvadeMode();
-                summons.DespawnAll();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                _DespawnAtEvade();
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
+                _lastWeapon = selectedWeapon;
+                switch (selectedWeapon)
                 {
-                    case ACTION_PICK_WEAPON:
-                    {
-                        uint8 selectedWeapon = urand(WEAPON_PERSONAL_PHALANX, WEAPON_MACE);
-                        // Make sure that we will never get the same weapon twice in a row
-                        if (_lastWeapon == selectedWeapon && selectedWeapon < WEAPON_MACE)
-                            selectedWeapon += 1;
-                        else if (_lastWeapon == selectedWeapon && selectedWeapon == WEAPON_MACE)
-                            selectedWeapon = urand(WEAPON_PERSONAL_PHALANX, WEAPON_DUAL_BLADES);
+                    case WEAPON_PERSONAL_PHALANX:
+                        DoCastSelf(SPELL_PERSONAL_PHALANX, true);
+                        DoCastSelf(SPELL_SHIELD_VISUAL, true);
+                        Talk(SAY_PERSONAL_PHALANX);
+                        Talk(SAY_ANNOUNCE_PERSONAL_PHALANX);
+                        events.RescheduleEvent(EVENT_FIXATE_PLAYER, 1s);
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_FLAMING_SHIELD, 3s);
+                        break;
+                    case WEAPON_DUAL_BLADES:
+                        DoCastSelf(SPELL_BURNING_DUAL_BLADES, true);
+                        Talk(SAY_DUAL_BLADES);
+                        Talk(SAY_ANNOUNCE_DUAL_BLADES);
+                        events.RescheduleEvent(EVENT_DISORIENTING_ROAR, 5s);
+                        if (IsHeroic())
+                            DoCastSelf(SPELL_BURNING_FLAMES, true);
+                        break;
+                    case WEAPON_MACE:
+                        DoCastSelf(SPELL_ENCUMBERED, true);
+                        Talk(SAY_MACE);
+                        Talk(SAY_ANNOUNCE_MACE);
+                        events.RescheduleEvent(EVENT_IMPALING_SLAM, 6s);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case ACTION_START_PHALLANX:
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                break;
+            case ACTION_END_PHALLANX:
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveAurasDueToSpell(SPELL_FLAMING_SHIELD);
+                summons.DespawnEntry(NPC_FIXATE_STALKER);
+                break;
+            default:
+                break;
 
-                        _lastWeapon = selectedWeapon;
-                        switch (selectedWeapon)
-                        {
-                            case WEAPON_PERSONAL_PHALANX:
-                                DoCastSelf(SPELL_PERSONAL_PHALANX, true);
-                                DoCastSelf(SPELL_SHIELD_VISUAL, true);
-                                Talk(SAY_PERSONAL_PHALANX);
-                                Talk(SAY_ANNOUNCE_PERSONAL_PHALANX);
-                                events.RescheduleEvent(EVENT_FIXATE_PLAYER, Seconds(1));
-                                if (IsHeroic())
-                                    events.ScheduleEvent(EVENT_FLAMING_SHIELD, Seconds(3));
-                                break;
-                            case WEAPON_DUAL_BLADES:
-                                DoCastSelf(SPELL_BURNING_DUAL_BLADES, true);
-                                Talk(SAY_DUAL_BLADES);
-                                Talk(SAY_ANNOUNCE_DUAL_BLADES);
-                                events.RescheduleEvent(EVENT_DISORIENTING_ROAR, Seconds(5));
-                                if (IsHeroic())
-                                    DoCastSelf(SPELL_BURNING_FLAMES, true);
-                                break;
-                            case WEAPON_MACE:
-                                DoCastSelf(SPELL_ENCUMBERED, true);
-                                Talk(SAY_MACE);
-                                Talk(SAY_ANNOUNCE_MACE);
-                                events.RescheduleEvent(EVENT_IMPALING_SLAM, Seconds(6));
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    case ACTION_START_PHALLANX:
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->AddUnitState(UNIT_STATE_CANNOT_TURN);
-                        break;
-                    case ACTION_END_PHALLANX:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveAurasDueToSpell(SPELL_FLAMING_SHIELD);
-                        me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
+        }
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (!me->GetVehicleKit())
+            return;
+
+        if (apply)
+            Talk(SAY_ANNOUNCE_IMPALE, passenger);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+
+        switch (summon->GetEntry())
+        {
+            case NPC_FIXATE_STALKER:
+                events.ScheduleEvent(EVENT_FIXATE_EFFECT, 400ms);
+                break;
+            case NPC_CAVE_IN_STALKER:
+                summon->CastSpell(nullptr, SPELL_CAVE_IN_VISUAL);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING) && !me->HasAura(SPELL_PERSONAL_PHALANX))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MIGHTY_STOMP:
+                    if (!me->HasAura(SPELL_PERSONAL_PHALANX))
+                        DoCastAOE(SPELL_MIGHTY_STOMP, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
+                    events.Repeat(49s);
+                    break;
+                case EVENT_PICK_WEAPON:
+                    DoCastSelf(SPELL_PICK_WEAPON);
+                    events.Repeat(35s + 500ms);
+                    break;
+                case EVENT_FIXATE_PLAYER:
+                    if (me->HasAura(SPELL_PERSONAL_PHALANX))
+                    {
                         summons.DespawnEntry(NPC_FIXATE_STALKER);
-                        break;
-                    default:
-                        break;
-
-                }
-            }
-
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
-            {
-                if (!me->GetVehicleKit())
-                    return;
-
-                if (apply)
-                    Talk(SAY_ANNOUNCE_IMPALE, passenger);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summons.Summon(summon);
-
-                switch (summon->GetEntry())
-                {
-                    case NPC_FIXATE_STALKER:
-                        events.ScheduleEvent(EVENT_FIXATE_EFFECT, Milliseconds(400));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING) && !me->HasAura(SPELL_PERSONAL_PHALANX))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MIGHTY_STOMP:
-                            if (!me->HasAura(SPELL_PERSONAL_PHALANX))
-                                DoCastAOE(SPELL_MIGHTY_STOMP);
-                            events.Repeat(Seconds(49));
-                            break;
-                        case EVENT_PICK_WEAPON:
-                            DoCastSelf(SPELL_PICK_WEAPON);
-                            events.Repeat(Seconds(35) + Milliseconds(500));
-                            break;
-                        case EVENT_FIXATE_PLAYER:
-                            if (me->HasAura(SPELL_PERSONAL_PHALANX))
-                            {
-                                summons.DespawnEntry(NPC_FIXATE_STALKER);
-                                DoCastAOE(SPELL_PERSONAL_PHALANX_SUMMON_FIXATE_TRIGGER, true);
-                                events.Repeat(Seconds(8) + Milliseconds(500));
-                            }
-                            break;
-                        case EVENT_FIXATE_EFFECT:
-                            if (Creature* stalker = me->FindNearestCreature(NPC_FIXATE_STALKER, 500.0f, true))
-                                DoCast(stalker, SPELL_FIXATE_EFFECT);
-                            break;
-                        case EVENT_FLAMING_SHIELD:
-                            DoCastSelf(SPELL_FLAMING_SHIELD, true);
-                            break;
-                        case EVENT_DISORIENTING_ROAR:
-                            if (me->CanDualWield())
-                            {
-                                DoCastAOE(SPELL_DISORIENTING_ROAR);
-                                events.Repeat(Seconds(22));
-                            }
-                            break;
-                        case EVENT_IMPALING_SLAM:
-                            if (me->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID) == WEAPON_MODEL_MACE)
-                            {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me, true)))
-                                    DoCast(target, SPELL_IMPALING_SLAM);
-                                events.Repeat(Seconds(15) + Milliseconds(500));
-                            }
-                            break;
-                        default:
-                            break;
+                        DoCastAOE(SPELL_PERSONAL_PHALANX_SUMMON_FIXATE_TRIGGER, true);
+                        events.Repeat(8s + 500ms);
                     }
-                }
-                DoMeleeAttackIfReady();
-            }
-            private:
-                int8 _lastWeapon;
-        };
-
-        CreatureAI* GetAI(Creature *creature) const override
-        {
-            return GetGrimBatolAI<boss_forgemaster_throngusAI>(creature);
-        }
-};
-
-// The following script is needed to prevent permanent resets due to a core bug
-class npc_throngus_cave_in : public CreatureScript
-{
-    public:
-        npc_throngus_cave_in() : CreatureScript("npc_throngus_cave_in") { }
-
-        struct npc_throngus_cave_inAI : public NullCreatureAI
-        {
-            npc_throngus_cave_inAI(Creature* creature) : NullCreatureAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                DoCastAOE(SPELL_CAVE_IN_VISUAL);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetGrimBatolAI<npc_throngus_cave_inAI>(creature);
-        }
-};
-
-class spell_throngus_mighty_stomp : public SpellScriptLoader
-{
-    public:
-        spell_throngus_mighty_stomp() : SpellScriptLoader("spell_throngus_mighty_stomp") { }
-
-        class spell_throngus_mighty_stomp_SpellScript : public SpellScript
-        {
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                PreventHitEffect(effIndex);
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect.Register(&spell_throngus_mighty_stomp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget.Register(&spell_throngus_mighty_stomp_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_throngus_mighty_stomp_SpellScript();
-        }
-};
-
-class spell_throngus_pick_weapon : public SpellScriptLoader
-{
-    public:
-        spell_throngus_pick_weapon() : SpellScriptLoader("spell_throngus_pick_weapon") { }
-
-        class spell_throngus_pick_weapon_SpellScript : public SpellScript
-        {
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (GetCaster()->GetEntry() == BOSS_FORGEMASTER_THRONGUS)
-                    GetCaster()->ToCreature()->AI()->DoAction(ACTION_PICK_WEAPON);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_throngus_pick_weapon_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_throngus_pick_weapon_SpellScript();
-        }
-};
-
-class spell_throngus_flame_arrow_barrage : public SpellScriptLoader
-{
-    public:
-        spell_throngus_flame_arrow_barrage() : SpellScriptLoader("spell_throngus_flame_arrow_barrage") { }
-
-        class spell_throngus_flame_arrow_barrage_SpellScript : public SpellScript
-        {
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 5);
-            }
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                PreventHitEffect(effIndex);
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect.Register(&spell_throngus_flame_arrow_barrage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-                OnEffectHitTarget.Register(&spell_throngus_flame_arrow_barrage_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_throngus_flame_arrow_barrage_SpellScript();
-        }
-};
-
-class spell_throngus_flaming_arrow : public SpellScriptLoader
-{
-    public:
-        spell_throngus_flaming_arrow() : SpellScriptLoader("spell_throngus_flaming_arrow") { }
-
-        class spell_throngus_flaming_arrow_SpellScript : public SpellScript
-        {
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect.Register(&spell_throngus_flaming_arrow_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_throngus_flaming_arrow_SpellScript();
-        }
-};
-
-class spell_throngus_personal_phalanx : public SpellScriptLoader
-{
-    public:
-        spell_throngus_personal_phalanx() : SpellScriptLoader("spell_throngus_personal_phalanx") { }
-
-        class spell_throngus_personal_phalanx_AuraScript : public AuraScript
-        {
-            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->CastSpell(target, aurEff->GetAmount(), true);
-
-                if (Creature * throngus = target->ToCreature())
-                    if (throngus->IsAIEnabled())
-                        throngus->AI()->DoAction(ACTION_START_PHALLANX);
-
-                target->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
-            }
-
-            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                if (Creature* throngus = target->ToCreature())
-                    if (throngus->IsAIEnabled())
-                        throngus->AI()->DoAction(ACTION_END_PHALLANX);
-
-                target->ModifyAuraState(AURA_STATE_UNKNOWN22, false);
-            }
-
-            void Register() override
-            {
-                OnEffectApply.Register(&spell_throngus_personal_phalanx_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove.Register(&spell_throngus_personal_phalanx_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_throngus_personal_phalanx_AuraScript();
-        }
-};
-
-class spell_throngus_personal_phalanx_aoe : public SpellScriptLoader
-{
-    public:
-        spell_throngus_personal_phalanx_aoe() : SpellScriptLoader("spell_throngus_personal_phalanx_aoe") { }
-
-        class spell_throngus_personal_phalanx_aoe_SpellScript : public SpellScript
-        {
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void HandleSummon(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect.Register(&spell_throngus_personal_phalanx_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget.Register(&spell_throngus_personal_phalanx_aoe_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_throngus_personal_phalanx_aoe_SpellScript();
-        }
-};
-
-class spell_throngus_fixate_effect : public SpellScriptLoader
-{
-    public:
-        spell_throngus_fixate_effect() : SpellScriptLoader("spell_throngus_fixate_effect") { }
-
-        class spell_throngus_fixate_effect_SpellScript : public SpellScript
-        {
-            void HandleHit(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->SetOrientation(caster->GetAngle(GetHitUnit()));
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_throngus_fixate_effect_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_throngus_fixate_effect_SpellScript();
-        }
-};
-
-class spell_throngus_burning_dual_blades : public SpellScriptLoader
-{
-    public:
-        spell_throngus_burning_dual_blades() : SpellScriptLoader("spell_throngus_burning_dual_blades") { }
-
-        class spell_throngus_burning_dual_blades_AuraScript : public AuraScript
-        {
-            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->SetCanDualWield(true);
-                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_SWORD);
-                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, WEAPON_MODEL_SWORD);
-            }
-
-            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                target->SetCanDualWield(false);
-                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-            }
-
-            void Register() override
-            {
-                AfterEffectApply.Register(&spell_throngus_burning_dual_blades_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove.Register(&spell_throngus_burning_dual_blades_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_throngus_burning_dual_blades_AuraScript();
-        }
-};
-
-class spell_throngus_disorienting_roar : public SpellScriptLoader
-{
-    public:
-        spell_throngus_disorienting_roar() : SpellScriptLoader("spell_throngus_disorienting_roar") { }
-
-        class spell_throngus_disorienting_roar_SpellScript : public SpellScript
-        {
-            void HandleHeroicDifficulty()
-            {
-                if (Unit* target = GetHitUnit())
-                    if (target->GetMap()->IsHeroic())
-                        if (Aura* disorientingRoar = target->GetAura(GetSpellInfo()->Id))
-                            disorientingRoar->SetStackAmount(STACK_AMOUNT_DISORIENTING_ROAR_HC);
-            }
-
-            void Register() override
-            {
-                AfterHit.Register(&spell_throngus_disorienting_roar_SpellScript::HandleHeroicDifficulty);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_throngus_disorienting_roar_SpellScript();
-        }
-
-        class spell_throngus_disorienting_roar_AuraScript : public AuraScript
-        {
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                if (Aura* aura = GetAura())
-                {
-                    uint8 stack = aura->GetStackAmount();
-                    if (stack > 1)
+                    break;
+                case EVENT_FIXATE_EFFECT:
+                    if (Creature* stalker = me->FindNearestCreature(NPC_FIXATE_STALKER, 500.0f, true))
+                        DoCast(stalker, SPELL_FIXATE_EFFECT);
+                    break;
+                case EVENT_FLAMING_SHIELD:
+                    DoCastSelf(SPELL_FLAMING_SHIELD, true);
+                    break;
+                case EVENT_DISORIENTING_ROAR:
+                    if (me->CanDualWield())
                     {
-                        aura->SetStackAmount(stack - 1);
-                        return false;
+                        DoCastAOE(SPELL_DISORIENTING_ROAR, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, IsHeroic() ? 3 : 1));
+                        events.Repeat(22s);
                     }
-                    else
-                        aura->Remove();
-                }
-                return false;
+                    break;
+                case EVENT_IMPALING_SLAM:
+                    if (me->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID) == WEAPON_MODEL_MACE)
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me, true)))
+                            DoCast(target, SPELL_IMPALING_SLAM);
+                        events.Repeat(15s + 500ms);
+                    }
+                    break;
+                default:
+                    break;
             }
-
-            void Register() override
-            {
-                DoCheckProc.Register(&spell_throngus_disorienting_roar_AuraScript::CheckProc);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_throngus_disorienting_roar_AuraScript();
         }
+        DoMeleeAttackIfReady();
+    }
+private:
+    int8 _lastWeapon;
 };
 
-class spell_throngus_encumbered : public SpellScriptLoader
+class spell_throngus_mighty_stomp : public SpellScript
 {
-    public:
-        spell_throngus_encumbered() : SpellScriptLoader("spell_throngus_encumbered") { }
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        PreventHitEffect(effIndex);
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(target, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
+    }
 
-        class spell_throngus_encumbered_AuraScript : public AuraScript
-        {
-            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_MACE);
-            }
-
-            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-            }
-
-            void Register() override
-            {
-                AfterEffectApply.Register(&spell_throngus_encumbered_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove.Register(&spell_throngus_encumbered_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_throngus_encumbered_AuraScript();
-        }
+    void Register()
+    {
+        OnEffectHitTarget.Register(&spell_throngus_mighty_stomp::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+    }
 };
 
-class spell_throngus_impaling_slam : public SpellScriptLoader
+class spell_throngus_pick_weapon : public SpellScript
 {
-    public:
-        spell_throngus_impaling_slam() : SpellScriptLoader("spell_throngus_impaling_slam") { }
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->DoAction(ACTION_PICK_WEAPON);
+    }
 
-        class spell_throngus_impaling_slam_AuraScript : public AuraScript
-        {
-            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit * target = GetTarget())
-                        target->CastSpell(caster, VEHICLE_SPELL_RIDE_HARDCODED, true);
-            }
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_throngus_pick_weapon::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
 
-            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                if (target->GetVehicleBase())
-                    target->ExitVehicle();
-            }
+class spell_throngus_flame_arrow_barrage : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() < 5)
+            return;
 
-            void Register() override
-            {
-                AfterEffectApply.Register(&spell_throngus_impaling_slam_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove.Register(&spell_throngus_impaling_slam_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
+        Trinity::Containers::RandomResize(targets, 5);
+    }
 
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_throngus_impaling_slam_AuraScript();
-        }
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        PreventHitEffect(effIndex);
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(target, GetSpellInfo()->Effects[effIndex].TriggerSpell, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect.Register(&spell_throngus_flame_arrow_barrage::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget.Register(&spell_throngus_flame_arrow_barrage::HandleHit, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+    }
+};
+
+class spell_throngus_personal_phalanx : public AuraScript
+{
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, aurEff->GetAmount(), true);
+
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->DoAction(ACTION_START_PHALLANX);
+
+        target->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (Creature* throngus = target->ToCreature())
+            if (throngus->IsAIEnabled())
+                throngus->AI()->DoAction(ACTION_END_PHALLANX);
+
+        target->ModifyAuraState(AURA_STATE_UNKNOWN22, false);
+    }
+
+    void Register() override
+    {
+        OnEffectApply.Register(&spell_throngus_personal_phalanx::AfterApply, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_throngus_personal_phalanx::AfterRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_throngus_personal_phalanx_aoe : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleSummon(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect.Register(&spell_throngus_personal_phalanx_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_throngus_personal_phalanx_aoe::HandleSummon, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+    }
+};
+
+class spell_throngus_burning_dual_blades : public AuraScript
+{
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetCanDualWield(true);
+        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_SWORD);
+        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, WEAPON_MODEL_SWORD);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetCanDualWield(false);
+        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_throngus_burning_dual_blades::AfterApply, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_throngus_burning_dual_blades::AfterRemove, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_throngus_disorienting_roar : public AuraScript
+{
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        GetAura()->ModStackAmount(-1);
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_throngus_disorienting_roar::HandleProc, EFFECT_0, SPELL_AURA_MOD_SPEED_SLOW_ALL);
+    }
+};
+
+class spell_throngus_encumbered : public AuraScript
+{
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_MACE);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_throngus_encumbered::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_throngus_encumbered::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_throngus_impaling_slam : public AuraScript
+{
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        // @todo: this should be handled by a serverside spell
+        if (Unit* caster = GetCaster())
+            if (Unit* target = GetTarget())
+                target->CastSpell(caster, VEHICLE_SPELL_RIDE_HARDCODED, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->GetVehicleBase())
+            target->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_throngus_impaling_slam::AfterApply, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_throngus_impaling_slam::AfterRemove, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 void AddSC_boss_forgemaster_throngus()
 {
-    new boss_forgemaster_throngus();
-    new npc_throngus_cave_in();
-    new spell_throngus_mighty_stomp();
-    new spell_throngus_pick_weapon();
-    new spell_throngus_flame_arrow_barrage();
-    new spell_throngus_flaming_arrow();
-    new spell_throngus_personal_phalanx();
-    new spell_throngus_personal_phalanx_aoe();
-    new spell_throngus_fixate_effect();
-    new spell_throngus_burning_dual_blades();
-    new spell_throngus_disorienting_roar();
-    new spell_throngus_encumbered();
-    new spell_throngus_impaling_slam();
+    RegisterGrimBatolCreatureAI(boss_forgemaster_throngus);
+    RegisterSpellScript(spell_throngus_mighty_stomp);
+    RegisterSpellScript(spell_throngus_pick_weapon);
+    RegisterSpellScript(spell_throngus_flame_arrow_barrage);
+    RegisterSpellScript(spell_throngus_personal_phalanx);
+    RegisterSpellScript(spell_throngus_personal_phalanx_aoe);
+    RegisterSpellScript(spell_throngus_burning_dual_blades);
+    RegisterSpellScript(spell_throngus_disorienting_roar);
+    RegisterSpellScript(spell_throngus_encumbered);
+    RegisterSpellScript(spell_throngus_impaling_slam);
 }
