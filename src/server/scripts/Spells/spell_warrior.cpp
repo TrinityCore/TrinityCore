@@ -98,16 +98,15 @@ class spell_warr_bloodthirst : public SpellScript
             SetEffectValue(CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK) * GetEffectValue(), 1));
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleBloodthirstHealEffect()
     {
-        int32 damage = GetEffectValue();
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, { SPELLVALUE_BASE_POINT0, damage });
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_BLOODTHIRST, true);
     }
 
     void Register() override
     {
         OnEffectLaunchTarget.Register(&spell_warr_bloodthirst::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnEffectHit.Register(&spell_warr_bloodthirst::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        AfterHit.Register(&spell_warr_bloodthirst::HandleBloodthirstHealEffect);
     }
 };
 
