@@ -19,6 +19,11 @@
     \ingroup world
 */
 
+// @tswow-begin
+#include "TSLibLoader.h"
+#include "TSEventLoader.h"
+#include "TSLua.h"
+// @tswow-end
 #include "World.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -2127,6 +2132,17 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature Text Locales...");
     sCreatureTextMgr->LoadCreatureTextLocales();
+
+    // @tswow-begin
+    sScriptMgr->SetScriptContext("tswow");
+    TSInitializeEvents();
+    UpdateTSLibraries(false);
+    sScriptMgr->SwapScriptContext(true);
+    if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false))
+    {
+        TSLuaState::Load();
+    }
+    // @tswow-end
 
     TC_LOG_INFO("server.loading", "Initializing Scripts...");
     sScriptMgr->Initialize();

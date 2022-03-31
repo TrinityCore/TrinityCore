@@ -21,8 +21,6 @@
 
 // @tswow-begin
 #include "TSLibLoader.h"
-#include "TSEventLoader.h"
-#include "TSLua.h"
 // @tswow-end
 #include "Common.h"
 #include "AppenderDB.h"
@@ -369,17 +367,6 @@ extern int main(int argc, char** argv)
         ClearOnlineAccounts();
     });
 
-    // @tswow-begin
-    sScriptMgr->SetScriptContext("tswow");
-    TSInitializeEvents();
-    UpdateTSLibraries(false);
-    sScriptMgr->SwapScriptContext(true);
-    if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false))
-    {
-        TSLuaState::Load();
-    }
-
-    // @tswow-end
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
