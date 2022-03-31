@@ -46,6 +46,7 @@ enum WarriorSpells
     SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC              = 12721,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_EXECUTION                = 58367,
+    SPELL_WARRIOR_INTERCEPT                         = 20252,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
@@ -1005,6 +1006,25 @@ class spell_warr_heroic_leap : public SpellScript
     }
 };
 
+// 60970 - Heroic Fury
+class spell_warr_heroic_fury : public SpellScript
+{
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    void HandleCooldownReset(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_INTERCEPT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_warr_heroic_fury::HandleCooldownReset, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_blood_craze);
@@ -1017,6 +1037,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_devastate);
     RegisterSpellScript(spell_warr_execute);
     RegisterSpellScript(spell_warr_glyph_of_sunder_armor);
+    RegisterSpellScript(spell_warr_heroic_fury);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_intimidating_shout);
     RegisterSpellScript(spell_warr_lambs_to_the_slaughter);
