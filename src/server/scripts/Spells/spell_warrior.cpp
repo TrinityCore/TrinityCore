@@ -536,7 +536,7 @@ class spell_warr_slam_triggered : public SpellScript
         int32 basePoints = GetEffectValue();
 
         // Bloodsurge damage bonus
-        if (caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_WARRIOR, 0x0, 0x1000000, 0x0, caster->GetGUID()) != nullptr)
+        if (_affectedByBloodsurge)
             if (Aura const* aura = caster->GetAuraOfRankedSpell(SPELL_WARRIOR_BLOODSURGE_R1))
                 if (AuraEffect const* effect = aura->GetEffect(EFFECT_0))
                     AddPct(basePoints, effect->GetAmount());
