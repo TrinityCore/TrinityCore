@@ -78,6 +78,12 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 
     FirstLogin = (atLoginFlags & AT_LOGIN_FIRST) != 0;
 
+    if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
+        Flags |= CHARACTER_FLAG_HIDE_HELM;
+
+    if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
+        Flags |= CHARACTER_FLAG_HIDE_CLOAK;
+
     // show pet at selection character in character list only for non-ghost character
     if (!(playerFlags & PLAYER_FLAGS_GHOST) && (ClassID == CLASS_WARLOCK || ClassID == CLASS_HUNTER || ClassID == CLASS_DEATH_KNIGHT))
     {
