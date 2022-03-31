@@ -417,8 +417,11 @@ class spell_brewfest_mount_transformation : public SpellScript
 /*
     Brew of the Month
  January   [Wild Winter Pilsner]
+    spell_brewfest_botm_the_beast_within
  February  [Izzard's Ever Flavor]
+    spell_brewfest_botm_gassy
  March     [Aromatic Honey Brew]
+    Nothing to script here
  April     [Metok's Bubble Bock]
     spell_brewfest_botm_bloated
     Incomplete (spells 49828, 49827, 49830, 49837)
@@ -427,14 +430,70 @@ class spell_brewfest_mount_transformation : public SpellScript
  June      [Blackrock Lager]
     spell_brewfest_botm_internal_combustion
  July      [Stranglethorn Brew]
+    spell_brewfest_botm_jungle_madness
  August    [Draenic Pale Ale]
+    NYI
  September [Binary Brew]
     spell_brewfest_botm_teach_language
  October   [Autumnal Acorn Ale]
+    NYI
  November  [Bartlett's Bitter Brew]
+    NYI
  December  [Lord of Frost's Private Label]
     Nothing to script here
 */
+
+enum WildWinterPilsner
+{
+    SPELL_BOTM_UNLEASH_THE_BEAST    = 50099
+};
+
+// 50098 - The Beast Within
+class spell_brewfest_botm_the_beast_within : public AuraScript
+{
+    PrepareAuraScript(spell_brewfest_botm_the_beast_within);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BOTM_UNLEASH_THE_BEAST });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_BOTM_UNLEASH_THE_BEAST);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_brewfest_botm_the_beast_within::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum IzzardsEverFlavor
+{
+    SPELL_BOTM_BELCH_BREW_BELCH_VISUAL    = 49860
+};
+
+// 49864 - Gassy
+class spell_brewfest_botm_gassy : public AuraScript
+{
+    PrepareAuraScript(spell_brewfest_botm_gassy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BOTM_BELCH_BREW_BELCH_VISUAL });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_BOTM_BELCH_BREW_BELCH_VISUAL, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_brewfest_botm_gassy::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
 
 enum MetoksBubbleBock
 {
@@ -485,6 +544,32 @@ class spell_brewfest_botm_internal_combustion : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_brewfest_botm_internal_combustion::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum StranglethornBrew
+{
+    SPELL_BOTM_JUNGLE_BREW_VISION_EFFECT    = 50010
+};
+
+// 49962 - Jungle Madness!
+class spell_brewfest_botm_jungle_madness : public SpellScript
+{
+    PrepareSpellScript(spell_brewfest_botm_jungle_madness);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BOTM_JUNGLE_BREW_VISION_EFFECT });
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_BOTM_JUNGLE_BREW_VISION_EFFECT, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_brewfest_botm_jungle_madness::HandleAfterCast);
     }
 };
 
@@ -590,8 +675,11 @@ void AddSC_event_brewfest()
     RegisterSpellScript(spell_brewfest_dismount_ram);
     RegisterSpellScript(spell_brewfest_barker_bunny);
     RegisterSpellScript(spell_brewfest_mount_transformation);
+    RegisterSpellScript(spell_brewfest_botm_the_beast_within);
+    RegisterSpellScript(spell_brewfest_botm_gassy);
     RegisterSpellScript(spell_brewfest_botm_bloated);
     RegisterSpellScript(spell_brewfest_botm_internal_combustion);
+    RegisterSpellScript(spell_brewfest_botm_jungle_madness);
     RegisterSpellScript(spell_brewfest_botm_teach_language);
     RegisterSpellScript(spell_brewfest_botm_weak_alcohol);
     RegisterSpellScript(spell_brewfest_botm_empty_bottle_throw_resolve);
