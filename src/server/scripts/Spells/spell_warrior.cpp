@@ -35,10 +35,10 @@
 
 enum WarriorSpells
 {
+    SPELL_WARRIOR_BATTLE_TRANCE_TRIGGERED           = 12964,
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
-    SPELL_WARRIOR_BLOODSURGE                        = 46916,
     SPELL_WARRIOR_BLOODSURGE_R1                     = 46913,
     SPELL_WARRIOR_CHARGE_ENERGIZE                   = 34846,
     SPELL_WARRIOR_CHARGE_STUN                       = 7922,
@@ -479,9 +479,13 @@ class spell_warr_slam : public SpellScript
             {
                 SPELL_WARRIOR_SLAM_MAIN_HAND,
                 SPELL_WARRIOR_SLAM_OFF_HAND,
-                SPELL_WARRIOR_BLOODSURGE,
-                SPELL_WARRIOR_BLOODSURGE_R1
+                SPELL_WARRIOR_BATTLE_TRANCE_TRIGGERED
             });
+    }
+
+    void HandleBeforeCast()
+    {
+        _affectedByBloodsurge = GetCaster()->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_WARRIOR, 0x0, 0x1000000, 0x0, GetCaster()->GetGUID()) != nullptr;
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -495,29 +499,32 @@ class spell_warr_slam : public SpellScript
 
         if (caster->GetAuraEffect(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_SINGLE_MINDED_FURY, EFFECT_0))
             caster->CastSpell(target, SPELL_WARRIOR_SLAM_OFF_HAND, true);
+
+        // Battle Trance shall only be consumed by Slam when Bloodsurge is currently not active
+        // @todo: investigate why the Battle Trance proc does not fire off when Slam is being casted despite being in the affected spell family mask
+        if (!_affectedByBloodsurge)
+            caster->RemoveAurasDueToSpell(SPELL_WARRIOR_BATTLE_TRANCE_TRIGGERED, caster->GetGUID());
     }
 
     void Register() override
     {
+        BeforeCast.Register(&spell_warr_slam::HandleBeforeCast);
         OnEffectLaunchTarget.Register(&spell_warr_slam::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+private:
+    bool _affectedByBloodsurge = false;
 };
 
 class spell_warr_slam_triggered : public SpellScript
 {
-    bool Load() override
-    {
-        _bloodsurgeBonusActive = GetCaster()->HasAura(SPELL_WARRIOR_BLOODSURGE, GetCaster()->GetGUID());
-        return true;
-    }
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_WARRIOR_BLOODSURGE,
-                SPELL_WARRIOR_BLOODSURGE_R1
-            });
+        return ValidateSpellInfo({ SPELL_WARRIOR_BLOODSURGE_R1 });
+    }
+
+    void HandleBeforeCast()
+    {
+        _affectedByBloodsurge = GetCaster()->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_WARRIOR, 0x0, 0x1000000, 0x0, GetCaster()->GetGUID()) != nullptr;
     }
 
     void HandleBonusDamage(SpellEffIndex /*effIndex*/)
@@ -527,7 +534,9 @@ class spell_warr_slam_triggered : public SpellScript
             return;
 
         int32 basePoints = GetEffectValue();
-        if (_bloodsurgeBonusActive)
+
+        // Bloodsurge damage bonus
+        if (caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_WARRIOR, 0x0, 0x1000000, 0x0, caster->GetGUID()) != nullptr)
             if (Aura const* aura = caster->GetAuraOfRankedSpell(SPELL_WARRIOR_BLOODSURGE_R1))
                 if (AuraEffect const* effect = aura->GetEffect(EFFECT_0))
                     AddPct(basePoints, effect->GetAmount());
@@ -537,10 +546,11 @@ class spell_warr_slam_triggered : public SpellScript
 
     void Register() override
     {
+        BeforeCast.Register(&spell_warr_slam_triggered::HandleBeforeCast);
         OnEffectLaunchTarget.Register(&spell_warr_slam_triggered::HandleBonusDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
     }
 private:
-    bool _bloodsurgeBonusActive = false;
+    bool _affectedByBloodsurge = false;
 };
 
 class spell_warr_second_wind_proc : public AuraScript
