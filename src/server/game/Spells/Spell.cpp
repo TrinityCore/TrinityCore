@@ -8906,7 +8906,10 @@ CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
             Targets.emplace();
             Targets->SetGOTarget(goTarget);
         }
+        // error when targeting anything other than units and gameobjects
     }
+    else
+        Targets.emplace(); // nullptr is allowed
 }
 
 CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeringSpell)
