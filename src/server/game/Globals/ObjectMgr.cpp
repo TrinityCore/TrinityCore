@@ -3689,14 +3689,24 @@ void ObjectMgr::LoadSingleItemTemplate(std::string entry)
     };
 }
 
-ItemTemplate* ObjectMgr::LoadSingleItemTemplateObject(ItemTemplate* itemInfo)
+ItemTemplate* ObjectMgr::LoadSingleItemTemplateObject(uint32 entry)
 {
-    if (_itemTemplateStore.count(itemInfo->ItemId)) {
-        return &_itemTemplateStore[itemInfo->ItemId];
+    return &_itemTemplateStore[entry];
+}
+
+struct VirtualItemTemplate : ItemTemplate
+{
+   VirtualItemTemplate(ItemTemplate* base, uint32 newEntry) : ItemTemplate(*base)
+    {
+        base->ItemId = newEntry;
     }
-    _itemTemplateStore[itemInfo->ItemId] = *itemInfo;
-    itemInfo->_LoadTotalAP();
-    return &_itemTemplateStore[itemInfo->ItemId];
+};
+
+ItemTemplate* ObjectMgr::LoadSingleItemTemplateObject(uint32 entry, uint32 copyID)
+{
+    _itemTemplateStore[entry] = VirtualItemTemplate(const_cast<ItemTemplate*>(sObjectMgr->GetItemTemplate(copyID)), entry);
+    _itemTemplateStore[entry]._LoadTotalAP();
+    return &_itemTemplateStore[entry];
 }
 
 void ObjectMgr::LoadCustomItemTemplates()
