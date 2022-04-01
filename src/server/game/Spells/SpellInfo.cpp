@@ -1517,7 +1517,7 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
 
 bool SpellInfo::CausesInitialThreat() const
 {
-    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT));
+    return !HasAttribute(SPELL_ATTR1_NO_THREAT) && !HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT) && !HasAttribute(SPELL_ATTR0_CU_NO_INITIAL_THREAT);
 }
 
 WeaponAttackType SpellInfo::GetAttackType() const
