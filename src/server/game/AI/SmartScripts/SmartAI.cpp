@@ -69,8 +69,8 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
 
     if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
     {
-        _escortNPCFlags = me->m_unitData->NpcFlags[0];
-        me->ReplaceAllNpcFlags((NPCFlags)0);
+        _escortNPCFlags = me->GetNpcFlags();
+        me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
     me->GetMotionMaster()->MovePath(_path, _repeatWaypointPath);

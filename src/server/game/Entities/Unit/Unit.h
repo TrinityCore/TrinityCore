@@ -2124,9 +2124,4 @@ namespace Trinity
     };
 }
 
-inline void SetUnitCurrentCastSpell(Unit* unit, Spell* spell)
-{
-    unit->SetCurrentCastSpell(spell);
-}
-
 #endif

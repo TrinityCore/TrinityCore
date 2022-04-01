@@ -571,7 +571,7 @@ public:
         return true;
     }
 
-    static bool HandleGameObjectSetStateCommand(ChatHandler* handler, GameObjectSpawnId guidLow, int32 objectType, Optional<int32> objectState)
+    static bool HandleGameObjectSetStateCommand(ChatHandler* handler, GameObjectSpawnId guidLow, int32 objectType, Optional<uint32> objectState)
     {
         if (!guidLow)
             return false;
@@ -614,7 +614,7 @@ public:
                 object->SendCustomAnim(*objectState);
                 break;
             case 5:
-                if (objectState < 0 || objectState > GO_DESTRUCTIBLE_REBUILDING)
+                if (*objectState > GO_DESTRUCTIBLE_REBUILDING)
                     return false;
 
                 object->SetDestructibleState(GameObjectDestructibleState(*objectState));
