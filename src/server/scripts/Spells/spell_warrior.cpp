@@ -1025,6 +1025,69 @@ class spell_warr_heroic_fury : public SpellScript
     }
 };
 
+// 55694 - Enraged Regeneration
+class spell_warr_enraged_regeneration : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_VENGEANCE });
+    }
+
+    SpellCastResult CheckCast()
+    {
+        // Vengeance also applies the enrage aurastate but it does not use the enrage mechanic unlike the other enrage effects. So we check for that.
+        bool hasNonVengeanceEnrage = [&]()
+        {
+            for (auto& itr : GetCaster()->GetAppliedAuras())
+            {
+                SpellInfo const* spellInfo = itr.second->GetBase()->GetSpellInfo();
+                if (spellInfo->Id == SPELL_WARRIOR_VENGEANCE)
+                    continue;
+
+                if (spellInfo->Mechanic && ((1 << MECHANIC_ENRAGED) & (1 << spellInfo->Mechanic)) != 0)
+                    return true;
+
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    if (itr.second->HasEffect(i) && spellInfo->Effects[i].Effect && spellInfo->Effects[i].Mechanic)
+                        if ((1 << MECHANIC_ENRAGED) & (1 << spellInfo->Effects[i].Mechanic))
+                            return true;
+            }
+
+            return false;
+        }();
+
+        if (!hasNonVengeanceEnrage)
+            return SPELL_FAILED_CASTER_AURASTATE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast.Register(&spell_warr_enraged_regeneration::CheckCast);
+    }
+};
+
+
+class spell_warr_enraged_regeneration_AuraScript: public AuraScript
+{
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ENRAGED, true);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ENRAGED, false);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_warr_enraged_regeneration_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_warr_enraged_regeneration_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_blood_craze);
@@ -1035,6 +1098,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_concussion_blow);
     RegisterSpellScript(spell_warr_deep_wounds);
     RegisterSpellScript(spell_warr_devastate);
+    RegisterSpellAndAuraScriptPair(spell_warr_enraged_regeneration, spell_warr_enraged_regeneration_AuraScript);
     RegisterSpellScript(spell_warr_execute);
     RegisterSpellScript(spell_warr_glyph_of_sunder_armor);
     RegisterSpellScript(spell_warr_heroic_fury);
