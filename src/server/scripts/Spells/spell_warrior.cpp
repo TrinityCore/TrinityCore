@@ -856,6 +856,8 @@ class spell_warr_thunder_clap : public SpellScript
     bool Load() override
     {
         _allowRendSpread = false;
+
+        return true;
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
