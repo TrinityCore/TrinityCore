@@ -1068,17 +1068,16 @@ class spell_warr_enraged_regeneration : public SpellScript
     }
 };
 
-
 class spell_warr_enraged_regeneration_AuraScript: public AuraScript
 {
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ENRAGED, true);
+        GetTarget()->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ENRAGED, true);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ENRAGED, false);
+        GetTarget()->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ENRAGED, false);
     }
 
     void Register() override
