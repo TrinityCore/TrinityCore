@@ -47,7 +47,8 @@ enum Sounds
 
 enum Gossips
 {
-    GOSSIP_HCB              = 5851
+    GOSSIP_MENU_HCB         = 5851,
+    GOSSIP_OPTION_HCB       = 0
 };
 
 /// @todo verify abilities/timers
@@ -145,7 +146,7 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_HCB, 1, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+                AddGossipItemFor(player, GOSSIP_MENU_HCB, GOSSIP_OPTION_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
 
             SendGossipMenuFor(player, 7013, me->GetGUID());
 
