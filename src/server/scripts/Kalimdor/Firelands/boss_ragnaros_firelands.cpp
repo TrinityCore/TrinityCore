@@ -892,6 +892,7 @@ private:
         EntryCheckPredicate pred(NPC_LAVA_SCION);
         summons.DoAction(ACTION_DISENGAGE, pred);
         summons.DespawnAll();
+        me->InterruptNonMeleeSpells(true);
         instance->instance->SpawnGroupDespawn(SPAWN_GROUP_ID_RAGNAROS_STALKERS);
         events.Reset();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
