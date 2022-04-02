@@ -856,18 +856,21 @@ class spell_warr_thunder_clap : public SpellScript
     bool Load() override
     {
         _allowRendSpread = false;
-        if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_BLOOD_AND_THUNDER, EFFECT_0))
-            return roll_chance_i(aurEff->GetAmount());
-
-        return false;
     }
 
-    void FilterTargets(std::list<WorldObject*>& unitList)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        for (std::list<WorldObject*>::const_iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-            if (Unit* target = (*itr)->ToUnit())
-                if (target->HasAura(SPELL_WARRIOR_REND))
-                    _allowRendSpread = true;
+        AuraEffect const* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_BLOOD_AND_THUNDER, EFFECT_0);
+        if (!aurEff || !roll_chance_i(aurEff->GetAmount()))
+            return;
+
+        for (WorldObject const* target : targets)
+        {
+            if (!target->IsUnit() || !target->ToUnit()->HasAura(SPELL_WARRIOR_REND, GetCaster()->GetGUID()))
+                continue;
+
+            _allowRendSpread = true;
+        }
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
@@ -881,7 +884,6 @@ class spell_warr_thunder_clap : public SpellScript
         OnObjectAreaTargetSelect.Register(&spell_warr_thunder_clap::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget.Register(&spell_warr_thunder_clap::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
-
 private:
     bool _allowRendSpread;
 };
