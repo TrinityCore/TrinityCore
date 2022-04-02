@@ -5059,6 +5059,32 @@ class spell_item_satisfied : public SpellScript
     }
 };
 
+enum Herbouflage
+{
+    SPELL_NOURISHMENT_HEALTH    = 88753,
+    SPELL_NOURISHMENT_MANA      = 88754
+};
+
+// 88715 - Herbouflage
+class spell_item_herbouflage : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_NOURISHMENT_HEALTH, SPELL_NOURISHMENT_MANA });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        for (uint32 spellId : { SPELL_NOURISHMENT_HEALTH, SPELL_NOURISHMENT_MANA })
+            GetTarget()->RemoveAurasDueToSpell(spellId, GetTarget()->GetGUID());
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove.Register(&spell_item_herbouflage::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -5098,6 +5124,7 @@ void AddSC_item_spell_scripts()
     new spell_item_healing_touch_refund();
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
+    RegisterSpellScript(spell_item_herbouflage);
     new spell_item_crystal_spire_of_karabor();
     new spell_item_make_a_wish();
     new spell_item_mark_of_conquest();
