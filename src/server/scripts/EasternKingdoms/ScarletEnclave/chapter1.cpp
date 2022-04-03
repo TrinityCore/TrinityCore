@@ -472,14 +472,16 @@ struct npc_eye_of_acherus : public ScriptedAI
                     break;
                 case EVENT_LAUNCH_TOWARDS_DESTINATION:
                 {
-                    Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
-                    Movement::MoveSplineInit init(me);
-                    init.MovebyPath(path);
-                    init.SetFly();
-                    if (Unit* owner = me->GetCharmerOrOwner())
-                        init.SetVelocity(owner->GetSpeed(MOVE_RUN));
+                    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+                    {
+                        Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
+                        init.MovebyPath(path);
+                        init.SetFly();
+                        if (Unit* owner = me->GetCharmerOrOwner())
+                            init.SetVelocity(owner->GetSpeed(MOVE_RUN));
+                    };
 
-                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_NEW_AVALON, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                    me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_NEW_AVALON, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                     break;
                 }
                 case EVENT_GRANT_CONTROL:

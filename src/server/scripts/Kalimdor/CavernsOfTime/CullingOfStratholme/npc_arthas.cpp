@@ -1466,12 +1466,14 @@ public:
                         if (Creature* chromie = instance->instance->SummonCreature(NPC_CHROMIE_3, ArthasPositions[RP5_CHROMIE_SPAWN]))
                         {
                             chromie->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                            Movement::PointsArray path(ChromieSplinePos, ChromieSplinePos + chromiePathSize);
-                            Movement::MoveSplineInit init(chromie);
-                            init.SetFly();
-                            init.SetWalk(true);
-                            init.MovebyPath(path, 0);
-                            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                            std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+                            {
+                                Movement::PointsArray path(ChromieSplinePos, ChromieSplinePos + chromiePathSize);
+                                init.SetFly();
+                                init.SetWalk(true);
+                                init.MovebyPath(path, 0);
+                            };
+                            chromie->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                         }
                         break;
                     case RP5_EVENT_CHROMIE_LAND:

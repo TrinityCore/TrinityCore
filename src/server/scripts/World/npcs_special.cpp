@@ -2398,11 +2398,13 @@ public:
                     break;
             }
 
-            Movement::MoveSplineInit init(who);
-            init.DisableTransportPathTransformations();
-            init.MoveTo(x, y, z, false);
-            init.SetFacing(o);
-            who->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
+            std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+            {
+                init.DisableTransportPathTransformations();
+                init.MoveTo(x, y, z, false);
+                init.SetFacing(o);
+            };
+            who->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
             who->m_Events.AddEvent(new CastFoodSpell(who, _chairSpells.at(who->GetEntry())), who->m_Events.CalculateTime(1s));
             if (who->GetTypeId() == TYPEID_UNIT)
                 who->SetDisplayId(who->ToCreature()->GetCreatureTemplate()->Modelid1);

@@ -474,10 +474,12 @@ public:
         if (!_owner->IsAlive())
             return true;
 
-        Movement::MoveSplineInit init(_owner);
-        init.DisableTransportPathTransformations();
-        init.MoveTo(_dest.GetPositionX(), _dest.GetPositionY(), _dest.GetPositionZ(), false);
-        _owner->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+        std::function<void(Movement::MoveSplineInit&)> initializer = [dest = _dest](Movement::MoveSplineInit& init)
+        {
+            init.DisableTransportPathTransformations();
+            init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
+        };
+        _owner->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
         return true;
     }
@@ -568,10 +570,12 @@ struct gunship_npc_AI : public ScriptedAI
             me->GetTransport()->CalculatePassengerPosition(hx, hy, hz, &ho);
             me->SetHomePosition(hx, hy, hz, ho);
 
-            Movement::MoveSplineInit init(me);
-            init.DisableTransportPathTransformations();
-            init.MoveTo(x, y, z, false);
-            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+            std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+            {
+                init.DisableTransportPathTransformations();
+                init.MoveTo(x, y, z, false);
+            };
+            me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
         }
     }
 
@@ -934,11 +938,13 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
         }
         else if (action == ACTION_EXIT_SHIP)
         {
-            Movement::PointsArray path(SaurfangExitPath, SaurfangExitPath + SaurfangExitPathSize);
-            Movement::MoveSplineInit init(me);
-            init.DisableTransportPathTransformations();
-            init.MovebyPath(path, 0);
-            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+            std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+            {
+                Movement::PointsArray path(SaurfangExitPath, SaurfangExitPath + SaurfangExitPathSize);
+                init.DisableTransportPathTransformations();
+                init.MovebyPath(path, 0);
+            };
+            me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
             me->DespawnOrUnsummon(18s);
         }
@@ -1187,11 +1193,13 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
         }
         else if (action == ACTION_EXIT_SHIP)
         {
-            Movement::PointsArray path(MuradinExitPath, MuradinExitPath + MuradinExitPathSize);
-            Movement::MoveSplineInit init(me);
-            init.DisableTransportPathTransformations();
-            init.MovebyPath(path, 0);
-            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+            std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+            {
+                Movement::PointsArray path(MuradinExitPath, MuradinExitPath + MuradinExitPathSize);
+                init.DisableTransportPathTransformations();
+                init.MovebyPath(path, 0);
+            };
+            me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
             me->DespawnOrUnsummon(18s);
         }
