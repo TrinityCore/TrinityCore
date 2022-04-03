@@ -20,6 +20,7 @@
 
 #include "MoveSplineInitArgs.h"
 
+class ObjectGuid;
 class Unit;
 
 enum class AnimTier : uint8;
