@@ -474,7 +474,7 @@ namespace WorldPackets
         class GuildCommandResult final : public ServerPacket
         {
         public:
-            GuildCommandResult() : ServerPacket(SMSG_GUILD_COMMAND_RESULT, 9) { }
+            GuildCommandResult() : ServerPacket(SMSG_GUILD_COMMAND_RESULT_2, 9) { }
 
             WorldPacket const* Write() override;
 
