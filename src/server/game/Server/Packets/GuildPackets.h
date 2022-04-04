@@ -269,7 +269,7 @@ namespace WorldPackets
             int64 TotalXP = 0;
             int64 GuildTodayXP = 0;
             int64 GuildRemainingXP = 0;
-            int64 GuildCurrentXP;
+            int64 GuildCurrentXP = 0;
         };
 
         struct GuildRosterProfessionData
@@ -401,7 +401,7 @@ namespace WorldPackets
             int32 SkillRank = 0;
             int32 SkillLineID = 0;
             int32 SkillStep = 0;
-            std::array<uint8, GUILD_RECIPES_COUNT> SkillLineBitArray;
+            std::array<uint8, GUILD_RECIPES_COUNT> SkillLineBitArray = { };
         };
 
         class RequestGuildRewardsList final : public ClientPacket
@@ -450,11 +450,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 Xp[MAX_GUILD_CHALLENGE_TYPES];
-            int32 CurrentCount[MAX_GUILD_CHALLENGE_TYPES];
-            int32 MaxCount[MAX_GUILD_CHALLENGE_TYPES];
-            int32 Gold[MAX_GUILD_CHALLENGE_TYPES];
-            int32 MaxLevelGold[MAX_GUILD_CHALLENGE_TYPES];
+            std::array<int32, MAX_GUILD_CHALLENGE_TYPES> Xp = { };
+            std::array<int32, MAX_GUILD_CHALLENGE_TYPES> CurrentCount = { };
+            std::array<int32, MAX_GUILD_CHALLENGE_TYPES> MaxCount = { };
+            std::array<int32, MAX_GUILD_CHALLENGE_TYPES> Gold = { };
+            std::array<int32, MAX_GUILD_CHALLENGE_TYPES> MaxLevelGold = { };
         };
 
         class GuildChallengeCompleted final : public ServerPacket
@@ -471,6 +471,7 @@ namespace WorldPackets
             int32 CurrentCount = 0;
         };
 
+        // SMSG_GUILD_COMMAND_RESULT_2 is the currently used opcode. SMSG_GUILD_COMMAND_RESULT is a JAM opcode but according to sniffs it has not been used yet
         class GuildCommandResult final : public ServerPacket
         {
         public:
@@ -539,8 +540,8 @@ namespace WorldPackets
             uint32 Flags = 0;
             uint32 WithdrawGoldLimit = 0;
             std::string RankName;
-            uint32 TabFlags[GUILD_BANK_MAX_TABS];
-            uint32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
+            std::array<uint32, GUILD_BANK_MAX_TABS> TabFlags = { };
+            std::array<uint32, GUILD_BANK_MAX_TABS> TabWithdrawItemLimit = { };
         };
 
         class GuildRanks final : public ServerPacket
