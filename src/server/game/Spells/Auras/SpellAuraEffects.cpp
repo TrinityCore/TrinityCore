@@ -5629,7 +5629,9 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     SpellNonMeleeDamage damageInfo(caster, target, spellProto->Id, spellProto->SchoolMask);
     damageInfo.periodicLog = true;
     // no SpellDamageBonus for burn mana
-    caster->CalculateSpellDamageTaken(&damageInfo, int32(gain * dmgMultiplier), spellProto);
+    // @tswow-begin effect mask
+    caster->CalculateSpellDamageTaken(&damageInfo, int32(gain * dmgMultiplier), spellProto, BASE_ATTACK, false, nullptr, 1<<GetSpellEffectInfo().EffectIndex);
+    // @tswow-end
 
     Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
@@ -5731,7 +5733,9 @@ void AuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEv
     SpellNonMeleeDamage damageInfo(target, triggerTarget, GetId(), GetSpellInfo()->SchoolMask);
     uint32 damage = target->SpellDamageBonusDone(triggerTarget, GetSpellInfo(), GetAmount(), SPELL_DIRECT_DAMAGE, GetSpellEffectInfo(), { });
     damage = triggerTarget->SpellDamageBonusTaken(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE);
-    target->CalculateSpellDamageTaken(&damageInfo, damage, GetSpellInfo());
+    // @tswow-begin effect mask
+    target->CalculateSpellDamageTaken(&damageInfo, damage, GetSpellInfo(), BASE_ATTACK, false, nullptr, 1 << GetSpellEffectInfo().EffectIndex);
+    // @tswow-end
     Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
     target->SendSpellNonMeleeDamageLog(&damageInfo);
     TC_LOG_DEBUG("spells.aura.effect", "AuraEffect::HandleProcTriggerDamageAuraProc: Triggering %u spell damage from aura %u proc", damage, GetId());
