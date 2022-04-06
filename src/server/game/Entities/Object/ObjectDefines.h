@@ -42,6 +42,8 @@
 #define NOMINAL_MELEE_RANGE                 5.0f
 #define MELEE_RANGE                         (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
 
+#define EXTRA_CELL_SEARCH_RADIUS            40.0f // We need in some cases increase search radius. Allow to find creatures with huge combat reach in a different nearby cell.
+
 enum class VisibilityDistanceType : uint8
 {
     Normal      = 0,

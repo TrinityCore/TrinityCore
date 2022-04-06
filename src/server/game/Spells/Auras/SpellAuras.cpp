@@ -2464,6 +2464,8 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         ConditionContainer* condList = spellEffectInfo.ImplicitTargetConditions;
 
         float radius = spellEffectInfo.CalcRadius(ref);
+        float extraSearchRadius = 0.0f;
+
         SpellTargetCheckTypes selectionType = TARGET_CHECK_DEFAULT;
         switch (spellEffectInfo.Effect)
         {
@@ -2479,6 +2481,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                 break;
             case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
                 selectionType = TARGET_CHECK_ENEMY;
+                extraSearchRadius = radius > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
                 break;
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
                 if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
@@ -2515,7 +2518,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
         {
             Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), ref, GetUnitOwner(), m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
             Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
-            Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
+            Cell::VisitAllObjects(GetUnitOwner(), searcher, radius + extraSearchRadius);
 
             // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
             units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
