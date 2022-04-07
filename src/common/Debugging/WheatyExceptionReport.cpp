@@ -26,8 +26,12 @@
 #include "GitRevision.h"
 #include <algorithm>
 
+#include <comdef.h>
+#include <WbemIdl.h>
+
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
+#pragma comment(linker, "/DEFAULTLIB:wbemuuid.lib")
 
 inline LPTSTR ErrorMessage(DWORD dw)
 {
@@ -237,22 +241,24 @@ BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxco
 }
 
 template<size_t size>
-void ToTchar(wchar_t const* src, TCHAR (&dst)[size], std::true_type)
+void ToTchar(wchar_t const* src, TCHAR (&dst)[size])
 {
-    wcstombs_s(nullptr, dst, src, size);
-}
-
-template<size_t size>
-void ToTchar(wchar_t const* src, TCHAR (&dst)[size], std::false_type)
-{
-    wcscpy_s(dst, src);
+    if constexpr (std::is_same_v<TCHAR, char>)
+        ::wcstombs_s(nullptr, dst, src, size);
+    else
+        ::wcscpy_s(dst, size, src);
 }
 
 BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
 {
+    *szVersion = _T('\0');
+
+    if (_GetWindowsVersionFromWMI(szVersion, cntMax))
+        return TRUE;
+
     // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
     // If that fails, try using the OSVERSIONINFO structure.
-    RTL_OSVERSIONINFOEXW osvi = { 0 };
+    RTL_OSVERSIONINFOEXW osvi = { };
     osvi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
     NTSTATUS bVersionEx = RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi);
     if (bVersionEx < 0)
@@ -261,10 +267,9 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
         if (!RtlGetVersion((PRTL_OSVERSIONINFOW)&osvi))
             return FALSE;
     }
-    *szVersion = _T('\0');
 
     TCHAR szCSDVersion[256];
-    ToTchar(osvi.szCSDVersion, szCSDVersion, std::is_same<TCHAR, char>::type());
+    ToTchar(osvi.szCSDVersion, szCSDVersion);
 
     TCHAR wszTmp[128];
     switch (osvi.dwPlatformId)
@@ -420,6 +425,162 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
     }
 
     return TRUE;
+}
+
+BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cntMax)
+{
+    // Step 1: --------------------------------------------------
+    // Initialize COM. ------------------------------------------
+    HRESULT hres = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if (FAILED(hres))
+        return FALSE;
+
+    std::shared_ptr<void> com(nullptr, [](void*)
+    {
+        CoUninitialize();
+    });
+
+    // Step 2: --------------------------------------------------
+    // Set general COM security levels --------------------------
+    hres = CoInitializeSecurity(
+        nullptr,
+        -1,                          // COM authentication
+        nullptr,                     // Authentication services
+        nullptr,                     // Reserved
+        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication
+        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation
+        nullptr,                     // Authentication info
+        EOAC_NONE,                   // Additional capabilities
+        nullptr                      // Reserved
+    );
+
+    if (FAILED(hres))
+        return FALSE;
+
+    // Step 3: ---------------------------------------------------
+    // Obtain the initial locator to WMI -------------------------
+    std::shared_ptr<IWbemLocator> loc = []() -> std::shared_ptr<IWbemLocator>
+    {
+        IWbemLocator* tmp = nullptr;
+        HRESULT hres = CoCreateInstance(
+            CLSID_WbemLocator,
+            nullptr,
+            CLSCTX_INPROC_SERVER,
+            IID_IWbemLocator,
+            reinterpret_cast<LPVOID*>(&tmp));
+
+        if (FAILED(hres))
+            return nullptr;
+
+        return { tmp, [](IWbemLocator* ptr) { if (ptr) ptr->Release(); } };
+    }();
+
+    if (!loc)
+        return FALSE;
+
+    // Step 4: -----------------------------------------------------
+    // Connect to the root\cimv2 namespace with
+    // the current user and obtain pointer pSvc
+    // to make IWbemServices calls.
+    std::shared_ptr<IWbemServices> svc = [loc]() ->std::shared_ptr<IWbemServices>
+    {
+        IWbemServices* tmp = nullptr;
+        HRESULT hres = loc->ConnectServer(
+            bstr_t(L"ROOT\\CIMV2"),  // Object path of WMI namespace
+            nullptr,                   // User name. NULL = current user
+            nullptr,                   // User password. NULL = current
+            nullptr,                   // Locale. NULL indicates current
+            0,                         // Security flags.
+            nullptr,                   // Authority (for example, Kerberos)
+            nullptr,                   // Context object
+            &tmp                       // pointer to IWbemServices proxy
+        );
+
+        if (FAILED(hres))
+            return nullptr;
+
+        return { tmp, [](IWbemServices* ptr) { if (ptr) ptr->Release(); } };
+    }();
+
+    if (!svc)
+        return FALSE;
+
+    // Step 5: --------------------------------------------------
+    // Set security levels on the proxy -------------------------
+    hres = CoSetProxyBlanket(
+        svc.get(),                   // Indicates the proxy to set
+        RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+        RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+        nullptr,                     // Server principal name
+        RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
+        RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+        nullptr,                     // client identity
+        EOAC_NONE                    // proxy capabilities
+    );
+
+    if (FAILED(hres))
+        return FALSE;
+
+    // Step 6: --------------------------------------------------
+    // Use the IWbemServices pointer to make requests of WMI ----
+
+    // For example, get the name of the operating system
+    std::shared_ptr<IEnumWbemClassObject> queryResult = [svc]() -> std::shared_ptr<IEnumWbemClassObject>
+    {
+        IEnumWbemClassObject* tmp = nullptr;
+        HRESULT hres = svc->ExecQuery(
+            bstr_t("WQL"),
+            bstr_t("SELECT Caption, CSDVersion FROM Win32_OperatingSystem"),
+            WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+            nullptr,
+            &tmp);
+
+        if (FAILED(hres))
+            return nullptr;
+
+        return { tmp, [](IEnumWbemClassObject* ptr) { if (ptr) ptr->Release(); } };
+    }();
+
+    BOOL result = FALSE;
+    // Step 7: -------------------------------------------------
+    // Get the data from the query in step 6 -------------------
+    if (queryResult)
+    {
+        do
+        {
+            IWbemClassObject* fields = nullptr;
+
+            ULONG rows = 0;
+            queryResult->Next(WBEM_INFINITE, 1, &fields, &rows);
+            if (!rows)
+                break;
+
+            VARIANT field;
+            VariantInit(&field);
+            fields->Get(L"Caption", 0, &field, nullptr, nullptr);
+            TCHAR buf[256] = { };
+            ToTchar(field.bstrVal, buf);
+            _tcsncat(szVersion, buf, cntMax);
+            VariantClear(&field);
+
+            fields->Get(L"CSDVersion", 0, &field, nullptr, nullptr);
+            if (field.vt == VT_BSTR)
+            {
+                _tcsncat(szVersion, _T(" "), cntMax);
+                memset(buf, 0, sizeof(buf));
+                ToTchar(field.bstrVal, buf);
+                if (strlen(buf))
+                    _tcsncat(szVersion, buf, cntMax);
+            }
+            VariantClear(&field);
+
+            fields->Release();
+
+            result = TRUE;
+        } while (true);
+    }
+
+    return result;
 }
 
 void WheatyExceptionReport::PrintSystemInfo()

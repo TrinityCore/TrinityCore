@@ -163,6 +163,7 @@ class WheatyExceptionReport
         static void GenerateExceptionReport(PEXCEPTION_POINTERS pExceptionInfo);
         static void PrintSystemInfo();
         static BOOL _GetWindowsVersion(TCHAR* szVersion, DWORD cntMax);
+        static BOOL _GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cntMax);
         static BOOL _GetProcessorName(TCHAR* sProcessorName, DWORD maxcount);
 
         // Helper functions
