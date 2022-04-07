@@ -78,7 +78,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
 
                 if (go->GetEntry() == GO_GORTOK_PALEHOOF_SPHERE)
                     if (GetBossState(DATA_GORTOK_PALEHOOF) == DONE)
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GO_FLAG_NOT_SELECTABLE);
             }
 
             void SetGuidData(uint32 type, ObjectGuid data) override

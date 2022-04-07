@@ -33,7 +33,7 @@ struct go_main_chambers_access_panel : public GameObjectAI
         if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
             controller->AI()->Talk(CONTROLLER_TEXT_ACESS_USED);
         _instance->SetData(ACTION_OPEN_DOOR, 0);
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         me->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
@@ -91,7 +91,7 @@ class instance_steam_vault : public InstanceMapScript
                     if (GameObject* mainDoor = GetGameObject(DATA_MAIN_DOOR))
                     {
                         HandleGameObject(ObjectGuid::Empty, true, mainDoor);
-                       mainDoor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                       mainDoor->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     }
                 }
             }
@@ -121,12 +121,12 @@ class instance_steam_vault : public InstanceMapScript
                     case DATA_HYDROMANCER_THESPIA:
                         if (state == DONE)
                             if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_HYDRO))
-                                panel->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                panel->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case DATA_MEKGINEER_STEAMRIGGER:
                         if (state == DONE)
                             if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_MEK))
-                                panel->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                panel->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;

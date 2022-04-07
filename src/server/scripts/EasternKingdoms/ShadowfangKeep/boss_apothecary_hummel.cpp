@@ -101,7 +101,7 @@ struct boss_apothecary_hummel : public BossAI
     {
         if (menuId == GOSSIP_MENU_HUMMEL && gossipListId == GOSSIP_OPTION_START)
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             CloseGossipMenuFor(player);
             DoAction(ACTION_START_EVENT);
         }
@@ -150,7 +150,7 @@ struct boss_apothecary_hummel : public BossAI
                     _isDead = true;
                     me->RemoveAurasDueToSpell(SPELL_ALLURING_PERFUME);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     Talk(SAY_HUMMEL_DEATH);
                 }
             }
@@ -171,7 +171,7 @@ struct boss_apothecary_hummel : public BossAI
             Talk(SAY_HUMMEL_DEATH);
 
         events.Reset();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
@@ -302,7 +302,7 @@ struct npc_apothecary_genericAI : public ScriptedAI
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type == POINT_MOTION_TYPE && pointId == 1)
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+            me->SetEmoteState(EMOTE_STATE_USE_STANDING);
     }
 
 protected:

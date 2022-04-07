@@ -197,7 +197,7 @@ class boss_zuljin : public CreatureScript
 
                 Initialize();
 
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 33975);
+                me->SetVirtualItem(0, 33975);
                 //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 218172674);
                 //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
@@ -226,7 +226,7 @@ class boss_zuljin : public CreatureScript
                 Talk(YELL_DEATH);
 
                 if (Unit* Temp = ObjectAccessor::GetUnit(*me, SpiritGUID[3]))
-                    Temp->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                    Temp->SetStandState(UNIT_STAND_STATE_DEAD);
             }
 
             void AttackStart(Unit* who) override
@@ -267,8 +267,8 @@ class boss_zuljin : public CreatureScript
                     if (Creature* creature = me->SummonCreature(SpiritInfo[i].entry, SpiritInfo[i].pos, TEMPSUMMON_DEAD_DESPAWN))
                     {
                         creature->CastSpell(creature, SPELL_SPIRIT_AURA, true);
-                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        creature->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         SpiritGUID[i] = creature->GetGUID();
                     }
                 }
@@ -302,14 +302,14 @@ class boss_zuljin : public CreatureScript
                     case 4:
                         DoTeleportTo(CENTER_X, CENTER_Y, CENTER_Z, 100);
                         ResetThreatList();
-                        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                        me->SetVirtualItem(0, 0);
                         me->RemoveAurasDueToSpell(Transform[Phase].unaura);
                         DoCast(me, Transform[Phase].spell);
                         Talk(Transform[Phase].text);
                         if (Phase > 0)
                         {
                             if (Unit* Temp = ObjectAccessor::GetUnit(*me, SpiritGUID[Phase - 1]))
-                                Temp->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                                Temp->SetStandState(UNIT_STAND_STATE_DEAD);
                         }
                         if (Unit* Temp = ObjectAccessor::GetUnit(*me, SpiritGUID[NextPhase - 1]))
                             Temp->CastSpell(me, SPELL_SIPHON_SOUL, false); // should m cast on temp

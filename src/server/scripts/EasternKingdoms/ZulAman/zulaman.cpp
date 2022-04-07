@@ -71,10 +71,10 @@ class npc_zulaman_hostage : public CreatureScript
                 if (action == GOSSIP_ACTION_INFO_DEF + 1)
                     CloseGossipMenuFor(player);
 
-                if (!me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                if (!me->HasNpcFlag(UNIT_NPC_FLAG_GOSSIP))
                     return true;
 
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
                 //uint8 progress = instance->GetData(DATA_CHESTLOOTED);
                 instance->SetData(DATA_CHESTLOOTED, 0);
@@ -198,7 +198,7 @@ class npc_harrison_jones : public CreatureScript
                {
                     CloseGossipMenuFor(player);
                     me->SetFacingToObject(player);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_HARRISON_0);
                     _gongEvent = GONG_EVENT_1;
                     _gongTimer = 4000;
@@ -214,8 +214,8 @@ class npc_harrison_jones : public CreatureScript
                     me->SetEntry(NPC_HARRISON_JONES_2);
                     me->SetDisplayId(MODEL_HARRISON_JONES_2);
                     me->SetTarget(ObjectGuid::Empty);
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_DEAD);
-                    me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                    me->SetStandState(UNIT_STAND_STATE_DEAD);
+                    me->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
                     instance->SetData(DATA_GONGEVENT, DONE);
                 }
             }
@@ -237,21 +237,21 @@ class npc_harrison_jones : public CreatureScript
                                 me->SetFacingTo(6.235659f);
                                 Talk(SAY_HARRISON_1);
                                 DoCast(me, SPELL_BANGING_THE_GONG);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_MACE));
+                                me->SetVirtualItem(0, uint32(WEAPON_MACE));
                                 me->SetSheath(SHEATH_STATE_MELEE);
                                 _gongEvent = GONG_EVENT_3;
                                 _gongTimer = 4000;
                                 break;
                             case GONG_EVENT_3:
                                 if (GameObject* gong = instance->GetGameObject(GO_STRANGE_GONG))
-                                    gong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    gong->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 _gongEvent = GONG_EVENT_4;
                                 _gongTimer = 105000;
                                 break;
                             case GONG_EVENT_4:
                                 me->RemoveAura(SPELL_BANGING_THE_GONG);
                                 if (GameObject* gong = instance->GetGameObject(GO_STRANGE_GONG))
-                                    gong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    gong->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                                 // trigger or gong will need to be scripted to set IN_PROGRESS after enough hits.
                                 // This is temp workaround.
@@ -278,7 +278,7 @@ class npc_harrison_jones : public CreatureScript
                                 _gongEvent = GONG_EVENT_6;
                                 break;
                             case GONG_EVENT_6:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                                me->SetEmoteState(EMOTE_STATE_USE_STANDING);
                                 Talk(SAY_HARRISON_3);
                                 _gongTimer = 7000;
                                 _gongEvent = GONG_EVENT_7;
@@ -291,7 +291,7 @@ class npc_harrison_jones : public CreatureScript
                                 {
                                     if (target->GetPositionX() > 120)
                                     {
-                                        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_SPEAR));
+                                        target->SetVirtualItem(0, uint32(WEAPON_SPEAR));
                                         target->SetImmuneToPC(true);
                                         target->SetReactState(REACT_PASSIVE);
                                         target->AI()->SetData(0, 1);
@@ -312,8 +312,8 @@ class npc_harrison_jones : public CreatureScript
                             }
                             case GONG_EVENT_8:
                                 DoCast(me, SPELL_STEALTH);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                                me->SetVirtualItem(0, uint32(0));
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                                 me->GetMotionMaster()->MovePath(HARRISON_MOVE_3, false);
                                 _gongTimer = 1000;
                                 _gongEvent = 0;
@@ -329,7 +329,7 @@ class npc_harrison_jones : public CreatureScript
                                 _gongTimer = 6000;
                                 break;
                             case GONG_EVENT_11:
-                                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
                                 instance->SetData(DATA_GONGEVENT, NOT_STARTED);
                                 _gongEvent = 0;

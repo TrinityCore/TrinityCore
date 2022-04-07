@@ -214,23 +214,23 @@ class instance_naxxramas : public InstanceMapScript
                         break;
                     case GO_NAXX_PORTAL_ARACHNID:
                         if (GetBossState(BOSS_MAEXXNA) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_NAXX_PORTAL_CONSTRUCT:
                         if (GetBossState(BOSS_THADDIUS) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_NAXX_PORTAL_PLAGUE:
                         if (GetBossState(BOSS_LOATHEB) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_NAXX_PORTAL_MILITARY:
                         if (GetBossState(BOSS_HORSEMEN) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_KELTHUZAD_THRONE:
                         if (GetBossState(BOSS_KELTHUZAD) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_BIRTH:
                         if (hadSapphironBirth || GetBossState(BOSS_SAPPHIRON) == DONE)
@@ -355,7 +355,7 @@ class instance_naxxramas : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_ARACHNID))
-                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                teleporter->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                             events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6s);
                         }
@@ -364,7 +364,7 @@ class instance_naxxramas : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_PLAGUE))
-                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                teleporter->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                             events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6s);
                         }
@@ -373,7 +373,7 @@ class instance_naxxramas : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_CONSTRUCT))
-                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                teleporter->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                             events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6s);
                         }
@@ -388,11 +388,11 @@ class instance_naxxramas : public InstanceMapScript
                             if (GameObject* horsemenChest = instance->GetGameObject(HorsemenChestGUID))
                             {
                                 horsemenChest->SetRespawnTime(horsemenChest->GetRespawnDelay());
-                                horsemenChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                horsemenChest->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             }
 
                             if (GameObject* teleporter = GetGameObject(DATA_NAXX_PORTAL_MILITARY))
-                                teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                teleporter->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                             events.ScheduleEvent(EVENT_KELTHUZAD_WING_TAUNT, 6s);
                         }
@@ -405,7 +405,7 @@ class instance_naxxramas : public InstanceMapScript
                     case BOSS_KELTHUZAD:
                         if (state == DONE)
                             if (GameObject* throne = GetGameObject(DATA_KELTHUZAD_THRONE))
-                                throne->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                throne->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;

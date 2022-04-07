@@ -271,8 +271,8 @@ public:
             Initialize();
 
             playerGUID.Clear();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -284,7 +284,7 @@ public:
                     player->PlayerTalkClass->SendCloseGossip();
                     me->AI()->Talk(SAY_BARADA_1);
                     me->AI()->DoAction(ACTION_START_EVENT);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     break;
                 default:
                     break;
@@ -305,7 +305,7 @@ public:
                 me->GetMotionMaster()->MovePoint(0, exorcismPos[1]);
                 Talk(SAY_BARADA_2);
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                me->SetUnitFlag(UNIT_FLAG_PACIFIED);
             }
         }
 
@@ -485,7 +485,7 @@ public:
                                 }
 
                                 me->RemoveAura(SPELL_BARADAS_COMMAND);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                                me->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
 
                                 Talk(SAY_BARADA_8);
                                 me->GetMotionMaster()->MoveTargetedHome();
@@ -541,7 +541,7 @@ public:
         {
             me->Dismount();
             me->SetFacingToObject(player);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             _playerGUID = player->GetGUID();
             _events.ScheduleEvent(EVENT_TALK, 2s);
         }
@@ -549,8 +549,8 @@ public:
         void Reset() override
         {
             me->RestoreFaction();
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->SetImmuneToPC(true);
         }
 
@@ -565,7 +565,7 @@ public:
                 me->RemoveAllAuras();
                 me->CombatStop(true);
                 EngagementOver();
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetImmuneToPC(true);
                 Talk(SAY_DEFEATED);
 

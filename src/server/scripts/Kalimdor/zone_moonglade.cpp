@@ -198,7 +198,7 @@ public:
                 PlayerGUID = player->GetGUID();
                 Start(true, false, PlayerGUID);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
             return;
         }
@@ -252,12 +252,12 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
+                                me->SetEmoteState(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
                                 EventTimer = 5000;
                                 Step = 1;
                                 break;
                             case 1:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                                 // Needs text
                                 EventOnWait = false;
                                 break;
@@ -267,12 +267,12 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
+                                me->SetEmoteState(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
                                 EventTimer = 5000;
                                 Step = 1;
                                 break;
                             case 1:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                                 EventOnWait = false;
                                 break;
                         }
@@ -311,12 +311,12 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
+                                me->SetEmoteState(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
                                 EventTimer = 5000;
                                 Step = 1;
                                 break;
                             case 1:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                                 EventOnWait = false;
                                 break;
                         }
@@ -338,14 +338,14 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 2);
+                                me->SetEmoteState(EMOTE_ONESHOT_BOW);
                                 // Needs text
                                 player->CompleteQuest(10965);
                                 EventTimer = 1500;
                                 Step = 1;
                                 break;
                             case 1:
-                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                                 EventTimer = 3000;
                                 Step = 2;
                                 break;

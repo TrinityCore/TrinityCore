@@ -370,7 +370,7 @@ public:
                     case EVENT_SCRIPT_1:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             Talk(SAY_BRANN_1, player);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49s))
                             voiceGUID = voice->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_2, 4s);
@@ -381,11 +381,11 @@ public:
                         events.ScheduleEvent(EVENT_SCRIPT_3, 6s);
                         break;
                     case EVENT_SCRIPT_3:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_MINING);
+                        me->SetEmoteState(EMOTE_STATE_WORK_MINING);
                         events.ScheduleEvent(EVENT_SCRIPT_4, 6s);
                         break;
                     case EVENT_SCRIPT_4:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                         {
                             voice->CastSpell(voice, SPELL_RESURRECTION);
@@ -674,7 +674,7 @@ class npc_wild_wyrm : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_JAWS_OF_DEATH_PERIODIC);
                         me->RemoveAurasDueToSpell(SPELL_PRY_JAWS_OPEN);
 
-                        me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                        me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
 
                         me->GetMotionMaster()->MoveFall(POINT_FALL);
                     });

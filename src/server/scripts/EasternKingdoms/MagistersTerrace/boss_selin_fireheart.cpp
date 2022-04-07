@@ -153,7 +153,7 @@ class boss_selin_fireheart : public CreatureScript
                     Unit* CrystalChosen = ObjectAccessor::GetUnit(*me, CrystalGUID);
                     if (CrystalChosen && CrystalChosen->IsAlive())
                     {
-                        CrystalChosen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        CrystalChosen->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         CrystalChosen->CastSpell(me, SPELL_MANA_RAGE, true);
                         events.ScheduleEvent(EVENT_EMPOWER, 10s, PHASE_DRAIN);
                     }
@@ -222,7 +222,7 @@ class boss_selin_fireheart : public CreatureScript
                         return;
                 }
 
-                if (me->GetPower(POWER_MANA) * 100 / me->GetMaxPower(POWER_MANA) < 10)
+                if (me->GetPowerPct(POWER_MANA) < 10.f)
                 {
                     if (events.IsInPhase(PHASE_NORMAL) && !_scheduledEvents)
                     {

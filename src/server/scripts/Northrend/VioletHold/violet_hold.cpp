@@ -369,7 +369,7 @@ struct npc_sinclari_vh : public ScriptedAI
             if (Creature* summon = me->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[i], TEMPSUMMON_MANUAL_DESPAWN))
                 summon->AI()->SetData(DATA_PORTAL_LOCATION, i);
 
-        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
         std::list<Creature*> guardList;
         me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
@@ -407,7 +407,7 @@ struct npc_sinclari_vh : public ScriptedAI
     {
         if (menuId == GOSSIP_MENU_START_ENCOUNTER && gossipListId == 0)
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             _instance->SetData(DATA_MAIN_EVENT_STATE, SPECIAL);
             ScheduleIntro();
             player->PlayerTalkClass->SendCloseGossip();
@@ -502,7 +502,7 @@ struct npc_sinclari_vh : public ScriptedAI
                     if (GameObject* mainDoor = _instance->GetGameObject(DATA_MAIN_DOOR))
                     {
                         mainDoor->SetGoState(GO_STATE_READY);
-                        mainDoor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        mainDoor->SetFlag(GO_FLAG_LOCKED);
                     }
                     task.Repeat(Seconds(5));
                     break;
@@ -512,7 +512,7 @@ struct npc_sinclari_vh : public ScriptedAI
                     break;
                 case 9:
                     // We should teleport inside if event is in progress with GOSSIP_MENU_SEND_ME_IN
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     break;
                 default:
                     break;
@@ -529,7 +529,7 @@ struct npc_sinclari_vh : public ScriptedAI
 
             task.Schedule(Seconds(10), [this](TaskContext /*task*/)
             {
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             });
         });
     }

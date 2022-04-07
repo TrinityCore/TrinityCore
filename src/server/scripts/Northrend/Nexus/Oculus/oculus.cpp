@@ -196,7 +196,7 @@ struct npc_verdisa_beglaristrasz_eternos : public ScriptedAI
             Talk(SAY_BELGARISTRASZ);
 
         // The gossip flag should activate when Drakos die and not from DB
-        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
     }
 };
 

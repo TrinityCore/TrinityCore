@@ -184,7 +184,7 @@ class boss_halazzi : public CreatureScript
                         if (Unit* pLynx = ObjectAccessor::GetUnit(*me, LynxGUID))
                         {
                             Talk(SAY_MERGE);
-                            pLynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            pLynx->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             pLynx->GetMotionMaster()->Clear();
                             pLynx->GetMotionMaster()->MoveFollow(me, 0, 0);
                             me->GetMotionMaster()->Clear();
@@ -371,7 +371,7 @@ class npc_halazzi_lynx : public CreatureScript
 
             void AttackStart(Unit* who) override
             {
-                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                if (!me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
                     ScriptedAI::AttackStart(who);
             }
 

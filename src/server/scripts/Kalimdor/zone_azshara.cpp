@@ -267,7 +267,7 @@ public:
                 if (me->IsWithinDist(player, 10) && me->GetPositionX() > player->GetPositionX() && !Reached)
                 {
                     Talk(SAY_RIZZLE_FINAL);
-                    me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     me->SetFaction(FACTION_FRIENDLY);
                     me->GetMotionMaster()->MoveIdle();
                     me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
@@ -337,7 +337,7 @@ public:
         {
             me->SetHover(true);
             me->SetSwim(true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             Initialize();
         }
 

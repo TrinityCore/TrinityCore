@@ -478,7 +478,7 @@ struct boss_toc_champion_controller : public BossAI
             {
                 summons.Summon(champion);
                 champion->SetReactState(REACT_PASSIVE);
-                champion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                champion->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 champion->SetImmuneToPC(false);
                 if (playerTeam == ALLIANCE)
                 {
@@ -510,7 +510,7 @@ struct boss_toc_champion_controller : public BossAI
                     if (Creature* summon = ObjectAccessor::GetCreature(*me, *i))
                     {
                         summon->SetReactState(REACT_AGGRESSIVE);
-                        summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        summon->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         summon->SetImmuneToPC(false);
                     }
                 }
