@@ -3325,10 +3325,20 @@ void Creature::SetDisplayIdRaw(uint32 modelId)
 
 void Creature::SetTarget(ObjectGuid guid)
 {
+    // @tswow-begin
     if (HasSpellFocus())
+    {
+        uint64_t old = _spellFocusInfo.Target.GetRawValue();
         _spellFocusInfo.Target = guid;
+        FIRE(UnitOnSetTarget, TSUnit(this), guid, old);
+    }
     else
+    {
+        uint64_t old = GetGuidValue(UNIT_FIELD_TARGET).GetRawValue();
         SetGuidValue(UNIT_FIELD_TARGET, guid);
+        FIRE(UnitOnSetTarget, TSUnit(this), guid, old);
+    }
+    // @tswow-end
 }
 
 void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
