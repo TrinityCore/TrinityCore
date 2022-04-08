@@ -123,16 +123,16 @@ bool Metric::ShouldLog(std::string const& category, int64 value) const
     return value >= threshold->second;
 }
 
-void Metric::LogEvent(std::string const& category, std::string const& title, std::string const& description)
+void Metric::LogEvent(std::string category, std::string title, std::string description)
 {
     using namespace std::chrono;
 
     MetricData* data = new MetricData;
-    data->Category = category;
+    data->Category = std::move(category);
     data->Timestamp = system_clock::now();
     data->Type = METRIC_DATA_EVENT;
-    data->Title = title;
-    data->Text = description;
+    data->Title = std::move(title);
+    data->ValueOrEventText = std::move(description);
 
     _queuedData.Enqueue(data);
 }
@@ -161,10 +161,10 @@ void Metric::SendBatch()
         switch (data->Type)
         {
             case METRIC_DATA_VALUE:
-                batchedData << "value=" << data->Value;
+                batchedData << "value=" << data->ValueOrEventText;
                 break;
             case METRIC_DATA_EVENT:
-                batchedData << "title=\"" << data->Title << "\",text=\"" << data->Text << "\"";
+                batchedData << "title=\"" << data->Title << "\",text=\"" << data->ValueOrEventText << "\"";
                 break;
         }
 
