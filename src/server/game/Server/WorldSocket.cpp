@@ -433,8 +433,12 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             sessionGuard.lock();
             LogOpcodeText(opcode, sessionGuard);
             if (_worldSession)
+            {
                 _worldSession->ResetTimeOutTime(true);
-            break;
+                return ReadDataHandlerResult::Ok;
+            }
+            TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler: client %s sent CMSG_KEEP_ALIVE without being authenticated", GetRemoteIpAddress().to_string().c_str());
+            return ReadDataHandlerResult::Error;
         case CMSG_LOG_DISCONNECT:
             LogOpcodeText(opcode, sessionGuard);
             packet.rfinish();   // contains uint32 disconnectReason;
