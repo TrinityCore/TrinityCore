@@ -446,6 +446,12 @@ public:
             //WEAPONSMITH & ARMORSMITH
             if (player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 225)
             {
+                uint8 level = player->GetLevel();
+                uint32 gossipOption = 0;
+                if (level < 66)
+                    gossipOption = 1;
+                else
+                    gossipOption = 2;
                 switch (creatureId)
                 {
                     case N_TRAINER_SMITHOMNI1:
@@ -462,44 +468,52 @@ public:
                         break;
                     case N_TRAINER_WEAPON1:
                         if (player->HasSpell(S_WEAPON))
-                            AddGossipItemFor(player, GOSSIP_WEAPON1, 1, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
+                            AddGossipItemFor(player, GOSSIP_WEAPON1, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
                         break;
                     case N_TRAINER_WEAPON2:
                         if (player->HasSpell(S_WEAPON))
-                            AddGossipItemFor(player, GOSSIP_WEAPON2, 1, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
+                            AddGossipItemFor(player, GOSSIP_WEAPON2, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
                         break;
                     case N_TRAINER_ARMOR1:
                         if (player->HasSpell(S_ARMOR))
-                            AddGossipItemFor(player, GOSSIP_ARMOR1, 1, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 4);
+                            AddGossipItemFor(player, GOSSIP_ARMOR1, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 4);
                         break;
                     case N_TRAINER_ARMOR2:
                         if (player->HasSpell(S_ARMOR))
-                            AddGossipItemFor(player, GOSSIP_ARMOR2, 1, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 4);
+                            AddGossipItemFor(player, GOSSIP_ARMOR2, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 4);
                         break;
                 }
             }
             //WEAPONSMITH SPEC
             if (player->HasSpell(S_WEAPON) && player->GetLevel() > 49 && player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 250)
             {
+                uint8 level = player->GetLevel();
+                uint32 gossipOption = 0;
+                if (level < 51)
+                    gossipOption = 2;
+                else if (level < 66)
+                    gossipOption = 3;
+                else
+                    gossipOption = 4;
                 switch (creatureId)
                 {
                     case N_TRAINER_HAMMER:
                         if (!HasWeaponSub(player))
                             AddGossipItemFor(player, GOSSIP_HAMMER, GOSSIP_LEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 5);
                         if (player->HasSpell(S_HAMMER))
-                            AddGossipItemFor(player, GOSSIP_HAMMER, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 8);
+                            AddGossipItemFor(player, GOSSIP_HAMMER, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 8);
                         break;
                     case N_TRAINER_AXE:
                         if (!HasWeaponSub(player))
                             AddGossipItemFor(player, GOSSIP_AXE, GOSSIP_LEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 6);
                         if (player->HasSpell(S_AXE))
-                            AddGossipItemFor(player, GOSSIP_AXE, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 9);
+                            AddGossipItemFor(player, GOSSIP_AXE, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 9);
                         break;
                     case N_TRAINER_SWORD:
                         if (!HasWeaponSub(player))
                             AddGossipItemFor(player, GOSSIP_SWORD, GOSSIP_LEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 7);
                         if (player->HasSpell(S_SWORD))
-                            AddGossipItemFor(player, GOSSIP_SWORD, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 10);
+                            AddGossipItemFor(player, GOSSIP_SWORD, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 10);
                         break;
                 }
             }
@@ -806,31 +820,39 @@ public:
 
             if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 250 && player->GetLevel() > 49)
             {
+                uint8 level = player->GetLevel();
+                uint32 gossipOption = 0;
+                if (level < 51)
+                    gossipOption = 2;
+                else if (level < 66)
+                    gossipOption = 3;
+                else
+                    gossipOption = 4;
                 switch (me->GetEntry())
                 {
                     case N_TRAINER_DRAGON1:
                         if (player->HasSpell(S_DRAGON))
-                            AddGossipItemFor(player, GOSSIP_DRAGON1, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 1);
+                            AddGossipItemFor(player, GOSSIP_DRAGON1, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 1);
                         break;
                     case N_TRAINER_DRAGON2:
                         if (player->HasSpell(S_DRAGON))
-                            AddGossipItemFor(player, GOSSIP_DRAGON2, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 1);
+                            AddGossipItemFor(player, GOSSIP_DRAGON2, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 1);
                         break;
                     case N_TRAINER_ELEMENTAL1:
                         if (player->HasSpell(S_ELEMENTAL))
-                            AddGossipItemFor(player, GOSSIP_ELEMENTAL1, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 2);
+                            AddGossipItemFor(player, GOSSIP_ELEMENTAL1, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 2);
                         break;
                     case N_TRAINER_ELEMENTAL2:
                         if (player->HasSpell(S_ELEMENTAL))
-                            AddGossipItemFor(player, GOSSIP_ELEMENTAL2, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 2);
+                            AddGossipItemFor(player, GOSSIP_ELEMENTAL2, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 2);
                         break;
                     case N_TRAINER_TRIBAL1:
                         if (player->HasSpell(S_TRIBAL))
-                            AddGossipItemFor(player, GOSSIP_TRIBAL1, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
+                            AddGossipItemFor(player, GOSSIP_TRIBAL1, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
                         break;
                     case N_TRAINER_TRIBAL2:
                         if (player->HasSpell(S_TRIBAL))
-                            AddGossipItemFor(player, GOSSIP_TRIBAL2, GOSSIP_UNLEARN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
+                            AddGossipItemFor(player, GOSSIP_TRIBAL2, gossipOption, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3);
                         break;
                 }
             }
