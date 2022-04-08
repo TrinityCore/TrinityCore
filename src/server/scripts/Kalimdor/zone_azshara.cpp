@@ -43,10 +43,10 @@ enum RizzleSprysprocketData
     SAY_RIZZLE_START                = 0,
     SAY_RIZZLE_GRENADE              = 1,
     SAY_RIZZLE_FINAL                = 2,
-    MSG_ESCAPE_NOTICE               = 3
+    MSG_ESCAPE_NOTICE               = 3,
+    GOSSIP_MENU_GET_MOONSTONE       = 57025,
+    GOSSIP_OPTION_GET_MOONSTONE     = 0
 };
-
-#define GOSSIP_GET_MOONSTONE "Hand over the Southfury moonstone and I'll let you go."
 
 Position const WPs[58] =
 {
@@ -284,7 +284,7 @@ public:
         {
             if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
                 return true;
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_MENU_GET_MOONSTONE, GOSSIP_OPTION_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             SendGossipMenuFor(player, 10811, me->GetGUID());
             return true;
         }
