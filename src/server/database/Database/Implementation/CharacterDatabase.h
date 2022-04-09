@@ -510,6 +510,8 @@ enum CharacterDatabaseStatements : uint32
 
     CHAR_INS_DESERTER_TRACK,
 
+    CHAR_UPD_CUSTOM_ITEM,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 
