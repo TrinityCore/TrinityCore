@@ -12750,12 +12750,12 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         }
     }
 
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+    std::function<void(Movement::MoveSplineInit&)> initializer = [=, vehicleCollisionHeight = vehicle->GetBase()->GetCollisionHeight()](Movement::MoveSplineInit& init)
     {
-        float height = pos.GetPositionZ() + vehicle->GetBase()->GetCollisionHeight();
+        float height = pos.GetPositionZ() + vehicleCollisionHeight;
 
         // Creatures without inhabit type air should begin falling after exiting the vehicle
-        if (GetTypeId() == TYPEID_UNIT && !CanFly() && height > GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + vehicle->GetBase()->GetCollisionHeight(), &height))
+        if (GetTypeId() == TYPEID_UNIT && !CanFly() && height > GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + vehicleCollisionHeight, &height))
             init.SetFall();
 
         init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), height, false);

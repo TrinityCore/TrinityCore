@@ -40,10 +40,25 @@ EndContentData */
 ## npc_zulaman_hostage
 ######*/
 
-#define GOSSIP_HOSTAGE1        "I am glad to help you."
-
 static uint32 const HostageEntry[] = {23790, 23999, 24024, 24001};
 static uint32 const ChestEntry[] = {186648, 187021, 186672, 186667};
+
+enum Npcs
+{
+    NPC_TANZAR                = 23790,
+    NPC_HARKOR                = 23999,
+    NPC_ASHLI                 = 24001,
+    NPC_KRAZ                  = 24024
+};
+
+enum Gossips
+{
+    GOSSIP_MENU_TANZAR        = 8799,
+    GOSSIP_MENU_HARKOR        = 8874,
+    GOSSIP_MENU_ASHLI         = 8927,
+    GOSSIP_MENU_KRAZ          = 8881,
+    GOSSIP_OPTION_HOSTAGE     = 0
+};
 
 class npc_zulaman_hostage : public CreatureScript
 {
@@ -58,7 +73,21 @@ class npc_zulaman_hostage : public CreatureScript
 
             bool OnGossipHello(Player* player) override
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                switch (me->GetEntry())
+                {
+                    case NPC_TANZAR:
+                        AddGossipItemFor(player, GOSSIP_MENU_TANZAR, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                    case NPC_HARKOR:
+                        AddGossipItemFor(player, GOSSIP_MENU_HARKOR, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                    case NPC_ASHLI:
+                        AddGossipItemFor(player, GOSSIP_MENU_ASHLI, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                    case NPC_KRAZ:
+                        AddGossipItemFor(player, GOSSIP_MENU_KRAZ, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                }
                 SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                 return true;
             }

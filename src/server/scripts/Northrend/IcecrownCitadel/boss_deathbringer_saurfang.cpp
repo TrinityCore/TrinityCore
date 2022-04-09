@@ -730,6 +730,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                     {
                         deathbringer->CastSpell(me, SPELL_RIDE_VEHICLE, true);  // for the packet logs.
                         deathbringer->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        deathbringer->SetUnitFlag2(UNIT_FLAG2_PLAY_DEATH_ANIM);
                         deathbringer->SetEmoteState(EMOTE_STATE_DROWNED);
                     }
                     _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 1s);    // move
