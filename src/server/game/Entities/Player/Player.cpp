@@ -27355,4 +27355,12 @@ void Player::ApplyAutolearnSpells(uint32 fromLevel)
         }
     }
 }
+
+void Player::SetSelection(ObjectGuid guid) {
+    uint64_t old = GetGuidValue(UNIT_FIELD_TARGET).GetRawValue();
+    SetGuidValue(UNIT_FIELD_TARGET, guid);
+    FIRE(UnitOnSetTarget, TSUnit(this), guid.GetRawValue(), old);
+}
+
+
 // @tswow-end

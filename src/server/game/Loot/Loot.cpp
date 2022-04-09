@@ -585,8 +585,24 @@ ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
     b << uint32(li.itemid);
     b << uint32(li.count);                                  // nr of items of this type
     b << uint32(ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(li.itemid))->DisplayInfoID);
-    b << uint32(li.randomSuffix);
-    b << uint32(li.randomPropertyId);
+    // @tswow-begin fake suffix/property ids
+    if (li.fakeRandomSuffix)
+    {
+        b << uint32(li.fakeRandomSuffix);
+    }
+    else
+    {
+        b << uint32(li.randomSuffix);
+    }
+    if (li.fakeRandomPropertyId)
+    {
+        b << uint32(li.randomPropertyId);
+    }
+    else
+    {
+        b << uint32(li.randomPropertyId);
+    }
+    // @tswow-end
     //b << uint8(0);                                        // slot type - will send after this function call
     return b;
 }
