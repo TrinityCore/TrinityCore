@@ -510,7 +510,9 @@ enum CharacterDatabaseStatements : uint32
 
     CHAR_INS_DESERTER_TRACK,
 
+    // @tswow-begin
     CHAR_UPD_CUSTOM_ITEM,
+    // @tswow-end
 
     MAX_CHARACTERDATABASE_STATEMENTS
 };

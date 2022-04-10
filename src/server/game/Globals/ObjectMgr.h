@@ -1244,10 +1244,12 @@ class TC_GAME_API ObjectMgr
         void LoadSpawnGroups();
         void LoadInstanceSpawnGroups();
         void LoadItemTemplates();
+        // @tswow-begin
         void LoadSingleItemTemplate(std::string entry);
         ItemTemplate* LoadSingleItemTemplateObject(uint32 entry);
         ItemTemplate* LoadSingleItemTemplateObject(uint32 entry, uint32 copyID);
         void LoadCustomItemTemplates();
+        // @tswow-end
         void LoadItemLocales();
         void LoadItemSetNames();
         void LoadItemSetNameLocales();

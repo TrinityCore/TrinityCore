@@ -3532,6 +3532,7 @@ void ObjectMgr::LoadItemTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " item templates in %u ms", _itemTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+// @tswow-begin
 void ObjectMgr::LoadSingleItemTemplate(std::string entry)
 {
     //                                                 0      1       2               3              4        5        6       7          8         9        10        11           12
@@ -3854,6 +3855,7 @@ void ObjectMgr::LoadCustomItemTemplates()
          itemTemplate->_LoadTotalAP();
     };
 }
+// @tswow-end
 
 ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry) const
 {
