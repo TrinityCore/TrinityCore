@@ -3690,12 +3690,12 @@ void ObjectMgr::LoadSingleItemTemplate(std::string entry)
     };
 }
 
-ItemTemplate* ObjectMgr::LoadSingleItemTemplateObject(uint32 entry)
+ItemTemplate* ObjectMgr::LoadItemTemplateMutable(uint32 entry)
 {
     return &_itemTemplateStore[entry];
 }
 
-ItemTemplate* ObjectMgr::LoadSingleItemTemplateObject(uint32 entry, uint32 copyID)
+ItemTemplate* ObjectMgr::CreateItemTemplate(uint32 entry, uint32 copyID)
 {
     ItemTemplate* copy = &(_itemTemplateStore[entry] = _itemTemplateStore[copyID]);
     copy->ItemId = entry;

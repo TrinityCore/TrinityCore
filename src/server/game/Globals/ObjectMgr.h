@@ -1246,9 +1246,9 @@ class TC_GAME_API ObjectMgr
         void LoadItemTemplates();
         // @tswow-begin
         void LoadSingleItemTemplate(std::string entry);
-        ItemTemplate* LoadSingleItemTemplateObject(uint32 entry);
-        ItemTemplate* LoadSingleItemTemplateObject(uint32 entry, uint32 copyID);
         void LoadCustomItemTemplates();
+        ItemTemplate* LoadItemTemplateMutable(uint32 entry);
+        ItemTemplate* CreateItemTemplate(uint32 entry, uint32 copyID);
         // @tswow-end
         void LoadItemLocales();
         void LoadItemSetNames();
