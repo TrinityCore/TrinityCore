@@ -152,6 +152,34 @@ namespace WorldPackets
             int32 Honor = 0;
             int32 Rank = 0;
         };
+
+        class AttackSwing final : public ClientPacket
+        {
+        public:
+            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_SWING, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Victim;
+        };
+
+        class CAttackStop final : public ClientPacket
+        {
+        public:
+            CAttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_STOP, std::move(packet)) { }
+
+            void Read() override { };
+        };
+
+        class SetSheathed final : public ClientPacket
+        {
+        public:
+            SetSheathed(WorldPacket&& packet) : ClientPacket(CMSG_SET_SHEATHED, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 CurrentSheathState = 0;
+        };
     }
 }
 

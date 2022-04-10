@@ -122,3 +122,13 @@ WorldPacket const* WorldPackets::Combat::PvPCredit::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Combat::AttackSwing::Read()
+{
+    _worldPacket >> Victim;
+}
+
+void WorldPackets::Combat::SetSheathed::Read()
+{
+    _worldPacket >> CurrentSheathState;
+}

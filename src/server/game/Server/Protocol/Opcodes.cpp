@@ -165,8 +165,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_ARENA_TEAM_QUERY,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamQueryOpcode      );
     DEFINE_HANDLER(CMSG_ARENA_TEAM_REMOVE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRemoveOpcode     );
     DEFINE_HANDLER(CMSG_ARENA_TEAM_ROSTER,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleArenaTeamRosterOpcode     );
-    DEFINE_HANDLER(CMSG_ATTACKSTOP,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackStopOpcode          );
-    DEFINE_HANDLER(CMSG_ATTACKSWING,                                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackSwingOpcode         );
+    DEFINE_HANDLER(CMSG_ATTACK_STOP,                                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackStopOpcode          );
+    DEFINE_HANDLER(CMSG_ATTACK_SWING,                                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleAttackSwingOpcode         );
     DEFINE_HANDLER(CMSG_AUCTION_LIST_BIDDER_ITEMS,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListBidderItems    );
     DEFINE_HANDLER(CMSG_AUCTION_LIST_ITEMS,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListItems          );
     DEFINE_HANDLER(CMSG_AUCTION_LIST_OWNER_ITEMS,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionListOwnerItems     );
@@ -564,7 +564,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SEND_MAIL,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSendMail                  );
     DEFINE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_ADDRESS,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID,             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_SETSHEATHED,                                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
+    DEFINE_HANDLER(CMSG_SET_SHEATHED,                                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
     DEFINE_HANDLER(CMSG_SET_ACTIONBAR_TOGGLES,                            STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleSetActionBarToggles       );
     DEFINE_HANDLER(CMSG_SET_ACTION_BUTTON,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetActionButtonOpcode     );
     DEFINE_HANDLER(CMSG_SET_ACTIVE_MOVER,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetActiveMoverOpcode      );

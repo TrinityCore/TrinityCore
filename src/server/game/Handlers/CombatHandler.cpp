@@ -26,26 +26,21 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
+void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& attackSwing)
 {
-    ObjectGuid guid;
-    recvData >> guid;
+    Unit* victim = ObjectAccessor::GetUnit(*_player, attackSwing.Victim);
 
-    TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message %s", guid.ToString().c_str());
-
-    Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
-
-    if (!pEnemy)
+    if (!victim)
     {
         // stop attack state at client
         SendAttackStop(nullptr);
         return;
     }
 
-    if (!_player->IsValidAttackTarget(pEnemy))
+    if (!_player->IsValidAttackTarget(victim))
     {
         // stop attack state at client
-        SendAttackStop(pEnemy);
+        SendAttackStop(victim);
         return;
     }
 
@@ -58,33 +53,28 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
         ASSERT(seat);
         if (!(seat->Flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
-            SendAttackStop(pEnemy);
+            SendAttackStop(victim);
             return;
         }
     }
 
-    _player->Attack(pEnemy, true);
+    _player->Attack(victim, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::CAttackStop& /*attackStop*/)
 {
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& setSheathed)
 {
-    uint32 sheathed;
-    recvData >> sheathed;
-
-    //TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUID().GetCounter(), sheathed);
-
-    if (sheathed >= MAX_SHEATH_STATE)
+    if (setSheathed.CurrentSheathState >= MAX_SHEATH_STATE)
     {
-        TC_LOG_ERROR("network", "Unknown sheath state %u ??", sheathed);
+        TC_LOG_ERROR("network", "Player %s tried to change his sheath state to an unknown value (%u)", _player->GetGUID().ToString().c_str(), setSheathed.CurrentSheathState);
         return;
     }
 
-    GetPlayer()->SetSheath(SheathState(sheathed));
+    GetPlayer()->SetSheath(SheathState(setSheathed.CurrentSheathState));
 }
 
 void WorldSession::SendAttackStop(Unit const* enemy)

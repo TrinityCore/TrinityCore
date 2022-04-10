@@ -99,6 +99,13 @@ namespace WorldPackets
         enum class LoginFailureReason : uint8;
     }
 
+    namespace Combat
+    {
+        class AttackSwing;
+        class CAttackStop;
+        class SetSheathed;
+    }
+
     namespace LFG
     {
         class LFGJoin;
@@ -942,9 +949,9 @@ class TC_GAME_API WorldSession
         void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
 
-        void HandleAttackSwingOpcode(WorldPacket& recvPacket);
-        void HandleAttackStopOpcode(WorldPacket& recvPacket);
-        void HandleSetSheathedOpcode(WorldPacket& recvPacket);
+        void HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet);
+        void HandleAttackStopOpcode(WorldPackets::Combat::CAttackStop& packet);
+        void HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet);
 
         void HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
