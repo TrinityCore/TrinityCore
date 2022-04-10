@@ -681,10 +681,14 @@ struct TC_GAME_API ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     std::array<WorldPacket, TOTAL_LOCALES> QueryData;
+    // @tswow-begin
+    WorldPacket* GetQueryData(uint32 index);
+    // @tswow-end
 
     // @tswow-begin
     TSItemEvents* events = nullptr;
     TSEntity m_tsEntity;
+    bool m_isDirty = false;
     // @tswow-end
     // helpers
     bool CanChangeEquipStateInCombat() const;

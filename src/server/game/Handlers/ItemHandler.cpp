@@ -321,10 +321,14 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPackets::Query::QueryItemSin
 {
     TC_LOG_INFO("network", "STORAGE: Item Query = %u", query.ItemID);
 
-    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(query.ItemID))
+    // @tswow-begin mutable version
+    if (ItemTemplate * itemTemplate = sObjectMgr->GetItemTemplateMutable(query.ItemID))
+    // @tswow-end
     {
         if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
-            SendPacket(&itemTemplate->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+            // @tswow-begin use GetQueryData, const_cast
+            SendPacket(itemTemplate->GetQueryData(static_cast<uint32>(GetSessionDbLocaleIndex())));
+            // @tswow-end
         else
         {
             WorldPacket response = itemTemplate->BuildQueryData(GetSessionDbLocaleIndex());

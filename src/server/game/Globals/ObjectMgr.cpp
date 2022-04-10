@@ -3699,6 +3699,7 @@ ItemTemplate* ObjectMgr::CreateItemTemplate(uint32 entry, uint32 copyID)
 {
     ItemTemplate* copy = &(_itemTemplateStore[entry] = _itemTemplateStore[copyID]);
     copy->ItemId = entry;
+    copy->m_isDirty = true;
     copy->_LoadTotalAP();
     return copy;
 }
