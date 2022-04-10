@@ -3690,7 +3690,7 @@ void ObjectMgr::LoadSingleItemTemplate(std::string entry)
     };
 }
 
-ItemTemplate* ObjectMgr::LoadItemTemplateMutable(uint32 entry)
+ItemTemplate* ObjectMgr::GetItemTemplateMutable(uint32 entry)
 {
     return &_itemTemplateStore[entry];
 }
