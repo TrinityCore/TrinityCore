@@ -3739,10 +3739,16 @@ void ObjectMgr::LoadCustomItemTemplates()
         "FoodType, minMoneyLoot, maxMoneyLoot, flagsCustom FROM custom_item_template");
 
     if(result)
-    while(result->NextRow())
-    {
+    do {
         Field* fields = result->Fetch();
-        ItemTemplate* itemTemplate = new ItemTemplate();
+
+        uint32 entry = fields[0].GetUInt32();
+        auto itr = _itemTemplateStore.find(entry);
+
+        // read existing pointer so we don't invalidate anything
+        ItemTemplate* itemTemplate = itr != _itemTemplateStore.end()
+            ? &itr->second
+            : &(_itemTemplateStore[entry] = ItemTemplate());
 
         itemTemplate->ItemId = uint32(fields[0].GetUInt32());
         itemTemplate->Class = uint32(fields[1].GetUInt8());
@@ -3849,11 +3855,9 @@ void ObjectMgr::LoadCustomItemTemplates()
         itemTemplate->MinMoneyLoot = fields[135].GetUInt32();
         itemTemplate->MaxMoneyLoot = fields[136].GetUInt32();
         itemTemplate->FlagsCu = fields[137].GetUInt32();
-
-         _itemTemplateStore[itemTemplate->ItemId] = *itemTemplate;
-         // Load cached data
-         itemTemplate->_LoadTotalAP();
-    };
+        // Load cached data
+        itemTemplate->_LoadTotalAP();
+    } while (result->NextRow());
 }
 // @tswow-end
 
