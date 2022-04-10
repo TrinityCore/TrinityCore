@@ -3694,19 +3694,12 @@ ItemTemplate* ObjectMgr::LoadSingleItemTemplateObject(uint32 entry)
     return &_itemTemplateStore[entry];
 }
 
-struct VirtualItemTemplate : ItemTemplate
-{
-   VirtualItemTemplate(ItemTemplate* base, uint32 newEntry) : ItemTemplate(*base)
-    {
-        base->ItemId = newEntry;
-    }
-};
-
 ItemTemplate* ObjectMgr::LoadSingleItemTemplateObject(uint32 entry, uint32 copyID)
 {
-    _itemTemplateStore[entry] = VirtualItemTemplate(const_cast<ItemTemplate*>(sObjectMgr->GetItemTemplate(copyID)), entry);
-    _itemTemplateStore[entry]._LoadTotalAP();
-    return &_itemTemplateStore[entry];
+    ItemTemplate* copy = &(_itemTemplateStore[entry] = _itemTemplateStore[copyID]);
+    copy->ItemId = entry;
+    copy->_LoadTotalAP();
+    return copy;
 }
 
 void ObjectMgr::LoadCustomItemTemplates()
