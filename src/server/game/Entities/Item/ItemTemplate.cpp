@@ -297,8 +297,6 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
 // @tswow-begin
 WorldPacket* ItemTemplate::GetQueryData(uint32 index)
 {
-    // todo: hacky, but we need to call this from places thinking these are const.
-    //       It should be safe from these locations.
     if (m_isDirty)
     {
         InitializeQueryData();
