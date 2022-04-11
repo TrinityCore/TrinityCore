@@ -551,9 +551,9 @@ enum WarsongBattleStandard
 };
 
 // 47304 - Warsong Battle Standard
-class spell_warsong_battle_standard : public SpellScript
+class spell_dragonblight_warsong_battle_standard : public SpellScript
 {
-    PrepareSpellScript(spell_warsong_battle_standard);
+    PrepareSpellScript(spell_dragonblight_warsong_battle_standard);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -574,7 +574,7 @@ class spell_warsong_battle_standard : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warsong_battle_standard::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_dragonblight_warsong_battle_standard::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -588,9 +588,9 @@ enum MysteryOfTheInfinite
 };
 
 // 49686 - Mystery of the Infinite: Script Effect Player Cast Mirror Image
-class spell_moti_mirror_image_script_effect : public SpellScript
+class spell_dragonblight_moti_mirror_image_script_effect : public SpellScript
 {
-    PrepareSpellScript(spell_moti_mirror_image_script_effect);
+    PrepareSpellScript(spell_dragonblight_moti_mirror_image_script_effect);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -604,14 +604,14 @@ class spell_moti_mirror_image_script_effect : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_moti_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_moti_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 50020 - Mystery of the Infinite: Hourglass cast See Invis on Master
-class spell_moti_hourglass_cast_see_invis_on_master : public SpellScript
+class spell_dragonblight_moti_hourglass_cast_see_invis_on_master : public SpellScript
 {
-    PrepareSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
+    PrepareSpellScript(spell_dragonblight_moti_hourglass_cast_see_invis_on_master);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -627,7 +627,7 @@ class spell_moti_hourglass_cast_see_invis_on_master : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_moti_hourglass_cast_see_invis_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_dragonblight_moti_hourglass_cast_see_invis_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -643,9 +643,9 @@ enum TheChainGunAndYou
 
 // BasePoints of the dummy effect is ID of npc_text used to group texts, it's not implemented so texts are grouped manually. Same with 49556 but looks like it's not used
 // 49550 - Call Out Injured Soldier
-class spell_call_out_injured_soldier : public SpellScript
+class spell_dragonblight_call_out_injured_soldier : public SpellScript
 {
-    PrepareSpellScript(spell_call_out_injured_soldier);
+    PrepareSpellScript(spell_dragonblight_call_out_injured_soldier);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -661,7 +661,7 @@ class spell_call_out_injured_soldier : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_call_out_injured_soldier::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_dragonblight_call_out_injured_soldier::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -683,9 +683,9 @@ enum TortureTheTorturer
 };
 
 // 48603 - High Executor's Branding Iron
-class spell_high_executor_branding_iron : public SpellScript
+class spell_dragonblight_high_executor_branding_iron : public SpellScript
 {
-    PrepareSpellScript(spell_high_executor_branding_iron);
+    PrepareSpellScript(spell_dragonblight_high_executor_branding_iron);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -732,7 +732,7 @@ class spell_high_executor_branding_iron : public SpellScript
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_high_executor_branding_iron::HandleWhisper);
+        AfterHit += SpellHitFn(spell_dragonblight_high_executor_branding_iron::HandleWhisper);
     }
 };
 
@@ -742,9 +742,9 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_q12096_q12092_dummy);
     RegisterSpellScript(spell_q12096_q12092_bark);
     RegisterCreatureAI(npc_wyrmrest_defender);
-    RegisterSpellScript(spell_warsong_battle_standard);
-    RegisterSpellScript(spell_moti_mirror_image_script_effect);
-    RegisterSpellScript(spell_moti_hourglass_cast_see_invis_on_master);
-    RegisterSpellScript(spell_call_out_injured_soldier);
-    RegisterSpellScript(spell_high_executor_branding_iron);
+    RegisterSpellScript(spell_dragonblight_warsong_battle_standard);
+    RegisterSpellScript(spell_dragonblight_moti_mirror_image_script_effect);
+    RegisterSpellScript(spell_dragonblight_moti_hourglass_cast_see_invis_on_master);
+    RegisterSpellScript(spell_dragonblight_call_out_injured_soldier);
+    RegisterSpellScript(spell_dragonblight_high_executor_branding_iron);
 }
