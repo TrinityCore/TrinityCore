@@ -1592,9 +1592,9 @@ std::array<uint32, 3> const CocoonSummonSpells =
 };
 
 // 45516 - Nerub'ar Web Random Unit (Not On Quest, Script Effect)
-class spell_nerubar_web_random_unit_not_on_quest : public SpellScript
+class spell_borean_tundra_nerubar_web_random_unit_not_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_nerubar_web_random_unit_not_on_quest);
+    PrepareSpellScript(spell_borean_tundra_nerubar_web_random_unit_not_on_quest);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -1608,14 +1608,14 @@ class spell_nerubar_web_random_unit_not_on_quest : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_nerubar_web_random_unit_not_on_quest::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_nerubar_web_random_unit_not_on_quest::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 45515 - Nerub'ar Web Random Unit (Not On Quest, Dummy)
-class spell_nerubar_web_random_unit_not_on_quest_dummy : public SpellScript
+class spell_borean_tundra_nerubar_web_random_unit_not_on_quest_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_nerubar_web_random_unit_not_on_quest_dummy);
+    PrepareSpellScript(spell_borean_tundra_nerubar_web_random_unit_not_on_quest_dummy);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1634,14 +1634,14 @@ class spell_nerubar_web_random_unit_not_on_quest_dummy : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_nerubar_web_random_unit_not_on_quest_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_nerubar_web_random_unit_not_on_quest_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 45535 - Nerub'ar Web Random Unit (On Quest, Dummy)
-class spell_nerubar_web_random_unit_on_quest_dummy : public SpellScript
+class spell_borean_tundra_nerubar_web_random_unit_on_quest_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_nerubar_web_random_unit_on_quest_dummy);
+    PrepareSpellScript(spell_borean_tundra_nerubar_web_random_unit_on_quest_dummy);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1662,14 +1662,14 @@ class spell_nerubar_web_random_unit_on_quest_dummy : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_nerubar_web_random_unit_on_quest_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_nerubar_web_random_unit_on_quest_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 45522 - Dispel Freed Soldier Debuff
-class spell_dispel_freed_soldier_debuff : public SpellScript
+class spell_borean_tundra_dispel_freed_soldier_debuff : public SpellScript
 {
-    PrepareSpellScript(spell_dispel_freed_soldier_debuff);
+    PrepareSpellScript(spell_borean_tundra_dispel_freed_soldier_debuff);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -1684,7 +1684,7 @@ class spell_dispel_freed_soldier_debuff : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dispel_freed_soldier_debuff::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_dispel_freed_soldier_debuff::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1704,9 +1704,9 @@ enum BringEmBackAlive
 };
 
 // 45877 - Deliver Kodo
-class spell_deliver_kodo : public SpellScript
+class spell_borean_tundra_deliver_kodo : public SpellScript
 {
-    PrepareSpellScript(spell_deliver_kodo);
+    PrepareSpellScript(spell_borean_tundra_deliver_kodo);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -1721,14 +1721,14 @@ class spell_deliver_kodo : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_deliver_kodo::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_deliver_kodo::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 48204 - Kodo Delivered
-class spell_kodo_delivered : public SpellScript
+class spell_borean_tundra_kodo_delivered : public SpellScript
 {
-    PrepareSpellScript(spell_kodo_delivered);
+    PrepareSpellScript(spell_borean_tundra_kodo_delivered);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1747,7 +1747,7 @@ class spell_kodo_delivered : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_kodo_delivered::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_kodo_delivered::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1902,12 +1902,12 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_q11719_bloodspore_ruination_45997);
     RegisterCreatureAI(npc_bloodmage_laurith);
     RegisterSpellScript(spell_q11653_shortening_blaster);
-    RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest);
-    RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest_dummy);
-    RegisterSpellScript(spell_nerubar_web_random_unit_on_quest_dummy);
-    RegisterSpellScript(spell_dispel_freed_soldier_debuff);
-    RegisterSpellScript(spell_deliver_kodo);
-    RegisterSpellScript(spell_kodo_delivered);
+    RegisterSpellScript(spell_borean_tundra_nerubar_web_random_unit_not_on_quest);
+    RegisterSpellScript(spell_borean_tundra_nerubar_web_random_unit_not_on_quest_dummy);
+    RegisterSpellScript(spell_borean_tundra_nerubar_web_random_unit_on_quest_dummy);
+    RegisterSpellScript(spell_borean_tundra_dispel_freed_soldier_debuff);
+    RegisterSpellScript(spell_borean_tundra_deliver_kodo);
+    RegisterSpellScript(spell_borean_tundra_kodo_delivered);
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
 }

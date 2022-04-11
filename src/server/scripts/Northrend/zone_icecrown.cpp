@@ -731,9 +731,9 @@ struct npc_frostbrood_skytalon : public VehicleAI
 ######*/
 
 // 55288 - It's All Fun and Games: The Ocular On Death
-class spell_the_ocular_on_death : public SpellScript
+class spell_icecrown_the_ocular_on_death : public SpellScript
 {
-    PrepareSpellScript(spell_the_ocular_on_death);
+    PrepareSpellScript(spell_icecrown_the_ocular_on_death);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -748,7 +748,7 @@ class spell_the_ocular_on_death : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_the_ocular_on_death::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_the_ocular_on_death::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -757,9 +757,9 @@ class spell_the_ocular_on_death : public SpellScript
 ######*/
 
 // 66411 - Summon Tualiq Proxy
-class spell_summon_tualiq_proxy : public SpellScript
+class spell_icecrown_summon_tualiq_proxy : public SpellScript
 {
-    PrepareSpellScript(spell_summon_tualiq_proxy);
+    PrepareSpellScript(spell_icecrown_summon_tualiq_proxy);
 
     void SetDest(SpellDestination& dest)
     {
@@ -769,7 +769,7 @@ class spell_summon_tualiq_proxy : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_tualiq_proxy::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icecrown_summon_tualiq_proxy::SetDest, EFFECT_0, TARGET_DEST_CASTER);
     }
 };
 
@@ -784,9 +784,9 @@ enum BreakfastOfChampions
 };
 
 // 66512 - Pound Drum
-class spell_q14076_14092_pound_drum : public SpellScript
+class spell_icecrown_pound_drum : public SpellScript
 {
-    PrepareSpellScript(spell_q14076_14092_pound_drum);
+    PrepareSpellScript(spell_icecrown_pound_drum);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -800,7 +800,7 @@ class spell_q14076_14092_pound_drum : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_q14076_14092_pound_drum::HandleSummon);
+        OnCast += SpellCastFn(spell_icecrown_pound_drum::HandleSummon);
     }
 };
 
@@ -825,9 +825,9 @@ std::array<uint32, 4> const ChumTheWaterSummonSpells =
 };
 
 // 66741 - Chum the Water
-class spell_q14112_14145_chum_the_water : public SpellScript
+class spell_icecrown_chum_the_water : public SpellScript
 {
-    PrepareSpellScript(spell_q14112_14145_chum_the_water);
+    PrepareSpellScript(spell_icecrown_chum_the_water);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -842,7 +842,7 @@ class spell_q14112_14145_chum_the_water : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_q14112_14145_chum_the_water::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_icecrown_chum_the_water::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -853,8 +853,8 @@ void AddSC_icecrown()
     RegisterCreatureAI(npc_tournament_training_dummy);
     RegisterCreatureAI(npc_blessed_banner);
     RegisterCreatureAI(npc_frostbrood_skytalon);
-    RegisterSpellScript(spell_the_ocular_on_death);
-    RegisterSpellScript(spell_summon_tualiq_proxy);
-    RegisterSpellScript(spell_q14076_14092_pound_drum);
-    RegisterSpellScript(spell_q14112_14145_chum_the_water);
+    RegisterSpellScript(spell_icecrown_the_ocular_on_death);
+    RegisterSpellScript(spell_icecrown_summon_tualiq_proxy);
+    RegisterSpellScript(spell_icecrown_pound_drum);
+    RegisterSpellScript(spell_icecrown_chum_the_water);
 }
