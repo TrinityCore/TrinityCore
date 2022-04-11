@@ -293,3 +293,15 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     response.ShrinkToFit();
     return response.Move();
 }
+
+// @tswow-begin
+WorldPacket* ItemTemplate::GetQueryData(uint32 index)
+{
+    if (m_isDirty)
+    {
+        InitializeQueryData();
+        m_isDirty = false;
+    }
+    return &QueryData[index];
+}
+// @tswow-end

@@ -56,6 +56,7 @@ public:
     uint8 GetGender() const { return gender; }
     uint8 GetRace() const { return race; }
     uint32 GetDisplayId() const { return displayId; }
+    void SetDisplayId(uint32 displayID) { displayId = displayID; }
 
     CreatureOutfit& SetItemEntry(EquipmentSlots slot, uint32 item_entry);
     CreatureOutfit& SetItemDisplay(EquipmentSlots slot, uint32 displayid)
