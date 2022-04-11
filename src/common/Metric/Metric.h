@@ -163,7 +163,7 @@ Optional<MetricStopWatch<LoggerType>> MakeMetricStopWatch(LoggerType&& loggerFun
     if (!sMetric->IsEnabled())
         return {};
 
-    return MetricStopWatch<LoggerType>(std::forward<LoggerType>(loggerFunc));
+    return Optional<MetricStopWatch<LoggerType>>(std::in_place, std::forward<LoggerType>(loggerFunc));
 }
 
 #define TC_METRIC_TAG(name, value) MetricTag(name, value)
