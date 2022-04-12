@@ -1052,9 +1052,9 @@ class spell_player_mount_wyrm : public AuraScript
 ######*/
 
 // 55693 - Remove Collapsing Cave Aura
-class spell_q12823_remove_collapsing_cave_aura : public SpellScript
+class spell_storm_peaks_remove_collapsing_cave_aura : public SpellScript
 {
-    PrepareSpellScript(spell_q12823_remove_collapsing_cave_aura);
+    PrepareSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -1068,7 +1068,7 @@ class spell_q12823_remove_collapsing_cave_aura : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_storm_peaks_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1084,9 +1084,9 @@ enum MountingHodirsHelm
 };
 
 // 56278 - Read Pronouncement
-class spell_read_pronouncement : public AuraScript
+class spell_storm_peaks_read_pronouncement : public AuraScript
 {
-    PrepareAuraScript(spell_read_pronouncement);
+    PrepareAuraScript(spell_storm_peaks_read_pronouncement);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1107,7 +1107,7 @@ class spell_read_pronouncement : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_storm_peaks_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1123,9 +1123,9 @@ enum JormuttarIsSooFat
 };
 
 // 56565 - Bear Flank Master
-class spell_bear_flank_master : public SpellScript
+class spell_storm_peaks_bear_flank_master : public SpellScript
 {
-    PrepareSpellScript(spell_bear_flank_master);
+    PrepareSpellScript(spell_storm_peaks_bear_flank_master);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1139,14 +1139,14 @@ class spell_bear_flank_master : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_storm_peaks_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 56569 - Bear Flank Fail
-class spell_bear_flank_fail : public AuraScript
+class spell_storm_peaks_bear_flank_fail : public AuraScript
 {
-    PrepareAuraScript(spell_bear_flank_fail);
+    PrepareAuraScript(spell_storm_peaks_bear_flank_fail);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1161,7 +1161,7 @@ class spell_bear_flank_fail : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_bear_flank_fail::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_storm_peaks_bear_flank_fail::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1261,10 +1261,10 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_claw_swipe_check);
     RegisterSpellScript(spell_fatal_strike);
     RegisterSpellScript(spell_player_mount_wyrm);
-    RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
-    RegisterSpellScript(spell_read_pronouncement);
-    RegisterSpellScript(spell_bear_flank_master);
-    RegisterSpellScript(spell_bear_flank_fail);
+    RegisterSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
+    RegisterSpellScript(spell_storm_peaks_read_pronouncement);
+    RegisterSpellScript(spell_storm_peaks_bear_flank_master);
+    RegisterSpellScript(spell_storm_peaks_bear_flank_fail);
     RegisterSpellScript(spell_storm_peaks_mammoth_explosion_master);
     RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
 }
