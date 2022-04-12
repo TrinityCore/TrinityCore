@@ -1978,15 +1978,7 @@ struct TalentSpellPos
 
 typedef std::map<uint32, TalentSpellPos> TalentSpellPosMap;
 
-struct TaxiPathBySourceAndDestination
-{
-    TaxiPathBySourceAndDestination() : ID(0), price(0) { }
-    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) { }
-
-    uint32    ID;
-    uint32    price;
-};
-typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
+typedef std::map<uint32, TaxiPathEntry const*> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
 typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
