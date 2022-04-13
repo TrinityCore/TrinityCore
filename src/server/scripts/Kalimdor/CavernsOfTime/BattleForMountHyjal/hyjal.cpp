@@ -94,6 +94,7 @@ class npc_jaina_proudmoore : public CreatureScript
                         StartEvent(player);
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 3:
+                        me->AI()->Talk(5);
                         Retreat();
                         break;
                     case GOSSIP_ACTION_INFO_DEF:
@@ -112,16 +113,23 @@ class npc_jaina_proudmoore : public CreatureScript
                 uint32 RageEncounter = GetInstanceData(DATA_RAGEWINTERCHILLEVENT);
                 uint32 AnetheronEncounter = GetInstanceData(DATA_ANETHERONEVENT);
                 if (RageEncounter == NOT_STARTED)
+                {
                     AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_ALLY_MID, GOSSIP_ITEM_BEGIN_ALLY_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    SendGossipMenuFor(player, 9168, me->GetGUID());
+                }
                 else if (RageEncounter == DONE && AnetheronEncounter == NOT_STARTED)
+                {
                     AddGossipItemFor(player, GOSSIP_ITEM_ANETHERON_MID, GOSSIP_ITEM_ANETHERON_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    SendGossipMenuFor(player, 9380, me->GetGUID());
+                }
                 else if (RageEncounter == DONE && AnetheronEncounter == DONE)
+                {
                     AddGossipItemFor(player, GOSSIP_ITEM_ALLY_RETREAT_MID, GOSSIP_ITEM_ALLY_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
+                    SendGossipMenuFor(player, 9387, me->GetGUID());
+                }
                 if (player->IsGameMaster())
                     AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-                SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
             }
         };
@@ -188,17 +196,25 @@ class npc_thrall : public CreatureScript
                     uint32 KazrogalEvent = GetInstanceData(DATA_KAZROGALEVENT);
                     uint32 AzgalorEvent = GetInstanceData(DATA_AZGALOREVENT);
                     if (KazrogalEvent == NOT_STARTED)
+                    {
                         AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_HORDE_MID, GOSSIP_ITEM_BEGIN_HORDE_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        SendGossipMenuFor(player, 9225, me->GetGUID());
+                    }
                     else if (KazrogalEvent == DONE && AzgalorEvent == NOT_STARTED)
+                    {
                         AddGossipItemFor(player, GOSSIP_ITEM_AZGALOR_MID, GOSSIP_ITEM_AZGALOR_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        SendGossipMenuFor(player, 9232, me->GetGUID());
+                    }
                     else if (AzgalorEvent == DONE)
+                    {
                         AddGossipItemFor(player, GOSSIP_ITEM_HORDE_RETREAT_MID, GOSSIP_ITEM_HORDE_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        SendGossipMenuFor(player, 9233, me->GetGUID());
+                    }
                 }
 
                 if (player->IsGameMaster())
                     AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-                SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
             }
         };
@@ -244,7 +260,7 @@ class npc_tyrande_whisperwind : public CreatureScript
                 // Only let them get item if Azgalor is dead.
                 if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS))
                     AddGossipItemFor(player, GOSSIP_ITEM_TYRANDE_MID, GOSSIP_ITEM_TYRANDE_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                SendGossipMenuFor(player, 907, me->GetGUID());
+                SendGossipMenuFor(player, 9410, me->GetGUID());
                 return true;
             }
         };

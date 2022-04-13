@@ -40,8 +40,6 @@ enum Spawns
     SPAWN_NEAR_TOWER    = 2,
 };
 
-#define YELL_HURRY  "Hurry, we don't have much time"
-
 // Locations for summoning gargoyls and frost wyrms in special cases
 float SpawnPointSpecial[3][3]=
 {
@@ -401,6 +399,7 @@ void hyjalAI::Reset()
 
         case TYRANDE:
             Faction = 2;
+            DoCast(me, SPELL_TRUESHOT_AURA, true);
             break;
     }
 
@@ -936,7 +935,6 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
 {
     if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
-        me->Yell(YELL_HURRY, LANG_UNIVERSAL);
         WaitForTeleport = true;
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)

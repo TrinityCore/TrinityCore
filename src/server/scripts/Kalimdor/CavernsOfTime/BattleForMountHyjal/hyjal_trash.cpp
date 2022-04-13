@@ -189,6 +189,7 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
     useFlyPath = false;
     damageTaken = 0;
     memset(DummyTarget, 0, sizeof(DummyTarget));
+    SetRun();
     Reset();
 }
 

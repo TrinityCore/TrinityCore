@@ -78,14 +78,16 @@ enum Events
     EVENT_AIR_BURST,
     EVENT_DOOMFIRE,
     EVENT_DISTANCE_CHECK,           // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
-    EVENT_SUMMON_WHISP
+    EVENT_SUMMON_WHISP,
+    EVENT_PROTECTION_OF_ELUNE
 };
 
 enum Summons
 {
     NPC_DOOMFIRE               = 18095,
     NPC_DOOMFIRE_SPIRIT        = 18104,
-    NPC_ANCIENT_WISP           = 17946
+    NPC_ANCIENT_WISP           = 17946,
+    WORLDTREE_CHANNEL_TARGET   = 22418
 };
 
 enum Actions
@@ -93,6 +95,8 @@ enum Actions
     ACTION_ENRAGE,
     ACTION_CHANNEL_WORLD_TREE
 };
+
+Position const NordrassilLoc = { 5503.713f, -3523.436f, 1608.781f, 0.0f };
 
 class npc_ancient_wisp : public CreatureScript
 {
@@ -284,23 +288,27 @@ public:
 
             Enraged = false;
             HasProtected = false;
+            WorldtreeTraget = me->SummonCreature(WORLDTREE_CHANNEL_TARGET, 5503.713f, -3523.436f, 1608.781f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 360000s);
+            DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
+            WorldtreeTraget->AI()->DoCast(me, SPELL_DRAIN_WORLD_TREE_TRIGGERED);
         }
 
         void InitializeAI() override
         {
             BossAI::InitializeAI();
-            DoAction(ACTION_CHANNEL_WORLD_TREE);
         }
 
         void Reset() override
         {
             Initialize();
             _Reset();
-            me->RemoveAllAuras();                              // Reset Soul Charge auras.
+            me->RemoveAllAuras();                     // Reset Soul Charge auras.
+            CastProtectionOfElune(false);
         }
 
         void JustEngagedWith(Unit* who) override
         {
+            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
             Talk(SAY_AGGRO);
             BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_FEAR, 42s);
@@ -387,16 +395,62 @@ public:
                             DoAction(ACTION_ENRAGE);
                     events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5s);
                     break;
+                case EVENT_PROTECTION_OF_ELUNE: // hp below 10% only cast hand of death
+                    events.CancelEvent(EVENT_FEAR);
+                    events.CancelEvent(EVENT_UNLEASH_SOUL_CHARGE);
+                    events.CancelEvent(EVENT_GRIP_OF_THE_LEGION);
+                    events.CancelEvent(EVENT_AIR_BURST);
+                    events.CancelEvent(EVENT_FEAR);
+                    events.CancelEvent(EVENT_DOOMFIRE);
+                    events.CancelEvent(EVENT_FINGER_OF_DEATH);
+                    events.CancelEvent(EVENT_HAND_OF_DEATH);
+                    events.ScheduleEvent(EVENT_HAND_OF_DEATH, 2s);
+                    CastProtectionOfElune(true);
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveIdle();
+                    break;
                 case EVENT_SUMMON_WHISP:
                     DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s);
                     ++WispCount;
                     if (WispCount >= 30)
+                    {
                         me->KillSelf();
+                        return;
+                    }
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
                     break;
                 default:
                     break;
             }
+        }
+
+        void CastProtectionOfElune(bool apply)
+        {
+            if (apply)
+            {
+                if (me->GetThreatManager().IsThreatListEmpty())
+                    return;
+
+                std::vector<ThreatReference*> vt = me->GetThreatManager().GetModifiableThreatList(); // GetUnsortedThreatList //Trinity::IteratorPair<ThreatListIterator>   ThreatContainer::StorageType
+                for(std::vector<ThreatReference*>::iterator iter=vt.begin();iter!=vt.end();iter++)
+              	{
+                    if (Unit* target = (*iter)->GetVictim())
+                        if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                            spellProtectionOfEluneTargets.push_back(target);
+                }
+            }
+
+            for (auto iter = spellProtectionOfEluneTargets.begin(); iter != spellProtectionOfEluneTargets.end(); ++iter)
+                if (Unit* target = *iter)
+                {
+                    if (apply)
+                        target->AddAura(SPELL_PROTECTION_OF_ELUNE, target);
+                    target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, apply);
+                    //target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_HAND_OF_DEATH, apply);
+                }
+
+            if (!apply)
+                spellProtectionOfEluneTargets.clear();
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -410,9 +464,8 @@ public:
                 {
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveIdle();
-
                     // All members of raid must get this buff
-                    DoCastAOE(SPELL_PROTECTION_OF_ELUNE, true);
+                    events.ScheduleEvent(EVENT_PROTECTION_OF_ELUNE, 1ms);
                     HasProtected = true;
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
                 }
@@ -452,11 +505,13 @@ public:
         void JustReachedHome() override
         {
             DoAction(ACTION_CHANNEL_WORLD_TREE);
+            DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
+            CastProtectionOfElune(false);
             _JustDied();
             // @todo: remove this when instance script gets updated, kept for compatibility only
             instance->SetData(DATA_ARCHIMONDE, DONE);
@@ -531,6 +586,8 @@ public:
         uint32 _unleashSpell;
         bool Enraged;
         bool HasProtected;
+        Creature* WorldtreeTraget;
+        std::list<Unit*> spellProtectionOfEluneTargets;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
