@@ -399,7 +399,7 @@ void hyjalAI::Reset()
 
         case TYRANDE:
             Faction = 2;
-            DoCast(me, SPELL_TRUESHOT_AURA, true);
+            DoCastSelf(SPELL_TRUESHOT_AURA, true);
             break;
     }
 
