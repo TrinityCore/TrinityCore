@@ -941,7 +941,7 @@ public:
         {
             Talk(TRASH_SAY_SLAY);
         }
-        
+
         void JustDied(Unit* killer) override
         {
             hyjal_trashAI::JustDied(killer);
