@@ -53,6 +53,7 @@ enum Spells
     SPELL_DRAIN_WORLD_TREE_TRIGGERED = 39141,
 
     SPELL_FINGER_OF_DEATH            = 31984,
+    SPELL_FINGER_OF_DEATH_LAST_PHASE = 32111,
     SPELL_HAND_OF_DEATH              = 35354,
     SPELL_AIR_BURST                  = 32014,
     SPELL_GRIP_OF_THE_LEGION         = 31972,
@@ -79,7 +80,8 @@ enum Events
     EVENT_DOOMFIRE,
     EVENT_DISTANCE_CHECK,           // This checks if he's too close to the World Tree (75 yards from a point on the tree), if true then he will enrage
     EVENT_SUMMON_WHISP,
-    EVENT_PROTECTION_OF_ELUNE
+    EVENT_PROTECTION_OF_ELUNE,
+    EVENT_FINGER_OF_DEATH_LAST_PHASE
 };
 
 enum Summons
@@ -395,7 +397,7 @@ public:
                             DoAction(ACTION_ENRAGE);
                     events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5s);
                     break;
-                case EVENT_PROTECTION_OF_ELUNE: // hp below 10% only cast hand of death
+                case EVENT_PROTECTION_OF_ELUNE: // hp below 10% only cast finger of death
                     events.CancelEvent(EVENT_FEAR);
                     events.CancelEvent(EVENT_UNLEASH_SOUL_CHARGE);
                     events.CancelEvent(EVENT_GRIP_OF_THE_LEGION);
@@ -404,7 +406,7 @@ public:
                     events.CancelEvent(EVENT_DOOMFIRE);
                     events.CancelEvent(EVENT_FINGER_OF_DEATH);
                     events.CancelEvent(EVENT_HAND_OF_DEATH);
-                    events.ScheduleEvent(EVENT_HAND_OF_DEATH, 2s);
+                    events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
                     CastProtectionOfElune(true);
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveIdle();
@@ -418,6 +420,10 @@ public:
                         return;
                     }
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
+                    break;
+                case EVENT_FINGER_OF_DEATH_LAST_PHASE:
+                    DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_FINGER_OF_DEATH_LAST_PHASE);
+                    events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
                     break;
                 default:
                     break;
@@ -446,6 +452,7 @@ public:
                     if (apply)
                         target->AddAura(SPELL_PROTECTION_OF_ELUNE, target);
                     target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, apply);
+                    target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
                 }
 
             if (!apply)
