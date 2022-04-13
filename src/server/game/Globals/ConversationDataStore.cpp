@@ -68,7 +68,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation line templates. DB table `conversation_line_template` is empty.");
     }
 
-    if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx, CreatureId, CreatureDisplayInfoId FROM conversation_actors"))
+    if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx, CreatureId, CreatureDisplayInfoId, NoActorObject FROM conversation_actors"))
     {
         uint32 oldMSTime = getMSTime();
         uint32 count = 0;
