@@ -632,6 +632,7 @@ void hyjalAI::Retreat()
         if (JainaDummy)
         {
             JainaDummy->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            JainaDummy->AI()->Talk(7);
             ENSURE_AI(hyjalAI, JainaDummy->AI())->IsDummy = true;
             DummyGuid = JainaDummy->GetGUID();
         }

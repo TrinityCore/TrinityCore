@@ -47,6 +47,12 @@ enum Spells
     SPELL_EXPLODING_SHOT    = 7896,
 };
 
+enum HyjalCreatureText
+{
+    TRASH_SAY_SLAY           = 0,
+    TRASH_SAY_DEATH          = 1,
+};
+
 float HordeWPs[8][3]=//basic waypoints from spawn to leader
 {
     {5492.91f,    -2404.61f,    1462.63f},
@@ -808,6 +814,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
+            Talk(TRASH_SAY_SLAY);
             switch (urand(0, 2))
             {
                 case 0:
@@ -825,6 +832,12 @@ public:
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
+
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            me->AI()->Talk(TRASH_SAY_DEATH);
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -922,6 +935,17 @@ public:
                         AddThreat(target, 0.0f);
                 }
             }
+        }
+
+        void KilledUnit(Unit* /*victim*/) override
+        {
+            Talk(TRASH_SAY_SLAY);
+        }
+        
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            me->AI()->Talk(TRASH_SAY_DEATH);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
