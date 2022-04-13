@@ -830,8 +830,12 @@ void hyjalAI::UpdateAI(uint32 diff)
                     }
                     else if (BossGUID[i] == BossGUID[1])
                     {
-                        Talk(SUCCESS);
-                        SecondBossDead = true;
+                        if (me->GetEntry()!=JAINA) // jaina yell success after select gossip
+                        {
+                            Talk(SUCCESS);
+                            SecondBossDead = true;
+                        }
+
                     }
                     EventBegun = false;
                     CheckTimer = 0;
