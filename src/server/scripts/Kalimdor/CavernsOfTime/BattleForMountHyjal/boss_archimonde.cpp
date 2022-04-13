@@ -433,7 +433,7 @@ public:
 
                 std::vector<ThreatReference*> vt = me->GetThreatManager().GetModifiableThreatList(); // GetUnsortedThreatList //Trinity::IteratorPair<ThreatListIterator>   ThreatContainer::StorageType
                 for(std::vector<ThreatReference*>::iterator iter=vt.begin();iter!=vt.end();iter++)
-              	{
+                {
                     if (Unit* target = (*iter)->GetVictim())
                         if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                             spellProtectionOfEluneTargets.push_back(target);
