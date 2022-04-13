@@ -2577,8 +2577,8 @@ void SpellInfo::_LoadSpellDiminishInfo()
             }
             case SPELLFAMILY_DRUID:
             {
-                // Pounce
-                if (SpellFamilyFlags[0] & 0x20000)
+                // Pounce - there are two spells which share the same family: the stun effect and the bleed spell. We don't want the bleed to be affected by DR
+                if ((SpellFamilyFlags[0] & 0x20000) && Id != 9007)
                     return DIMINISHING_OPENING_STUN;
                 // Cyclone
                 else if (SpellFamilyFlags[1] & 0x20)
