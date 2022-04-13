@@ -5447,6 +5447,31 @@ class spell_gen_face_rage : public AuraScript
     }
 };
 
+enum Shadowmeld
+{
+    SPELL_RACIAL_ELUSIVENESS = 21009
+};
+
+// 58984 Shadowmeld (Racial)
+class spell_gen_shadowmeld : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RACIAL_ELUSIVENESS });
+    }
+    
+    void HandleStealthLevel(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        if (AuraEffect const* aurEff = GetUnitOwner()->GetAuraEffect(SPELL_RACIAL_ELUSIVENESS, EFFECT_0))
+            amount += aurEff->GetAmount();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount.Register(&spell_gen_shadowmeld::HandleStealthLevel, EFFECT_2, SPELL_AURA_MOD_STEALTH);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5583,4 +5608,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_wounded);
     RegisterSpellScript(spell_gen_rocket_barrage);
     RegisterSpellScript(spell_gen_face_rage);
+    RegisterSpellScript(spell_gen_shadowmeld);
 }

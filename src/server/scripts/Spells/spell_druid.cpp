@@ -135,7 +135,8 @@ enum DruidSpellIconIds
 
 enum MiscSpells
 {
-    SPELL_CATEGORY_MANGLE_BEAR              = 971
+    SPELL_CATEGORY_MANGLE_BEAR              = 971,
+    SPELL_RACIAL_SHADOWMELD                 = 58984
 };
 
 // 50334 - Berserk
@@ -1985,6 +1986,40 @@ class spell_dru_maul : public SpellScript
     }
 };
 
+// 9005 - Pounce
+class spell_dru_pounce : public SpellScript
+{
+    SpellCastResult CheckCast()
+    {
+        if (GetCaster()->HasAura(SPELL_RACIAL_SHADOWMELD))
+            return SPELL_FAILED_TARGET_AURASTATE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast.Register(&spell_dru_pounce::CheckCast);
+    }
+};
+
+// 6785 - Ravage
+class spell_dru_ravage : public SpellScript
+{
+    SpellCastResult CheckCast()
+    {
+        if (GetCaster()->HasAura(SPELL_RACIAL_SHADOWMELD))
+            return SPELL_FAILED_TARGET_AURASTATE;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast.Register(&spell_dru_ravage::CheckCast);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -2040,4 +2075,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_wild_mushroom_detonate);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_feral_swiftness_clear);
+    RegisterSpellScript(spell_dru_pounce);
+    RegisterSpellScript(spell_dru_ravage);
 }
