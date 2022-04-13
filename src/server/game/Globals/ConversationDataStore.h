@@ -33,6 +33,14 @@ struct ConversationActor
     uint32 ActorId;
     uint32 CreatureId;
     uint32 CreatureDisplayInfoId;
+    bool NoActorObject;
+};
+
+struct ConversationActorGuid
+{
+    uint32 ActorId;
+    ObjectGuid::LowType ActorGuid;
+    bool NoActorObject;
 };
 
 #pragma pack(push, 1)
@@ -53,7 +61,7 @@ struct ConversationTemplate
     uint32 TextureKitId;    // Background texture
 
     std::vector<ConversationActor> Actors;
-    std::vector<ObjectGuid::LowType> ActorGuids;
+    std::vector<ConversationActorGuid> ActorGuids;
     std::vector<ConversationLineTemplate const*> Lines;
 
     uint32 ScriptId;

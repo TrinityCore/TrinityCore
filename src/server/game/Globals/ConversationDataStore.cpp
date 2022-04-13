@@ -35,7 +35,7 @@ void ConversationDataStore::LoadConversationTemplates()
     _conversationTemplateStore.clear();
 
     std::unordered_map<uint32, std::vector<ConversationActor>> actorsByConversation;
-    std::unordered_map<uint32, std::vector<ObjectGuid::LowType>> actorGuidsByConversation;
+    std::unordered_map<uint32, std::vector<ConversationActorGuid>> actorGuidsByConversation;
 
     if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, UiCameraID, ActorIdx, Flags FROM conversation_line_template"))
     {
@@ -83,6 +83,7 @@ void ConversationDataStore::LoadConversationTemplates()
             uint16 idx                    = fields[3].GetUInt16();
             uint32 creatureId             = fields[4].GetUInt32();
             uint32 creatureDisplayInfoId  = fields[5].GetUInt32();
+            bool noActorObject            = fields[6].GetUInt8() == 1;
 
             if (creatureId != 0 && actorGuid != 0)
             {
@@ -98,6 +99,7 @@ void ConversationDataStore::LoadConversationTemplates()
                     conversationActor.ActorId = actorId;
                     conversationActor.CreatureId = creatureId;
                     conversationActor.CreatureDisplayInfoId = creatureDisplayInfoId;
+                    conversationActor.NoActorObject = noActorObject;
 
                     std::vector<ConversationActor>& actors = actorsByConversation[conversationId];
                     if (actors.size() <= idx)
@@ -112,14 +114,33 @@ void ConversationDataStore::LoadConversationTemplates()
             {
                 if (sObjectMgr->GetCreatureData(actorGuid))
                 {
-                    std::vector<ObjectGuid::LowType>& guids = actorGuidsByConversation[conversationId];
-                    if (guids.size() <= idx)
-                        guids.resize(idx + 1);
-                    guids[idx] = actorGuid;
+                    ConversationActorGuid conversationActorGuid;
+                    conversationActorGuid.ActorId = actorId;
+                    conversationActorGuid.ActorGuid = actorGuid;
+                    conversationActorGuid.NoActorObject = noActorObject;
+
+                    std::vector<ConversationActorGuid>& actors = actorGuidsByConversation[conversationId];
+                    if (actors.size() <= idx)
+                        actors.resize(idx + 1);
+                    actors[idx] = conversationActorGuid;
                     ++count;
                 }
                 else
                     TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid creature guid (GUID: " UI64FMTD ") for Conversation %u, skipped", actorGuid, conversationId);
+            }
+            // NoActorObject only used for ActorType::WorldObjectActor, even if everything is 0
+            else
+            {
+                ConversationActorGuid conversationActorGuid;
+                conversationActorGuid.ActorId = actorId;
+                conversationActorGuid.ActorGuid = actorGuid;
+                conversationActorGuid.NoActorObject = noActorObject;
+
+                std::vector<ConversationActorGuid>& actors = actorGuidsByConversation[conversationId];
+                if (actors.size() <= idx)
+                    actors.resize(idx + 1);
+                actors[idx] = conversationActorGuid;
+                ++count;
             }
         }
         while (actors->NextRow());

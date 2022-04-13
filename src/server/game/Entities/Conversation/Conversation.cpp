@@ -135,20 +135,20 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             actorField.CreatureID = actor.CreatureId;
             actorField.CreatureDisplayInfoID = actor.CreatureDisplayInfoId;
             actorField.Id = actor.ActorId;
+            actorField.NoActorObject = actor.NoActorObject;
             actorField.Type = AsUnderlyingType(ActorType::CreatureActor);
     }
 
     for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
     {
-        ObjectGuid::LowType actorGuid = conversationTemplate->ActorGuids[actorIndex];
-        if (!actorGuid)
-            continue;
-
-        for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), actorGuid))
+        ObjectGuid guid = ObjectGuid::Empty;
+        for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), conversationTemplate->ActorGuids[actorIndex].ActorGuid))
         {
             // we just need the last one, overriding is legit
-            AddActor(pair.second->GetGUID(), actorIndex);
+            guid = pair.second->GetGUID();
         }
+
+        AddActor(guid, static_cast<int32>(conversationTemplate->ActorGuids[actorIndex].ActorId), actorIndex, conversationTemplate->ActorGuids[actorIndex].NoActorObject);
     }
 
     std::set<uint16> actorIndices;
@@ -211,11 +211,13 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     return true;
 }
 
-void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
+void Conversation::AddActor(ObjectGuid const& actorGuid, int32 actorId, uint16 actorIdx, bool noActorObject)
 {
     auto actorField = m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors, actorIdx);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Id), actorId);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), actorGuid);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ActorType::WorldObjectActor));
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::NoActorObject), noActorObject);
 }
 
 Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 lineId) const

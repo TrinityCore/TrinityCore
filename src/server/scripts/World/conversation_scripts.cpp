@@ -34,7 +34,7 @@ public:
 
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
     {
-        conversation->AddActor(ObjectGuid::Create<HighGuid::Player>(0xFFFFFFFFFFFFFFFF), 1);
+        conversation->AddActor(ObjectGuid::Create<HighGuid::Player>(0xFFFFFFFFFFFFFFFF), 0, 1, false);
         if (Player* player = creator->ToPlayer())
             player->KilledMonsterCredit(NPC_TALK_TO_YOUR_COMMANDER_CREDIT);
     }
