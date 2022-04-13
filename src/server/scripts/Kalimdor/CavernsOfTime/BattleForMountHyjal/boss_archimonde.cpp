@@ -288,7 +288,7 @@ public:
 
             Enraged = false;
             HasProtected = false;
-            WorldtreeTraget = me->SummonCreature(WORLDTREE_CHANNEL_TARGET, 5503.713f, -3523.436f, 1608.781f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 360000s);
+            WorldtreeTraget = me->SummonCreature(WORLDTREE_CHANNEL_TARGET, 5503.713f, -3523.436f, 1608.781f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 360000s)->GetSummonerCreatureBase();
             DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
             WorldtreeTraget->AI()->DoCast(me, SPELL_DRAIN_WORLD_TREE_TRIGGERED);
         }
