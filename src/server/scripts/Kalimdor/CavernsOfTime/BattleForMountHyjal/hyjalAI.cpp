@@ -833,9 +833,8 @@ void hyjalAI::UpdateAI(uint32 diff)
                         if (me->GetEntry()!=JAINA) // jaina yell success after select gossip
                         {
                             Talk(SUCCESS);
-                            SecondBossDead = true;
                         }
-
+                        SecondBossDead = true;
                     }
                     EventBegun = false;
                     CheckTimer = 0;
