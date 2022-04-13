@@ -632,7 +632,6 @@ void hyjalAI::Retreat()
         if (JainaDummy)
         {
             JainaDummy->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            JainaDummy->AI()->Talk(7);
             ENSURE_AI(hyjalAI, JainaDummy->AI())->IsDummy = true;
             DummyGuid = JainaDummy->GetGUID();
         }
@@ -945,6 +944,7 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {
                 hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
+                ai->Talk(7);
                 ai->DoMassTeleport = true;
                 ai->MassTeleportTimer = 20000;
                 creature->CastSpell(me, SPELL_MASS_TELEPORT, false);
