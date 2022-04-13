@@ -141,14 +141,19 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
     for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
     {
-        ObjectGuid guid = ObjectGuid::Empty;
-        for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), conversationTemplate->ActorGuids[actorIndex].ActorGuid))
+        ObjectGuid::LowType actorGuid = conversationTemplate->ActorGuids[actorIndex].ActorGuid;
+        if (!actorGuid)
         {
-            // we just need the last one, overriding is legit
-            guid = pair.second->GetGUID();
+            AddActor(ObjectGuid::Empty, static_cast<int32>(conversationTemplate->ActorGuids[actorIndex].ActorId), actorIndex, conversationTemplate->ActorGuids[actorIndex].NoActorObject);
         }
-
-        AddActor(guid, static_cast<int32>(conversationTemplate->ActorGuids[actorIndex].ActorId), actorIndex, conversationTemplate->ActorGuids[actorIndex].NoActorObject);
+        else
+        {
+            for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), actorGuid))
+            {
+                // we just need the last one, overriding is legit
+                AddActor(pair.second->GetGUID(), static_cast<int32>(conversationTemplate->ActorGuids[actorIndex].ActorId), actorIndex, conversationTemplate->ActorGuids[actorIndex].NoActorObject);
+            }
+        }
     }
 
     std::set<uint16> actorIndices;
