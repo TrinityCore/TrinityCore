@@ -2214,9 +2214,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void SetFactionForRace(uint8 race);
 
-        uint32 GetNativeTeam() const { return TeamForRace(GetRace()); }
-        TeamId GetNativeTeamId() const { return TeamIdForRace(GetRace()); }
-
         void InitDisplayIds();
 
         bool IsAtGroupRewardDistance(WorldObject const* pRewardSource) const;
