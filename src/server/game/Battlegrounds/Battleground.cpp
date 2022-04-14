@@ -1050,6 +1050,7 @@ void Battleground::AddPlayer(Player* player)
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
     bp.ActiveSpec = player->GetPrimarySpecialization();
+    bp.Mercenary = player->IsMercenaryForBattlegroundQueueType(GetQueueId());
 
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     // Add to list/maps
@@ -1124,15 +1125,19 @@ void Battleground::AddPlayer(Player* player)
             player->SendDirectMessage(startTimer.Write());
         }
 
-        if (player->HasAura(SPELL_MERCENARY_CONTRACT_HORDE))
+        if (bp.Mercenary)
         {
-            player->CastSpell(player, SPELL_MERCENARY_HORDE_1, true);
-            player->CastSpell(player, SPELL_MERCENARY_HORDE_2, true);
-        }
-        else if (player->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE))
-        {
-            player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_1, true);
-            player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_2, true);
+            if (bp.Team == HORDE)
+            {
+                player->CastSpell(player, SPELL_MERCENARY_HORDE_1);
+                player->CastSpell(player, SPELL_MERCENARY_HORDE_REACTIONS);
+            }
+            else if (bp.Team == ALLIANCE)
+            {
+                player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_1);
+                player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_REACTIONS);
+            }
+            player->CastSpell(player, SPELL_MERCENARY_SHAPESHIFT);
         }
     }
 
@@ -1853,6 +1858,14 @@ bool Battleground::IsPlayerInBattleground(ObjectGuid guid) const
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
         return true;
+    return false;
+}
+
+bool Battleground::IsPlayerMercenaryInBattleground(ObjectGuid guid) const
+{
+    auto itr = m_Players.find(guid);
+    if (itr != m_Players.end())
+        return itr->second.Mercenary;
     return false;
 }
 

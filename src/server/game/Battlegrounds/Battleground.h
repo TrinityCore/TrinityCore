@@ -121,9 +121,10 @@ enum BattlegroundSpells
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
     SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
     SPELL_MERCENARY_HORDE_1         = 193864,
-    SPELL_MERCENARY_HORDE_2         = 195838,
+    SPELL_MERCENARY_HORDE_REACTIONS = 195838,
     SPELL_MERCENARY_ALLIANCE_1      = 193863,
-    SPELL_MERCENARY_ALLIANCE_2      = 195843,
+    SPELL_MERCENARY_ALLIANCE_REACTIONS = 195843,
+    SPELL_MERCENARY_SHAPESHIFT      = 193970,
 };
 
 enum BattlegroundTimeIntervals
@@ -175,6 +176,7 @@ struct BattlegroundPlayer
     time_t OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
     uint32 Team;                                           // Player's team
     int32 ActiveSpec;                                      // Player's active spec
+    bool Mercenary;
 };
 
 struct BattlegroundObjectInfo
@@ -492,6 +494,7 @@ class TC_GAME_API Battleground
         uint32 GetPlayerTeam(ObjectGuid guid) const;
         uint32 GetOtherTeam(uint32 teamId) const;
         bool IsPlayerInBattleground(ObjectGuid guid) const;
+        bool IsPlayerMercenaryInBattleground(ObjectGuid guid) const;
 
         bool ToBeDeleted() const { return m_SetDeleteThis; }
         void SetDeleteThis() { m_SetDeleteThis = true; }
