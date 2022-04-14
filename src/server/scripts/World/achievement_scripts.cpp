@@ -45,7 +45,7 @@ class achievement_bg_control_all_nodes : public AchievementCriteriaScript
         bool OnCheck(Player* source, Unit* /*target*/) override
         {
             if (Battleground* bg = source->GetBattleground())
-                return bg->IsAllNodesControlledByTeam(source->GetTeam());
+                return bg->IsAllNodesControlledByTeam(bg->GetPlayerTeam(source->GetGUID()));
 
             return false;
         }

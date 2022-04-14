@@ -6285,12 +6285,13 @@ TeamId Player::TeamIdForRace(uint8 race)
     return TEAM_NEUTRAL;
 }
 
-void Player::SwitchToOppositeTeam(bool apply)
+void Player::SwitchToOppositeTeam(bool /*apply*/)
 {
-    m_team = TeamForRace(GetRace());
+    // TODO: remove
+    //m_team = TeamForRace(GetRace());
 
-    if (apply)
-        m_team = (m_team == ALLIANCE) ? HORDE : ALLIANCE;
+    //if (apply)
+    //    m_team = (m_team == ALLIANCE) ? HORDE : ALLIANCE;
 }
 
 void Player::SetFactionForRace(uint8 race)
@@ -6570,7 +6571,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
         if (Player* plrVictim = victim->ToPlayer())
         {
-            if (GetTeam() == plrVictim->GetTeam() && !sWorld->IsFFAPvPRealm())
+            if (GetEffectiveTeam() == plrVictim->GetEffectiveTeam() && !sWorld->IsFFAPvPRealm())
                 return false;
 
             uint8 k_level = GetLevel();
@@ -8793,7 +8794,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
         {
             uint32 lootid = go->GetGOInfo()->GetLootId();
             if (Battleground* bg = GetBattleground())
-                if (!bg->CanActivateGO(go->GetEntry(), GetTeam()))
+                if (!bg->CanActivateGO(go->GetEntry(), bg->GetPlayerTeam(GetGUID())))
                 {
                     SendLootRelease(guid);
                     return;
@@ -17061,7 +17062,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
             {
                 if (objectiveType == QUEST_OBJECTIVE_PLAYERKILLS && objective.Flags & QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION)
                     if (Player const* victim = ObjectAccessor::GetPlayer(GetMap(), victimGuid))
-                        if (victim->GetTeam() != GetTeam())
+                        if (victim->GetEffectiveTeam() != GetEffectiveTeam())
                             continue;
 
                 int32 currentProgress = GetQuestSlotObjectiveData(logSlot, objective);
@@ -23990,7 +23991,7 @@ void Player::ReportedAfkBy(Player* reporter)
     reportAfkResult.Offender = GetGUID();
     Battleground* bg = GetBattleground();
     // Battleground also must be in progress!
-    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
+    if (!bg || bg != reporter->GetBattleground() || GetEffectiveTeam() != reporter->GetEffectiveTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
     {
         reporter->SendDirectMessage(reportAfkResult.Write());
         return;

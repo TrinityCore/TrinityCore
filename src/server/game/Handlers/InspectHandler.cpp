@@ -46,7 +46,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
     WorldPackets::Inspect::InspectResult inspectResult;
     inspectResult.DisplayInfo.Initialize(player);
 
-    if (GetPlayer()->CanBeGameMaster() || sWorld->getIntConfig(CONFIG_TALENTS_INSPECTING) + (GetPlayer()->GetTeamId() == player->GetTeamId()) > 1)
+    if (GetPlayer()->CanBeGameMaster() || sWorld->getIntConfig(CONFIG_TALENTS_INSPECTING) + (GetPlayer()->GetEffectiveTeam() == player->GetEffectiveTeam()) > 1)
     {
         PlayerTalentMap const* talents = player->GetTalentMap(player->GetActiveTalentGroup());
         for (PlayerTalentMap::value_type const& v : *talents)
