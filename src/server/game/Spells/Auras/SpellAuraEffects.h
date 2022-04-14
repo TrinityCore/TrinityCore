@@ -317,7 +317,6 @@ class TC_GAME_API AuraEffect
         void HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleSwitchTeam(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSetFFAPvP(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModOverrideZonePVPType(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleBattlegroundPlayerPosition(AuraApplication const* aurApp, uint8 mode, bool apply) const;

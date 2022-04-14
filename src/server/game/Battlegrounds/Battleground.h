@@ -120,6 +120,8 @@ enum BattlegroundSpells
     SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
     SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+    SPELL_MERCENARY_CONTRACT_HORDE  = 193472,
+    SPELL_MERCENARY_CONTRACT_ALLIANCE = 193475,
     SPELL_MERCENARY_HORDE_1         = 193864,
     SPELL_MERCENARY_HORDE_REACTIONS = 195838,
     SPELL_MERCENARY_ALLIANCE_1      = 193863,
