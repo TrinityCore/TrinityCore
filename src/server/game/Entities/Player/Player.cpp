@@ -6285,15 +6285,6 @@ TeamId Player::TeamIdForRace(uint8 race)
     return TEAM_NEUTRAL;
 }
 
-void Player::SwitchToOppositeTeam(bool /*apply*/)
-{
-    // TODO: remove
-    //m_team = TeamForRace(GetRace());
-
-    //if (apply)
-    //    m_team = (m_team == ALLIANCE) ? HORDE : ALLIANCE;
-}
-
 void Player::SetFactionForRace(uint8 race)
 {
     m_team = TeamForRace(race);
