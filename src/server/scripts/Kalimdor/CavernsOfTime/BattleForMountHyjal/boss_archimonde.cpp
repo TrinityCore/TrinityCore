@@ -398,14 +398,7 @@ public:
                     events.ScheduleEvent(EVENT_DISTANCE_CHECK, 5s);
                     break;
                 case EVENT_PROTECTION_OF_ELUNE: // hp below 10% only cast finger of death
-                    events.CancelEvent(EVENT_FEAR);
-                    events.CancelEvent(EVENT_UNLEASH_SOUL_CHARGE);
-                    events.CancelEvent(EVENT_GRIP_OF_THE_LEGION);
-                    events.CancelEvent(EVENT_AIR_BURST);
-                    events.CancelEvent(EVENT_FEAR);
-                    events.CancelEvent(EVENT_DOOMFIRE);
-                    events.CancelEvent(EVENT_FINGER_OF_DEATH);
-                    events.CancelEvent(EVENT_HAND_OF_DEATH);
+                    events.Reset();
                     events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
                     CastProtectionOfElune(true);
                     me->GetMotionMaster()->Clear();
@@ -453,6 +446,7 @@ public:
                         target->AddAura(SPELL_PROTECTION_OF_ELUNE, target);
                     target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, apply);
                     target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
+                    target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
                 }
 
             if (!apply)
@@ -575,13 +569,14 @@ public:
             if (!target)
                 return;
 
-            me->SummonCreature(NPC_DOOMFIRE_SPIRIT,
+            Creature* DoomfireSpirit = me->SummonCreature(NPC_DOOMFIRE_SPIRIT,
                 target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27s);
-
-            me->SummonCreature(NPC_DOOMFIRE,
+            DoomfireSpirit->SetVisible(false);
+            Creature* Doomfire = me->SummonCreature(NPC_DOOMFIRE,
                 target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
                 TEMPSUMMON_TIMED_DESPAWN, 27s);
+            Doomfire->SetVisible(false);
         }
 
     private:

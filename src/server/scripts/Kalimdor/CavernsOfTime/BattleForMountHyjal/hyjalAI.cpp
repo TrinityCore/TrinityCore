@@ -390,7 +390,7 @@ void hyjalAI::Reset()
     {
         case JAINA:
             Faction = 0;
-            DoCast(me, SPELL_BRILLIANCE_AURA, true);
+            DoCastSelf(SPELL_BRILLIANCE_AURA, true);
             break;
 
         case THRALL:

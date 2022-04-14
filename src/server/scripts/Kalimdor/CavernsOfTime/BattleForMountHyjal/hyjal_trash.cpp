@@ -1195,12 +1195,14 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             go = false;
+            me->SetCanFly(true);
         }
 
         void Initialize()
         {
             FrostBreathTimer = 5000;
             MoveTimer = 0;
+            me->SetDisableGravity(true);
         }
 
         bool go;
@@ -1210,7 +1212,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1254,21 +1255,20 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
+
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
                     else
                     {//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
+                    go = true;
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -1329,6 +1329,8 @@ public:
             Zpos = 10.0f;
             StrikeTimer = 2000 + rand32() % 5000;
             MoveTimer = 0;
+            me->SetCanFly(true);
+            me->SetDisableGravity(true);
         }
 
         bool go;
@@ -1340,7 +1342,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1380,19 +1381,17 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }else{//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
+                    go = true;
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
