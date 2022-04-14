@@ -6287,7 +6287,7 @@ TeamId Player::TeamIdForRace(uint8 race)
 
 void Player::SwitchToOppositeTeam(bool apply)
 {
-    m_team = GetNativeTeam();
+    m_team = TeamForRace(GetRace());
 
     if (apply)
         m_team = (m_team == ALLIANCE) ? HORDE : ALLIANCE;

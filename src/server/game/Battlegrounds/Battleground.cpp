@@ -675,7 +675,7 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
         if (!player)
             continue;
 
-        if (player->GetNativeTeam() != TeamID)
+        if (player->HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE))
             continue;
 
         uint32 repGain = Reputation;
@@ -901,8 +901,12 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         player->RemoveAurasByType(SPELL_AURA_MOUNTED);
-        player->RemoveAurasByType(SPELL_AURA_SWITCH_TEAM);
-        player->RemoveAurasByType(SPELL_AURA_MOD_FACTION);
+        player->RemoveAura(SPELL_MERCENARY_HORDE_1);
+        player->RemoveAura(SPELL_MERCENARY_HORDE_REACTIONS);
+        player->RemoveAura(SPELL_MERCENARY_ALLIANCE_1);
+        player->RemoveAura(SPELL_MERCENARY_ALLIANCE_REACTIONS);
+        player->RemoveAura(SPELL_MERCENARY_SHAPESHIFT);
+        player->RemovePlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
 
         if (!player->IsAlive())                              // resurrect on exit
         {
@@ -1138,6 +1142,7 @@ void Battleground::AddPlayer(Player* player)
                 player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_REACTIONS);
             }
             player->CastSpell(player, SPELL_MERCENARY_SHAPESHIFT);
+            player->SetPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
         }
     }
 
