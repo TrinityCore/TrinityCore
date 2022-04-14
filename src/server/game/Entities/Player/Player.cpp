@@ -22550,7 +22550,8 @@ template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data
 
 void Player::UpdateObjectVisibility(bool forced)
 {
-    if (!forced)
+    // Sending visibility updates to the client before in world causes strange behavior
+    if (!forced || !IsInWorld())
         AddToNotify(NOTIFY_VISIBILITY_CHANGED);
     else
     {
