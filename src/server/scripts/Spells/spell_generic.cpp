@@ -2729,13 +2729,15 @@ class spell_gen_pvp_trinket : public SpellScript
     {
         Player* caster = GetCaster()->ToPlayer();
 
-        switch (caster->GetTeam())
+        switch (caster->GetEffectiveTeam())
         {
             case ALLIANCE:
                 caster->CastSpell(caster, SPELL_PVP_TRINKET_ALLIANCE, TRIGGERED_FULL_MASK);
                 break;
             case HORDE:
                 caster->CastSpell(caster, SPELL_PVP_TRINKET_HORDE, TRIGGERED_FULL_MASK);
+                break;
+            default:
                 break;
         }
     }
