@@ -569,13 +569,13 @@ public:
             if (!target)
                 return;
 
-            Creature* DoomfireSpirit = me->SummonCreature(NPC_DOOMFIRE_SPIRIT,
+            Creature* DoomfireSpirit = reinterpret_cast<Creature*>(me->SummonCreature(NPC_DOOMFIRE_SPIRIT,
                 target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27s);
+                TEMPSUMMON_TIMED_DESPAWN, 27s));
             DoomfireSpirit->SetVisible(false);
-            Creature* Doomfire = me->SummonCreature(NPC_DOOMFIRE,
+            Creature* Doomfire = reinterpret_cast<Creature*>(me->SummonCreature(NPC_DOOMFIRE,
                 target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27s);
+                TEMPSUMMON_TIMED_DESPAWN, 27s));
             Doomfire->SetVisible(false);
         }
 
