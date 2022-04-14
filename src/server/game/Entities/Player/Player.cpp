@@ -24887,6 +24887,13 @@ void Player::InitGlyphsForLevel()
     if (level >= 80)
         value |= 0x20;
 
+    // @tswow-begin
+    FIRE(PlayerOnGlyphInitForLevel
+        , TSPlayer(this)
+        , TSMutable<uint32>(&value)
+    );
+    // @tswow-end
+
     SetUInt32Value(PLAYER_GLYPHS_ENABLED, value);
 }
 

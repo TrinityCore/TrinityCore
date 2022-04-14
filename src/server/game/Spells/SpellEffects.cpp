@@ -3916,7 +3916,18 @@ void Spell::EffectApplyGlyph()
         case 4: minLevel = 70; break;
         case 5: minLevel = 80; break;
     }
-    if (minLevel && player->GetLevel() < minLevel)
+
+    // @tswow-begin
+    bool isLocked = minLevel && player->GetLevel() < minLevel;
+    FIRE(
+        PlayerOnEffectApplyGlyphIsLocked
+        , m_glyphIndex
+        , TSMutable<bool>(&isLocked)
+        , TSPlayer(player)
+    );
+
+    if (isLocked)
+    // @tswow-end
     {
         SendCastResult(SPELL_FAILED_GLYPH_SOCKET_LOCKED);
         return;
