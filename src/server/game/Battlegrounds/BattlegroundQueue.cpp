@@ -130,7 +130,7 @@ bool BattlegroundQueue::SelectionPool::AddGroup(GroupQueueInfo* ginfo, uint32 de
 /*********************************************************/
 
 // add group or player (grp == NULL) to bg queue with the given leader and bg specifications
-GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, PVPDifficultyEntry const* bracketEntry, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 arenateamid)
+GroupQueueInfo* BattlegroundQueue::AddGroup(Player const* leader, Group const* group, Team team, PVPDifficultyEntry const* bracketEntry, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 arenateamid)
 {
     BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
 
@@ -140,7 +140,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, PVPDiffi
     ginfo->IsInvitedToBGInstanceGUID = 0;
     ginfo->JoinTime                  = GameTime::GetGameTimeMS();
     ginfo->RemoveInviteTime          = 0;
-    ginfo->Team                      = leader->GetBgQueueTeam();
+    ginfo->Team                      = team;
     ginfo->ArenaTeamRating           = ArenaRating;
     ginfo->ArenaMatchmakerRating     = MatchmakerRating;
     ginfo->OpponentsTeamRating       = 0;
@@ -167,9 +167,9 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, PVPDiffi
     }
 
     //add players from group to ginfo
-    if (grp)
+    if (group)
     {
-        for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
             Player* member = itr->GetSource();
             if (!member)
@@ -179,14 +179,6 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, PVPDiffi
             pl_info.GroupInfo        = ginfo;
             // add the pinfo to ginfo's list
             ginfo->Players[member->GetGUID()]  = &pl_info;
-
-            if (ginfo->Team != member->GetTeam())
-            {
-                if (member->GetTeam() == ALLIANCE)
-                    member->CastSpell(member, SPELL_MERCENARY_CONTRACT_HORDE);
-                else
-                    member->CastSpell(member, SPELL_MERCENARY_CONTRACT_ALLIANCE);
-            }
         }
     }
     else

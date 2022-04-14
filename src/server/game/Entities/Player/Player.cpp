@@ -6293,17 +6293,6 @@ void Player::SwitchToOppositeTeam(bool apply)
         m_team = (m_team == ALLIANCE) ? HORDE : ALLIANCE;
 }
 
-uint32 Player::GetBgQueueTeam() const
-{
-    if (HasAura(SPELL_MERCENARY_CONTRACT_HORDE))
-        return HORDE;
-
-    if (HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE))
-        return ALLIANCE;
-
-    return GetTeam();
-}
-
 void Player::SetFactionForRace(uint8 race)
 {
     m_team = TeamForRace(race);
@@ -18164,6 +18153,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             currentBg->EventPlayerLoggedIn(this);
 
             SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
+            SetMercenaryForBattlegroundQueueType(bgQueueTypeId, currentBg->IsPlayerMercenaryInBattleground(GetGUID()));
         }
         // Bg was not found - go to Entry Point
         else
@@ -25249,6 +25239,7 @@ uint32 Player::AddBattlegroundQueueId(BattlegroundQueueTypeId val)
             m_bgBattlegroundQueueID[i].bgQueueTypeId = val;
             m_bgBattlegroundQueueID[i].invitedToInstance = 0;
             m_bgBattlegroundQueueID[i].joinTime = GameTime::GetGameTime();
+            m_bgBattlegroundQueueID[i].mercenary = HasAura(SPELL_MERCENARY_CONTRACT_HORDE) || HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE);
             return i;
         }
     }
@@ -25272,6 +25263,7 @@ void Player::RemoveBattlegroundQueueId(BattlegroundQueueTypeId val)
             m_bgBattlegroundQueueID[i].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
             m_bgBattlegroundQueueID[i].invitedToInstance = 0;
             m_bgBattlegroundQueueID[i].joinTime = 0;
+            m_bgBattlegroundQueueID[i].mercenary = false;
             return;
         }
     }
@@ -25289,6 +25281,21 @@ bool Player::IsInvitedForBattlegroundInstance(uint32 instanceId) const
     for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         if (m_bgBattlegroundQueueID[i].invitedToInstance == instanceId)
             return true;
+    return false;
+}
+
+void Player::SetMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, bool mercenary)
+{
+    for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+        if (m_bgBattlegroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
+            m_bgBattlegroundQueueID[i].mercenary = mercenary;
+}
+
+bool Player::IsMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const
+{
+    for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+        if (m_bgBattlegroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
+            return m_bgBattlegroundQueueID[i].mercenary;
     return false;
 }
 
