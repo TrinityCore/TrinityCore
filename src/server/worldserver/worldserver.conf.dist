@@ -337,6 +337,13 @@ SessionAddDelay = 10000
 GridCleanUpDelay = 300000
 
 #
+#    MinWorldUpdateTime
+#        Description: Minimum time (milliseconds) between world update ticks (for mostly idle servers).
+#        Default:     1 - (0.001 second)
+
+MinWorldUpdateTime = 1
+
+#
 #    MapUpdateInterval
 #        Description: Time (milliseconds) for map update interval.
 #        Default:     10 - (0.01 second)
