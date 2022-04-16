@@ -173,9 +173,6 @@ uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::
 
 Player::Player(WorldSession* session): Unit(true)
 {
-    m_speakTime = 0;
-    m_speakCount = 0;
-
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
@@ -20279,34 +20276,49 @@ void Player::outDebugValues() const
 /***               FLOOD FILTER SYSTEM                 ***/
 /*********************************************************/
 
-void Player::UpdateSpeakTime()
+void Player::UpdateSpeakTime(ChatFloodThrottle::Index index)
 {
     // ignore chat spam protection for GMs in any mode
     if (GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHAT_SPAM))
         return;
 
-    time_t current = GameTime::GetGameTime();
-    if (m_speakTime > current)
+    uint32 limit;
+    uint32 delay;
+    switch (index)
     {
-        uint32 max_count = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_COUNT);
-        if (!max_count)
+        case ChatFloodThrottle::REGULAR:
+            limit = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_COUNT);
+            delay = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+            break;
+        case ChatFloodThrottle::ADDON:
+            limit = sWorld->getIntConfig(CONFIG_CHATFLOOD_ADDON_MESSAGE_COUNT);
+            delay = sWorld->getIntConfig(CONFIG_CHATFLOOD_ADDON_MESSAGE_DELAY);
+            break;
+        default:
+            return;
+    }
+
+    time_t current = GameTime::GetGameTime();
+    if (m_chatFloodData[index].Time > current)
+    {
+        if (!limit)
             return;
 
-        ++m_speakCount;
-        if (m_speakCount >= max_count)
+        ++m_chatFloodData[index].Count;
+        if (m_chatFloodData[index].Count >= limit)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
             time_t new_mute = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MUTE_TIME);
             if (GetSession()->m_muteTime < new_mute)
                 GetSession()->m_muteTime = new_mute;
 
-            m_speakCount = 0;
+            m_chatFloodData[index].Count = 0;
         }
     }
     else
-        m_speakCount = 1;
+        m_chatFloodData[index].Count = 1;
 
-    m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+    m_chatFloodData[index].Time = current + delay;
 }
 
 /*********************************************************/
