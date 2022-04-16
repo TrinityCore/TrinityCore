@@ -1994,8 +1994,23 @@ ChatFlood.MessageCount = 10
 ChatFlood.MessageDelay = 1
 
 #
+#    ChatFlood.AddonMessageCount
+#        Description: Chat flood protection, number of addon messages before player gets muted.
+#        Default:     100 - (Enabled)
+#                     0  - (Disabled)
+
+ChatFlood.AddonMessageCount = 100
+
+#
+#    ChatFlood.AddonMessageDelay
+#        Description: Time (in seconds) between addon messages to be counted into ChatFlood.AddonMessageCount.
+#        Default:     1
+
+ChatFlood.AddonMessageDelay = 1
+
+#
 #    ChatFlood.MuteTime
-#        Description: Time (in seconds) characters get muted for violating ChatFlood.MessageCount.
+#        Description: Time (in seconds) characters get muted for violating ChatFlood.MessageCount / ChatFlood.AddonMessageCount.
 #        Default:     10
 
 ChatFlood.MuteTime = 10

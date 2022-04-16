@@ -180,7 +180,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     }
 
     if (type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
-        sender->UpdateSpeakTime();
+        sender->UpdateSpeakTime(lang == LANG_ADDON ? Player::ChatFloodThrottle::ADDON : Player::ChatFloodThrottle::REGULAR);
 
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
     {
