@@ -77,7 +77,9 @@ void SmartWaypointMgr::LoadFromDB()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
-        float o = fields[5].GetFloat();
+        Optional<float> o;
+        if (!fields[5].IsNull())
+            o = fields[5].GetFloat();
         uint32 delay = fields[6].GetUInt32();
 
         if (lastEntry != entry)
