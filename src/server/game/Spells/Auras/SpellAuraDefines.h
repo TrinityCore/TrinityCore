@@ -463,7 +463,7 @@ enum AuraType : uint32
     SPELL_AURA_ENABLE_POWER_BAR_TIMER                       = 369,
     SPELL_AURA_SPELL_OVERRIDE_NAME_GROUP                    = 370,  // picks a random SpellOverrideName id from a group (group id in miscValue)
     SPELL_AURA_371                                          = 371,
-    SPELL_AURA_372                                          = 372,
+    SPELL_AURA_OVERRIDE_MOUNT_FROM_SET                      = 372,  // NYI
     SPELL_AURA_MOD_SPEED_NO_CONTROL                         = 373,  // NYI
     SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,
     SPELL_AURA_HIDE_MODEL_AND_EQUIPEMENT_SLOTS              = 375,
