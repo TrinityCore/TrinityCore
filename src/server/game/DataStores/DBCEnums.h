@@ -801,21 +801,6 @@ enum MapFlags
     MAP_FLAG_GARRISON               = 0x4000000
 };
 
-enum AbilytyLearnType
-{
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
-    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
-};
-
-enum class SkillLineAbilityFlags
-{
-    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
-
-};
-
-DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
-
 enum GlyphSlotType
 {
     GLYPH_SLOT_MAJOR = 0,
@@ -1455,6 +1440,42 @@ enum ScenarioStepFlags
     SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
     SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
 };
+
+enum class SkillLineFlags : uint16
+{
+    AlwaysShownInUI                                 = 0x0001,
+    NeverShownInUI                                  = 0x0002,
+    FirstTierIsSelfTaught                           = 0x0004,
+    GrantedIncrementallyByCharacterUpgrade          = 0x0008,
+    AutomaticRank                                   = 0x0010,
+    InheritParentRankWhenLearned                    = 0x0020,
+    ShowsInSpellTooltip                             = 0x0040,
+    AppearsInMiscTabOfSpellbook                     = 0x0080,
+    // unused                                       = 0x0100,
+    IgnoreCategoryMods                              = 0x0200,
+    DisplaysAsProficiency                           = 0x0400,
+    PetsOnly                                        = 0x0800,
+    UniqueBitfield                                  = 0x1000,
+    RacialForThePurposeOfPaidRaceOrFactionChange    = 0x2000,
+    ProgressiveSkillUp                              = 0x4000,
+    RacialForThePurposeOfTemporaryRaceChange        = 0x8000,
+};
+
+DEFINE_ENUM_FLAG(SkillLineFlags);
+
+enum AbilytyLearnType
+{
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
+    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
+};
+
+enum class SkillLineAbilityFlags
+{
+    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+};
+
+DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
 
 enum SkillRaceClassInfoFlags
 {
