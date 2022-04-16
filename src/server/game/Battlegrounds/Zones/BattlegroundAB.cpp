@@ -242,17 +242,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
                 TeleportPlayerToExploitLocation(player);
             break;
         case 3948:                                          // Arathi Basin Alliance Exit.
-            if (player->GetTeam() != ALLIANCE)
-                player->GetSession()->SendNotification("Only The Alliance can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
         case 3949:                                          // Arathi Basin Horde Exit.
-            if (player->GetTeam() != HORDE)
-                player->GetSession()->SendNotification("Only The Horde can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
         case 3866:                                          // Stables
         case 3869:                                          // Gold Mine
         case 3867:                                          // Farm
