@@ -201,8 +201,8 @@ static std::array<uint32, 3> TransformationEntries =
 
 static std::array<float, 2> BalanceDamageThresholds =
 {
-    4000.f, // Hotfix (2011-07-01): Rhyolith is now slightly easier to turn in 10-player mode.
-    12500.f
+    3000.f, // Hotfix (2011-07-01): Rhyolith is now slightly easier to turn in 10-player mode.
+    9000.f
 };
 
 struct boss_lord_rhyolith : public BossAI
