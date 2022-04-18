@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "DB2Stores.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -663,22 +664,39 @@ protected:
 };
 
 // 29166 - Innervate
-class spell_dru_innervate : public AuraScript
+class spell_dru_innervate : public SpellScript
 {
-    PrepareAuraScript(spell_dru_innervate);
+    PrepareSpellScript(spell_dru_innervate);
 
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    SpellCastResult CheckCast()
     {
-        if (Unit* caster = GetCaster())
-            if (GetTarget() != caster)
-                if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
-                    caster->CastSpell(caster, SPELL_DRUID_INNERVATE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
-                            .AddSpellBP0(-innervateR2->GetAmount()));
+        Player* target = Object::ToPlayer(GetExplTargetUnit());
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(target->GetPrimarySpecialization());
+        if (!spec || spec->Role != 1)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleRank2()
+    {
+        Unit* caster = GetCaster();
+        if (caster != GetHitUnit())
+            if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
+                caster->CastSpell(caster, SPELL_DRUID_INNERVATE,
+                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                    .SetTriggeringSpell(GetSpell())
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, -innervateR2->GetAmount()));
+
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_dru_innervate::AfterApply, EFFECT_0, SPELL_AURA_MOD_MANA_COST_PCT, AURA_EFFECT_HANDLE_REAL);
+        OnCheckCast += SpellCheckCastFn(spell_dru_innervate::CheckCast);
+        OnHit += SpellHitFn(spell_dru_innervate::HandleRank2);
     }
 };
 
