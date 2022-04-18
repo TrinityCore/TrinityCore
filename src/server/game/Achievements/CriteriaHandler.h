@@ -415,6 +415,7 @@ private:
     std::unordered_map<uint32, CriteriaTreeList> _criteriaTreeByCriteria;
 
     // store criterias by type to speed up lookup
+    static CriteriaList const EmptyCriteriaList;
     CriteriaList _criteriasByType[size_t(CriteriaType::Count)];
     CriteriaListByAsset _criteriasByAsset[size_t(CriteriaType::Count)];
     CriteriaList _guildCriteriasByType[size_t(CriteriaType::Count)];
