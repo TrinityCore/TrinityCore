@@ -573,7 +573,7 @@ Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::co
     {
         uint32 team = itr->second.Team;
         if (!team)
-            team = player->GetTeam();
+            team = player->GetEffectiveTeam();
         if (team != teamId)
             player = nullptr;
     }
@@ -673,6 +673,9 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     {
         Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam");
         if (!player)
+            continue;
+
+        if (player->HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE))
             continue;
 
         uint32 repGain = Reputation;
@@ -898,6 +901,12 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        player->RemoveAura(SPELL_MERCENARY_HORDE_1);
+        player->RemoveAura(SPELL_MERCENARY_HORDE_REACTIONS);
+        player->RemoveAura(SPELL_MERCENARY_ALLIANCE_1);
+        player->RemoveAura(SPELL_MERCENARY_ALLIANCE_REACTIONS);
+        player->RemoveAura(SPELL_MERCENARY_SHAPESHIFT);
+        player->RemovePlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
 
         if (!player->IsAlive())                              // resurrect on exit
         {
@@ -1045,6 +1054,7 @@ void Battleground::AddPlayer(Player* player)
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
     bp.ActiveSpec = player->GetPrimarySpecialization();
+    bp.Mercenary = player->IsMercenaryForBattlegroundQueueType(GetQueueId());
 
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     // Add to list/maps
@@ -1117,6 +1127,22 @@ void Battleground::AddPlayer(Player* player)
             startTimer.TimeLeft     = std::chrono::duration_cast<Seconds>(countdownMaxForBGType - Milliseconds(GetElapsedTime()));
             startTimer.TotalTime    = countdownMaxForBGType;
             player->SendDirectMessage(startTimer.Write());
+        }
+
+        if (bp.Mercenary)
+        {
+            if (bp.Team == HORDE)
+            {
+                player->CastSpell(player, SPELL_MERCENARY_HORDE_1);
+                player->CastSpell(player, SPELL_MERCENARY_HORDE_REACTIONS);
+            }
+            else if (bp.Team == ALLIANCE)
+            {
+                player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_1);
+                player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_REACTIONS);
+            }
+            player->CastSpell(player, SPELL_MERCENARY_SHAPESHIFT);
+            player->SetPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
         }
     }
 
@@ -1795,6 +1821,8 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
         if (killer == victim)
             return;
 
+        uint32 killerTeam = GetPlayerTeam(killer->GetGUID());
+
         UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
         UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
 
@@ -1804,7 +1832,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
             if (!creditedPlayer || creditedPlayer == killer)
                 continue;
 
-            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
+            if (itr->second.Team == killerTeam && creditedPlayer->IsAtGroupRewardDistance(victim))
                 UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
@@ -1837,6 +1865,14 @@ bool Battleground::IsPlayerInBattleground(ObjectGuid guid) const
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
         return true;
+    return false;
+}
+
+bool Battleground::IsPlayerMercenaryInBattleground(ObjectGuid guid) const
+{
+    auto itr = m_Players.find(guid);
+    if (itr != m_Players.end())
+        return itr->second.Mercenary;
     return false;
 }
 
@@ -1894,7 +1930,7 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
 
 WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
 {
-    return sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player);
+    return sObjectMgr->GetClosestGraveyard(*player, GetPlayerTeam(player->GetGUID()), player);
 }
 
 void Battleground::StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)

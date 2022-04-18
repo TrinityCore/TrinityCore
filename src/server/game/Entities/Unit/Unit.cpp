@@ -10793,7 +10793,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
         if (attacker->GetTypeId() == TYPEID_UNIT)
             victim->ToPlayer()->UpdateCriteria(CriteriaType::KilledByCreature, attacker->GetEntry());
         else if (attacker->GetTypeId() == TYPEID_PLAYER && victim != attacker)
-            victim->ToPlayer()->UpdateCriteria(CriteriaType::KilledByPlayer, 1, attacker->ToPlayer()->GetTeam());
+            victim->ToPlayer()->UpdateCriteria(CriteriaType::KilledByPlayer, 1, attacker->ToPlayer()->GetEffectiveTeam());
     }
 
     // Hook for OnPVPKill Event
@@ -11325,6 +11325,12 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
 void Unit::RestoreFaction()
 {
+    if  (HasAuraType(SPELL_AURA_MOD_FACTION))
+    {
+        SetFaction(GetAuraEffectsByType(SPELL_AURA_MOD_FACTION).back()->GetMiscValue());
+        return;
+    }
+
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SetFactionForRace(GetRace());
     else

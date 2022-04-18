@@ -2183,7 +2183,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         int16 GetSkillTempBonusValue(uint32 skill) const;
         uint16 GetSkillStep(uint32 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
-        void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
+        void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races race);
         int32 FindProfessionSlotFor(uint32 skillId) const;
         void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillLineID, pos), skillLineId); }
         void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); };
@@ -2212,6 +2212,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void SetFactionForRace(uint8 race);
+
+        Team GetEffectiveTeam() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE) ? (GetTeam() == ALLIANCE ? HORDE : ALLIANCE) : Team(GetTeam()); }
+        TeamId GetEffectiveTeamId() const { return GetEffectiveTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
 
         void InitDisplayIds();
 
@@ -2387,6 +2390,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveBattlegroundQueueId(BattlegroundQueueTypeId val);
         void SetInviteForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, uint32 instanceId);
         bool IsInvitedForBattlegroundInstance(uint32 instanceId) const;
+        void SetMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, bool mercenary);
+        bool IsMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
         WorldLocation const& GetBattlegroundEntryPoint() const { return m_bgData.joinPos; }
         void SetBattlegroundEntryPoint();
 
@@ -2821,6 +2826,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             BattlegroundQueueTypeId bgQueueTypeId;
             uint32 invitedToInstance;
             uint32 joinTime;
+            bool mercenary;
         };
 
         BgBattlegroundQueueID_Rec m_bgBattlegroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];

@@ -242,17 +242,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
                 TeleportPlayerToExploitLocation(player);
             break;
         case 3948:                                          // Arathi Basin Alliance Exit.
-            if (player->GetTeam() != ALLIANCE)
-                player->GetSession()->SendNotification("Only The Alliance can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
         case 3949:                                          // Arathi Basin Horde Exit.
-            if (player->GetTeam() != HORDE)
-                player->GetSession()->SendNotification("Only The Horde can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
         case 3866:                                          // Stables
         case 3869:                                          // Gold Mine
         case 3867:                                          // Farm
@@ -430,7 +420,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         return;
     }
 
-    TeamId teamIndex = GetTeamIndexByTeamId(source->GetTeam());
+    TeamId teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(source->GetGUID()));
 
     // Check if player really could use this banner, not cheated
     if (!(m_Nodes[node] == 0 || teamIndex == m_Nodes[node]%2))
@@ -638,7 +628,7 @@ void BattlegroundAB::EndBattleground(uint32 winner)
 
 WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveyard(Player* player)
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
+    TeamId teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
 
     // Is there any occupied node for this team?
     std::vector<uint8> nodes;
@@ -715,7 +705,7 @@ bool BattlegroundAB::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
     switch (criteriaId)
     {
         case BG_CRITERIA_CHECK_RESILIENT_VICTORY:
-            return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(player->GetTeam())];
+            return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()))];
     }
 
     return Battleground::CheckAchievementCriteriaMeet(criteriaId, player, target, miscvalue);

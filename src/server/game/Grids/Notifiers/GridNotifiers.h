@@ -148,16 +148,16 @@ namespace Trinity
         WorldObject const* i_source;
         PacketSender& i_packetSender;
         float i_distSq;
-        uint32 team;
+        Team team;
         Player const* skipped_receiver;
         MessageDistDeliverer(WorldObject const* src, PacketSender& packetSender, float dist, bool own_team_only = false, Player const* skipped = nullptr)
             : i_source(src), i_packetSender(packetSender), i_distSq(dist * dist)
-            , team(0)
+            , team(TEAM_OTHER)
             , skipped_receiver(skipped)
         {
             if (own_team_only)
                 if (Player const* player = src->ToPlayer())
-                    team = player->GetTeam();
+                    team = player->GetEffectiveTeam();
         }
 
         void Visit(PlayerMapType &m) const;
@@ -168,7 +168,7 @@ namespace Trinity
         void SendPacket(Player const* player) const
         {
             // never send packet to self
-            if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
+            if (player == i_source || (team && player->GetEffectiveTeam() != team) || skipped_receiver == player)
                 return;
 
             if (!player->HaveAtClient(i_source))

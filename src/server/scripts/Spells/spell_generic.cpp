@@ -467,6 +467,170 @@ class spell_gen_bandage : public SpellScript
     }
 };
 
+// 193970 - Mercenary Shapeshift
+class spell_gen_battleground_mercenary_shapeshift : public AuraScript
+{
+    PrepareAuraScript(spell_gen_battleground_mercenary_shapeshift);
+
+    using OtherFactionRacePriorityList = std::array<Races, 3>;
+
+    inline static std::unordered_map<Races, OtherFactionRacePriorityList> const RaceInfo =
+    {
+        { RACE_HUMAN, { RACE_UNDEAD_PLAYER, RACE_BLOODELF } },
+        { RACE_ORC, { RACE_DWARF } },
+        { RACE_DWARF, { RACE_ORC, RACE_UNDEAD_PLAYER, RACE_TAUREN } },
+        { RACE_NIGHTELF, { RACE_TROLL, RACE_BLOODELF } },
+        { RACE_UNDEAD_PLAYER, { RACE_HUMAN } },
+        { RACE_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
+        { RACE_GNOME, { RACE_GOBLIN, RACE_BLOODELF } },
+        { RACE_TROLL, { RACE_NIGHTELF, RACE_HUMAN, RACE_DRAENEI } },
+        { RACE_GOBLIN, { RACE_GNOME, RACE_DWARF } },
+        { RACE_BLOODELF, { RACE_HUMAN, RACE_NIGHTELF } },
+        { RACE_DRAENEI, { RACE_TAUREN, RACE_ORC } },
+        { RACE_WORGEN, { RACE_TROLL } },
+        { RACE_PANDAREN_NEUTRAL, { RACE_PANDAREN_NEUTRAL } },
+        { RACE_PANDAREN_ALLIANCE, { RACE_PANDAREN_HORDE, RACE_PANDAREN_NEUTRAL } },
+        { RACE_PANDAREN_HORDE, { RACE_PANDAREN_ALLIANCE, RACE_PANDAREN_NEUTRAL } },
+        { RACE_NIGHTBORNE, { RACE_NIGHTELF, RACE_HUMAN } },
+        { RACE_HIGHMOUNTAIN_TAUREN, { RACE_DRAENEI, RACE_NIGHTELF } },
+        { RACE_VOID_ELF, { RACE_TROLL, RACE_BLOODELF } },
+        { RACE_LIGHTFORGED_DRAENEI, { RACE_TAUREN, RACE_ORC } },
+        { RACE_ZANDALARI_TROLL, { RACE_KUL_TIRAN, RACE_HUMAN } },
+        { RACE_KUL_TIRAN, { RACE_ZANDALARI_TROLL } },
+        { RACE_DARK_IRON_DWARF, { RACE_MAGHAR_ORC, RACE_ORC } },
+        { RACE_VULPERA, { RACE_MECHAGNOME, RACE_DARK_IRON_DWARF /*guessed, for shamans*/ } },
+        { RACE_MAGHAR_ORC, { RACE_DARK_IRON_DWARF } },
+        { RACE_MECHAGNOME, { RACE_VULPERA } },
+    };
+
+    inline static std::unordered_map<Races, std::array<uint32, 2>> const RaceDisplayIds =
+    {
+        { RACE_HUMAN, { 55239, 55238 } },
+        { RACE_ORC, { 55257, 55256 } },
+        { RACE_DWARF, { 55241, 55240 } },
+        { RACE_NIGHTELF, { 55243, 55242 } },
+        { RACE_UNDEAD_PLAYER, { 55259, 55258 } },
+        { RACE_TAUREN, { 55261, 55260 } },
+        { RACE_GNOME, { 55245, 55244 } },
+        { RACE_TROLL, { 55263, 55262 } },
+        { RACE_GOBLIN, { 55267, 57244 } },
+        { RACE_BLOODELF, { 55265, 55264 } },
+        { RACE_DRAENEI, { 55247, 55246 } },
+        { RACE_WORGEN, { 55255, 55254 } },
+        { RACE_PANDAREN_NEUTRAL, { 55253, 55252 } }, // not verified, might be swapped with RACE_PANDAREN_HORDE
+        { RACE_PANDAREN_ALLIANCE, { 55249, 55248 } },
+        { RACE_PANDAREN_HORDE, { 55251, 55250 } },
+        { RACE_NIGHTBORNE, { 82375, 82376 } },
+        { RACE_HIGHMOUNTAIN_TAUREN, { 82377, 82378 } },
+        { RACE_VOID_ELF, { 82371, 82372 } },
+        { RACE_LIGHTFORGED_DRAENEI, { 82373, 82374 } },
+        { RACE_ZANDALARI_TROLL, { 88417, 88416 } },
+        { RACE_KUL_TIRAN, { 88414, 88413 } },
+        { RACE_DARK_IRON_DWARF, { 88409, 88408 } },
+        { RACE_VULPERA, { 94999, 95001 } },
+        { RACE_MAGHAR_ORC, { 88420, 88410 } },
+        { RACE_MECHAGNOME, { 94998, 95000 } },
+    };
+
+    inline static std::vector<uint32> RacialSkills;
+
+    static Races GetReplacementRace(Races nativeRace, Classes playerClass)
+    {
+        if (OtherFactionRacePriorityList const* otherRaces = Trinity::Containers::MapGetValuePtr(RaceInfo, nativeRace))
+            for (Races race : *otherRaces)
+                if (sObjectMgr->GetPlayerInfo(race, playerClass))
+                    return race;
+
+        return RACE_NONE;
+    }
+
+    static uint32 GetDisplayIdForRace(Races race, Gender gender)
+    {
+        if (std::array<uint32, 2> const* displayIds = Trinity::Containers::MapGetValuePtr(RaceDisplayIds, race))
+            return (*displayIds)[gender];
+
+        return 0;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        for (auto const& [race, otherRaces] : RaceInfo)
+        {
+            if (!sChrRacesStore.LookupEntry(race))
+                return false;
+
+            for (Races otherRace : otherRaces)
+                if (!sChrRacesStore.LookupEntry(otherRace))
+                    return false;
+        }
+
+        for (auto const& [race, displayIds] : RaceDisplayIds)
+        {
+            if (!sChrRacesStore.LookupEntry(race))
+                return false;
+
+            for (uint32 displayId : displayIds)
+                if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
+                    return false;
+        }
+
+        RacialSkills.clear();
+        for (SkillLineEntry const* skillLine : sSkillLineStore)
+            if (skillLine->GetFlags().HasFlag(SkillLineFlags::RacialForThePurposeOfTemporaryRaceChange))
+                RacialSkills.push_back(skillLine->ID);
+
+        return true;
+    }
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+    {
+        Unit* owner = GetUnitOwner();
+        Races otherFactionRace = GetReplacementRace(Races(owner->GetRace()), Classes(owner->GetClass()));
+        if (otherFactionRace == RACE_NONE)
+            return;
+
+        if (uint32 displayId = GetDisplayIdForRace(otherFactionRace, owner->GetNativeGender()))
+            owner->SetDisplayId(displayId);
+
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+            UpdateRacials(Races(owner->GetRace()), otherFactionRace);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* owner = GetUnitOwner();
+        Races otherFactionRace = GetReplacementRace(Races(owner->GetRace()), Classes(owner->GetClass()));
+        if (otherFactionRace == RACE_NONE)
+            return;
+
+        UpdateRacials(otherFactionRace, Races(owner->GetRace()));
+    }
+
+    void UpdateRacials(Races oldRace, Races newRace)
+    {
+        Player* player = GetUnitOwner()->ToPlayer();
+        if (!player)
+            return;
+
+        for (uint32 racialSkillId : RacialSkills)
+        {
+            if (sDB2Manager.GetSkillRaceClassInfo(racialSkillId, oldRace, player->GetClass()))
+                if (std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(racialSkillId))
+                    for (SkillLineAbilityEntry const* ability : *skillLineAbilities)
+                        player->RemoveSpell(ability->Spell, false, false);
+
+            if (sDB2Manager.GetSkillRaceClassInfo(racialSkillId, newRace, player->GetClass()))
+                player->LearnSkillRewardedSpells(racialSkillId, player->GetMaxSkillValueForLevel(), newRace);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_gen_battleground_mercenary_shapeshift::HandleApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK);
+        AfterEffectRemove += AuraEffectApplyFn(spell_gen_battleground_mercenary_shapeshift::HandleRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // Blood Reserve - 64568
 enum BloodReserve
 {
@@ -2729,13 +2893,15 @@ class spell_gen_pvp_trinket : public SpellScript
     {
         Player* caster = GetCaster()->ToPlayer();
 
-        switch (caster->GetTeam())
+        switch (caster->GetEffectiveTeam())
         {
             case ALLIANCE:
                 caster->CastSpell(caster, SPELL_PVP_TRINKET_ALLIANCE, TRIGGERED_FULL_MASK);
                 break;
             case HORDE:
                 caster->CastSpell(caster, SPELL_PVP_TRINKET_HORDE, TRIGGERED_FULL_MASK);
+                break;
+            default:
                 break;
         }
     }
@@ -4814,6 +4980,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_aura_service_uniform);
     RegisterSpellScript(spell_gen_av_drekthar_presence);
     RegisterSpellScript(spell_gen_bandage);
+    RegisterSpellScript(spell_gen_battleground_mercenary_shapeshift);
     RegisterSpellScript(spell_gen_blood_reserve);
     RegisterSpellScript(spell_gen_bonked);
     RegisterSpellScriptWithArgs(spell_gen_break_shield, "spell_gen_break_shield");

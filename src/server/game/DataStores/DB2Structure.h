@@ -3091,6 +3091,8 @@ struct SkillLineEntry
     int32 ParentTierIndex;
     uint16 Flags;
     int32 SpellBookSpellID;
+
+    EnumFlag<SkillLineFlags> GetFlags() const { return static_cast<SkillLineFlags>(Flags); }
 };
 
 struct SkillLineAbilityEntry

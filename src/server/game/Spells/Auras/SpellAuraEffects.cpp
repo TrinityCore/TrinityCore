@@ -438,7 +438,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SPELL_OVERRIDE_NAME_GROUP
     &AuraEffect::HandleNULL,                                      //371
-    &AuraEffect::HandleNULL,                                      //372
+    &AuraEffect::HandleNULL,                                      //372 SPELL_AURA_OVERRIDE_MOUNT_FROM_SET
     &AuraEffect::HandleNULL,                                      //373 SPELL_AURA_MOD_SPEED_NO_CONTROL
     &AuraEffect::HandleNoImmediateEffect,                         //374 SPELL_AURA_MODIFY_FALL_DAMAGE_PCT implemented in Player::HandleFall
     &AuraEffect::HandleNULL,                                      //375 SPELL_AURA_HIDE_MODEL_AND_EQUIPEMENT_SLOTS implemented clientside
@@ -6064,13 +6064,13 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition playerPosition;
         playerPosition.Guid = target->GetGUID();
-        playerPosition.ArenaSlot = static_cast<uint8>(GetMiscValue());
+        playerPosition.ArenaSlot = static_cast<int8>(GetMiscValue());
         playerPosition.Pos = target->GetPosition();
 
         if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL)
-            playerPosition.IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
+            playerPosition.IconID = target->GetEffectiveTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
         else if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION)
-            playerPosition.IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+            playerPosition.IconID = target->GetEffectiveTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         else
             TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
 
