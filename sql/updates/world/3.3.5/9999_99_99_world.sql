@@ -9,6 +9,7 @@ INSERT INTO `gossip_menu_option`(`MenuID`, `OptionID`, `OptionIcon`, `OptionText
 (8532, 2, 0, 'I wish to unlearn Shadoweave Tailoring', 21658, 0, 0, 0, 0, 0, 1500000, 'Forgetting your skill in Shadoweave Tailoring is not something to do lightly.  If you choose to abandon it you will forget all recipes that require Shadoweave Tailoring to create!$b$bAre you absolutely sure?', 21661, 0);
 
 -- npc professions alchemy (https://tbc.wowhead.com/spell=41564/unlearn-elixir-mastery#comments)
+UPDATE `creature_template` SET `ScriptName`='npc_prof_alchemy' WHERE `entry` IN (17909,19052,22427);
 DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (7571,8540,8542) AND `OptionID` IN (1,2);
 INSERT INTO `gossip_menu_option`(`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
 (8542, 1, 0, 'I\'ve trained as an alchemist once again.  I wish to specialize in transmutations.', 20292, 0, 0, 0, 0, 0, 200000, NULL, 0, 0),
