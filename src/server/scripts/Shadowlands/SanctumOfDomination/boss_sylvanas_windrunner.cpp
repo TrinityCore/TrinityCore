@@ -1278,13 +1278,10 @@ struct boss_sylvanas_windrunner : public BossAI
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
+        // This could be a serverside spell instead of raw summoning
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        events.SetPhase(PHASE_ONE);
-        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 2s, PHASE_ONE);
-
-        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1299,7 +1296,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
-        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);*/
+        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
     }
 
     void DoAction(int32 action) override
@@ -1814,8 +1811,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
                     else if (events.IsInPhase(PHASE_THREE))
                         DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE, false);
-
-                    events.Repeat(6s);
                     break;
                 }
 
@@ -2377,7 +2372,7 @@ struct boss_sylvanas_windrunner : public BossAI
             }
         }
 
-        //DoSylvanasAttackIfReady();
+        DoSylvanasAttackIfReady();
     }
 
     void DoSylvanasAttackIfReady()
@@ -5588,12 +5583,6 @@ class spell_sylvanas_windrunner_blasphemy : public AuraScript
     }
 };
 
-/// Regenates 10 energy every 3s roughly
-static std::array<int32, 3> _sylvanasPowerRegenCycle =
-{
-    3, 3, 4
-};
-
 // Energize Power Aura (Sylvanas) - 352312
 class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
 {
@@ -5619,6 +5608,13 @@ class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_sylvanas_windrunner_energize_power_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
+
+private:
+    /// Regenerates 10 energy points every 3s roughly
+    static constexpr std::array<int32, 3> _sylvanasPowerRegenCycle =
+    {
+        3, 3, 4
+    };
 };
 
 // Activate Phase Intermission - 359429
@@ -5679,7 +5675,7 @@ Position const InvigoratingFieldPos[8] =
     { -231.528f, -1236.39f, 5671.67f, 3.14159f }
 };
 
-// Activate Invigorating Fields - 353660 NYI
+// Activate Invigorating Fields - 353660 (NYI)
 class spell_sylvanas_windrunner_activate_invigorating_fields : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_activate_invigorating_fields);
