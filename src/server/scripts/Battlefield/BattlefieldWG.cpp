@@ -571,7 +571,7 @@ void BattlefieldWG::OnBattleStart()
         // Update faction of relic, only attacker can click on
         relic->SetFaction(WintergraspFaction[GetAttackerTeam()]);
         // Set in use (not allow to click on before last door is broken)
-        relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
+        relic->SetFlag(GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
         m_titansRelicGUID = relic->GetGUID();
     }
     else
@@ -968,7 +968,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
         HandlePromotion(killer, victim);
 
         // Allow to Skin non-released corpse
-        victim->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+        victim->SetUnitFlag(UNIT_FLAG_SKINNABLE);
     }
 
     /// @todoRecent PvP activity worldstate
@@ -1495,7 +1495,7 @@ void BfWGGameObjectBuilding::Destroyed()
                     go->SetGoState(GO_STATE_ACTIVE);
             _wg->SetRelicInteractible(true);
             if (_wg->GetRelic())
-                _wg->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
+                _wg->GetRelic()->RemoveFlag(GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
             else
                 TC_LOG_ERROR("bg.battlefield.wg", "Titan Relic not found.");
             break;

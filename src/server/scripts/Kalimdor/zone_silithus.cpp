@@ -363,7 +363,7 @@ public:
         {
             Initialize();
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void HandleAnimation()
@@ -507,7 +507,7 @@ public:
                         DoCast(player, SPELL_ARCANE_CHANNELING, true);//Arcane Channeling
                         break;
                     case 35:
-                        me->CastSpell({ -8088, 1520.43f, 2.67f }, SPELL_TIME_STOP, true);
+                        me->CastSpell(Position(-8088, 1520.43f, 2.67f), SPELL_TIME_STOP, true);
                         break;
                     case 36:
                         DoCast(player, SPELL_CALL_PRISMATIC_BARRIER, true);
@@ -557,7 +557,7 @@ public:
                         break;
                     case 50:
                         Fandral->AI()->Talk(FANDRAL_EMOTE_2);
-                        Fandral->CastSpell({ -8127, 1525, 17.5f }, SPELL_THROW_HAMMER, true);
+                        Fandral->CastSpell(Position(-8127, 1525, 17.5f), SPELL_THROW_HAMMER, true);
                         break;
                     case 51:
                     {
@@ -847,7 +847,7 @@ public:
                 if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
                 {
                     if (spawn->GetEntry() == NPC_KALDOREI_INFANTRY)
-                        spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15427 + rand32() % 4);
+                        spawn->SetDisplayId(15427 + rand32() % 4);
                     if (i >= 30) WaveCount = 1;
                     if (i >= 33) WaveCount = 2;
                     if (i >= 45) WaveCount = 3;
@@ -985,25 +985,25 @@ public:
 
                     if (Merithra)
                     {
-                        Merithra->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                        Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                        Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID, MERITHRA_NIGHT_ELF_FORM);
+                        Merithra->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+                        Merithra->SetStandState(UNIT_STAND_STATE_STAND);
+                        Merithra->SetDisplayId(MERITHRA_NIGHT_ELF_FORM);
                         Merithra->SetFaction(FACTION_FRIENDLY);
                     }
 
                     if (Caelestrasz)
                     {
-                        Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                        Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                        Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID, CAELESTRASZ_NIGHT_ELF_FORM);
+                        Caelestrasz->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+                        Caelestrasz->SetStandState(UNIT_STAND_STATE_STAND);
+                        Caelestrasz->SetDisplayId(CAELESTRASZ_NIGHT_ELF_FORM);
                         Caelestrasz->SetFaction(FACTION_FRIENDLY);
                     }
 
                     if (Arygos)
                     {
-                        Arygos->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                        Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                        Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID, ARYGOS_GNOME_FORM);
+                        Arygos->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+                        Arygos->SetStandState(UNIT_STAND_STATE_STAND);
+                        Arygos->SetDisplayId(ARYGOS_GNOME_FORM);
                         Arygos->SetFaction(FACTION_FRIENDLY);
                     }
 
@@ -1418,7 +1418,7 @@ class go_wind_stone : public GameObjectScript
                 void Reset() override
                 {
                     // Allow despawning
-                    me->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
+                    me->RemoveFlag(GO_FLAG_NODESPAWN);
                     isSummoning = false;
                 }
         };

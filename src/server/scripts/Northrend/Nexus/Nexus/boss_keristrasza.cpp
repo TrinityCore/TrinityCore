@@ -220,7 +220,7 @@ struct containment_sphere : public GameObjectAI
         if (keristrasza && keristrasza->IsAlive())
         {
             // maybe these are hacks :(
-            me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             me->SetGoState(GO_STATE_ACTIVE);
 
             ENSURE_AI(boss_keristrasza, keristrasza->AI())->CheckContainmentSpheres(true);

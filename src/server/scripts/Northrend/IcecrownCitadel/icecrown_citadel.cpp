@@ -757,7 +757,7 @@ struct npc_icc_orb_controller : public ScriptedAI
             UpdateValidGuids();
             ScheduleVisualChannel(true);
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
-                orb->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                orb->SetFlag(GO_FLAG_NOT_SELECTABLE);
         }
     }
 
@@ -825,7 +825,7 @@ struct DarkFallenAI : public ScriptedAI
     {
         if (action == ACTION_SIPHON_INTERRUPTED)
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 10.0f))
-                orb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                orb->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
     }
 
     void SetGUID(ObjectGuid const& guid, int32 id) override
@@ -1023,7 +1023,7 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
     {
         me->SetDisableGravity(true);
         me->SetImmuneToAll(true);
-        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_03);
+        me->SetEmoteState(EMOTE_STATE_CUSTOM_SPELL_03);
     }
 
     void Reset() override
@@ -1050,7 +1050,7 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
         me->SetHomePosition(x, y, z, me->GetOrientation());
 
         me->GetMotionMaster()->MoveLand(POINT_LAND, Position(x, y, z));
-        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        me->SetEmoteState(EMOTE_ONESHOT_NONE);
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -1132,7 +1132,7 @@ struct go_empowering_blood_orb : public GameObjectAI
 
     void HandleObjectUse()
     {
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        me->SetFlag(GO_FLAG_IN_USE);
         me->SetGoAnimProgress(255);
         me->SetGoState(GO_STATE_DESTROYED);
         if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))
@@ -1313,9 +1313,9 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_PASSIVE);
-            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             target->SetImmuneToPC(true);
-            target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
+            target->SetEmoteState(EMOTE_STATE_CUSTOM_SPELL_02);
         }
     }
 
@@ -1324,9 +1324,9 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_AGGRESSIVE);
-            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             target->SetImmuneToPC(false);
-            target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+            target->SetEmoteState(EMOTE_ONESHOT_NONE);
         }
     }
 

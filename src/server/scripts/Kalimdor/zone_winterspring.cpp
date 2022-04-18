@@ -308,13 +308,13 @@ public:
             {
                 if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_ELUNE_ALTAR, 10.0f))
                 {
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                     me->SetFacingToObject(go);
                     _altarGUID = go->GetGUID();
                 }
             }
             else if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_ELUNE_FIRE, 10.0f))
-                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
             // Yell and set escort to pause
             Talk(SAY_REACH_TORCH);
@@ -585,7 +585,7 @@ public:
                 if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
                     escortAI->DoContinueEscort(isAltar);
             }
-            me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             return false;
         }
     };

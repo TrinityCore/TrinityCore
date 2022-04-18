@@ -185,7 +185,7 @@ struct boss_victor_nefarius : public BossAI
 
             me->SetVisible(true);
             me->SetPhaseMask(1, true);
-            me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->SetFaction(FACTION_FRIENDLY);
             me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);
             me->RemoveAura(SPELL_NEFARIANS_BARRIER);
@@ -204,7 +204,7 @@ struct boss_victor_nefarius : public BossAI
         Talk(SAY_GAMESBEGIN_2);
 
         me->SetFaction(FACTION_DRAGONFLIGHT_BLACK);
-        me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         DoCast(me, SPELL_NEFARIANS_BARRIER);
         me->SetStandState(UNIT_STAND_STATE_STAND);
         me->SetImmuneToPC(false);
@@ -220,7 +220,7 @@ struct boss_victor_nefarius : public BossAI
         if (summon->GetEntry() != NPC_NEFARIAN)
         {
             summon->UpdateEntry(NPC_BONE_CONSTRUCT);
-            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            summon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             summon->SetReactState(REACT_PASSIVE);
             summon->SetStandState(UNIT_STAND_STATE_DEAD);
         }
@@ -561,7 +561,7 @@ struct boss_nefarian : public BossAI
                 {
                     (*itr)->Respawn();
                     DoZoneInCombat((*itr));
-                    (*itr)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    (*itr)->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     (*itr)->SetReactState(REACT_AGGRESSIVE);
                     (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
                 }

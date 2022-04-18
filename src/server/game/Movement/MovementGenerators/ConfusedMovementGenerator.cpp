@@ -49,7 +49,7 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* owner)
         return;
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
-    owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    owner->SetUnitFlag(UNIT_FLAG_CONFUSED);
     owner->StopMoving();
 
     _timer.Reset(0);
@@ -144,7 +144,7 @@ void ConfusedMovementGenerator<Player>::DoFinalize(Player* owner, bool active, b
 
     if (active)
     {
-        owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+        owner->RemoveUnitFlag(UNIT_FLAG_CONFUSED);
         owner->StopMoving();
     }
 }
@@ -156,7 +156,7 @@ void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
 
     if (active)
     {
-        owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+        owner->RemoveUnitFlag(UNIT_FLAG_CONFUSED);
         owner->ClearUnitState(UNIT_STATE_CONFUSED_MOVE);
         if (owner->GetVictim())
             owner->SetTarget(owner->EnsureVictim()->GetGUID());

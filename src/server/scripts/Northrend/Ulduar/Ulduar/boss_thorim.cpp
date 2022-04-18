@@ -488,7 +488,7 @@ class boss_thorim : public CreatureScript
                     me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
 
                 if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
-                    lever->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    lever->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                 // Remove trigger auras
                 if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
@@ -576,7 +576,7 @@ class boss_thorim : public CreatureScript
                 me->RemoveAllAttackers();
                 me->AttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME);
+                me->SetUnitFlag(UNIT_FLAG_RENAME);
 
                 if (Creature* controller = instance->GetCreature(DATA_THORIM_CONTROLLER))
                     controller->RemoveAllAuras();
@@ -636,7 +636,7 @@ class boss_thorim : public CreatureScript
                 }
 
                 if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
-                    lever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    lever->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
                 // Summon Sif
                 me->SummonCreature(NPC_SIF, SifSpawnPosition);
@@ -651,16 +651,18 @@ class boss_thorim : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->CastSpell(summon, SPELL_LIGHTNING_DESTRUCTION, true);
 
-                        Movement::PointsArray path;
-                        path.reserve(LightningOrbPathSize);
-                        std::transform(std::begin(LightningOrbPath), std::end(LightningOrbPath), std::back_inserter(path), [](Position const& pos)
+                        std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
                         {
-                            return G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-                        });
+                            Movement::PointsArray path;
+                            path.reserve(LightningOrbPathSize);
+                            std::transform(std::begin(LightningOrbPath), std::end(LightningOrbPath), std::back_inserter(path), [](Position const& pos)
+                            {
+                                return G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            });
 
-                        Movement::MoveSplineInit init(summon);
-                        init.MovebyPath(path);
-                        summon->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                            init.MovebyPath(path);
+                        };
+                        summon->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                         break;
                     }
                     case NPC_DARK_RUNE_CHAMPION:
@@ -1934,7 +1936,7 @@ class spell_thorim_stormhammer : public SpellScriptLoader
 
             void LoseHammer()
             {
-                GetCaster()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                GetCaster()->SetVirtualItem(0, 0);
             }
 
             void Register() override
@@ -1977,7 +1979,7 @@ class spell_thorim_stormhammer_sif : public SpellScriptLoader
 
             void LoseHammer()
             {
-                GetCaster()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                GetCaster()->SetVirtualItem(0, 0);
             }
 
             void Register() override
@@ -2006,7 +2008,7 @@ class spell_thorim_stormhammer_boomerang : public SpellScriptLoader
             void RecoverHammer(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, THORIM_WEAPON_DISPLAY_ID);
+                    target->SetVirtualItem(0, THORIM_WEAPON_DISPLAY_ID);
             }
 
             void Register() override

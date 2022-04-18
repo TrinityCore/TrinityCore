@@ -108,8 +108,8 @@ struct boss_arlokk : public BossAI
             me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
         _Reset();
         Initialize();
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
+        me->SetVirtualItem(0, uint32(WEAPON_DAGGER));
+        me->SetVirtualItem(1, uint32(WEAPON_DAGGER));
         me->SetWalk(false);
         me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0]);
     }
@@ -160,7 +160,7 @@ struct boss_arlokk : public BossAI
     {
         BossAI::EnterEvadeMode(why);
         if (GameObject* object = instance->GetGameObject(DATA_GONG_BETHEKK))
-            object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            object->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         me->DespawnOrUnsummon(4s);
     }
 
@@ -228,8 +228,8 @@ struct boss_arlokk : public BossAI
                 case EVENT_TRANSFORM:
                 {
                     DoCast(me, SPELL_PANTHER_TRANSFORM); // SPELL_AURA_TRANSFORM
-                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_UNEQUIP));
-                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(EQUIP_UNEQUIP));
+                    me->SetVirtualItem(0, uint32(EQUIP_UNEQUIP));
+                    me->SetVirtualItem(1, uint32(EQUIP_UNEQUIP));
                     /*
                     CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                     me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
@@ -239,7 +239,7 @@ struct boss_arlokk : public BossAI
                     me->AttackStop();
                     ResetThreatList();
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNINTERACTIBLE);
                     DoCast(me, SPELL_VANISH_VISUAL);
                     DoCast(me, SPELL_VANISH);
                     events.ScheduleEvent(EVENT_VANISH, 1s, 0, PHASE_ONE);
@@ -258,7 +258,7 @@ struct boss_arlokk : public BossAI
                     break;
                 case EVENT_VISIBLE:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNINTERACTIBLE);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         AttackStart(target);
                     me->RemoveAura(SPELL_SUPER_INVIS);
@@ -276,8 +276,8 @@ struct boss_arlokk : public BossAI
                 {
                     me->RemoveAura(SPELL_PANTHER_TRANSFORM); // SPELL_AURA_TRANSFORM
                     DoCast(me, SPELL_VANISH_VISUAL);
-                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
-                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
+                    me->SetVirtualItem(0, uint32(WEAPON_DAGGER));
+                    me->SetVirtualItem(1, uint32(WEAPON_DAGGER));
                     /*
                     CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                     me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg));
@@ -426,7 +426,7 @@ struct go_gong_of_bethekk : public GameObjectAI
 
     bool OnGossipHello(Player* /*player*/) override
     {
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         me->SendCustomAnim(0);
         me->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10min);
         return true;

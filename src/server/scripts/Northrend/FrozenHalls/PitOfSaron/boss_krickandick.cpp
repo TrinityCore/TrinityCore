@@ -318,7 +318,7 @@ struct boss_krick : public ScriptedAI
         Initialize();
 
         me->SetReactState(REACT_PASSIVE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void KilledUnit(Unit* victim) override

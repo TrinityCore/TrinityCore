@@ -132,8 +132,8 @@ class boss_nalorakk : public CreatureScript
 
                 if (MoveEvent)
                 {
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     inMove = false;
                     waitTimer = 0;
                     me->SetSpeedRate(MOVE_RUN, 2);
@@ -225,8 +225,8 @@ class boss_nalorakk : public CreatureScript
 
                                         Talk(YELL_NALORAKK_WAVE4);
 
-                                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
-                                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
                                         MoveEvent = false;
                                     }

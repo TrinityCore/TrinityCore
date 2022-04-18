@@ -278,9 +278,9 @@ class boss_janalai : public CreatureScript
                 {
                     if (Unit* FireBomb = ObjectAccessor::GetUnit(*me, FireBombGUIDs[BombCount]))
                     {
-                        FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        FireBomb->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);
-                        FireBomb->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        FireBomb->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     }
                     ++BombCount;
                     if (BombCount == 40)

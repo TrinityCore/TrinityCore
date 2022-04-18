@@ -20,6 +20,7 @@
 
 #include "DBCEnums.h"
 #include "Define.h"
+#include "EnumFlag.h"
 #include "SmartEnum.h"
 
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
@@ -1638,6 +1639,8 @@ enum GameObjectFlags
     GO_FLAG_DAMAGED         = 0x00000200,
     GO_FLAG_DESTROYED       = 0x00000400
 };
+
+DEFINE_ENUM_FLAG(GameObjectFlags);
 
 enum GameObjectDynamicLowFlags
 {

@@ -209,7 +209,7 @@ struct boss_blood_queen_lana_thel : public BossAI
                 player->RewardPlayerAndGroupAtEvent(Is25ManRaid() ? NPC_INFILTRATOR_MINCHAR_BQ_25 : NPC_INFILTRATOR_MINCHAR_BQ, player);
             if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
             {
-                minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                minchar->SetEmoteState(EMOTE_ONESHOT_NONE);
                 minchar->SetAnimTier(AnimTier::Ground);
                 minchar->SetCanFly(false);
                 minchar->RemoveAllAuras();

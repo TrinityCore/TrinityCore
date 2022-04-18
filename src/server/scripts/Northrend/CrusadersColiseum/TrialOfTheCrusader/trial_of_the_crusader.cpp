@@ -233,7 +233,7 @@ struct npc_barrett_toc : public ScriptedAI
     {
         if (Creature* fordring = _instance->GetCreature(DATA_FORDRING))
             fordring->AI()->DoAction(action);
-        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         me->GetMotionMaster()->MoveAlongSplineChain(POINT_BARRETT_DESPAWN, SPLINE_INITIAL_MOVEMENT, false);
     }
 
@@ -337,7 +337,7 @@ struct boss_lich_king_toc : public ScriptedAI
                     _instance->SetBossState(DATA_LICH_KING, DONE);
                     break;
                 case EVENT_EMOTE_TALK:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                    me->SetEmoteState(EMOTE_STATE_TALK);
                     me->GetMap()->SetZoneWeather(AREA_TRIAL_OF_THE_CRUSADER, WEATHER_STATE_FOG, 0.0f);
                     _events.ScheduleEvent(EVENT_EMOTE_EXCLAMATION, 10s);
                     break;
@@ -728,10 +728,10 @@ struct npc_fizzlebang_toc : public ScriptedAI
                         fordring->AI()->DoAction(ACTION_KILL_JARAXXUS);
                     break;
                 case EVENT_EMOTE_TALK:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                    me->SetEmoteState(EMOTE_STATE_TALK);
                     break;
                 case EVENT_REMOVE_EMOTE_TALK:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                    me->SetEmoteState(EMOTE_ONESHOT_NONE);
                     break;
                 default:
                     break;

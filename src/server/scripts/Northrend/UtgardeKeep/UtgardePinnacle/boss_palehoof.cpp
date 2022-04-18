@@ -202,7 +202,7 @@ struct boss_palehoof : public BossAI
         if (GameObject* go = instance->GetGameObject(DATA_GORTOK_PALEHOOF_SPHERE))
         {
             go->SetGoState(GO_STATE_READY);
-            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         }
     }
 
@@ -512,7 +512,7 @@ struct go_palehoof_sphere : public GameObjectAI
         {
             if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
             {
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetFlag(GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);
                 palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
             }
@@ -572,7 +572,7 @@ class spell_palehoof_awaken_subboss : public SpellScript
     {
         Unit* target = GetHitUnit();
         GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500ms));
     }
 
@@ -590,7 +590,7 @@ class spell_palehoof_awaken_gortok : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8s));
     }
 

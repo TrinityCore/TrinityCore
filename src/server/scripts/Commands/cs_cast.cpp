@@ -142,7 +142,7 @@ public:
 
         float x, y, z;
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, dist);
-        handler->GetSession()->GetPlayer()->CastSpell({ x, y, z }, spell->Id, *triggerFlags);
+        handler->GetSession()->GetPlayer()->CastSpell(Position{ x, y, z }, spell->Id, *triggerFlags);
 
         return true;
     }
@@ -215,7 +215,7 @@ public:
         if (!triggerFlags)
             return false;
 
-        caster->CastSpell({ x, y, z }, spell->Id, *triggerFlags);
+        caster->CastSpell(Position{ x, y, z }, spell->Id, *triggerFlags);
 
         return true;
     }

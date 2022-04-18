@@ -382,12 +382,12 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                     case 0:
                         player->PlayerTalkClass->SendCloseGossip();
                         _events.ScheduleEvent(EVENT_START_INTRO, 1s);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                     case 1:
                         player->PlayerTalkClass->SendCloseGossip();
                         _events.ScheduleEvent(EVENT_SKIP_INTRO, 1s);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                     default:
                         break;
@@ -402,7 +402,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 _utherGUID.Clear();
                 _lichkingGUID.Clear();
 
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 _events.ScheduleEvent(EVENT_WALK_INTRO1, 3s);
             }
@@ -435,7 +435,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                             Talk(SAY_JAINA_INTRO_2);
                         else
                             Talk(SAY_SYLVANAS_INTRO_2);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                     case EVENT_START_INTRO:
                         if (Creature* korelnOrLoralen = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_KORELN_LORALEN)))
@@ -631,7 +631,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                         }
                         if (Creature* uther = ObjectAccessor::GetCreature(*me, _utherGUID))
                         {
-                            uther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+                            uther->SetEmoteState(EMOTE_STATE_COWER);
                             if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                 uther->AI()->Talk(SAY_UTHER_INTRO_A2_9);
                             else
@@ -902,7 +902,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 {
                     case 0:
                         player->PlayerTalkClass->SendCloseGossip();
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         _events.ScheduleEvent(EVENT_ESCAPE_6, 0s);
                         break;
                     default:
@@ -966,7 +966,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_JAINA_ICE_BARRIER);
                         else
                             me->RemoveAurasDueToSpell(SPELL_SYLVANAS_CLOAK_OF_DARKNESS);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         me->SetHealth(JAINA_SYLVANAS_MAX_HEALTH);
                         me->SetFacingTo(SylvanasShadowThroneDoorPosition.GetOrientation());
                         break;
@@ -1013,7 +1013,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 lichking->AI()->AttackStart(me);
                             }
                             me->SetHealth(JAINA_SYLVANAS_MAX_HEALTH);
-                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                             break;
                         case EVENT_ESCAPE_1:
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
@@ -1038,7 +1038,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
                             {
                                 lichking->SetReactState(REACT_PASSIVE);
-                                lichking->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                                lichking->SetUnitFlag(UNIT_FLAG_PACIFIED);
                             }
 
                             _events.ScheduleEvent(EVENT_ESCAPE_3, 1500ms);
@@ -1071,7 +1071,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         case EVENT_ESCAPE_6:
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
                             {
-                                lichking->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                                lichking->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
                                 lichking->SetImmuneToPC(false);
 
                                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
@@ -1156,7 +1156,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             else
                                 Talk(SAY_SYLVANAS_ESCAPE_9);
                             DoCast(me, SPELL_CREDIT_ESCAPING_ARTHAS);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                             break;
                         default:
                             break;

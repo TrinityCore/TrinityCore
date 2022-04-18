@@ -21,6 +21,7 @@
 #include "MovementGenerator.h"
 #include "MoveSplineInit.h"
 #include "Timer.h"
+#include <functional>
 
 class Unit;
 
@@ -29,7 +30,7 @@ enum MovementGeneratorType : uint8;
 class GenericMovementGenerator : public MovementGenerator
 {
     public:
-        explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id);
+        explicit GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id);
 
         void Initialize(Unit*) override;
         void Reset(Unit*) override;
@@ -41,7 +42,7 @@ class GenericMovementGenerator : public MovementGenerator
     private:
         void MovementInform(Unit*);
 
-        Movement::MoveSplineInit _splineInit;
+        std::function<void(Movement::MoveSplineInit& init)> _splineInit;
         MovementGeneratorType _type;
         uint32 _pointId;
         TimeTracker _duration;
