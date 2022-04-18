@@ -49,48 +49,44 @@ class account_commandscript : public CommandScript
 public:
     account_commandscript() : CommandScript("account_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> accountSetSecTable =
+        static ChatCommandTable accountSetCommandTable =
         {
-            { "regmail",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL, true,  &HandleAccountSetRegEmailCommand,  ""       },
-            { "email",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,   true,  &HandleAccountSetEmailCommand,     ""       },
+            { "addon",              HandleAccountSetAddonCommand,       LANG_COMMAND_ACC_SET_ADDON_HELP,        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,          Console::Yes },
+            { "sec regmail",        HandleAccountSetRegEmailCommand,    LANG_COMMAND_ACC_SET_SEC_REGMAIL_HELP,  rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL,    Console::Yes },
+            { "sec email",          HandleAccountSetEmailCommand,       LANG_COMMAND_ACC_SET_SEC_EMAIL_HELP,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,      Console::Yes },
+            { "gmlevel",            HandleAccountSetSecLevelCommand,    LANG_COMMAND_ACC_SET_SECLEVEL_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },  // temp for a transition period
+            { "seclevel",           HandleAccountSetSecLevelCommand,    LANG_COMMAND_ACC_SET_SECLEVEL_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },
+            { "password",           HandleAccountSetPasswordCommand,    LANG_COMMAND_ACC_SET_PASSWORD_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,       Console::Yes },
+            { "2fa",                HandleAccountSet2FACommand,         LANG_COMMAND_ACC_SET_2FA_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,            Console::Yes },
         };
-        static std::vector<ChatCommand> accountSetCommandTable =
+        static ChatCommandTable accountOnlinelistCommandTable =
         {
-            { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,       true,  &HandleAccountSetAddonCommand,     ""       },
-            { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
-            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },  // temp for a transition period
-            { "seclevel",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },
-            { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
-            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
+            { "",         HandleAccountOnlineListCommand,               LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "ip",       HandleAccountOnlineListWithIpFilterCommand,   LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "limit",    HandleAccountOnlineListWithLimitCommand,      LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "map",      HandleAccountOnlineListWithMapFilterCommand,  LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "zone",     HandleAccountOnlineListWithZoneFilterCommand, LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
         };
-        static std::vector<ChatCommand> account2FACommandTable =
+        static ChatCommandTable accountCommandTable =
         {
-            { "setup",          rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,       false,  &HandleAccount2FASetupCommand,     ""      },
-            { "remove",         rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,      false,  &HandleAccount2FARemoveCommand,     ""     },
+            { "2fa setup",          HandleAccount2FASetupCommand,       LANG_COMMAND_ACC_2FA_SETUP_HELP,        rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,          Console::No  },
+            { "2fa remove",         HandleAccount2FARemoveCommand,      LANG_COMMAND_ACC_2FA_REMOVE_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,         Console::No  },
+            { "addon",              HandleAccountAddonCommand,          LANG_COMMAND_ACC_ADDON_HELP,            rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,              Console::No  },
+            { "create",             HandleAccountCreateCommand,         LANG_COMMAND_ACC_CREATE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,             Console::Yes },
+            { "delete",             HandleAccountDeleteCommand,         LANG_COMMAND_ACC_DELETE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,             Console::Yes },
+            { "email",              HandleAccountEmailCommand,          LANG_COMMAND_ACC_EMAIL_HELP,            rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,              Console::No  },
+            { "onlinelist",         accountOnlinelistCommandTable },
+            { "lock country",       HandleAccountLockCountryCommand,    LANG_COMMAND_ACC_LOCK_COUNTRY_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,       Console::No  },
+            { "lock ip",            HandleAccountLockIpCommand,         LANG_COMMAND_ACC_LOCK_IP_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,            Console::No  },
+            { "set",                accountSetCommandTable },
+            { "password",           HandleAccountPasswordCommand,       LANG_COMMAND_ACC_PASSWORD_HELP,         rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,           Console::No  },
+            { "",                   HandleAccountCommand,               LANG_COMMAND_ACCOUNT_HELP,              rbac::RBAC_PERM_COMMAND_ACCOUNT,                    Console::No  },
         };
-        static std::vector<ChatCommand> accountLockCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "country",        rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,    false,  &HandleAccountLockCountryCommand,  ""      },
-            { "ip",             rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,         false,  &HandleAccountLockIpCommand,       ""      },
-        };
-        static std::vector<ChatCommand> accountCommandTable =
-        {
-            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA,             false, nullptr,           "", account2FACommandTable  },
-            { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,           false, &HandleAccountAddonCommand,        ""       },
-            { "create",         rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,          true,  &HandleAccountCreateCommand,       ""       },
-            { "delete",         rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,          true,  &HandleAccountDeleteCommand,       ""       },
-            { "email",          rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,           false, &HandleAccountEmailCommand,        ""       },
-            { "onlinelist",     rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,     true,  &HandleAccountOnlineListCommand,   ""       },
-            { "lock",           rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,            false, nullptr,        "", accountLockCommandTable },
-            { "set",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,             true,  nullptr,         "", accountSetCommandTable },
-            { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,        false, &HandleAccountPasswordCommand,     ""       },
-            { "",               rbac::RBAC_PERM_COMMAND_ACCOUNT,                 false, &HandleAccountCommand,             ""       },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "account",        rbac::RBAC_PERM_COMMAND_ACCOUNT,                 true,  nullptr,              "",  accountCommandTable },
+            { "account",            accountCommandTable },
         };
         return commandTable;
     }
@@ -345,45 +341,88 @@ public:
     /// Display info on users currently in the realm
     static bool HandleAccountOnlineListCommand(ChatHandler* handler)
     {
-        ///- Get the list of accounts ID logged to the realm
-        PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE));
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, {}, {});
+    }
 
-        if (!result)
+    static bool HandleAccountOnlineListWithIpFilterCommand(ChatHandler* handler, std::string ipAddress)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, ipAddress, {}, {}, {});
+    }
+
+    static bool HandleAccountOnlineListWithLimitCommand(ChatHandler* handler, uint32 limit)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, limit, {}, {});
+    }
+
+    static bool HandleAccountOnlineListWithMapFilterCommand(ChatHandler* handler, uint32 mapId)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, mapId, {});
+    }
+
+    static bool HandleAccountOnlineListWithZoneFilterCommand(ChatHandler* handler, uint32 zoneId)
+    {
+        return HandleAccountOnlineListCommandWithParameters(handler, {}, {}, {}, zoneId);
+    }
+
+    static bool HandleAccountOnlineListCommandWithParameters(ChatHandler* handler, Optional<std::string> ipAddress, Optional<uint32> limit, Optional<uint32> mapId, Optional<uint32> zoneId)
+    {
+        size_t sessionsMatchCount = 0;
+
+        SessionMap const& sessionsMap = sWorld->GetAllSessions();
+        for (SessionMap::value_type const& sessionPair : sessionsMap)
+        {
+            WorldSession* session = sessionPair.second;
+            Player* player = session->GetPlayer();
+
+            // Ignore sessions on character selection screen
+            if (!player)
+                continue;
+
+            uint32 playerMapId = player->GetMapId();
+            uint32 playerZoneId = player->GetZoneId();
+
+            // Apply optional ipAddress filter
+            if (ipAddress && ipAddress != session->GetRemoteAddress())
+                continue;
+
+            // Apply optional mapId filter
+            if (mapId && mapId != playerMapId)
+                continue;
+
+            // Apply optional zoneId filter
+            if (zoneId && zoneId != playerZoneId)
+                continue;
+
+            if (!sessionsMatchCount)
+            {
+                ///- Display the list of account/characters online on the first matched sessions
+                handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR_HEADER);
+                handler->SendSysMessage(LANG_ACCOUNT_LIST_HEADER);
+                handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
+            }
+
+            handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
+                session->GetAccountName().c_str(),
+                session->GetPlayerName().c_str(),
+                session->GetRemoteAddress().c_str(),
+                playerMapId,
+                playerZoneId,
+                session->GetAccountExpansion(),
+                int32(session->GetSecurity()));
+
+            ++sessionsMatchCount;
+
+            // Apply optional count limit
+            if (limit && sessionsMatchCount >= limit)
+                break;
+        }
+
+        // Header is printed on first matched session. If it wasn't printed then no sessions matched the criteria
+        if (!sessionsMatchCount)
         {
             handler->SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
             return true;
         }
-
-        ///- Display the list of account/characters online
-        handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR_HEADER);
-        handler->SendSysMessage(LANG_ACCOUNT_LIST_HEADER);
-        handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
-
-        ///- Cycle through accounts
-        do
-        {
-            Field* fieldsDB = result->Fetch();
-            std::string name = fieldsDB[0].GetString();
-            uint32 account = fieldsDB[1].GetUInt32();
-
-            ///- Get the username, last IP and GM level of each account
-            // No SQL injection. account is uint32.
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
-            stmt->setUInt32(0, account);
-            PreparedQueryResult resultLogin = LoginDatabase.Query(stmt);
-
-            if (resultLogin)
-            {
-                Field* fieldsLogin = resultLogin->Fetch();
-                handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
-                    fieldsLogin[0].GetCString(), name.c_str(), fieldsLogin[1].GetCString(),
-                    fieldsDB[2].GetUInt16(), fieldsDB[3].GetUInt16(), fieldsLogin[3].GetUInt8(),
-                    fieldsLogin[2].GetUInt8());
-            }
-            else
-                handler->PSendSysMessage(LANG_ACCOUNT_LIST_ERROR, name.c_str());
-        }
-        while (result->NextRow());
 
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
         return true;
@@ -707,12 +746,11 @@ public:
         if (realmId)
             realmID = *realmId;
 
-        // handler->getSession() == nullptr only for console
         uint32 playerSecurity;
-        if (handler->GetSession())
-            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
-        else
+        if (handler->IsConsole())
             playerSecurity = SEC_CONSOLE;
+        else
+            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
 
         // can set security level only for target with less security and to less security that we have
         // This also restricts setting handler's own security.

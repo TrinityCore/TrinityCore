@@ -36,8 +36,9 @@
 // Constructor, copies most fields from LootStoreItem and generates random count
 LootItem::LootItem(LootStoreItem const& li)
 {
-    itemid      = li.itemid;
-    conditions   = li.conditions;
+    itemid = li.itemid;
+    itemIndex = 0;
+    conditions = li.conditions;
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
     freeforall = proto && proto->HasFlag(ITEM_FLAG_MULTI_DROP);
@@ -73,13 +74,9 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
     if (pProto->HasFlag(ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
         return false;
 
-    // Master looter can see certain items even if the character can't loot them
+    // Master looter can see all items even if the character can't loot them
     if (!isGivenByMasterLooter && player->GetGroup() && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID())
     {
-        // check quest requirements
-        if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && (needs_quest || pProto->GetStartQuest()))
-            return false;
-
         return true;
     }
 
@@ -308,6 +305,7 @@ void Loot::AddItem(LootStoreItem const& item)
         LootItem generatedLoot(item);
         generatedLoot.context = _itemContext;
         generatedLoot.count = std::min(count, proto->GetMaxStackSize());
+        generatedLoot.itemIndex = lootItems.size();
         if (_itemContext != ItemContext::NONE)
         {
             std::set<uint32> bonusListIDs = sDB2Manager.GetDefaultItemBonusTree(generatedLoot.itemid, _itemContext);

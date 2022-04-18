@@ -257,7 +257,7 @@ bool CreatureAI::UpdateVictim()
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
-            if (!me->HasSpellFocus() && victim != me->GetVictim())
+            if (victim != me->GetVictim())
                 AttackStart(victim);
 
         return me->GetVictim() != nullptr;
@@ -394,10 +394,10 @@ int32 CreatureAI::VisualizeBoundary(Seconds duration, Unit* owner, bool fill) co
             if (TempSummon* point = owner->SummonCreature(BOUNDARY_VISUALIZE_CREATURE, Position(startPosition.GetPositionX() + front.first * BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionY() + front.second * BOUNDARY_VISUALIZE_STEP_SIZE, spawnZ), TEMPSUMMON_TIMED_DESPAWN, duration))
             {
                 point->SetObjectScale(BOUNDARY_VISUALIZE_CREATURE_SCALE);
-                point->AddUnitFlag(UNIT_FLAG_STUNNED);
+                point->SetUnitFlag(UNIT_FLAG_STUNNED);
                 point->SetImmuneToAll(true);
                 if (!hasOutOfBoundsNeighbor)
-                    point->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    point->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
         }
 

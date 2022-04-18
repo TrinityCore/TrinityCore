@@ -121,7 +121,7 @@ void LoadDisables()
 
                 if (flags & SPELL_DISABLE_AREA)
                 {
-                    for (std::string_view areaStr : Trinity::Tokenize(params_0, ',', true))
+                    for (std::string_view areaStr : Trinity::Tokenize(params_1, ',', true))
                     {
                         if (Optional<uint32> areaId = Trinity::StringTo<uint32>(areaStr))
                             data.params[1].insert(*areaId);
@@ -305,7 +305,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 {
                     if (spellFlags & (SPELL_DISABLE_ARENAS | SPELL_DISABLE_BATTLEGROUNDS))
                     {
-                        if (Map const* map = ref->GetMap())
+                        if (Map const* map = ref->FindMap())
                         {
                             if (spellFlags & SPELL_DISABLE_ARENAS && map->IsBattleArena())
                                 return true;                                    // Current map is Arena and this spell is disabled here

@@ -20,6 +20,7 @@
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
@@ -335,7 +336,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
         SetFaction(goOverride->Faction);
-        SetFlags(GameObjectFlags(goOverride->Flags));
+        ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
     }
 
     if (m_goTemplateAddon)
@@ -438,10 +439,14 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             RemoveFlag(GameObjectFlags(0xF00));
-            AddFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
+            SetFlag(GameObjectFlags((m_goInfo->phaseableMO.AreaNameSet & 0xF) << 8));
             break;
         case GAMEOBJECT_TYPE_CAPTURE_POINT:
             SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), m_goInfo->capturePoint.SpellVisual1);
+            m_goValue.CapturePoint.AssaultTimer = 0;
+            m_goValue.CapturePoint.LastTeamCapture = TEAM_NEUTRAL;
+            m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::Neutral;
+            UpdateCapturePoint();
             break;
         default:
             SetGoAnimProgress(animProgress);
@@ -627,7 +632,7 @@ void GameObject::Update(uint32 diff)
                         if (caster && caster->GetTypeId() == TYPEID_PLAYER)
                         {
                             SetGoState(GO_STATE_ACTIVE);
-                            SetFlags(GO_FLAG_NODESPAWN);
+                            ReplaceAllFlags(GO_FLAG_NODESPAWN);
 
                             UpdateData udata(caster->GetMapId());
                             WorldPacket packet;
@@ -791,6 +796,47 @@ void GameObject::Update(uint32 diff)
                         SetLootState(GO_ACTIVATED, target);
 
                 }
+                else if (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
+                {
+                    bool hordeCapturing = m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde;
+                    bool allianceCapturing = m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance;
+                    if (hordeCapturing || allianceCapturing)
+                    {
+                        if (m_goValue.CapturePoint.AssaultTimer <= diff)
+                        {
+                            m_goValue.CapturePoint.State = hordeCapturing ? WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured : WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
+                            if (hordeCapturing)
+                            {
+                                m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
+                                if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
+                                {
+                                    if (Battleground* bg = map->GetBG())
+                                    {
+                                        EventInform(GetGOInfo()->capturePoint.CaptureEventHorde);
+                                        bg->SendBroadcastText(GetGOInfo()->capturePoint.CaptureBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
+                                if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
+                                {
+                                    if (Battleground* bg = map->GetBG())
+                                    {
+                                        EventInform(GetGOInfo()->capturePoint.CaptureEventAlliance);
+                                        bg->SendBroadcastText(GetGOInfo()->capturePoint.CaptureBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE);
+                                    }
+                                }
+                            }
+
+                            m_goValue.CapturePoint.LastTeamCapture = hordeCapturing ? TEAM_HORDE : TEAM_ALLIANCE;
+                            UpdateCapturePoint();
+                        }
+                        else
+                            m_goValue.CapturePoint.AssaultTimer -= diff;
+                    }
+                }
                 else if (uint32 max_charges = goInfo->GetCharges())
                 {
                     if (m_usetimes >= max_charges)
@@ -947,7 +993,7 @@ void GameObject::Update(uint32 diff)
                 SendGameObjectDespawn();
                 //reset flags
                 if (GameObjectOverride const* goOverride = GetGameObjectOverride())
-                    SetFlags(GameObjectFlags(goOverride->Flags));
+                    ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
             }
 
             if (!m_respawnDelayTime)
@@ -978,7 +1024,6 @@ void GameObject::Update(uint32 diff)
                 UpdateObjectVisibilityOnDestroy();
             else
                 AddObjectToRemoveList();
-
 
             break;
         }
@@ -1038,12 +1083,18 @@ void GameObject::Delete()
     SetLootState(GO_NOT_READY);
     RemoveFromOwner();
 
+    if (m_goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
+    {
+        WorldPackets::Battleground::CapturePointRemoved packet(GetGUID());
+        SendMessageToSet(packet.Write(), true);
+    }
+
     SendGameObjectDespawn();
 
     SetGoState(GO_STATE_READY);
 
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
-        SetFlags(GameObjectFlags(goOverride->Flags));
+        ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
 
     uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
     if (poolid)
@@ -1218,7 +1269,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
         if (!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction())
         {
-            AddFlag(GO_FLAG_NODESPAWN);
+            SetFlag(GO_FLAG_NODESPAWN);
             m_respawnDelayTime = 0;
             m_respawnTime = 0;
         }
@@ -1513,7 +1564,7 @@ bool GameObject::ActivateToQuest(Player const* target) const
             if (target->GetQuestStatus(GetGOInfo()->chest.questID) == QUEST_STATUS_INCOMPLETE || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
             {
                 if (Battleground const* bg = target->GetBattleground())
-                    return bg->CanActivateGO(GetEntry(), target->GetTeam());
+                    return bg->CanActivateGO(GetEntry(), bg->GetPlayerTeam(target->GetGUID()));
                 return true;
             }
             break;
@@ -1586,6 +1637,144 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
     m_cooldownTime = time_to_restore ? (GameTime::GetGameTimeMS() + time_to_restore) : 0;
 }
 
+void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObject* spellCaster /*= nullptr*/, uint32 spellId /*= 0*/, int32 effectIndex /*= -1*/)
+{
+    Unit* unitCaster = spellCaster ? spellCaster->ToUnit() : nullptr;
+
+    switch (action)
+    {
+        case GameObjectActions::None:
+            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", spellId, effectIndex);
+            break;
+        case GameObjectActions::AnimateCustom0:
+        case GameObjectActions::AnimateCustom1:
+        case GameObjectActions::AnimateCustom2:
+        case GameObjectActions::AnimateCustom3:
+            SendCustomAnim(uint32(action) - uint32(GameObjectActions::AnimateCustom0));
+            break;
+        case GameObjectActions::Disturb: // What's the difference with Open?
+            if (unitCaster)
+                Use(unitCaster);
+            break;
+        case GameObjectActions::Unlock:
+            RemoveFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Lock:
+            SetFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Open:
+            if (unitCaster)
+                Use(unitCaster);
+            break;
+        case GameObjectActions::OpenAndUnlock:
+            if (unitCaster)
+                UseDoorOrButton(0, false, unitCaster);
+            RemoveFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Close:
+            ResetDoorOrButton();
+            break;
+        case GameObjectActions::ToggleOpen:
+            // No use cases, implementation unknown
+            break;
+        case GameObjectActions::Destroy:
+            if (unitCaster)
+                UseDoorOrButton(0, true, unitCaster);
+            break;
+        case GameObjectActions::Rebuild:
+            ResetDoorOrButton();
+            break;
+        case GameObjectActions::Creation:
+            // No use cases, implementation unknown
+            break;
+        case GameObjectActions::Despawn:
+            DespawnOrUnsummon();
+            break;
+        case GameObjectActions::MakeInert:
+            SetFlag(GO_FLAG_NOT_SELECTABLE);
+            break;
+        case GameObjectActions::MakeActive:
+            RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+            break;
+        case GameObjectActions::CloseAndLock:
+            ResetDoorOrButton();
+            SetFlag(GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::UseArtKit0:
+        case GameObjectActions::UseArtKit1:
+        case GameObjectActions::UseArtKit2:
+        case GameObjectActions::UseArtKit3:
+        case GameObjectActions::UseArtKit4:
+        {
+            GameObjectTemplateAddon const* templateAddon = GetTemplateAddon();
+
+            uint32 artKitIndex = action != GameObjectActions::UseArtKit4 ? uint32(action) - uint32(GameObjectActions::UseArtKit0) : 4;
+
+            uint32 artKitValue = 0;
+            if (templateAddon != nullptr)
+                artKitValue = templateAddon->ArtKits[artKitIndex];
+
+            if (artKitValue == 0)
+                TC_LOG_ERROR("sql.sql", "GameObject %d hit by spell %d needs `artkit%d` in `gameobject_template_addon`", GetEntry(), spellId, artKitIndex);
+            else
+                SetGoArtKit(artKitValue);
+
+            break;
+        }
+        case GameObjectActions::GoTo1stFloor:
+        case GameObjectActions::GoTo2ndFloor:
+        case GameObjectActions::GoTo3rdFloor:
+        case GameObjectActions::GoTo4thFloor:
+        case GameObjectActions::GoTo5thFloor:
+        case GameObjectActions::GoTo6thFloor:
+        case GameObjectActions::GoTo7thFloor:
+        case GameObjectActions::GoTo8thFloor:
+        case GameObjectActions::GoTo9thFloor:
+        case GameObjectActions::GoTo10thFloor:
+            if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+                SetTransportState(GO_STATE_TRANSPORT_STOPPED, uint32(action) - uint32(GameObjectActions::GoTo1stFloor));
+            else
+                TC_LOG_ERROR("spell", "Spell %d targeted non-transport gameobject for transport only action \"Go to Floor\" %d in effect %d", spellId, int32(action), effectIndex);
+            break;
+        case GameObjectActions::PlayAnimKit:
+            SetAnimKitId(param, false);
+            break;
+        case GameObjectActions::OpenAndPlayAnimKit:
+            if (unitCaster)
+                UseDoorOrButton(0, false, unitCaster);
+            SetAnimKitId(param, false);
+            break;
+        case GameObjectActions::CloseAndPlayAnimKit:
+            ResetDoorOrButton();
+            SetAnimKitId(param, false);
+            break;
+        case GameObjectActions::PlayOneShotAnimKit:
+            SetAnimKitId(param, true);
+            break;
+        case GameObjectActions::StopAnimKit:
+            SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::OpenAndStopAnimKit:
+            if (unitCaster)
+                UseDoorOrButton(0, false, unitCaster);
+            SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::CloseAndStopAnimKit:
+            ResetDoorOrButton();
+            SetAnimKitId(0, false);
+            break;
+        case GameObjectActions::PlaySpellVisual:
+            SetSpellVisualId(param, Object::GetGUID(spellCaster));
+            break;
+        case GameObjectActions::StopSpellVisual:
+            SetSpellVisualId(0);
+            break;
+        default:
+            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", spellId, int32(action), effectIndex);
+            break;
+    }
+}
+
 void GameObject::SetGoArtKit(uint8 kit)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::ArtKit), kit);
@@ -1612,7 +1801,7 @@ void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType l
 void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false */)
 {
     if (activate)
-        AddFlag(GO_FLAG_IN_USE);
+        SetFlag(GO_FLAG_IN_USE);
     else
         RemoveFlag(GO_FLAG_IN_USE);
 
@@ -1813,7 +2002,7 @@ void GameObject::Use(Unit* user)
             if (uint32 trapEntry = info->goober.linkedTrap)
                 TriggeringLinkedGameObject(trapEntry, user);
 
-            AddFlag(GO_FLAG_IN_USE);
+            SetFlag(GO_FLAG_IN_USE);
             SetLootState(GO_ACTIVATED, user);
 
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
@@ -2480,7 +2669,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
     switch (state)
     {
         case GO_DESTRUCTIBLE_INTACT:
-            RemoveFlag(GameObjectFlags(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED));
+            RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
             SetDisplayId(m_goInfo->displayId);
             if (setHealth)
             {
@@ -2495,7 +2684,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             AI()->Damaged(attackerOrHealer, m_goInfo->destructibleBuilding.DamagedEvent);
 
             RemoveFlag(GO_FLAG_DESTROYED);
-            AddFlag(GO_FLAG_DAMAGED);
+            SetFlag(GO_FLAG_DAMAGED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
@@ -2524,7 +2713,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                     bg->DestroyGate(player, this);
 
             RemoveFlag(GO_FLAG_DAMAGED);
-            AddFlag(GO_FLAG_DESTROYED);
+            SetFlag(GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
@@ -2543,7 +2732,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_REBUILDING:
         {
             EventInform(m_goInfo->destructibleBuilding.RebuildingEvent, attackerOrHealer);
-            RemoveFlag(GameObjectFlags(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED));
+            RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
@@ -2829,6 +3018,17 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     data->AddUpdateBlock(buffer);
 }
 
+void GameObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), GameObjectMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void GameObject::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&GameObject::m_gameObjectData);
@@ -2935,6 +3135,161 @@ void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)
     SendMessageToSet(packet.Write(), true);
 }
 
+void GameObject::AssaultCapturePoint(Player* player)
+{
+    if (!CanInteractWithCapturePoint(player))
+        return;
+
+    if (GameObjectAI* ai = AI())
+        if (ai->OnCapturePointAssaulted(player))
+            return;
+
+    // only supported in battlegrounds
+    Battleground* battleground = nullptr;
+    if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
+        if (Battleground* bg = map->GetBG())
+            battleground = bg;
+
+    if (!battleground)
+        return;
+
+    // Cancel current timer
+    m_goValue.CapturePoint.AssaultTimer = 0;
+
+    if (player->GetBGTeam() == HORDE)
+    {
+        if (m_goValue.CapturePoint.LastTeamCapture == TEAM_HORDE)
+        {
+            // defended. capture instantly.
+            m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
+            battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
+            UpdateCapturePoint();
+            EventInform(GetGOInfo()->capturePoint.DefendedEventHorde, player);
+            return;
+        }
+
+        switch (m_goValue.CapturePoint.State)
+        {
+            case WorldPackets::Battleground::BattlegroundCapturePointState::Neutral:
+            case WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured:
+            case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance:
+                m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde;
+                battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
+                UpdateCapturePoint();
+                EventInform(GetGOInfo()->capturePoint.AssaultBroadcastHorde, player);
+                m_goValue.CapturePoint.AssaultTimer = GetGOInfo()->capturePoint.CaptureTime;
+                break;
+            default:
+                break;
+        }
+    }
+    else
+    {
+        if (m_goValue.CapturePoint.LastTeamCapture == TEAM_ALLIANCE)
+        {
+            // defended. capture instantly.
+            m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
+            battleground->SendBroadcastText(GetGOInfo()->capturePoint.DefendedBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+            UpdateCapturePoint();
+            EventInform(GetGOInfo()->capturePoint.DefendedEventAlliance, player);
+            return;
+        }
+
+        switch (m_goValue.CapturePoint.State)
+        {
+            case WorldPackets::Battleground::BattlegroundCapturePointState::Neutral:
+            case WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured:
+            case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde:
+                m_goValue.CapturePoint.State = WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance;
+                battleground->SendBroadcastText(GetGOInfo()->capturePoint.AssaultBroadcastAlliance, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
+                UpdateCapturePoint();
+                EventInform(GetGOInfo()->capturePoint.ContestedEventAlliance, player);
+                m_goValue.CapturePoint.AssaultTimer = GetGOInfo()->capturePoint.CaptureTime;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void GameObject::UpdateCapturePoint()
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+        return;
+
+    if (GameObjectAI* ai = AI())
+        if (ai->OnCapturePointUpdated(m_goValue.CapturePoint.State))
+            return;
+
+    uint32 spellVisualId = 0;
+    uint32 customAnim = 0;
+
+    switch (m_goValue.CapturePoint.State)
+    {
+        case WorldPackets::Battleground::BattlegroundCapturePointState::Neutral:
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual1;
+            break;
+        case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde:
+            customAnim = 1;
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual2;
+            break;
+        case WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance:
+            customAnim = 2;
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual3;
+            break;
+        case WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured:
+            customAnim = 3;
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual4;
+            break;
+        case WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured:
+            customAnim = 4;
+            spellVisualId = GetGOInfo()->capturePoint.SpellVisual5;
+            break;
+        default:
+            break;
+    }
+
+    if (customAnim != 0)
+        SendCustomAnim(customAnim);
+
+    SetSpellVisualId(spellVisualId);
+    UpdateDynamicFlagsForNearbyPlayers();
+
+    if (BattlegroundMap* map = GetMap()->ToBattlegroundMap())
+    {
+        if (Battleground* bg = map->GetBG())
+        {
+            WorldPackets::Battleground::UpdateCapturePoint packet;
+            packet.CapturePointInfo.State = m_goValue.CapturePoint.State;
+            packet.CapturePointInfo.Pos = GetPosition();
+            packet.CapturePointInfo.Guid = GetGUID();
+            packet.CapturePointInfo.CaptureTotalDuration = Milliseconds(GetGOInfo()->capturePoint.CaptureTime);
+            packet.CapturePointInfo.CaptureTime = m_goValue.CapturePoint.AssaultTimer;
+            bg->SendPacketToAll(packet.Write());
+            bg->UpdateWorldState(GetGOInfo()->capturePoint.worldState1, AsUnderlyingType(m_goValue.CapturePoint.State));
+        }
+    }
+}
+
+bool GameObject::CanInteractWithCapturePoint(Player const* target) const
+{
+    if (m_goInfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
+        return false;
+
+    if (m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::Neutral)
+        return true;
+
+    if (target->GetBGTeam() == HORDE)
+    {
+        return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance
+            || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::AllianceCaptured;
+    }
+
+    // For Alliance players
+    return m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde
+        || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
+}
+
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 {
 public:
@@ -2954,11 +3309,19 @@ private:
     GameObject* _owner;
 };
 
+void GameObject::UpdateDynamicFlagsForNearbyPlayers() const
+{
+    ValuesUpdateForPlayerWithMaskSender sender(this);
+    sender.ObjectMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+    Trinity::MessageDistDeliverer<ValuesUpdateForPlayerWithMaskSender> deliverer(this, sender, GetVisibilityRange());
+    Cell::VisitWorldObjects(this, deliverer, GetVisibilityRange());
+}
+
 void GameObject::CreateModel()
 {
     m_model = GameObjectModel::Create(std::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
     if (m_model && m_model->isMapObject())
-        AddFlag(GO_FLAG_MAP_OBJECT);
+        SetFlag(GO_FLAG_MAP_OBJECT);
 }
 
 std::string GameObject::GetDebugInfo() const

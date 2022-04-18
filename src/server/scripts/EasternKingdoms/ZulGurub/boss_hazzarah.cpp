@@ -31,64 +31,53 @@ enum Events
 {
 };
 
-class boss_hazzarah : public CreatureScript
+struct boss_hazzarah : public BossAI
 {
-    public:
-        boss_hazzarah() : CreatureScript("boss_hazzarah") { }
+    boss_hazzarah(Creature* creature) : BossAI(creature, DATA_HAZZARAH)
+    {
+    }
 
-        struct boss_hazzarahAI : public BossAI
+    void Reset() override
+    {
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+        /*
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_hazzarahAI(Creature* creature) : BossAI(creature, DATA_HAZZARAH)
+            switch (eventId)
             {
+                default:
+                    break;
             }
 
-            void Reset() override
-            {
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-                /*
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-                */
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulGurubAI<boss_hazzarahAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+        */
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_hazzarah()
 {
-    new boss_hazzarah();
+    RegisterZulGurubCreatureAI(boss_hazzarah);
 }

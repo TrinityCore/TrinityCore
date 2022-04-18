@@ -55,6 +55,12 @@ public:
                 player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON_BUDDY, true);
         }
 
+        void OnPlayerLeave(Player* player) override
+        {
+            if (!player->IsAlive())
+                player->SetControlled(false, UNIT_STATE_ROOT);
+        }
+
         bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
@@ -161,7 +167,7 @@ public:
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
 
                 if (GameObject* iris = instance->GetGameObject(irisGUID))
-                    iris->AddFlag(GO_FLAG_IN_USE);
+                    iris->SetFlag(GO_FLAG_IN_USE);
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                     malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START

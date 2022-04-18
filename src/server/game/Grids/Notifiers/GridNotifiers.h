@@ -148,16 +148,16 @@ namespace Trinity
         WorldObject const* i_source;
         PacketSender& i_packetSender;
         float i_distSq;
-        uint32 team;
+        Team team;
         Player const* skipped_receiver;
         MessageDistDeliverer(WorldObject const* src, PacketSender& packetSender, float dist, bool own_team_only = false, Player const* skipped = nullptr)
             : i_source(src), i_packetSender(packetSender), i_distSq(dist * dist)
-            , team(0)
+            , team(TEAM_OTHER)
             , skipped_receiver(skipped)
         {
             if (own_team_only)
                 if (Player const* player = src->ToPlayer())
-                    team = player->GetTeam();
+                    team = player->GetEffectiveTeam();
         }
 
         void Visit(PlayerMapType &m) const;
@@ -168,7 +168,7 @@ namespace Trinity
         void SendPacket(Player const* player) const
         {
             // never send packet to self
-            if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
+            if (player == i_source || (team && player->GetEffectiveTeam() != team) || skipped_receiver == player)
                 return;
 
             if (!player->HaveAtClient(i_source))
@@ -1155,7 +1155,7 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                // Check contains checks for: live, non-selectable, non-attackable flags, flight check and GM check, ignore totems
+                // Check contains checks for: live, uninteractible, non-attackable flags, flight check and GM check, ignore totems
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
@@ -1199,7 +1199,8 @@ namespace Trinity
                     return;
 
                 // too far
-                if (!u->IsWithinDistInMap(i_funit, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!u->IsWithinDistInMap(i_funit, i_range, true, false, false))
                     return;
 
                 // only if see assisted creature's enemy
@@ -1340,7 +1341,8 @@ namespace Trinity
                     return false;
 
                 // too far
-                if (!i_funit->IsWithinDistInMap(u, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!i_funit->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 // only if see assisted creature
@@ -1369,7 +1371,8 @@ namespace Trinity
                 if (!u->CanAssistTo(i_obj, i_enemy))
                     return false;
 
-                if (!i_obj->IsWithinDistInMap(u, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!i_obj->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 if (!i_obj->IsWithinLOSInMap(u))

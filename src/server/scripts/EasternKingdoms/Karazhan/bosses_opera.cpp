@@ -1007,7 +1007,6 @@ enum JulianneRomulo
     ROMULO_Y                        = -1758,
 };
 
-
 enum RAJPhase
 {
     PHASE_JULIANNE      = 0,
@@ -1020,7 +1019,7 @@ void PretendToDie(Creature* creature)
     creature->InterruptNonMeleeSpells(true);
     creature->RemoveAllAuras();
     creature->SetHealth(0);
-    creature->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+    creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     creature->GetMotionMaster()->Clear();
     creature->GetMotionMaster()->MoveIdle();
     creature->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -1028,7 +1027,7 @@ void PretendToDie(Creature* creature)
 
 void Resurrect(Creature* target)
 {
-    target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+    target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     target->SetFullHealth();
     target->SetStandState(UNIT_STAND_STATE_STAND);
     target->CastSpell(target, SPELL_RES_VISUAL, true);
@@ -1145,7 +1144,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override;
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override;
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -1223,7 +1222,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (damage < me->GetHealth())
                 return;
@@ -1253,11 +1252,11 @@ public:
                 {
                     if (Creature* Julianne = (ObjectAccessor::GetCreature((*me), JulianneGUID)))
                     {
-                        Julianne->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        Julianne->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         Julianne->GetMotionMaster()->Clear();
                         Julianne->setDeathState(JUST_DIED);
                         Julianne->CombatStop(true);
-                        Julianne->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
+                        Julianne->ReplaceAllDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
                     }
                     return;
                 }
@@ -1485,7 +1484,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
     DoMeleeAttackIfReady();
 }
 
-void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
+void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
     if (damage < me->GetHealth())
         return;
@@ -1522,11 +1521,11 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
         {
             if (Creature* Romulo = (ObjectAccessor::GetCreature((*me), RomuloGUID)))
             {
-                Romulo->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                Romulo->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 Romulo->GetMotionMaster()->Clear();
                 Romulo->setDeathState(JUST_DIED);
                 Romulo->CombatStop(true);
-                Romulo->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
+                Romulo->ReplaceAllDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
             }
 
             return;

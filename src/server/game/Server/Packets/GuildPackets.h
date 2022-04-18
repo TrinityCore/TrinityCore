@@ -75,7 +75,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid GuildGuid;
-            ObjectGuid PlayerGuid;
             Optional<GuildInfo> Info;
         };
 
@@ -759,7 +758,6 @@ namespace WorldPackets
             uint8 Tab = 0;
             bool FullUpdate = false;
         };
-
 
         class GuildBankRemainingWithdrawMoneyQuery final : public ClientPacket
         {

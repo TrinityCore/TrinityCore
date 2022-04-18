@@ -276,7 +276,7 @@ namespace
             return Trinity::StringFormat("%s-%u-%012llX", typeName, guid.GetRealmId(), guid.GetRawValue(0));
         }
 
-        ObjectGuid ParseGuild(HighGuid /*type*/, char const* guidString)
+        ObjectGuid ParseGuild(HighGuid type, char const* guidString)
         {
             uint32 realmId = 0;
             uint64 dbId = UI64LIT(0);
@@ -284,7 +284,7 @@ namespace
             if (std::sscanf(guidString, "%u-%012" SCNx64, &realmId, &dbId) != 2)
                 return ObjectGuid::FromStringFailed;
 
-            return ObjectGuidFactory::CreateGuild(realmId, dbId);
+            return ObjectGuidFactory::CreateGuild(type, realmId, dbId);
         }
 
         std::string FormatMobileSession(char const* typeName, ObjectGuid guid)
@@ -418,6 +418,40 @@ namespace
             return ObjectGuidFactory::CreateClubFinder(realmId, type, clubFinderId, dbId);
         }
 
+        std::string FormatToolsClient(char const* typeName, ObjectGuid guid)
+        {
+            return Trinity::StringFormat("%s-%u-%u-%u-%010llX", typeName, guid.GetMapId(), uint32(guid.GetRawValue(0) >> 40) & 0xFFFFFF, guid.GetCounter());
+        }
+
+        ObjectGuid ParseToolsClient(HighGuid /*type*/, char const* guidString)
+        {
+            uint32 mapId = 0;
+            uint32 serverId = 0;
+            uint64 counter = UI64LIT(0);
+            if (std::sscanf(guidString, "%u-%u-%010" SCNx64, &mapId, &serverId, &counter) != 3)
+                return ObjectGuid::FromStringFailed;
+
+            return ObjectGuidFactory::CreateToolsClient(mapId, serverId, counter);
+        }
+
+        std::string FormatWorldLayer(char const* typeName, ObjectGuid guid)
+        {
+            return Trinity::StringFormat("%s-%X-%u-%u-%u", typeName, uint32((guid.GetRawValue(1) >> 10) & 0xFFFFFFFF), uint32(guid.GetRawValue(1) & 0x1FF),
+                uint32((guid.GetRawValue(0) >> 24) & 0xFF), uint32(guid.GetRawValue(0) & 0x7FFFFF));
+        }
+
+        ObjectGuid ParseWorldLayer(HighGuid /*type*/, char const* guidString)
+        {
+            uint32 arg1 = 0;
+            uint16 arg2 = 0;
+            uint8 arg3 = 0;
+            uint32 arg4 = 0;
+            if (std::sscanf(guidString, "%x-%hu-%hhu-%u", &arg1, &arg2, &arg3, &arg4) != 4)
+                return ObjectGuid::FromStringFailed;
+
+            return ObjectGuidFactory::CreateWorldLayer(arg1, arg2, arg3, arg4);
+        }
+
         ObjectGuidInfo();
     } Info;
 
@@ -478,6 +512,9 @@ namespace
         SET_GUID_INFO(Cast, FormatWorldObject, ParseWorldObject);
         SET_GUID_INFO(ClientConnection, FormatClient, ParseClient);
         SET_GUID_INFO(ClubFinder, FormatClubFinder, ParseClubFinder);
+        SET_GUID_INFO(ToolsClient, FormatToolsClient, ParseToolsClient);
+        SET_GUID_INFO(WorldLayer, FormatWorldLayer, ParseWorldLayer);
+        SET_GUID_INFO(ArenaTeam, FormatGuild, ParseGuild);
 
 #undef SET_GUID_INFO
     }
@@ -604,9 +641,9 @@ ObjectGuid ObjectGuidFactory::CreateGlobal(HighGuid type, ObjectGuid::LowType db
         dbId);
 }
 
-ObjectGuid ObjectGuidFactory::CreateGuild(uint32 realmId, ObjectGuid::LowType dbId)
+ObjectGuid ObjectGuidFactory::CreateGuild(HighGuid type, uint32 realmId, ObjectGuid::LowType dbId)
 {
-    return ObjectGuid(uint64((uint64(HighGuid::Guild) << 58)
+    return ObjectGuid(uint64((uint64(type) << 58)
         | (uint64(GetRealmIdForObjectGuid(realmId)) << 42)),
         dbId);
 }
@@ -662,6 +699,23 @@ ObjectGuid ObjectGuidFactory::CreateClubFinder(uint32 realmId, uint8 type, uint3
         | (uint64(type & 0xFF) << 33)
         | (uint64(clubFinderId & 0xFFFFFFFF))),
         dbId);
+}
+
+ObjectGuid ObjectGuidFactory::CreateToolsClient(uint16 mapId, uint32 serverId, uint64 counter)
+{
+    return ObjectGuid(uint64((uint64(HighGuid::ToolsClient) << 58)
+        | uint64(mapId)),
+        uint64((uint64(serverId & 0xFFFFFF) << 40)
+        | (counter & UI64LIT(0xFFFFFFFFFF))));
+}
+
+ObjectGuid ObjectGuidFactory::CreateWorldLayer(uint32 arg1, uint16 arg2, uint8 arg3, uint32 arg4)
+{
+    return ObjectGuid(uint64((uint64(HighGuid::WorldLayer) << 58)
+        | (uint64(arg1 & 0xFFFFFFFF) << 10)
+        | (uint64(arg2 & 0x1FF))),
+        uint64((uint64(arg3 & 0xFF) << 24)
+        | uint64(arg4 & 0x7FFFFF)));
 }
 
 ObjectGuid const ObjectGuid::Empty = ObjectGuid();
@@ -762,3 +816,6 @@ template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientSession>;
 template class TC_GAME_API ObjectGuidGenerator<HighGuid::Cast>;
 template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientConnection>;
 template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClubFinder>;
+template class TC_GAME_API ObjectGuidGenerator<HighGuid::ToolsClient>;
+template class TC_GAME_API ObjectGuidGenerator<HighGuid::WorldLayer>;
+template class TC_GAME_API ObjectGuidGenerator<HighGuid::ArenaTeam>;

@@ -503,6 +503,12 @@ class TC_SHARED_API ByteBuffer
                 append(str.c_str(), len);
         }
 
+        void WriteString(std::string_view str)
+        {
+            if (size_t len = str.length())
+                append(str.data(), len);
+        }
+
         void WriteString(char const* str, size_t len)
         {
             if (len)

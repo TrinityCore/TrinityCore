@@ -31,7 +31,6 @@ const ::google::protobuf::ServiceDescriptor* ClubListener_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5flistener_2eproto() {
   protobuf_AddDesc_club_5flistener_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -138,7 +137,6 @@ struct StaticDescriptorInitializer_club_5flistener_2eproto {
     protobuf_AddDesc_club_5flistener_2eproto();
   }
 } static_descriptor_initializer_club_5flistener_2eproto_;
-
 // ===================================================================
 
 ClubListener::ClubListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
@@ -282,7 +280,6 @@ void ClubListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

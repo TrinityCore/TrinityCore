@@ -48,6 +48,7 @@ bool _SpellScript::_ValidateSpellInfo(uint32 spellId)
         TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", spellId);
         return false;
     }
+
     return true;
 }
 

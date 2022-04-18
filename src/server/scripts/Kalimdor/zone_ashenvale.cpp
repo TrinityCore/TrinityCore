@@ -49,8 +49,6 @@ enum RuulSnowhoof
     SAY_FINISH                  = 0
 };
 
-
-
 Position const RuulSnowhoofSummonsCoord[6] =
 {
     { 3449.218018f, -587.825073f, 174.978867f, 4.714445f },
@@ -374,6 +372,7 @@ enum KingoftheFoulwealdMisc
     GO_BANNER = 178205
 };
 
+// 20783 - Destroy Karang's Banner
 class spell_destroy_karangs_banner : public SpellScriptLoader
 {
     public:

@@ -73,7 +73,6 @@ const ::google::protobuf::EnumDescriptor* LogOption_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
   protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -415,7 +414,6 @@ bool LogOption_IsValid(int value) {
       return false;
   }
 }
-
 
 // ===================================================================
 
@@ -804,7 +802,6 @@ void BGSFieldOptions::CopyFrom(const BGSFieldOptions& from) {
 }
 
 bool BGSFieldOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -828,7 +825,6 @@ void BGSFieldOptions::Swap(BGSFieldOptions* other) {
   metadata.reflection = BGSFieldOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -947,7 +943,6 @@ void FieldRestriction::clear_type() {
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void FieldRestriction::Clear() {
   clear_type();
@@ -1357,7 +1352,6 @@ void FieldRestriction::CopyFrom(const FieldRestriction& from) {
 }
 
 bool FieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -1378,7 +1372,6 @@ void FieldRestriction::Swap(FieldRestriction* other) {
   metadata.reflection = FieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1491,7 +1484,6 @@ void RepeatedFieldRestriction::clear_type() {
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void RepeatedFieldRestriction::Clear() {
   if (_has_bits_[0 / 32] & 3) {
@@ -1906,7 +1898,6 @@ void RepeatedFieldRestriction::CopyFrom(const RepeatedFieldRestriction& from) {
 }
 
 bool RepeatedFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -1929,7 +1920,6 @@ void RepeatedFieldRestriction::Swap(RepeatedFieldRestriction* other) {
   metadata.reflection = RepeatedFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2180,7 +2170,6 @@ void SignedFieldRestriction::CopyFrom(const SignedFieldRestriction& from) {
 }
 
 bool SignedFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -2201,7 +2190,6 @@ void SignedFieldRestriction::Swap(SignedFieldRestriction* other) {
   metadata.reflection = SignedFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2452,7 +2440,6 @@ void UnsignedFieldRestriction::CopyFrom(const UnsignedFieldRestriction& from) {
 }
 
 bool UnsignedFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -2473,7 +2460,6 @@ void UnsignedFieldRestriction::Swap(UnsignedFieldRestriction* other) {
   metadata.reflection = UnsignedFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2721,7 +2707,6 @@ void FloatFieldRestriction::CopyFrom(const FloatFieldRestriction& from) {
 }
 
 bool FloatFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -2742,7 +2727,6 @@ void FloatFieldRestriction::Swap(FloatFieldRestriction* other) {
   metadata.reflection = FloatFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2999,7 +2983,6 @@ void StringFieldRestriction::CopyFrom(const StringFieldRestriction& from) {
 }
 
 bool StringFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -3020,7 +3003,6 @@ void StringFieldRestriction::Swap(StringFieldRestriction* other) {
   metadata.reflection = StringFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3306,7 +3288,6 @@ void EntityIdRestriction::CopyFrom(const EntityIdRestriction& from) {
 }
 
 bool EntityIdRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -3327,7 +3308,6 @@ void EntityIdRestriction::Swap(EntityIdRestriction* other) {
   metadata.reflection = EntityIdRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3527,7 +3507,6 @@ void MessageFieldRestriction::CopyFrom(const MessageFieldRestriction& from) {
 }
 
 bool MessageFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -3554,7 +3533,6 @@ void MessageFieldRestriction::Swap(MessageFieldRestriction* other) {
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::FieldRestriction >, 11, false >
   valid(kValidFieldNumber, ::bgs::protocol::FieldRestriction::default_instance());
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol

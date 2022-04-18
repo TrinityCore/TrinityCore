@@ -740,12 +740,17 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     // only first 16 bytes of the hmac are used
     memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
 
-    // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
-    stmt->setString(0, address);
-    stmt->setString(1, authSession->RealmJoinTicket);
-    LoginDatabase.Execute(stmt);
-    // This also allows to check for possible "hack" attempts on account
+    LoginDatabasePreparedStatement* stmt = nullptr;
+
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE))
+    {
+        // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
+        stmt->setString(0, address);
+        stmt->setString(1, authSession->RealmJoinTicket);
+        LoginDatabase.Execute(stmt);
+        // This also allows to check for possible "hack" attempts on account
+    }
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setBinary(0, _sessionKey);
@@ -844,13 +849,16 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.", authSession->RealmJoinTicket.c_str(), address.c_str());
 
-    // Update the last_ip in the database as it was successful for login
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE))
+    {
+        // Update the last_ip in the database as it was successful for login
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
-    stmt->setString(0, address);
-    stmt->setString(1, authSession->RealmJoinTicket);
+        stmt->setString(0, address);
+        stmt->setString(1, authSession->RealmJoinTicket);
 
-    LoginDatabase.Execute(stmt);
+        LoginDatabase.Execute(stmt);
+    }
 
     // At this point, we can safely hook a successful login
     sScriptMgr->OnAccountLogin(account.Game.Id);

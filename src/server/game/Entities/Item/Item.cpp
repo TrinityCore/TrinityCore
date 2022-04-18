@@ -43,6 +43,7 @@
 #include "StringConvert.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "World.h"
 #include "WorldSession.h"
 #include <sstream>
 
@@ -882,7 +883,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         need_save = true;
     }
 
-    SetItemFlags(ItemFieldFlags(itemFlags));
+    ReplaceAllItemFlags(ItemFieldFlags(itemFlags));
 
     uint32 durability = fields[10].GetUInt16();
     SetDurability(durability);
@@ -1282,6 +1283,45 @@ void Item::SetCount(uint32 value)
     }
 }
 
+uint64 Item::CalculateDurabilityRepairCost(float discount) const
+{
+    uint32 maxDurability = m_itemData->MaxDurability;
+    if (!maxDurability)
+        return 0;
+
+    uint32 curDurability = m_itemData->Durability;
+    ASSERT(maxDurability >= curDurability);
+
+    uint32 lostDurability = maxDurability - curDurability;
+    if (!lostDurability)
+        return 0;
+
+    ItemTemplate const* itemTemplate = GetTemplate();
+
+    DurabilityCostsEntry const* durabilityCost = sDurabilityCostsStore.LookupEntry(GetItemLevel(GetOwner()));
+    if (!durabilityCost)
+        return 0;
+
+    uint32 durabilityQualityEntryId = (GetQuality() + 1) * 2;
+    DurabilityQualityEntry const* durabilityQualityEntry = sDurabilityQualityStore.LookupEntry(durabilityQualityEntryId);
+    if (!durabilityQualityEntry)
+        return 0;
+
+    uint32 dmultiplier = 0;
+    if (itemTemplate->GetClass() == ITEM_CLASS_WEAPON)
+        dmultiplier = durabilityCost->WeaponSubClassCost[itemTemplate->GetSubClass()];
+    else if (itemTemplate->GetClass() == ITEM_CLASS_ARMOR)
+        dmultiplier = durabilityCost->ArmorSubClassCost[itemTemplate->GetSubClass()];
+
+    uint64 cost = std::round(lostDurability * dmultiplier * durabilityQualityEntry->Data * GetRepairCostMultiplier());
+    cost = uint64(cost * discount * sWorld->getRate(RATE_REPAIRCOST));
+
+    if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
+        cost = 1;
+
+    return cost;
+}
+
 bool Item::HasEnchantRequiredSkill(Player const* player) const
 {
     // Check all enchants for required skill
@@ -1607,7 +1647,7 @@ Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
 
     newItem->SetCreator(GetCreator());
     newItem->SetGiftCreator(GetGiftCreator());
-    newItem->SetItemFlags(ItemFieldFlags(*m_itemData->DynamicFlags & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE)));
+    newItem->ReplaceAllItemFlags(ItemFieldFlags(*m_itemData->DynamicFlags) & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE));
     newItem->SetExpiration(m_itemData->Expiration);
     // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
     if (player)
@@ -1721,6 +1761,17 @@ void Item::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+}
+
+void Item::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(player->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Item::ClearUpdateMask(bool remove)
@@ -1841,7 +1892,7 @@ bool Item::IsRefundExpired()
 
 void Item::SetSoulboundTradeable(GuidSet const& allowedLooters)
 {
-    AddItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE);
+    SetItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;
 }
 

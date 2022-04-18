@@ -125,6 +125,7 @@ class OrientationCheck
         Unit* caster;
 };
 
+// 66862, 67681 - Radiance
 class spell_eadric_radiance : public SpellScriptLoader
 {
     public:
@@ -162,7 +163,7 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
-            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void Initialize()
@@ -189,7 +190,7 @@ public:
             Initialize();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (damage >= me->GetHealth())
             {
@@ -273,7 +274,7 @@ public:
             instance = creature->GetInstanceScript();
 
             creature->SetReactState(REACT_PASSIVE);
-            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             creature->RestoreFaction();
         }
 
@@ -317,7 +318,7 @@ public:
                 me->RemoveAura(SPELL_SHIELD);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (damage >= me->GetHealth())
             {

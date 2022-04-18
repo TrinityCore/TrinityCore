@@ -53,7 +53,6 @@ enum Spells
     SPELL_GRAVITY_LAPSE_FLY                     = 44227,
     SPELL_GRAVITY_LAPSE_BEAM_VISUAL_PERIODIC    = 44251,
     SPELL_SUMMON_ARCANE_SPHERE                  = 44265,
-    SPELL_POWER_FEEDBACK                        = 44233,
     SPELL_FLAME_STRIKE                          = 46162,
     SPELL_SHOCK_BARRIER                         = 46165,
     SPELL_PYROBLAST                             = 36819,
@@ -85,6 +84,7 @@ uint32 gravityLapseTeleportSpells[] =
     SPELL_GRAVITY_LAPSE_RIGHT_TELEPORT
 };
 
+#define SPELL_POWER_FEEDBACK        DUNGEON_MODE<uint32>(44233, 47109)
 #define SPELL_GRAVITY_LAPSE_DAMAGE  DUNGEON_MODE<uint32>(49887, 44226)
 
 enum Events
@@ -171,7 +171,7 @@ struct boss_felblood_kaelthas : public BossAI
         _DespawnAtEvade();
     }
 
-    void DamageTaken(Unit* attacker, uint32 &damage) override
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // Checking for lethal damage first so we trigger the outro phase without triggering phase two in case of oneshot attacks
         if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_OUTRO))
@@ -401,7 +401,7 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override { }
 
-    void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -410,7 +410,7 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAllAuras();
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 DoCastSelf(SPELL_EMBER_BLAST);
                 // DoCastSelf(SPELL_SUMMON_PHOENIX_EGG); -- We do a manual summon for now. Feel free to move it to spelleffect_dbc
                 if (Creature* egg = DoSummon(NPC_PHOENIX_EGG, me->GetPosition(), 0s))
@@ -467,7 +467,7 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
                     _isInEgg = false;
                     DoCastSelf(SPELL_FULL_HEAL);
                     DoCastSelf(SPELL_BURN);
-                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 2s);
                     break;
                 default:
@@ -484,6 +484,7 @@ private:
     ObjectGuid _eggGUID;
 };
 
+// 44191 - Flame Strike
 class spell_felblood_kaelthas_flame_strike : public AuraScript
 {
     PrepareAuraScript(spell_felblood_kaelthas_flame_strike);

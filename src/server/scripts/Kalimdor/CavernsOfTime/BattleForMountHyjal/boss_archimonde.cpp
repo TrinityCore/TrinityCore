@@ -127,12 +127,12 @@ public:
 
             ArchimondeGUID = instance->GetGuidData(DATA_ARCHIMONDE);
 
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             damage = 0;
         }
@@ -176,7 +176,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             damage = 0;
         }
@@ -226,7 +226,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             damage = 0;
         }
@@ -398,7 +398,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (me->HealthBelowPctDamaged(10, damage))
             {

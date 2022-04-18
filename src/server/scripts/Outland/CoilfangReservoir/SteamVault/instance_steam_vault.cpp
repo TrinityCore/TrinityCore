@@ -32,7 +32,7 @@ struct go_main_chambers_access_panel : public GameObjectAI
         if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
             controller->AI()->Talk(CONTROLLER_TEXT_ACESS_USED);
         _instance->SetData(ACTION_OPEN_DOOR, 0);
-        me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         me->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
@@ -90,7 +90,7 @@ class instance_steam_vault : public InstanceMapScript
                     if (GameObject* mainDoor = GetGameObject(DATA_MAIN_DOOR))
                     {
                         HandleGameObject(ObjectGuid::Empty, true, mainDoor);
-                        mainDoor->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                        mainDoor->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     }
                 }
             }

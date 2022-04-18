@@ -122,6 +122,7 @@ class TC_GAME_API CombatManager
         // flags any pvp refs for suppression on owner's side - these refs will not generate combat until refreshed
         void SuppressPvPCombat();
         void EndAllPvECombat();
+        void RevalidateCombat();
         void EndAllPvPCombat();
         void EndAllCombat() { EndAllPvECombat(); EndAllPvPCombat(); }
 
@@ -136,7 +137,6 @@ class TC_GAME_API CombatManager
         Unit* const _owner;
         std::unordered_map<ObjectGuid, CombatReference*> _pveRefs;
         std::unordered_map<ObjectGuid, PvPCombatReference*> _pvpRefs;
-
 
     friend struct CombatReference;
     friend struct PvPCombatReference;

@@ -15,11 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Comment: Missing AI for Twisted Visages
- */
-
-#include "ScriptMgr.h"
 #include "ahnkahet.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -27,44 +22,120 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 
-enum Spells
+enum VolazjTexts
 {
-    SPELL_INSANITY                                = 57496, //Dummy
-    INSANITY_VISUAL                               = 57561,
-    SPELL_INSANITY_TARGET                         = 57508,
-    SPELL_MIND_FLAY                               = 57941,
-    SPELL_SHADOW_BOLT_VOLLEY                      = 57942,
-    SPELL_SHIVER                                  = 57949,
-    SPELL_CLONE_PLAYER                            = 57507, //cast on player during insanity
-    SPELL_INSANITY_PHASING_1                      = 57508,
-    SPELL_INSANITY_PHASING_2                      = 57509,
-    SPELL_INSANITY_PHASING_3                      = 57510,
-    SPELL_INSANITY_PHASING_4                      = 57511,
-    SPELL_INSANITY_PHASING_5                      = 57512
+    SAY_AGGRO = 0,
+    SAY_INSANITY = 1,
+    SAY_SLAY_1 = 2,
+    SAY_SLAY_2 = 3,
+    SAY_SLAY_3 = 4,
+    SAY_DEATH_1 = 5,
+    SAY_DEATH_2 = 6,
+
+    WHISPER_AGGRO = 7,
+    WHISPER_INSANITY = 8,
+    WHISPER_SLAY_1 = 9,
+    WHISPER_SLAY_2 = 10,
+    WHISPER_SLAY_3 = 11,
+    WHISPER_DEATH_1 = 12,
+    WHISPER_DEATH_2 = 13
 };
 
-enum Yells
+enum VolazjSpells
 {
-    SAY_AGGRO   = 0,
-    SAY_SLAY    = 1,
-    SAY_DEATH   = 2,
-    SAY_PHASE   = 3
+    SPELL_INSANITY = 57496, // Dummy
+    INSANITY_VISUAL = 57561,
+    SPELL_INSANITY_TARGET = 57508,
+    SPELL_MIND_FLAY = 57941,
+    SPELL_SHADOW_BOLT_VOLLEY = 57942,
+    SPELL_SHIVER = 57949,
+    SPELL_CLONE_PLAYER = 57507, // cast on player during insanity
+    SPELL_INSANITY_PHASING_1 = 57508,
+    SPELL_INSANITY_PHASING_2 = 57509,
+    SPELL_INSANITY_PHASING_3 = 57510,
+    SPELL_INSANITY_PHASING_4 = 57511,
+    SPELL_INSANITY_PHASING_5 = 57512,
+
+    SPELL_WHISPER_AGGRO = 60291,
+    SPELL_WHISPER_INSANITY = 60292,
+    SPELL_WHISPER_SLAY_1 = 60293,
+    SPELL_WHISPER_SLAY_2 = 60294,
+    SPELL_WHISPER_SLAY_3 = 60295,
+    SPELL_WHISPER_DEATH_1 = 60296,
+    SPELL_WHISPER_DEATH_2 = 60297,
+
+    SPELL_TWISTED_VISAGE_VISUAL = 57551,
+    SPELL_TWISTED_VISAGE_DEATH = 57555,
+
+    // Death Knight
+    SPELL_TWISTED_VISAGE_DEATH_GRIP = 57602,
+    SPELL_TWISTED_VISAGE_PLAGUE_STRIKE = 57599,
+    // Druid
+    SPELL_TWISTED_VISAGE_WRATH = 57648,
+    SPELL_TWISTED_VISAGE_MOONFIRE = 57647,
+    SPELL_TWISTED_VISAGE_LIFEBLOOM = 57762,
+    SPELL_TWISTED_VISAGE_CAT_FORM = 57655,
+    SPELL_TWISTED_VISAGE_MANGLE = 57657,
+    SPELL_TWISTED_VISAGE_RIP = 57661,
+    SPELL_TWISTED_VISAGE_NOURISH = 57765,
+    // Hunter
+    SPELL_TWISTED_VISAGE_SHOOT = 57589,
+    SPELL_TWISTED_VISAGE_DISENGAGE = 57635,
+    // Mage
+    SPELL_TWISTED_VISAGE_FIREBALL = 57628,
+    SPELL_TWISTED_VISAGE_FROST_NOVA = 57629,
+    // Paladin
+    SPELL_TWISTED_VISAGE_CONSECRATION = 57798,
+    SPELL_TWISTED_VISAGE_AVENGER__S_SHIELD = 57799,
+    SPELL_TWISTED_VISAGE_SEAL_OF_COMMAND = 57769,
+    SPELL_TWISTED_VISAGE_JUDGEMENT_OF_LIGHT = 57774,
+    // Priest
+    SPELL_TWISTED_VISAGE_GREATER_HEAL = 57775,
+    SPELL_TWISTED_VISAGE_RENEW = 57777,
+    SPELL_TWISTED_VISAGE_SHADOW_WORD_PAIN = 57778,
+    SPELL_TWISTED_VISAGE_MIND_FLAY = 57779,
+    // Rogue
+    SPELL_TWISTED_VISAGE_EVISCERATE = 57641,
+    SPELL_TWISTED_VISAGE_SINISTER_STRIKE = 57640,
+    // Shaman
+    SPELL_TWISTED_VISAGE_EARTH_SHOCK = 57783,
+    SPELL_TWISTED_VISAGE_LIGHTNING_BOLT = 57781,
+    SPELL_TWISTED_VISAGE_EARTH_SHIELD = 57802,
+    SPELL_TWISTED_VISAGE_HEALING_WEAVE = 57785,
+    SPELL_TWISTED_VISAGE_THUNDERSTORM = 57784,
+    // Warlock
+    SPELL_TWISTED_VISAGE_CORRUPTION = 57645,
+    SPELL_TWISTED_VISAGE_SHADOW_BOLT = 57644,
+    // Warrior
+    SPELL_TWISTED_VISAGE_THUNDER_CLAP = 57832,
+    SPELL_TWISTED_VISAGE_DEVASTATE = 57795,
+    SPELL_TWISTED_VISAGE_MORTAL_STRIKE = 57789,
+    SPELL_TWISTED_VISAGE_INTERCEPT = 61490,
+    SPELL_TWISTED_VISAGE_HAMSTRING = 9080,
+    SPELL_TWISTED_VISAGE_BLOODTHIRST = 57790,
 };
 
-enum Achievements
+enum VolazjAchievements
 {
-    ACHIEV_QUICK_DEMISE_START_EVENT               = 20382,
+    ACHIEV_QUICK_DEMISE_START_EVENT = 20382,
+};
+
+enum VolazjMisc
+{
+    DATA_TWISTED_VISAGE_PLAYER_CLASS = 1,
+    DATA_TWISTED_VISAGE_PLAYER_SPEC = 2,
 };
 
 struct boss_volazj : public BossAI
 {
-    boss_volazj(Creature* creature) : BossAI(creature, DATA_HERALD_VOLAZJ), _insanityHandled(0)
+    boss_volazj(Creature* creature) : BossAI(creature, DATA_HERALD_VOLAZJ)
     {
         Initialize();
-        _instance = creature->GetInstanceScript();
     }
 
     void Reset() override
@@ -73,7 +144,7 @@ struct boss_volazj : public BossAI
 
         Initialize();
 
-        _instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_QUICK_DEMISE_START_EVENT);
+        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_QUICK_DEMISE_START_EVENT);
 
         // Visible for all players in insanity
         for (uint32 i = 173; i <= 177; ++i)
@@ -83,7 +154,7 @@ struct boss_volazj : public BossAI
         ResetPlayersPhaseMask();
 
         // Cleanup
-        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetControlled(false, UNIT_STATE_STUNNED);
     }
 
@@ -96,21 +167,21 @@ struct boss_volazj : public BossAI
     void ScheduleTasks() override
     {
         scheduler.Schedule(8s, [this](TaskContext task)
-            {
-                DoCastVictim(SPELL_MIND_FLAY);
-                task.Repeat(20s);
-            })
-            .Schedule(5s, [this](TaskContext task)
-            {
-                DoCastVictim(SPELL_SHADOW_BOLT_VOLLEY);
-                task.Repeat();
-            })
-            .Schedule(15s, [this](TaskContext task)
-            {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    DoCast(target, SPELL_SHIVER);
-                task.Repeat();
-            });
+        {
+            DoCastVictim(SPELL_MIND_FLAY);
+            task.Repeat(20s);
+        })
+        .Schedule(5s, [this](TaskContext task)
+        {
+            DoCastVictim(SPELL_SHADOW_BOLT_VOLLEY);
+            task.Repeat();
+        })
+        .Schedule(15s, [this](TaskContext task)
+        {
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                DoCast(target, SPELL_SHIVER);
+            task.Repeat();
+        });
     }
 
     // returns the percentage of health after taking the given damage.
@@ -121,18 +192,22 @@ struct boss_volazj : public BossAI
         return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
     }
 
-    void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*pAttacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
+        if (me->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
             damage = 0;
 
-
-        if ((GetHealthPct(0) >= 66 && GetHealthPct(damage) < 66)||
-            (GetHealthPct(0) >= 33 && GetHealthPct(damage) < 33))
+        if ((GetHealthPct(0) >= 66 && GetHealthPct(damage) < 66) || (GetHealthPct(0) >= 33 && GetHealthPct(damage) < 33))
         {
             me->InterruptNonMeleeSpells(false);
             DoCast(me, SPELL_INSANITY, false);
         }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summon->SetReactState(REACT_PASSIVE);
+        summons.Summon(summon);
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -147,24 +222,30 @@ struct boss_volazj : public BossAI
             {
                 // Channel visual
                 DoCast(me, INSANITY_VISUAL, true);
+                Talk(SAY_INSANITY);
+                DoCastSelf(SPELL_WHISPER_INSANITY, true);
                 // Unattackable
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_STUNNED);
             }
             // phase mask
             target->CastSpell(target, SPELL_INSANITY_TARGET + _insanityHandled, true);
             // summon twisted party members for this target
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
-            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+            for (auto i = players.begin(); i != players.end(); ++i)
             {
                 Player* player = i->GetSource();
                 if (!player || !player->IsAlive())
                     continue;
                 // Summon clone
-                if (Unit* summon = me->SummonCreature(NPC_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN))
+                if (TempSummon* summon = me->SummonCreature(NPC_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN))
                 {
                     // clone
                     player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
+                    summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_CLASS, player->GetClass());
+                    summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_SPEC, player->GetPrimarySpecialization());
+                    summon->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat(summon);
                     // set phase
                     PhasingHandler::AddPhase(summon, 173 + _insanityHandled, true);
                 }
@@ -176,7 +257,7 @@ struct boss_volazj : public BossAI
     void ResetPlayersPhaseMask()
     {
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+        for (auto i = players.begin(); i != players.end(); ++i)
         {
             Player* player = i->GetSource();
             for (uint32 index = 0; index <= 4; ++index)
@@ -188,8 +269,9 @@ struct boss_volazj : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
+        DoCastSelf(SPELL_WHISPER_AGGRO);
 
-        _instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_QUICK_DEMISE_START_EVENT);
+        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_QUICK_DEMISE_START_EVENT);
     }
 
     uint32 GetSpellForPhaseMask(uint32 phase)
@@ -242,19 +324,16 @@ struct boss_volazj : public BossAI
         // Roll Insanity
         uint32 spell = GetSpellForPhaseMask(phase);
         uint32 spell2 = GetSpellForPhaseMask(nextPhase);
-        Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-        if (!PlayerList.isEmpty())
+        Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+        for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
         {
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = itr->GetSource())
             {
-                if (Player* player = i->GetSource())
+                if (player->HasAura(spell))
                 {
-                    if (player->HasAura(spell))
-                    {
-                        player->RemoveAurasDueToSpell(spell);
-                        if (spell2) // if there is still some different mask cast spell for it
-                            player->CastSpell(player, spell2, true);
-                    }
+                    player->RemoveAurasDueToSpell(spell);
+                    if (spell2) // if there is still some different mask cast spell for it
+                        player->CastSpell(player, spell2, true);
                 }
             }
         }
@@ -262,7 +341,6 @@ struct boss_volazj : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
@@ -272,7 +350,7 @@ struct boss_volazj : public BossAI
                 return;
 
             _insanityHandled = 0;
-            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetControlled(false, UNIT_STATE_STUNNED);
             me->RemoveAurasDueToSpell(INSANITY_VISUAL);
         }
@@ -286,24 +364,462 @@ struct boss_volazj : public BossAI
     void JustDied(Unit* killer) override
     {
         BossAI::JustDied(killer);
-
-        Talk(SAY_DEATH);
         ResetPlayersPhaseMask();
+
+        switch (urand(0, 1))
+        {
+            case 0:
+                Talk(SAY_DEATH_1);
+                DoCastSelf(SPELL_WHISPER_DEATH_1, true);
+                break;
+            case 1:
+                Talk(SAY_DEATH_2);
+                DoCastSelf(SPELL_WHISPER_DEATH_2, true);
+                break;
+        }
     }
 
     void KilledUnit(Unit* who) override
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_SLAY);
+        if (who->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        switch (urand(0, 2))
+        {
+            case 0:
+                Talk(SAY_SLAY_1);
+                DoCastSelf(SPELL_WHISPER_SLAY_1);
+                break;
+            case 1:
+                Talk(SAY_SLAY_2);
+                DoCastSelf(SPELL_WHISPER_SLAY_2);
+                break;
+            case 2:
+                Talk(SAY_SLAY_3);
+                DoCastSelf(SPELL_WHISPER_SLAY_3);
+                break;
+        }
     }
 
 private:
-    InstanceScript* _instance;
-
     uint32 _insanityHandled;
+};
+
+struct npc_twisted_visage : public ScriptedAI
+{
+    npc_twisted_visage(Creature* creature) : ScriptedAI(creature), _playerClass(CLASS_NONE), _playerSpec(0) { }
+
+    void Reset() override
+    {
+        DoCastSelf(SPELL_TWISTED_VISAGE_VISUAL, true);
+
+        _scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        switch (_playerClass)
+        {
+            case CLASS_SHAMAN:
+                switch (_playerSpec)
+                {
+                    case TALENT_SPEC_SHAMAN_ELEMENTAL:
+                    case TALENT_SPEC_SHAMAN_RESTORATION:
+                        ScriptedAI::AttackStartCaster(who, 25.0f);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case CLASS_DRUID:
+                switch (_playerSpec)
+                {
+                    case TALENT_SPEC_DRUID_BALANCE:
+                    case TALENT_SPEC_DRUID_RESTORATION:
+                        ScriptedAI::AttackStartCaster(who, 25.0f);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case CLASS_PRIEST:
+            case CLASS_HUNTER:
+            case CLASS_MAGE:
+            case CLASS_WARLOCK:
+                ScriptedAI::AttackStartCaster(who, 25.0f);
+                break;
+            case CLASS_ROGUE:
+                ScriptedAI::AttackStart(who);
+                break;
+            default:
+                ScriptedAI::AttackStart(who);
+                break;
+        }
+    }
+
+    void SetData(uint32 type, uint32 data) override
+    {
+        if (type == DATA_TWISTED_VISAGE_PLAYER_CLASS)
+        {
+            if (data > CLASS_NONE && data <= CLASS_DRUID)
+                _playerClass = data;
+        }
+        else if (type == DATA_TWISTED_VISAGE_PLAYER_SPEC && _playerClass != CLASS_NONE)
+        {
+            if (data < 3)
+                _playerSpec = data;
+
+            switch (_playerClass)
+            {
+                case CLASS_WARRIOR:
+                    switch (data)
+                    {
+                        case TALENT_SPEC_WARRIOR_ARMS:
+                            _scheduler.Schedule(3s, [this](TaskContext mortalStrike)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_MORTAL_STRIKE);
+                                mortalStrike.Repeat(3s, 5s);
+                            }).Schedule(5s, [this](TaskContext harmstring)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_HAMSTRING);
+                                harmstring.Repeat(5s, 10s);
+                            });
+                            break;
+                        default:
+                        case TALENT_SPEC_WARRIOR_FURY:
+                            _scheduler.Schedule(2s, [this](TaskContext intercept)
+                            {
+                                if (!me->IsWithinCombatRange(me->GetVictim(), 8.0f))
+                                {
+                                    DoCastVictim(SPELL_TWISTED_VISAGE_INTERCEPT);
+                                    intercept.Repeat(12s);
+                                }
+                                else
+                                    intercept.Repeat(1s);
+                            }).Schedule(3s, [this](TaskContext bloodthirst)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_BLOODTHIRST);
+                                bloodthirst.Repeat(3s, 5s);
+                            });
+                            break;
+                        case TALENT_SPEC_WARRIOR_PROTECTION:
+                            _scheduler.Schedule(5s, [this](TaskContext thunderClap)
+                            {
+                                DoCastSelf(SPELL_TWISTED_VISAGE_THUNDER_CLAP);
+                                thunderClap.Repeat(5s, 10s);
+                            }).Schedule(3s, [this](TaskContext devastate)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_DEVASTATE);
+                                devastate.Repeat(3s, 5s);
+                            });
+                            break;
+                    }
+                    break;
+                case CLASS_PALADIN:
+                    switch (data)
+                    {
+                        case TALENT_SPEC_PALADIN_PROTECTION:
+                            _scheduler.Schedule(5s, [this](TaskContext consecration)
+                            {
+                                DoCastSelf(SPELL_TWISTED_VISAGE_CONSECRATION);
+                                consecration.Repeat(5s, 10s);
+                            }).Schedule(2s, [this](TaskContext avengersShield)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_AVENGER__S_SHIELD);
+                                avengersShield.Repeat(5s, 10s);
+                            });
+                            break;
+                        default:
+                        case TALENT_SPEC_PALADIN_RETRIBUTION:
+                            _scheduler.Schedule(5s, [this](TaskContext consecration)
+                            {
+                                DoCastSelf(SPELL_TWISTED_VISAGE_CONSECRATION);
+                                consecration.Repeat(5s, 10s);
+                            }).Schedule(2s, [this](TaskContext /*sealCommand*/)
+                            {
+                                DoCastSelf(SPELL_TWISTED_VISAGE_SEAL_OF_COMMAND);
+                            }).Schedule(3s, [this](TaskContext judgementLight)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_JUDGEMENT_OF_LIGHT);
+                                judgementLight.Repeat(3s, 5s);
+                            });
+                            break;
+                    }
+                    break;
+                case CLASS_HUNTER:
+                    _scheduler.Schedule(2s, [this](TaskContext shoot)
+                    {
+                        DoCastVictim(SPELL_TWISTED_VISAGE_SHOOT);
+                        shoot.Repeat(1s, 4s);
+                    }).Schedule(5s, [this](TaskContext disengage)
+                    {
+                        if (me->IsWithinCombatRange(me->GetVictim(), 4.0f))
+                        {
+                            DoCastVictim(SPELL_TWISTED_VISAGE_DISENGAGE);
+                            disengage.Repeat(10s, 20s);
+                        }
+                        else
+                            disengage.Repeat(1s);
+                    });
+                    break;
+                case CLASS_ROGUE:
+                    me->SetCanDualWield(true);
+                    _scheduler.Schedule(5s, [this](TaskContext eviscerate)
+                    {
+                        DoCastVictim(SPELL_TWISTED_VISAGE_EVISCERATE);
+                        eviscerate.Repeat(5s, 10s);
+                    }).Schedule(2s, [this](TaskContext sinisterStrike)
+                    {
+                        DoCastVictim(SPELL_TWISTED_VISAGE_SINISTER_STRIKE);
+                        sinisterStrike.Repeat(3s, 5s);
+                    });
+                    break;
+                case CLASS_PRIEST:
+                    switch (data)
+                    {
+                        case TALENT_SPEC_PRIEST_SHADOW:
+                            _scheduler.Schedule(5s, [this](TaskContext shadowWordPain)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_SHADOW_WORD_PAIN);
+                                shadowWordPain.Repeat(5s, 10s);
+                            }).Schedule(2s, [this](TaskContext mindFlay)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_MIND_FLAY);
+                                mindFlay.Repeat(3s, 5s);
+                            });
+                            break;
+                        default:
+                            _scheduler.Schedule(2s, [this](TaskContext renew)
+                            {
+                                if (Unit* target = DoSelectLowestHpFriendly(40.f))
+                                {
+                                    DoCast(target, SPELL_TWISTED_VISAGE_RENEW);
+                                    renew.Repeat(2s, 5s);
+                                }
+                                else
+                                    renew.Repeat(1s);
+                            }).Schedule(4s, [this](TaskContext greaterHeal)
+                            {
+                                if (Unit* target = DoSelectLowestHpFriendly(40.f))
+                                {
+                                    DoCast(target, SPELL_TWISTED_VISAGE_GREATER_HEAL);
+                                    greaterHeal.Repeat(4s, 6s);
+                                }
+                                else
+                                    greaterHeal.Repeat(1s);
+                            });
+                            break;
+                    }
+                    break;
+                case CLASS_DEATH_KNIGHT:
+                    _scheduler.Schedule(5s, [this](TaskContext deathGrip)
+                    {
+                        if (!me->IsWithinCombatRange(me->GetVictim(), 3.0f))
+                        {
+                            DoCastVictim(SPELL_TWISTED_VISAGE_DEATH_GRIP);
+                            deathGrip.Repeat(12s);
+                        }
+                        else
+                            deathGrip.Repeat(1s);
+                    }).Schedule(2s, [this](TaskContext plagueStrike)
+                    {
+                        DoCastVictim(SPELL_TWISTED_VISAGE_PLAGUE_STRIKE);
+                        plagueStrike.Repeat(3s, 5s);
+                    });
+                    break;
+                case CLASS_SHAMAN:
+                    switch (data)
+                    {
+                        default:
+                        case TALENT_SPEC_SHAMAN_ELEMENTAL:
+                            _scheduler.Schedule(5s, [this](TaskContext thunderstorm)
+                            {
+                                DoCastSelf(SPELL_TWISTED_VISAGE_THUNDERSTORM);
+                                thunderstorm.Repeat(5s, 10s);
+                            }).Schedule(2s, [this](TaskContext lightningBolt)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_LIGHTNING_BOLT);
+                                lightningBolt.Repeat(3s, 5s);
+                            });
+                            break;
+                        case TALENT_SPEC_SHAMAN_ENHANCEMENT:
+                            _scheduler.Schedule(2s, [this](TaskContext earthShock)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_EARTH_SHOCK);
+                                earthShock.Repeat(3s, 5s);
+                            });
+                            break;
+                        case TALENT_SPEC_SHAMAN_RESTORATION:
+                            _scheduler.Schedule(2s, [this](TaskContext earthShield)
+                            {
+                                if (Unit* target = DoSelectLowestHpFriendly(40.f))
+                                {
+                                    DoCast(target, SPELL_TWISTED_VISAGE_EARTH_SHIELD);
+                                    earthShield.Repeat(4s, 6s);
+                                }
+                                else
+                                    earthShield.Repeat(1s);
+                            }).Schedule(4s, [this](TaskContext healingWave)
+                            {
+                                if (Unit* target = DoSelectLowestHpFriendly(40.f))
+                                {
+                                    DoCast(target, SPELL_TWISTED_VISAGE_HEALING_WEAVE);
+                                    healingWave.Repeat(4s, 6s);
+                                }
+                                else
+                                    healingWave.Repeat(1s);
+                            });
+                            break;
+                    }
+                    break;
+                case CLASS_MAGE:
+                    _scheduler.Schedule(5s, [this](TaskContext frostNova)
+                    {
+                        DoCastSelf(SPELL_TWISTED_VISAGE_FROST_NOVA);
+                        frostNova.Repeat(5s, 10s);
+                    }).Schedule(2s, [this](TaskContext fireball)
+                    {
+                        DoCastVictim(SPELL_TWISTED_VISAGE_FIREBALL);
+                        fireball.Repeat(3s, 5s);
+                    });
+                    break;
+                case CLASS_WARLOCK:
+                    _scheduler.Schedule(2s, [this](TaskContext corruption)
+                    {
+                        DoCastVictim(SPELL_TWISTED_VISAGE_CORRUPTION);
+                        corruption.Repeat(6s, 10s);
+                    }).Schedule(3s, [this](TaskContext shadowBolt)
+                    {
+                        DoCastVictim(SPELL_TWISTED_VISAGE_SHADOW_BOLT);
+                        shadowBolt.Repeat(3s, 5s);
+                    });
+                    break;
+                case CLASS_DRUID:
+                    switch (data)
+                    {
+                        case TALENT_SPEC_DRUID_BALANCE:
+                            _scheduler.Schedule(2s, [this](TaskContext moonfire)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_MOONFIRE);
+                                moonfire.Repeat(3s, 5s);
+                            }).Schedule(3s, [this](TaskContext wrath)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_WRATH);
+                                wrath.Repeat(3s, 5s);
+                            });
+                            break;
+                        case TALENT_SPEC_DRUID_BEAR:
+                        case TALENT_SPEC_DRUID_CAT:
+                            _scheduler.Schedule(1ms, [this](TaskContext /*catForm*/)
+                            {
+                                DoCastSelf(SPELL_TWISTED_VISAGE_CAT_FORM);
+                            }).Schedule(2s, [this](TaskContext mangle)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_MANGLE);
+                                mangle.Repeat(3s, 5s);
+                            }).Schedule(3s, [this](TaskContext rip)
+                            {
+                                DoCastVictim(SPELL_TWISTED_VISAGE_RIP);
+                                rip.Repeat(3s, 5s);
+                            });
+                            break;
+                        default:
+                        case TALENT_SPEC_DRUID_RESTORATION:
+                            _scheduler.Schedule(2s, [this](TaskContext lifebloom)
+                            {
+                                if (Unit* target = DoSelectLowestHpFriendly(40.f))
+                                {
+                                    DoCast(target, SPELL_TWISTED_VISAGE_LIFEBLOOM);
+                                    lifebloom.Repeat(4s, 6s);
+                                }
+                                else
+                                    lifebloom.Repeat(1s);
+                            }).Schedule(4s, [this](TaskContext nourish)
+                            {
+                                if (Unit* target = DoSelectLowestHpFriendly(40.f))
+                                {
+                                    DoCast(target, SPELL_TWISTED_VISAGE_NOURISH);
+                                    nourish.Repeat(4s, 6s);
+                                }
+                                else
+                                    nourish.Repeat(1s);
+                            });
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoCastSelf(SPELL_TWISTED_VISAGE_DEATH, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
+    uint32 _playerClass;
+    uint32 _playerSpec;
+};
+
+/* 60291 - Volazj Whisper: Aggro
+   60292 - Volazj Whisper: Insanity
+   60293 - Volazj Whisper: Slay 01
+   60294 - Volazj Whisper: Slay 02
+   60295 - Volazj Whisper: Slay 03
+   60296 - Volazj Whisper: Death 01
+   60297 - Volazj Whisper: Death 02 */
+class spell_volazj_whisper : public SpellScript
+{
+    PrepareSpellScript(spell_volazj_whisper);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Player* target = GetHitPlayer();
+        Creature* caster = GetCaster()->ToCreature();
+        if (!target || !caster)
+            return;
+
+        uint32 text = 0;
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_WHISPER_AGGRO:    text = WHISPER_AGGRO;    break;
+            case SPELL_WHISPER_INSANITY: text = WHISPER_INSANITY; break;
+            case SPELL_WHISPER_SLAY_1:   text = WHISPER_SLAY_1;   break;
+            case SPELL_WHISPER_SLAY_2:   text = WHISPER_SLAY_2;   break;
+            case SPELL_WHISPER_SLAY_3:   text = WHISPER_SLAY_3;   break;
+            case SPELL_WHISPER_DEATH_1:  text = WHISPER_DEATH_1;  break;
+            case SPELL_WHISPER_DEATH_2:  text = WHISPER_DEATH_2;  break;
+            default: return;
+        }
+        caster->AI()->Talk(text, target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_volazj_whisper::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_boss_volazj()
 {
     RegisterAhnKahetCreatureAI(boss_volazj);
+    RegisterAhnKahetCreatureAI(npc_twisted_visage);
+    RegisterSpellScript(spell_volazj_whisper);
 }

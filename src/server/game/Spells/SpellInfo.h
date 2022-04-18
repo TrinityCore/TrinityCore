@@ -476,7 +476,7 @@ class TC_GAME_API SpellInfo
         bool HasAttribute(SpellAttr14 attribute) const { return !!(AttributesEx14 & attribute); }
         bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
-        bool CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget) const;
+        bool CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget, bool ignoreImmunity = false) const;
 
         bool HasAnyAuraInterruptFlag() const;
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }
@@ -487,7 +487,6 @@ class TC_GAME_API SpellInfo
 
         bool IsExplicitDiscovery() const;
         bool IsLootCrafting() const;
-        bool IsQuestTame() const;
         bool IsProfession() const;
         bool IsPrimaryProfession() const;
         bool IsPrimaryProfessionFirstRank() const;
@@ -604,6 +603,8 @@ class TC_GAME_API SpellInfo
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
         uint32 GetAllowedMechanicMask() const;
+
+        uint32 GetMechanicImmunityMask(Unit const* caster) const;
 
         // Player Condition
         bool MeetsFutureSpellPlayerCondition(Player const* player) const;

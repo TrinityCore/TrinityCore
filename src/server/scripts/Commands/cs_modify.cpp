@@ -38,6 +38,10 @@ EndScriptData */
 #include "UpdateFields.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class modify_commandscript : public CommandScript
 {
 public:
@@ -264,10 +268,10 @@ public:
         handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, std::to_string(npcflag).c_str(), dyflag);
 
         target->SetFaction(factionid);
-        target->SetUnitFlags(UnitFlags(flag));
-        target->SetNpcFlags(NPCFlags(npcflag & 0xFFFFFFFF));
-        target->SetNpcFlags2(NPCFlags2(npcflag >> 32));
-        target->SetDynamicFlags(dyflag);
+        target->ReplaceAllUnitFlags(UnitFlags(flag));
+        target->ReplaceAllNpcFlags(NPCFlags(npcflag & 0xFFFFFFFF));
+        target->ReplaceAllNpcFlags2(NPCFlags2(npcflag >> 32));
+        target->ReplaceAllDynamicFlags(dyflag);
 
         return true;
     }

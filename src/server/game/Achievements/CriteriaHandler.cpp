@@ -374,7 +374,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, WorldObject co
             if (!bg)
                 return false;
 
-            uint32 score = bg->GetTeamScore(source->GetTeamId() == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
+            uint32 score = bg->GetTeamScore(bg->GetPlayerTeam(source->GetGUID()) == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
             return score >= BattlegroundScore.Min && score <= BattlegroundScore.Max;
         }
         case CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:

@@ -606,7 +606,8 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    vendor->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    if (uint32 pause = vendor->GetMovementTemplate().GetInteractionPauseTimer())
+        vendor->PauseMovement(pause);
     vendor->SetHomePosition(vendor->GetPosition());
 
     VendorItemData const* vendorItems = vendor->GetVendorItems();
@@ -904,7 +905,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
     }
 
     item->SetGiftCreator(_player->GetGUID());
-    item->SetItemFlags(ITEM_FIELD_FLAG_WRAPPED);
+    item->ReplaceAllItemFlags(ITEM_FIELD_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
 
     if (item->GetState() == ITEM_NEW) // save new item, to have alway for `character_gifts` record in `item_instance`

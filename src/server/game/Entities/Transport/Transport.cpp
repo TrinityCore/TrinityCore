@@ -90,7 +90,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
         SetFaction(goOverride->Faction);
-        SetFlags(GameObjectFlags(goOverride->Flags));
+        ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
     }
 
     m_goValue.Transport.PathProgress = 0;

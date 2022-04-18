@@ -59,251 +59,229 @@ enum Spells
     H_SPELL_MIND_REND_IMAGE = 39021
 };
 
-class boss_harbinger_skyriss : public CreatureScript
+struct boss_harbinger_skyriss : public BossAI
 {
-    public:
-        boss_harbinger_skyriss() : CreatureScript("boss_harbinger_skyriss") { }
+    boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS)
+    {
+        Initialize();
+        Intro = false;
+    }
 
-        struct boss_harbinger_skyrissAI : public BossAI
+    void Initialize()
+    {
+        IsImage33 = false;
+        IsImage66 = false;
+
+        Intro_Phase = 1;
+        Intro_Timer = 5000;
+        MindRend_Timer = 3000;
+        Fear_Timer = 15000;
+        Domination_Timer = 30000;
+        ManaBurn_Timer = 25000;
+    }
+
+    bool Intro;
+    bool IsImage33;
+    bool IsImage66;
+
+    uint32 Intro_Phase;
+    uint32 Intro_Timer;
+    uint32 MindRend_Timer;
+    uint32 Fear_Timer;
+    uint32 Domination_Timer;
+    uint32 ManaBurn_Timer;
+
+    void Reset() override
+    {
+        _Reset();
+
+        me->SetImmuneToAll(!Intro);
+        Initialize();
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!Intro)
+            return;
+
+        ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override { }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (!summon)
+            return;
+        if (IsImage66)
+            summon->SetHealth(summon->CountPctFromMaxHealth(33));
+        else
+            summon->SetHealth(summon->CountPctFromMaxHealth(66));
+        if (me->GetVictim())
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                summon->AI()->AttackStart(target);
+
+        summons.Summon(summon);
+        summon->SetImmuneToAll(false);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        //won't yell killing pet/other unit
+        if (victim->GetEntry() == NPC_ALPHA_POD_TARGET)
+            return;
+
+        Talk(SAY_KILL);
+    }
+
+    void DoSplit(uint32 val)
+    {
+        if (me->IsNonMeleeSpellCast(false))
+            me->InterruptNonMeleeSpells(false);
+
+        Talk(SAY_IMAGE);
+
+        if (val == 66)
+            DoCast(me, SPELL_66_ILLUSION);
+        else
+            DoCast(me, SPELL_33_ILLUSION);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!Intro)
         {
-            boss_harbinger_skyrissAI(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS)
+            if (Intro_Timer <= diff)
             {
-                Initialize();
-                Intro = false;
+                switch (Intro_Phase)
+                {
+                case 1:
+                    Talk(SAY_INTRO);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), true);
+                    ++Intro_Phase;
+                    Intro_Timer = 25000;
+                    break;
+                case 2:
+                    Talk(SAY_AGGRO);
+                    if (Unit* mellic = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MELLICHAR)))
+                    {
+                        //should have a better way to do this. possibly spell exist.
+                        mellic->setDeathState(JUST_DIED);
+                        mellic->SetHealth(0);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), false);
+                    }
+                    ++Intro_Phase;
+                    Intro_Timer = 3000;
+                    break;
+                case 3:
+                    me->SetImmuneToAll(false);
+                    Intro = true;
+                    break;
+                }
             }
+            else
+                Intro_Timer -=diff;
+        }
+        if (!UpdateVictim())
+            return;
 
-            void Initialize()
-            {
-                IsImage33 = false;
-                IsImage66 = false;
+        if (!IsImage66 && !HealthAbovePct(66))
+        {
+            DoSplit(66);
+            IsImage66 = true;
+        }
+        if (!IsImage33 && !HealthAbovePct(33))
+        {
+            DoSplit(33);
+            IsImage33 = true;
+        }
 
-                Intro_Phase = 1;
-                Intro_Timer = 5000;
-                MindRend_Timer = 3000;
-                Fear_Timer = 15000;
-                Domination_Timer = 30000;
-                ManaBurn_Timer = 25000;
-            }
+        if (MindRend_Timer <= diff)
+        {
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                DoCast(target, SPELL_MIND_REND);
+            else
+                DoCastVictim(SPELL_MIND_REND);
 
-            bool Intro;
-            bool IsImage33;
-            bool IsImage66;
+            MindRend_Timer = 8000;
+        }
+        else
+            MindRend_Timer -=diff;
 
-            uint32 Intro_Phase;
-            uint32 Intro_Timer;
-            uint32 MindRend_Timer;
-            uint32 Fear_Timer;
-            uint32 Domination_Timer;
-            uint32 ManaBurn_Timer;
+        if (Fear_Timer <= diff)
+        {
+            if (me->IsNonMeleeSpellCast(false))
+                return;
 
-            void Reset() override
-            {
-                _Reset();
+            Talk(SAY_FEAR);
 
-                me->SetImmuneToAll(!Intro);
-                Initialize();
-            }
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                DoCast(target, SPELL_FEAR);
+            else
+                DoCastVictim(SPELL_FEAR);
 
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (!Intro)
-                    return;
+            Fear_Timer = 25000;
+        }
+        else
+            Fear_Timer -=diff;
 
-                ScriptedAI::MoveInLineOfSight(who);
-            }
+        if (Domination_Timer <= diff)
+        {
+            if (me->IsNonMeleeSpellCast(false))
+                return;
 
-            void JustEngagedWith(Unit* /*who*/) override { }
+            Talk(SAY_MIND);
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                Talk(SAY_DEATH);
-                _JustDied();
-            }
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                DoCast(target, SPELL_DOMINATION);
+            else
+                DoCastVictim(SPELL_DOMINATION);
 
-            void JustSummoned(Creature* summon) override
-            {
-                if (!summon)
-                    return;
-                if (IsImage66)
-                    summon->SetHealth(summon->CountPctFromMaxHealth(33));
-                else
-                    summon->SetHealth(summon->CountPctFromMaxHealth(66));
-                if (me->GetVictim())
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        summon->AI()->AttackStart(target);
+            Domination_Timer = 16000 + rand32() % 16000;
+        }
+        else
+            Domination_Timer -=diff;
 
-                summons.Summon(summon);
-                summon->SetImmuneToAll(false);
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                //won't yell killing pet/other unit
-                if (victim->GetEntry() == NPC_ALPHA_POD_TARGET)
-                    return;
-
-                Talk(SAY_KILL);
-            }
-
-            void DoSplit(uint32 val)
+        if (IsHeroic())
+        {
+            if (ManaBurn_Timer <= diff)
             {
                 if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(false);
-
-                Talk(SAY_IMAGE);
-
-                if (val == 66)
-                    DoCast(me, SPELL_66_ILLUSION);
-                else
-                    DoCast(me, SPELL_33_ILLUSION);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!Intro)
-                {
-                    if (Intro_Timer <= diff)
-                    {
-                        switch (Intro_Phase)
-                        {
-                        case 1:
-                            Talk(SAY_INTRO);
-                            instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), true);
-                            ++Intro_Phase;
-                            Intro_Timer = 25000;
-                            break;
-                        case 2:
-                            Talk(SAY_AGGRO);
-                            if (Unit* mellic = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MELLICHAR)))
-                            {
-                                //should have a better way to do this. possibly spell exist.
-                                mellic->setDeathState(JUST_DIED);
-                                mellic->SetHealth(0);
-                                instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), false);
-                            }
-                            ++Intro_Phase;
-                            Intro_Timer = 3000;
-                            break;
-                        case 3:
-                            me->SetImmuneToAll(false);
-                            Intro = true;
-                            break;
-                        }
-                    }
-                    else
-                        Intro_Timer -=diff;
-                }
-                if (!UpdateVictim())
                     return;
 
-                if (!IsImage66 && !HealthAbovePct(66))
-                {
-                    DoSplit(66);
-                    IsImage66 = true;
-                }
-                if (!IsImage33 && !HealthAbovePct(33))
-                {
-                    DoSplit(33);
-                    IsImage33 = true;
-                }
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                    DoCast(target, H_SPELL_MANA_BURN);
 
-                if (MindRend_Timer <= diff)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                        DoCast(target, SPELL_MIND_REND);
-                    else
-                        DoCastVictim(SPELL_MIND_REND);
-
-                    MindRend_Timer = 8000;
-                }
-                else
-                    MindRend_Timer -=diff;
-
-                if (Fear_Timer <= diff)
-                {
-                    if (me->IsNonMeleeSpellCast(false))
-                        return;
-
-                    Talk(SAY_FEAR);
-
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                        DoCast(target, SPELL_FEAR);
-                    else
-                        DoCastVictim(SPELL_FEAR);
-
-                    Fear_Timer = 25000;
-                }
-                else
-                    Fear_Timer -=diff;
-
-                if (Domination_Timer <= diff)
-                {
-                    if (me->IsNonMeleeSpellCast(false))
-                        return;
-
-                    Talk(SAY_MIND);
-
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                        DoCast(target, SPELL_DOMINATION);
-                    else
-                        DoCastVictim(SPELL_DOMINATION);
-
-                    Domination_Timer = 16000 + rand32() % 16000;
-                }
-                else
-                    Domination_Timer -=diff;
-
-                if (IsHeroic())
-                {
-                    if (ManaBurn_Timer <= diff)
-                    {
-                        if (me->IsNonMeleeSpellCast(false))
-                            return;
-
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                            DoCast(target, H_SPELL_MANA_BURN);
-
-                        ManaBurn_Timer = 16000 + rand32() % 16000;
-                    }
-                    else
-                        ManaBurn_Timer -=diff;
-                }
-                DoMeleeAttackIfReady();
+                ManaBurn_Timer = 16000 + rand32() % 16000;
             }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetArcatrazAI<boss_harbinger_skyrissAI>(creature);
+            else
+                ManaBurn_Timer -=diff;
         }
+        DoMeleeAttackIfReady();
+    }
 };
 
-class boss_harbinger_skyriss_illusion : public CreatureScript
+struct boss_harbinger_skyriss_illusion : public ScriptedAI
 {
-    public:
-        boss_harbinger_skyriss_illusion() : CreatureScript("boss_harbinger_skyriss_illusion") { }
+    boss_harbinger_skyriss_illusion(Creature* creature) : ScriptedAI(creature) { }
 
-        struct boss_harbinger_skyriss_illusionAI : public ScriptedAI
-        {
-            boss_harbinger_skyriss_illusionAI(Creature* creature) : ScriptedAI(creature) { }
+    void Reset() override
+    {
+        me->SetImmuneToPC(false);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+    }
 
-            void Reset() override
-            {
-                me->SetImmuneToPC(false);
-                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override { }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetArcatrazAI<boss_harbinger_skyriss_illusionAI>(creature);
-        }
+    void JustEngagedWith(Unit* /*who*/) override { }
 };
 
 void AddSC_boss_harbinger_skyriss()
 {
-    new boss_harbinger_skyriss();
-    new boss_harbinger_skyriss_illusion();
+    RegisterArcatrazCreatureAI(boss_harbinger_skyriss);
+    RegisterArcatrazCreatureAI(boss_harbinger_skyriss_illusion);
 }

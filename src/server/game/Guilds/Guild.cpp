@@ -1339,11 +1339,10 @@ void Guild::HandleRoster(WorldSession* session)
     session->SendPacket(roster.Write());
 }
 
-void Guild::SendQueryResponse(WorldSession* session, ObjectGuid const& playerGuid)
+void Guild::SendQueryResponse(WorldSession* session)
 {
     WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = GetGUID();
-    response.PlayerGuid = playerGuid;
     response.Info.emplace();
 
     response.Info->GuildGUID = GetGUID();
@@ -1488,7 +1487,7 @@ void Guild::HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo)
 
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_SUCCESS); // "Guild Emblem saved."
 
-        SendQueryResponse(session, ObjectGuid::Empty);
+        SendQueryResponse(session);
     }
 }
 
@@ -2885,6 +2884,15 @@ bool Guild::IsMember(ObjectGuid guid) const
     return m_members.find(guid) != m_members.end();
 }
 
+uint64 Guild::GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const
+{
+    Member const* member = GetMember(guid);
+    if (!member)
+        return 0;
+
+    return std::min(m_bankMoney, static_cast<uint64>(_GetMemberRemainingMoney(*member)));
+}
+
 // Bank (items move)
 void Guild::SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount)
 {
@@ -3511,7 +3519,6 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
                 if (Item* tabItem = tab->GetItem(slotId))
                 {
                     WorldPackets::Guild::GuildBankItemInfo& itemInfo = packet.ItemInfo.emplace_back();
-
 
                     itemInfo.Slot = int32(slotId);
                     itemInfo.Item.ItemID = tabItem->GetEntry();

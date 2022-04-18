@@ -361,7 +361,6 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-
     // 8. Load all guild bank tabs
     TC_LOG_INFO("server.loading", "Loading guild bank tabs...");
     {

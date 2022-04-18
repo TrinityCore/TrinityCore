@@ -191,7 +191,7 @@ enum AzeriteTierUnlockSetFlags
     AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 3189
+#define BATTLE_PET_SPECIES_MAX_ID 3248
 
 enum class BattlePetSpeciesFlags : uint16
 {
@@ -608,6 +608,7 @@ enum class CriteriaType : uint8
     MythicPlusRatingAttained                       = 230, /*NYI*/ // (Player) Mythic+ Rating "{#DungeonScore}" attained
     SpentTalentPoint                               = 231, /*NYI*/ // (Player) spent talent point
 
+    MythicPlusDisplaySeasonEnded                   = 234, /*NYI*/ // {DisplaySeason}
     Count
 };
 
@@ -799,21 +800,6 @@ enum MapFlags
                                               // heroic difficulty flag overrides it and uses instance id bind
     MAP_FLAG_GARRISON               = 0x4000000
 };
-
-enum AbilytyLearnType
-{
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
-    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
-};
-
-enum class SkillLineAbilityFlags
-{
-    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
-
-};
-
-DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
 
 enum GlyphSlotType
 {
@@ -1366,6 +1352,10 @@ enum class ModifierTreeType : int32
     PlayerBestWeeklyWinPvpTierInBracketEqualOrGreaterThan               = 325, // (Mainline) Player has best weekly win at or above "{@PVP_TIER_ENUM}" for "{@PVP_BRACKET}"
     PlayerHasVanillaCollectorsEdition                                   = 326, // Player has Vanilla Collector's Edition
     PlayerHasItemWithKeystoneLevelModifierEqualOrGreaterThan            = 327,
+
+    PlayerMythicPlusRatingInDisplaySeasonEqualOrGreaterThan             = 329, /*NYI*/ // Player has Mythic+ Rating of at least "{#DungeonScore}" in {DisplaySeason}
+
+    MythicPlusRatingIsInTop01Percent                                    = 334, // top 0.1% rating
 };
 
 enum class ModifierTreeOperator : int8
@@ -1450,6 +1440,42 @@ enum ScenarioStepFlags
     SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
     SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
 };
+
+enum class SkillLineFlags : uint16
+{
+    AlwaysShownInUI                                 = 0x0001,
+    NeverShownInUI                                  = 0x0002,
+    FirstTierIsSelfTaught                           = 0x0004,
+    GrantedIncrementallyByCharacterUpgrade          = 0x0008,
+    AutomaticRank                                   = 0x0010,
+    InheritParentRankWhenLearned                    = 0x0020,
+    ShowsInSpellTooltip                             = 0x0040,
+    AppearsInMiscTabOfSpellbook                     = 0x0080,
+    // unused                                       = 0x0100,
+    IgnoreCategoryMods                              = 0x0200,
+    DisplaysAsProficiency                           = 0x0400,
+    PetsOnly                                        = 0x0800,
+    UniqueBitfield                                  = 0x1000,
+    RacialForThePurposeOfPaidRaceOrFactionChange    = 0x2000,
+    ProgressiveSkillUp                              = 0x4000,
+    RacialForThePurposeOfTemporaryRaceChange        = 0x8000,
+};
+
+DEFINE_ENUM_FLAG(SkillLineFlags);
+
+enum AbilytyLearnType
+{
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
+    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
+};
+
+enum class SkillLineAbilityFlags
+{
+    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+};
+
+DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
 
 enum SkillRaceClassInfoFlags
 {
@@ -1552,7 +1578,7 @@ enum class SpellVisualEffectNameType : uint32
     UnitItemRangedIgnoreDisarmed    = 10
 };
 
-#define TaxiMaskSize 339
+#define TaxiMaskSize 345
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType

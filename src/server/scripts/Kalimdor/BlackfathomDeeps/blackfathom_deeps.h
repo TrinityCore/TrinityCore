@@ -77,5 +77,6 @@ inline AI* GetBlackfathomDeepsAI(T* obj)
 }
 
 #define RegisterBlackfathomDeepsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackfathomDeepsAI)
+#define RegisterBlackfathomDeepsGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetBlackfathomDeepsAI)
 
 #endif // BFD_H_

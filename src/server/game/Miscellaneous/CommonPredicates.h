@@ -66,5 +66,4 @@ namespace Trinity
     }
 }
 
-
 #endif //TRINITY_COMMONPREDICATES_H

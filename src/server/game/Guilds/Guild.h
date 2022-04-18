@@ -737,7 +737,7 @@ class TC_GAME_API Guild
 
         // Handle client commands
         void HandleRoster(WorldSession* session);
-        void SendQueryResponse(WorldSession* session, ObjectGuid const& playerGuid);
+        void SendQueryResponse(WorldSession* session);
         void HandleSetAchievementTracking(WorldSession* session, uint32 const* achievementIdsBegin, uint32 const* achievementIdsEnd);
         void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const;
         void HandleSetMOTD(WorldSession* session, std::string_view motd);
@@ -824,6 +824,7 @@ class TC_GAME_API Guild
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, GuildRankId newRank);
         bool IsMember(ObjectGuid guid) const;
         uint32 GetMembersCount() const { return uint32(m_members.size()); }
+        uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
 
         // Bank
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);

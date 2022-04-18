@@ -192,8 +192,8 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetRace(fields[7].GetUInt8());
     SetClass(fields[8].GetUInt8());
     SetSex(fields[9].GetUInt8());
-    SetFlags(fields[10].GetUInt8());
-    SetCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
+    ReplaceAllFlags(fields[10].GetUInt8());
+    ReplaceAllCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
     SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[15].GetUInt64()));
     SetFactionTemplate(sChrRacesStore.AssertEntry(m_corpseData->RaceID)->FactionID);
 
@@ -280,6 +280,17 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+}
+
+void Corpse::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), CorpseMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Corpse::ClearUpdateMask(bool remove)

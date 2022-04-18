@@ -295,7 +295,7 @@ Position const RazorscaleFirstPoint      = { 657.0227f, -361.1278f, 519.5406f };
 
 struct boss_razorscale : public BossAI
 {
-    boss_razorscale(Creature* creature) : BossAI(creature, BOSS_RAZORSCALE)
+    boss_razorscale(Creature* creature) : BossAI(creature, DATA_RAZORSCALE)
     {
         Initialize();
     }
@@ -542,7 +542,7 @@ struct boss_razorscale : public BossAI
         me->SummonCreature(NPC_RAZORSCALE_SPAWNER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15s);
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_permaGround && me->HealthBelowPctDamaged(50, damage) && events.IsInPhase(PHASE_GROUND))
         {
@@ -686,7 +686,7 @@ struct npc_expedition_commander : public ScriptedAI
             CloseGossipMenuFor(player);
             _events.SetPhase(PHASE_COMBAT);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+            if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
                 razorscale->AI()->DoAction(ACTION_START_FIGHT);
             return true;
         }
@@ -1255,7 +1255,7 @@ struct npc_darkrune_watcher : public ScriptedAI
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
-        if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+        if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
@@ -1316,7 +1316,7 @@ struct npc_darkrune_guardian : public ScriptedAI
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
-        if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+        if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
@@ -1384,7 +1384,7 @@ struct npc_darkrune_sentinel : public ScriptedAI
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
-        if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+        if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
@@ -1513,7 +1513,7 @@ public:
 
         bool OnGossipHello(Player* /*player*/) override
         {
-            me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             if (Creature* controller = me->FindNearestCreature(NPC_RAZORSCALE_CONTROLLER, 5.0f))
             {
                 // Prevent 2 players clicking at "same time"
@@ -1553,7 +1553,7 @@ public:
 
         void Reset() override
         {
-            me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            me->SetFlag(GO_FLAG_NOT_SELECTABLE);
             _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
             {
                 me->UseDoorOrButton();

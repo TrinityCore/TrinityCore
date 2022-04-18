@@ -84,8 +84,8 @@ public:
 
             DoCastSelf(SPELL_IRRIDATION, true);
 
-            me->AddUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
-            me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+            me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+            me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
             me->SetHealth(me->CountPctFromMaxHealth(10));
             me->SetStandState(UNIT_STAND_STATE_SLEEP);
         }
@@ -200,7 +200,7 @@ public:
         {
             Initialize();
             NormFaction = creature->GetFaction();
-            NpcFlags = NPCFlags(creature->m_unitData->NpcFlags[0]);
+            NpcFlags = creature->GetNpcFlags();
         }
 
         void Initialize()
@@ -219,7 +219,7 @@ public:
             Initialize();
 
             me->SetFaction(NormFaction);
-            me->SetNpcFlags(NpcFlags);
+            me->ReplaceAllNpcFlags(NpcFlags);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -290,7 +290,7 @@ public:
 
         void Reset() override
         {
-            me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+            me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
             me->SetHealth(me->CountPctFromMaxHealth(15));
             switch (urand(0, 1))
             {
@@ -615,7 +615,7 @@ public:
     }
 };
 
-// 29528 -  Inoculate Nestlewood Owlkin
+// 29528 - Inoculate Nestlewood Owlkin
 class spell_inoculate_nestlewood : public AuraScript
 {
     PrepareAuraScript(spell_inoculate_nestlewood);

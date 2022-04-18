@@ -63,7 +63,7 @@ void BattlegroundAV::HandleKillPlayer(Player* player, Player* killer)
         return;
 
     Battleground::HandleKillPlayer(player, killer);
-    UpdateScore(player->GetTeam(), -1);
+    UpdateScore(GetPlayerTeam(player->GetGUID()), -1);
 }
 
 void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
@@ -138,16 +138,17 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
             herold->AI()->Talk(TEXT_FROSTWOLF_GENERAL_DEAD);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_H_4])
-        ChangeMineOwner(AV_NORTH_MINE, killer->GetTeam());
+        ChangeMineOwner(AV_NORTH_MINE, GetPlayerTeam(killer->GetGUID()));
     else if (entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_N_4] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_A_4] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_H_4])
-        ChangeMineOwner(AV_SOUTH_MINE, killer->GetTeam());
+        ChangeMineOwner(AV_SOUTH_MINE, GetPlayerTeam(killer->GetGUID()));
 }
 
 void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;//maybe we should log this, cause this must be a cheater or a big bug
-    uint8 team = GetTeamIndexByTeamId(player->GetTeam());
+    uint32 team = GetPlayerTeam(player->GetGUID());
+    uint8 teamIndex = GetTeamIndexByTeamId(team);
     /// @todo add reputation, events (including quest not available anymore, next quest available, go/npc de/spawning)and maybe honor
     TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed", questid);
     switch (questid)
@@ -156,12 +157,12 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
         case AV_QUEST_A_SCRAPS2:
         case AV_QUEST_H_SCRAPS1:
         case AV_QUEST_H_SCRAPS2:
-            m_Team_QuestStatus[team][0]+=20;
-            if (m_Team_QuestStatus[team][0] == 500 || m_Team_QuestStatus[team][0] == 1000 || m_Team_QuestStatus[team][0] == 1500) //25, 50, 75 turn ins
+            m_Team_QuestStatus[teamIndex][0]+=20;
+            if (m_Team_QuestStatus[teamIndex][0] == 500 || m_Team_QuestStatus[teamIndex][0] == 1000 || m_Team_QuestStatus[teamIndex][0] == 1500) //25, 50, 75 turn ins
             {
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed starting with unit upgrading..", questid);
                 for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
-                    if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
+                    if (m_Nodes[i].Owner == team && m_Nodes[i].State == POINT_CONTROLED)
                     {
                         DePopulateNode(i);
                         PopulateNode(i);
@@ -171,72 +172,72 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             break;
         case AV_QUEST_A_COMMANDER1:
         case AV_QUEST_H_COMMANDER1:
-            m_Team_QuestStatus[team][1]++;
-            RewardReputationToTeam(team, 1, player->GetTeam());
-            if (m_Team_QuestStatus[team][1] == 30)
+            m_Team_QuestStatus[teamIndex][1]++;
+            RewardReputationToTeam(teamIndex, 1, team);
+            if (m_Team_QuestStatus[teamIndex][1] == 30)
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER2:
         case AV_QUEST_H_COMMANDER2:
-            m_Team_QuestStatus[team][2]++;
-            RewardReputationToTeam(team, 1, player->GetTeam());
-            if (m_Team_QuestStatus[team][2] == 60)
+            m_Team_QuestStatus[teamIndex][2]++;
+            RewardReputationToTeam(teamIndex, 1, team);
+            if (m_Team_QuestStatus[teamIndex][2] == 60)
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER3:
         case AV_QUEST_H_COMMANDER3:
-            m_Team_QuestStatus[team][3]++;
-            RewardReputationToTeam(team, 1, player->GetTeam());
-            if (m_Team_QuestStatus[team][3] == 120)
+            m_Team_QuestStatus[teamIndex][3]++;
+            RewardReputationToTeam(teamIndex, 1, team);
+            if (m_Team_QuestStatus[teamIndex][3] == 120)
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_BOSS1:
         case AV_QUEST_H_BOSS1:
-            m_Team_QuestStatus[team][4] += 9; //you can turn in 10 or 1 item..
+            m_Team_QuestStatus[teamIndex][4] += 9; //you can turn in 10 or 1 item..
             [[fallthrough]];
         case AV_QUEST_A_BOSS2:
         case AV_QUEST_H_BOSS2:
-            m_Team_QuestStatus[team][4]++;
-            if (m_Team_QuestStatus[team][4] >= 200)
+            m_Team_QuestStatus[teamIndex][4]++;
+            if (m_Team_QuestStatus[teamIndex][4] >= 200)
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_NEAR_MINE:
         case AV_QUEST_H_NEAR_MINE:
-            m_Team_QuestStatus[team][5]++;
-            if (m_Team_QuestStatus[team][5] == 28)
+            m_Team_QuestStatus[teamIndex][5]++;
+            if (m_Team_QuestStatus[teamIndex][5] == 28)
             {
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][6] == 7)
+                if (m_Team_QuestStatus[teamIndex][6] == 7)
                     TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
             }
             break;
         case AV_QUEST_A_OTHER_MINE:
         case AV_QUEST_H_OTHER_MINE:
-            m_Team_QuestStatus[team][6]++;
-            if (m_Team_QuestStatus[team][6] == 7)
+            m_Team_QuestStatus[teamIndex][6]++;
+            if (m_Team_QuestStatus[teamIndex][6] == 7)
             {
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][5] == 20)
+                if (m_Team_QuestStatus[teamIndex][5] == 20)
                     TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
             }
             break;
         case AV_QUEST_A_RIDER_HIDE:
         case AV_QUEST_H_RIDER_HIDE:
-            m_Team_QuestStatus[team][7]++;
-            if (m_Team_QuestStatus[team][7] == 25)
+            m_Team_QuestStatus[teamIndex][7]++;
+            if (m_Team_QuestStatus[teamIndex][7] == 25)
             {
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][8] == 25)
+                if (m_Team_QuestStatus[teamIndex][8] == 25)
                     TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
             }
             break;
         case AV_QUEST_A_RIDER_TAME:
         case AV_QUEST_H_RIDER_TAME:
-            m_Team_QuestStatus[team][8]++;
-            if (m_Team_QuestStatus[team][8] == 25)
+            m_Team_QuestStatus[teamIndex][8]++;
+            if (m_Team_QuestStatus[teamIndex][8] == 25)
             {
                 TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
-                if (m_Team_QuestStatus[team][7] == 25)
+                if (m_Team_QuestStatus[teamIndex][7] == 25)
                     TC_LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
             }
             break;
@@ -436,8 +437,10 @@ void BattlegroundAV::StartingEventOpenDoors()
 
 void BattlegroundAV::AddPlayer(Player* player)
 {
+    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundAVScore(player->GetGUID(), player->GetBGTeam());
+    if (!isInBattleground)
+        PlayerScores[player->GetGUID()] = new BattlegroundAVScore(player->GetGUID(), player->GetBGTeam());
 }
 
 void BattlegroundAV::EndBattleground(uint32 winner)
@@ -504,17 +507,7 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             break;
         case 95:
         case 2608:
-            if (player->GetTeam() != ALLIANCE)
-                player->GetSession()->SendNotification("Only The Alliance can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
         case 2606:
-            if (player->GetTeam() != HORDE)
-                player->GetSession()->SendNotification("Only The Horde can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
         case 3326:
         case 3327:
         case 3328:
@@ -871,9 +864,9 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     BG_AV_Nodes node = GetNodeThroughObject(object);
 
     uint32 owner = m_Nodes[node].Owner; //maybe should name it prevowner
-    uint32 team = player->GetTeam();
+    uint32 team = GetPlayerTeam(player->GetGUID());
 
-    if (owner == player->GetTeam() || m_Nodes[node].State != POINT_ASSAULTED)
+    if (owner == team || m_Nodes[node].State != POINT_ASSAULTED)
         return;
     if (m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM)
     { //until snowfall doesn't belong to anyone it is better handled in assault-code
@@ -937,7 +930,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 
     BG_AV_Nodes node = GetNodeThroughObject(object);
     uint32 owner = m_Nodes[node].Owner; //maybe name it prevowner
-    uint32 team  = player->GetTeam();
+    uint32 team  = GetPlayerTeam(player->GetGUID());
     TC_LOG_DEBUG("bg.battleground", "bg_av: player assaults point object %i node %i", object, node);
     if (owner == team || team == m_Nodes[node].TotalOwner)
         return; //surely a gm used this object
@@ -1100,24 +1093,19 @@ void BattlegroundAV::SendMineWorldStates(uint32 mine)
 
 WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveyard(Player* player)
 {
-    WorldSafeLocsEntry const* pGraveyard = nullptr;
-    WorldSafeLocsEntry const* entry = nullptr;
-    float dist = 0;
-    float minDist = 0;
     float x, y;
-
     player->GetPosition(x, y);
 
-    pGraveyard = sObjectMgr->GetWorldSafeLoc(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam()) + 7]);
-    minDist = (pGraveyard->Loc.GetPositionX() - x) * (pGraveyard->Loc.GetPositionX() - x) + (pGraveyard->Loc.GetPositionY() - y) * (pGraveyard->Loc.GetPositionY() - y);
+    uint32 team = GetPlayerTeam(player->GetGUID());
+    WorldSafeLocsEntry const* pGraveyard = sObjectMgr->GetWorldSafeLoc(BG_AV_GraveyardIds[GetTeamIndexByTeamId(team) + 7]);
+    float minDist = (pGraveyard->Loc.GetPositionX() - x) * (pGraveyard->Loc.GetPositionX() - x) + (pGraveyard->Loc.GetPositionY() - y) * (pGraveyard->Loc.GetPositionY() - y);
 
     for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
-        if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
+        if (m_Nodes[i].Owner == team && m_Nodes[i].State == POINT_CONTROLED)
         {
-            entry = sObjectMgr->GetWorldSafeLoc(BG_AV_GraveyardIds[i]);
-            if (entry)
+            if (WorldSafeLocsEntry const* entry = sObjectMgr->GetWorldSafeLoc(BG_AV_GraveyardIds[i]))
             {
-                dist = (entry->Loc.GetPositionX() - x) * (entry->Loc.GetPositionX() - x) + (entry->Loc.GetPositionY() - y) * (entry->Loc.GetPositionY() - y);
+                float dist = (entry->Loc.GetPositionX() - x) * (entry->Loc.GetPositionX() - x) + (entry->Loc.GetPositionY() - y) * (entry->Loc.GetPositionY() - y);
                 if (dist < minDist)
                 {
                     minDist = dist;
@@ -1505,7 +1493,7 @@ void BattlegroundAV::ResetBGSubclass()
 
 bool BattlegroundAV::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue)
 {
-    uint32 team = source->GetTeam();
+    uint32 team = GetPlayerTeam(source->GetGUID());
     switch (criteriaId)
     {
         case BG_CRITERIA_CHECK_EVERYTHING_COUNTS:

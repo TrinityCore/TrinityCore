@@ -224,7 +224,7 @@ public:
                 case GO_SIDE_ENTRANCE_DOOR:
                     SideEntranceDoor = go->GetGUID();
                     if (GetBossState(DATA_OPERA_PERFORMANCE) == DONE)
-                        go->AddFlag(GO_FLAG_LOCKED);
+                        go->SetFlag(GO_FLAG_LOCKED);
                     else
                         go->RemoveFlag(GO_FLAG_LOCKED);
                     break;

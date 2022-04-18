@@ -82,7 +82,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fstream_2eproto() {
   protobuf_AddDesc_club_5fstream_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -630,7 +629,6 @@ struct StaticDescriptorInitializer_club_5fstream_2eproto {
     protobuf_AddDesc_club_5fstream_2eproto();
   }
 } static_descriptor_initializer_club_5fstream_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -852,7 +850,6 @@ void StreamPosition::CopyFrom(const StreamPosition& from) {
 }
 
 bool StreamPosition::IsInitialized() const {
-
   return true;
 }
 
@@ -872,7 +869,6 @@ void StreamPosition::Swap(StreamPosition* other) {
   metadata.reflection = StreamPosition_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1095,7 +1091,6 @@ void StreamAccess::CopyFrom(const StreamAccess& from) {
 }
 
 bool StreamAccess::IsInitialized() const {
-
   return true;
 }
 
@@ -1115,7 +1110,6 @@ void StreamAccess::Swap(StreamAccess* other) {
   metadata.reflection = StreamAccess_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1524,7 +1518,6 @@ void CreateStreamOptions::CopyFrom(const CreateStreamOptions& from) {
 }
 
 bool CreateStreamOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -1548,7 +1541,6 @@ void CreateStreamOptions::Swap(CreateStreamOptions* other) {
   metadata.reflection = CreateStreamOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2082,7 +2074,6 @@ void Stream::CopyFrom(const Stream& from) {
 }
 
 bool Stream::IsInitialized() const {
-
   return true;
 }
 
@@ -2109,7 +2100,6 @@ void Stream::Swap(Stream* other) {
   metadata.reflection = Stream_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2372,7 +2362,6 @@ void StreamDescription::CopyFrom(const StreamDescription& from) {
 }
 
 bool StreamDescription::IsInitialized() const {
-
   return true;
 }
 
@@ -2393,7 +2382,6 @@ void StreamDescription::Swap(StreamDescription* other) {
   metadata.reflection = StreamDescription_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2743,7 +2731,6 @@ void MentionContent::CopyFrom(const MentionContent& from) {
 }
 
 bool MentionContent::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->member_id())) return false;
   return true;
 }
@@ -2767,7 +2754,6 @@ void MentionContent::Swap(MentionContent* other) {
   metadata.reflection = MentionContent_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3035,7 +3021,6 @@ void CreateMessageOptions::CopyFrom(const CreateMessageOptions& from) {
 }
 
 bool CreateMessageOptions::IsInitialized() const {
-
   if (has_mention()) {
     if (!this->mention().IsInitialized()) return false;
   }
@@ -3059,7 +3044,6 @@ void CreateMessageOptions::Swap(CreateMessageOptions* other) {
   metadata.reflection = CreateMessageOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3258,7 +3242,6 @@ void ClubStreamMessageContainer::CopyFrom(const ClubStreamMessageContainer& from
 }
 
 bool ClubStreamMessageContainer::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->message())) return false;
   return true;
 }
@@ -3279,7 +3262,6 @@ void ClubStreamMessageContainer::Swap(ClubStreamMessageContainer* other) {
   metadata.reflection = ClubStreamMessageContainer_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3623,7 +3605,6 @@ void ContentChain::CopyFrom(const ContentChain& from) {
 }
 
 bool ContentChain::IsInitialized() const {
-
   if (has_mention()) {
     if (!this->mention().IsInitialized()) return false;
   }
@@ -3649,7 +3630,6 @@ void ContentChain::Swap(ContentChain* other) {
   metadata.reflection = ContentChain_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4069,7 +4049,6 @@ void StreamMessage::CopyFrom(const StreamMessage& from) {
 }
 
 bool StreamMessage::IsInitialized() const {
-
   if (has_author()) {
     if (!this->author().IsInitialized()) return false;
   }
@@ -4101,7 +4080,6 @@ void StreamMessage::Swap(StreamMessage* other) {
   metadata.reflection = StreamMessage_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4607,7 +4585,6 @@ void StreamMention::CopyFrom(const StreamMention& from) {
 }
 
 bool StreamMention::IsInitialized() const {
-
   if (has_author()) {
     if (!this->author().IsInitialized()) return false;
   }
@@ -4643,7 +4620,6 @@ void StreamMention::Swap(StreamMention* other) {
   metadata.reflection = StreamMention_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4941,7 +4917,6 @@ void StreamView::CopyFrom(const StreamView& from) {
 }
 
 bool StreamView::IsInitialized() const {
-
   return true;
 }
 
@@ -4963,7 +4938,6 @@ void StreamView::Swap(StreamView* other) {
   metadata.reflection = StreamView_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5216,7 +5190,6 @@ void StreamAdvanceViewTime::CopyFrom(const StreamAdvanceViewTime& from) {
 }
 
 bool StreamAdvanceViewTime::IsInitialized() const {
-
   return true;
 }
 
@@ -5237,7 +5210,6 @@ void StreamAdvanceViewTime::Swap(StreamAdvanceViewTime* other) {
   metadata.reflection = StreamAdvanceViewTime_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5490,7 +5462,6 @@ void StreamEventTime::CopyFrom(const StreamEventTime& from) {
 }
 
 bool StreamEventTime::IsInitialized() const {
-
   return true;
 }
 
@@ -5511,7 +5482,6 @@ void StreamEventTime::Swap(StreamEventTime* other) {
   metadata.reflection = StreamEventTime_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5809,7 +5779,6 @@ void StreamMentionView::CopyFrom(const StreamMentionView& from) {
 }
 
 bool StreamMentionView::IsInitialized() const {
-
   return true;
 }
 
@@ -5831,7 +5800,6 @@ void StreamMentionView::Swap(StreamMentionView* other) {
   metadata.reflection = StreamMentionView_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6240,7 +6208,6 @@ void StreamStateOptions::CopyFrom(const StreamStateOptions& from) {
 }
 
 bool StreamStateOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -6264,7 +6231,6 @@ void StreamStateOptions::Swap(StreamStateOptions* other) {
   metadata.reflection = StreamStateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6759,7 +6725,6 @@ void StreamStateAssignment::CopyFrom(const StreamStateAssignment& from) {
 }
 
 bool StreamStateAssignment::IsInitialized() const {
-
   return true;
 }
 
@@ -6785,7 +6750,6 @@ void StreamStateAssignment::Swap(StreamStateAssignment* other) {
   metadata.reflection = StreamStateAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7089,7 +7053,6 @@ void StreamTypingIndicator::CopyFrom(const StreamTypingIndicator& from) {
 }
 
 bool StreamTypingIndicator::IsInitialized() const {
-
   if (has_author_id()) {
     if (!this->author_id().IsInitialized()) return false;
   }
@@ -7114,7 +7077,6 @@ void StreamTypingIndicator::Swap(StreamTypingIndicator* other) {
   metadata.reflection = StreamTypingIndicator_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -442,7 +442,7 @@ bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str)
         std::string utf8str2;
         utf8str2.resize(wstr.size()*4);                     // allocate for most long case
 
-        if (wstr.size())
+        if (!wstr.empty())
         {
             char* oend = utf8::utf16to8(wstr.begin(), wstr.end(), &utf8str2[0]);
             utf8str2.resize(oend-(&utf8str2[0]));                // remove unused tail
@@ -655,22 +655,22 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
         return wname;
 
     // Important: end length must be <= MAX_INTERNAL_PLAYER_NAME-MAX_PLAYER_NAME (3 currently)
-    static std::wstring const a_End    = { wchar_t(0x0430), wchar_t(0x0000) };
-    static std::wstring const o_End    = { wchar_t(0x043E), wchar_t(0x0000) };
-    static std::wstring const ya_End   = { wchar_t(0x044F), wchar_t(0x0000) };
-    static std::wstring const ie_End   = { wchar_t(0x0435), wchar_t(0x0000) };
-    static std::wstring const i_End    = { wchar_t(0x0438), wchar_t(0x0000) };
-    static std::wstring const yeru_End = { wchar_t(0x044B), wchar_t(0x0000) };
-    static std::wstring const u_End    = { wchar_t(0x0443), wchar_t(0x0000) };
-    static std::wstring const yu_End   = { wchar_t(0x044E), wchar_t(0x0000) };
-    static std::wstring const oj_End   = { wchar_t(0x043E), wchar_t(0x0439), wchar_t(0x0000) };
-    static std::wstring const ie_j_End = { wchar_t(0x0435), wchar_t(0x0439), wchar_t(0x0000) };
-    static std::wstring const io_j_End = { wchar_t(0x0451), wchar_t(0x0439), wchar_t(0x0000) };
-    static std::wstring const o_m_End  = { wchar_t(0x043E), wchar_t(0x043C), wchar_t(0x0000) };
-    static std::wstring const io_m_End = { wchar_t(0x0451), wchar_t(0x043C), wchar_t(0x0000) };
-    static std::wstring const ie_m_End = { wchar_t(0x0435), wchar_t(0x043C), wchar_t(0x0000) };
-    static std::wstring const soft_End = { wchar_t(0x044C), wchar_t(0x0000) };
-    static std::wstring const j_End    = { wchar_t(0x0439), wchar_t(0x0000) };
+    static std::wstring const a_End    = { wchar_t(0x0430)                  };
+    static std::wstring const o_End    = { wchar_t(0x043E)                  };
+    static std::wstring const ya_End   = { wchar_t(0x044F)                  };
+    static std::wstring const ie_End   = { wchar_t(0x0435)                  };
+    static std::wstring const i_End    = { wchar_t(0x0438)                  };
+    static std::wstring const yeru_End = { wchar_t(0x044B)                  };
+    static std::wstring const u_End    = { wchar_t(0x0443)                  };
+    static std::wstring const yu_End   = { wchar_t(0x044E)                  };
+    static std::wstring const oj_End   = { wchar_t(0x043E), wchar_t(0x0439) };
+    static std::wstring const ie_j_End = { wchar_t(0x0435), wchar_t(0x0439) };
+    static std::wstring const io_j_End = { wchar_t(0x0451), wchar_t(0x0439) };
+    static std::wstring const o_m_End  = { wchar_t(0x043E), wchar_t(0x043C) };
+    static std::wstring const io_m_End = { wchar_t(0x0451), wchar_t(0x043C) };
+    static std::wstring const ie_m_End = { wchar_t(0x0435), wchar_t(0x043C) };
+    static std::wstring const soft_End = { wchar_t(0x044C)                  };
+    static std::wstring const j_End    = { wchar_t(0x0439)                  };
 
     static std::array<std::array<std::wstring const*, 7>, 6> const dropEnds = {{
         { &a_End,  &o_End,    &ya_End,   &ie_End,  &soft_End, &j_End,    nullptr },
@@ -783,6 +783,49 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
     std::transform(wstr.begin(), wstr.end(), wstr.begin(), wcharToUpperOnlyLatin);
 
     return WStrToUtf8(wstr, utf8String);
+}
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
+{
+    wchar_t* commandbuf = new wchar_t[size + 1];
+    HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD read = 0;
+
+    if (!ReadConsoleW(hConsole, commandbuf, size, &read, nullptr) || read == 0)
+    {
+        delete[] commandbuf;
+        return false;
+    }
+
+    commandbuf[read] = 0;
+
+    bool ok = WStrToUtf8(commandbuf, wcslen(commandbuf), str);
+    delete[] commandbuf;
+    return ok;
+}
+
+bool WriteWinConsole(std::string_view str, bool error /*= false*/)
+{
+    std::wstring wstr;
+    if (!Utf8toWStr(str, wstr))
+        return false;
+
+    HANDLE hConsole = GetStdHandle(error ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
+    DWORD write = 0;
+
+    return WriteConsoleW(hConsole, wstr.c_str(), wstr.size(), &write, nullptr);
+}
+#endif
+
+TC_COMMON_API Optional<std::size_t> RemoveCRLF(std::string & str)
+{
+    std::size_t nextLineIndex = str.find_first_of("\r\n");
+    if (nextLineIndex == std::string::npos)
+        return std::nullopt;
+
+    str.erase(nextLineIndex);
+    return nextLineIndex;
 }
 
 std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)

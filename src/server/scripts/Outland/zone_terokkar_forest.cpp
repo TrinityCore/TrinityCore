@@ -15,17 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Terokkar_Forest
-SD%Complete: 85
-SDComment: Quest support: 9889
-SDCategory: Terokkar Forest
-EndScriptData */
-
-/* ContentData
-npc_unkor_the_ruthless
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "Group.h"
 #include "Map.h"
@@ -94,7 +83,7 @@ public:
             UnkorUnfriendly_Timer = 60000;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!done_by || !me->HealthBelowPctDamaged(30, damage))
                 return;
@@ -174,8 +163,163 @@ class spell_skyguard_flare : public SpellScript
     }
 };
 
+/*######
+## Quest 10873: Taken in the Night
+######*/
+
+enum TakenInTheNight
+{
+    SPELL_FREE_WEBBED_1      = 38953,
+    SPELL_FREE_WEBBED_2      = 38955,
+    SPELL_FREE_WEBBED_3      = 38956,
+    SPELL_FREE_WEBBED_4      = 38957,
+    SPELL_FREE_WEBBED_5      = 38958,
+    SPELL_FREE_WEBBED_6      = 38978
+};
+
+std::array<uint32, 5> const CocoonSummonSpells =
+{
+    SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3, SPELL_FREE_WEBBED_4, SPELL_FREE_WEBBED_5
+};
+
+// 38949 - Terrokar Free Webbed Creature
+class spell_terokkar_free_webbed : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_free_webbed);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_terokkar_free_webbed::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 38950 - Terokkar Free Webbed Creature ON QUEST
+class spell_terokkar_free_webbed_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_free_webbed_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_6 });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (roll_chance_i(66))
+            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        else
+            target->CastSpell(caster, SPELL_FREE_WEBBED_6, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_free_webbed_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 10040 & 10041: Who Are They?
+######*/
+
+enum WhoAreThey
+{
+    SPELL_SHADOWY_DISGUISE          = 32756,
+    SPELL_MALE_SHADOWY_DISGUISE     = 38080,
+    SPELL_FEMALE_SHADOWY_DISGUISE   = 38081
+};
+
+// 48917 - Who Are They: Cast from Questgiver
+class spell_terokkar_shadowy_disguise_cast_from_questgiver : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_shadowy_disguise_cast_from_questgiver);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOWY_DISGUISE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SHADOWY_DISGUISE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_shadowy_disguise_cast_from_questgiver::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 32756 - Shadowy Disguise
+class spell_terokkar_shadowy_disguise : public AuraScript
+{
+    PrepareAuraScript(spell_terokkar_shadowy_disguise);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MALE_SHADOWY_DISGUISE, SPELL_FEMALE_SHADOWY_DISGUISE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            target->CastSpell(target, target->GetNativeGender() == GENDER_MALE ? SPELL_MALE_SHADOWY_DISGUISE : SPELL_FEMALE_SHADOWY_DISGUISE);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_MALE_SHADOWY_DISGUISE);
+        target->RemoveAurasDueToSpell(SPELL_FEMALE_SHADOWY_DISGUISE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_terokkar_shadowy_disguise::AfterApply, EFFECT_0, SPELL_AURA_FORCE_REACTION, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_terokkar_shadowy_disguise::AfterRemove, EFFECT_0, SPELL_AURA_FORCE_REACTION, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 32780 - Cancel Shadowy Disguise
+class spell_terokkar_cancel_shadowy_disguise : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_cancel_shadowy_disguise);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOWY_DISGUISE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_SHADOWY_DISGUISE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_cancel_shadowy_disguise::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
     RegisterSpellScript(spell_skyguard_flare);
+    RegisterSpellScript(spell_terokkar_free_webbed);
+    RegisterSpellScript(spell_terokkar_free_webbed_on_quest);
+    RegisterSpellScript(spell_terokkar_shadowy_disguise_cast_from_questgiver);
+    RegisterSpellScript(spell_terokkar_shadowy_disguise);
+    RegisterSpellScript(spell_terokkar_cancel_shadowy_disguise);
 }

@@ -19,6 +19,7 @@
 #define TRINITYCORE_GAMEOBJECT_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "GameObjectData.h"
 #include "Loot.h"
 #include "MapObject.h"
@@ -32,6 +33,14 @@ class Transport;
 class Unit;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
+
+namespace WorldPackets
+{
+    namespace Battleground
+    {
+        enum class BattlegroundCapturePointState : uint8;
+    }
+}
 
 union GameObjectValue
 {
@@ -60,6 +69,13 @@ union GameObjectValue
         uint32 Health;
         uint32 MaxHealth;
     } Building;
+    //42 GAMEOBJECT_TYPE_CAPTURE_POINT
+    struct
+    {
+        TeamId LastTeamCapture;
+        WorldPackets::Battleground::BattlegroundCapturePointState State;
+        uint32 AssaultTimer;
+    } CapturePoint;
 };
 
 // For containers:  [GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY        -> ...
@@ -91,6 +107,17 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const;
+
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(GameObject const* owner) : Owner(owner) { }
+
+            GameObject const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::GameObjectData::Base GameObjectMask;
+
+            void operator()(Player const* player) const;
+        };
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
@@ -171,10 +198,12 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SendGameObjectDespawn();
         void getFishLoot(Loot* loot, Player* loot_owner);
         void getFishLootJunk(Loot* loot, Player* loot_owner);
+
         bool HasFlag(GameObjectFlags flags) const { return (*m_gameObjectData->Flags & flags) != 0; }
-        void AddFlag(GameObjectFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
+        void SetFlag(GameObjectFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
         void RemoveFlag(GameObjectFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
-        void SetFlags(GameObjectFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
+        void ReplaceAllFlags(GameObjectFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
+
         void SetLevel(uint32 level) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Level), level); }
         GameobjectTypes GetGoType() const { return GameobjectTypes(*m_gameObjectData->TypeID); }
         void SetGoType(GameobjectTypes type) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::TypeID), type); }
@@ -239,6 +268,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = nullptr);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
+        void ActivateObject(GameObjectActions action, int32 param, WorldObject* spellCaster = nullptr, uint32 spellId = 0, int32 effectIndex = -1);
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
@@ -313,11 +343,16 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
 
         void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
+        void AssaultCapturePoint(Player* player);
+        void UpdateCapturePoint();
+        bool CanInteractWithCapturePoint(Player const* target) const;
 
         void AIM_Destroy();
         bool AIM_Initialize();
 
         std::string GetDebugInfo() const override;
+
+        void UpdateDynamicFlagsForNearbyPlayers() const;
 
         UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
 

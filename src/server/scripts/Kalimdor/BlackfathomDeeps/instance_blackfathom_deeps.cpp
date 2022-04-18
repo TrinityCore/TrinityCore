@@ -105,12 +105,12 @@ public:
                 case GO_SHRINE_OF_GELIHAST:
                     shrineOfGelihastGUID = go->GetGUID();
                     if (GetBossState(DATA_GELIHAST) != DONE)
-                        go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_ALTAR_OF_THE_DEEPS:
                     altarOfTheDeepsGUID = go->GetGUID();
                     if (GetBossState(DATA_AKU_MAI) != DONE)
-                        go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_AKU_MAI_DOOR:
                     if (GetBossState(DATA_AKU_MAI) == DONE)

@@ -150,6 +150,7 @@ class TC_GAME_API MotionMaster
         void Clear(MovementGeneratorPriority priority);
         void PropagateSpeedChange();
         bool GetDestination(float &x, float &y, float &z);
+        bool StopOnDeath();
 
         void MoveIdle();
         void MoveTargetedHome();
@@ -169,8 +170,8 @@ class TC_GAME_API MotionMaster
          */
         void MoveCloserAndStop(uint32 id, Unit* target, float distance);
         // These two movement types should only be used with creatures having landing/takeoff animations
-        void MoveLand(uint32 id, Position const& pos);
-        void MoveTakeoff(uint32 id, Position const& pos);
+        void MoveLand(uint32 id, Position const& pos, Optional<float> velocity = {});
+        void MoveTakeoff(uint32 id, Position const& pos, Optional<float> velocity = {});
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(Position const& origin, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);

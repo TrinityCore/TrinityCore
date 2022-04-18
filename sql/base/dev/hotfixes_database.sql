@@ -1304,6 +1304,7 @@ CREATE TABLE `broadcast_text` (
   `EmotesID` smallint unsigned NOT NULL DEFAULT '0',
   `Flags` tinyint unsigned NOT NULL DEFAULT '0',
   `ChatBubbleDurationMs` int unsigned NOT NULL DEFAULT '0',
+  `VoiceOverPriorityID` int NOT NULL DEFAULT '0',
   `SoundKitID1` int unsigned NOT NULL DEFAULT '0',
   `SoundKitID2` int unsigned NOT NULL DEFAULT '0',
   `EmoteID1` smallint unsigned NOT NULL DEFAULT '0',
@@ -3136,6 +3137,24 @@ CREATE TABLE `friendship_reputation_locale` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `gameobject_art_kit`
+--
+
+DROP TABLE IF EXISTS `gameobject_art_kit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gameobject_art_kit` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `AttachModelFileID` int NOT NULL DEFAULT '0',
+  `TextureVariationFileID1` int NOT NULL DEFAULT '0',
+  `TextureVariationFileID2` int NOT NULL DEFAULT '0',
+  `TextureVariationFileID3` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `gameobject_display_info`
 --
 
@@ -4958,7 +4977,7 @@ CREATE TABLE `item_sparse` (
   `ZoneBound2` smallint unsigned NOT NULL DEFAULT '0',
   `ItemSet` smallint unsigned NOT NULL DEFAULT '0',
   `LockID` smallint unsigned NOT NULL DEFAULT '0',
-  `StartQuestID` smallint unsigned NOT NULL DEFAULT '0',
+  `StartQuestID` int NOT NULL DEFAULT '0',
   `PageID` smallint unsigned NOT NULL DEFAULT '0',
   `ItemDelay` smallint unsigned NOT NULL DEFAULT '0',
   `MinFactionID` smallint unsigned NOT NULL DEFAULT '0',
@@ -4975,7 +4994,7 @@ CREATE TABLE `item_sparse` (
   `SheatheType` tinyint unsigned NOT NULL DEFAULT '0',
   `Material` tinyint unsigned NOT NULL DEFAULT '0',
   `PageMaterialID` tinyint unsigned NOT NULL DEFAULT '0',
-  `LanguageID` tinyint unsigned NOT NULL DEFAULT '0',
+  `LanguageID` int NOT NULL DEFAULT '0',
   `Bonding` tinyint unsigned NOT NULL DEFAULT '0',
   `DamageDamageType` tinyint unsigned NOT NULL DEFAULT '0',
   `StatModifierBonusStat1` tinyint NOT NULL DEFAULT '0',
@@ -5422,6 +5441,9 @@ DROP TABLE IF EXISTS `languages`;
 CREATE TABLE `languages` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Flags` int NOT NULL DEFAULT '0',
+  `UiTextureKitID` int NOT NULL DEFAULT '0',
+  `UiTextureKitElementCount` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -8572,7 +8594,7 @@ CREATE TABLE `taxi_nodes` (
   `ContinentID` smallint unsigned NOT NULL DEFAULT '0',
   `ConditionID` int NOT NULL DEFAULT '0',
   `CharacterBitNumber` smallint unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` smallint unsigned NOT NULL DEFAULT '0',
   `UiTextureKitID` int NOT NULL DEFAULT '0',
   `MinimapAtlasMemberID` int NOT NULL DEFAULT '0',
   `Facing` float NOT NULL DEFAULT '0',
@@ -9505,4 +9527,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-15 23:25:07
+-- Dump completed on 2022-03-06 15:12:33

@@ -92,7 +92,6 @@ const ::google::protobuf::ServiceDescriptor* AuthenticationService_descriptor_ =
 
 }  // namespace
 
-
 void protobuf_AssignDesc_authentication_5fservice_2eproto() {
   protobuf_AddDesc_authentication_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -709,7 +708,6 @@ struct StaticDescriptorInitializer_authentication_5fservice_2eproto {
     protobuf_AddDesc_authentication_5fservice_2eproto();
   }
 } static_descriptor_initializer_authentication_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -965,7 +963,6 @@ void ModuleLoadRequest::CopyFrom(const ModuleLoadRequest& from) {
 
 bool ModuleLoadRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_module_handle()) {
     if (!this->module_handle().IsInitialized()) return false;
   }
@@ -989,7 +986,6 @@ void ModuleLoadRequest::Swap(ModuleLoadRequest* other) {
   metadata.reflection = ModuleLoadRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1242,7 +1238,6 @@ void ModuleNotification::CopyFrom(const ModuleNotification& from) {
 }
 
 bool ModuleNotification::IsInitialized() const {
-
   return true;
 }
 
@@ -1263,7 +1258,6 @@ void ModuleNotification::Swap(ModuleNotification* other) {
   metadata.reflection = ModuleNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1515,7 +1509,6 @@ void ModuleMessageRequest::CopyFrom(const ModuleMessageRequest& from) {
 
 bool ModuleMessageRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   return true;
 }
 
@@ -1536,7 +1529,6 @@ void ModuleMessageRequest::Swap(ModuleMessageRequest* other) {
   metadata.reflection = ModuleMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2341,7 +2333,6 @@ void LogonRequest::CopyFrom(const LogonRequest& from) {
 }
 
 bool LogonRequest::IsInitialized() const {
-
   return true;
 }
 
@@ -2372,7 +2363,6 @@ void LogonRequest::Swap(LogonRequest* other) {
   metadata.reflection = LogonRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3074,7 +3064,6 @@ void LogonResult::CopyFrom(const LogonResult& from) {
 
 bool LogonResult::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -3108,7 +3097,6 @@ void LogonResult::Swap(LogonResult* other) {
   metadata.reflection = LogonResult_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3308,7 +3296,6 @@ void GenerateSSOTokenRequest::CopyFrom(const GenerateSSOTokenRequest& from) {
 }
 
 bool GenerateSSOTokenRequest::IsInitialized() const {
-
   return true;
 }
 
@@ -3328,7 +3315,6 @@ void GenerateSSOTokenRequest::Swap(GenerateSSOTokenRequest* other) {
   metadata.reflection = GenerateSSOTokenRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3587,7 +3573,6 @@ void GenerateSSOTokenResponse::CopyFrom(const GenerateSSOTokenResponse& from) {
 }
 
 bool GenerateSSOTokenResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -3608,7 +3593,6 @@ void GenerateSSOTokenResponse::Swap(GenerateSSOTokenResponse* other) {
   metadata.reflection = GenerateSSOTokenResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3811,7 +3795,6 @@ void LogonUpdateRequest::CopyFrom(const LogonUpdateRequest& from) {
 
 bool LogonUpdateRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   return true;
 }
 
@@ -3831,7 +3814,6 @@ void LogonUpdateRequest::Swap(LogonUpdateRequest* other) {
   metadata.reflection = LogonUpdateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4122,7 +4104,6 @@ void LogonQueueUpdateRequest::CopyFrom(const LogonQueueUpdateRequest& from) {
 
 bool LogonQueueUpdateRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   return true;
 }
 
@@ -4144,7 +4125,6 @@ void LogonQueueUpdateRequest::Swap(LogonQueueUpdateRequest* other) {
   metadata.reflection = LogonQueueUpdateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4502,7 +4482,6 @@ void AccountSettingsNotification::CopyFrom(const AccountSettingsNotification& fr
 }
 
 bool AccountSettingsNotification::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->licenses())) return false;
   return true;
 }
@@ -4527,7 +4506,6 @@ void AccountSettingsNotification::Swap(AccountSettingsNotification* other) {
   metadata.reflection = AccountSettingsNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4781,7 +4759,6 @@ void ServerStateChangeRequest::CopyFrom(const ServerStateChangeRequest& from) {
 
 bool ServerStateChangeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   return true;
 }
 
@@ -4802,7 +4779,6 @@ void ServerStateChangeRequest::Swap(ServerStateChangeRequest* other) {
   metadata.reflection = ServerStateChangeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5151,7 +5127,6 @@ void VersionInfo::CopyFrom(const VersionInfo& from) {
 }
 
 bool VersionInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -5174,7 +5149,6 @@ void VersionInfo::Swap(VersionInfo* other) {
   metadata.reflection = VersionInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5381,7 +5355,6 @@ void VersionInfoNotification::CopyFrom(const VersionInfoNotification& from) {
 }
 
 bool VersionInfoNotification::IsInitialized() const {
-
   return true;
 }
 
@@ -5401,7 +5374,6 @@ void VersionInfoNotification::Swap(VersionInfoNotification* other) {
   metadata.reflection = VersionInfoNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5704,7 +5676,6 @@ void MemModuleLoadRequest::CopyFrom(const MemModuleLoadRequest& from) {
 
 bool MemModuleLoadRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   if (has_handle()) {
     if (!this->handle().IsInitialized()) return false;
   }
@@ -5729,7 +5700,6 @@ void MemModuleLoadRequest::Swap(MemModuleLoadRequest* other) {
   metadata.reflection = MemModuleLoadRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5941,7 +5911,6 @@ void MemModuleLoadResponse::CopyFrom(const MemModuleLoadResponse& from) {
 
 bool MemModuleLoadResponse::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   return true;
 }
 
@@ -5961,7 +5930,6 @@ void MemModuleLoadResponse::Swap(MemModuleLoadResponse* other) {
   metadata.reflection = MemModuleLoadResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6169,7 +6137,6 @@ void SelectGameAccountRequest::CopyFrom(const SelectGameAccountRequest& from) {
 
 bool SelectGameAccountRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_game_account_id()) {
     if (!this->game_account_id().IsInitialized()) return false;
   }
@@ -6192,7 +6159,6 @@ void SelectGameAccountRequest::Swap(SelectGameAccountRequest* other) {
   metadata.reflection = SelectGameAccountRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6440,7 +6406,6 @@ void GameAccountSelectedRequest::CopyFrom(const GameAccountSelectedRequest& from
 
 bool GameAccountSelectedRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_game_account_id()) {
     if (!this->game_account_id().IsInitialized()) return false;
   }
@@ -6464,7 +6429,6 @@ void GameAccountSelectedRequest::Swap(GameAccountSelectedRequest* other) {
   metadata.reflection = GameAccountSelectedRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6664,7 +6628,6 @@ void GenerateWebCredentialsRequest::CopyFrom(const GenerateWebCredentialsRequest
 }
 
 bool GenerateWebCredentialsRequest::IsInitialized() const {
-
   return true;
 }
 
@@ -6684,7 +6647,6 @@ void GenerateWebCredentialsRequest::Swap(GenerateWebCredentialsRequest* other) {
   metadata.reflection = GenerateWebCredentialsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6895,7 +6857,6 @@ void GenerateWebCredentialsResponse::CopyFrom(const GenerateWebCredentialsRespon
 }
 
 bool GenerateWebCredentialsResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -6915,7 +6876,6 @@ void GenerateWebCredentialsResponse::Swap(GenerateWebCredentialsResponse* other)
   metadata.reflection = GenerateWebCredentialsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7126,7 +7086,6 @@ void VerifyWebCredentialsRequest::CopyFrom(const VerifyWebCredentialsRequest& fr
 }
 
 bool VerifyWebCredentialsRequest::IsInitialized() const {
-
   return true;
 }
 
@@ -7146,7 +7105,6 @@ void VerifyWebCredentialsRequest::Swap(VerifyWebCredentialsRequest* other) {
   metadata.reflection = VerifyWebCredentialsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7513,7 +7471,6 @@ uint32 AuthenticationService::HandleGenerateWebCredentials(::bgs::protocol::auth
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

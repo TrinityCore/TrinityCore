@@ -224,7 +224,7 @@ class boss_warbringer_omrogg : public CreatureScript
                     RightHeadGUID = summoned->GetGUID();
 
                 //summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                //summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                //summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
                 summoned->SetVisible(false);
             }
 

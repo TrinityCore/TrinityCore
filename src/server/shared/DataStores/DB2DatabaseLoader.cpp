@@ -30,7 +30,7 @@ DB2LoadInfo::DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2
 
 static char const* nullStr = "";
 
-char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool)
+char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, std::vector<char*>& stringPool)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
     HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(_loadInfo->Statement);
@@ -48,22 +48,6 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
 
     // we store flat holders pool as single memory block
     std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
-    std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
-
-    // each string field at load have array of string for each locale
-    std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
-
-    if (stringFields)
-    {
-        std::size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * result->GetRowCount();
-        stringHolders = new char[stringHoldersPoolSize];
-
-        // DB2 strings expected to have at least empty string
-        for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
-            ((char const**)stringHolders)[i] = nullStr;
-    }
-    else
-        stringHolders = nullptr;
 
     // Resize index table
     uint32 indexTableSize = records;

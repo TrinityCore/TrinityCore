@@ -39,45 +39,47 @@ EndScriptData */
 #include <sstream>
 
 using namespace Trinity::ChatCommands;
+
 class character_commandscript : public CommandScript
 {
 public:
     character_commandscript() : CommandScript("character_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> pdumpCommandTable =
+        static ChatCommandTable pdumpCommandTable =
         {
-            { "load",          rbac::RBAC_PERM_COMMAND_PDUMP_LOAD,                true,  &HandlePDumpLoadCommand,               "" },
-            { "write",         rbac::RBAC_PERM_COMMAND_PDUMP_WRITE,               true,  &HandlePDumpWriteCommand,              "" },
+            { "copy",          HandlePDumpCopyCommand,               rbac::RBAC_PERM_COMMAND_PDUMP_COPY,                Console::Yes },
+            { "load",          HandlePDumpLoadCommand,               rbac::RBAC_PERM_COMMAND_PDUMP_LOAD,                Console::Yes },
+            { "write",         HandlePDumpWriteCommand,              rbac::RBAC_PERM_COMMAND_PDUMP_WRITE,               Console::Yes },
         };
-        static std::vector<ChatCommand> characterDeletedCommandTable =
+        static ChatCommandTable characterDeletedCommandTable =
         {
-            { "delete",        rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE,  true,  &HandleCharacterDeletedDeleteCommand,  "" },
-            { "list",          rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST,    true,  &HandleCharacterDeletedListCommand,    "" },
-            { "restore",       rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_RESTORE, true,  &HandleCharacterDeletedRestoreCommand, "" },
-            { "old",           rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD,     true,  &HandleCharacterDeletedOldCommand,     "" },
-        };
-
-        static std::vector<ChatCommand> characterCommandTable =
-        {
-            { "customize",     rbac::RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE,       true,  &HandleCharacterCustomizeCommand,      "", },
-            { "changefaction", rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION,   true,  &HandleCharacterChangeFactionCommand,  "", },
-            { "changerace",    rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGERACE,      true,  &HandleCharacterChangeRaceCommand,     "", },
-            { "changeaccount", rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEACCOUNT,   true,  &HandleCharacterChangeAccountCommand,  "", },
-            { "deleted",       rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED,         true,  nullptr,                               "", characterDeletedCommandTable },
-            { "erase",         rbac::RBAC_PERM_COMMAND_CHARACTER_ERASE,           true,  &HandleCharacterEraseCommand,          "", },
-            { "level",         rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           true,  &HandleLevelUpCommand,                 "", },
-            { "rename",        rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          true,  &HandleCharacterRenameCommand,         "", },
-            { "reputation",    rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      true,  &HandleCharacterReputationCommand,     "", },
-            { "titles",        rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          true,  &HandleCharacterTitlesCommand,         "", },
+            { "delete",        HandleCharacterDeletedDeleteCommand,  rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE,  Console::Yes },
+            { "list",          HandleCharacterDeletedListCommand,    rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST,    Console::Yes },
+            { "restore",       HandleCharacterDeletedRestoreCommand, rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_RESTORE, Console::Yes },
+            { "old",           HandleCharacterDeletedOldCommand,     rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD,     Console::Yes },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable characterCommandTable =
         {
-            { "character",     rbac::RBAC_PERM_COMMAND_CHARACTER,                 true,  nullptr,                               "", characterCommandTable },
-            { "levelup",       rbac::RBAC_PERM_COMMAND_LEVELUP,                   false, &HandleLevelUpCommand,                 "" },
-            { "pdump",         rbac::RBAC_PERM_COMMAND_PDUMP,                     true,  nullptr,                               "", pdumpCommandTable },
+            { "customize",     HandleCharacterCustomizeCommand,      rbac::RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE,       Console::Yes },
+            { "changefaction", HandleCharacterChangeFactionCommand,  rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION,   Console::Yes },
+            { "changerace",    HandleCharacterChangeRaceCommand,     rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGERACE,      Console::Yes },
+            { "changeaccount", HandleCharacterChangeAccountCommand,  rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEACCOUNT,   Console::Yes },
+            { "deleted",       characterDeletedCommandTable },
+            { "erase",         HandleCharacterEraseCommand,          rbac::RBAC_PERM_COMMAND_CHARACTER_ERASE,           Console::Yes },
+            { "level",         HandleCharacterLevelCommand,          rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           Console::Yes },
+            { "rename",        HandleCharacterRenameCommand,         rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          Console::Yes },
+            { "reputation",    HandleCharacterReputationCommand,     rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      Console::Yes },
+            { "titles",        HandleCharacterTitlesCommand,         rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          Console::Yes },
+        };
+
+        static ChatCommandTable commandTable =
+        {
+            { "character", characterCommandTable },
+            { "levelup",       HandleLevelUpCommand,                 rbac::RBAC_PERM_COMMAND_LEVELUP,                   Console::No },
+            { "pdump", pdumpCommandTable },
         };
         return commandTable;
     }
@@ -489,6 +491,9 @@ public:
             }
         }
 
+        if (Player* onlinePlayer = player->GetConnectedPlayer())
+            onlinePlayer->GetSession()->KickPlayer("HandleCharacterChangeAccountCommand GM Command transferring character to another account");
+
         CharacterDatabasePreparedStatement* charStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_BY_GUID);
         charStmt->setUInt32(0, newAccount.GetID());
         charStmt->setUInt64(1, player->GetGUID().GetCounter());
@@ -729,6 +734,52 @@ public:
         return true;
     }
 
+    static bool HandleCharacterLevelCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, int16 newlevel)
+    {
+        if (!player)
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+        if (!player)
+            return false;
+
+        uint8 oldlevel = static_cast<uint8>(player->IsConnected() ? player->GetConnectedPlayer()->GetLevel() : sCharacterCache->GetCharacterLevelByGuid(*player));
+
+        if (newlevel < 1)
+            newlevel = 1;
+
+        if (newlevel > static_cast<int16>(STRONG_MAX_LEVEL))
+            newlevel = static_cast<int16>(STRONG_MAX_LEVEL);
+
+        if (Player* target = player->GetConnectedPlayer())
+        {
+            target->GiveLevel(static_cast<uint8>(newlevel));
+            target->InitTalentForLevel();
+            target->SetXP(0);
+
+            if (handler->needReportToTarget(target))
+            {
+                if (oldlevel == newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
+                else if (oldlevel < static_cast<uint8>(newlevel))
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newlevel);
+                else                                                // if (oldlevel > newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newlevel);
+            }
+        }
+        else
+        {
+            // Update level and reset XP, everything else will be updated at login
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
+            stmt->setUInt8(0, static_cast<uint8>(newlevel));
+            stmt->setUInt64(1, player->GetGUID().GetCounter());
+            CharacterDatabase.Execute(stmt);
+        }
+
+        if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including chr == NULL
+            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player).c_str(), newlevel);
+
+        return true;
+    }
+
     static bool HandleLevelUpCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, int16 level)
     {
         if (!player)
@@ -776,9 +827,84 @@ public:
         return true;
     }
 
+    static bool HandlePDumpCopyCommand(ChatHandler* handler, PlayerIdentifier player, AccountIdentifier account, Optional<std::string_view> characterName, Optional<ObjectGuid::LowType> characterGUID)
+    {
+        std::string name;
+        if (!ValidatePDumpTarget(handler, name, characterName, characterGUID))
+            return false;
+
+        std::string dump;
+        switch (PlayerDumpWriter().WriteDumpToString(dump, player.GetGUID().GetCounter()))
+        {
+            case DUMP_SUCCESS:
+                break;
+            case DUMP_CHARACTER_DELETED:
+                handler->PSendSysMessage(LANG_COMMAND_EXPORT_DELETED_CHAR);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case DUMP_FILE_OPEN_ERROR: // this error code should not happen
+            default:
+                handler->PSendSysMessage(LANG_COMMAND_EXPORT_FAILED);
+                handler->SetSentErrorMessage(true);
+                return false;
+        }
+
+        switch (PlayerDumpReader().LoadDumpFromString(dump, account, name, characterGUID.value_or(0)))
+        {
+            case DUMP_SUCCESS:
+                break;
+            case DUMP_TOO_MANY_CHARS:
+                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, account.GetName().c_str(), account.GetID());
+                handler->SetSentErrorMessage(true);
+                return false;
+            case DUMP_FILE_OPEN_ERROR: // this error code should not happen
+            case DUMP_FILE_BROKEN: // this error code should not happen
+            default:
+                handler->PSendSysMessage(LANG_COMMAND_IMPORT_FAILED);
+                handler->SetSentErrorMessage(true);
+                return false;
+        }
+
+        // ToDo: use a new trinity_string for this commands
+        handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
+
+        return true;
+    }
+
     static bool HandlePDumpLoadCommand(ChatHandler* handler, std::string fileName, AccountIdentifier account, Optional<std::string_view> characterName, Optional<ObjectGuid::LowType> characterGUID)
     {
         std::string name;
+        if (!ValidatePDumpTarget(handler, name, characterName, characterGUID))
+            return false;
+
+        switch (PlayerDumpReader().LoadDumpFromFile(fileName, account, name, characterGUID.value_or(0)))
+        {
+            case DUMP_SUCCESS:
+                handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
+                break;
+            case DUMP_FILE_OPEN_ERROR:
+                handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileName.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            case DUMP_FILE_BROKEN:
+                handler->PSendSysMessage(LANG_DUMP_BROKEN, fileName.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            case DUMP_TOO_MANY_CHARS:
+                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, account.GetName().c_str(), account.GetID());
+                handler->SetSentErrorMessage(true);
+                return false;
+            default:
+                handler->PSendSysMessage(LANG_COMMAND_IMPORT_FAILED);
+                handler->SetSentErrorMessage(true);
+                return false;
+        }
+
+        return true;
+    }
+
+    static bool ValidatePDumpTarget(ChatHandler* handler, std::string& name, Optional<std::string_view> characterName, Optional<ObjectGuid::LowType> characterGUID)
+    {
         if (characterName)
         {
             name.assign(*characterName);
@@ -808,35 +934,12 @@ public:
             }
         }
 
-        switch (PlayerDumpReader().LoadDump(fileName, account, name, characterGUID.value_or(0)))
-        {
-            case DUMP_SUCCESS:
-                handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
-                break;
-            case DUMP_FILE_OPEN_ERROR:
-                handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileName.c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
-            case DUMP_FILE_BROKEN:
-                handler->PSendSysMessage(LANG_DUMP_BROKEN, fileName.c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
-            case DUMP_TOO_MANY_CHARS:
-                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, account.GetName().c_str(), account.GetID());
-                handler->SetSentErrorMessage(true);
-                return false;
-            default:
-                handler->PSendSysMessage(LANG_COMMAND_IMPORT_FAILED);
-                handler->SetSentErrorMessage(true);
-                return false;
-        }
-
         return true;
     }
 
     static bool HandlePDumpWriteCommand(ChatHandler* handler, std::string fileName, PlayerIdentifier player)
     {
-        switch (PlayerDumpWriter().WriteDump(fileName, player.GetGUID().GetCounter()))
+        switch (PlayerDumpWriter().WriteDumpToFile(fileName, player.GetGUID().GetCounter()))
         {
             case DUMP_SUCCESS:
                 handler->PSendSysMessage(LANG_COMMAND_EXPORT_SUCCESS);

@@ -124,7 +124,6 @@ public:
         void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void UpdateAI(uint32 diff) override
         {
             if (HellfireTimer)
@@ -159,13 +158,13 @@ public:
             if (spellInfo->Id == SPELL_INFERNAL_RELAY)
             {
                 me->SetDisplayId(me->GetNativeDisplayId());
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 HellfireTimer = 4000;
                 CleanupTimer = 170000;
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!done_by || done_by->GetGUID() != malchezaar)
                 damage = 0;
@@ -450,7 +449,7 @@ public:
                         Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
                         if (axe)
                         {
-                            axe->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            axe->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             axe->SetFaction(me->GetFaction());
                             axes[i] = axe->GetGUID();
                             if (target)

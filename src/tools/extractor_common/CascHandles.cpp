@@ -153,7 +153,7 @@ CASC::Storage::Storage(HANDLE handle) : _handle(handle)
 bool CASC::Storage::LoadOnlineTactKeys()
 {
     // attempt to download only once, not every storage opening
-    static Optional<std::string> const tactKeys = DownloadFile("wow.tools", 443, "/api.php?type=tactkeys");
+    static Optional<std::string> const tactKeys = DownloadFile("raw.githubusercontent.com", 443, "/wowdev/TACTKeys/master/WoW.txt");
 
     return tactKeys && CascImportKeysFromString(_handle, tactKeys->c_str());
 }

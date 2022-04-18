@@ -476,12 +476,15 @@ void BattlegroundSA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundSA::AddPlayer(Player* player)
 {
+    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
+    if (!isInBattleground)
+        PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetBGTeam());
 
     SendTransportInit(player);
 
-    TeleportToEntrancePosition(player);
+    if (!isInBattleground)
+        TeleportToEntrancePosition(player);
 }
 
 void BattlegroundSA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) { }
@@ -521,7 +524,7 @@ void BattlegroundSA::TeleportPlayers()
 
 void BattlegroundSA::TeleportToEntrancePosition(Player* player)
 {
-    if (player->GetTeamId() == Attackers)
+    if (GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID())) == Attackers)
     {
         if (!ShipsStarted)
         {
@@ -673,9 +676,9 @@ void BattlegroundSA::DemolisherStartState(bool start)
         if (Creature* dem = GetBGCreature(i))
         {
             if (start)
-                dem->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                dem->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
             else
-                dem->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                dem->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
     }
 }
@@ -694,7 +697,8 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveyard(Player* player)
 
     player->GetPosition(x, y, z);
 
-    if (player->GetTeamId() == Attackers)
+    TeamId teamId = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
+    if (teamId == Attackers)
         safeloc = BG_SA_GYEntries[BG_SA_BEACH_GY];
     else
         safeloc = BG_SA_GYEntries[BG_SA_DEFENDER_LAST_GY];
@@ -704,7 +708,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveyard(Player* player)
 
     for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
-        if (GraveyardStatus[i] != player->GetTeamId())
+        if (GraveyardStatus[i] != teamId)
             continue;
 
         ret = sObjectMgr->GetWorldSafeLoc(BG_SA_GYEntries[i]);
@@ -759,7 +763,7 @@ void BattlegroundSA::UpdateObjectInteractionFlags(uint32 objectId)
         if (CanInteractWithObject(objectId))
             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         else
-            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            go->SetFlag(GO_FLAG_NOT_SELECTABLE);
     }
 }
 
@@ -800,7 +804,8 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
         return;
 
     DelCreature(BG_SA_MAXNPC + i);
-    GraveyardStatus[i] = Source->GetTeamId();
+    TeamId teamId = GetTeamIndexByTeamId(GetPlayerTeam(Source->GetGUID()));
+    GraveyardStatus[i] = teamId;
     WorldSafeLocsEntry const* sg = sObjectMgr->GetWorldSafeLoc(BG_SA_GYEntries[i]);
     if (!sg)
     {
@@ -817,7 +822,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
         case BG_SA_LEFT_CAPTURABLE_GY:
             flag = BG_SA_LEFT_FLAG;
             DelObject(flag);
-            AddObject(flag, (BG_SA_ObjEntries[flag] - (Source->GetTeamId() == TEAM_ALLIANCE ? 0 : 1)),
+            AddObject(flag, (BG_SA_ObjEntries[flag] - (teamId == TEAM_ALLIANCE ? 0 : 1)),
                 BG_SA_ObjSpawnlocs[flag], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
             npc = BG_SA_NPC_RIGSPARK;
@@ -836,13 +841,13 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
             UpdateWorldState(BG_SA_LEFT_GY_HORDE, GraveyardStatus[i] == TEAM_HORDE);
 
             if (Creature* c = Source->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
-                SendChatMessage(c, Source->GetTeamId() == TEAM_ALLIANCE ? TEXT_WEST_GRAVEYARD_CAPTURED_A : TEXT_WEST_GRAVEYARD_CAPTURED_H, Source);
+                SendChatMessage(c, teamId == TEAM_ALLIANCE ? TEXT_WEST_GRAVEYARD_CAPTURED_A : TEXT_WEST_GRAVEYARD_CAPTURED_H, Source);
 
             break;
         case BG_SA_RIGHT_CAPTURABLE_GY:
             flag = BG_SA_RIGHT_FLAG;
             DelObject(flag);
-            AddObject(flag, (BG_SA_ObjEntries[flag] - (Source->GetTeamId() == TEAM_ALLIANCE ? 0 : 1)),
+            AddObject(flag, (BG_SA_ObjEntries[flag] - (teamId == TEAM_ALLIANCE ? 0 : 1)),
                 BG_SA_ObjSpawnlocs[flag], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
             npc = BG_SA_NPC_SPARKLIGHT;
@@ -861,20 +866,20 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
             UpdateWorldState(BG_SA_RIGHT_GY_HORDE, GraveyardStatus[i] == TEAM_HORDE);
 
             if (Creature* c = Source->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
-                SendChatMessage(c, Source->GetTeamId() == TEAM_ALLIANCE ? TEXT_EAST_GRAVEYARD_CAPTURED_A : TEXT_EAST_GRAVEYARD_CAPTURED_H, Source);
+                SendChatMessage(c, teamId == TEAM_ALLIANCE ? TEXT_EAST_GRAVEYARD_CAPTURED_A : TEXT_EAST_GRAVEYARD_CAPTURED_H, Source);
 
             break;
         case BG_SA_CENTRAL_CAPTURABLE_GY:
             flag = BG_SA_CENTRAL_FLAG;
             DelObject(flag);
-            AddObject(flag, (BG_SA_ObjEntries[flag] - (Source->GetTeamId() == TEAM_ALLIANCE ? 0 : 1)),
+            AddObject(flag, (BG_SA_ObjEntries[flag] - (teamId == TEAM_ALLIANCE ? 0 : 1)),
               BG_SA_ObjSpawnlocs[flag], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
             UpdateWorldState(BG_SA_CENTER_GY_ALLIANCE, GraveyardStatus[i] == TEAM_ALLIANCE);
             UpdateWorldState(BG_SA_CENTER_GY_HORDE, GraveyardStatus[i] == TEAM_HORDE);
 
             if (Creature* c = Source->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
-                SendChatMessage(c, Source->GetTeamId() == TEAM_ALLIANCE ? TEXT_SOUTH_GRAVEYARD_CAPTURED_A : TEXT_SOUTH_GRAVEYARD_CAPTURED_H, Source);
+                SendChatMessage(c, teamId == TEAM_ALLIANCE ? TEXT_SOUTH_GRAVEYARD_CAPTURED_A : TEXT_SOUTH_GRAVEYARD_CAPTURED_H, Source);
 
             break;
         default:
@@ -890,9 +895,10 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
 
     if (CanInteractWithObject(BG_SA_TITAN_RELIC))
     {
-        if (clicker->GetTeamId() == Attackers)
+        TeamId clickerTeamId = GetTeamIndexByTeamId(GetPlayerTeam(clicker->GetGUID()));
+        if (clickerTeamId == Attackers)
         {
-            if (clicker->GetTeamId() == TEAM_ALLIANCE)
+            if (clickerTeamId == TEAM_ALLIANCE)
                 SendBroadcastText(BG_SA_TEXT_ALLIANCE_CAPTURED_TITAN_PORTAL, CHAT_MSG_BG_SYSTEM_ALLIANCE);
             else
                 SendBroadcastText(BG_SA_TEXT_HORDE_CAPTURED_TITAN_PORTAL, CHAT_MSG_BG_SYSTEM_HORDE);
@@ -905,7 +911,7 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
                     if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                        if (player->GetTeamId() == Attackers)
+                        if (GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID())) == Attackers)
                             player->UpdateCriteria(CriteriaType::BeSpellTarget, 65246);
                 }
 
@@ -935,7 +941,7 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
                     if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                        if (player->GetTeamId() == Attackers && RoundScores[1].winner == Attackers)
+                        if (GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID())) == Attackers && RoundScores[1].winner == Attackers)
                             player->UpdateCriteria(CriteriaType::BeSpellTarget, 65246);
                 }
 
@@ -1038,9 +1044,9 @@ bool BattlegroundSA::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
     switch (criteriaId)
     {
         case BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH:
-            return _allVehiclesAlive[GetTeamIndexByTeamId(source->GetTeam())];
+            return _allVehiclesAlive[GetTeamIndexByTeamId(GetPlayerTeam(source->GetGUID()))];
         case BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS:
-            return source->GetTeamId() != Attackers && !_gateDestroyed;
+            return GetTeamIndexByTeamId(GetPlayerTeam(source->GetGUID())) != Attackers && !_gateDestroyed;
     }
 
     return Battleground::CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue);

@@ -321,7 +321,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 bunny->CastSpell(bunny, SPELL_START_HALLS_OF_REFLECTION_QUEST_AE, true);
 
                             if (Creature* korelnOrLoralen = instance->GetCreature(KorelnOrLoralenGUID))
-                                korelnOrLoralen->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                                korelnOrLoralen->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
 
                             HandleGameObject(EntranceDoorGUID, true);
                             HandleGameObject(ImpenetrableDoorGUID, true);
@@ -344,7 +344,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 break;
                             case DONE:
                                 if (GameObject* chest = instance->GetGameObject(CaptainsChestGUID))
-                                    chest->RemoveFlag(GameObjectFlags(GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN));
+                                    chest->RemoveFlag(GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
 
                                 DoUseDoorOrButton(CaveInGUID, 15);
 
@@ -594,7 +594,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 if (Creature* temp = instance->GetCreature(guid))
                                 {
                                     temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, false);
-                                    temp->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                                    temp->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                                     temp->SetImmuneToAll(false);
                                     temp->AI()->DoZoneInCombat(temp);
                                 }

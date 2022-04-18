@@ -45,7 +45,7 @@ class achievement_bg_control_all_nodes : public AchievementCriteriaScript
         bool OnCheck(Player* source, Unit* /*target*/) override
         {
             if (Battleground* bg = source->GetBattleground())
-                return bg->IsAllNodesControlledByTeam(source->GetTeam());
+                return bg->IsAllNodesControlledByTeam(bg->GetPlayerTeam(source->GetGUID()));
 
             return false;
         }
@@ -144,7 +144,7 @@ class achievement_arena_kills : public AchievementCriteriaScript
             if (!source->InArena())
                 return false;
 
-            return source->GetBattleground()->GetArenaType() == _arenaType;
+            return ASSERT_NOTNULL(source->GetBattleground())->GetArenaType() == _arenaType;
         }
 
     private:

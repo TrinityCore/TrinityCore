@@ -161,7 +161,7 @@ bool Group::Create(Player* leader)
     m_guid = ObjectGuid::Create<HighGuid::Party>(sGroupMgr->GenerateGroupId());
     m_leaderGuid = leaderGuid;
     m_leaderName = leader->GetName();
-    leader->AddPlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
+    leader->SetPlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
 
     if (isBGGroup() || isBFGroup())
     {
@@ -783,7 +783,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
     if (Player* oldLeader = ObjectAccessor::FindConnectedPlayer(m_leaderGuid))
         oldLeader->RemovePlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
 
-    newLeader->AddPlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
+    newLeader->SetPlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
     m_leaderGuid = newLeader->GetGUID();
     m_leaderName = newLeader->GetName();
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
@@ -820,7 +820,7 @@ void Group::ConvertLeaderInstancesToGroup(Player* player, Group* group, bool swi
 
     /* if group leader is in a non-raid dungeon map and nobody is actually bound to this map then the group can "take over" the instance *
     * (example: two-player group disbanded by disconnect where the player reconnects within 60 seconds and the group is reformed)       */
-    if (Map* playerMap = player->GetMap())
+    if (Map* playerMap = player->FindMap())
         if (!switchLeader && playerMap->IsNonRaidDungeon())
             if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(playerMap->GetInstanceId()))
                 if (save->GetGroupCount() == 0 && save->GetPlayerCount() == 0)
@@ -1050,6 +1050,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* lootedObject)
             continue;
 
         item = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(i->itemid));
+        ASSERT(item);
 
         //roll for over-threshold item if it's one-player loot
         if (item->GetQuality() >= uint32(m_lootThreshold))
@@ -1863,7 +1864,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
 }
 
-GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid)
+GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const
 {
     // check if this group is LFG group
     if (isLFGGroup())
@@ -1891,10 +1892,11 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
 
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
     uint32 team = reference->GetTeam();
+    bool isMercenary = reference->HasAura(SPELL_MERCENARY_CONTRACT_HORDE) || reference->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE);
 
     // check every member of the group to be able to join
     memberscount = 0;
-    for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next(), ++memberscount)
+    for (GroupReference const* itr = GetFirstMember(); itr != nullptr; itr = itr->next(), ++memberscount)
     {
         Player* member = itr->GetSource();
         // offline member? don't let join
@@ -1939,6 +1941,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // check Freeze debuff
         if (member->HasAura(9454))
             return ERR_BATTLEGROUND_JOIN_FAILED;
+        if (isMercenary != (member->HasAura(SPELL_MERCENARY_CONTRACT_HORDE) || member->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE)))
+            return ERR_BATTLEGROUND_JOIN_MERCENARY;
     }
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
@@ -2201,7 +2205,6 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
                 CharacterDatabase.Execute(stmt);
             }
 
-
             itr = difficultyItr->second.erase(itr);
             // this unloads the instance save unless online players are bound to it
             // (eg. permanent binds or GM solo binds)
@@ -2277,7 +2280,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.perm = permanent;
     if (!load)
         TC_LOG_DEBUG("maps", "Group::BindToInstance: %s, storage id: %u is now bound to map %d, instance %d, difficulty %d",
-            GetGUID().ToString().c_str(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
+            GetGUID().ToString().c_str(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), static_cast<uint32>(save->GetDifficultyID()));
 
     return &bind;
 }

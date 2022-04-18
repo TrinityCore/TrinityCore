@@ -160,7 +160,7 @@ class DatabaseWorkerPool
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
-        SQLQueryHolderCallback DelayQueryHolder(SQLQueryHolder<T>* holder);
+        SQLQueryHolderCallback DelayQueryHolder(std::shared_ptr<SQLQueryHolder<T>> holder);
 
         /**
             Transaction context methods.
@@ -212,6 +212,8 @@ class DatabaseWorkerPool
             _warnSyncQueries = warn;
 #endif
         }
+
+        size_t QueueSize() const;
 
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);

@@ -169,9 +169,6 @@ class TC_GAME_API ArenaTeam
         void MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
         void OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
 
-
-
-
         bool FinishWeek(); // returns true if arena team played this week
         void FinishGame(int32 mod);
 

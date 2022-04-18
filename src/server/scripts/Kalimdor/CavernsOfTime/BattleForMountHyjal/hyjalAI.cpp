@@ -404,7 +404,7 @@ void hyjalAI::Reset()
     }
 
     //Flags
-    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
     //Reset Instance Data for trash count
     if ((!instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == JAINA) || (instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == THRALL))
@@ -835,7 +835,7 @@ void hyjalAI::UpdateAI(uint32 diff)
                     }
                     EventBegun = false;
                     CheckTimer = 0;
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     BossGUID[i].Clear();
                     instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
@@ -998,7 +998,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     {
                         (*itr)->CastSpell(*itr, SPELL_TELEPORT_VISUAL, true);
                         (*itr)->SetFaction(FACTION_FRIENDLY);//make them friendly so mobs won't attack them
-                        (*itr)->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        (*itr)->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     }
                 }
                 DoCast(me, SPELL_TELEPORT_VISUAL);

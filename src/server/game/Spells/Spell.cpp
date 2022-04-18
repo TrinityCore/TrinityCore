@@ -199,28 +199,6 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
         data.Name = m_strTarget;
 }
 
-ObjectGuid SpellCastTargets::GetOrigUnitTargetGUID() const
-{
-    switch (m_origObjectTargetGUID.GetHigh())
-    {
-        case HighGuid::Player:
-        case HighGuid::Vehicle:
-        case HighGuid::Creature:
-        case HighGuid::Pet:
-            return m_origObjectTargetGUID;
-        default:
-            return ObjectGuid();
-    }
-}
-
-void SpellCastTargets::SetOrigUnitTarget(Unit* target)
-{
-    if (!target)
-        return;
-
-    m_origObjectTargetGUID = target->GetGUID();
-}
-
 ObjectGuid SpellCastTargets::GetUnitTargetGUID() const
 {
     if (m_objectTargetGUID.IsUnit())
@@ -646,7 +624,7 @@ Spell::~Spell()
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 {
     m_targets = targets;
-    m_targets.SetOrigUnitTarget(m_targets.GetUnitTarget());
+
     // this function tries to correct spell explicit targets for spell
     // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
     // this also makes sure that we correctly send explicit targets to client (removes redundant data)
@@ -1749,7 +1727,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, Sp
 
             if (Creature* creatureTarget = unit->ToCreature())
             {
-                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_COLLIDE_WITH_MISSILES))
+                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES))
                     continue;
             }
         }
@@ -2696,6 +2674,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             }
             else
             {
+                caster->SetLastDamagedTargetGuid(spell->unitTarget->GetGUID());
+
                 // Add bonuses and fill damageInfo struct
                 caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, spell);
                 Unit::DealDamageMods(damageInfo.attacker, damageInfo.target, damageInfo.damage, &damageInfo.absorb);
@@ -3006,7 +2986,7 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                     .SetOwnerEffectMask(aura_effmask)
                     .IsRefresh = &refresh;
 
-                if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo))
+                if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo, false))
                 {
                     hitInfo.HitAura = aura->ToUnitAura();
 
@@ -3055,6 +3035,9 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
                         hitInfo.HitAura->SetMaxDuration(hitInfo.AuraDuration);
                         hitInfo.HitAura->SetDuration(hitInfo.AuraDuration);
                     }
+
+                    if (refresh)
+                        hitInfo.HitAura->AddStaticApplication(unit, aura_effmask);
                 }
             }
             else
@@ -3357,6 +3340,11 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD))
             TriggerGlobalCooldown();
+
+        // Call CreatureAI hook OnSpellStart
+        if (Creature* caster = m_caster->ToCreature())
+            if (caster->IsAIEnabled())
+                caster->AI()->OnSpellStart(GetSpellInfo());
 
         if (willCastDirectly)
             cast(true);
@@ -3724,10 +3712,10 @@ void Spell::_cast(bool skipCheck)
 
     Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
 
-    // Call CreatureAI hook OnSuccessfulSpellCast
+    // Call CreatureAI hook OnSpellCast
     if (Creature* caster = m_originalCaster->ToCreature())
         if (caster->IsAIEnabled())
-            caster->AI()->OnSuccessfulSpellCast(GetSpellInfo());
+            caster->AI()->OnSpellCast(GetSpellInfo());
 }
 
 template <class Container>
@@ -3952,13 +3940,8 @@ void Spell::_handle_finish_phase()
         if (m_comboPointGain)
             unitCaster->AddComboPoints(m_comboPointGain);
 
-        if (unitCaster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
-        {
-            if (Unit* victim = ObjectAccessor::GetUnit(*unitCaster, m_targets.GetOrigUnitTargetGUID()))
-                unitCaster->HandleProcExtraAttackFor(victim);
-            else
-                unitCaster->m_extraAttacks = 0;
-        }
+        if (m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+            unitCaster->SetLastExtraAttackSpell(m_spellInfo->Id);
     }
 
     // Handle procs on finish
@@ -4086,6 +4069,11 @@ void Spell::update(uint32 difftime)
             {
                 SendChannelUpdate(0);
                 finish();
+
+                // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
+                if (Creature* creatureCaster = m_caster->ToCreature())
+                    if (creatureCaster->IsAIEnabled())
+                        creatureCaster->AI()->OnChannelFinished(m_spellInfo);
             }
             break;
         }
@@ -4461,8 +4449,8 @@ void Spell::SendSpellStart()
     uint32 mechanicImmunityMask = 0;
     if (Unit* unitCaster = m_caster->ToUnit())
     {
-        schoolImmunityMask = unitCaster->GetSchoolImmunityMask();
-        mechanicImmunityMask = unitCaster->GetMechanicImmunityMask();
+        schoolImmunityMask = m_timer!= 0 ? unitCaster->GetSchoolImmunityMask() : 0;
+        mechanicImmunityMask = m_timer != 0 ? m_spellInfo->GetMechanicImmunityMask(unitCaster) : 0;
     }
 
     if (schoolImmunityMask || mechanicImmunityMask)
@@ -8918,7 +8906,10 @@ CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
             Targets.emplace();
             Targets->SetGOTarget(goTarget);
         }
+        // error when targeting anything other than units and gameobjects
     }
+    else
+        Targets.emplace(); // nullptr is allowed
 }
 
 CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeringSpell)

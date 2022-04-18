@@ -79,257 +79,236 @@ enum Events
 Position const northForgePos = { 722.5643f, -234.1615f, 527.182f, 2.16421f };
 Position const southForgePos = { 639.257f, -210.1198f, 529.015f, 0.523599f };
 
-class boss_garfrost : public CreatureScript
+struct boss_garfrost : public BossAI
 {
-    public:
-        boss_garfrost() : CreatureScript("boss_garfrost") { }
+    boss_garfrost(Creature* creature) : BossAI(creature, DATA_GARFROST)
+    {
+        Initialize();
+    }
 
-        struct boss_garfrostAI : public BossAI
+    void Initialize()
+    {
+        _permafrostStack = 0;
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        events.SetPhase(PHASE_ONE);
+        SetEquipmentSlots(true);
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        DoCast(me, SPELL_PERMAFROST);
+        me->CallForHelp(70.0f);
+        events.ScheduleEvent(EVENT_THROW_SARONITE, 7s);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+        me->RemoveAllGameObjects();
+
+        if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TYRANNUS)))
+            tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(66))
         {
-            boss_garfrostAI(Creature* creature) : BossAI(creature, DATA_GARFROST)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _permafrostStack = 0;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                events.SetPhase(PHASE_ONE);
-                SetEquipmentSlots(true);
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                DoCast(me, SPELL_PERMAFROST);
-                me->CallForHelp(70.0f);
-                events.ScheduleEvent(EVENT_THROW_SARONITE, 7s);
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-                me->RemoveAllGameObjects();
-
-                if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TYRANNUS)))
-                    tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
-            {
-                if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(66))
-                {
-                    events.SetPhase(PHASE_TWO);
-                    Talk(SAY_PHASE2);
-                    events.DelayEvents(8s);
-                    DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
-                    return;
-                }
-
-                if (events.IsInPhase(PHASE_TWO) && !HealthAbovePct(33))
-                {
-                    events.SetPhase(PHASE_THREE);
-                    Talk(SAY_PHASE3);
-                    events.DelayEvents(8s);
-                    DoCast(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
-                    return;
-                }
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != EFFECT_MOTION_TYPE || id != POINT_FORGE)
-                    return;
-
-                if (events.IsInPhase(PHASE_TWO))
-                {
-                    DoCast(me, SPELL_FORGE_BLADE);
-                    SetEquipmentSlots(false, EQUIP_ID_SWORD);
-                }
-                if (events.IsInPhase(PHASE_THREE))
-                {
-                    me->RemoveAurasDueToSpell(SPELL_FORGE_BLADE_HELPER);
-                    DoCast(me, SPELL_FORGE_MACE);
-                    SetEquipmentSlots(false, EQUIP_ID_MACE);
-                }
-                events.ScheduleEvent(EVENT_RESUME_ATTACK, 5s);
-            }
-
-            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
-            {
-                Unit* unitTarget = target->ToUnit();
-                if (!unitTarget)
-                    return;
-
-                if (spellInfo->Id == SPELL_PERMAFROST_HELPER)
-                {
-                    if (Aura* aura = unitTarget->GetAura(SPELL_PERMAFROST_HELPER))
-                        _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
-                }
-            }
-
-            uint32 GetData(uint32 /*type*/) const override
-            {
-                return _permafrostStack;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_THROW_SARONITE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                            {
-                                Talk(SAY_THROW_SARONITE, target);
-                                DoCast(target, SPELL_THROW_SARONITE);
-                            }
-                            events.ScheduleEvent(EVENT_THROW_SARONITE, 12500ms, 20s);
-                            break;
-                        case EVENT_CHILLING_WAVE:
-                            DoCast(me, SPELL_CHILLING_WAVE);
-                            events.ScheduleEvent(EVENT_CHILLING_WAVE, 4s, 0, PHASE_TWO);
-                            break;
-                        case EVENT_DEEP_FREEZE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                            {
-                                Talk(SAY_CAST_DEEP_FREEZE, target);
-                                DoCast(target, SPELL_DEEP_FREEZE);
-                            }
-                            events.ScheduleEvent(EVENT_DEEP_FREEZE, 35s, 0, PHASE_THREE);
-                            break;
-                        case EVENT_FORGE_JUMP:
-                            me->AttackStop();
-                            if (events.IsInPhase(PHASE_TWO))
-                                me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f, POINT_FORGE);
-                            else if (events.IsInPhase(PHASE_THREE))
-                                me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f, POINT_FORGE);
-                            break;
-                        case EVENT_RESUME_ATTACK:
-                            if (events.IsInPhase(PHASE_TWO))
-                                events.ScheduleEvent(EVENT_CHILLING_WAVE, 5s, 0, PHASE_TWO);
-                            else if (events.IsInPhase(PHASE_THREE))
-                                events.ScheduleEvent(EVENT_DEEP_FREEZE, 10s, 0, PHASE_THREE);
-                            AttackStart(me->GetVictim());
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _permafrostStack;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetPitOfSaronAI<boss_garfrostAI>(creature);
+            events.SetPhase(PHASE_TWO);
+            Talk(SAY_PHASE2);
+            events.DelayEvents(8s);
+            DoCast(me, SPELL_THUNDERING_STOMP);
+            events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
+            return;
         }
+
+        if (events.IsInPhase(PHASE_TWO) && !HealthAbovePct(33))
+        {
+            events.SetPhase(PHASE_THREE);
+            Talk(SAY_PHASE3);
+            events.DelayEvents(8s);
+            DoCast(me, SPELL_THUNDERING_STOMP);
+            events.ScheduleEvent(EVENT_FORGE_JUMP, 1500ms);
+            return;
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != EFFECT_MOTION_TYPE || id != POINT_FORGE)
+            return;
+
+        if (events.IsInPhase(PHASE_TWO))
+        {
+            DoCast(me, SPELL_FORGE_BLADE);
+            SetEquipmentSlots(false, EQUIP_ID_SWORD);
+        }
+        if (events.IsInPhase(PHASE_THREE))
+        {
+            me->RemoveAurasDueToSpell(SPELL_FORGE_BLADE_HELPER);
+            DoCast(me, SPELL_FORGE_MACE);
+            SetEquipmentSlots(false, EQUIP_ID_MACE);
+        }
+        events.ScheduleEvent(EVENT_RESUME_ATTACK, 5s);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        Unit* unitTarget = target->ToUnit();
+        if (!unitTarget)
+            return;
+
+        if (spellInfo->Id == SPELL_PERMAFROST_HELPER)
+        {
+            if (Aura* aura = unitTarget->GetAura(SPELL_PERMAFROST_HELPER))
+                _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
+        }
+    }
+
+    uint32 GetData(uint32 /*type*/) const override
+    {
+        return _permafrostStack;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_THROW_SARONITE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                    {
+                        Talk(SAY_THROW_SARONITE, target);
+                        DoCast(target, SPELL_THROW_SARONITE);
+                    }
+                    events.ScheduleEvent(EVENT_THROW_SARONITE, 12500ms, 20s);
+                    break;
+                case EVENT_CHILLING_WAVE:
+                    DoCast(me, SPELL_CHILLING_WAVE);
+                    events.ScheduleEvent(EVENT_CHILLING_WAVE, 4s, 0, PHASE_TWO);
+                    break;
+                case EVENT_DEEP_FREEZE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                    {
+                        Talk(SAY_CAST_DEEP_FREEZE, target);
+                        DoCast(target, SPELL_DEEP_FREEZE);
+                    }
+                    events.ScheduleEvent(EVENT_DEEP_FREEZE, 35s, 0, PHASE_THREE);
+                    break;
+                case EVENT_FORGE_JUMP:
+                    me->AttackStop();
+                    if (events.IsInPhase(PHASE_TWO))
+                        me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f, POINT_FORGE);
+                    else if (events.IsInPhase(PHASE_THREE))
+                        me->GetMotionMaster()->MoveJump(southForgePos, 25.0f, 15.0f, POINT_FORGE);
+                    break;
+                case EVENT_RESUME_ATTACK:
+                    if (events.IsInPhase(PHASE_TWO))
+                        events.ScheduleEvent(EVENT_CHILLING_WAVE, 5s, 0, PHASE_TWO);
+                    else if (events.IsInPhase(PHASE_THREE))
+                        events.ScheduleEvent(EVENT_DEEP_FREEZE, 10s, 0, PHASE_THREE);
+                    AttackStart(me->GetVictim());
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint32 _permafrostStack;
 };
 
-class spell_garfrost_permafrost : public SpellScriptLoader
+// 68786, 70336 - Permafrost
+class spell_garfrost_permafrost : public SpellScript
 {
-    public:
-        spell_garfrost_permafrost() : SpellScriptLoader("spell_garfrost_permafrost") { }
+    PrepareSpellScript(spell_garfrost_permafrost);
 
-        class spell_garfrost_permafrost_SpellScript : public SpellScript
+public:
+    spell_garfrost_permafrost()
+    {
+        prevented = false;
+    }
+
+private:
+    void PreventHitByLoS(SpellMissInfo missInfo)
+    {
+        if (missInfo != SPELL_MISS_NONE)
+            return;
+
+        if (Unit* target = GetHitUnit())
         {
-            PrepareSpellScript(spell_garfrost_permafrost_SpellScript);
-
-        public:
-            spell_garfrost_permafrost_SpellScript()
+            Unit* caster = GetCaster();
+            //Temporary Line of Sight Check
+            std::list<GameObject*> blockList;
+            caster->GetGameObjectListWithEntryInGrid(blockList, GO_SARONITE_ROCK, 100.0f);
+            if (!blockList.empty())
             {
-                prevented = false;
-            }
-
-        private:
-            void PreventHitByLoS(SpellMissInfo missInfo)
-            {
-                if (missInfo != SPELL_MISS_NONE)
-                    return;
-
-                if (Unit* target = GetHitUnit())
+                for (std::list<GameObject*>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                 {
-                    Unit* caster = GetCaster();
-                    //Temporary Line of Sight Check
-                    std::list<GameObject*> blockList;
-                    caster->GetGameObjectListWithEntryInGrid(blockList, GO_SARONITE_ROCK, 100.0f);
-                    if (!blockList.empty())
+                    if (!(*itr)->IsInvisibleDueToDespawn())
                     {
-                        for (std::list<GameObject*>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
+                        if ((*itr)->IsInBetween(caster, target, 4.0f))
                         {
-                            if (!(*itr)->IsInvisibleDueToDespawn())
-                            {
-                                if ((*itr)->IsInBetween(caster, target, 4.0f))
-                                {
-                                    prevented = true;
-                                    target->ApplySpellImmune(GetSpellInfo()->Id, IMMUNITY_ID, GetSpellInfo()->Id, true);
-                                    PreventHitDefaultEffect(EFFECT_0);
-                                    PreventHitDefaultEffect(EFFECT_1);
-                                    PreventHitDefaultEffect(EFFECT_2);
-                                    PreventHitDamage();
-                                    break;
-                                }
-                            }
+                            prevented = true;
+                            target->ApplySpellImmune(GetSpellInfo()->Id, IMMUNITY_ID, GetSpellInfo()->Id, true);
+                            PreventHitDefaultEffect(EFFECT_0);
+                            PreventHitDefaultEffect(EFFECT_1);
+                            PreventHitDefaultEffect(EFFECT_2);
+                            PreventHitDamage();
+                            break;
                         }
                     }
                 }
             }
-
-            void RestoreImmunity()
-            {
-                if (Unit* target = GetHitUnit())
-                {
-                    target->ApplySpellImmune(GetSpellInfo()->Id, IMMUNITY_ID, GetSpellInfo()->Id, false);
-                    if (prevented)
-                        PreventHitAura();
-                }
-            }
-
-            void Register() override
-            {
-                BeforeHit += BeforeSpellHitFn(spell_garfrost_permafrost_SpellScript::PreventHitByLoS);
-                AfterHit += SpellHitFn(spell_garfrost_permafrost_SpellScript::RestoreImmunity);
-            }
-
-            bool prevented;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_garfrost_permafrost_SpellScript();
         }
+    }
+
+    void RestoreImmunity()
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            target->ApplySpellImmune(GetSpellInfo()->Id, IMMUNITY_ID, GetSpellInfo()->Id, false);
+            if (prevented)
+                PreventHitAura();
+        }
+    }
+
+    void Register() override
+    {
+        BeforeHit += BeforeSpellHitFn(spell_garfrost_permafrost::PreventHitByLoS);
+        AfterHit += SpellHitFn(spell_garfrost_permafrost::RestoreImmunity);
+    }
+
+    bool prevented;
 };
 
 class achievement_doesnt_go_to_eleven : public AchievementCriteriaScript
@@ -350,7 +329,7 @@ class achievement_doesnt_go_to_eleven : public AchievementCriteriaScript
 
 void AddSC_boss_garfrost()
 {
-    new boss_garfrost();
-    new spell_garfrost_permafrost();
+    RegisterPitOfSaronCreatureAI(boss_garfrost);
+    RegisterSpellScript(spell_garfrost_permafrost);
     new achievement_doesnt_go_to_eleven();
 }

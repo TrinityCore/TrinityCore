@@ -73,11 +73,11 @@ enum BattlegroundDSData
 };
 
 // These values are NOT blizzlike... need the correct data!
-constexpr Seconds BG_DS_WATERFALL_TIMER_MIN = 30s;
-constexpr Seconds BG_DS_WATERFALL_TIMER_MAX = 60s;
-constexpr Seconds BG_DS_WATERFALL_WARNING_DURATION = 5s;
-constexpr Seconds BG_DS_WATERFALL_DURATION = 30s;
-constexpr Milliseconds BG_DS_WATERFALL_KNOCKBACK_TIMER = 1500ms;
+inline constexpr Seconds BG_DS_WATERFALL_TIMER_MIN = 30s;
+inline constexpr Seconds BG_DS_WATERFALL_TIMER_MAX = 60s;
+inline constexpr Seconds BG_DS_WATERFALL_WARNING_DURATION = 5s;
+inline constexpr Seconds BG_DS_WATERFALL_DURATION = 30s;
+inline constexpr Milliseconds BG_DS_WATERFALL_KNOCKBACK_TIMER = 1500ms;
 
 enum BattlegroundDSEvents
 {

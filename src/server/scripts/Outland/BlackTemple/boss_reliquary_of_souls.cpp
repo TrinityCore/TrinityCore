@@ -311,7 +311,7 @@ struct boss_essence_of_suffering : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -422,7 +422,7 @@ struct boss_essence_of_desire : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -621,7 +621,7 @@ struct npc_enslaved_soul : public ScriptedAI
         me->m_Events.AddEventAtOffset([this]() { me->KillSelf(); }, 500ms);
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32& damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -656,6 +656,12 @@ struct npc_reliquary_combat_trigger : public ScriptedAI
     {
         SetCombatMovement(false);
         creature->m_SightDistance = 70.0f;
+        SetBoundary(_instance->GetBossBoundary(DATA_RELIQUARY_OF_SOULS));
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        return ScriptedAI::CanAIAttack(who) && IsInBoundary(who);
     }
 
     void Reset() override
@@ -677,7 +683,7 @@ struct npc_reliquary_combat_trigger : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32& damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         damage = 0;
     }
@@ -736,6 +742,24 @@ class spell_reliquary_of_souls_aura_of_desire : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_reliquary_of_souls_aura_of_desire::OnProcSpell, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
         OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_reliquary_of_souls_aura_of_desire::UpdateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 41337 - Aura of Anger
+class spell_reliquary_of_souls_aura_of_anger : public AuraScript
+{
+    PrepareAuraScript(spell_reliquary_of_souls_aura_of_anger);
+
+    void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
+    {
+        if (AuraEffect* aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
+            aurEff1->ChangeAmount(aurEff1->GetAmount() + 5);
+        aurEff->SetAmount(100 * aurEff->GetTickNumber());
+    }
+
+    void Register() override
+    {
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_reliquary_of_souls_aura_of_anger::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
@@ -809,6 +833,7 @@ void AddSC_boss_reliquary_of_souls()
     RegisterBlackTempleCreatureAI(npc_enslaved_soul);
     RegisterBlackTempleCreatureAI(npc_reliquary_combat_trigger);
     RegisterSpellScript(spell_reliquary_of_souls_aura_of_desire);
+    RegisterSpellScript(spell_reliquary_of_souls_aura_of_anger);
     RegisterSpellScript(spell_reliquary_of_souls_submerge);
     RegisterSpellScript(spell_reliquary_of_souls_spite);
     RegisterSpellScript(spell_reliquary_of_souls_frenzy);

@@ -103,7 +103,7 @@ public:
                     break;
                 case 45:
                     Talk(SAY_WIN, player);
-                    me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                     player->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER, me);
                     break;
                 case 46:
@@ -224,7 +224,6 @@ public:
             if (action == ACTION_FIND_NEW_TUBBER)
                 DoFindNewTubber();
         }
-
 
         bool IsMovementActive;
         ObjectGuid TargetTubberGUID;

@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MySQLConnection.h"
 #include "QueryHolder.h"
-#include "PreparedStatement.h"
+#include "Errors.h"
 #include "Log.h"
+#include "MySQLConnection.h"
+#include "PreparedStatement.h"
 #include "QueryResult.h"
 
 bool SQLQueryHolderBase::SetPreparedQueryImpl(size_t index, PreparedStatementBase* stmt)
@@ -33,13 +34,13 @@ bool SQLQueryHolderBase::SetPreparedQueryImpl(size_t index, PreparedStatementBas
     return true;
 }
 
-PreparedQueryResult SQLQueryHolderBase::GetPreparedResult(size_t index)
+PreparedQueryResult SQLQueryHolderBase::GetPreparedResult(size_t index) const
 {
     // Don't call to this function if the index is of a prepared statement
-    if (index < m_queries.size())
-        return m_queries[index].second;
-    else
-        return PreparedQueryResult(nullptr);
+    ASSERT(index < m_queries.size(), "Query holder result index out of range, tried to access index " SZFMTD " but there are only " SZFMTD " results",
+        index, m_queries.size());
+
+    return m_queries[index].second;
 }
 
 void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* result)
@@ -71,25 +72,16 @@ void SQLQueryHolderBase::SetSize(size_t size)
     m_queries.resize(size);
 }
 
-SQLQueryHolderTask::~SQLQueryHolderTask()
-{
-    if (!m_executed)
-        delete m_holder;
-}
+SQLQueryHolderTask::~SQLQueryHolderTask() = default;
 
 bool SQLQueryHolderTask::Execute()
 {
-    m_executed = true;
-
-    if (!m_holder)
-        return false;
-
     /// execute all queries in the holder and pass the results
     for (size_t i = 0; i < m_holder->m_queries.size(); ++i)
         if (PreparedStatementBase* stmt = m_holder->m_queries[i].first)
             m_holder->SetPreparedResult(i, m_conn->Query(stmt));
 
-    m_result.set_value(m_holder);
+    m_result.set_value();
     return true;
 }
 
@@ -97,7 +89,7 @@ bool SQLQueryHolderCallback::InvokeIfReady()
 {
     if (m_future.valid() && m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
-        m_callback(m_future.get());
+        m_callback(*m_holder);
         return true;
     }
 

@@ -218,7 +218,6 @@ class TC_PROTO_API ReportService : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // SubmitReportRequest
@@ -478,7 +477,6 @@ inline void SubmitReportRequest::clear_has_type() {
 inline SubmitReportRequest::TypeCase SubmitReportRequest::type_case() const {
   return SubmitReportRequest::TypeCase(_oneof_case_[0]);
 }
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v2
@@ -489,8 +487,6 @@ inline SubmitReportRequest::TypeCase SubmitReportRequest::type_case() const {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

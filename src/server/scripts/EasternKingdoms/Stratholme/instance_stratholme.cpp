@@ -199,7 +199,7 @@ class instance_stratholme : public InstanceMapScript
                         break;
                     case GO_GAUNTLET_GATE1:
                         //weird, but unless flag is set, client will not respond as expected. DB bug?
-                        go->AddFlag(GO_FLAG_LOCKED);
+                        go->SetFlag(GO_FLAG_LOCKED);
                         gauntletGate1GUID = go->GetGUID();
                         break;
                     case GO_ZIGGURAT1:
@@ -279,7 +279,7 @@ class instance_stratholme : public InstanceMapScript
                                     ysida->CastSpell(nullptr, SPELL_YSIDA_SAVED, true);
                                     ysida->SetWalk(true);
                                     ysida->AI()->Talk(SAY_YSIDA_SAVED);
-                                    ysida->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                                    ysida->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                                     ysida->GetClosePoint(x, y, z, ysida->GetObjectScale() / 3, 4.0f);
                                     ysida->GetMotionMaster()->MovePoint(1, x, y, z);
 

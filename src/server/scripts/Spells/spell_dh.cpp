@@ -196,7 +196,6 @@ class spell_dh_chaos_strike : public AuraScript
     }
 };
 
-
 // 206416 - First Blood
 class spell_dh_first_blood : public AuraScript
 {
@@ -458,13 +457,11 @@ void AddSC_demon_hunter_spell_scripts()
 
     /* Spells & Auras */
 
-
     /* Auras */
 
     RegisterSpellScript(spell_dh_first_blood);
 
     /* AreaTrigger */
-
 
     /* Spells */
 

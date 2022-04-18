@@ -85,14 +85,7 @@ enum Events
     EVENT_INCINERATE,
     EVENT_SUMMON_DOOM_BLOSSOM,
     EVENT_SHADOW_DEATH,
-    EVENT_CRUSHING_SHADOWS,
-    EVENT_FINISH_INTRO
-};
-
-enum Phases
-{
-    PHASE_INTRO = 1,
-    PHASE_COMBAT
+    EVENT_CRUSHING_SHADOWS
 };
 
 enum Actions
@@ -112,21 +105,10 @@ struct boss_teron_gorefiend : public BossAI
 {
     boss_teron_gorefiend(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND) { }
 
-    void Reset() override
-    {
-        _Reset();
-        if (instance->GetData(DATA_TERON_GOREFIEND_INTRO))
-        {
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-            me->SetReactState(REACT_PASSIVE);
-        }
-    }
-
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        events.SetPhase(PHASE_COMBAT);
         events.ScheduleEvent(EVENT_ENRAGE, 10min);
         events.ScheduleEvent(EVENT_INCINERATE, 12s);
         events.ScheduleEvent(EVENT_SUMMON_DOOM_BLOSSOM, 8s);
@@ -144,12 +126,7 @@ struct boss_teron_gorefiend : public BossAI
     void DoAction(int32 action) override
     {
         if (action == ACTION_START_INTRO && me->IsAlive())
-        {
-            instance->SetData(DATA_TERON_GOREFIEND_INTRO, 0);
             Talk(SAY_INTRO);
-            events.SetPhase(PHASE_INTRO);
-            events.ScheduleEvent(EVENT_FINISH_INTRO, 20s);
-        }
     }
 
     void KilledUnit(Unit* victim) override
@@ -167,7 +144,7 @@ struct boss_teron_gorefiend : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!events.IsInPhase(PHASE_INTRO) && !UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         events.Update(diff);
@@ -202,10 +179,6 @@ struct boss_teron_gorefiend : public BossAI
                     DoCastSelf(SPELL_CRUSHING_SHADOWS, { SPELLVALUE_MAX_TARGETS, 5 });
                     Talk(SAY_CRUSHING);
                     events.Repeat(Seconds(18), Seconds(30));
-                    break;
-                case EVENT_FINISH_INTRO:
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
-                    me->SetReactState(REACT_AGGRESSIVE);
                     break;
                 default:
                     break;
@@ -258,12 +231,7 @@ private:
 
 struct npc_shadowy_construct : public ScriptedAI
 {
-    npc_shadowy_construct(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
-    {
-        //This creature must be immune everything, except spells of Vengeful Spirit.
-        creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-        creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_MAGIC, true);
-    }
+    npc_shadowy_construct(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
     void Reset() override
     {

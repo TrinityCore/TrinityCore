@@ -238,7 +238,6 @@ private:
     bool _inCombat;
 };
 
-
 struct IllidariCouncilBossAI : public BossAI
 {
     IllidariCouncilBossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _bossId(bossId)
@@ -275,7 +274,7 @@ struct IllidariCouncilBossAI : public BossAI
             illidari->AI()->EnterEvadeMode(why);
     }
 
-    void DamageTaken(Unit* who, uint32 &damage) override
+    void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth() && (!who || who->GetGUID() != me->GetGUID()))
             damage = me->GetHealth() - 1;

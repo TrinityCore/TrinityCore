@@ -1135,9 +1135,7 @@ class TC_PROTO_API SubscriberId : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -2458,7 +2456,6 @@ inline void SubscriberId::set_allocated_process(::bgs::protocol::ProcessId* proc
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.SubscriberId.process)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -2469,13 +2466,11 @@ inline void SubscriberId::set_allocated_process(::bgs::protocol::ProcessId* proc
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::channel::v1::ChannelState_PrivacyLevel> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::channel::v1::ChannelState_PrivacyLevel>() {
   return ::bgs::protocol::channel::v1::ChannelState_PrivacyLevel_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

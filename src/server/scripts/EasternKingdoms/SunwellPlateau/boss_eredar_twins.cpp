@@ -676,7 +676,6 @@ public:
 
         void Reset() override
         {
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             Initialize();
         }
 

@@ -56,7 +56,6 @@ const ::google::protobuf::ServiceDescriptor* ClubMembershipListener_descriptor_ 
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
   protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -342,7 +341,6 @@ struct StaticDescriptorInitializer_club_5fmembership_5flistener_2eproto {
     protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   }
 } static_descriptor_initializer_club_5fmembership_5flistener_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -593,7 +591,6 @@ void ClubAddedNotification::CopyFrom(const ClubAddedNotification& from) {
 }
 
 bool ClubAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -620,7 +617,6 @@ void ClubAddedNotification::Swap(ClubAddedNotification* other) {
   metadata.reflection = ClubAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -967,7 +963,6 @@ void ClubRemovedNotification::CopyFrom(const ClubRemovedNotification& from) {
 }
 
 bool ClubRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -996,7 +991,6 @@ void ClubRemovedNotification::Swap(ClubRemovedNotification* other) {
   metadata.reflection = ClubRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1248,7 +1242,6 @@ void ReceivedInvitationAddedNotification::CopyFrom(const ReceivedInvitationAdded
 }
 
 bool ReceivedInvitationAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1275,7 +1268,6 @@ void ReceivedInvitationAddedNotification::Swap(ReceivedInvitationAddedNotificati
   metadata.reflection = ReceivedInvitationAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1577,7 +1569,6 @@ void ReceivedInvitationRemovedNotification::CopyFrom(const ReceivedInvitationRem
 }
 
 bool ReceivedInvitationRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1602,7 +1593,6 @@ void ReceivedInvitationRemovedNotification::Swap(ReceivedInvitationRemovedNotifi
   metadata.reflection = ReceivedInvitationRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1854,7 +1844,6 @@ void SharedSettingsChangedNotification::CopyFrom(const SharedSettingsChangedNoti
 }
 
 bool SharedSettingsChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1878,7 +1867,6 @@ void SharedSettingsChangedNotification::Swap(SharedSettingsChangedNotification* 
   metadata.reflection = SharedSettingsChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2130,7 +2118,6 @@ void StreamMentionAddedNotification::CopyFrom(const StreamMentionAddedNotificati
 }
 
 bool StreamMentionAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2157,7 +2144,6 @@ void StreamMentionAddedNotification::Swap(StreamMentionAddedNotification* other)
   metadata.reflection = StreamMentionAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2409,7 +2395,6 @@ void StreamMentionRemovedNotification::CopyFrom(const StreamMentionRemovedNotifi
 }
 
 bool StreamMentionRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2433,7 +2418,6 @@ void StreamMentionRemovedNotification::Swap(StreamMentionRemovedNotification* ot
   metadata.reflection = StreamMentionRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2680,7 +2664,6 @@ void StreamMentionAdvanceViewTimeNotification::CopyFrom(const StreamMentionAdvan
 }
 
 bool StreamMentionAdvanceViewTimeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2704,7 +2687,6 @@ void StreamMentionAdvanceViewTimeNotification::Swap(StreamMentionAdvanceViewTime
   metadata.reflection = StreamMentionAdvanceViewTimeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2771,7 +2753,6 @@ void ClubMembershipListener::CallServerMethod(uint32 token, uint32 methodId, Mes
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

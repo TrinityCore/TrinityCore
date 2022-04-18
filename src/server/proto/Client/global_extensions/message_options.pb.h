@@ -129,7 +129,6 @@ class TC_PROTO_API BGSMessageOptions : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
 
 static const int kMessageOptionsFieldNumber = 90000;
@@ -189,7 +188,6 @@ inline void BGSMessageOptions::set_custom_validator(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSMessageOptions.custom_validator)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -198,8 +196,6 @@ inline void BGSMessageOptions::set_custom_validator(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

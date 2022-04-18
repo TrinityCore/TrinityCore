@@ -220,6 +220,17 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
     data->AddUpdateBlock(buffer);
 }
 
+void AzeriteEmpoweredItem::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(player->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), AzeriteEmpoweredItemMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void AzeriteEmpoweredItem::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&AzeriteEmpoweredItem::m_azeriteEmpoweredItemData);

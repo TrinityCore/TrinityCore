@@ -37,6 +37,10 @@
 #include "RBAC.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class mmaps_commandscript : public CommandScript
 {
 public:
@@ -135,7 +139,7 @@ public:
         player->GetPosition(x, y, z);
 
         handler->PSendSysMessage("%04u%02i%02i.mmtile", player->GetMapId(), gx, gy);
-        handler->PSendSysMessage("gridloc [%i, %i]", gy, gx);
+        handler->PSendSysMessage("tileloc [%i, %i]", gy, gx);
 
         // calculate navmesh tile location
         uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap(), x, y);

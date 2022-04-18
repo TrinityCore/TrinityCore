@@ -117,7 +117,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 events.ScheduleEvent(EVENT_FEAR, 8s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
@@ -160,7 +160,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                         break;
                 }
 
-                me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -178,7 +178,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 switch (pointId)
                 {
                     case POINT_MILLHOUSE_GROUP_2:
-                        me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                        me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 200.0f))
                             me->SetFacingToObject(worldtrigger);
@@ -187,7 +187,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                         events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10s);
                         break;
                     case POINT_MILLHOUSE_GROUP_3:
-                        me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                        me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetFacingTo(5.931499f);
                         DoCast(me, SPELL_ANCHOR_HERE);

@@ -51,8 +51,13 @@ enum Yells
     SAY_DEATH           = 7
 };
 
-#define GOSSIP_START_EVENT1     "I'm ready to start challenge."
-#define GOSSIP_START_EVENT2     "I'm ready for the next challenge."
+enum Gossip
+{
+    GOSSIP_START_EVENT1_MID = 10614,  //  I'm ready to start challenge.
+    GOSSIP_START_EVENT1_OID = 0,
+    GOSSIP_START_EVENT2_MID = 10614,  //  I'm ready for the next challenge.
+    GOSSIP_START_EVENT2_OID = 1
+};
 
 #define ORIENTATION             4.714f
 
@@ -87,8 +92,8 @@ public:
             uiTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
             SetGrandChampionsForEncounter();
             SetArgentChampion();
@@ -426,7 +431,7 @@ public:
         {
             if (instance->GetBossState(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
             {
-                summon->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                summon->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 summon->SetReactState(REACT_PASSIVE);
             }
         }
@@ -462,9 +467,9 @@ public:
                 instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
                 instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
                 instance->GetBossState(BOSS_BLACK_KNIGHT) == NOT_STARTED)
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_START_EVENT1_MID, GOSSIP_START_EVENT1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             else
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_START_EVENT2_MID, GOSSIP_START_EVENT2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;

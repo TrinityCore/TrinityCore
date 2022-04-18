@@ -759,7 +759,7 @@ public:
                         case 15: // summon gate
                             if (Creature* temp = me->SummonCreature(NPC_HIGHLORD_ALEXANDROS_MOGRAINE, LightofDawnLoc[22], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 5min))
                             {
-                                temp->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                                temp->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                                 temp->CastSpell(temp, SPELL_ALEXANDROS_MOGRAINE_SPAWN, true);
                                 temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN06);
                                 uiAlexandrosGUID = temp->GetGUID();
@@ -770,7 +770,7 @@ public:
                         case 16: // Alexandros out
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiAlexandrosGUID))
                             {
-                                temp->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                                temp->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                                 temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[23]);
                                 temp->AI()->Talk(SAY_LIGHT_OF_DAWN32);
                             }
@@ -1672,41 +1672,8 @@ public:
 
 };
 
-// 58418 - Portal to Orgrimmar
-// 58420 - Portal to Stormwind
-class spell_teleport_leaders_blessing : public SpellScript
-{
-    PrepareSpellScript(spell_teleport_leaders_blessing);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return spellInfo->GetEffects().size() > EFFECT_1
-            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) })
-            && sObjectMgr->GetQuestTemplate(spellInfo->GetEffect(EFFECT_1).CalcValue()) != nullptr;
-    }
-
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
-    {
-        Player* target = GetHitPlayer();
-        if (!target)
-            return;
-
-        uint32 spellID = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
-        uint32 questID = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
-
-        if (target->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE)
-            target->CastSpell(target, spellID, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_teleport_leaders_blessing::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_the_scarlet_enclave_c5()
 {
     new npc_highlord_darion_mograine();
     new npc_the_lich_king_tirion_dawn();
-    RegisterSpellScript(spell_teleport_leaders_blessing);
 }

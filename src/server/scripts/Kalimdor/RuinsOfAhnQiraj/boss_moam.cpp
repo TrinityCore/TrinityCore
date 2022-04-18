@@ -77,7 +77,7 @@ class boss_moam : public CreatureScript
                 //events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!_isStonePhase && HealthBelowPct(45))
                 {

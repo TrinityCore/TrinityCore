@@ -65,192 +65,170 @@ enum Misc
     DATA_FRENZY_DISPELS         = 1
 };
 
-class boss_faerlina : public CreatureScript
+struct boss_faerlina : public BossAI
 {
-    public:
-        boss_faerlina() : CreatureScript("boss_faerlina") { }
+    boss_faerlina(Creature* creature) : BossAI(creature, BOSS_FAERLINA), _frenzyDispels(0) { }
 
-        struct boss_faerlinaAI : public BossAI
+    void SummonAdds()
+    {
+        me->SummonCreatureGroup(SUMMON_GROUP_WORSHIPPERS);
+        if (Is25ManRaid())
+            me->SummonCreatureGroup(SUMMON_GROUP_FOLLOWERS);
+    }
+
+    void InitializeAI() override
+    {
+        if (!me->isDead() && instance->GetBossState(BOSS_FAERLINA) != DONE)
         {
-            boss_faerlinaAI(Creature* creature) : BossAI(creature, BOSS_FAERLINA), _frenzyDispels(0) { }
-
-            void SummonAdds()
-            {
-                me->SummonCreatureGroup(SUMMON_GROUP_WORSHIPPERS);
-                if (Is25ManRaid())
-                    me->SummonCreatureGroup(SUMMON_GROUP_FOLLOWERS);
-            }
-
-            void InitializeAI() override
-            {
-                if (!me->isDead() && instance->GetBossState(BOSS_FAERLINA) != DONE)
-                {
-                    Reset();
-                    SummonAdds();
-                }
-            }
-
-            void JustReachedHome() override
-            {
-                _JustReachedHome();
-                SummonAdds();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                summons.DoZoneInCombat();
-                events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
-                events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(6), Seconds(18)));
-                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(0s, Seconds(20)));
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                _frenzyDispels = 0;
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-            {
-                Unit* unitCaster = caster->ToUnit();
-                if (!unitCaster)
-                    return;
-
-                if (spellInfo->Id == SPELL_WIDOWS_EMBRACE_HELPER)
-                {
-                    ++_frenzyDispels;
-                    Talk(EMOTE_WIDOW_EMBRACE, caster);
-                    Unit::Kill(me, unitCaster);
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_FRENZY_DISPELS)
-                    return _frenzyDispels;
-
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_POISON:
-                            if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
-                                DoCastAOE(SPELL_POISON_BOLT_VOLLEY);
-                            events.Repeat(randtime(Seconds(8), Seconds(15)));
-                            break;
-                        case EVENT_FIRE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                                DoCast(target, SPELL_RAIN_OF_FIRE);
-                            events.Repeat(randtime(Seconds(6), Seconds(18)));
-                            break;
-                        case EVENT_FRENZY:
-                            if (Aura* widowsEmbrace = me->GetAura(SPELL_WIDOWS_EMBRACE_HELPER))
-                                events.ScheduleEvent(EVENT_FRENZY, Milliseconds(widowsEmbrace->GetDuration()+1));
-                            else
-                            {
-                                DoCast(SPELL_FRENZY);
-                                Talk(EMOTE_FRENZY);
-                                events.Repeat(Minutes(1) + randtime(0s, Seconds(20)));
-                            }
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _frenzyDispels;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetNaxxramasAI<boss_faerlinaAI>(creature);
+            Reset();
+            SummonAdds();
         }
+    }
+
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
+        SummonAdds();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        summons.DoZoneInCombat();
+        events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
+        events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(6), Seconds(18)));
+        events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(0s, Seconds(20)));
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        _frenzyDispels = 0;
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Unit* unitCaster = caster->ToUnit();
+        if (!unitCaster)
+            return;
+
+        if (spellInfo->Id == SPELL_WIDOWS_EMBRACE_HELPER)
+        {
+            ++_frenzyDispels;
+            Talk(EMOTE_WIDOW_EMBRACE, caster);
+            Unit::Kill(me, unitCaster);
+        }
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_FRENZY_DISPELS)
+            return _frenzyDispels;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_POISON:
+                    if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
+                        DoCastAOE(SPELL_POISON_BOLT_VOLLEY);
+                    events.Repeat(randtime(Seconds(8), Seconds(15)));
+                    break;
+                case EVENT_FIRE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_RAIN_OF_FIRE);
+                    events.Repeat(randtime(Seconds(6), Seconds(18)));
+                    break;
+                case EVENT_FRENZY:
+                    if (Aura* widowsEmbrace = me->GetAura(SPELL_WIDOWS_EMBRACE_HELPER))
+                        events.ScheduleEvent(EVENT_FRENZY, Milliseconds(widowsEmbrace->GetDuration()+1));
+                    else
+                    {
+                        DoCast(SPELL_FRENZY);
+                        Talk(EMOTE_FRENZY);
+                        events.Repeat(Minutes(1) + randtime(0s, Seconds(20)));
+                    }
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint32 _frenzyDispels;
 };
 
-class npc_faerlina_add : public CreatureScript
+struct npc_faerlina_add : public ScriptedAI
 {
-    public:
-        npc_faerlina_add() : CreatureScript("npc_faerlina_add") { }
+    npc_faerlina_add(Creature* creature) : ScriptedAI(creature),
+        _instance(creature->GetInstanceScript())
+    {
+    }
 
-        struct npc_faerlina_addAI : public ScriptedAI
-        {
-            npc_faerlina_addAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
-            {
-            }
-
-            void Reset() override
-            {
-                if (!Is25ManRaid()) {
-                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_BIND, true);
-                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-                }
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
-                    faerlina->AI()->DoZoneInCombat();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (!Is25ManRaid())
-                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
-                        DoCast(faerlina, SPELL_WIDOWS_EMBRACE);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (!UpdateVictim())
-                    return;
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                DoCastVictim(SPELL_ADD_FIREBALL);
-                DoMeleeAttackIfReady(); // this will only happen if the fireball cast fails for some reason
-            }
-
-        private:
-            InstanceScript* const _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetNaxxramasAI<npc_faerlina_addAI>(creature);
+    void Reset() override
+    {
+        if (!Is25ManRaid()) {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_BIND, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
         }
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
+            faerlina->AI()->DoZoneInCombat();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (!Is25ManRaid())
+            if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
+                DoCast(faerlina, SPELL_WIDOWS_EMBRACE);
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        DoCastVictim(SPELL_ADD_FIREBALL);
+        DoMeleeAttackIfReady(); // this will only happen if the fireball cast fails for some reason
+    }
+
+private:
+    InstanceScript* const _instance;
 };
 
 class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
@@ -284,8 +262,8 @@ class at_faerlina_entrance : public OnlyOnceAreaTriggerScript
 
 void AddSC_boss_faerlina()
 {
-    new boss_faerlina();
-    new npc_faerlina_add();
+    RegisterNaxxramasCreatureAI(boss_faerlina);
+    RegisterNaxxramasCreatureAI(npc_faerlina_add);
     new at_faerlina_entrance();
     new achievement_momma_said_knock_you_out();
 }

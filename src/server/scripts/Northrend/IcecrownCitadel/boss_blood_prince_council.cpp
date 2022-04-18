@@ -493,7 +493,7 @@ struct BloodPrincesBossAI : public BossAI
         me->SetHealth(_spawnHealth);
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_isEmpowered)
         {
@@ -528,7 +528,7 @@ struct BloodPrincesBossAI : public BossAI
         _isEmpowered = false;
         if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
         {
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             controller->AI()->SetData(DATA_PRINCE_EVADE, 1);
         }
     }
@@ -554,10 +554,9 @@ struct BloodPrincesBossAI : public BossAI
         {
             case ACTION_STAND_UP:
                 me->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 me->RemoveDynamicFlag(UNIT_DYNFLAG_DEAD);
-                me->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
                 me->m_Events.AddEvent(new StandUpEvent(me), me->m_Events.CalculateTime(1s));
                 break;
             case ACTION_CAST_INVOCATION:
@@ -780,7 +779,7 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
                 summon->GetPosition(x, y, z);
                 float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseShift(), x, y, z, true, 500.0f);
                 summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
-                summon->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                summon->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 break;
             }
             case NPC_SHOCK_VORTEX:
@@ -1069,7 +1068,7 @@ struct npc_dark_nucleus : public ScriptedAI
         DoCast(who, SPELL_SHADOW_RESONANCE_RESIST);
     }
 
-    void DamageTaken(Unit* attacker, uint32& /*damage*/) override
+    void DamageTaken(Unit* attacker, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (attacker == me)
             return;

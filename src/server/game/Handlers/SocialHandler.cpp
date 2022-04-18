@@ -156,7 +156,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet
         }
     }
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, ObjectGuid::Empty);
+    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, ignoreGuid);
 }
 
 void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet)

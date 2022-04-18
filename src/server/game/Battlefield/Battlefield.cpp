@@ -187,7 +187,6 @@ bool Battlefield::Update(uint32 diff)
                 objective_changed = true;
     }
 
-
     if (m_LastResurrectTimer <= diff)
     {
         for (uint8 i = 0; i < m_GraveyardList.size(); i++)
@@ -504,7 +503,7 @@ void Battlefield::HideNpc(Creature* creature)
 {
     creature->CombatStop();
     creature->SetReactState(REACT_PASSIVE);
-    creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+    creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
     creature->DisappearAndDie();
     creature->SetVisible(false);
 }
@@ -512,14 +511,14 @@ void Battlefield::HideNpc(Creature* creature)
 void Battlefield::ShowNpc(Creature* creature, bool aggressive)
 {
     creature->SetVisible(true);
-    creature->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+    creature->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
     if (!creature->IsAlive())
         creature->Respawn(true);
     if (aggressive)
         creature->SetReactState(REACT_AGGRESSIVE);
     else
     {
-        creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         creature->SetReactState(REACT_PASSIVE);
     }
 }

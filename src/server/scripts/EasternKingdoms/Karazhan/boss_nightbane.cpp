@@ -158,7 +158,7 @@ public:
                 events.SetPhase(PHASE_INTRO);
                 me->setActive(true);
                 me->SetFarVisible(true);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
             }
@@ -188,7 +188,7 @@ public:
             SetupGroundPhase();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (events.IsInPhase(PHASE_FLY))
             {
@@ -438,7 +438,7 @@ class go_blackened_urn : public GameObjectScript
 
                 if (Creature* nightbane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NIGHTBANE)))
                 {
-                    me->AddFlag(GO_FLAG_IN_USE);
+                    me->SetFlag(GO_FLAG_IN_USE);
                     nightbane->AI()->DoAction(ACTION_SUMMON);
                 }
                 return false;

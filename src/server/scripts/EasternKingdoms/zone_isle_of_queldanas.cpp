@@ -153,7 +153,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
 
     void Reset() override
     {
-        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         _summons.DespawnAll();
         _playerGUID.Clear();
         _morlenGUID.Clear();
@@ -376,7 +376,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                         thalorien->DespawnOrUnsummon(5s);
                     }
 
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
                     break;
             }

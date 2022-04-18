@@ -17,9 +17,11 @@
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
@@ -28,150 +30,6 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
-
-/////////////////////
-///npc_injured_goblin
-/////////////////////
-
-enum InjuredGoblinMiner
-{
-    QUEST_BITTER_DEPARTURE     = 12832,
-    SAY_QUEST_ACCEPT           = 0,
-    SAY_END_WP_REACHED         = 1,
-    GOSSIP_ID                  = 9859,
-    GOSSIP_OPTION_ID           = 0
-};
-
-class npc_injured_goblin : public CreatureScript
-{
-public:
-    npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
-
-    struct npc_injured_goblinAI : public EscortAI
-    {
-        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 26:
-                    Talk(SAY_END_WP_REACHED, player);
-                    break;
-                case 27:
-                    player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
-                    break;
-            }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void Reset() override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (HasEscortState(STATE_ESCORT_ESCORTING) && player)
-                player->FailQuest(QUEST_BITTER_DEPARTURE);
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            EscortAI::UpdateAI(uiDiff);
-            if (!UpdateVictim())
-                return;
-            DoMeleeAttackIfReady();
-        }
-
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-        {
-            if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
-            {
-                CloseGossipMenuFor(player);
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                Start(true, true, player->GetGUID());
-            }
-            return false;
-        }
-
-        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-                Talk(SAY_QUEST_ACCEPT);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_injured_goblinAI(creature);
-    }
-};
-
-/*######
-## npc_roxi_ramrocket
-######*/
-
-enum RoxiRamrocket
-{
-    SPELL_MECHANO_HOG               = 60866,
-    SPELL_MEKGINEERS_CHOPPER        = 60867,
-    TRAINER_ID_ROXI_RAMROCKET       = 102,
-};
-
-class npc_roxi_ramrocket : public CreatureScript
-{
-public:
-    npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
-
-    struct npc_roxi_ramrocketAI : public ScriptedAI
-    {
-        npc_roxi_ramrocketAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            //Quest Menu
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            //Trainer Menu
-            if (me->IsTrainer())
-                AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-            //Vendor Menu
-            if (me->IsVendor())
-                if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
-                    AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_TRAIN:
-                    player->GetSession()->SendTrainerList(me, TRAINER_ID_ROXI_RAMROCKET);
-                    break;
-                case GOSSIP_ACTION_TRADE:
-                    player->GetSession()->SendListInventory(me->GetGUID());
-                    break;
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_roxi_ramrocketAI(creature);
-    }
-};
 
 /*######
 ## npc_brunnhildar_prisoner
@@ -512,7 +370,7 @@ public:
                     case EVENT_SCRIPT_1:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             Talk(SAY_BRANN_1, player);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49s))
                             voiceGUID = voice->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_2, 4s);
@@ -792,7 +650,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (damage >= me->GetHealth())
             {
@@ -816,8 +674,7 @@ public:
                     me->RemoveAurasDueToSpell(SPELL_JAWS_OF_DEATH_PERIODIC);
                     me->RemoveAurasDueToSpell(SPELL_PRY_JAWS_OPEN);
 
-                    me->SetDynamicFlags(UNIT_DYNFLAG_DEAD);
-                    me->SetUnitFlags((UnitFlags)0);
+                    me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
 
                     me->GetMotionMaster()->MoveFall(POINT_FALL);
                 });
@@ -991,7 +848,7 @@ public:
                 playerGUID = who->GetGUID();
                 Talk(SAY_HOLD_ON, who);
                 me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
-                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                 me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
             }
         }
@@ -1055,6 +912,7 @@ public:
     }
 };
 
+// 61319 - Jokkum Scriptcast
 class spell_jokkum_scriptcast : public SpellScriptLoader
 {
     public: spell_jokkum_scriptcast() : SpellScriptLoader("spell_jokkum_scriptcast") { }
@@ -1086,6 +944,7 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
         }
 };
 
+// 56650 - Player Cast Veranus Summon
 class spell_veranus_summon : public SpellScriptLoader
 {
     public: spell_veranus_summon() : SpellScriptLoader("spell_veranus_summon") { }
@@ -1122,6 +981,7 @@ enum CloseRift
     SPELL_DESPAWN_RIFT          = 61665
 };
 
+// 56763 - Close Rift
 class spell_close_rift : public SpellScriptLoader
 {
     public:
@@ -1156,38 +1016,6 @@ class spell_close_rift : public SpellScriptLoader
         {
             return new spell_close_rift_AuraScript();
         }
-};
-
-// 60603 - Eject Passenger 1
-class spell_eject_passenger_wild_wyrm : public SpellScriptLoader
-{
-public:
-    spell_eject_passenger_wild_wyrm() : SpellScriptLoader("spell_eject_passenger_wild_wyrm") { }
-
-    class spell_eject_passenger_wild_wyrm_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_eject_passenger_wild_wyrm_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
-        }
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            GetHitUnit()->RemoveAurasDueToSpell(SPELL_FIGHT_WYRM);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_eject_passenger_wild_wyrm_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_eject_passenger_wild_wyrm_SpellScript();
-    }
 };
 
 // 56689 - Grip
@@ -1464,41 +1292,6 @@ public:
     }
 };
 
-// 55795 - Falling Dragon Feign Death
-class spell_falling_dragon_feign_death : public SpellScriptLoader
-{
-public:
-    spell_falling_dragon_feign_death() : SpellScriptLoader("spell_falling_dragon_feign_death") { }
-
-    class spell_falling_dragon_feign_death_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_falling_dragon_feign_death_AuraScript);
-
-        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->AddUnitFlag(UNIT_FLAG_UNK_29);
-            GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        }
-
-        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNK_29);
-            GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_falling_dragon_feign_death_AuraScript();
-    }
-};
-
 // 56672 - Player Mount Wyrm
 class spell_player_mount_wyrm : public SpellScriptLoader
 {
@@ -1531,36 +1324,201 @@ public:
     }
 };
 
-enum CollapsingCave
-{
-    SPELL_COLLAPSING_CAVE = 55486
-};
+/*######
+## Quest 12823: A Flawless Plan
+######*/
 
 // 55693 - Remove Collapsing Cave Aura
 class spell_q12823_remove_collapsing_cave_aura : public SpellScript
 {
     PrepareSpellScript(spell_q12823_remove_collapsing_cave_aura);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_COLLAPSING_CAVE });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->RemoveAurasDueToSpell(SPELL_COLLAPSING_CAVE);
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12987: Mounting Hodir's Helm
+######*/
+
+enum MountingHodirsHelm
+{
+    TEXT_PRONOUNCEMENT_1     = 30906,
+    TEXT_PRONOUNCEMENT_2     = 30907,
+    NPC_HODIRS_HELM_KC       = 30210
+};
+
+// 56278 - Read Pronouncement
+class spell_read_pronouncement : public AuraScript
+{
+    PrepareAuraScript(spell_read_pronouncement);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sBroadcastTextStore.HasRecord(TEXT_PRONOUNCEMENT_1) &&
+            sBroadcastTextStore.HasRecord(TEXT_PRONOUNCEMENT_2) &&
+            sObjectMgr->GetCreatureTemplate(NPC_HODIRS_HELM_KC);
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+        {
+            target->Unit::Whisper(TEXT_PRONOUNCEMENT_1, target, true);
+            target->KilledMonsterCredit(NPC_HODIRS_HELM_KC);
+            target->Unit::Whisper(TEXT_PRONOUNCEMENT_2, target, true);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 13011: Jormuttar is Soo Fat...
+######*/
+
+enum JormuttarIsSooFat
+{
+    SPELL_CREATE_BEAR_FLANK    = 56566,
+    SPELL_BEAR_FLANK_FAIL      = 56569,
+    TEXT_CARVE_FAIL            = 30986
+};
+
+// 56565 - Bear Flank Master
+class spell_bear_flank_master : public SpellScript
+{
+    PrepareSpellScript(spell_bear_flank_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_BEAR_FLANK, SPELL_BEAR_FLANK_FAIL });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), roll_chance_i(20) ? SPELL_CREATE_BEAR_FLANK : SPELL_BEAR_FLANK_FAIL);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 56569 - Bear Flank Fail
+class spell_bear_flank_fail : public AuraScript
+{
+    PrepareAuraScript(spell_bear_flank_fail);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sBroadcastTextStore.HasRecord(TEXT_CARVE_FAIL);
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            target->Unit::Whisper(TEXT_CARVE_FAIL, target, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_bear_flank_fail::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 12828: Ample Inspiration
+######*/
+
+enum AmpleInspiration
+{
+    SPELL_QUIET_SUICIDE              = 3617,
+    SPELL_SUMMON_MAIN_MAMMOTH_MEAT   = 57444,
+    SPELL_MAMMOTH_SUMMON_OBJECT_1    = 54627,
+    SPELL_MAMMOTH_SUMMON_OBJECT_2    = 54628,
+    SPELL_MAMMOTH_SUMMON_OBJECT_3    = 54623,
+
+    ITEM_EXPLOSIVE_DEVICE            = 40686
+};
+
+// 54581 - Mammoth Explosion Spell Spawner
+class spell_storm_peaks_mammoth_explosion_master : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_mammoth_explosion_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_QUIET_SUICIDE,
+            SPELL_SUMMON_MAIN_MAMMOTH_MEAT,
+            SPELL_MAMMOTH_SUMMON_OBJECT_1,
+            SPELL_MAMMOTH_SUMMON_OBJECT_2,
+            SPELL_MAMMOTH_SUMMON_OBJECT_3
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_QUIET_SUICIDE);
+        caster->CastSpell(caster, SPELL_SUMMON_MAIN_MAMMOTH_MEAT);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_1);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_1);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_1);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_2);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_2);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_2);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_3);
+        caster->CastSpell(caster, SPELL_MAMMOTH_SUMMON_OBJECT_3);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_mammoth_explosion_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 54892 - Unstable Explosive Detonation
+class spell_storm_peaks_unstable_explosive_detonation : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_unstable_explosive_detonation);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sObjectMgr->GetItemTemplate(ITEM_EXPLOSIVE_DEVICE);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            caster->DestroyItemCount(ITEM_EXPLOSIVE_DEVICE, 1, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_unstable_explosive_detonation::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 void AddSC_storm_peaks()
 {
-    new npc_injured_goblin();
-    new npc_roxi_ramrocket();
     new npc_brunnhildar_prisoner();
     new npc_freed_protodrake();
     new npc_icefang();
@@ -1572,7 +1530,6 @@ void AddSC_storm_peaks()
     new spell_jokkum_scriptcast();
     new spell_veranus_summon();
     new spell_close_rift();
-    new spell_eject_passenger_wild_wyrm();
     new spell_grip();
     new spell_grab_on();
     new spell_loosen_grip<5>("spell_thrust_spear");
@@ -1581,7 +1538,11 @@ void AddSC_storm_peaks()
     new spell_jaws_of_death_claw_swipe_pct_damage();
     new spell_claw_swipe_check();
     new spell_fatal_strike();
-    new spell_falling_dragon_feign_death();
     new spell_player_mount_wyrm();
     RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
+    RegisterSpellScript(spell_read_pronouncement);
+    RegisterSpellScript(spell_bear_flank_master);
+    RegisterSpellScript(spell_bear_flank_fail);
+    RegisterSpellScript(spell_storm_peaks_mammoth_explosion_master);
+    RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
 }

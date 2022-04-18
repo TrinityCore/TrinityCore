@@ -42,19 +42,21 @@ Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(ba
 
 void Arena::AddPlayer(Player* player)
 {
+    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
+    if (!isInBattleground)
+        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
 
     if (player->GetBGTeam() == ALLIANCE)        // gold
     {
-        if (player->GetTeam() == HORDE)
+        if (player->GetEffectiveTeam() == HORDE)
             player->CastSpell(player, SPELL_HORDE_GOLD_FLAG, true);
         else
             player->CastSpell(player, SPELL_ALLIANCE_GOLD_FLAG, true);
     }
     else                                        // green
     {
-        if (player->GetTeam() == HORDE)
+        if (player->GetEffectiveTeam() == HORDE)
             player->CastSpell(player, SPELL_HORDE_GREEN_FLAG, true);
         else
             player->CastSpell(player, SPELL_ALLIANCE_GREEN_FLAG, true);

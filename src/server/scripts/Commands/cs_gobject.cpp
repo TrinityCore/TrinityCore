@@ -43,8 +43,8 @@ EndScriptData */
 #include "WorldSession.h"
 #include <sstream>
 
-
 using namespace Trinity::ChatCommands;
+
 using GameObjectSpawnId = Variant<Hyperlink<gameobject>, ObjectGuid::LowType>;
 using GameObjectEntry = Variant<Hyperlink<gameobject_entry>, uint32>;
 
@@ -57,35 +57,27 @@ class gobject_commandscript : public CommandScript
 public:
     gobject_commandscript() : CommandScript("gobject_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> gobjectAddCommandTable =
+        static ChatCommandTable gobjectCommandTable =
         {
-            { "temp", rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, false, &HandleGameObjectAddTempCommand,   "" },
-            { "",     rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, &HandleGameObjectAddCommand,       "" },
+            { "activate",       HandleGameObjectActivateCommand,  rbac::RBAC_PERM_COMMAND_GOBJECT_ACTIVATE,       Console::No },
+            { "delete",         HandleGameObjectDeleteCommand,    rbac::RBAC_PERM_COMMAND_GOBJECT_DELETE,         Console::No },
+            { "info",           HandleGameObjectInfoCommand,      rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,           Console::No },
+            { "move",           HandleGameObjectMoveCommand,      rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,           Console::No },
+            { "near",           HandleGameObjectNearCommand,      rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,           Console::No },
+            { "target",         HandleGameObjectTargetCommand,    rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,         Console::No },
+            { "turn",           HandleGameObjectTurnCommand,      rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,           Console::No },
+            { "spawngroup",     HandleNpcSpawnGroup,              rbac::RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP,     Console::No },
+            { "despawngroup",   HandleNpcDespawnGroup,            rbac::RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP,   Console::No },
+            { "add temp",       HandleGameObjectAddTempCommand,   rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP,       Console::No },
+            { "add",            HandleGameObjectAddCommand,       rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,            Console::No },
+            { "set phase",      HandleGameObjectSetPhaseCommand,  rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASE,      Console::No },
+            { "set state",      HandleGameObjectSetStateCommand,  rbac::RBAC_PERM_COMMAND_GOBJECT_SET_STATE,      Console::No },
         };
-        static std::vector<ChatCommand> gobjectSetCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "phase", rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASE, false, &HandleGameObjectSetPhaseCommand,  "" },
-            { "state", rbac::RBAC_PERM_COMMAND_GOBJECT_SET_STATE, false, &HandleGameObjectSetStateCommand,  "" },
-        };
-        static std::vector<ChatCommand> gobjectCommandTable =
-        {
-            { "activate",     rbac::RBAC_PERM_COMMAND_GOBJECT_ACTIVATE,     false, &HandleGameObjectActivateCommand,  ""       },
-            { "delete",       rbac::RBAC_PERM_COMMAND_GOBJECT_DELETE,       false, &HandleGameObjectDeleteCommand,    ""       },
-            { "info",         rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,         false, &HandleGameObjectInfoCommand,      ""       },
-            { "move",         rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,         false, &HandleGameObjectMoveCommand,      ""       },
-            { "near",         rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,         false, &HandleGameObjectNearCommand,      ""       },
-            { "target",       rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,       false, &HandleGameObjectTargetCommand,    ""       },
-            { "turn",         rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,         false, &HandleGameObjectTurnCommand,      ""       },
-            { "spawngroup",   rbac::RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP,   false, &HandleNpcSpawnGroup,              ""       },
-            { "despawngroup", rbac::RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP, false, &HandleNpcDespawnGroup,            ""       },
-            { "add",          rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,          false, nullptr,         "", gobjectAddCommandTable },
-            { "set",          rbac::RBAC_PERM_COMMAND_GOBJECT_SET,          false, nullptr,         "", gobjectSetCommandTable },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "gobject", rbac::RBAC_PERM_COMMAND_GOBJECT, false, nullptr, "", gobjectCommandTable },
+            { "gobject", gobjectCommandTable },
         };
         return commandTable;
     }
@@ -95,7 +87,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(*guidLow).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -171,7 +163,6 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
         Seconds spawntm(spawntime.value_or(300));
-
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
         {
@@ -321,12 +312,12 @@ public:
 
         if (GameObject::DeleteFromDB(spawnId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, std::to_string(spawnId).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, std::to_string(*spawnId).c_str());
             return true;
         }
         else
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(spawnId).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(*spawnId).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -341,7 +332,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(*guidLow).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -377,7 +368,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(*guidLow).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -431,7 +422,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(*guidLow).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -580,7 +571,7 @@ public:
         return true;
     }
 
-    static bool HandleGameObjectSetStateCommand(ChatHandler* handler, GameObjectSpawnId guidLow, int32 objectType, Optional<int32> objectState)
+    static bool HandleGameObjectSetStateCommand(ChatHandler* handler, GameObjectSpawnId guidLow, int32 objectType, Optional<uint32> objectState)
     {
         if (!guidLow)
             return false;
@@ -588,7 +579,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(*guidLow).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -623,7 +614,7 @@ public:
                 object->SendCustomAnim(*objectState);
                 break;
             case 5:
-                if (objectState < 0 || objectState > GO_DESTRUCTIBLE_REBUILDING)
+                if (*objectState > GO_DESTRUCTIBLE_REBUILDING)
                     return false;
 
                 object->SetDestructibleState(GameObjectDestructibleState(*objectState));

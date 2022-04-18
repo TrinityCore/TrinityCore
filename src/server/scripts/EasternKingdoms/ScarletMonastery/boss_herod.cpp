@@ -92,7 +92,7 @@ struct boss_herod : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_enrage && me->HealthBelowPctDamaged(30, damage))
         {

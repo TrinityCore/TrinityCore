@@ -631,6 +631,7 @@ void AuctionHouseMgr::LoadAuctions()
             auction.BidAmount = fields[7].GetUInt64();
             auction.StartTime = std::chrono::system_clock::from_time_t(fields[8].GetInt64());
             auction.EndTime = std::chrono::system_clock::from_time_t(fields[9].GetInt64());
+            auction.ServerFlags = static_cast<AuctionPostingServerFlag>(fields[10].GetUInt8());
 
             auto biddersItr = biddersByAuction.find(auction.Id);
             if (biddersItr != biddersByAuction.end())
@@ -1003,6 +1004,7 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
         stmt->setUInt64(7, auction.BidAmount);
         stmt->setInt64(8, std::chrono::system_clock::to_time_t(auction.StartTime));
         stmt->setInt64(9, std::chrono::system_clock::to_time_t(auction.EndTime));
+        stmt->setUInt8(10, auction.ServerFlags.AsUnderlyingType());
         trans->Append(stmt);
 
         for (Item* item : auction.Items)
@@ -1854,18 +1856,16 @@ void AuctionHouseObject::SendAuctionWon(AuctionPosting const* auction, Player* b
 
     // data for gm.log
     std::string bidderName;
-    bool logGmTrade = false;
+    bool logGmTrade = auction->ServerFlags.HasFlag(AuctionPostingServerFlag::GmLogBuyer);
 
     if (bidder)
     {
         bidderAccId = bidder->GetSession()->GetAccountId();
         bidderName = bidder->GetName();
-        logGmTrade = bidder->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE);
     }
     else
     {
         bidderAccId = sCharacterCache->GetCharacterAccountIdByGuid(auction->Bidder);
-        logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, realm.Id.Realm);
 
         if (logGmTrade && !sCharacterCache->GetCharacterNameByGuid(auction->Bidder, bidderName))
             bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
@@ -1958,7 +1958,6 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
     {
         if (owner)
             owner->GetSession()->SendAuctionClosedNotification(auction, 0.0f, false);
-
 
         auto itemItr = auction->Items.begin();
         while (itemItr != auction->Items.end())

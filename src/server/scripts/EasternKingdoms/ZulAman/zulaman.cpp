@@ -91,7 +91,7 @@ class npc_voljin_zulaman : public CreatureScript
             {
                 me->SetDisplayFromModel(0);
                 if (_instance->GetData(DATA_ZULAMAN_STATE) == NOT_STARTED)
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
 
             void Reset() override
@@ -109,7 +109,7 @@ class npc_voljin_zulaman : public CreatureScript
                     _events.Reset();
                     me->SetMountDisplayId(0);
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    me->SetDynamicFlags(UNIT_DYNFLAG_NONE);
+                    me->ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
                     _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_1, 1s);
                     Talk(SAY_INTRO_1, player);
                     me->SetWalk(true);
@@ -158,7 +158,7 @@ class npc_voljin_zulaman : public CreatureScript
                         case EVENT_START_DOOR_OPENING_2:
                             me->SetVirtualItem(0, uint32(0));
                             if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                                strangeGong->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                                strangeGong->SetFlag(GO_FLAG_NOT_SELECTABLE);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500ms);
                             break;
                         case EVENT_START_DOOR_OPENING_3:
@@ -220,7 +220,6 @@ class npc_voljin_zulaman : public CreatureScript
             return GetZulAmanAI<npc_voljin_zulamanAI>(creature);
         }
 };
-
 
 void AddSC_zulaman()
 {

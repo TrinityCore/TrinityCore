@@ -126,7 +126,7 @@ public:
             events.ScheduleEvent(EVENT_EARTH_SPIKE, 16s, 21s, 0, PHASE_NORMAL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_MASK_NORMAL) && !_hasDispersed)
             {
@@ -293,8 +293,8 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29));
-                ptah->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+                ptah->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+                ptah->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }
 
@@ -302,7 +302,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29));
+                ptah->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
                 ptah->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }

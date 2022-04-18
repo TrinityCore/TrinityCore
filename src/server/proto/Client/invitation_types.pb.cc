@@ -34,7 +34,6 @@ const ::google::protobuf::EnumDescriptor* SuggestionRemovedReason_descriptor_ = 
 
 }  // namespace
 
-
 void protobuf_AssignDesc_invitation_5ftypes_2eproto() {
   protobuf_AddDesc_invitation_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -187,7 +186,6 @@ bool SuggestionRemovedReason_IsValid(int value) {
       return false;
   }
 }
-
 
 // ===================================================================
 
@@ -757,7 +755,6 @@ void Invitation::CopyFrom(const Invitation& from) {
 
 bool Invitation::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   if (has_inviter_identity()) {
     if (!this->inviter_identity().IsInitialized()) return false;
   }
@@ -792,7 +789,6 @@ void Invitation::Swap(Invitation* other) {
   metadata.reflection = Invitation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1073,7 +1069,6 @@ void InvitationParams::CopyFrom(const InvitationParams& from) {
 
 bool InvitationParams::IsInitialized() const {
 
-
   if (!_extensions_.IsInitialized()) return false;  return true;
 }
 
@@ -1095,7 +1090,6 @@ void InvitationParams::Swap(InvitationParams* other) {
   metadata.reflection = InvitationParams_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

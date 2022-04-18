@@ -55,7 +55,7 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
         return;
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
-    owner->AddUnitFlag(UNIT_FLAG_FLEEING);
+    owner->SetUnitFlag(UNIT_FLAG_FLEEING);
 
     _path = nullptr;
     SetTargetLocation(owner);
@@ -251,7 +251,7 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 diff)
     return FleeingMovementGenerator<Creature>::DoUpdate(owner->ToCreature(), diff);
 }
 
-void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool/* movementInform*/)
+void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (!active)
@@ -266,6 +266,13 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool/* mo
             owner->AttackStop();
             owner->ToCreature()->AI()->AttackStart(victim);
         }
+    }
+
+    if (movementInform)
+    {
+        Creature* ownerCreature = owner->ToCreature();
+        if (CreatureAI* AI = ownerCreature ? ownerCreature->AI() : nullptr)
+            AI->MovementInform(TIMED_FLEEING_MOTION_TYPE, 0);
     }
 }
 

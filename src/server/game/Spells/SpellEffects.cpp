@@ -370,6 +370,8 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //285 SPELL_EFFECT_MODIFY_KEYSTONE_2
     &Spell::EffectGrantBattlePetExperience,                 //286 SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE
     &Spell::EffectNULL,                                     //287 SPELL_EFFECT_SET_GARRISON_FOLLOWER_LEVEL
+    &Spell::EffectUnused,                                   //288 SPELL_EFFECT_288
+    &Spell::EffectNULL,                                     //289 SPELL_EFFECT_289
 };
 
 void Spell::EffectNULL()
@@ -800,6 +802,7 @@ void Spell::EffectTriggerRitualOfSummoning()
 void Spell::CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedXY, float& speedZ)
 {
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
+    ASSERT(unitCaster);
     float runSpeed = unitCaster->IsControlledByPlayer() ? playerBaseMoveSpeed[MOVE_RUN] : baseMoveSpeed[MOVE_RUN];
     if (Creature* creature = unitCaster->ToCreature())
         runSpeed *= creature->GetCreatureTemplate()->speed_run;
@@ -1266,7 +1269,6 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
 
     /* == gem perfection handling over == */
 
-
     /* == profession specialization handling == */
 
     // init items_count to 1, since 1 item will be created regardless of specialization
@@ -1285,7 +1287,6 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
     num_to_add *= items_count;
 
     /* == profession specialization handling over == */
-
 
     // can the player store the new item?
     ItemPosCountVec dest;
@@ -1326,7 +1327,6 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
         if (pItem->GetQuality() > ITEM_QUALITY_EPIC || (pItem->GetQuality() == ITEM_QUALITY_EPIC && pItem->GetItemLevel(player) >= MinNewsItemLevel))
             if (Guild* guild = player->GetGuild())
                 guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
-
 
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo->Id);
@@ -1603,6 +1603,11 @@ void Spell::EffectOpenLock()
                 return;
             }
         }
+        else if (goInfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
+        {
+            gameObjTarget->AssaultCapturePoint(player);
+            return;
+        }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
             //CanUseBattlegroundObject() already called in CheckCast()
@@ -1658,7 +1663,7 @@ void Spell::EffectOpenLock()
         SendLoot(guid, LOOT_SKINNING);
     else if (itemTarget)
     {
-        itemTarget->AddItemFlag(ITEM_FIELD_FLAG_UNLOCKED);
+        itemTarget->SetItemFlag(ITEM_FIELD_FLAG_UNLOCKED);
         itemTarget->SetState(ITEM_CHANGED, itemTarget->GetOwner());
     }
 
@@ -2270,12 +2275,8 @@ void Spell::EffectTeleUnitsFaceCaster()
     if (unitTarget->IsInFlight())
         return;
 
-    float dis = effectInfo->CalcRadius(m_caster);
-
-    float fx, fy, fz;
-    m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetCombatReach(), dis);
-
-    unitTarget->NearTeleportTo(fx, fy, fz, -m_caster->GetOrientation(), unitTarget == m_caster);
+    if (m_targets.HasDst())
+        unitTarget->NearTeleportTo(destTarget->GetPositionX(), destTarget->GetPositionY(), destTarget->GetPositionZ(), destTarget->GetAbsoluteAngle(m_caster), unitTarget == m_caster);
 }
 
 void Spell::EffectLearnSkill()
@@ -2957,7 +2958,6 @@ void Spell::EffectSummonObjectWild()
         o = target->GetOrientation();
     }
 
-
     Map* map = target->GetMap();
     Position pos = Position(x, y, z, o);
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
@@ -2980,7 +2980,7 @@ void Spell::EffectSummonObjectWild()
     if (go->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP)
         if (Player* player = m_caster->ToPlayer())
             if (Battleground* bg = player->GetBattleground())
-                bg->SetDroppedFlagGUID(go->GetGUID(), player->GetTeam() == ALLIANCE ? TEAM_HORDE: TEAM_ALLIANCE);
+                bg->SetDroppedFlagGUID(go->GetGUID(), bg->GetPlayerTeam(player->GetGUID()) == ALLIANCE ? TEAM_HORDE: TEAM_ALLIANCE);
 
     if (GameObject* linkedTrap = go->GetLinkedTrap())
     {
@@ -3317,126 +3317,7 @@ void Spell::EffectActivateObject()
 
     GameObjectActions action = GameObjectActions(effectInfo->MiscValue);
 
-    switch (action)
-    {
-        case GameObjectActions::AnimateCustom0:
-        case GameObjectActions::AnimateCustom1:
-        case GameObjectActions::AnimateCustom2:
-        case GameObjectActions::AnimateCustom3:
-            gameObjTarget->SendCustomAnim(uint32(action) - uint32(GameObjectActions::AnimateCustom0));
-            break;
-        case GameObjectActions::Disturb: // What's the difference with Open?
-        case GameObjectActions::Open:
-            if (Unit* unitCaster = m_caster->ToUnit())
-                gameObjTarget->Use(unitCaster);
-            break;
-        case GameObjectActions::OpenAndUnlock:
-            if (Unit* unitCaster = m_caster->ToUnit())
-                gameObjTarget->UseDoorOrButton(0, false, unitCaster);
-            [[fallthrough]];
-        case GameObjectActions::Unlock:
-            gameObjTarget->RemoveFlag(GO_FLAG_LOCKED);
-            break;
-        case GameObjectActions::Lock:
-            gameObjTarget->AddFlag(GO_FLAG_LOCKED);
-            break;
-        case GameObjectActions::Close:
-        case GameObjectActions::Rebuild:
-            gameObjTarget->ResetDoorOrButton();
-            break;
-        case GameObjectActions::Despawn:
-            gameObjTarget->DespawnOrUnsummon();
-            break;
-        case GameObjectActions::MakeInert:
-            gameObjTarget->AddFlag(GO_FLAG_NOT_SELECTABLE);
-            break;
-        case GameObjectActions::MakeActive:
-            gameObjTarget->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
-            break;
-        case GameObjectActions::CloseAndLock:
-            gameObjTarget->ResetDoorOrButton();
-            gameObjTarget->AddFlag(GO_FLAG_LOCKED);
-            break;
-        case GameObjectActions::Destroy:
-            if (Unit* unitCaster = m_caster->ToUnit())
-                gameObjTarget->UseDoorOrButton(0, true, unitCaster);
-            break;
-        case GameObjectActions::UseArtKit0:
-        case GameObjectActions::UseArtKit1:
-        case GameObjectActions::UseArtKit2:
-        case GameObjectActions::UseArtKit3:
-        case GameObjectActions::UseArtKit4:
-        {
-            GameObjectTemplateAddon const* templateAddon = gameObjTarget->GetTemplateAddon();
-
-            uint32 artKitIndex = action != GameObjectActions::UseArtKit4 ? uint32(action) - uint32(GameObjectActions::UseArtKit0) : 4;
-
-            uint32 artKitValue = 0;
-            if (templateAddon != nullptr)
-                artKitValue = templateAddon->ArtKits[artKitIndex];
-
-            if (artKitValue == 0)
-                TC_LOG_ERROR("sql.sql", "GameObject %d hit by spell %d needs `artkit%d` in `gameobject_template_addon`", gameObjTarget->GetEntry(), m_spellInfo->Id, artKitIndex);
-            else
-                gameObjTarget->SetGoArtKit(artKitValue);
-
-            break;
-        }
-        case GameObjectActions::GoTo1stFloor:
-        case GameObjectActions::GoTo2ndFloor:
-        case GameObjectActions::GoTo3rdFloor:
-        case GameObjectActions::GoTo4thFloor:
-        case GameObjectActions::GoTo5thFloor:
-        case GameObjectActions::GoTo6thFloor:
-        case GameObjectActions::GoTo7thFloor:
-        case GameObjectActions::GoTo8thFloor:
-        case GameObjectActions::GoTo9thFloor:
-        case GameObjectActions::GoTo10thFloor:
-            if (gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
-                gameObjTarget->SetTransportState(GO_STATE_TRANSPORT_STOPPED, uint32(action) - uint32(GameObjectActions::GoTo1stFloor));
-            else
-                TC_LOG_ERROR("spell", "Spell %d targeted non-transport gameobject for transport only action \"Go to Floor\" %d in effect %d", m_spellInfo->Id, int32(action), int32(effectInfo->EffectIndex));
-            break;
-        case GameObjectActions::PlayAnimKit:
-            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, false);
-            break;
-        case GameObjectActions::OpenAndPlayAnimKit:
-            if (Unit* unitCaster = m_caster->ToUnit())
-                gameObjTarget->UseDoorOrButton(0, false, unitCaster);
-            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, false);
-            break;
-        case GameObjectActions::CloseAndPlayAnimKit:
-            gameObjTarget->ResetDoorOrButton();
-            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, false);
-            break;
-        case GameObjectActions::PlayOneShotAnimKit:
-            gameObjTarget->SetAnimKitId(effectInfo->MiscValueB, true);
-            break;
-        case GameObjectActions::StopAnimKit:
-            gameObjTarget->SetAnimKitId(0, false);
-            break;
-        case GameObjectActions::OpenAndStopAnimKit:
-            if (Unit* unitCaster = m_caster->ToUnit())
-                gameObjTarget->UseDoorOrButton(0, false, unitCaster);
-            gameObjTarget->SetAnimKitId(0, false);
-            break;
-        case GameObjectActions::CloseAndStopAnimKit:
-            gameObjTarget->ResetDoorOrButton();
-            gameObjTarget->SetAnimKitId(0, false);
-            break;
-        case GameObjectActions::PlaySpellVisual:
-            gameObjTarget->SetSpellVisualId(effectInfo->MiscValueB, m_originalCasterGUID);
-            break;
-        case GameObjectActions::StopSpellVisual:
-            gameObjTarget->SetSpellVisualId(0);
-            break;
-        case GameObjectActions::None:
-            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", m_spellInfo->Id, int32(effectInfo->EffectIndex));
-            break;
-        default:
-            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", m_spellInfo->Id, int32(action), int32(effectInfo->EffectIndex));
-            break;
-    }
+    gameObjTarget->ActivateObject(action, effectInfo->MiscValueB, m_caster, m_spellInfo->Id, int32(effectInfo->EffectIndex));
 }
 
 void Spell::EffectApplyGlyph()
@@ -3724,10 +3605,7 @@ void Spell::EffectAddExtraAttacks()
     if (!unitTarget || !unitTarget->IsAlive())
         return;
 
-    if (unitTarget->m_extraAttacks)
-        return;
-
-    unitTarget->m_extraAttacks = damage;
+    unitTarget->AddExtraAttacks(damage);
 
     ExecuteLogEffectExtraAttacks(SpellEffectName(effectInfo->Effect), unitTarget, damage);
 }
@@ -3902,7 +3780,7 @@ void Spell::EffectSkinning()
     uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
     creature->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
-    creature->AddDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
+    creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
     player->SendLoot(creature->GetGUID(), LOOT_SKINNING);
 
     if (skill == SKILL_SKINNING)
@@ -4310,7 +4188,7 @@ void Spell::EffectResurrectPet()
         pet->Relocate(x, y, z, player->GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
     }
 
-    pet->SetDynamicFlags(UNIT_DYNFLAG_NONE);
+    pet->ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
     pet->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
     pet->setDeathState(ALIVE);
     pet->ClearUnitState(UNIT_STATE_ALL_ERASABLE);
@@ -5027,7 +4905,7 @@ void Spell::EffectRenamePet()
         !unitTarget->IsPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
         return;
 
-    unitTarget->AddPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED);
+    unitTarget->SetPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED);
 }
 
 void Spell::EffectPlayMusic()
@@ -5526,7 +5404,7 @@ void Spell::EffectEnableBattlePets()
         return;
 
     Player* player = unitTarget->ToPlayer();
-    player->AddPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+    player->SetPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
     player->GetSession()->GetBattlePetMgr()->UnlockSlot(BattlePets::BattlePetSlot::Slot0);
 }
 

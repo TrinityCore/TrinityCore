@@ -23,13 +23,9 @@ go_resonite_cask
 go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
-go_scourge_cage
-go_table_theka
 go_soulwell
 go_amberpine_outhouse
-go_hive_pod
 go_veil_skith_cage
-go_toy_train_set
 go_bells
 EndContentData */
 
@@ -362,155 +358,6 @@ public:
 };
 
 /*######
-## matrix_punchograph
-######*/
-
-enum MatrixPunchograph
-{
-    ITEM_WHITE_PUNCH_CARD = 9279,
-    ITEM_YELLOW_PUNCH_CARD = 9280,
-    ITEM_BLUE_PUNCH_CARD = 9282,
-    ITEM_RED_PUNCH_CARD = 9281,
-    ITEM_PRISMATIC_PUNCH_CARD = 9316,
-    SPELL_YELLOW_PUNCH_CARD = 11512,
-    SPELL_BLUE_PUNCH_CARD = 11525,
-    SPELL_RED_PUNCH_CARD = 11528,
-    SPELL_PRISMATIC_PUNCH_CARD = 11545,
-    MATRIX_PUNCHOGRAPH_3005_A = 142345,
-    MATRIX_PUNCHOGRAPH_3005_B = 142475,
-    MATRIX_PUNCHOGRAPH_3005_C = 142476,
-    MATRIX_PUNCHOGRAPH_3005_D = 142696,
-};
-
-class go_matrix_punchograph : public GameObjectScript
-{
-public:
-    go_matrix_punchograph() : GameObjectScript("go_matrix_punchograph") { }
-
-    struct go_matrix_punchographAI : public GameObjectAI
-    {
-        go_matrix_punchographAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            switch (me->GetEntry())
-            {
-                case MATRIX_PUNCHOGRAPH_3005_A:
-                    if (player->HasItemCount(ITEM_WHITE_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_YELLOW_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_B:
-                    if (player->HasItemCount(ITEM_YELLOW_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_BLUE_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_C:
-                    if (player->HasItemCount(ITEM_BLUE_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_RED_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_D:
-                    if (player->HasItemCount(ITEM_RED_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_PRISMATIC_PUNCH_CARD, true);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_matrix_punchographAI(go);
-    }
-};
-
-/*######
-## go_scourge_cage
-######*/
-
-enum ScourgeCage
-{
-    NPC_SCOURGE_PRISONER = 25610
-};
-
-class go_scourge_cage : public GameObjectScript
-{
-public:
-    go_scourge_cage() : GameObjectScript("go_scourge_cage") { }
-
-    struct go_scourge_cageAI : public GameObjectAI
-    {
-        go_scourge_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (Creature* pNearestPrisoner = me->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
-            {
-                player->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
-                pNearestPrisoner->DisappearAndDie();
-            }
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_scourge_cageAI(go);
-    }
-};
-
-/*######
-## go_arcane_prison
-######*/
-
-enum ArcanePrison
-{
-    QUEST_PRISON_BREAK                  = 11587,
-    SPELL_ARCANE_PRISONER_KILL_CREDIT   = 45456
-};
-
-class go_arcane_prison : public GameObjectScript
-{
-public:
-    go_arcane_prison() : GameObjectScript("go_arcane_prison") { }
-
-    struct go_arcane_prisonAI : public GameObjectAI
-    {
-        go_arcane_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
-            {
-                me->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 1min);
-                player->CastSpell(player, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
-                return true;
-            }
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_arcane_prisonAI(go);
-    }
-};
-
-/*######
 ## go_blood_filled_orb
 ######*/
 
@@ -541,38 +388,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_blood_filled_orbAI(go);
-    }
-};
-
-enum TableTheka
-{
-    GOSSIP_TABLE_THEKA = 1653,
-
-    QUEST_SPIDER_GOLD = 2936
-};
-
-class go_table_theka : public GameObjectScript
-{
-public:
-    go_table_theka() : GameObjectScript("go_table_theka") { }
-
-    struct go_table_thekaAI : public GameObjectAI
-    {
-        go_table_thekaAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
-                player->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
-
-            SendGossipMenuFor(player, GOSSIP_TABLE_THEKA, me->GetGUID());
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_table_thekaAI(go);
     }
 };
 
@@ -681,41 +496,6 @@ public:
     }
 };
 
-/*######
-## Quest 1126: Hive in the Tower
-## go_hive_pod
-######*/
-
-enum Hives
-{
-    QUEST_HIVE_IN_THE_TOWER                       = 9544,
-    NPC_HIVE_AMBUSHER                             = 13301
-};
-
-class go_hive_pod : public GameObjectScript
-{
-public:
-    go_hive_pod() : GameObjectScript("go_hive_pod") { }
-
-    struct go_hive_podAI : public GameObjectAI
-    {
-        go_hive_podAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            player->SendLoot(me->GetGUID(), LOOT_CORPSE);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX(), me->GetPositionY() + 1, me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_hive_podAI(go);
-    }
-};
-
 class go_massive_seaforium_charge : public GameObjectScript
 {
     public:
@@ -782,48 +562,6 @@ class go_veil_skith_cage : public GameObjectScript
        {
            return new go_veil_skith_cageAI(go);
        }
-};
-
-/*######
-## go_frostblade_shrine
-######*/
-
-enum TheCleansing
-{
-   QUEST_THE_CLEANSING_HORDE      = 11317,
-   QUEST_THE_CLEANSING_ALLIANCE   = 11322,
-   SPELL_CLEANSING_SOUL           = 43351,
-   SPELL_RECENT_MEDITATION        = 61720,
-};
-
-class go_frostblade_shrine : public GameObjectScript
-{
-public:
-    go_frostblade_shrine() : GameObjectScript("go_frostblade_shrine") { }
-
-    struct go_frostblade_shrineAI : public GameObjectAI
-    {
-        go_frostblade_shrineAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            me->UseDoorOrButton(10);
-            if (!player->HasAura(SPELL_RECENT_MEDITATION))
-            {
-                if (player->GetQuestStatus(QUEST_THE_CLEANSING_HORDE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_CLEANSING_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
-                {
-                    player->CastSpell(player, SPELL_CLEANSING_SOUL);
-                    player->SetStandState(UNIT_STAND_STATE_SIT);
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_frostblade_shrineAI(go);
-    }
 };
 
 /*######
@@ -898,47 +636,6 @@ public:
     {
         return new go_midsummer_ribbon_poleAI(go);
     }
-};
-
-enum ToyTrainSpells
-{
-    SPELL_TOY_TRAIN_PULSE       = 61551,
-};
-
-class go_toy_train_set : public GameObjectScript
-{
-    public:
-        go_toy_train_set() : GameObjectScript("go_toy_train_set") { }
-
-        struct go_toy_train_setAI : public GameObjectAI
-        {
-            go_toy_train_setAI(GameObject* go) : GameObjectAI(go), _pulseTimer(3 * IN_MILLISECONDS) { }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (diff < _pulseTimer)
-                    _pulseTimer -= diff;
-                else
-                {
-                    me->CastSpell(nullptr, SPELL_TOY_TRAIN_PULSE, true);
-                    _pulseTimer = 6 * IN_MILLISECONDS;
-                }
-            }
-
-            // triggered on wrecker'd
-            void DoAction(int32 /*action*/) override
-            {
-                me->Delete();
-            }
-
-        private:
-            uint32 _pulseTimer;
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_toy_train_setAI(go);
-        }
 };
 
 /*####
@@ -1451,20 +1148,13 @@ void AddSC_go_scripts()
     new go_resonite_cask();
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
-    new go_matrix_punchograph();
-    new go_scourge_cage();
-    new go_arcane_prison();
     new go_blood_filled_orb();
-    new go_table_theka();
     new go_soulwell();
     new go_amberpine_outhouse();
-    new go_hive_pod();
     new go_massive_seaforium_charge();
     new go_veil_skith_cage();
-    new go_frostblade_shrine();
     new go_midsummer_bonfire();
     new go_midsummer_ribbon_pole();
-    new go_toy_train_set();
     new go_brewfest_music();
     new go_midsummer_music();
     new go_darkmoon_faire_music();

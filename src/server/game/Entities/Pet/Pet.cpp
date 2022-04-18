@@ -274,8 +274,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     SetDisplayId(petInfo->DisplayId);
     SetNativeDisplayId(petInfo->DisplayId);
     uint8 petlevel = petInfo->Level;
-    SetNpcFlags(UNIT_NPC_FLAG_NONE);
-    SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
+    ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+    ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
     SetName(petInfo->Name);
 
     switch (getPetType())
@@ -283,14 +283,14 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         case SUMMON_PET:
             petlevel = owner->GetLevel();
             SetClass(CLASS_MAGE);
-            SetUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet dismiss, cancel)
+            ReplaceAllUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet dismiss, cancel)
             break;
         case HUNTER_PET:
             SetClass(CLASS_WARRIOR);
             SetGender(GENDER_NONE);
             SetSheath(SHEATH_STATE_MELEE);
-            SetPetFlags(petInfo->WasRenamed ? UNIT_PET_FLAG_CAN_BE_ABANDONED : UnitPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED));
-            SetUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet abandon, cancel)
+            ReplaceAllPetFlags(petInfo->WasRenamed ? UNIT_PET_FLAG_CAN_BE_ABANDONED : (UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED));
+            ReplaceAllUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet abandon, cancel)
             break;
         default:
             if (!IsPetGhoul())
@@ -398,8 +398,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(petInfo->PetNumber);
 
-    owner->GetSession()->AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(new PetLoadQueryHolder(ownerid, petInfo->PetNumber)))
-        .AfterComplete([this, owner, session = owner->GetSession(), isTemporarySummon, current, lastSaveTime = petInfo->LastSaveTime, specializationId = petInfo->SpecializationId](SQLQueryHolderBase* holder)
+    owner->GetSession()->AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(std::make_shared<PetLoadQueryHolder>(ownerid, petInfo->PetNumber)))
+        .AfterComplete([this, owner, session = owner->GetSession(), isTemporarySummon, current, lastSaveTime = petInfo->LastSaveTime, specializationId = petInfo->SpecializationId](SQLQueryHolderBase const& holder)
     {
         if (session->GetPlayer() != owner || owner->GetPet() != this)
             return;
@@ -409,13 +409,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             return;
 
         uint32 timediff = uint32(GameTime::GetGameTime() - lastSaveTime);
-        _LoadAuras(holder->GetPreparedResult(PetLoadQueryHolder::AURAS), holder->GetPreparedResult(PetLoadQueryHolder::AURA_EFFECTS), timediff);
+        _LoadAuras(holder.GetPreparedResult(PetLoadQueryHolder::AURAS), holder.GetPreparedResult(PetLoadQueryHolder::AURA_EFFECTS), timediff);
 
         // load action bar, if data broken will fill later by default spells.
         if (!isTemporarySummon)
         {
-            _LoadSpells(holder->GetPreparedResult(PetLoadQueryHolder::SPELLS));
-            GetSpellHistory()->LoadFromDB<Pet>(holder->GetPreparedResult(PetLoadQueryHolder::COOLDOWNS), holder->GetPreparedResult(PetLoadQueryHolder::CHARGES));
+            _LoadSpells(holder.GetPreparedResult(PetLoadQueryHolder::SPELLS));
+            GetSpellHistory()->LoadFromDB<Pet>(holder.GetPreparedResult(PetLoadQueryHolder::COOLDOWNS), holder.GetPreparedResult(PetLoadQueryHolder::CHARGES));
             LearnPetPassives();
             InitLevelupSpellsForLevel();
             if (GetMap()->IsBattleArena())
@@ -444,7 +444,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         if (getPetType() == HUNTER_PET)
         {
-            if (PreparedQueryResult result = holder->GetPreparedResult(PetLoadQueryHolder::DECLINED_NAMES))
+            if (PreparedQueryResult result = holder.GetPreparedResult(PetLoadQueryHolder::DECLINED_NAMES))
             {
                 m_declinedname = std::make_unique<DeclinedName>();
                 Field* fields = result->Fetch();
@@ -616,7 +616,7 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
         if (getPetType() == HUNTER_PET)
         {
             // pet corpse non lootable and non skinnable
-            SetDynamicFlags(UNIT_DYNFLAG_NONE);
+            ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
             RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
 
             //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -833,8 +833,8 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
     SetPetNameTimestamp(0);
     SetPetExperience(0);
     SetPetNextLevelExperience(uint32(sObjectMgr->GetXPForLevel(GetLevel() + 1) * PET_XP_FACTOR));
-    SetNpcFlags(UNIT_NPC_FLAG_NONE);
-    SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
+    ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
+    ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
 
     if (cinfo->type == CREATURE_TYPE_BEAST)
     {
@@ -842,7 +842,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
         SetGender(GENDER_NONE);
         SetPowerType(POWER_FOCUS);
         SetSheath(SHEATH_STATE_MELEE);
-        SetPetFlags(UnitPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED));
+        ReplaceAllPetFlags(UNIT_PET_FLAG_CAN_BE_RENAMED | UNIT_PET_FLAG_CAN_BE_ABANDONED);
     }
 
     return true;
@@ -1702,7 +1702,7 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 Entry, uint32 /*p
         return false;
 
     // Force regen flag for player pets, just like we do for players themselves
-    AddUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
+    SetUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
     SetSheath(SHEATH_STATE_MELEE);
 
     GetThreatManager().Initialize();
@@ -1956,7 +1956,7 @@ std::string Pet::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Guardian::GetDebugInfo() << "\n"
         << std::boolalpha
-        << "PetType: " << std::to_string(getPetType())
+        << "PetType: " << std::to_string(getPetType()) << " "
         << "PetNumber: " << m_charmInfo->GetPetNumber();
     return sstr.str();
 }

@@ -34,7 +34,6 @@ class Battlefield;
 class Battleground;
 class BattlegroundMap;
 class Channel;
-class ChatCommand;
 class Conversation;
 class Creature;
 class CreatureAI;
@@ -79,6 +78,8 @@ struct Position;
 struct QuestObjective;
 struct SceneTemplate;
 
+namespace Trinity::ChatCommands { struct ChatCommandBuilder; }
+
 enum BattlegroundTypeId : uint32;
 enum Difficulty : uint8;
 enum DuelCompleteType : uint8;
@@ -92,7 +93,6 @@ enum WeatherState : uint32;
 enum XPColorChar : uint8;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
-
 
 /*
     @todo Add more script type classes.
@@ -447,9 +447,6 @@ class TC_GAME_API UnitScript : public ScriptObject
 
         // Called when Spell Damage is being Dealt
         virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
-
-        // Called when an unit exits a vehicle
-        virtual void ModifyVehiclePassengerExitPos(Unit* /*passenger*/, Vehicle* /*vehicle*/, Position& /*pos*/) { }
 };
 
 class TC_GAME_API CreatureScript : public ScriptObject
@@ -461,9 +458,6 @@ class TC_GAME_API CreatureScript : public ScriptObject
     public:
 
         ~CreatureScript();
-
-        // Called when an unit exits a vehicle
-        virtual void ModifyVehiclePassengerExitPos(Unit* /*passenger*/, Vehicle* /*vehicle*/, Position& /*pos*/) { }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const = 0;
@@ -569,7 +563,7 @@ class TC_GAME_API CommandScript : public ScriptObject
         ~CommandScript();
 
         // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-        virtual std::vector<ChatCommand> GetCommands() const = 0;
+        virtual std::vector<Trinity::ChatCommands::ChatCommandBuilder> GetCommands() const = 0;
 };
 
 class TC_GAME_API WeatherScript : public ScriptObject, public UpdatableScript<Weather>
@@ -1149,7 +1143,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* CommandScript */
 
-        std::vector<ChatCommand> GetChatCommands();
+        std::vector<Trinity::ChatCommands::ChatCommandBuilder> GetChatCommands();
 
     public: /* WeatherScript */
 
@@ -1271,7 +1265,6 @@ class TC_GAME_API ScriptMgr
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo);
-        void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* vehicle, Position& pos);
 
     public: /* AreaTriggerEntityScript */
 

@@ -82,7 +82,6 @@ enum Spells
 
     SPELL_CRUMBLING_RUIN                = 75609,
 
-
     SPELL_NEMESIS_STRIKE                = 75604,
 
     SPELL_OMEGA_STANCE_SUMMON           = 77106,
@@ -151,7 +150,7 @@ public:
             if (instance->GetData(DATA_DEAD_ELEMENTALS) == 4)
             {
                 // Set to combat automatically, Brann's event won't repeat
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 events.SetPhase(PHASE_COMBAT);
                 ScheduleCombatEvents();
                 me->SetHomePosition(AnraphetActivatePos);
@@ -235,7 +234,7 @@ public:
                         events.ScheduleEvent(EVENT_ANRAPHET_READY, 6s, 0, PHASE_INTRO);
                         break;
                     case EVENT_ANRAPHET_READY:
-                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         events.SetPhase(PHASE_COMBAT);
                         ScheduleCombatEvents();
                         break;
@@ -413,7 +412,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                             break;
                         case EVENT_BRANN_SAY_GET_IT:
                             Talk(BRANN_SAY_GET_IT);
-                            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                             break;
                         case EVENT_BRANN_SET_ORIENTATION_4:
                             me->SetFacingTo(3.141593f);

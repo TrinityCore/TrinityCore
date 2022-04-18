@@ -358,13 +358,13 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, family, trainer_class, type, "
     //                                        36          37           38      39              40        41         42       43       44      45
     //                                       "type_flags, type_flags2, lootid, pickpocketloot, skinloot, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                        46          47        48          49          50         51          52           53              54                  55             56                 57             58              59
-    //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        60            61          62                    63           64                        65
+    //                                        46          47        48          49          50         51          52                         53           54              55                   56            57                 58             59              60
+    //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
+    //                                        61            62          63                    64           65                        66
     //                                       "RacialLeader, movementId, CreatureDifficultyID, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
-    //                                        66                    67                        68
+    //                                        67                    68                        69
     //                                       "mechanic_immune_mask, spell_school_immune_mask, flags_extra, "
-    //                                        69
+    //                                        70
     //                                       "ScriptName FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -476,24 +476,27 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     if (!fields[51].IsNull())
         creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[51].GetUInt8());
 
-    creatureTemplate.HoverHeight            = fields[52].GetFloat();
-    creatureTemplate.ModHealth              = fields[53].GetFloat();
-    creatureTemplate.ModHealthExtra         = fields[54].GetFloat();
-    creatureTemplate.ModMana                = fields[55].GetFloat();
-    creatureTemplate.ModManaExtra           = fields[56].GetFloat();
-    creatureTemplate.ModArmor               = fields[57].GetFloat();
-    creatureTemplate.ModDamage              = fields[58].GetFloat();
-    creatureTemplate.ModExperience          = fields[59].GetFloat();
-    creatureTemplate.RacialLeader           = fields[60].GetBool();
-    creatureTemplate.movementId             = fields[61].GetUInt32();
-    creatureTemplate.CreatureDifficultyID   = fields[62].GetInt32();
-    creatureTemplate.WidgetSetID            = fields[63].GetInt32();
-    creatureTemplate.WidgetSetUnitConditionID = fields[64].GetInt32();
-    creatureTemplate.RegenHealth            = fields[65].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[66].GetUInt32();
-    creatureTemplate.SpellSchoolImmuneMask  = fields[67].GetUInt32();
-    creatureTemplate.flags_extra            = fields[68].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[69].GetString());
+    if (!fields[52].IsNull())
+        creatureTemplate.Movement.InteractionPauseTimer = fields[52].GetUInt32();
+
+    creatureTemplate.HoverHeight            = fields[53].GetFloat();
+    creatureTemplate.ModHealth              = fields[54].GetFloat();
+    creatureTemplate.ModHealthExtra         = fields[55].GetFloat();
+    creatureTemplate.ModMana                = fields[56].GetFloat();
+    creatureTemplate.ModManaExtra           = fields[57].GetFloat();
+    creatureTemplate.ModArmor               = fields[58].GetFloat();
+    creatureTemplate.ModDamage              = fields[59].GetFloat();
+    creatureTemplate.ModExperience          = fields[60].GetFloat();
+    creatureTemplate.RacialLeader           = fields[61].GetBool();
+    creatureTemplate.movementId             = fields[62].GetUInt32();
+    creatureTemplate.CreatureDifficultyID   = fields[63].GetInt32();
+    creatureTemplate.WidgetSetID            = fields[64].GetInt32();
+    creatureTemplate.WidgetSetUnitConditionID = fields[65].GetInt32();
+    creatureTemplate.RegenHealth            = fields[66].GetBool();
+    creatureTemplate.MechanicImmuneMask     = fields[67].GetUInt32();
+    creatureTemplate.SpellSchoolImmuneMask  = fields[68].GetUInt32();
+    creatureTemplate.flags_extra            = fields[69].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[70].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -1123,6 +1126,30 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
     }
 
+    if (uint32 disallowedUnitFlags = (cInfo->unit_flags & ~UNIT_FLAG_ALLOWED))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with disallowed `unit_flags` %u, removing incorrect flag.", cInfo->Entry, disallowedUnitFlags);
+        const_cast<CreatureTemplate*>(cInfo)->unit_flags &= UNIT_FLAG_ALLOWED;
+    }
+
+    if (uint32 disallowedUnitFlags2 = (cInfo->unit_flags2 & ~UNIT_FLAG2_ALLOWED))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with disallowed `unit_flags2` %u, removing incorrect flag.", cInfo->Entry, disallowedUnitFlags2);
+        const_cast<CreatureTemplate*>(cInfo)->unit_flags2 &= UNIT_FLAG2_ALLOWED;
+    }
+
+    if (uint32 disallowedUnitFlags3 = (cInfo->unit_flags3 & ~UNIT_FLAG3_ALLOWED))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with disallowed `unit_flags2` %u, removing incorrect flag.", cInfo->Entry, disallowedUnitFlags3);
+        const_cast<CreatureTemplate*>(cInfo)->unit_flags3 &= UNIT_FLAG3_ALLOWED;
+    }
+
+    if (cInfo->dynamicflags)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: %u) with `dynamicflags` > 0. Ignored and set to 0.", cInfo->Entry);
+        const_cast<CreatureTemplate*>(cInfo)->dynamicflags = 0;
+    }
+
     std::pair<int16, int16> levels = cInfo->GetMinMaxLevel();
     if (levels.first < 1 || levels.first > STRONG_MAX_LEVEL)
     {
@@ -1527,7 +1554,19 @@ void ObjectMgr::LoadCreatureMovementOverrides()
 
     _creatureMovementOverrides.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT SpawnId, Ground, Swim, Flight, Rooted, Chase, Random from creature_movement_override");
+    // Load the data from creature_movement_override and if NULL fallback to creature_template_movement
+    QueryResult result = WorldDatabase.Query(
+        "SELECT cmo.SpawnId,"
+        "COALESCE(cmo.Ground, ctm.Ground),"
+        "COALESCE(cmo.Swim, ctm.Swim),"
+        "COALESCE(cmo.Flight, ctm.Flight),"
+        "COALESCE(cmo.Rooted, ctm.Rooted),"
+        "COALESCE(cmo.Chase, ctm.Chase),"
+        "COALESCE(cmo.Random, ctm.Random),"
+        "COALESCE(cmo.InteractionPauseTimer, ctm.InteractionPauseTimer) "
+        "FROM creature_movement_override AS cmo "
+        "LEFT JOIN creature AS c ON c.guid = cmo.SpawnId "
+        "LEFT JOIN creature_template_movement AS ctm ON ctm.CreatureId = c.id");
 
     if (!result)
     {
@@ -1546,12 +1585,20 @@ void ObjectMgr::LoadCreatureMovementOverrides()
         }
 
         CreatureMovementData& movement = _creatureMovementOverrides[spawnId];
-        movement.Ground = static_cast<CreatureGroundMovementType>(fields[1].GetUInt8());
-        movement.Swim = fields[2].GetBool();
-        movement.Flight = static_cast<CreatureFlightMovementType>(fields[3].GetUInt8());
-        movement.Rooted = fields[4].GetBool();
-        movement.Chase = static_cast<CreatureChaseMovementType>(fields[5].GetUInt8());
-        movement.Random = static_cast<CreatureRandomMovementType>(fields[6].GetUInt8());
+        if (!fields[1].IsNull())
+            movement.Ground = static_cast<CreatureGroundMovementType>(fields[1].GetUInt8());
+        if (!fields[2].IsNull())
+            movement.Swim = fields[2].GetBool();
+        if (!fields[3].IsNull())
+            movement.Flight = static_cast<CreatureFlightMovementType>(fields[3].GetUInt8());
+        if (!fields[4].IsNull())
+            movement.Rooted = fields[4].GetBool();
+        if (!fields[5].IsNull())
+            movement.Chase = static_cast<CreatureChaseMovementType>(fields[5].GetUInt8());
+        if (!fields[6].IsNull())
+            movement.Random = static_cast<CreatureRandomMovementType>(fields[6].GetUInt8());
+        if (!fields[7].IsNull())
+            movement.InteractionPauseTimer = fields[7].GetUInt32();
 
         CheckCreatureMovement("creature_movement_override", spawnId, movement);
     }
@@ -1584,31 +1631,26 @@ CreatureModel const* ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, C
     return cinfo->GetFirstInvisibleModel();
 }
 
-void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64& npcFlags, uint32& unitFlags, uint32& unitFlags2, uint32& unitFlags3, uint32& dynamicFlags, CreatureData const* data /*= nullptr*/)
+void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFlags, uint32* unitFlags, uint32* unitFlags2, uint32* unitFlags3, uint32* dynamicFlags, CreatureData const* data /*= nullptr*/)
 {
-    npcFlags = cInfo->npcflag;
-    unitFlags = cInfo->unit_flags;
-    unitFlags2 = cInfo->unit_flags2;
-    unitFlags3 = cInfo->unit_flags3;
-    dynamicFlags = cInfo->dynamicflags;
+#define ChooseCreatureFlagSource(field) ((data && data->field) ? data->field : cInfo->field)
 
-    if (data)
-    {
-        if (data->npcflag)
-            npcFlags = data->npcflag;
+    if (npcFlags)
+        *npcFlags = ChooseCreatureFlagSource(npcflag);
 
-        if (data->unit_flags)
-            unitFlags = data->unit_flags;
+    if (unitFlags)
+        *unitFlags = ChooseCreatureFlagSource(unit_flags);
 
-        if (data->unit_flags2)
-            unitFlags2 = data->unit_flags2;
+    if (unitFlags2)
+        *unitFlags2 = ChooseCreatureFlagSource(unit_flags2);
 
-        if (data->unit_flags3)
-            unitFlags3 = data->unit_flags3;
+    if (unitFlags3)
+        *unitFlags3 = ChooseCreatureFlagSource(unit_flags3);
 
-        if (data->dynamicflags)
-            dynamicFlags = data->dynamicflags;
-    }
+    if (dynamicFlags)
+        *dynamicFlags = ChooseCreatureFlagSource(dynamicflags);
+
+#undef ChooseCreatureFlagSource
 }
 
 CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(CreatureModel* model, CreatureTemplate const* creatureTemplate) const
@@ -2288,6 +2330,30 @@ void ObjectMgr::LoadCreatures()
             }
         }
 
+        if (uint32 disallowedUnitFlags = (data.unit_flags & ~UNIT_FLAG_ALLOWED))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD " Entry: %u) with disallowed `unit_flags` %u, removing incorrect flag.", guid, data.id, disallowedUnitFlags);
+            data.unit_flags &= UNIT_FLAG_ALLOWED;
+        }
+
+        if (uint32 disallowedUnitFlags2 = (data.unit_flags2 & ~UNIT_FLAG2_ALLOWED))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD " Entry: %u) with disallowed `unit_flags2` %u, removing incorrect flag.", guid, data.id, disallowedUnitFlags2);
+            data.unit_flags2 &= UNIT_FLAG2_ALLOWED;
+        }
+
+        if (uint32 disallowedUnitFlags3 = (data.unit_flags3 & ~UNIT_FLAG3_ALLOWED))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD " Entry: %u) with disallowed `unit_flags2` %u, removing incorrect flag.", guid, data.id, disallowedUnitFlags3);
+            data.unit_flags3 &= UNIT_FLAG3_ALLOWED;
+        }
+
+        if (data.dynamicflags)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD " Entry: %u) with `dynamicflags` > 0. Ignored and set to 0.", guid, data.id);
+            data.dynamicflags = 0;
+        }
+
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
         {
             uint32 zoneId = 0;
@@ -2885,6 +2951,12 @@ void ObjectMgr::LoadInstanceSpawnGroups()
         }
         else
             info.Flags = flags;
+
+        if ((flags & InstanceSpawnGroupInfo::FLAG_ALLIANCE_ONLY) && (flags & InstanceSpawnGroupInfo::FLAG_HORDE_ONLY))
+        {
+            info.Flags = flags & ~(InstanceSpawnGroupInfo::FLAG_ALLIANCE_ONLY | InstanceSpawnGroupInfo::FLAG_HORDE_ONLY);
+            TC_LOG_ERROR("sql.sql", "Instance spawn group (%u,%u) FLAG_ALLIANCE_ONLY and FLAG_HORDE_ONLY may not be used together in a single entry - truncated to %u.", instanceMapId, spawnGroupId, info.Flags);
+        }
 
         ++n;
     } while (result->NextRow());
@@ -5211,6 +5283,8 @@ void ObjectMgr::LoadQuests()
                 TC_LOG_ERROR("sql.sql", "Quest %d has PrevQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->GetPrevQuestId());
             else if (prevQuestItr->second._breadcrumbForQuestId)
                 TC_LOG_ERROR("sql.sql", "Quest %u should not be unlocked by breadcrumb quest %u", qinfo->_id, prevQuestId);
+            else if (qinfo->_prevQuestID > 0)
+                qinfo->DependentPreviousQuests.push_back(prevQuestId);
         }
 
         if (uint32 nextQuestId = qinfo->_nextQuestID)
@@ -6065,8 +6139,8 @@ void ObjectMgr::LoadPageTexts()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1     2           3                  4
-    QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID, PlayerConditionID, Flags FROM page_text");
+    //                                               0    1     2           3                  4
+    QueryResult result = WorldDatabase.Query("SELECT ID, `Text`, NextPageID, PlayerConditionID, Flags FROM page_text");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 page texts. DB table `page_text` is empty!");
@@ -6113,8 +6187,8 @@ void ObjectMgr::LoadPageTextLocales()
 
     _pageTextLocaleStore.clear(); // needed for reload case
 
-    //                                               0      1     2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text FROM page_text_locale");
+    //                                               0      1      2
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale");
     if (!result)
         return;
 
@@ -7121,7 +7195,6 @@ void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool 
     }
 
     bool found = false;
-
 
     for (; range.first != range.second; ++range.first)
     {
@@ -9557,8 +9630,8 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
-        //      0       1         2           3           4                      5           6              7             8            9         10        11       12
-        "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
+        //      0       1         2           3           4                      5           6              7         8             9            10        11        12       13
+        "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, Language, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
         "FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
     if (!result)
@@ -9580,12 +9653,13 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt32();
         gMenuItem.OptionNpcFlag         = fields[6].GetUInt64();
-        gMenuItem.ActionMenuID          = fields[7].GetUInt32();
-        gMenuItem.ActionPoiID           = fields[8].GetUInt32();
-        gMenuItem.BoxCoded              = fields[9].GetBool();
-        gMenuItem.BoxMoney              = fields[10].GetUInt32();
-        gMenuItem.BoxText               = fields[11].GetString();
-        gMenuItem.BoxBroadcastTextID    = fields[12].GetUInt32();
+        gMenuItem.Language              = fields[7].GetUInt32();
+        gMenuItem.ActionMenuID          = fields[8].GetUInt32();
+        gMenuItem.ActionPoiID           = fields[9].GetUInt32();
+        gMenuItem.BoxCoded              = fields[10].GetBool();
+        gMenuItem.BoxMoney              = fields[11].GetUInt32();
+        gMenuItem.BoxText               = fields[12].GetString();
+        gMenuItem.BoxBroadcastTextID    = fields[13].GetUInt32();
 
         if (gMenuItem.OptionIcon >= GossipOptionIcon::Count)
         {
@@ -9604,6 +9678,12 @@ void ObjectMgr::LoadGossipMenuItems()
 
         if (gMenuItem.OptionType >= GOSSIP_OPTION_MAX)
             TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown option id %u. Option will not be used", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionType);
+
+        if (gMenuItem.Language && !sLanguagesStore.LookupEntry(gMenuItem.Language))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing Language %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.Language);
+            gMenuItem.Language = 0;
+        }
 
         if (gMenuItem.ActionPoiID && !GetPointOfInterest(gMenuItem.ActionPoiID))
         {
@@ -10814,7 +10894,8 @@ void ObjectMgr::LoadPlayerChoices()
     uint32 oldMSTime = getMSTime();
     _playerChoices.clear();
 
-    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, Question, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
+    //                                                       0               1           2                3         4         5                  6                   7                    8
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
 
     if (!choices)
     {
@@ -10840,9 +10921,12 @@ void ObjectMgr::LoadPlayerChoices()
         choice.ChoiceId = choiceId;
         choice.UiTextureKitId = fields[1].GetInt32();
         choice.SoundKitId = fields[2].GetUInt32();
-        choice.Question = fields[3].GetString();
-        choice.HideWarboardHeader = fields[4].GetBool();
-        choice.KeepOpenAfterChoice = fields[5].GetBool();
+        choice.CloseSoundKitId = fields[3].GetUInt32();
+        choice.Duration = fields[4].GetInt64();
+        choice.Question = fields[5].GetString();
+        choice.PendingChoiceText = fields[6].GetString();
+        choice.HideWarboardHeader = fields[7].GetBool();
+        choice.KeepOpenAfterChoice = fields[8].GetBool();
 
     } while (choices->NextRow());
 
@@ -11172,8 +11256,10 @@ void ObjectMgr::LoadPlayerChoices()
 
             PlayerChoiceResponseMawPower& mawPower = responseItr->MawPower.emplace();
             mawPower.TypeArtFileID = fields[2].GetInt32();
-            mawPower.Rarity = fields[3].GetInt32();
-            mawPower.RarityColor = fields[4].GetUInt32();
+            if (!fields[3].IsNull())
+                mawPower.Rarity = fields[3].GetInt32();
+            if (!fields[4].IsNull())
+                mawPower.RarityColor = fields[4].GetUInt32();
             mawPower.SpellID = fields[5].GetInt32();
             mawPower.MaxStacks = fields[6].GetInt32();
 

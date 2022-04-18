@@ -85,7 +85,6 @@ enum Actions
     ACTION_EQUIP_DECIMATION_BLADE   = 3,
 };
 
-
 enum Misc
 {
     EQUIP_DEFAULT                   = 1,

@@ -213,7 +213,7 @@ void GroupMgr::LoadGroups()
         //                                                   0        1      2            3             4             5            6
         QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, i.entranceId, "
             //           7
-            "(SELECT COUNT(1) FROM character_instance ci LEFT JOIN groups g ON ci.guid = g.leaderGuid WHERE ci.instance = gi.instance AND ci.permanent = 1 LIMIT 1) "
+            "(SELECT COUNT(1) FROM character_instance ci LEFT JOIN `groups` g ON ci.guid = g.leaderGuid WHERE ci.instance = gi.instance AND ci.permanent = 1 LIMIT 1) "
             "FROM group_instance gi LEFT JOIN instance i ON gi.instance = i.id ORDER BY guid");
 
         if (!result)
@@ -228,6 +228,7 @@ void GroupMgr::LoadGroups()
             Field* fields = result->Fetch();
             Group* group = GetGroupByDbStoreId(fields[0].GetUInt32());
             // group will never be NULL (we have run consistency sql's before loading)
+            ASSERT(group);
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt16());
             if (!mapEntry || !mapEntry->IsDungeon())

@@ -2235,7 +2235,6 @@ class TC_PROTO_API AuthenticationService : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // ModuleLoadRequest
@@ -5076,7 +5075,6 @@ inline void VerifyWebCredentialsRequest::set_allocated_web_credentials(::std::st
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.VerifyWebCredentialsRequest.web_credentials)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -5087,8 +5085,6 @@ inline void VerifyWebCredentialsRequest::set_allocated_web_credentials(::std::st
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

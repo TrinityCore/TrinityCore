@@ -90,7 +90,8 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    creature->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    if (uint32 pause = creature->GetMovementTemplate().GetInteractionPauseTimer())
+        creature->PauseMovement(pause);
     creature->SetHomePosition(creature->GetPosition());
 
     _player->PlayerTalkClass->ClearMenus();
@@ -111,11 +112,11 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
     else
         object = ObjectAccessor::FindPlayer(packet.QuestGiverGUID);
 
-#define CLOSE_GOSSIP_CLEAR_SHARING_INFO() \
-    do { \
-        _player->PlayerTalkClass->SendCloseGossip(); \
-        _player->ClearQuestSharingInfo(); \
-    } while (0)
+    auto CLOSE_GOSSIP_CLEAR_SHARING_INFO = ([this]()
+    {
+        _player->PlayerTalkClass->SendCloseGossip();
+        _player->ClearQuestSharingInfo();
+    });
 
     // no or incorrect quest giver
     if (!object)
@@ -184,7 +185,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
                     {
                         Player* player = itr->GetSource();
 
-                        if (!player || player == _player)     // not self
+                        if (!player || player == _player || !player->IsInMap(_player))     // not self and in same map
                             continue;
 
                         if (player->CanTakeQuest(quest, true))
@@ -207,8 +208,6 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
     }
 
     CLOSE_GOSSIP_CLEAR_SHARING_INFO();
-
-#undef CLOSE_GOSSIP_CLEAR_SHARING_INFO
 }
 
 void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGiverQueryQuest& packet)
@@ -765,15 +764,18 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
 
         sender->SendPushToPartyResponse(receiver, QuestPushReason::Success);
 
-        if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
-            receiver->AddQuestAndCheckCompletion(quest, sender);
-
         if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
             receiver->SetQuestSharingInfo(sender->GetGUID(), quest->GetQuestId());
             receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true, false);
+            if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
+            {
+                receiver->AddQuestAndCheckCompletion(quest, sender);
+                sender->SendPushToPartyResponse(receiver, QuestPushReason::Accepted);
+                receiver->ClearQuestSharingInfo();
+            }
         }
     }
 }
@@ -818,15 +820,15 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
     if (!playerChoice)
         return;
 
-    PlayerChoiceResponse const* playerChoiceResponse = playerChoice->GetResponse(choiceResponse.ResponseID);
+    PlayerChoiceResponse const* playerChoiceResponse = playerChoice->GetResponseByIdentifier(choiceResponse.ResponseIdentifier);
     if (!playerChoiceResponse)
     {
         TC_LOG_ERROR("entities.player.cheat", "Error in CMSG_CHOICE_RESPONSE: %s tried to select invalid player choice response %d (possible packet-hacking detected)",
-            GetPlayerInfo().c_str(), choiceResponse.ResponseID);
+            GetPlayerInfo().c_str(), choiceResponse.ResponseIdentifier);
         return;
     }
 
-    sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), choiceResponse.ChoiceID, choiceResponse.ResponseID);
+    sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), choiceResponse.ChoiceID, choiceResponse.ResponseIdentifier);
 
     if (playerChoiceResponse->Reward)
     {

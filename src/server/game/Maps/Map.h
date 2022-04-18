@@ -232,10 +232,10 @@ struct CompareRespawnInfo
 {
     bool operator()(RespawnInfo const* a, RespawnInfo const* b) const;
 };
-typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
-typedef boost::heap::fibonacci_heap<RespawnInfo*, boost::heap::compare<CompareRespawnInfo>> RespawnListContainer;
-typedef RespawnListContainer::handle_type RespawnListHandle;
-typedef std::unordered_map<ObjectGuid::LowType, RespawnInfo*> RespawnInfoMap;
+using ZoneDynamicInfoMap = std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo>;
+using RespawnListContainer = boost::heap::fibonacci_heap<RespawnInfo*, boost::heap::compare<CompareRespawnInfo>>;
+using RespawnListHandle = RespawnListContainer::handle_type;
+using RespawnInfoMap = std::unordered_map<ObjectGuid::LowType, RespawnInfo*>;
 struct RespawnInfo
 {
     SpawnObjectType type;
@@ -591,7 +591,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
         WeatherState GetZoneWeather(uint32 zoneId) const;
         void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity);
-        void SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, uint32 transitionMilliseconds);
+        void SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, Milliseconds transitionTime);
 
         void UpdateAreaDependentAuras();
 
@@ -617,6 +617,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveUpdateObject(Object* obj)
         {
             _updateObjects.erase(obj);
+        }
+
+        size_t GetActiveNonPlayersCount() const
+        {
+            return m_activeNonPlayers.size();
         }
 
         virtual std::string GetDebugInfo() const;
@@ -763,18 +768,18 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gridId);
         bool AddRespawnInfo(RespawnInfo const& info);
         void UnloadAllRespawnInfos();
+        RespawnInfo* GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
+        void Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans = nullptr);
         void DeleteRespawnInfo(RespawnInfo* info, CharacterDatabaseTransaction dbTrans = nullptr);
         void DeleteRespawnInfoFromDB(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr);
 
     public:
-        void GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types) const;
-        RespawnInfo* GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
+        void GetRespawnInfo(std::vector<RespawnInfo const*>& respawnData, SpawnObjectTypeMask types) const;
         void Respawn(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr)
         {
             if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
                 Respawn(info, dbTrans);
         }
-        void Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans = nullptr);
         void RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr, bool alwaysDeleteFromDB = false)
         {
             if (RespawnInfo* info = GetRespawnInfo(type, spawnId))

@@ -69,8 +69,8 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
 
     if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
     {
-        _escortNPCFlags = me->m_unitData->NpcFlags[0];
-        me->SetNpcFlags((NPCFlags)0);
+        _escortNPCFlags = me->GetNpcFlags();
+        me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
     me->GetMotionMaster()->MovePath(_path, _repeatWaypointPath);
@@ -136,6 +136,17 @@ void SmartAI::PausePath(uint32 delay, bool forced)
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_PAUSED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
 }
 
+bool SmartAI::CanResumePath()
+{
+    if (!HasEscortState(SMART_ESCORT_ESCORTING))
+    {
+        // The whole resume logic doesn't support this case
+        return false;
+    }
+
+    return HasEscortState(SMART_ESCORT_PAUSED);
+}
+
 void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
@@ -183,7 +194,7 @@ void SmartAI::EndPath(bool fail)
 
     if (_escortNPCFlags)
     {
-        me->SetNpcFlags((NPCFlags)_escortNPCFlags);
+        me->ReplaceAllNpcFlags((NPCFlags)_escortNPCFlags);
         _escortNPCFlags = 0;
     }
 
@@ -340,11 +351,6 @@ bool SmartAI::IsEscortInvokerInRange()
 
     // no player invoker was stored, just ignore range check
     return true;
-}
-
-void SmartAI::WaypointStarted(uint32 nodeId, uint32 pathId)
-{
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, nodeId, pathId);
 }
 
 void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
@@ -614,7 +620,22 @@ void SmartAI::SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target->ToUnit(), 0, 0, false, spellInfo, target->ToGameObject());
 }
 
-void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
+void SmartAI::OnSpellCast(SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_CAST, nullptr, 0, 0, false, spellInfo);
+}
+
+void SmartAI::OnSpellFailed(SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_FAILED, nullptr, 0, 0, false, spellInfo);
+}
+
+void SmartAI::OnSpellStart(SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_START, nullptr, 0, 0, false, spellInfo);
+}
+
+void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
 
@@ -660,7 +681,7 @@ void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
     GetScript()->ProcessEventsFor(apply ? SMART_EVENT_PASSENGER_BOARDED : SMART_EVENT_PASSENGER_REMOVED, who, uint32(seatId), 0, apply);
 }
 
-void SmartAI::OnCharmed(bool /*isNew*/)
+void SmartAI::OnCharmed(bool isNew)
 {
     bool const charmed = me->IsCharmed();
     if (charmed) // do this before we change charmed state, as charmed state might prevent these things from processing
@@ -694,6 +715,9 @@ void SmartAI::OnCharmed(bool /*isNew*/)
     }
 
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, nullptr, 0, 0, charmed);
+
+    if (!GetScript()->HasAnyEventWithFlag(SMART_EVENT_FLAG_WHILE_CHARMED)) // we can change AI if there are no events with this flag
+        UnitAI::OnCharmed(isNew);
 }
 
 void SmartAI::DoAction(int32 param)
@@ -729,16 +753,6 @@ void SmartAI::SetRun(bool run)
 void SmartAI::SetDisableGravity(bool fly)
 {
     me->SetDisableGravity(fly);
-}
-
-void SmartAI::SetCanFly(bool fly)
-{
-    me->SetCanFly(fly);
-}
-
-void SmartAI::SetSwim(bool swim)
-{
-    me->SetSwim(swim);
 }
 
 void SmartAI::SetEvadeDisabled(bool disable)
@@ -928,7 +942,8 @@ void SmartAI::UpdatePath(uint32 diff)
     // handle pause
     if (HasEscortState(SMART_ESCORT_PAUSED) && (_waypointReached || _waypointPauseForced))
     {
-        if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
+        // Resume only if there was a pause timer set
+        if (_waypointPauseTimer && !me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
         {
             if (_waypointPauseTimer <= diff)
                 ResumePath();
@@ -1229,7 +1244,7 @@ public:
         {
             SmartScript smartScript;
             smartScript.OnInitialize(nullptr, nullptr, nullptr, quest);
-            smartScript.ProcessEventsFor(SMART_EVENT_QUEST_OBJ_COPLETETION, player, objective.ID);
+            smartScript.ProcessEventsFor(SMART_EVENT_QUEST_OBJ_COMPLETION, player, objective.ID);
         }
     }
 };

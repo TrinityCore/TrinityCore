@@ -178,16 +178,16 @@ Position const AnnihilationCenterReferencePos = { -3296.72f, 9767.78f, -60.0f };
 
 struct boss_garothi_worldbreaker : public BossAI
 {
-    boss_garothi_worldbreaker(Creature* creature) : BossAI(creature, DATA_GAROTHI_WORLDBREAKER)
+    boss_garothi_worldbreaker(Creature* creature) : BossAI(creature, DATA_GAROTHI_WORLDBREAKER),
+        _apocalypseDriveCount(0), _searingBarrageSpellId(0), _lastCanonEntry(NPC_DECIMATOR), _castEradication(false)
     {
-        Initialize();
+        _apocalypseDriveHealthLimit = { };
+        SetCombatMovement(false);
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void Initialize()
+    void InitializeAI() override
     {
-        SetCombatMovement(false);
-
         switch (GetDifficulty())
         {
             case DIFFICULTY_MYTHIC_RAID:
@@ -203,19 +203,10 @@ struct boss_garothi_worldbreaker : public BossAI
             default:
                 break;
         }
-
-        // Todo: move this section out of the ctor and remove the .clear call when dynamic spawns have been merged.
-        _apocalypseDriveCount = 0;
-        _searingBarrageSpellId = 0;
-        _lastCanonEntry = NPC_DECIMATOR;
-        _castEradication = false;
-        _surgingFelDummyGuids.clear();
     }
 
-    void Reset() override
+    void JustAppeared() override
     {
-        _Reset();
-        Initialize();
         me->SummonCreatureGroup(SUMMON_GROUP_ID_SURGING_FEL);
     }
 
@@ -243,7 +234,7 @@ struct boss_garothi_worldbreaker : public BossAI
     void KilledUnit(Unit* victim) override
     {
         if (victim->IsPlayer())
-            Talk(SAY_SLAY);
+            Talk(SAY_SLAY, victim);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -255,7 +246,7 @@ struct boss_garothi_worldbreaker : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    void OnSpellCast(SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
@@ -264,14 +255,14 @@ struct boss_garothi_worldbreaker : public BossAI
                     events.Reset();
                 events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 3s + 500ms);
                 HideCannons();
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 break;
             default:
                 break;
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(_apocalypseDriveHealthLimit[_apocalypseDriveCount], damage))
         {
@@ -288,20 +279,20 @@ struct boss_garothi_worldbreaker : public BossAI
             DoCastSelf(SPELL_APOCALYPSE_DRIVE_FINAL_DAMAGE);
             Talk(SAY_ANNOUNCE_APOCALYPSE_DRIVE);
             Talk(SAY_APOCALYPSE_DRIVE);
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, decimator, 2);
-                decimator->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
-                decimator->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                decimator->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
+                decimator->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
 
             if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, annihilator, 2);
-                annihilator->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
-                annihilator->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                annihilator->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
+                annihilator->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
             ++_apocalypseDriveCount;
         }
@@ -336,7 +327,7 @@ struct boss_garothi_worldbreaker : public BossAI
             case NPC_ANNIHILATOR:
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAurasDueToSpell(SPELL_APOCALYPSE_DRIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                 if (summon->GetEntry() == NPC_ANNIHILATOR)
                     _searingBarrageSpellId = SPELL_SEARING_BARRAGE_ANNIHILATOR;
@@ -438,7 +429,7 @@ struct boss_garothi_worldbreaker : public BossAI
             DoSpellAttackIfReady(SPELL_CARNAGE);
     }
  private:
-     uint8 _apocalypseDriveHealthLimit[MaxApocalypseDriveCount];
+     std::array<uint8, MaxApocalypseDriveCount> _apocalypseDriveHealthLimit;
      uint8 _apocalypseDriveCount;
      uint32 _searingBarrageSpellId;
      uint32 _lastCanonEntry;
@@ -465,13 +456,13 @@ struct boss_garothi_worldbreaker : public BossAI
          if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, decimator);
-             decimator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE));
+             decimator->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_IMMUNE);
          }
 
          if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, annihilator);
-             annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE));
+             annihilator->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_IMMUNE);
          }
      }
 };

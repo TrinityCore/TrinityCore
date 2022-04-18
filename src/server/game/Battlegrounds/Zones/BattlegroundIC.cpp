@@ -56,10 +56,10 @@ BattlegroundIC::~BattlegroundIC() { }
 
 void BattlegroundIC::HandlePlayerResurrect(Player* player)
 {
-    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);
 
-    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
@@ -137,9 +137,9 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     {
                         if (siege->IsAlive())
                         {
-                            if (siege->HasUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANT_SWIM | UNIT_FLAG_IMMUNE_TO_PC)))
+                            if (siege->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_CANT_SWIM | UNIT_FLAG_IMMUNE_TO_PC))
                                 // following sniffs the vehicle always has UNIT_FLAG_CANNOT_SWIM
-                                siege->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                                siege->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_IMMUNE_TO_PC);
                             else
                                 siege->SetHealth(siege->GetMaxHealth());
                         }
@@ -242,13 +242,15 @@ void BattlegroundIC::StartingEventOpenDoors()
 
 void BattlegroundIC::AddPlayer(Player* player)
 {
+    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetBGTeam());
+    if (!isInBattleground)
+        PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetBGTeam());
 
-    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);
 
-    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
@@ -269,14 +271,14 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             TeleportPlayerToExploitLocation(player);
 
     /// @hack: this spell should be cast by npc 22515 (World Trigger) and not by the player
-    if (trigger == 5555 && player->GetTeamId() == TEAM_HORDE)
+    if (trigger == 5555 && GetPlayerTeam(player->GetGUID()) == HORDE)
     {
         if (GateStatus[BG_IC_A_FRONT] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_A_WEST] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_A_EAST] != BG_IC_GATE_DESTROYED)
         player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
     }
-    else if (trigger == 5535 && player->GetTeamId() == TEAM_ALLIANCE)
+    else if (trigger == 5535 && GetPlayerTeam(player->GetGUID()) == ALLIANCE)
     {
         if (GateStatus[BG_IC_H_FRONT] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_H_WEST] != BG_IC_GATE_DESTROYED
@@ -404,13 +406,14 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
     Battleground::HandleKillPlayer(player, killer);
 
-    factionReinforcements[player->GetTeamId()] -= 1;
+    TeamId victimTeamId = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
+    factionReinforcements[victimTeamId] -= 1;
 
-    UpdateWorldState((player->GetTeamId() == TEAM_ALLIANCE ? BG_IC_ALLIANCE_RENFORT : BG_IC_HORDE_RENFORT), factionReinforcements[player->GetTeamId()]);
+    UpdateWorldState((GetPlayerTeam(player->GetGUID()) == ALLIANCE ? BG_IC_ALLIANCE_RENFORT : BG_IC_HORDE_RENFORT), factionReinforcements[victimTeamId]);
 
     // we must end the battleground
-    if (factionReinforcements[player->GetTeamId()] < 1)
-        EndBattleground(killer->GetTeam());
+    if (factionReinforcements[victimTeamId] < 1)
+        EndBattleground(GetPlayerTeam(killer->GetGUID()));
 }
 
 void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target_obj)
@@ -423,14 +426,16 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
     {
         if (nodePoint[i].gameobject_entry == target_obj->GetEntry())
         {
+            TeamId teamId = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
+
             // THIS SHOULD NEEVEER HAPPEN
-            if (nodePoint[i].faction == player->GetTeamId())
+            if (nodePoint[i].faction == teamId)
                 return;
 
-            uint32 nextBanner = GetNextBanner(&nodePoint[i], player->GetTeamId(), false);
+            uint32 nextBanner = GetNextBanner(&nodePoint[i], teamId, false);
 
             // we set the new settings of the nodePoint
-            nodePoint[i].faction = player->GetTeamId();
+            nodePoint[i].faction = teamId;
             nodePoint[i].last_entry = nodePoint[i].gameobject_entry;
             nodePoint[i].gameobject_entry = nextBanner;
 
@@ -575,7 +580,7 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* node)
         for (Creature* cannon : cannons)
         {
             cannon->GetVehicleKit()->RemoveAllPassengers();
-            cannon->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            cannon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         }
     }
     else if (node->nodeType == NODE_TYPE_WORKSHOP)
@@ -607,7 +612,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
                     gunshipHorde->GetCreatureListWithEntryInGrid(cannons, NPC_HORDE_GUNSHIP_CANNON, 150.0f);
 
                 for (Creature* cannon : cannons)
-                    cannon->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    cannon->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                 for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; ++u)
                 {
@@ -762,7 +767,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
                         if (Creature* siegeEngine = GetBGCreature(siegeType))
                         {
-                            siegeEngine->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANT_SWIM));
+                            siegeEngine->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_CANT_SWIM);
                             siegeEngine->SetImmuneToPC(true);
                             siegeEngine->SetFaction(BG_IC_Factions[(node->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         }
@@ -799,7 +804,7 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
         UpdateWorldState(uws_close, 0);
         UpdateWorldState(uws_open, 1);
     }
-    if (player->GetTeamId() == TEAM_ALLIANCE)
+    if (GetPlayerTeam(player->GetGUID()) == ALLIANCE)
     {
         DoorOpen(BG_IC_GO_HORDE_KEEP_PORTCULLIS);
         GetBGObject(BG_IC_GO_HORDE_BANNER)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -858,12 +863,12 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
 
 WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
+    TeamId teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
 
     // Is there any occupied node for this team?
     std::vector<uint8> nodes;
     for (uint8 i = 0; i < MAX_NODE_TYPES; ++i)
-        if (nodePoint[i].faction == player->GetTeamId())
+        if (nodePoint[i].faction == GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID())))
             nodes.push_back(i);
 
     WorldSafeLocsEntry const* good_entry = nullptr;
@@ -920,9 +925,9 @@ bool BattlegroundIC::IsSpellAllowed(uint32 spellId, Player const* player) const
         case SPELL_OIL_REFINERY:
         case SPELL_QUARRY:
         {
-            uint32 team = player->GetTeamId();
+            uint32 team = GetPlayerTeam(player->GetGUID());
             uint8 nodeType = spellId == SPELL_OIL_REFINERY ? NODE_TYPE_REFINERY : NODE_TYPE_QUARRY;
-            uint8 nodeState = team == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
+            uint8 nodeState = team == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
             return GetNodeState(nodeType) == nodeState;
         }
         default:

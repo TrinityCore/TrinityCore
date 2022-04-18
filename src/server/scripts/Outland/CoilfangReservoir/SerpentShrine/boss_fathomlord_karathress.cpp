@@ -75,7 +75,6 @@ enum FathomlordKarathress
     SPELL_CYCLONE_CYCLONE           = 29538,
 
     //Yells and Quotes
-    SOUND_GAIN_BLESSING_OF_TIDES    = 11278,
     SOUND_MISC                      = 11283,
 
     //Summoned Unit GUIDs
@@ -94,7 +93,6 @@ enum FathomlordKarathress
 #define OLUM_Z                     -7.54773f
 #define OLUM_O                     0.401581f
 
-#define SAY_GAIN_BLESSING_OF_TIDES      "Your overconfidence will be your undoing! Guards, lend me your strength!"
 #define SAY_MISC                        "Alana be'lendor!" //don't know what use this
 
 #define MAX_ADVISORS 3
@@ -291,8 +289,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->Yell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL);
-                    DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
+                    Talk(SAY_GAIN_BLESSING);
                 }
             }
 
@@ -667,7 +664,6 @@ public:
                 if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15s))
                 {
                     Cyclone->SetObjectScale(3.0f);
-                    Cyclone->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     Cyclone->SetFaction(me->GetFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))

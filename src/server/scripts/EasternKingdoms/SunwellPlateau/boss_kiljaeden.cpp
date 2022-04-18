@@ -264,7 +264,7 @@ public:
         {
             Initialize();
             me->SetDisableGravity(true);
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->setActive(true);
             me->SetFarVisible(true);
 
@@ -444,8 +444,8 @@ public:
 
         void InitializeAI() override
         {
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitState(UNIT_STATE_STUNNED);
 
             ScriptedAI::InitializeAI();
@@ -468,9 +468,7 @@ public:
                     summoned->CastSpell(summoned, SPELL_SHADOW_CHANNELING, false);
                     break;
                 case NPC_ANVEENA:
-                    summoned->SetDisableGravity(true);
                     summoned->CastSpell(summoned, SPELL_ANVEENA_PRISON, true);
-                    summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     break;
                 case NPC_KILJAEDEN:
                     summoned->CastSpell(summoned, SPELL_REBIRTH, false);
@@ -619,8 +617,8 @@ public:
         {
             if (summoned->GetEntry() == NPC_ARMAGEDDON_TARGET)
             {
-                summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                summoned->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                summoned->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                summoned->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         //      summoned->SetVisibility(VISIBILITY_OFF);  //with this we cant see the armageddon visuals
             }
             else
@@ -1040,7 +1038,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void JustSummoned(Creature* summoned) override
@@ -1097,7 +1095,7 @@ public:
             Initialize();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (damage > me->GetHealth())
                 DoCast(me, SPELL_FELFIRE_FISSION, true);

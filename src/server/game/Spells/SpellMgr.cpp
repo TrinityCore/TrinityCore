@@ -3555,7 +3555,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         21855, // Challenge Flag
         38762, // Force of Neltharaku
         51122, // Fierce Lightning Stike
-        71848  // Toxic Wasteling Find Target
+        71848, // Toxic Wasteling Find Target
+        36146  // Chains of Naberius
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
@@ -3600,7 +3601,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         46008, // Negative Energy
         45641, // Fire Bloom
         55665, // Life Drain - Sapphiron (H)
-        28796  // Poison Bolt Volly - Faerlina
+        28796, // Poison Bolt Volly - Faerlina
+        37135  // Domination
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 5;
@@ -4646,6 +4648,31 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 61882 }, [](SpellInfo* spellInfo)
     {
         spellInfo->NegativeEffects[EFFECT_2] = true;
+    });
+
+    // Headless Horseman Climax - Return Head (Hallow End)
+    // Headless Horseman Climax - Body Regen (confuse only - removed on death)
+    // Headless Horseman Climax - Head Is Dead
+    ApplySpellFix({ 42401, 43105, 42428 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+    });
+
+    // Horde / Alliance switch (BG mercenary system)
+    ApplySpellFix({ 195838, 195843 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
+        });
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
+        });
+        ApplySpellEffectFix(spellInfo, EFFECT_2, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
+        });
     });
 
     for (SpellInfo const& s : mSpellInfoMap)

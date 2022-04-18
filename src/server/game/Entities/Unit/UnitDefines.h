@@ -19,6 +19,7 @@
 #define UnitDefines_h__
 
 #include "Define.h"
+#include "EnumFlag.h"
 #include <string>
 
 #define MIN_MELEE_REACH             2.0f
@@ -90,6 +91,8 @@ enum UnitPVPStateFlags : uint8
     UNIT_BYTE2_FLAG_UNK7        = 0x80
 };
 
+DEFINE_ENUM_FLAG(UnitPVPStateFlags);
+
 // byte (2 from 0..3) of UNIT_FIELD_BYTES_2
 enum UnitPetFlag : uint8
 {
@@ -97,6 +100,8 @@ enum UnitPetFlag : uint8
     UNIT_PET_FLAG_CAN_BE_RENAMED    = 0x01,
     UNIT_PET_FLAG_CAN_BE_ABANDONED  = 0x02
 };
+
+DEFINE_ENUM_FLAG(UnitPetFlag);
 
 enum UnitMoveType
 {
@@ -118,7 +123,7 @@ enum UnitMoveType
 enum UnitFlags : uint32
 {
     UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
-    UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable
+    UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable, set when creature starts to cast spells with SPELL_EFFECT_SPAWN and cast time, removed when spell hits caster, original name is UNIT_FLAG_SPAWNING. Rename when it will be removed from all scripts
     UNIT_FLAG_REMOVE_CLIENT_CONTROL = 0x00000004,           // This is a legacy flag used to disable movement player's movement while controlling other units, SMSG_CLIENT_CONTROL replaces this functionality clientside now. CONFUSED and FLEEING flags have the same effect on client movement asDISABLE_MOVE_CONTROL in addition to preventing spell casts/autoattack (they all allow climbing steeper hills and emotes while moving)
     UNIT_FLAG_PLAYER_CONTROLLED     = 0x00000008,           // controlled by player, use _IMMUNE_TO_PC instead of _IMMUNE_TO_NPC
     UNIT_FLAG_RENAME                = 0x00000010,
@@ -129,7 +134,7 @@ enum UnitFlags : uint32
     UNIT_FLAG_IMMUNE_TO_NPC         = 0x00000200,           // disables combat/assistance with NonPlayerCharacters (NPC) - see Unit::IsValidAttackTarget, Unit::IsValidAssistTarget
     UNIT_FLAG_LOOTING               = 0x00000400,           // loot animation
     UNIT_FLAG_PET_IN_COMBAT         = 0x00000800,           // on player pets: whether the pet is chasing a target to attack || on other units: whether any of the unit's minions is in combat
-    UNIT_FLAG_PVP                   = 0x00001000,           // changed in 3.0.3
+    UNIT_FLAG_PVP_ENABLING          = 0x00001000,           // changed in 3.0.3, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2
     UNIT_FLAG_SILENCED              = 0x00002000,           // silenced, 2.1.1
     UNIT_FLAG_CANT_SWIM             = 0x00004000,           // TITLE Can't Swim
     UNIT_FLAG_CAN_SWIM              = 0x00008000,           // TITLE Can Swim DESCRIPTION shows swim animation in water
@@ -137,19 +142,31 @@ enum UnitFlags : uint32
     UNIT_FLAG_PACIFIED              = 0x00020000,           // 3.0.3 ok
     UNIT_FLAG_STUNNED               = 0x00040000,           // 3.0.3 ok
     UNIT_FLAG_IN_COMBAT             = 0x00080000,
-    UNIT_FLAG_TAXI_FLIGHT           = 0x00100000,           // disable casting at client side spell not allowed by taxi flight (mounted?), probably used with 0x4 flag
+    UNIT_FLAG_ON_TAXI               = 0x00100000,           // disable casting at client side spell not allowed by taxi flight (mounted?), probably used with 0x4 flag
     UNIT_FLAG_DISARMED              = 0x00200000,           // 3.0.3, disable melee spells casting..., "Required melee weapon" added to melee spells tooltip.
     UNIT_FLAG_CONFUSED              = 0x00400000,
     UNIT_FLAG_FLEEING               = 0x00800000,
     UNIT_FLAG_POSSESSED             = 0x01000000,           // under direct client control by a player (possess or vehicle)
-    UNIT_FLAG_NOT_SELECTABLE        = 0x02000000,
+    UNIT_FLAG_UNINTERACTIBLE        = 0x02000000,
     UNIT_FLAG_SKINNABLE             = 0x04000000,
     UNIT_FLAG_MOUNT                 = 0x08000000,
     UNIT_FLAG_UNK_28                = 0x10000000,
-    UNIT_FLAG_UNK_29                = 0x20000000,           // used in Feing Death spell
+    UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT = 0x20000000,   // Prevent automatically playing emotes from parsing chat text, for example "lol" in /say, ending message with ? or !, or using /yell
     UNIT_FLAG_SHEATHE               = 0x40000000,
     UNIT_FLAG_IMMUNE                = 0x80000000,           // Immune to damage
+
+    UNIT_FLAG_DISALLOWED            = (UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL |
+                                       UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_RENAME | UNIT_FLAG_PREPARATION | /* UNIT_FLAG_UNK_6 | */
+                                       UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_LOOTING | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP_ENABLING |
+                                       UNIT_FLAG_SILENCED | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
+                                       UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
+                                       UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
+                                       UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE),
+
+    UNIT_FLAG_ALLOWED               = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED)
 };
+
+DEFINE_ENUM_FLAG(UnitFlags);
 
 // Value masks for UNIT_FIELD_FLAGS_2
 // EnumUtils: DESCRIBE THIS
@@ -184,15 +201,36 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_UNTARGETABLE_BY_CLIENT                           = 0x04000000,   // TITLE Untargetable By Client
     UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES                  = 0x08000000,   // TITLE Attacker Ignores Minimum Ranges
     UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE                        = 0x10000000,   // TITLE Uninteractible If Hostile
+    UNIT_FLAG2_UNUSED_11                                        = 0x20000000,
     UNIT_FLAG2_INFINITE_AOI                                     = 0x40000000,   // TITLE Infinite (AOI)
+    UNIT_FLAG2_UNUSED_13                                        = 0x80000000,
+
+    UNIT_FLAG2_DISALLOWED                                       = (UNIT_FLAG2_FEIGN_DEATH | UNIT_FLAG2_IGNORE_REPUTATION | UNIT_FLAG2_COMPREHEND_LANG |
+                                                                   UNIT_FLAG2_MIRROR_IMAGE | UNIT_FLAG2_FORCE_MOVEMENT | UNIT_FLAG2_DISARM_OFFHAND |
+                                                                   UNIT_FLAG2_DISABLE_PRED_STATS | UNIT_FLAG2_ALLOW_CHANGING_TALENTS | UNIT_FLAG2_DISARM_RANGED |
+                                                                /* UNIT_FLAG2_REGENERATE_POWER | */ UNIT_FLAG2_RESTRICT_PARTY_INTERACTION |
+                                                                   UNIT_FLAG2_PREVENT_SPELL_CLICK | UNIT_FLAG2_INTERACT_WHILE_HOSTILE | /* UNIT_FLAG2_CANNOT_TURN | */
+                                                                /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER |
+                                                                   UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS | UNIT_FLAG2_LARGE_AOI | UNIT_FLAG2_GIGANTIC_AOI | UNIT_FLAG2_NO_ACTIONS |
+                                                                   UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS | UNIT_FLAG2_DONT_GENERATE_COMBAT_LOG_WHEN_ENGAGED_WITH_NPCS | UNIT_FLAG2_UNTARGETABLE_BY_CLIENT | UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES |
+                                                                   UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE | UNIT_FLAG2_UNUSED_11 | UNIT_FLAG2_INFINITE_AOI | UNIT_FLAG2_UNUSED_13),
+
+    UNIT_FLAG2_ALLOWED                                          = (0xFFFFFFFF & ~UNIT_FLAG2_DISALLOWED)
 };
+
+DEFINE_ENUM_FLAG(UnitFlags2);
 
 // Value masks for UNIT_FIELD_FLAGS_3
 // EnumUtils: DESCRIBE THIS
 enum UnitFlags3 : uint32
 {
     UNIT_FLAG3_UNK1                         = 0x00000001,
+
+    UNIT_FLAG3_DISALLOWED                   = 0xFFFFFFFF,
+    UNIT_FLAG3_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED)
 };
+
+DEFINE_ENUM_FLAG(UnitFlags3);
 
 /// Non Player Character flags
 // EnumUtils: DESCRIBE THIS
@@ -233,6 +271,8 @@ enum NPCFlags : uint32
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x80000000      // TITLE is black market
 };
 
+DEFINE_ENUM_FLAG(NPCFlags);
+
 // EnumUtils: DESCRIBE THIS
 enum NPCFlags2 : uint32
 {
@@ -249,6 +289,8 @@ enum NPCFlags2 : uint32
     UNIT_NPC_FLAG_2_AZERITE_RESPEC          = 0x4000,     // TITLE is azerite respec
     UNIT_NPC_FLAG_2_ISLANDS_QUEUE           = 0x8000,     // TITLE is islands queue
 };
+
+DEFINE_ENUM_FLAG(NPCFlags2);
 
 enum MovementFlags : uint32
 {
@@ -331,6 +373,12 @@ enum MovementFlags2 : uint32
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT                     = 0x00020000,
     MOVEMENTFLAG2_INTERPOLATED_TURNING                      = 0x00040000,
     MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00080000
+};
+
+enum MovementFlags3 : uint32
+{
+    MOVEMENTFLAG3_NONE              = 0x00000000,
+    MOVEMENTFLAG3_DISABLE_INERTIA   = 0x00000001,
 };
 
 enum HitInfo

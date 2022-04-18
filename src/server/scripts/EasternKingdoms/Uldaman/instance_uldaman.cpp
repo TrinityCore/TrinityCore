@@ -122,7 +122,7 @@ class instance_uldaman : public InstanceMapScript
 
                     case GO_ANCIENT_VAULT_DOOR:
                         go->SetGoState(GO_STATE_READY);
-                        go->SetFlags(GameObjectFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN));
+                        go->ReplaceAllFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN);
                         ancientVaultDoor = go->GetGUID();
 
                         if (m_auiEncounter[1] == DONE)
@@ -142,7 +142,7 @@ class instance_uldaman : public InstanceMapScript
                         if (m_auiEncounter[2] == DONE)
                         {
                             HandleGameObject(ObjectGuid::Empty, true, go);
-                            go->AddFlag(GO_FLAG_INTERACT_COND);
+                            go->SetFlag(GO_FLAG_INTERACT_COND);
                         }
                         break;
                 }
@@ -152,7 +152,7 @@ class instance_uldaman : public InstanceMapScript
             {
                 creature->SetFaction(FACTION_FRIENDLY);
                 creature->RemoveAllAuras();
-                creature->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                creature->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 creature->SetControlled(true, UNIT_STATE_ROOT);
                 creature->AddAura(SPELL_MINION_FREEZE_ANIM, creature);
             }
@@ -172,7 +172,7 @@ class instance_uldaman : public InstanceMapScript
                 if (!go)
                     return;
 
-                go->AddFlag(GO_FLAG_INTERACT_COND);
+                go->SetFlag(GO_FLAG_INTERACT_COND);
             }
 
             void ActivateStoneKeepers()
@@ -186,7 +186,7 @@ class instance_uldaman : public InstanceMapScript
                             continue;
                         target->SetControlled(false, UNIT_STATE_ROOT);
                         target->SetFaction(FACTION_MONSTER);
-                        target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
 
                         return;        // only want the first one we find
@@ -209,7 +209,7 @@ class instance_uldaman : public InstanceMapScript
                     if (!target || !target->IsAlive() || target->GetFaction() == FACTION_MONSTER)
                         continue;
                     target->SetControlled(false, UNIT_STATE_ROOT);
-                    target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     target->SetFaction(FACTION_MONSTER);
                     target->RemoveAura(SPELL_MINION_FREEZE_ANIM);
                     archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
@@ -261,7 +261,7 @@ class instance_uldaman : public InstanceMapScript
                     archaedas->RemoveAura(SPELL_FREEZE_ANIM);
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
                     archaedas->SetFaction(FACTION_TITAN);
-                    archaedas->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    archaedas->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     whoWokeuiArchaedasGUID = target;
                 }
             }
@@ -274,7 +274,7 @@ class instance_uldaman : public InstanceMapScript
 
                 ironaya->SetFaction(FACTION_TITAN);
                 ironaya->SetControlled(false, UNIT_STATE_ROOT);
-                ironaya->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                ironaya->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                 ironaya->GetMotionMaster()->Clear();
                 ironaya->GetMotionMaster()->MovePoint(0, IronayaPoint);

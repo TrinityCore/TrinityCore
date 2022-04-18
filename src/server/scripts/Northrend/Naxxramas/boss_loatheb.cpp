@@ -55,100 +55,89 @@ enum Achievement
     DATA_ACHIEVEMENT_SPORE_LOSER    = 21822183,
 };
 
-class boss_loatheb : public CreatureScript
+struct boss_loatheb : public BossAI
 {
-    public:
-        boss_loatheb() : CreatureScript("boss_loatheb") { }
+    boss_loatheb(Creature* creature) : BossAI(creature, BOSS_LOATHEB), _doomCounter(0), _sporeLoser(true) { }
 
-        struct boss_loathebAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FUNGAL_CREEP);
+        _doomCounter = 0;
+        _sporeLoser = true;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_NECROTIC_AURA, 17s);
+        events.ScheduleEvent(EVENT_DEATHBLOOM, 5s);
+        events.ScheduleEvent(EVENT_SPORE, 18s);
+        events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 2min);
+    }
+
+    void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
+    {
+        _sporeLoser = false;
+        summon->CastSpell(summon, SPELL_FUNGAL_CREEP, true);
+    }
+
+    uint32 GetData(uint32 id) const override
+    {
+        return (_sporeLoser && id == DATA_ACHIEVEMENT_SPORE_LOSER) ? 1u : 0u;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_loathebAI(Creature* creature) : BossAI(creature, BOSS_LOATHEB), _doomCounter(0), _sporeLoser(true) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FUNGAL_CREEP);
-                _doomCounter = 0;
-                _sporeLoser = true;
+                case EVENT_NECROTIC_AURA:
+                    DoCastAOE(SPELL_NECROTIC_AURA);
+                    Talk(SAY_NECROTIC_AURA_APPLIED);
+                    events.ScheduleEvent(EVENT_NECROTIC_AURA_FADING, 14s);
+                    events.ScheduleEvent(EVENT_NECROTIC_AURA_FADED, 17s);
+                    events.Repeat(Seconds(20));
+                    break;
+                case EVENT_DEATHBLOOM:
+                    DoCastAOE(SPELL_DEATHBLOOM);
+                    events.Repeat(Seconds(30));
+                    break;
+                case EVENT_INEVITABLE_DOOM:
+                    ++_doomCounter;
+                    DoCastAOE(SPELL_INEVITABLE_DOOM);
+                    if (_doomCounter > 6)
+                        events.Repeat((_doomCounter & 1) ? Seconds(14) : Seconds(17));
+                    else
+                        events.Repeat(Seconds(30));
+                    break;
+                case EVENT_SPORE:
+                    DoCast(me, SPELL_SUMMON_SPORE, false);
+                    events.Repeat(RAID_MODE(Seconds(36), Seconds(15)));
+                    break;
+                case EVENT_NECROTIC_AURA_FADING:
+                    Talk(SAY_NECROTIC_AURA_FADING);
+                    break;
+                case EVENT_NECROTIC_AURA_FADED:
+                    Talk(SAY_NECROTIC_AURA_REMOVED);
+                    break;
+                default:
+                    break;
             }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_NECROTIC_AURA, 17s);
-                events.ScheduleEvent(EVENT_DEATHBLOOM, 5s);
-                events.ScheduleEvent(EVENT_SPORE, 18s);
-                events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 2min);
-            }
-
-            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
-            {
-                _sporeLoser = false;
-                summon->CastSpell(summon, SPELL_FUNGAL_CREEP, true);
-            }
-
-            uint32 GetData(uint32 id) const override
-            {
-                return (_sporeLoser && id == DATA_ACHIEVEMENT_SPORE_LOSER) ? 1u : 0u;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_NECROTIC_AURA:
-                            DoCastAOE(SPELL_NECROTIC_AURA);
-                            Talk(SAY_NECROTIC_AURA_APPLIED);
-                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADING, 14s);
-                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADED, 17s);
-                            events.Repeat(Seconds(20));
-                            break;
-                        case EVENT_DEATHBLOOM:
-                            DoCastAOE(SPELL_DEATHBLOOM);
-                            events.Repeat(Seconds(30));
-                            break;
-                        case EVENT_INEVITABLE_DOOM:
-                            ++_doomCounter;
-                            DoCastAOE(SPELL_INEVITABLE_DOOM);
-                            if (_doomCounter > 6)
-                                events.Repeat((_doomCounter & 1) ? Seconds(14) : Seconds(17));
-                            else
-                                events.Repeat(Seconds(30));
-                            break;
-                        case EVENT_SPORE:
-                            DoCast(me, SPELL_SUMMON_SPORE, false);
-                            events.Repeat(RAID_MODE(Seconds(36), Seconds(15)));
-                            break;
-                        case EVENT_NECROTIC_AURA_FADING:
-                            Talk(SAY_NECROTIC_AURA_FADING);
-                            break;
-                        case EVENT_NECROTIC_AURA_FADED:
-                            Talk(SAY_NECROTIC_AURA_REMOVED);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint8 _doomCounter;
-            bool _sporeLoser;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetNaxxramasAI<boss_loathebAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint8 _doomCounter;
+    bool _sporeLoser;
 };
 
 class achievement_spore_loser : public AchievementCriteriaScript
@@ -162,43 +151,33 @@ class achievement_spore_loser : public AchievementCriteriaScript
         }
 };
 
-class spell_loatheb_deathbloom : public SpellScriptLoader
+// 29865, 55053 - Deathbloom
+class spell_loatheb_deathbloom : public AuraScript
 {
-    public:
-        spell_loatheb_deathbloom() : SpellScriptLoader("spell_loatheb_deathbloom") { }
+    PrepareAuraScript(spell_loatheb_deathbloom);
 
-        class spell_loatheb_deathbloom_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_loatheb_deathbloom_AuraScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DEATHBLOOM_FINAL_DAMAGE });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DEATHBLOOM_FINAL_DAMAGE });
-            }
+    void AfterRemove(AuraEffect const* eff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
 
-            void AfterRemove(AuraEffect const* eff, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-                    return;
+        GetTarget()->CastSpell(nullptr, SPELL_DEATHBLOOM_FINAL_DAMAGE, CastSpellExtraArgs(eff).SetOriginalCaster(GetCasterGUID()));
+    }
 
-                GetTarget()->CastSpell(nullptr, SPELL_DEATHBLOOM_FINAL_DAMAGE, CastSpellExtraArgs(eff).SetOriginalCaster(GetCasterGUID()));
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_loatheb_deathbloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_loatheb_deathbloom_AuraScript();
-        }
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_loatheb_deathbloom::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 void AddSC_boss_loatheb()
 {
-    new boss_loatheb();
+    RegisterNaxxramasCreatureAI(boss_loatheb);
     new achievement_spore_loser();
-    new spell_loatheb_deathbloom();
+    RegisterSpellScript(spell_loatheb_deathbloom);
 }

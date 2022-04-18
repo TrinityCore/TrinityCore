@@ -153,7 +153,7 @@ struct boss_drakkari_colossus : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->IsImmuneToPC())
             damage = 0;
@@ -295,7 +295,7 @@ struct boss_drakkari_elemental : public ScriptedAI
         }
    }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (HealthBelowPct(50))
         {
@@ -446,7 +446,7 @@ private:
 
 void AddSC_boss_drakkari_colossus()
 {
-    RegisterCreatureAIWithFactory(boss_drakkari_colossus, GetGundrakAI);
-    RegisterCreatureAIWithFactory(boss_drakkari_elemental, GetGundrakAI);
-    RegisterCreatureAIWithFactory(npc_living_mojo, GetGundrakAI);
+    RegisterGundrakCreatureAI(boss_drakkari_colossus);
+    RegisterGundrakCreatureAI(boss_drakkari_elemental);
+    RegisterGundrakCreatureAI(npc_living_mojo);
 }

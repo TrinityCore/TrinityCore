@@ -527,6 +527,7 @@ struct BroadcastTextEntry
     uint16 EmotesID;
     uint8 Flags;
     uint32 ChatBubbleDurationMs;
+    int32 VoiceOverPriorityID;
     std::array<uint32, 2> SoundKitID;
     std::array<uint16, MAX_BROADCAST_TEXT_EMOTES> EmoteID;
     std::array<uint16, MAX_BROADCAST_TEXT_EMOTES> EmoteDelay;
@@ -2215,6 +2216,8 @@ struct ItemSparseEntry
     uint32 DurationInInventory;
     float QualityModifier;
     uint32 BagFamily;
+    int32 StartQuestID;
+    int32 LanguageID;
     float ItemRange;
     std::array<float, MAX_ITEM_PROTO_STATS> StatPercentageOfSocket;
     std::array<int32, MAX_ITEM_PROTO_STATS> StatPercentEditor;
@@ -2241,7 +2244,6 @@ struct ItemSparseEntry
     std::array<uint16, MAX_ITEM_PROTO_ZONES> ZoneBound;
     uint16 ItemSet;
     uint16 LockID;
-    uint16 StartQuestID;
     uint16 PageID;
     uint16 ItemDelay;
     uint16 MinFactionID;
@@ -2256,7 +2258,6 @@ struct ItemSparseEntry
     uint8 SheatheType;
     uint8 Material;
     uint8 PageMaterialID;
-    uint8 LanguageID;
     uint8 Bonding;
     uint8 DamageDamageType;
     std::array<int8, MAX_ITEM_PROTO_STATS> StatModifierBonusStat;
@@ -2386,6 +2387,9 @@ struct LanguagesEntry
 {
     uint32 ID;
     LocalizedString Name;
+    int32 Flags;
+    int32 UiTextureKitID;
+    int32 UiTextureKitElementCount;
 };
 
 struct LFGDungeonsEntry
@@ -3087,6 +3091,8 @@ struct SkillLineEntry
     int32 ParentTierIndex;
     uint16 Flags;
     int32 SpellBookSpellID;
+
+    EnumFlag<SkillLineFlags> GetFlags() const { return static_cast<SkillLineFlags>(Flags); }
 };
 
 struct SkillLineAbilityEntry
@@ -3694,7 +3700,7 @@ struct TaxiNodesEntry
     uint16 ContinentID;
     int32 ConditionID;
     uint16 CharacterBitNumber;
-    uint8 Flags;
+    uint16 Flags;
     int32 UiTextureKitID;
     int32 MinimapAtlasMemberID;
     float Facing;

@@ -18,6 +18,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include "GridObject.h"
 #include "Unit.h"
 #include "CUFProfile.h"
 #include "DatabaseEnvFwd.h"
@@ -483,6 +484,8 @@ enum PlayerFlags
     PLAYER_FLAGS_COMMENTATOR_CAMERA     = 0x80000000
 };
 
+DEFINE_ENUM_FLAG(PlayerFlags);
+
 enum PlayerFlagsEx
 {
     PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED   = 0x0001,
@@ -493,6 +496,8 @@ enum PlayerFlagsEx
     PLAYER_FLAGS_EX_NEWCOMER                = 0x0100,
     PLAYER_FLAGS_EX_UNLOCKED_AOE_LOOT       = 0x0200
 };
+
+DEFINE_ENUM_FLAG(PlayerFlagsEx);
 
 enum PlayerLocalFlags
 {
@@ -512,6 +517,8 @@ enum PlayerLocalFlags
     PLAYER_LOCAL_FLAG_MENTOR_RESTRICTED             = 0x00020000,
     PLAYER_LOCAL_FLAG_WEEKLY_REWARD_AVAILABLE       = 0x00040000,
 };
+
+DEFINE_ENUM_FLAG(PlayerLocalFlags);
 
 // used in PLAYER_FIELD_BYTES2 values
 enum PlayerFieldByte2Flags
@@ -1189,7 +1196,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ContinueTaxiFlight() const;
 
         bool IsDeveloper() const { return HasPlayerFlag(PLAYER_FLAGS_DEVELOPER); }
-        void SetDeveloper(bool on) { if (on) AddPlayerFlag(PLAYER_FLAGS_DEVELOPER); else RemovePlayerFlag(PLAYER_FLAGS_DEVELOPER); }
+        void SetDeveloper(bool on) { if (on) SetPlayerFlag(PLAYER_FLAGS_DEVELOPER); else RemovePlayerFlag(PLAYER_FLAGS_DEVELOPER); }
         bool isAcceptWhispers() const { return (m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS) != 0; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
         bool IsGameMaster() const { return (m_ExtraFlags & PLAYER_EXTRA_GM_ON) != 0; }
@@ -1692,7 +1699,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder);
+        bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& holder);
         bool IsLoading() const override;
 
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
@@ -1801,7 +1808,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo);
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
-        void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetOverrideSpellsId(int32 overrideSpellsId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OverrideSpellsID), overrideSpellsId);  }
@@ -2086,6 +2092,20 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::UnitData::Mask const& requestedUnitMask,
             UF::PlayerData::Mask const& requestedPlayerMask, UF::ActivePlayerData::Mask const& requestedActivePlayerMask, Player const* target) const;
+
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(Player const* owner) : Owner(owner) { }
+
+            Player const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::UnitData::Base UnitMask;
+            UF::PlayerData::Base PlayerMask;
+            UF::ActivePlayerData::Base ActivePlayerMask;
+
+            void operator()(Player const* player) const;
+        };
+
         void DestroyForPlayer(Player* target) const override;
 
         // notifiers
@@ -2134,8 +2154,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DurabilityPointsLossAll(int32 points, bool inventory);
         void DurabilityPointsLoss(Item* item, int32 points);
         void DurabilityPointLossForEquipSlot(EquipmentSlots slot);
-        uint32 DurabilityRepairAll(bool cost, float discountMod, bool guildBank);
-        uint32 DurabilityRepair(uint16 pos, bool cost, float discountMod, bool guildBank);
+        void DurabilityRepairAll(bool takeCost, float discountMod, bool guildBank);
+        void DurabilityRepair(uint16 pos, bool takeCost, float discountMod);
 
         void UpdateMirrorTimers();
         void StopMirrorTimers();
@@ -2163,7 +2183,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         int16 GetSkillTempBonusValue(uint32 skill) const;
         uint16 GetSkillStep(uint32 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
-        void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
+        void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races race);
         int32 FindProfessionSlotFor(uint32 skillId) const;
         void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillLineID, pos), skillLineId); }
         void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); };
@@ -2192,6 +2212,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void SetFactionForRace(uint8 race);
+
+        Team GetEffectiveTeam() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE) ? (GetTeam() == ALLIANCE ? HORDE : ALLIANCE) : Team(GetTeam()); }
+        TeamId GetEffectiveTeamId() const { return GetEffectiveTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
 
         void InitDisplayIds();
 
@@ -2367,6 +2390,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveBattlegroundQueueId(BattlegroundQueueTypeId val);
         void SetInviteForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, uint32 instanceId);
         bool IsInvitedForBattlegroundInstance(uint32 instanceId) const;
+        void SetMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, bool mercenary);
+        bool IsMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;
         WorldLocation const& GetBattlegroundEntryPoint() const { return m_bgData.joinPos; }
         void SetBattlegroundEntryPoint();
 
@@ -2610,13 +2635,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendMovementSetCollisionHeight(float height, WorldPackets::Movement::UpdateCollisionHeightReason reason);
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+        bool CanEnterWater() const override { return true; }
 
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
         // Void Storage
         bool IsVoidStorageUnlocked() const { return HasPlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
-        void UnlockVoidStorage() { AddPlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
+        void UnlockVoidStorage() { SetPlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
         void LockVoidStorage() { RemovePlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
         uint8 GetNextVoidStorageFreeSlot() const;
         uint8 GetNumOfVoidStorageFreeSlots() const;
@@ -2628,7 +2654,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
-        void UnlockReagentBank() { AddPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
+        void UnlockReagentBank() { SetPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
 
         void CreateGarrison(uint32 garrSiteId);
         void DeleteGarrison();
@@ -2660,14 +2686,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool MeetPlayerCondition(uint32 conditionId) const;
 
         bool HasPlayerFlag(PlayerFlags flags) const { return (*m_playerData->PlayerFlags & flags) != 0; }
-        void AddPlayerFlag(PlayerFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
+        void SetPlayerFlag(PlayerFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
         void RemovePlayerFlag(PlayerFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
-        void SetPlayerFlags(PlayerFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
+        void ReplaceAllPlayerFlags(PlayerFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
 
         bool HasPlayerFlagEx(PlayerFlagsEx flags) const { return (*m_playerData->PlayerFlagsEx & flags) != 0; }
-        void AddPlayerFlagEx(PlayerFlagsEx flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
+        void SetPlayerFlagEx(PlayerFlagsEx flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
         void RemovePlayerFlagEx(PlayerFlagsEx flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
-        void SetPlayerFlagsEx(PlayerFlagsEx flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
+        void ReplaceAllPlayerFlagsEx(PlayerFlagsEx flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
 
         void SetAverageItemLevelTotal(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 0), newItemLevel); }
         void SetAverageItemLevelEquipped(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 1), newItemLevel); }
@@ -2741,7 +2767,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ObjectGuid GetSummonedBattlePetGUID() const { return m_activePlayerData->SummonedBattlePetGUID; }
         void SetSummonedBattlePetGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SummonedBattlePetGUID), guid); }
 
-        void AddTrackCreatureFlag(uint32 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TrackCreatureMask), flags); }
+        void SetTrackCreatureFlag(uint32 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TrackCreatureMask), flags); }
         void RemoveTrackCreatureFlag(uint32 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TrackCreatureMask), flags); }
 
         void SetVersatilityBonus(float value) { SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::VersatilityBonus), value); }
@@ -2751,9 +2777,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyModOverrideAPBySpellPowerPercent(float mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::OverrideAPBySpellPowerPercent), mod, apply); }
 
         bool HasPlayerLocalFlag(PlayerLocalFlags flags) const { return (*m_activePlayerData->LocalFlags & flags) != 0; }
-        void AddPlayerLocalFlag(PlayerLocalFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
+        void SetPlayerLocalFlag(PlayerLocalFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
         void RemovePlayerLocalFlag(PlayerLocalFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
-        void SetPlayerLocalFlags(PlayerLocalFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
+        void ReplaceAllPlayerLocalFlags(PlayerLocalFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
 
         uint8 GetNumRespecs() const { return m_activePlayerData->NumRespecs; }
         void SetNumRespecs(uint8 numRespecs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumRespecs), numRespecs); }
@@ -2800,6 +2826,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             BattlegroundQueueTypeId bgQueueTypeId;
             uint32 invitedToInstance;
             uint32 joinTime;
+            bool mercenary;
         };
 
         BgBattlegroundQueueID_Rec m_bgBattlegroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];

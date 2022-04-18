@@ -21,7 +21,7 @@
 #include "SpellScript.h"
 #include "vault_of_archavon.h"
 
-enum Spells
+enum ToravonSpells
 {
     // Toravon
     SPELL_FREEZING_GROUND   = 72090,
@@ -38,11 +38,11 @@ enum Spells
     FROZEN_ORB_STALKER_AURA = 72094
 };
 
-enum Events
+enum ToravonEvents
 {
-    EVENT_FREEZING_GROUND   = 1,
-    EVENT_FROZEN_ORB        = 2,
-    EVENT_WHITEOUT          = 3
+    EVENT_FREEZING_GROUND = 1,
+    EVENT_FROZEN_ORB,
+    EVENT_WHITEOUT
 };
 
 struct boss_toravon : public BossAI

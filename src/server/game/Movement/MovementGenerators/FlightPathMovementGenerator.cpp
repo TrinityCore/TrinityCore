@@ -73,7 +73,7 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
     owner->CombatStopWithPets();
-    owner->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT));
+    owner->SetUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_ON_TAXI);
 
     uint32 end = GetPathAtMapEnd();
     uint32 currentNodeId = GetCurrentNode();
@@ -160,7 +160,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     uint32 taxiNodeId = owner->m_taxi.GetTaxiDestination();
     owner->m_taxi.ClearTaxiDestinations();
     owner->Dismount();
-    owner->RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT));
+    owner->RemoveUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_ON_TAXI);
 
     if (owner->m_taxi.empty())
     {

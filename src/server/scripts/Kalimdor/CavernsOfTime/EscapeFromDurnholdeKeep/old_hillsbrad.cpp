@@ -43,10 +43,11 @@ enum Erozion
     QUEST_ENTRY_DIVERSION   = 10283,
     QUEST_ENTRY_ESCAPE      = 10284,
     QUEST_ENTRY_RETURN      = 10285,
-    ITEM_ENTRY_BOMBS        = 25853
+    ITEM_ENTRY_BOMBS        = 25853,
+    GOSSIP_MENU_EROZION     = 7769,
+    GOSSIP_OPTION_BOMB      = 0  //I need a pack of Incendiary Bombs.
 };
-#define GOSSIP_HELLO_EROZION1   "I need a pack of Incendiary Bombs."
-#define GOSSIP_HELLO_EROZION2   "[PH] Teleport please, i'm tired."
+#define GOSSIP_HELLO_EROZION2   "[PH] Teleport please, i'm tired." //not in DB,maybe incorrect?
 
 /*######
 ## npc_erozion
@@ -88,7 +89,7 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (instance->GetData(TYPE_BARREL_DIVERSION) != DONE && !player->HasItemCount(ITEM_ENTRY_BOMBS))
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HELLO_EROZION1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_MENU_EROZION, GOSSIP_OPTION_BOMB, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             if (player->GetQuestStatus(QUEST_ENTRY_RETURN) == QUEST_STATUS_COMPLETE)
                 AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -178,18 +179,17 @@ enum ThrallOldHillsbrad
     GOSSIP_ID_SKARLOC2          = 9579,                        //What do you mean by this? Is Taretha in danger?
     GOSSIP_ID_SKARLOC3          = 9580,
     GOSSIP_ID_TARREN            = 9597,                        //tarren mill is beyond these trees
-    GOSSIP_ID_COMPLETE          = 9578                         //Thank you friends, I owe my freedom to you. Where is Taretha? I hoped to see her
+    GOSSIP_ID_COMPLETE          = 9578,                        //Thank you friends, I owe my freedom to you. Where is Taretha? I hoped to see her
+    GOSSIP_ITEM_WALKING_MID     = 7499,
+    GOSSIP_ITEM_DEFAULT_OP      = 0,                           //We are ready to get you out of here, Thrall. Let's go!
+    GOSSIP_ITEM_TARREN_MID      = 7840,                        //We're ready, Thrall.
+    GOSSIP_ITEM_SKARLOC1_MID    = 7830,                        //Taretha cannot see you, Thrall.
+    GOSSIP_ITEM_SKARLOC2_MID    = 7829                         //The situation is rather complicated, Thrall. It would be best for you to head into the mountains now, before more of Blackmoore's men show up. We'll make sure Taretha is safe.
 };
 
 #define SPEED_WALK              (0.5f)
 #define SPEED_RUN               (1.0f)
 #define SPEED_MOUNT             (1.6f)
-
-//gossip items
-#define GOSSIP_ITEM_SKARLOC1    "Taretha cannot see you, Thrall."
-#define GOSSIP_ITEM_SKARLOC2    "The situation is rather complicated, Thrall. It would be best for you to head into the mountains now, before more of Blackmoore's men show up. We'll make sure Taretha is safe."
-#define GOSSIP_ITEM_TARREN      "We're ready, Thrall."
-#define GOSSIP_ITEM_WALKING     "We are ready to get you out of here, Thrall. Let's go!"
 
 class npc_thrall_old_hillsbrad : public CreatureScript
 {
@@ -265,7 +265,7 @@ public:
                     break;
                 case 30:
                     SetEscortPaused(true);
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     SetRun(false);
                     break;
                 case 31:
@@ -289,7 +289,7 @@ public:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     //make horsie run off
                     SetEscortPaused(true);
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     instance->SetData(TYPE_THRALL_PART2, DONE);
                     SetRun();
                     break;
@@ -489,7 +489,7 @@ public:
                     break;
 
                 case GOSSIP_ACTION_INFO_DEF + 2:
-                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_SKARLOC2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
+                    AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC2_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
                     SendGossipMenuFor(player, GOSSIP_ID_SKARLOC2, me->GetGUID());
                     break;
 
@@ -522,19 +522,19 @@ public:
 
             if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE && !instance->GetData(TYPE_THRALL_EVENT))
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_WALKING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_ITEM_WALKING_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, GOSSIP_ID_START, me->GetGUID());
             }
 
             if (instance->GetData(TYPE_THRALL_PART1) == DONE && !instance->GetData(TYPE_THRALL_PART2))
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_SKARLOC1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC1_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 SendGossipMenuFor(player, GOSSIP_ID_SKARLOC1, me->GetGUID());
             }
 
             if (instance->GetData(TYPE_THRALL_PART2) == DONE && !instance->GetData(TYPE_THRALL_PART3))
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_TARREN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                AddGossipItemFor(player, GOSSIP_ITEM_TARREN_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                 SendGossipMenuFor(player, GOSSIP_ID_TARREN, me->GetGUID());
             }
             return true;
@@ -553,11 +553,12 @@ public:
 enum Taretha
 {
     GOSSIP_ID_EPOCH1        = 9610,                        //Thank you for helping Thrall escape, friends. Now I only hope
-    GOSSIP_ID_EPOCH2        = 9613                        //Yes, friends. This man was no wizard of
+    GOSSIP_ID_EPOCH2        = 9613,                        //Yes, friends. This man was no wizard of
+    GOSSIP_ITEM_EPOCH1_MID  = 7849,
+    GOSSIP_ITEM_EPOCH1_OID  = 0,                           //Strange wizard?
+    GOSSIP_ITEM_EPOCH2_MID  = 7852,
+    GOSSIP_ITEM_EPOCH2_OID  = 0                            //We'll get you out, Taretha. Don't worry. I doubt the wizard would wander too far away.
 };
-
-#define GOSSIP_ITEM_EPOCH1      "Strange wizard?"
-#define GOSSIP_ITEM_EPOCH2      "We'll get you out. Taretha. Don't worry. I doubt the wizard would wander too far away."
 
 class npc_taretha : public CreatureScript
 {
@@ -601,7 +602,7 @@ public:
 
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_EPOCH2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                AddGossipItemFor(player, GOSSIP_ITEM_EPOCH2_MID, GOSSIP_ITEM_EPOCH2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 SendGossipMenuFor(player, GOSSIP_ID_EPOCH2, me->GetGUID());
             }
             if (action == GOSSIP_ACTION_INFO_DEF + 2)
@@ -625,7 +626,7 @@ public:
         {
             if (instance->GetData(TYPE_THRALL_PART3) == DONE && instance->GetData(TYPE_THRALL_PART4) == NOT_STARTED)
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_EPOCH1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_ITEM_EPOCH1_MID, GOSSIP_ITEM_EPOCH1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, GOSSIP_ID_EPOCH1, me->GetGUID());
             }
             return true;

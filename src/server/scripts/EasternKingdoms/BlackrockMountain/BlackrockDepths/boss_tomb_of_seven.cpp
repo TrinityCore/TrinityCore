@@ -159,9 +159,9 @@ class boss_doomrel : public CreatureScript
                 me->SetImmuneToPC(true);
 
                 if (_instance->GetData(DATA_GHOSTKILL) >= 7)
-                    me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                    me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
                 else
-                    me->SetNpcFlags(UNIT_NPC_FLAG_GOSSIP);
+                    me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_GOSSIP);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -172,7 +172,7 @@ class boss_doomrel : public CreatureScript
                 _events.ScheduleEvent(EVENT_DEMONARMOR, 16s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!_voidwalkers && !HealthAbovePct(50))
                 {

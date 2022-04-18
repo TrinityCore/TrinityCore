@@ -94,6 +94,12 @@ public:
                     }
                     break;
                 }
+                case GAMEOBJECT_TYPE_CAPTURE_POINT:
+                    if (!gameObject->CanInteractWithCapturePoint(receiver))
+                        dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+                    else
+                        dynFlags &= ~GO_DYNFLAG_LO_NO_INTERACT;
+                    break;
                 default:
                     break;
             }
@@ -174,9 +180,9 @@ public:
     static value_type GetValue(UF::UnitData const* unitData, Unit const* /*unit*/, Player const* receiver)
     {
         value_type flags = unitData->Flags;
-        // Gamemasters should be always able to select units - remove not selectable flag
+        // Gamemasters should be always able to interact with units - remove uninteractible flag
         if (receiver->IsGameMaster())
-            flags &= ~UNIT_FLAG_NOT_SELECTABLE;
+            flags &= ~UNIT_FLAG_UNINTERACTIBLE;
 
         return flags;
     }

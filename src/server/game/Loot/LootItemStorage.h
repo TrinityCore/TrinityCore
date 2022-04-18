@@ -38,6 +38,7 @@ struct StoredLootItem
 
     uint32 ItemId;
     uint32 Count;
+    uint32 ItemIndex;
     bool FollowRules;
     bool FFA;
     bool Blocked;
@@ -60,7 +61,7 @@ class StoredLootContainer
         void AddMoney(uint32 money, CharacterDatabaseTransaction trans);
 
         void RemoveMoney();
-        void RemoveItem(uint32 itemId, uint32 count);
+        void RemoveItem(uint32 itemId, uint32 count, uint32 itemIndex);
 
         uint32 GetContainer() const { return _containerId; }
         uint32 GetMoney() const { return _money; }
@@ -82,7 +83,7 @@ class LootItemStorage
         bool LoadStoredLoot(Item* item, Player* player);
         void RemoveStoredMoneyForContainer(uint64 containerId);
         void RemoveStoredLootForContainer(uint64 containerId);
-        void RemoveStoredLootItemForContainer(uint64 containerId, uint32 itemId, uint32 count);
+        void RemoveStoredLootItemForContainer(uint64 containerId, uint32 itemId, uint32 count, uint32 itemIndex);
         void AddNewStoredLoot(Loot* loot, Player* player);
 
     private:

@@ -106,7 +106,7 @@ class boss_general_vezax : public CreatureScript
 
         struct boss_general_vezaxAI : public BossAI
         {
-            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
+            boss_general_vezaxAI(Creature* creature) : BossAI(creature, DATA_VEZAX)
             {
                 Initialize();
             }
@@ -334,7 +334,7 @@ class boss_saronite_animus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
+                if (Creature* vezax = instance->GetCreature(DATA_VEZAX))
                     vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
             }
 
@@ -417,14 +417,14 @@ class npc_saronite_vapors : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
+            void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 // This can't be on JustDied. In 63322 dummy handler caster needs to be this NPC
                 // if caster == target then damage mods will increase the damage taken
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                    me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());
@@ -432,7 +432,7 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30s);
 
-                    if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
+                    if (Creature* vezax = instance->GetCreature(DATA_VEZAX))
                         vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }
@@ -448,6 +448,7 @@ class npc_saronite_vapors : public CreatureScript
         }
 };
 
+// 63276 - Mark of the Faceless
 class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
 {
     public:
@@ -484,6 +485,7 @@ class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
         }
 };
 
+// 63278 - Mark of the Faceless
 class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
 {
     public:
@@ -513,6 +515,7 @@ class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
         }
 };
 
+// 63322 - Saronite Vapors
 class spell_general_vezax_saronite_vapors : public SpellScriptLoader
 {
     public:

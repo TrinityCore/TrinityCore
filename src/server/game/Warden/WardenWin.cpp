@@ -43,7 +43,6 @@ static constexpr char _luaEvalPostfix[] = ",'GUILD')end";
 
 static_assert((sizeof(_luaEvalPrefix)-1 + sizeof(_luaEvalMidfix)-1 + sizeof(_luaEvalPostfix)-1 + WARDEN_MAX_LUA_CHECK_LENGTH) == 255);
 
-
 WardenWin::WardenWin() : Warden(), _serverTicks(0)
 {
     for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
@@ -236,6 +235,9 @@ void WardenWin::RequestChecks()
 
     for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())
     {
+        if (IsWardenCategoryInWorldOnly(category) && !_session->GetPlayer())
+            continue;
+
         auto& [checks, checksIt] = _checks[category];
         for (uint32 i = 0, n = sWorld->getIntConfig(GetWardenCategoryCountConfig(category)); i < n; ++i)
         {
@@ -252,7 +254,7 @@ void WardenWin::RequestChecks()
         [&expectedSize](uint16 id)
         {
             uint8 const thisSize = GetCheckPacketSize(sWardenCheckMgr->GetCheckData(id));
-            if ((expectedSize + thisSize) > 500) // warden packets are truncated to 512 bytes clientside
+            if ((expectedSize + thisSize) > 450) // warden packets are truncated to 512 bytes clientside
                 return true;
             expectedSize += thisSize;
             return false;

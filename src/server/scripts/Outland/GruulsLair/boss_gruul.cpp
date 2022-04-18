@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Gruul
-SD%Complete: 60
-SDComment: Ground Slam need further development (knock back effect must be added to the core)
-SDCategory: Gruul's Lair
-EndScriptData */
+/*
+TO-DO:
+Slighly(400ms) after spell cast 33965 creatures 19198 are spawned. I guess he forces all enemies including pets(9 summoned units
+and 9 units in his threatlist) to cast 39186(19198 were created by that spell(sniff)). Summoned by that spell creature 19198 casts 33496
+on self after being summoned. Then probably they casts 33497(Pull Towards: (150)) on their creators and that's how that knockback is handled.
+If you look closely, players are knocked to random destinations with random angles, means there is no only one spell which handles knockback.
+19198 despawns after 800ms after being summoned.
+*/
 
 #include "ScriptMgr.h"
 #include "gruuls_lair.h"

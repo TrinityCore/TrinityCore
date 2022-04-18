@@ -434,7 +434,7 @@ class instance_violet_hold : public InstanceMapScript
 
                             for (uint8 i = 0; i < ActivationCrystalCount; ++i)
                                 if (GameObject* crystal = instance->GetGameObject(ActivationCrystalGUIDs[i]))
-                                    crystal->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                                    crystal->SetFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else if (data == DONE)
                         {
@@ -448,7 +448,7 @@ class instance_violet_hold : public InstanceMapScript
 
                             for (uint8 i = 0; i < ActivationCrystalCount; ++i)
                                 if (GameObject* crystal = instance->GetGameObject(ActivationCrystalGUIDs[i]))
-                                    crystal->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                                    crystal->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                             if (Creature* sinclari = GetCreature(DATA_SINCLARI))
                                 sinclari->AI()->DoAction(ACTION_SINCLARI_OUTRO);

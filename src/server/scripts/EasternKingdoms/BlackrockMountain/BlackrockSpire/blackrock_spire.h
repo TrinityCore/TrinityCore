@@ -129,4 +129,6 @@ inline AI* GetBlackrockSpireAI(T* obj)
     return GetInstanceAI<AI>(obj, BRSScriptName);
 }
 
+#define RegisterBlackrockSpireCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackrockSpireAI)
+
 #endif

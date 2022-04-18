@@ -120,10 +120,11 @@ enum Spells
     SPELL_WINGS_OF_THE_DAMNED           = 74352,
     SPELL_VALKYR_TARGET_SEARCH          = 69030,
     SPELL_CHARGE                        = 74399,    // cast on selected target
-    SPELL_VALKYR_CARRY                  = 74445,    // removes unselectable flag
+    SPELL_VALKYR_CARRY                  = 74445,    // removes uninteractible flag
     SPELL_LIFE_SIPHON                   = 73488,
     SPELL_LIFE_SIPHON_HEAL              = 73489,
     SPELL_EJECT_ALL_PASSENGERS          = 68576,
+    SPELL_VALKYR_TRANSFORM              = 73501,
 
     // Phase 3
     SPELL_VILE_SPIRITS                  = 70498,
@@ -516,7 +517,7 @@ struct boss_the_lich_king : public BossAI
         Cell::VisitGridObjects(me, worker, 333.0f);
 
         // Reset any light override
-        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, 0, 5000);
+        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, 0, 5s);
 
         if (!ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
             me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING_LK, TirionSpawn, TEMPSUMMON_MANUAL_DESPAWN);
@@ -530,7 +531,7 @@ struct boss_the_lich_king : public BossAI
         me->GetMotionMaster()->MoveFall();
         if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 50.0f))
             frostmourne->DespawnOrUnsummon();
-        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_FOG, 5000);
+        me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_FOG, 5s);
         me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_FOG, 0.0f);
 
         if (Is25ManRaid())
@@ -603,7 +604,7 @@ struct boss_the_lich_king : public BossAI
                 me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_FINAL);
                 break;
             case ACTION_RESTORE_LIGHT:
-                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, 0, 5000);
+                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, 0, 5s);
                 break;
             case ACTION_BREAK_FROSTMOURNE:
                 me->CastSpell(nullptr, SPELL_SUMMON_BROKEN_FROSTMOURNE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -658,7 +659,7 @@ struct boss_the_lich_king : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
         {
@@ -741,7 +742,7 @@ struct boss_the_lich_king : public BossAI
             {
                 summon->CastSpell(nullptr, SPELL_BROKEN_FROSTMOURNE, true);
 
-                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SOULSTORM, 10000);
+                me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SOULSTORM, 10s);
                 me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_BLACKSNOW, 0.5f);
 
                 events.ScheduleEvent(EVENT_OUTRO_SOUL_BARRAGE, 5s, 0, PHASE_OUTRO);
@@ -793,7 +794,7 @@ struct boss_the_lich_king : public BossAI
 
         if (spellInfo->Id == REMORSELESS_WINTER_1 || spellInfo->Id == REMORSELESS_WINTER_2)
         {
-            me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SNOWSTORM, 5000);
+            me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_DEFAULT, LIGHT_SNOWSTORM, 5s);
             me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
             summons.DespawnEntry(NPC_SHADOW_TRAP);
         }
@@ -1280,7 +1281,7 @@ struct npc_shambling_horror_icc : public ScriptedAI
         _events.ScheduleEvent(EVENT_ENRAGE, 11s, 14s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_frenzied && IsHeroic() && me->HealthBelowPctDamaged(20, damage))
         {
@@ -1321,11 +1322,8 @@ struct npc_shambling_horror_icc : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellFailed(SpellInfo const* spell) override
     {
-        ScriptedAI::OnSpellCastInterrupt(spell);
-
-        // When enrage is interrupted, reschedule the event
         if (spell->Id == ENRAGE)
             _events.RescheduleEvent(EVENT_ENRAGE, 1s);
     }
@@ -1422,7 +1420,10 @@ private:
 
 struct npc_valkyr_shadowguard : public ScriptedAI
 {
-    npc_valkyr_shadowguard(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_valkyr_shadowguard(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        SetCombatMovement(false);
+    }
 
     void Reset() override
     {
@@ -1437,7 +1438,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
         _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2500ms);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!IsHeroic())
             return;
@@ -1459,10 +1460,6 @@ struct npc_valkyr_shadowguard : public ScriptedAI
         me->ClearUnitState(UNIT_STATE_EVADE);
     }
 
-    void AttackStart(Unit* /*target*/) override
-    {
-    }
-
     void MovementInform(uint32 type, uint32 id) override
     {
         if (type != POINT_MOTION_TYPE)
@@ -1480,7 +1477,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
             case POINT_CHARGE:
                 if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
                 {
-                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     if (GameObject* platform = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_ARTHAS_PLATFORM)))
                     {
                         std::list<Creature*> triggers;
@@ -1492,13 +1489,15 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                         triggers.sort(Trinity::ObjectDistanceOrderPred(me));
                         DoCast(target, SPELL_VALKYR_CARRY);
                         _dropPoint.Relocate(triggers.front());
-                        _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500ms);
+                        _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1s + 500ms);
                     }
                 }
                 else
                     me->DespawnOrUnsummon();
                 break;
             case POINT_SIPHON:
+                DoCastSelf(SPELL_VALKYR_TRANSFORM);
+                me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
                 _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2s);
                 break;
@@ -1537,9 +1536,8 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
                     break;
                 case EVENT_LIFE_SIPHON:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                        DoCast(target, SPELL_LIFE_SIPHON);
-                    _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2500ms);
+                     DoCastVictim(SPELL_LIFE_SIPHON);
+                     _events.Repeat(2s + 500ms);
                     break;
                 case EVENT_MOVE_TO_CENTER:
                 {
@@ -1551,6 +1549,9 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         // no melee attacks
@@ -1706,14 +1707,14 @@ struct npc_terenas_menethil : public ScriptedAI
         EngagementOver();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
             damage = me->GetHealth() - 1;
             if (!me->HasAura(SPELL_TERENAS_LOSES_INSIDE) && !IsHeroic())
             {
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 DoCast(SPELL_TERENAS_LOSES_INSIDE);
                 _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1s);
                 if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
@@ -1774,7 +1775,7 @@ struct npc_terenas_menethil : public ScriptedAI
                     }
                     break;
                 case EVENT_DESTROY_SOUL:
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                         warden->CastSpell(nullptr, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
                     DoCast(SPELL_TERENAS_LOSES_INSIDE);
@@ -1940,6 +1941,7 @@ private:
     EventMap _events;
 };
 
+// 70541, 73779, 73780, 73781 - Infest
 class spell_the_lich_king_infest : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_infest);
@@ -1969,6 +1971,7 @@ class spell_the_lich_king_infest : public AuraScript
     }
 };
 
+// 70337, 73912, 73913, 73914 - Necrotic Plague
 class spell_the_lich_king_necrotic_plague : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_necrotic_plague);
@@ -2004,6 +2007,7 @@ class spell_the_lich_king_necrotic_plague : public AuraScript
     }
 };
 
+// 70338, 73785, 73786, 73787 - Necrotic Plague (Jump)
 class spell_the_lich_king_necrotic_plague_jump : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_necrotic_plague_jump);
@@ -2113,6 +2117,7 @@ private:
     int32 _lastAmount;
 };
 
+// 73530 - Shadow Trap (Visual)
 class spell_the_lich_king_shadow_trap_visual : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_shadow_trap_visual);
@@ -2129,6 +2134,7 @@ class spell_the_lich_king_shadow_trap_visual : public AuraScript
     }
 };
 
+// 74282 - Shadow Trap (Periodic)
 class spell_the_lich_king_shadow_trap_periodic : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_shadow_trap_periodic);
@@ -2147,6 +2153,7 @@ class spell_the_lich_king_shadow_trap_periodic : public SpellScript
     }
 };
 
+// 72262 - Quake
 class spell_the_lich_king_quake : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_quake);
@@ -2175,6 +2182,7 @@ class spell_the_lich_king_quake : public SpellScript
     }
 };
 
+// 69110 - Ice Burst Target Search
 class spell_the_lich_king_ice_burst_target_search : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_ice_burst_target_search);
@@ -2205,6 +2213,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScript
     }
 };
 
+// 69200 - Raging Spirit
 class spell_the_lich_king_raging_spirit : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_raging_spirit);
@@ -2236,6 +2245,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
+// 72754, 73708, 73709, 73710 - Defile
 class spell_the_lich_king_defile : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_defile);
@@ -2263,6 +2273,10 @@ class spell_the_lich_king_defile : public SpellScript
     }
 };
 
+/* 69037 - Summon Val'kyr
+   70497 - Summon Vile Spirits Effect
+   73579 - Summon Spirit Bomb
+   74300 - Summon Spirit Bomb */
 class spell_the_lich_king_summon_into_air : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_summon_into_air);
@@ -2288,6 +2302,7 @@ class spell_the_lich_king_summon_into_air : public SpellScript
     }
 };
 
+// 69409, 73797, 73798, 73799 - Soul Reaper
 class spell_the_lich_king_soul_reaper : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_soul_reaper);
@@ -2309,6 +2324,7 @@ class spell_the_lich_king_soul_reaper : public AuraScript
     }
 };
 
+// 69030 - Val'kyr Target Search
 class spell_the_lich_king_valkyr_target_search : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_valkyr_target_search);
@@ -2356,6 +2372,8 @@ class spell_the_lich_king_valkyr_target_search : public SpellScript
     WorldObject* _target = nullptr;
 };
 
+// 68984 - Harvest Soul
+// 74445 - Val'kyr Carry
 class spell_the_lich_king_cast_back_to_caster : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_cast_back_to_caster);
@@ -2371,6 +2389,7 @@ class spell_the_lich_king_cast_back_to_caster : public SpellScript
     }
 };
 
+// 73488, 73782, 73783, 73784 - Life Siphon
 class spell_the_lich_king_life_siphon : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_life_siphon);
@@ -2393,6 +2412,7 @@ class spell_the_lich_king_life_siphon : public SpellScript
     }
 };
 
+// 70498 - Vile Spirits
 class spell_the_lich_king_vile_spirits : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_vile_spirits);
@@ -2425,6 +2445,7 @@ private:
     bool _is25Man;
 };
 
+// 70499 - Summon Vile Spirits Effect
 class spell_the_lich_king_vile_spirits_visual : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_vile_spirits_visual);
@@ -2441,6 +2462,7 @@ class spell_the_lich_king_vile_spirits_visual : public SpellScript
     }
 };
 
+// 70501 - Vile Spirit Move Target Search
 class spell_the_lich_king_vile_spirit_move_target_search : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_vile_spirit_move_target_search);
@@ -2485,6 +2507,7 @@ private:
     WorldObject* _target;
 };
 
+// 70534 - Vile Spirit Damage Target Search
 class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_vile_spirit_damage_target_search);
@@ -2506,7 +2529,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScript
                 summoner->GetAI()->SetData(DATA_VILE, 1);
         GetCaster()->CastSpell(nullptr, SPELL_SPIRIT_BURST, true);
         GetCaster()->ToCreature()->DespawnOrUnsummon(3s);
-        GetCaster()->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+        GetCaster()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void Register() override
@@ -2515,6 +2538,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScript
     }
 };
 
+// 68980, 74296, 74297, 74325 - Harvest Soul
 class spell_the_lich_king_harvest_soul : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_harvest_soul);
@@ -2538,6 +2562,7 @@ class spell_the_lich_king_harvest_soul : public AuraScript
     }
 };
 
+// 69382 - Light's Favor
 class spell_the_lich_king_lights_favor : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_lights_favor);
@@ -2564,6 +2589,7 @@ class spell_the_lich_king_lights_favor : public AuraScript
     }
 };
 
+// 69397 - Soul Rip
 class spell_the_lich_king_soul_rip : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_soul_rip);
@@ -2587,6 +2613,7 @@ class spell_the_lich_king_soul_rip : public AuraScript
     }
 };
 
+// 72595, 73650 - Restore Soul
 class spell_the_lich_king_restore_soul : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_restore_soul);
@@ -2639,6 +2666,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 69383 - Dark Hunger
 class spell_the_lich_king_dark_hunger : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_dark_hunger);
@@ -2666,6 +2694,7 @@ class spell_the_lich_king_dark_hunger : public AuraScript
     }
 };
 
+// 74276 - In Frostmourne Room
 class spell_the_lich_king_in_frostmourne_room : public AuraScript
 {
     PrepareAuraScript(spell_the_lich_king_in_frostmourne_room);
@@ -2689,6 +2718,7 @@ class spell_the_lich_king_in_frostmourne_room : public AuraScript
     }
 };
 
+// 74302, 74341, 74342, 74343 - Summon Spirit Bomb
 class spell_the_lich_king_summon_spirit_bomb : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_summon_spirit_bomb);
@@ -2705,6 +2735,7 @@ class spell_the_lich_king_summon_spirit_bomb : public SpellScript
     }
 };
 
+// 73582 - Trigger Vile Spirit (Inside, Heroic)
 class spell_the_lich_king_trigger_vile_spirit : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_trigger_vile_spirit);
@@ -2724,6 +2755,7 @@ class spell_the_lich_king_trigger_vile_spirit : public SpellScript
     }
 };
 
+// 71811 - Jump
 class spell_the_lich_king_jump : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_jump);
@@ -2743,6 +2775,7 @@ class spell_the_lich_king_jump : public SpellScript
     }
 };
 
+// 72431 - Jump (Remove Aura)
 class spell_the_lich_king_jump_remove_aura : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_jump_remove_aura);
@@ -2759,6 +2792,7 @@ class spell_the_lich_king_jump_remove_aura : public SpellScript
     }
 };
 
+// 73655 - Harvest Soul (Teleport)
 class spell_the_lich_king_harvest_souls_teleport : public SpellScript
 {
     PrepareSpellScript(spell_the_lich_king_harvest_souls_teleport);

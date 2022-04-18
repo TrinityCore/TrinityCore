@@ -139,11 +139,17 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when spell hits a target
         virtual void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 
-        // Called when a spell cast gets interrupted
-        virtual void OnSpellCastInterrupt(SpellInfo const* /*spell*/) { }
+        // Called when a spell finishes
+        virtual void OnSpellCast(SpellInfo const* /*spell*/) { }
 
-        // Called when a spell cast has been successfully finished
-        virtual void OnSuccessfulSpellCast(SpellInfo const* /*spell*/) { }
+        // Called when a spell fails
+        virtual void OnSpellFailed(SpellInfo const* /*spell*/) { }
+
+        // Called when a spell starts
+        virtual void OnSpellStart(SpellInfo const* /*spell*/) { }
+
+        // Called when a channeled spell finishes
+        virtual void OnChannelFinished(SpellInfo const* /*spell*/) { }
 
         // Should return true if the NPC is currently being escorted
         virtual bool IsEscorted() const { return false; }

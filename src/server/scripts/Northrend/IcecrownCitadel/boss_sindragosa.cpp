@@ -325,7 +325,7 @@ struct boss_sindragosa : public BossAI
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetSpeedRate(MOVE_FLIGHT, 4.0f);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
             me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
             me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
@@ -402,7 +402,7 @@ struct boss_sindragosa : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_isThirdPhase && !HealthAbovePct(35))
         {
@@ -695,7 +695,7 @@ struct npc_spinestalker : public ScriptedAI
             me->setActive(true);
             me->SetFarVisible(true);
             me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
             me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
             me->SetDefaultMovementType(IDLE_MOTION_TYPE);
@@ -1014,6 +1014,7 @@ private:
     bool _isTaunted; // Frostwing Whelp only
 };
 
+// 70598 - Sindragosa's Fury
 class spell_sindragosa_s_fury : public SpellScript
 {
     PrepareSpellScript(spell_sindragosa_s_fury);
@@ -1086,6 +1087,7 @@ class spell_sindragosa_s_fury : public SpellScript
     uint32 _targetCount = 0;
 };
 
+// 69762 - Unchained Magic
 class spell_sindragosa_unchained_magic : public SpellScript
 {
     PrepareSpellScript(spell_sindragosa_unchained_magic);
@@ -1141,6 +1143,8 @@ class spell_sindragosa_unchained_magic : public SpellScript
     }
 };
 
+// 69649, 71056, 71057, 71058 - Frost Breath
+// 73061, 73062, 73063, 73064 - Frost Breath
 class spell_sindragosa_frost_breath : public SpellScript
 {
     PrepareSpellScript(spell_sindragosa_frost_breath);
@@ -1175,6 +1179,7 @@ class spell_sindragosa_frost_breath : public SpellScript
     }
 };
 
+// 69766 - Instability
 class spell_sindragosa_instability : public AuraScript
 {
     PrepareAuraScript(spell_sindragosa_instability);
@@ -1201,6 +1206,7 @@ class spell_sindragosa_instability : public AuraScript
     }
 };
 
+// 70126 - Frost Beacon
 class spell_sindragosa_frost_beacon : public AuraScript
 {
     PrepareAuraScript(spell_sindragosa_frost_beacon);
@@ -1223,6 +1229,7 @@ class spell_sindragosa_frost_beacon : public AuraScript
     }
 };
 
+// 70157 - Ice Tomb (Trap)
 class spell_sindragosa_ice_tomb_trap : public AuraScript
 {
     PrepareAuraScript(spell_sindragosa_ice_tomb_trap);
@@ -1272,6 +1279,7 @@ class spell_sindragosa_ice_tomb_trap : public AuraScript
     }
 };
 
+// 70117 - Icy Grip
 class spell_sindragosa_icy_grip : public SpellScript
 {
     PrepareSpellScript(spell_sindragosa_icy_grip);
@@ -1307,6 +1315,7 @@ class MysticBuffetTargetFilter
         Unit* _caster;
 };
 
+// 70127, 72528, 72529, 72530 - Mystic Buffet
 class spell_sindragosa_mystic_buffet : public SpellScript
 {
     PrepareSpellScript(spell_sindragosa_mystic_buffet);
@@ -1322,6 +1331,7 @@ class spell_sindragosa_mystic_buffet : public SpellScript
     }
 };
 
+// 71376 - Icy Blast
 class spell_rimefang_icy_blast : public SpellScript
 {
     PrepareSpellScript(spell_rimefang_icy_blast);
@@ -1361,6 +1371,7 @@ class OrderWhelpTargetSelector
         Creature* _owner;
 };
 
+// 71357 - Order Whelp
 class spell_frostwarden_handler_order_whelp : public SpellScript
 {
     PrepareSpellScript(spell_frostwarden_handler_order_whelp);
@@ -1403,6 +1414,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScript
     }
 };
 
+// 71350 - Focus Fire
 class spell_frostwarden_handler_focus_fire : public SpellScript
 {
     PrepareSpellScript(spell_frostwarden_handler_focus_fire);
@@ -1445,6 +1457,7 @@ class spell_frostwarden_handler_focus_fire_aura : public AuraScript
     }
 };
 
+// 69712 - Ice Tomb (Target)
 class spell_sindragosa_ice_tomb_target : public SpellScript
 {
     PrepareSpellScript(spell_sindragosa_ice_tomb_target);

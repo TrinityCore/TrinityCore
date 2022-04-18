@@ -61,91 +61,79 @@ EndScriptData */
 #include <sstream>
 
 using namespace Trinity::ChatCommands;
+
 class debug_commandscript : public CommandScript
 {
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> debugPlayCommandTable =
+        static ChatCommandTable debugPlayCommandTable =
         {
-            { "cinematic",     rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_CINEMATIC, false, &HandleDebugPlayCinematicCommand,   "" },
-            { "movie",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MOVIE,     false, &HandleDebugPlayMovieCommand,       "" },
-            { "sound",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_SOUND,     false, &HandleDebugPlaySoundCommand,       "" },
-            { "music",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC,     false, &HandleDebugPlayMusicCommand,       "" },
+            { "cinematic",          HandleDebugPlayCinematicCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
+            { "movie",              HandleDebugPlayMovieCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
+            { "sound",              HandleDebugPlaySoundCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
+            { "music",              HandleDebugPlayMusicCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
         };
-        static std::vector<ChatCommand> debugSendCommandTable =
+        static ChatCommandTable debugSendCommandTable =
         {
-            { "buyerror",      rbac::RBAC_PERM_COMMAND_DEBUG_SEND_BUYERROR,      false, &HandleDebugSendBuyErrorCommand,        "" },
-            { "channelnotify", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHANNELNOTIFY, false, &HandleDebugSendChannelNotifyCommand,   "" },
-            { "chatmessage",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHATMESSAGE,   false, &HandleDebugSendChatMsgCommand,         "" },
-            { "equiperror",    rbac::RBAC_PERM_COMMAND_DEBUG_SEND_EQUIPERROR,    false, &HandleDebugSendEquipErrorCommand,      "" },
-            { "largepacket",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_LARGEPACKET,   false, &HandleDebugSendLargePacketCommand,     "" },
-            { "opcode",        rbac::RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE,        false, &HandleDebugSendOpcodeCommand,          "" },
-            { "qpartymsg",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QPARTYMSG,     false, &HandleDebugSendQuestPartyMsgCommand,   "" },
-            { "qinvalidmsg",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QINVALIDMSG,   false, &HandleDebugSendQuestInvalidMsgCommand, "" },
-            { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "" },
-            { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
-            { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
-            { "playerchoice",  rbac::RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE, false, &HandleDebugSendPlayerChoiceCommand,    "" },
+            { "buyerror",           HandleDebugSendBuyErrorCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "channelnotify",      HandleDebugSendChannelNotifyCommand,   rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "chatmessage",        HandleDebugSendChatMsgCommand,         rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "equiperror",         HandleDebugSendEquipErrorCommand,      rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "largepacket",        HandleDebugSendLargePacketCommand,     rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "opcode",             HandleDebugSendOpcodeCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "qpartymsg",          HandleDebugSendQuestPartyMsgCommand,   rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "qinvalidmsg",        HandleDebugSendQuestInvalidMsgCommand, rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "sellerror",          HandleDebugSendSellErrorCommand,       rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "setphaseshift",      HandleDebugSendSetPhaseShiftCommand,   rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "spellfail",          HandleDebugSendSpellFailCommand,       rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "playerchoice",       HandleDebugSendPlayerChoiceCommand,    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
         };
-        static std::vector<ChatCommand> debugPvpCommandTable =
+        static ChatCommandTable debugCommandTable =
         {
-            { "warmode",       rbac::RBAC_PERM_COMMAND_DEBUG,                    false, &HandleDebugWarModeFactionBalanceCommand, "" },
+            { "threat",             HandleDebugThreatListCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "threatinfo",         HandleDebugThreatInfoCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "combat",             HandleDebugCombatListCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "anim",               HandleDebugAnimCommand,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "arena",              HandleDebugArenaCommand,               rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "bg",                 HandleDebugBattlegroundCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "getitemstate",       HandleDebugGetItemStateCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "lootrecipient",      HandleDebugGetLootRecipientCommand,    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "play",               debugPlayCommandTable },
+            { "send",               debugSendCommandTable },
+            { "setaurastate",       HandleDebugSetAuraStateCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "spawnvehicle",       HandleDebugSpawnVehicleCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "entervehicle",       HandleDebugEnterVehicleCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "worldstate" ,        HandleDebugUpdateWorldStateCommand,    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "itemexpire",         HandleDebugItemExpireCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "areatriggers",       HandleDebugAreaTriggersCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "los",                HandleDebugLoSCommand,                 rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "moveflags",          HandleDebugMoveflagsCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "transport",          HandleDebugTransportCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "loadcells",          HandleDebugLoadCellsCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "phase",              HandleDebugPhaseCommand,               rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "boundary",           HandleDebugBoundaryCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "raidreset",          HandleDebugRaidResetCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "neargraveyard",      HandleDebugNearGraveyard,              rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "instancespawn",      HandleDebugInstanceSpawns,             rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "conversation" ,      HandleDebugConversationCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "wsexpression" ,      HandleDebugWSExpressionCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "pvp warmode",        HandleDebugWarModeBalanceCommand,      rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "dummy",              HandleDebugDummyCommand,               rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "asan memoryleak",    HandleDebugMemoryLeak,                 rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "asan outofbounds",   HandleDebugOutOfBounds,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "guidlimits",         HandleDebugGuidLimitsCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "objectcount",        HandleDebugObjectCountCommand,         rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "questreset",         HandleDebugQuestResetCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "warden force",       HandleDebugWardenForce,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "personalclone",      HandleDebugBecomePersonalClone,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No }
         };
-        static std::vector<ChatCommand> debugAsanCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
-            { "outofbounds",   rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugOutOfBounds,        "" },
-        };
-        static std::vector<ChatCommand> debugWardenCommandTable =
-        {
-            { "force",         rbac::RBAC_PERM_COMMAND_DEBUG,                    true,  &HandleDebugWardenForce,        "" }
-        };
-        static std::vector<ChatCommand> debugCommandTable =
-        {
-            { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "" },
-            { "threatinfo",    rbac::RBAC_PERM_COMMAND_DEBUG_THREATINFO,    false, &HandleDebugThreatInfoCommand,       "" },
-            { "combat",        rbac::RBAC_PERM_COMMAND_DEBUG_COMBAT,        false, &HandleDebugCombatListCommand,       "" },
-            { "anim",          rbac::RBAC_PERM_COMMAND_DEBUG_ANIM,          false, &HandleDebugAnimCommand,             "" },
-            { "arena",         rbac::RBAC_PERM_COMMAND_DEBUG_ARENA,         true,  &HandleDebugArenaCommand,            "" },
-            { "bg",            rbac::RBAC_PERM_COMMAND_DEBUG_BG,            true,  &HandleDebugBattlegroundCommand,     "" },
-            { "getitemstate",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMSTATE,  false, &HandleDebugGetItemStateCommand,     "" },
-            { "lootrecipient", rbac::RBAC_PERM_COMMAND_DEBUG_LOOTRECIPIENT, false, &HandleDebugGetLootRecipientCommand, "" },
-            { "play",          rbac::RBAC_PERM_COMMAND_DEBUG_PLAY,          false, nullptr,                             "", debugPlayCommandTable },
-            { "send",          rbac::RBAC_PERM_COMMAND_DEBUG_SEND,          false, nullptr,                             "", debugSendCommandTable },
-            { "setaurastate",  rbac::RBAC_PERM_COMMAND_DEBUG_SETAURASTATE,  false, &HandleDebugSetAuraStateCommand,     "" },
-            { "spawnvehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE,  false, &HandleDebugSpawnVehicleCommand,     "" },
-            { "entervehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_ENTERVEHICLE,  false, &HandleDebugEnterVehicleCommand,     "" },
-            { "worldstate",    rbac::RBAC_PERM_COMMAND_DEBUG_WORLDSTATE,    false, &HandleDebugUpdateWorldStateCommand, "" },
-            { "itemexpire",    rbac::RBAC_PERM_COMMAND_DEBUG_ITEMEXPIRE,    false, &HandleDebugItemExpireCommand,       "" },
-            { "areatriggers",  rbac::RBAC_PERM_COMMAND_DEBUG_AREATRIGGERS,  false, &HandleDebugAreaTriggersCommand,     "" },
-            { "los",           rbac::RBAC_PERM_COMMAND_DEBUG_LOS,           false, &HandleDebugLoSCommand,              "" },
-            { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "" },
-            { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "" },
-            { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "",},
-            { "phase",         rbac::RBAC_PERM_COMMAND_DEBUG_PHASE,         false, &HandleDebugPhaseCommand,            "" },
-            { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
-            { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
-            { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
-            { "instancespawn", rbac::RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN, false, &HandleDebugInstanceSpawns,          "" },
-            { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
-            { "worldstate" ,   rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWorldStateCommand,       "" },
-            { "wsexpression" , rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWSExpressionCommand,     "" },
-            { "pvp",           rbac::RBAC_PERM_COMMAND_DEBUG,               false, nullptr,                             "", debugPvpCommandTable },
-            { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
-            { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
-            { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
-            { "objectcount",   rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugObjectCountCommand,      "" },
-            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" },
-            { "warden",        rbac::RBAC_PERM_COMMAND_DEBUG,               true,  nullptr,                             "", debugWardenCommandTable },
-            { "personalclone", rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugBecomePersonalClone,     "" }
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "debug",         rbac::RBAC_PERM_COMMAND_DEBUG,               true,  nullptr,                             "", debugCommandTable },
-            { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,               false, &HandleWPGPSCommand,                 "" },
+            { "debug",              debugCommandTable },
+            { "wpgps",              HandleWPGPSCommand,                    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
         };
         return commandTable;
     }
@@ -164,7 +152,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugWarModeFactionBalanceCommand(ChatHandler* handler, Variant<uint32, EXACT_SEQUENCE("alliance"), EXACT_SEQUENCE("horde"), EXACT_SEQUENCE("neutral"), EXACT_SEQUENCE("off")> command, Optional<int32> rewardValue)
+    static bool HandleDebugWarModeBalanceCommand(ChatHandler* handler, Variant<uint32, EXACT_SEQUENCE("alliance"), EXACT_SEQUENCE("horde"), EXACT_SEQUENCE("neutral"), EXACT_SEQUENCE("off")> command, Optional<int32> rewardValue)
     {
         // USAGE: .debug pvp fb <alliance|horde|neutral|off> [pct]
         // neutral     Sets faction balance off.
@@ -342,49 +330,63 @@ public:
         std::stringstream parsedStream;
         while (!ifs.eof())
         {
-            char commentToken[2];
+            char commentToken[2] = {};
             ifs.get(commentToken[0]);
-            if (commentToken[0] == '/' && !ifs.eof())
+            if (ifs.eof())
+                break;
+            if (commentToken[0] == '/')
             {
                 ifs.get(commentToken[1]);
-                // /* comment
-                if (commentToken[1] == '*')
+                if (!ifs.eof())
                 {
-                    while (!ifs.eof())
+                    // /* comment
+                    if (commentToken[1] == '*')
                     {
-                        ifs.get(commentToken[0]);
-                        if (commentToken[0] == '*' && !ifs.eof())
+                        while (!ifs.eof())
                         {
-                            ifs.get(commentToken[1]);
-                            if (commentToken[1] == '/')
+                            ifs.get(commentToken[0]);
+                            if (ifs.eof())
                                 break;
-                            else
-                                ifs.putback(commentToken[1]);
+                            if (commentToken[0] == '*')
+                            {
+                                ifs.get(commentToken[1]);
+                                if (ifs.eof())
+                                    break;
+                                if (commentToken[1] == '/')
+                                    break;
+                                else
+                                    ifs.putback(commentToken[1]);
+                            }
                         }
+                        continue;
                     }
-                    continue;
+                    // line comment
+                    else if (commentToken[1] == '/')
+                    {
+                        std::string str;
+                        std::getline(ifs, str);
+                        if (ifs.eof())
+                            break;
+                        continue;
+                    }
+                    // regular data
+                    else
+                        ifs.putback(commentToken[1]);
                 }
-                // line comment
-                else if (commentToken[1] == '/')
-                {
-                    std::string str;
-                    std::getline(ifs, str);
-                    continue;
-                }
-                // regular data
-                else
-                    ifs.putback(commentToken[1]);
             }
             parsedStream.put(commentToken[0]);
         }
         ifs.close();
 
-        uint32 opcode;
+        uint32 opcode = 0;
         parsedStream >> opcode;
+
+        if (!opcode)
+            return false;
 
         WorldPacket data(OpcodeServer(opcode), 0);
 
-        while (!parsedStream.eof())
+        while (!parsedStream.eof() && !parsedStream.fail())
         {
             std::string type;
             parsedStream >> type;
@@ -394,38 +396,59 @@ public:
 
             if (type == "uint8")
             {
-                uint16 val1;
+                if (parsedStream.eof())
+                    return false;
+                uint16 val1 = 0;
                 parsedStream >> val1;
+                if (parsedStream.fail())
+                    return false;
                 data << uint8(val1);
             }
             else if (type == "uint16")
             {
-                uint16 val2;
+                if (parsedStream.eof())
+                    return false;
+                uint16 val2 = 0;
                 parsedStream >> val2;
+                if (parsedStream.fail())
+                    return false;
                 data << val2;
             }
             else if (type == "uint32")
             {
-                uint32 val3;
+                if (parsedStream.eof())
+                    return false;
+                uint32 val3 = 0;
                 parsedStream >> val3;
+                if (parsedStream.fail())
+                    return false;
                 data << val3;
             }
             else if (type == "uint64")
             {
-                uint64 val4;
+                if (parsedStream.eof())
+                    return false;
+                uint64 val4 = 0;
                 parsedStream >> val4;
+                if (parsedStream.fail())
+                    return false;
                 data << val4;
             }
             else if (type == "float")
             {
-                float val5;
+                if (parsedStream.eof())
+                    return false;
+                float val5 = 0.0f;
                 parsedStream >> val5;
+                if (parsedStream.fail())
+                    return false;
                 data << val5;
             }
             else if (type == "string")
             {
                 std::string val6;
                 parsedStream >> val6;
+                // empty string is allowed so no need to check eof/fail here
                 data << val6;
             }
             else if (type == "goguid")
@@ -435,7 +458,6 @@ public:
                 {
                     handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, "0");
                     handler->SetSentErrorMessage(true);
-                    ifs.close();
                     return false;
                 }
                 data << obj->GetGUID();
@@ -1209,21 +1231,45 @@ public:
         return true;
     }
 
-    static bool HandleDebugLoadCellsCommand(ChatHandler* handler, Optional<uint32> mapId)
+    static bool HandleDebugLoadCellsCommand(ChatHandler* handler, Optional<uint32> mapId, Optional<uint32> tileX, Optional<uint32> tileY)
     {
-        Player* player = handler->GetPlayer();
-        if (!player)
-            return false;
-
         Map* map = nullptr;
         if (mapId)
+        {
             map = sMapMgr->FindBaseNonInstanceMap(*mapId);
+        }
+        else if (Player* player = handler->GetPlayer())
+        {
+            // Fallback to player's map if no map has been specified
+            map = player->GetMap();
+        }
 
         if (!map)
-            map = player->GetMap();
+            return false;
 
-        map->LoadAllCells();
-        handler->PSendSysMessage("Cells loaded (mapId: %u)", map->GetId());
+        // Load 1 single tile if specified, otherwise load the whole map
+        if (tileX && tileY)
+        {
+            handler->PSendSysMessage("Loading cell (mapId: %u tile: %u, %u). Current GameObjects " SZFMTD ", Creatures " SZFMTD,
+                map->GetId(), *tileX, *tileY, map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+
+            // Some unit convertions to go from TileXY to GridXY to WorldXY
+            float x = ((float(64 - 1 - *tileX) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
+            float y = ((float(64 - 1 - *tileY) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
+            map->LoadGrid(x, y);
+
+            handler->PSendSysMessage("Cell loaded (mapId: %u tile: %u, %u) After load - GameObject " SZFMTD ", Creatures " SZFMTD,
+                map->GetId(), *tileX, *tileY, map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+        }
+        else
+        {
+            handler->PSendSysMessage("Loading all cells (mapId: %u). Current GameObjects " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+
+            map->LoadAllCells();
+
+            handler->PSendSysMessage("Cells loaded (mapId: %u) After load - GameObject " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+        }
+
         return true;
     }
 
@@ -1522,28 +1568,6 @@ public:
         return Conversation::CreateConversation(conversationEntry, target, *target, target->GetGUID()) != nullptr;
     }
 
-    static bool HandleDebugWorldStateCommand(ChatHandler* handler, uint32 worldStateId, Optional<uint32> value)
-    {
-        Player* target = handler->getSelectedPlayerOrSelf();
-
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (value)
-        {
-            sWorld->setWorldState(worldStateId, *value);
-            target->SendUpdateWorldState(worldStateId, *value);
-        }
-        else
-            handler->PSendSysMessage("Worldstate %u actual value : %u", worldStateId, sWorld->getWorldState(worldStateId));
-
-        return true;
-    }
-
     static bool HandleDebugWSExpressionCommand(ChatHandler* handler, uint32 expressionId)
     {
         Player* target = handler->getSelectedPlayerOrSelf();
@@ -1698,10 +1722,11 @@ public:
 
     static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
     {
-        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD,
+        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD " SetActive Objects: " UI64FMTD,
             map->GetId(), map->GetMapName(), map->GetInstanceId(),
             uint64(map->GetObjectsStore().Size<Creature>()),
-            uint64(map->GetObjectsStore().Size<GameObject>()));
+            uint64(map->GetObjectsStore().Size<GameObject>()),
+            uint64(map->GetActiveNonPlayersCount()));
 
         CreatureCountWorker worker;
         TypeContainerVisitor<CreatureCountWorker, MapStoredObjectTypesContainer> visitor(worker);

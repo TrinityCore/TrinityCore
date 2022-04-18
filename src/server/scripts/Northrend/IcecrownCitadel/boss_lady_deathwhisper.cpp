@@ -24,6 +24,7 @@
 #include "QuestPools.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -86,6 +87,7 @@ enum Spells
     SPELL_NECROTIC_STRIKE             = 70659,
     SPELL_SHADOW_CLEAVE               = 70670,
     SPELL_VAMPIRIC_MIGHT              = 70674,
+    SPELL_VAMPIRIC_MIGHT_PROC         = 70677,
     SPELL_FANATIC_S_DETERMINATION     = 71235,
     SPELL_DARK_MARTYRDOM_FANATIC      = 71236,
     SPELL_DARK_MARTYRDOM_FANATIC_25N  = 72495,
@@ -401,7 +403,7 @@ struct boss_lady_deathwhisper : public BossAI
             Talk(SAY_KILL);
     }
 
-    void DamageTaken(Unit* /*damageDealer*/, uint32& damage) override
+    void DamageTaken(Unit* /*damageDealer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // phase transition
         if (_phase == PHASE_ONE && damage > uint32(me->GetPower(POWER_MANA)))
@@ -642,12 +644,12 @@ struct npc_cult_fanatic : public ScriptedAI
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         DoCastSelf(SPELL_FULL_HEAL, true);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
+                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     })
                     .Schedule(Seconds(6), [this](TaskContext /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoZoneInCombat(me);
 
@@ -733,12 +735,12 @@ struct npc_cult_adherent : public ScriptedAI
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                         DoCastSelf(SPELL_FULL_HEAL, true);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
-                })
+                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    })
                     .Schedule(Seconds(6), [this](TaskContext /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoCastSelf(SPELL_SHROUD_OF_THE_OCCULT);
                         DoZoneInCombat(me);
@@ -940,6 +942,7 @@ private:
     bool _canShatter;
 };
 
+// 70842 - Mana Barrier
 class spell_deathwhisper_mana_barrier : public AuraScript
 {
     PrepareAuraScript(spell_deathwhisper_mana_barrier);
@@ -961,6 +964,7 @@ class spell_deathwhisper_mana_barrier : public AuraScript
     }
 };
 
+// 71289 - Dominate Mind
 class spell_deathwhisper_dominated_mind : public AuraScript
 {
     PrepareAuraScript(spell_deathwhisper_dominated_mind);
@@ -982,6 +986,7 @@ class spell_deathwhisper_dominated_mind : public AuraScript
     }
 };
 
+// 72478 - Summon Spirits
 class spell_deathwhisper_summon_spirits : public SpellScript
 {
     PrepareSpellScript(spell_deathwhisper_summon_spirits);
@@ -999,6 +1004,64 @@ class spell_deathwhisper_summon_spirits : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_deathwhisper_summon_spirits::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 70674 - Vampiric Might
+class spell_deathwhisper_vampiric_might : public AuraScript
+{
+    PrepareAuraScript(spell_deathwhisper_vampiric_might);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VAMPIRIC_MIGHT_PROC });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return;
+
+        Unit* target = GetTarget();
+        uint32 damage = damageInfo->GetDamage();
+        ApplyPct(damage, aurEff->GetAmount());
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(damage);
+        target->CastSpell(target, SPELL_VAMPIRIC_MIGHT_PROC, args);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_deathwhisper_vampiric_might::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
+// 69483 - Dark Reckoning
+class spell_deathwhisper_dark_reckoning : public AuraScript
+{
+    PrepareAuraScript(spell_deathwhisper_dark_reckoning);
+
+    bool Validate(SpellInfo const* spell) override
+    {
+        return !spell->GetEffects().empty()
+            && ValidateSpellInfo({ spell->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+        {
+            uint32 spellId = aurEff->GetSpellEffectInfo().TriggerSpell;
+            caster->CastSpell(GetTarget(), spellId, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathwhisper_dark_reckoning::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1031,6 +1094,8 @@ void AddSC_boss_lady_deathwhisper()
     RegisterSpellScript(spell_deathwhisper_mana_barrier);
     RegisterSpellScript(spell_deathwhisper_dominated_mind);
     RegisterSpellScript(spell_deathwhisper_summon_spirits);
+    RegisterSpellScript(spell_deathwhisper_vampiric_might);
+    RegisterSpellScript(spell_deathwhisper_dark_reckoning);
 
     // AreaTriggers
     new at_lady_deathwhisper_entrance();

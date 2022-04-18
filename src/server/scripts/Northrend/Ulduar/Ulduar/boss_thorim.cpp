@@ -82,8 +82,9 @@ enum Spells
     // Ancient Rune Giant
     SPELL_RUNIC_FORTIFICATION                   = 62942,
     SPELL_RUNE_DETONATION                       = 62526,
-    SPELL_STOMP                                 = 62411
 };
+
+#define SPELL_STOMP RAID_MODE<uint32>(62411,62413)
 
 enum Phases
 {
@@ -419,7 +420,7 @@ class LightningFieldEvent : public BasicEvent
         {
             if (InstanceScript* instance = _owner->GetInstanceScript())
             {
-                if (instance->GetBossState(BOSS_THORIM) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_THORIM) == IN_PROGRESS)
                 {
                     _owner->CastSpell(nullptr, SPELL_LIGHTNING_FIELD);
                     _owner->m_Events.AddEvent(this, Milliseconds(eventTime) + 1s);
@@ -443,7 +444,7 @@ class boss_thorim : public CreatureScript
 
         struct boss_thorimAI : public BossAI
         {
-            boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM)
+            boss_thorimAI(Creature* creature) : BossAI(creature, DATA_THORIM)
             {
                 _encounterFinished = false;
                 Initialize();
@@ -484,7 +485,7 @@ class boss_thorim : public CreatureScript
                     me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3s);
 
                 if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
-                    lever->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                    lever->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                 // Remove trigger auras
                 if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
@@ -556,7 +557,7 @@ class boss_thorim : public CreatureScript
                 me->RemoveAllAttackers();
                 me->AttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
-                me->AddUnitFlag(UNIT_FLAG_RENAME);
+                me->SetUnitFlag(UNIT_FLAG_RENAME);
 
                 if (Creature* controller = instance->GetCreature(DATA_THORIM_CONTROLLER))
                     controller->RemoveAllAuras();
@@ -898,7 +899,7 @@ class boss_thorim : public CreatureScript
                 return runicColossus && !runicColossus->IsAlive() && runeGiant && !runeGiant->IsAlive();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (events.IsInPhase(PHASE_1) && CanStartPhase2(attacker))
                 {
@@ -1143,7 +1144,7 @@ class npc_thorim_pre_phase : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* thorim = _instance->GetCreature(BOSS_THORIM))
+                if (Creature* thorim = _instance->GetCreature(DATA_THORIM))
                     thorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
             }
 
@@ -1152,7 +1153,7 @@ class npc_thorim_pre_phase : public CreatureScript
                 return !target->GetAffectingPlayer();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 // nullify spell damage
                 if (!attacker || !attacker->GetAffectingPlayer())
@@ -1265,7 +1266,7 @@ class npc_thorim_arena_phase : public CreatureScript
                     return;
 
                 // this should only happen if theres no alive player in the arena -> summon orb
-                if (Creature* thorim = _instance->GetCreature(BOSS_THORIM))
+                if (Creature* thorim = _instance->GetCreature(DATA_THORIM))
                     thorim->AI()->DoAction(ACTION_BERSERK);
                 ScriptedAI::EnterEvadeMode(why);
             }
@@ -1410,7 +1411,7 @@ class npc_runic_colossus : public CreatureScript
                 // open the Runic Door
                 _instance->HandleGameObject(_instance->GetGuidData(DATA_RUNIC_DOOR), true);
 
-                if (Creature* thorim = _instance->GetCreature(BOSS_THORIM))
+                if (Creature* thorim = _instance->GetCreature(DATA_THORIM))
                     thorim->AI()->Talk(SAY_SPECIAL);
 
                 if (Creature* giant = _instance->GetCreature(DATA_RUNE_GIANT))
@@ -2081,7 +2082,7 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
                 if (!triggers.empty())
                 {
                     Creature* target = Trinity::Containers::SelectRandomContainerElement(triggers);
-                    if (Creature* thorim = instance->GetCreature(BOSS_THORIM))
+                    if (Creature* thorim = instance->GetCreature(DATA_THORIM))
                         thorim->AI()->SetGUID(target->GetGUID(), DATA_CHARGED_PILLAR);
                 }
             }

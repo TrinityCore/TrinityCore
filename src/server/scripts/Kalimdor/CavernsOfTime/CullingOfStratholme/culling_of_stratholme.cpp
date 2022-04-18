@@ -30,7 +30,6 @@
 #include "QuestDef.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "SmartAI.h"
 #include "SpellInfo.h"
 #include "SplineChainMovementGenerator.h"
 #include "StringFormat.h"
@@ -202,7 +201,6 @@ class npc_hearthsinger_forresten_cot : public CreatureScript
                 }
             }
 
-
         private:
             InstanceScript const* const _instance;
             EventMap _events;
@@ -271,11 +269,12 @@ enum Chromie1Gossip
 
 enum Chromie1Misc
 {
-    ITEM_ARCANE_DISRUPTOR = 37888,
-    QUEST_DISPELLING_ILLUSIONS = 13149,
-    SPELL_TELEPORT_PLAYER = 53435,
-    ACHIEVEMENT_NORMAL = 479,
-    ACHIEVEMENT_HEROIC = 500
+    ITEM_ARCANE_DISRUPTOR           = 37888,
+    QUEST_DISPELLING_ILLUSIONS      = 13149,
+    SPELL_TELEPORT_PLAYER           = 53435,
+    SPELL_SUMMON_ARCANE_DISRUPTOR   = 49591,
+    ACHIEVEMENT_NORMAL              = 479,
+    ACHIEVEMENT_HEROIC              = 500
 };
 
 class npc_chromie_start : public CreatureScript
@@ -374,7 +373,7 @@ class npc_chromie_start : public CreatureScript
                         SendGossipMenuFor(player, GOSSIP_TEXT_EXPLAIN_3, me->GetGUID());
                         AdvanceDungeon();
                         if (!player->HasItemCount(ITEM_ARCANE_DISRUPTOR))
-                            player->AddItem(ITEM_ARCANE_DISRUPTOR, 1); // @todo figure out spell
+                            me->CastSpell(player, SPELL_SUMMON_ARCANE_DISRUPTOR);
                         break;
                     case GOSSIP_OFFSET_OPEN_GM_MENU:
                         AddGossipItemFor(player, GossipOptionIcon::SpiritHealer, "Teleport all players to Arthas", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL);
@@ -1458,7 +1457,6 @@ public:
         return GetCullingOfStratholmeAI<npc_crate_helperAI>(creature);
     }
 };
-
 
 void AddSC_culling_of_stratholme()
 {

@@ -20,9 +20,8 @@
 
 #include "Common.h"
 #include "Duration.h"
+#include "Errors.h"
 #include "EventProcessor.h"
-#include "GridReference.h"
-#include "GridRefManager.h"
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
@@ -164,9 +163,9 @@ class TC_GAME_API Object
 
         uint32 GetDynamicFlags() const { return m_objectData->DynamicFlags; }
         bool HasDynamicFlag(uint32 flag) const { return (*m_objectData->DynamicFlags & flag) != 0; }
-        void AddDynamicFlag(uint32 flag) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
+        void SetDynamicFlag(uint32 flag) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
         void RemoveDynamicFlag(uint32 flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
-        void SetDynamicFlags(uint32 flag) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
+        void ReplaceAllDynamicFlags(uint32 flag) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
         bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
@@ -401,19 +400,6 @@ class TC_GAME_API Object
         Object(Object&& right) = delete;
         Object& operator=(Object const& right) = delete;
         Object& operator=(Object&& right) = delete;
-};
-
-template<class T>
-class GridObject
-{
-    public:
-        virtual ~GridObject() { }
-
-        bool IsInGrid() const { return _gridRef.isValid(); }
-        void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
-        void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
-    private:
-        GridReference<T> _gridRef;
 };
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
@@ -658,7 +644,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
 
         template <typename Container>
-        void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange) const;
+        void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive = true) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);

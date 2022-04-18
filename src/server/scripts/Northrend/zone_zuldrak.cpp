@@ -56,7 +56,7 @@ public:
         void Reset() override
         {
             _rageclawGUID.Clear();
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 0.1f);
@@ -164,7 +164,6 @@ public:
     }
 };
 
-
 /*####
 ## npc_released_offspring_harkoa
 ####*/
@@ -235,7 +234,7 @@ public:
 
         void Reset() override
         {
-            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->SetEmoteState(EMOTE_STATE_COWER);
             Initialize();
         }
@@ -285,49 +284,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_crusade_recruitAI(creature);
-    }
-};
-
-/*######
-## Quest 12916: Our Only Hope!
-## go_scourge_enclosure
-######*/
-
-enum ScourgeEnclosure
-{
-    QUEST_OUR_ONLY_HOPE                      = 12916,
-    NPC_GYMER_DUMMY                          = 29928, // From quest template
-    SPELL_GYMER_LOCK_EXPLOSION               = 55529
-};
-
-class go_scourge_enclosure : public GameObjectScript
-{
-public:
-    go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
-
-    struct go_scourge_enclosureAI : public GameObjectAI
-    {
-        go_scourge_enclosureAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (Creature* gymerDummy = me->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f))
-                {
-                    player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
-                    gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                    gymerDummy->DespawnOrUnsummon(4s);
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_scourge_enclosureAI(go);
     }
 };
 
@@ -632,10 +588,9 @@ uint32 const FetchIngredients[21][4] =
     { SPELL_FETCH_FROZEN_SPIDER_ICHOR,        SPELL_HAVE_FROZEN_SPIDER_ICHOR,        ITEM_FROZEN_SPIDER_ICHOR,        SAY_FROZEN_SPIDER_ICHOR        }
 };
 
-/*#####
-# spell_random_ingredient_aura
-#####*/
-
+// 51015 - Random Ingredient Easy Aura
+// 51154 - Random Ingredient Medium Aura
+// 51157 - Random Ingredient Hard Aura
 class spell_random_ingredient_aura : public SpellScriptLoader
 {
     public: spell_random_ingredient_aura() : SpellScriptLoader("spell_random_ingredient_aura") { }
@@ -682,10 +637,9 @@ class spell_random_ingredient_aura : public SpellScriptLoader
         }
 };
 
-/*#####
-# spell_random_ingredient
-#####*/
-
+// 51105 - Random Ingredient Medium
+// 51107 - Random Ingredient Hard
+// 51134 - Random Ingredient Easy
 class spell_random_ingredient : public SpellScriptLoader
 {
     public: spell_random_ingredient() : SpellScriptLoader("spell_random_ingredient") { }
@@ -765,6 +719,7 @@ class spell_random_ingredient : public SpellScriptLoader
 # spell_pot_check
 #####*/
 
+// 51046 - Pot Check
 class spell_pot_check : public SpellScriptLoader
 {
     public: spell_pot_check() : SpellScriptLoader("spell_pot_check") { }
@@ -961,6 +916,7 @@ enum ScourgeDisguise
     TEXT_DISGUISE_WARNING              = 28891
 };
 
+// 51966 - Scourge Disguise
 class spell_scourge_disguise : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise);
@@ -984,6 +940,7 @@ class spell_scourge_disguise : public AuraScript
     }
 };
 
+// 51971 - Scourge Disguise Instability
 class spell_scourge_disguise_instability : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise_instability);
@@ -1012,6 +969,7 @@ class spell_scourge_disguise_instability : public AuraScript
     }
 };
 
+// 52010 - Scourge Disguise Expiring
 class spell_scourge_disguise_expiring : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise_expiring);
@@ -1023,12 +981,19 @@ class spell_scourge_disguise_expiring : public AuraScript
                 player->Unit::Whisper(TEXT_DISGUISE_WARNING, player, true);
     }
 
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SCOURGE_DISGUISE);
+    }
+
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise_expiring::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_scourge_disguise_expiring::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
+// 54089 - Drop Disguise
 class spell_drop_disguise : public SpellScript
 {
     PrepareSpellScript(spell_drop_disguise);
@@ -1046,13 +1011,64 @@ class spell_drop_disguise : public SpellScript
     }
 };
 
+/*######
+## Quest 12606: Cocooned!
+######*/
+
+enum Cocooned
+{
+    SPELL_SUMMON_SCOURGED_CAPTIVE      = 51597,
+    SPELL_SUMMON_CAPTIVE_FOOTMAN       = 51599
+};
+
+// 51596 - Cocooned: Player Not On Quest
+class spell_cocooned_not_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_cocooned_not_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SCOURGED_CAPTIVE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_SUMMON_SCOURGED_CAPTIVE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cocooned_not_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 51598 - Cocooned: Player On Quest
+class spell_cocooned_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_cocooned_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SCOURGED_CAPTIVE, SPELL_SUMMON_CAPTIVE_FOOTMAN });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), roll_chance_i(66) ? SPELL_SUMMON_SCOURGED_CAPTIVE : SPELL_SUMMON_CAPTIVE_FOOTMAN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cocooned_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles();
     new npc_captured_rageclaw();
     new npc_released_offspring_harkoa();
     new npc_crusade_recruit();
-    new go_scourge_enclosure();
     new npc_alchemist_finklestein();
     new go_finklesteins_cauldron();
     new spell_random_ingredient_aura();
@@ -1064,4 +1080,6 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_scourge_disguise_instability);
     RegisterSpellScript(spell_scourge_disguise_expiring);
     RegisterSpellScript(spell_drop_disguise);
+    RegisterSpellScript(spell_cocooned_not_on_quest);
+    RegisterSpellScript(spell_cocooned_on_quest);
 }

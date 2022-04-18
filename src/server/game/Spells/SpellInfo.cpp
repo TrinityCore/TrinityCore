@@ -228,8 +228,8 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        //
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 1 TARGET_UNIT_CASTER
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 2 TARGET_UNIT_NEARBY_ENEMY
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_PARTY,    TARGET_DIR_NONE},        // 3 TARGET_UNIT_NEARBY_PARTY
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 4 TARGET_UNIT_NEARBY_ALLY
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 3 TARGET_UNIT_NEARBY_ALLY
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_PARTY,    TARGET_DIR_NONE},        // 4 TARGET_UNIT_NEARBY_PARTY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 5 TARGET_UNIT_PET
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 6 TARGET_UNIT_TARGET_ENEMY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_SRC,    TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ENTRY,    TARGET_DIR_NONE},        // 7 TARGET_UNIT_SRC_AREA_ENTRY
@@ -1092,8 +1092,10 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 283 SPELL_EFFECT_COMPLETE_CAMPAIGN
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 284 SPELL_EFFECT_SEND_CHAT_MESSAGE
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 285 SPELL_EFFECT_MODIFY_KEYSTONE_2
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 284 SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 285 SPELL_EFFECT_SET_GARRISON_FOLLOWER_LEVEL
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 286 SPELL_EFFECT_GRANT_BATTLEPET_EXPERIENCE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 287 SPELL_EFFECT_SET_GARRISON_FOLLOWER_LEVEL
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 288 SPELL_EFFECT_288
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 289 SPELL_EFFECT_289
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -1374,14 +1376,14 @@ bool SpellInfo::HasTargetType(::Targets target) const
     return false;
 }
 
-bool SpellInfo::CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget) const
+bool SpellInfo::CanBeInterrupted(WorldObject const* interruptCaster, Unit const* interruptTarget, bool ignoreImmunity /*= false*/) const
 {
     return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)
         || HasChannelInterruptFlag(SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::EnteringCombat)
         || (interruptTarget->IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
         || InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancels)
-        || (interruptCaster->IsUnit() && interruptCaster->ToUnit()->HasAuraTypeWithMiscvalue(SPELL_AURA_ALLOW_INTERRUPT_SPELL, Id))
-        || (!(interruptTarget->GetMechanicImmunityMask() & (1 << MECHANIC_INTERRUPT))
+        || (interruptCaster && interruptCaster->IsUnit() && interruptCaster->ToUnit()->HasAuraTypeWithMiscvalue(SPELL_AURA_ALLOW_INTERRUPT_SPELL, Id))
+        || ((!(interruptTarget->GetMechanicImmunityMask() & (1 << MECHANIC_INTERRUPT)) || ignoreImmunity)
             && !interruptTarget->HasAuraTypeWithAffectMask(SPELL_AURA_PREVENT_INTERRUPT, this)
             && PreventionType & SPELL_PREVENTION_TYPE_SILENCE);
 }
@@ -1405,14 +1407,6 @@ bool SpellInfo::IsExplicitDiscovery() const
 bool SpellInfo::IsLootCrafting() const
 {
     return HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) || HasEffect(SPELL_EFFECT_CREATE_LOOT);
-}
-
-bool SpellInfo::IsQuestTame() const
-{
-    if (GetEffects().size() < 2)
-        return false;
-
-    return GetEffect(EFFECT_0).Effect == SPELL_EFFECT_THREAT && GetEffect(EFFECT_1).Effect == SPELL_EFFECT_APPLY_AURA && GetEffect(EFFECT_1).ApplyAuraName == SPELL_AURA_DUMMY;
 }
 
 bool SpellInfo::IsProfession() const
@@ -2200,7 +2194,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
        return SPELL_FAILED_BAD_TARGETS;
 
     // checked in Unit::IsValidAttack/AssistTarget, shouldn't be checked for ENTRY targets
-    //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+    //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE))
     //    return SPELL_FAILED_BAD_TARGETS;
 
     //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS))
@@ -3549,7 +3543,13 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
                 target->ApplySpellImmune(Id, IMMUNITY_MECHANIC, i, apply);
 
         if (apply && HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-            target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
+        {
+            // exception for purely snare mechanic (eg. hands of freedom)!
+            if (mechanicImmunity == (1 << MECHANIC_SNARE))
+                target->RemoveMovementImpairingAuras(false);
+            else
+                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
+        }
     }
 
     if (uint32 dispelImmunity = immuneInfo.DispelImmune)
@@ -3719,6 +3719,23 @@ bool SpellInfo::SpellCancelsAuraEffect(AuraEffect const* aurEff) const
 uint32 SpellInfo::GetAllowedMechanicMask() const
 {
     return _allowedMechanicMask;
+}
+
+uint32 SpellInfo::GetMechanicImmunityMask(Unit const* caster) const
+{
+    uint32 casterMechanicImmunityMask = caster->GetMechanicImmunityMask();
+    uint32 mechanicImmunityMask = 0;
+
+    if (CanBeInterrupted(nullptr, caster, true))
+    {
+        if (casterMechanicImmunityMask & (1 << MECHANIC_SILENCE))
+            mechanicImmunityMask |= (1 << MECHANIC_SILENCE);
+
+        if (casterMechanicImmunityMask & (1 << MECHANIC_INTERRUPT))
+            mechanicImmunityMask |= (1 << MECHANIC_INTERRUPT);
+    }
+
+    return mechanicImmunityMask;
 }
 
 float SpellInfo::GetMinRange(bool positive /*= false*/) const
@@ -4588,7 +4605,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_SKILL:
             case SPELL_AURA_MOD_SKILL_2:
             case SPELL_AURA_MOD_DODGE_PERCENT:
-            case SPELL_AURA_MOD_HEALING_PCT:
             case SPELL_AURA_MOD_HEALING_DONE:
             case SPELL_AURA_MOD_DAMAGE_DONE_CREATURE:
             case SPELL_AURA_OBS_MOD_HEALTH:
@@ -4625,6 +4641,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MELEE_SLOW:
             case SPELL_AURA_MOD_ATTACK_POWER_PCT:
             case SPELL_AURA_MOD_HEALING_DONE_PERCENT:
+            case SPELL_AURA_MOD_HEALING_PCT:
                 if (!_isPositiveTarget(effect) || bp < 0)
                     return false;
                 break;

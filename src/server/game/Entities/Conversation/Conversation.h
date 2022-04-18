@@ -19,6 +19,7 @@
 #define TRINITYCORE_CONVERSATION_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "Hash.h"
 
 class Unit;
@@ -38,6 +39,17 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const;
+
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner) { }
+
+            Conversation const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::ConversationData::Base ConversationMask;
+
+            void operator()(Player const* player) const;
+        };
 
         void AddToWorld() override;
         void RemoveFromWorld() override;

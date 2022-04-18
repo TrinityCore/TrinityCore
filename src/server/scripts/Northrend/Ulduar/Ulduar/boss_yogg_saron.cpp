@@ -445,7 +445,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
 
         struct boss_voice_of_yogg_saronAI : public BossAI
         {
-            boss_voice_of_yogg_saronAI(Creature* creature) : BossAI(creature, BOSS_YOGG_SARON)
+            boss_voice_of_yogg_saronAI(Creature* creature) : BossAI(creature, DATA_YOGG_SARON)
             {
                 Initialize();
                 SetCombatMovement(false);
@@ -529,7 +529,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 // don't despawn Yogg-Saron's corpse, remove him from SummonList!
-                if (Creature* yogg = instance->GetCreature(BOSS_YOGG_SARON))
+                if (Creature* yogg = instance->GetCreature(DATA_YOGG_SARON))
                     summons.Despawn(yogg);
 
                 _JustDied();
@@ -554,10 +554,10 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     {
                         case EVENT_LOCK_DOOR:
                             DoCast(me, SPELL_INSANE_PERIODIC);
-                            instance->SetBossState(BOSS_YOGG_SARON, IN_PROGRESS);
+                            instance->SetBossState(DATA_YOGG_SARON, IN_PROGRESS);
                             break;
                         case EVENT_EXTINGUISH_ALL_LIFE:
-                            if (Creature* yogg = instance->GetCreature(BOSS_YOGG_SARON))
+                            if (Creature* yogg = instance->GetCreature(DATA_YOGG_SARON))
                             {
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_EXTINGUISH_ALL_LIFE, me);
                                 yogg->CastSpell(nullptr, SPELL_EXTINGUISH_ALL_LIFE, true);
@@ -585,7 +585,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                             break;
                         case EVENT_ILLUSION:
                         {
-                            if (Creature* yogg = instance->GetCreature(BOSS_YOGG_SARON))
+                            if (Creature* yogg = instance->GetCreature(DATA_YOGG_SARON))
                             {
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_MADNESS);
                                 yogg->AI()->Talk(SAY_YOGG_SARON_MADNESS);
@@ -715,7 +715,7 @@ class boss_sara : public CreatureScript
                 _linkData.erase(player1);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -834,7 +834,7 @@ class boss_sara : public CreatureScript
                             break;
                         case EVENT_TRANSFORM_4:
                             DoCast(me, SPELL_PHASE_2_TRANSFORM);
-                            if (Creature* yogg = _instance->GetCreature(BOSS_YOGG_SARON))
+                            if (Creature* yogg = _instance->GetCreature(DATA_YOGG_SARON))
                                 DoCast(yogg, SPELL_RIDE_YOGG_SARON_VEHICLE);
                             DoCast(me, SPELL_SHADOWY_BARRIER_SARA);
                             _events.SetPhase(PHASE_TWO);
@@ -1059,13 +1059,13 @@ class boss_brain_of_yogg_saron : public CreatureScript
 
             void Reset() override
             {
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 DoCast(me, SPELL_MATCH_HEALTH);
                 _summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HealthBelowPctDamaged(30, damage) && !me->HasAura(SPELL_BRAIN_HURT_VISUAL))
                 {
@@ -1074,14 +1074,14 @@ class boss_brain_of_yogg_saron : public CreatureScript
                     DoCastAOE(SPELL_SHATTERED_ILLUSION_REMOVE, true);
                     DoCast(me, SPELL_MATCH_HEALTH_2, true); // it doesn't seem to hit Yogg-Saron here
                     DoCast(me, SPELL_BRAIN_HURT_VISUAL, true);
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetImmuneToPC(true);
 
                     if (Creature* voice = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
                         voice->AI()->DoAction(ACTION_PHASE_THREE);
                     if (Creature* sara = _instance->GetCreature(DATA_SARA))
                         sara->AI()->DoAction(ACTION_PHASE_THREE);
-                    if (Creature* yogg = _instance->GetCreature(BOSS_YOGG_SARON))
+                    if (Creature* yogg = _instance->GetCreature(DATA_YOGG_SARON))
                         yogg->AI()->DoAction(ACTION_PHASE_THREE);
 
                     for (uint8 i = DATA_THORIM_YS; i <= DATA_MIMIRON_YS; ++i)
@@ -1490,7 +1490,7 @@ class npc_immortal_guardian : public CreatureScript
                 _events.ScheduleEvent(EVENT_DRAIN_LIFE, 3s, 13s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HealthBelowPctDamaged(1, damage))
                     damage = me->GetHealth() - me->CountPctFromMaxHealth(1);   // or set immune to damage? should be done here or in SPELL_WEAKENED spell script?
@@ -1960,6 +1960,10 @@ class npc_laughing_skull : public CreatureScript
         }
 };
 
+/* 63744 - Sara's Anger
+   63745 - Sara's Blessing
+   63747 - Sara's Fervor
+   65206 - Destabilization Matrix */
 class spell_yogg_saron_target_selectors : public SpellScriptLoader    // 63744, 63745, 63747, 65206
 {
     public:
@@ -2018,6 +2022,7 @@ class HighSanityTargetSelector
         }
 };
 
+// 63795, 65301 - Psychosis
 class spell_yogg_saron_psychosis : public SpellScriptLoader      // 63795, 65301
 {
     public:
@@ -2053,6 +2058,7 @@ class spell_yogg_saron_psychosis : public SpellScriptLoader      // 63795, 65301
         }
 };
 
+// 63830, 63881 - Malady of the Mind
 class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830, 63881
 {
     public:
@@ -2125,6 +2131,7 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
         }
 };
 
+// 63802 - Brain Link
 class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
 {
     public:
@@ -2219,6 +2226,7 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
         }
 };
 
+// 63803 - Brain Link (Damage)
 class spell_yogg_saron_brain_link_damage : public SpellScriptLoader      // 63803
 {
     public:
@@ -2243,6 +2251,7 @@ class spell_yogg_saron_brain_link_damage : public SpellScriptLoader      // 6380
         }
 };
 
+// 63030 - Boil Ominously
 class spell_yogg_saron_boil_ominously : public SpellScriptLoader    // 63030
 {
     public:
@@ -2281,6 +2290,7 @@ class spell_yogg_saron_boil_ominously : public SpellScriptLoader    // 63030
         }
 };
 
+// 64465 - Shadow Beacon
 class spell_yogg_saron_shadow_beacon : public SpellScriptLoader     // 64465
 {
     public:
@@ -2315,6 +2325,7 @@ class spell_yogg_saron_shadow_beacon : public SpellScriptLoader     // 64465
         }
 };
 
+// 64466 - Empowering Shadows
 class spell_yogg_saron_empowering_shadows_range_check : public SpellScriptLoader    // 64466
 {
     public:
@@ -2342,6 +2353,7 @@ class spell_yogg_saron_empowering_shadows_range_check : public SpellScriptLoader
         }
 };
 
+// 64467 - Empowering Shadows
 class spell_yogg_saron_empowering_shadows_missile : public SpellScriptLoader    // 64467
 {
     public:
@@ -2375,6 +2387,7 @@ class spell_yogg_saron_empowering_shadows_missile : public SpellScriptLoader    
 };
 
 // it works, but is it scripted correctly? why is it aura with 2500ms duration?
+// 64132 - Constrictor Tentacle
 class spell_yogg_saron_constrictor_tentacle : public SpellScriptLoader     // 64132
 {
     public:
@@ -2406,6 +2419,7 @@ class spell_yogg_saron_constrictor_tentacle : public SpellScriptLoader     // 64
         }
 };
 
+// 64131 - Lunge
 class spell_yogg_saron_lunge : public SpellScriptLoader    // 64131
 {
     public:
@@ -2445,6 +2459,7 @@ class spell_yogg_saron_lunge : public SpellScriptLoader    // 64131
         }
 };
 
+// 64125, 64126 - Squeeze
 class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125, 64126
 {
     public:
@@ -2473,6 +2488,7 @@ class spell_yogg_saron_squeeze : public SpellScriptLoader     // 64125, 64126
         }
 };
 
+// 64148 - Diminsh Power
 class spell_yogg_saron_diminsh_power : public SpellScriptLoader     // 64148
 {
     public:
@@ -2503,6 +2519,7 @@ class spell_yogg_saron_diminsh_power : public SpellScriptLoader     // 64148
 };
 
 // not sure about SPELL_WEAKENED part, where should it be handled?
+// 64161 - Empowered
 class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
 {
     public:
@@ -2554,6 +2571,7 @@ class spell_yogg_saron_empowered : public SpellScriptLoader     // 64161
         }
 };
 
+// 64069 - Match Health
 class spell_yogg_saron_match_health : public SpellScriptLoader    // 64069
 {
     public:
@@ -2581,6 +2599,7 @@ class spell_yogg_saron_match_health : public SpellScriptLoader    // 64069
         }
 };
 
+// 65238 - Shattered Illusion
 class spell_yogg_saron_shattered_illusion : public SpellScriptLoader    // 65238
 {
     public:
@@ -2608,6 +2627,7 @@ class spell_yogg_saron_shattered_illusion : public SpellScriptLoader    // 65238
         }
 };
 
+// 63882 - Death Ray Warning Visual
 class spell_yogg_saron_death_ray_warning_visual : public SpellScriptLoader     // 63882
 {
     public:
@@ -2645,6 +2665,7 @@ class spell_yogg_saron_death_ray_warning_visual : public SpellScriptLoader     /
         }
 };
 
+// 63993 - Cancel Illusion Room Aura
 class spell_yogg_saron_cancel_illusion_room_aura : public SpellScriptLoader    // 63993
 {
     public:
@@ -2680,6 +2701,7 @@ class spell_yogg_saron_cancel_illusion_room_aura : public SpellScriptLoader    /
         }
 };
 
+// 64010, 64013 - Nondescript
 class spell_yogg_saron_nondescript : public SpellScriptLoader     // 64010, 64013
 {
     public:
@@ -2706,6 +2728,7 @@ class spell_yogg_saron_nondescript : public SpellScriptLoader     // 64010, 6401
         }
 };
 
+// 64012 - Revealed Tentacle
 class spell_yogg_saron_revealed_tentacle : public SpellScriptLoader    // 64012
 {
     public:
@@ -2742,6 +2765,7 @@ class spell_yogg_saron_revealed_tentacle : public SpellScriptLoader    // 64012
         }
 };
 
+// 63305 - Grim Reprisal
 class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
 {
     public:
@@ -2780,6 +2804,7 @@ class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
         }
 };
 
+// 64059 - Induce Madness
 class spell_yogg_saron_induce_madness : public SpellScriptLoader    // 64059
 {
     public:
@@ -2826,6 +2851,7 @@ class spell_yogg_saron_induce_madness : public SpellScriptLoader    // 64059
         }
 };
 
+// 63050 - Sanity
 class spell_yogg_saron_sanity : public SpellScriptLoader     // 63050
 {
     public:
@@ -2898,6 +2924,7 @@ class spell_yogg_saron_sanity : public SpellScriptLoader     // 63050
         }
 };
 
+// 63120 - Insane
 class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
 {
     public:
@@ -2940,6 +2967,7 @@ class spell_yogg_saron_insane : public SpellScriptLoader     // 63120
         }
 };
 
+// 64555 - Insane Periodic
 class spell_yogg_saron_insane_periodic : public SpellScriptLoader    // 64555
 {
     public:
@@ -2981,6 +3009,7 @@ class LunaticGazeTargetSelector
         Unit* _caster;
 };
 
+// 64164, 64168 - Lunatic Gaze
 class spell_yogg_saron_lunatic_gaze : public SpellScriptLoader      // 64164, 64168
 {
     public:
@@ -3015,6 +3044,10 @@ class spell_yogg_saron_lunatic_gaze : public SpellScriptLoader      // 64164, 64
         }
 };
 
+/* 62650 - Fortitude of Frost
+   62670 - Resilience of Nature
+   62671 - Speed of Invention
+   62702 - Fury of the Storm */
 class spell_yogg_saron_keeper_aura : public SpellScriptLoader     // 62650, 62670, 62671, 62702
 {
     public:
@@ -3043,6 +3076,7 @@ class spell_yogg_saron_keeper_aura : public SpellScriptLoader     // 62650, 6267
         }
 };
 
+// 63984 - Hate to Zero
 class spell_yogg_saron_hate_to_zero : public SpellScriptLoader    // 63984
 {
     public:
@@ -3071,6 +3105,7 @@ class spell_yogg_saron_hate_to_zero : public SpellScriptLoader    // 63984
         }
 };
 
+// 64184 - In the Maws of the Old God
 class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    // 64184
 {
     public:
@@ -3084,7 +3119,7 @@ class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
-                    if (Creature* yogg = instance->GetCreature(BOSS_YOGG_SARON))
+                    if (Creature* yogg = instance->GetCreature(DATA_YOGG_SARON))
                     {
                         if (yogg->FindCurrentSpellBySpellId(SPELL_DEAFENING_ROAR))
                         {
@@ -3111,6 +3146,7 @@ class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    
         }
 };
 
+// 64172 - Titanic Storm
 class spell_yogg_saron_titanic_storm : public SpellScriptLoader    // 64172
 {
     public:
@@ -3138,6 +3174,7 @@ class spell_yogg_saron_titanic_storm : public SpellScriptLoader    // 64172
         }
 };
 
+// 64174 - Hodir's Protective Gaze
 class spell_yogg_saron_hodirs_protective_gaze : public SpellScriptLoader     // 64174
 {
     public:
