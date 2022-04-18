@@ -2209,6 +2209,8 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
     return "MISSING_TYPE";
 }
 
+AchievementCriteriaEntryList const AchievementGlobalMgr::EmptyCriteriaList;
+
 AchievementGlobalMgr* AchievementGlobalMgr::instance()
 {
     static AchievementGlobalMgr instance;
@@ -2264,6 +2266,8 @@ AchievementCriteriaEntryList const& AchievementGlobalMgr::GetAchievementCriteria
         auto itr = m_AchievementCriteriasByMiscValue[type].find(miscValue);
         if (itr != m_AchievementCriteriasByMiscValue[type].end())
             return itr->second;
+
+        return EmptyCriteriaList;
     }
 
     return m_AchievementCriteriasByType[type];
