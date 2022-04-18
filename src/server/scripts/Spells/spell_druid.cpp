@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "DB2Stores.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -70,6 +71,8 @@ enum DruidSpells
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
     SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE = 102543,
+    SPELL_DRUID_INNERVATE                      = 29166,
+    SPELL_DRUID_INNERVATE_RANK_2               = 326228,
     SPELL_DRUID_INFUSION                       = 37238,
     SPELL_DRUID_LANGUISH                       = 71023,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE             = 64372,
@@ -661,27 +664,39 @@ protected:
 };
 
 // 29166 - Innervate
-class spell_dru_innervate : public AuraScript
+class spell_dru_innervate : public SpellScript
 {
-    PrepareAuraScript(spell_dru_innervate);
+    PrepareSpellScript(spell_dru_innervate);
 
-    void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+    SpellCastResult CheckCast()
     {
-        if (!aurEff->GetTotalTicks())
-        {
-            amount = 0;
-            return;
-        }
+        Player* target = Object::ToPlayer(GetExplTargetUnit());
+        if (!target)
+            return SPELL_FAILED_BAD_TARGETS;
 
-        if (Unit* caster = GetCaster())
-            amount = int32(CalculatePct(caster->GetCreatePowerValue(POWER_MANA), amount) / aurEff->GetTotalTicks());
-        else
-            amount = 0;
+        ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(target->GetPrimarySpecialization());
+        if (!spec || spec->Role != 1)
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleRank2()
+    {
+        Unit* caster = GetCaster();
+        if (caster != GetHitUnit())
+            if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
+                caster->CastSpell(caster, SPELL_DRUID_INNERVATE,
+                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                    .SetTriggeringSpell(GetSpell())
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, -innervateR2->GetAmount()));
+
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_innervate::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
+        OnCheckCast += SpellCheckCastFn(spell_dru_innervate::CheckCast);
+        OnHit += SpellHitFn(spell_dru_innervate::HandleRank2);
     }
 };
 
