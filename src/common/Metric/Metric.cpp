@@ -55,7 +55,7 @@ void Metric::LoadFromConfigs()
 {
     bool previousValue = _enabled;
     _enabled = sConfigMgr->GetBoolDefault("Metric.Enable", false);
-    _updateInterval = sConfigMgr->GetIntDefault("Metric.Interval", 10);
+    _updateInterval = sConfigMgr->GetIntDefault("Metric.Interval", 1);
     if (_updateInterval < 1)
     {
         TC_LOG_ERROR("metric", "'Metric.Interval' config set to %d, overriding to 1.", _updateInterval);
