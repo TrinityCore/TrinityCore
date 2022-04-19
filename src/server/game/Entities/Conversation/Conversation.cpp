@@ -109,6 +109,52 @@ Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* c
     return conversation;
 }
 
+struct ConversationActorFillVisitor
+{
+    explicit ConversationActorFillVisitor(Conversation* conversation, Unit const* creator, Map const* map, ConversationActorTemplate const& actor)
+        : _conversation(conversation), _creator(creator), _map(map), _actor(actor)
+    {
+    }
+
+    void operator()(ConversationActorWorldObjectTemplate const& worldObject) const
+    {
+        Creature const* bestFit = nullptr;
+
+        for (auto const& [_, creature] : Trinity::Containers::MapEqualRange(_map->GetCreatureBySpawnIdStore(), worldObject.SpawnId))
+        {
+            bestFit = creature;
+
+            // If creature is in a personal phase then we pick that one specifically
+            if (creature->GetPhaseShift().GetPersonalGuid() == _creator->GetGUID())
+                break;
+        }
+
+        if (bestFit)
+            _conversation->AddActor(_actor.Id, _actor.Index, bestFit->GetGUID());
+    }
+
+    void operator()(ConversationActorNoObjectTemplate const& noObject) const
+    {
+        _conversation->AddActor(_actor.Id, _actor.Index, ConversationActorType::WorldObject, noObject.CreatureId, noObject.CreatureDisplayInfoId);
+    }
+
+    void operator()([[maybe_unused]] ConversationActorActivePlayerTemplate const& activePlayer) const
+    {
+        _conversation->AddActor(_actor.Id, _actor.Index, ObjectGuid::Create<HighGuid::Player>(0xFFFFFFFFFFFFFFFF));
+    }
+
+    void operator()(ConversationActorTalkingHeadTemplate const& talkingHead) const
+    {
+        _conversation->AddActor(_actor.Id, _actor.Index, ConversationActorType::TalkingHead, talkingHead.CreatureId, talkingHead.CreatureDisplayInfoId);
+    }
+
+private:
+    Conversation* _conversation;
+    Unit const* _creator;
+    ::Map const* _map;
+    ConversationActorTemplate const& _actor;
+};
+
 bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* /*spellInfo = nullptr*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
@@ -129,27 +175,8 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
     _textureKitId = conversationTemplate->TextureKitId;
 
-    for (ConversationActor const& actor : conversationTemplate->Actors)
-    {
-            UF::ConversationActor& actorField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors));
-            actorField.CreatureID = actor.CreatureId;
-            actorField.CreatureDisplayInfoID = actor.CreatureDisplayInfoId;
-            actorField.Id = actor.ActorId;
-            actorField.Type = AsUnderlyingType(ActorType::CreatureActor);
-    }
-
-    for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
-    {
-        ObjectGuid::LowType actorGuid = conversationTemplate->ActorGuids[actorIndex];
-        if (!actorGuid)
-            continue;
-
-        for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), actorGuid))
-        {
-            // we just need the last one, overriding is legit
-            AddActor(pair.second->GetGUID(), actorIndex);
-        }
-    }
+    for (ConversationActorTemplate const& actor : conversationTemplate->Actors)
+        std::visit(ConversationActorFillVisitor(this, creator, map, actor), actor.Data);
 
     std::set<uint16> actorIndices;
     std::vector<UF::ConversationLine> lines;
@@ -211,11 +238,26 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     return true;
 }
 
-void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
+void Conversation::AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid)
 {
     auto actorField = m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors, actorIdx);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::CreatureID), 0);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::CreatureDisplayInfoID), 0);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), actorGuid);
-    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ActorType::WorldObjectActor));
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Id), actorId);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ConversationActorType::WorldObject));
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::NoActorObject), 0);
+}
+
+void Conversation::AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId)
+{
+    auto actorField = m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors, actorIdx);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::CreatureID), creatureId);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::CreatureDisplayInfoID), creatureDisplayInfoId);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), ObjectGuid::Empty);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Id), actorId);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(type));
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::NoActorObject), type == ConversationActorType::WorldObject ? 1 : 0);
 }
 
 Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 lineId) const
