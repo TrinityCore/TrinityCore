@@ -290,7 +290,8 @@ public:
 
             Enraged = false;
             HasProtected = false;
-            WorldtreeTraget = reinterpret_cast<Creature*>(me->SummonCreature(WORLDTREE_CHANNEL_TARGET, 5503.713f, -3523.436f, 1608.781f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 360000s));
+            summons.DespawnAll();
+            Creature* WorldtreeTraget = reinterpret_cast<Creature*>(me->SummonCreature(WORLDTREE_CHANNEL_TARGET, 5503.713f, -3523.436f, 1608.781f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 360000s));
             DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
             WorldtreeTraget->AI()->DoCast(me, SPELL_DRAIN_WORLD_TREE_TRIGGERED);
         }
@@ -505,13 +506,13 @@ public:
         void JustReachedHome() override
         {
             DoAction(ACTION_CHANNEL_WORLD_TREE);
-            DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             CastProtectionOfElune(false);
+            summons.DespawnAll();
             _JustDied();
             // @todo: remove this when instance script gets updated, kept for compatibility only
             instance->SetData(DATA_ARCHIMONDE, DONE);
@@ -587,7 +588,6 @@ public:
         uint32 _unleashSpell;
         bool Enraged;
         bool HasProtected;
-        Creature* WorldtreeTraget;
         std::list<Unit*> spellProtectionOfEluneTargets;
     };
 
