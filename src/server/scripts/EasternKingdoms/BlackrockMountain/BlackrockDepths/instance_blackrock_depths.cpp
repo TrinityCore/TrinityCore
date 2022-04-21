@@ -29,6 +29,7 @@
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
+constexpr uint8 TOMB_OF_SEVEN_BOSS_NUM{ 7 };
 
 enum Creatures
 {
@@ -134,7 +135,7 @@ public:
 
         uint32 BarAleCount;
         uint32 GhostKillCount;
-        ObjectGuid TombBossGUIDs[7];
+        ObjectGuid TombBossGUIDs[TOMB_OF_SEVEN_BOSS_NUM];
         ObjectGuid TombEventStarterGUID;
         uint32 TombTimer;
         uint32 TombEventCounter;
@@ -429,8 +430,12 @@ public:
                 if (TombTimer <= diff)
                 {
                     TombTimer = TIMER_TOMBOFTHESEVEN;
-                    ++TombEventCounter;
-                    TombOfSevenEvent();
+                    if ( TombEventCounter < TOMB_OF_SEVEN_BOSS_NUM )
+                    {
+                        TombOfSevenEvent();
+                        ++TombEventCounter;
+                    }
+
                     // Check Killed bosses
                     for (uint8 i = 0; i < 7; ++i)
                     {
