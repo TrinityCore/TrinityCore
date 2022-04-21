@@ -198,15 +198,15 @@ private:
         _bubbled = state;
         if (!state)
         {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 me->CastStop();
         }
         else
         {
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (!me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             DoCast(SPELL_ARCANE_FIELD);
         }
     }

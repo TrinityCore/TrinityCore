@@ -216,8 +216,8 @@ struct boss_shade_of_akama : public BossAI
         _Reset();
         Initialize();
         me->SetImmuneToPC(true);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
-        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetEmoteState(EMOTE_STATE_STUN);
         me->SetWalk(true);
         events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, 1s);
         me->SummonCreatureGroup(SUMMON_GROUP_RESET);
@@ -240,7 +240,7 @@ struct boss_shade_of_akama : public BossAI
         if (spellInfo->Id == SPELL_AKAMA_SOUL_CHANNEL)
         {
             events.ScheduleEvent(EVENT_START_CHANNELERS_AND_SPAWNERS, 1s);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+            me->SetEmoteState(EMOTE_STATE_NONE);
             events.ScheduleEvent(EVENT_EVADE_CHECK, 10s);
             if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
@@ -255,7 +255,7 @@ struct boss_shade_of_akama : public BossAI
         if (_isInPhaseOne && motionType == CHASE_MOTION_TYPE)
         {
             _isInPhaseOne = false;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(false);
             me->SetWalk(false);
             events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
@@ -317,7 +317,7 @@ struct boss_shade_of_akama : public BossAI
                 {
                     for (ObjectGuid summonGuid : summons)
                         if (Creature* channeler = ObjectAccessor::GetCreature(*me, summonGuid))
-                            channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                            channeler->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                     for (ObjectGuid spawnerGuid : _spawners)
                         if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
@@ -370,7 +370,7 @@ struct npc_akama_shade : public ScriptedAI
         DoCastSelf(SPELL_STEALTH);
 
         if (_instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
     }
 
     void JustSummoned(Creature* summon) override
@@ -458,7 +458,7 @@ struct npc_akama_shade : public ScriptedAI
             {
                 case EVENT_SHADE_START:
                     _instance->SetBossState(DATA_SHADE_OF_AKAMA, IN_PROGRESS);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     me->RemoveAurasDueToSpell(SPELL_STEALTH);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0], false);
@@ -565,7 +565,7 @@ struct npc_ashtongue_channeler : public PassiveAI
         {
             if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
-                if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE))
+                if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
                     DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
 
                 else
@@ -574,7 +574,7 @@ struct npc_ashtongue_channeler : public PassiveAI
 
             channel.Repeat(Seconds(2));
         });
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -692,7 +692,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
     {
         if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
         {
-            if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE))
+            if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
                 me->GetMotionMaster()->MovePoint(0, shade->GetPosition());
 
             else if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
@@ -730,7 +730,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
             {
                 if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
-                    if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE))
+                    if (shade->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE))
                     {
                         me->SetFacingToObject(shade);
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
@@ -1068,7 +1068,7 @@ struct npc_ashtongue_broken : public ScriptedAI
                 Talk(SAY_BROKEN_HAIL);
                 break;
             case ACTION_BROKEN_EMOTE:
-                me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
+                me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 break;
             default:
                 break;

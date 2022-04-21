@@ -122,8 +122,13 @@ enum Misc
 
 };
 
-#define GOSSIP_ITEM_START               "Brann, it would be our honor!"
-#define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!"
+enum Gossip
+{
+    GOSSIP_ITEM_START_MID               = 9669,     //Brann, it would be our honor!
+    GOSSIP_ITEM_START_OID               = 0,
+    GOSSIP_ITEM_PROGRESS_MID            = 9670,    //Let's move Brann, enough of the history lessons!
+    GOSSIP_ITEM_PROGRESS_OID            = 0
+};
 
 static Position SpawnLocations[]=
 {
@@ -229,7 +234,7 @@ struct npc_tribuna_controller : public ScriptedAI
                     if (Creature* summon = me->SummonCreature(NPC_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1s))
                     {
                         summon->SetDisplayId(11686);
-                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        summon->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         summon->CastSpell(target, SPELL_DARK_MATTER, true);
                     }
                 }
@@ -245,7 +250,7 @@ struct npc_tribuna_controller : public ScriptedAI
                     if (Creature* summon = me->SummonCreature(NPC_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1s))
                     {
                         summon->SetDisplayId(11686);
-                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        summon->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         summon->CastSpell(target, SPELL_SEARING_GAZE, true);
                     }
                 }
@@ -380,7 +385,7 @@ struct npc_brann_hos : public EscortAI
 
     void StartWP()
     {
-        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         SetEscortPaused(false);
         uiStep = 1;
         Start();
@@ -645,7 +650,7 @@ struct npc_brann_hos : public EscortAI
                     Player* player = GetPlayerForEscort();
                     if (player)
                         player->GroupEventHappens(QUEST_HALLS_OF_STONE, me);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     JumpToNextStep(180000);
                     break;
                 }
@@ -687,7 +692,7 @@ struct npc_brann_hos : public EscortAI
         if (me->IsQuestGiver())
             player->PrepareQuestMenu(me->GetGUID());
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        AddGossipItemFor(player, GOSSIP_ITEM_START_MID, GOSSIP_ITEM_START_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         SendGossipMenuFor(player, TEXT_ID_START, me->GetGUID());
 
         return true;

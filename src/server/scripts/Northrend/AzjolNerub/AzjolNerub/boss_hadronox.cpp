@@ -273,8 +273,8 @@ struct boss_hadronox : public BossAI
     {
         BossAI::InitializeAI();
         me->SetReactState(REACT_AGGRESSIVE);
-        me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
-        me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
+        me->SetBoundingRadius(9.0f);
+        me->SetCombatReach(9.0f);
         _enteredCombat = false;
         _doorsWebbed = false;
         _lastPlayerCombatState = false;

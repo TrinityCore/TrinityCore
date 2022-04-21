@@ -616,7 +616,7 @@ struct npc_martha_goslin : public CreatureScript
             InterruptTimer = 12000;
             SplineChainMovementGenerator::GetResumeInfo(ResumeInfo, me);
             me->GetMotionMaster()->Clear();
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+            me->SetEmoteState(EMOTE_ONESHOT_NONE);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -626,12 +626,12 @@ struct npc_martha_goslin : public CreatureScript
                 switch (id)
                 {
                     case MOVEID_EVENT1:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                        me->SetEmoteState(EMOTE_STATE_USE_STANDING);
                         me->SetFacingTo(marthaIdleOrientation1, true);
                         Events.ScheduleEvent(EVENT_MARTHA_IDLE2, Seconds(9), Seconds(15));
                         break;
                     case MOVEID_EVENT2:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                        me->SetEmoteState(EMOTE_STATE_USE_STANDING);
                         me->SetFacingTo(marthaIdleOrientation2, true);
                         Events.ScheduleEvent(EVENT_MARTHA_IDLE1, Seconds(9), Seconds(15));
                         break;
@@ -668,11 +668,11 @@ struct npc_martha_goslin : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_MARTHA_IDLE1:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         me->GetMotionMaster()->MoveAlongSplineChain(MOVEID_EVENT1, CHAIN_MARTHA_IDLE1, true);
                         break;
                     case EVENT_MARTHA_IDLE2:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         me->GetMotionMaster()->MoveAlongSplineChain(MOVEID_EVENT2, CHAIN_MARTHA_IDLE2, true);
                         break;
                     default:
@@ -683,7 +683,7 @@ struct npc_martha_goslin : public CreatureScript
 
         void JustAppeared() override
         {
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+            me->SetEmoteState(EMOTE_STATE_USE_STANDING);
             Events.RescheduleEvent(EVENT_MARTHA_IDLE2, Seconds(5), Seconds(10));
         }
 

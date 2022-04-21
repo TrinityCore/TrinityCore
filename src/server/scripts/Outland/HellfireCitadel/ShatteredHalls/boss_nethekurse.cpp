@@ -110,7 +110,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
                 Initialize();
             }
@@ -146,7 +146,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                         {
                             IsIntroEvent = false;
                             IsMainEvent = true;
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         }
                         break;
                     default:
@@ -163,7 +163,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 PeonEngagedCount = 4;
                 PeonKilledCount = 4;
                 IsMainEvent = true;
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void AttackStart(Unit* who) override

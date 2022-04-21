@@ -36,7 +36,7 @@ NullCreatureAI::NullCreatureAI(Creature* creature) : CreatureAI(creature)
 
 int32 NullCreatureAI::Permissible(Creature const* creature)
 {
-    if (creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
+    if (creature->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
         return PERMIT_BASE_PROACTIVE + 50;
 
     if (creature->IsTrigger())
@@ -70,7 +70,7 @@ void PossessedAI::UpdateAI(uint32 /*diff*/)
 void PossessedAI::JustDied(Unit* /*u*/)
 {
     // We died while possessed, disable our loot
-    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+    me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 }
 
 void CritterAI::JustEngagedWith(Unit* /*who*/)

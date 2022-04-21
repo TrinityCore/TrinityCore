@@ -65,16 +65,13 @@ enum Creatures
 # npc_barnesAI
 ######*/
 
-#define GOSSIP_READY        "I'm not an actor."
-
-#define SAY_READY           "Splendid, I'm going to get the audience ready. Break a leg!"
-#define SAY_OZ_INTRO1       "Finally, everything is in place. Are you ready for your big stage debut?"
-#define OZ_GOSSIP1          "I'm not an actor."
-#define SAY_OZ_INTRO2       "Don't worry, you'll be fine. You look like a natural!"
-#define OZ_GOSSIP2          "Ok, I'll give it a try, then."
-
-#define SAY_RAJ_INTRO1      "The romantic plays are really tough, but you'll do better this time. You have TALENT. Ready?"
-#define RAJ_GOSSIP1         "I've never been more ready."
+enum Misc
+{
+    OZ_GOSSIP1_MID              = 7421, // I'm not an actor.
+    OZ_GOSSIP1_OID              = 0,
+    OZ_GOSSIP2_MID              = 7422, // Ok, I'll give it a try, then.
+    OZ_GOSSIP2_OID              = 0,
+};
 
 #define OZ_GM_GOSSIP1       "[GM] Change event to EVENT_OZ"
 #define OZ_GM_GOSSIP2       "[GM] Change event to EVENT_HOOD"
@@ -199,7 +196,7 @@ public:
                         me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
                         TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min))
                     {
-                        spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        spotlight->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
                         m_uiSpotlightGUID = spotlight->GetGUID();
                     }
@@ -275,11 +272,7 @@ public:
                 float PosX = Spawns[index][1];
 
                 if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 2h))
-                {
-                    // In case database has bad flags
-                    creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
-                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                    creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
 
             RaidWiped = false;
@@ -347,7 +340,7 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, OZ_GOSSIP2_MID, OZ_GOSSIP2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     SendGossipMenuFor(player, 8971, me->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
@@ -380,7 +373,7 @@ public:
             // Check for death of Moroes and if opera event is not done already
             if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, OZ_GOSSIP1_MID, OZ_GOSSIP1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                 if (player->IsGameMaster())
                 {
@@ -412,15 +405,18 @@ public:
 # npc_image_of_medivh
 ####*/
 
-#define SAY_DIALOG_MEDIVH_1         "You've got my attention, dragon. You'll find I'm not as easily scared as the villagers below."
-#define SAY_DIALOG_ARCANAGOS_2      "Your dabbling in the arcane has gone too far, Medivh. You've attracted the attention of powers beyond your understanding. You must leave Karazhan at once!"
-#define SAY_DIALOG_MEDIVH_3         "You dare challenge me at my own dwelling? Your arrogance is astounding, even for a dragon!"
-#define SAY_DIALOG_ARCANAGOS_4      "A dark power seeks to use you, Medivh! If you stay, dire days will follow. You must hurry, we don't have much time!"
-#define SAY_DIALOG_MEDIVH_5         "I do not know what you speak of, dragon... but I will not be bullied by this display of insolence. I'll leave Karazhan when it suits me!"
-#define SAY_DIALOG_ARCANAGOS_6      "You leave me no alternative. I will stop you by force if you won't listen to reason!"
-#define EMOTE_DIALOG_MEDIVH_7       "begins to cast a spell of great power, weaving his own essence into the magic."
-#define SAY_DIALOG_ARCANAGOS_8      "What have you done, wizard? This cannot be! I'm burning from... within!"
-#define SAY_DIALOG_MEDIVH_9         "He should not have angered me. I must go... recover my strength now..."
+enum
+{
+    SAY_DIALOG_MEDIVH_1             = 0,
+    SAY_DIALOG_ARCANAGOS_2          = 0,
+    SAY_DIALOG_MEDIVH_3             = 1,
+    SAY_DIALOG_ARCANAGOS_4          = 1,
+    SAY_DIALOG_MEDIVH_5             = 2,
+    SAY_DIALOG_ARCANAGOS_6          = 2,
+    EMOTE_DIALOG_MEDIVH_7           = 3,
+    SAY_DIALOG_ARCANAGOS_8          = 3,
+    SAY_DIALOG_MEDIVH_9             = 4
+};
 
 static float MedivPos[4] = {-11161.49f, -1902.24f, 91.48f, 1.94f};
 static float ArcanagosPos[4] = {-11169.75f, -1881.48f, 95.39f, 4.83f};
@@ -467,7 +463,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
             if (instance->GetGuidData(DATA_IMAGE_OF_MEDIVH).IsEmpty())
             {
@@ -515,25 +511,25 @@ public:
             {
             case 0: return 9999999;
             case 1:
-                me->Yell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_1);
                 return 10000;
             case 2:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_2);
                 return 20000;
             case 3:
-                me->Yell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_3);
                 return 10000;
             case 4:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_4);
                 return 20000;
             case 5:
-                me->Yell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_5);
                 return 20000;
             case 6:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_6);
                 return 10000;
             case 7:
                 FireArcanagosTimer = 500;
@@ -543,7 +539,7 @@ public:
                 DoCast(me, SPELL_MANA_SHIELD);
                 return 10000;
             case 9:
-                me->TextEmote(EMOTE_DIALOG_MEDIVH_7);
+                Talk(EMOTE_DIALOG_MEDIVH_7);
                 return 10000;
             case 10:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
@@ -551,7 +547,7 @@ public:
                 return 1000;
             case 11:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->Yell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL);
+                    arca->AI()->Talk(SAY_DIALOG_ARCANAGOS_8);
                 return 5000;
             case 12:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
@@ -564,7 +560,7 @@ public:
                 }
                 return 10000;
             case 13:
-                me->Yell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL);
+                Talk(SAY_DIALOG_MEDIVH_9);
                 return 10000;
             case 14:
             {

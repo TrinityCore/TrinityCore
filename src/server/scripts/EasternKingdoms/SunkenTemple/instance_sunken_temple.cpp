@@ -178,7 +178,7 @@ public:
         void UseStatue(GameObject* go)
         {
             go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData(), 0s);
-            go->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
+            go->SetFlag(GO_FLAG_INTERACT_COND);
         }
 
         void UseLastStatue(GameObject* go)

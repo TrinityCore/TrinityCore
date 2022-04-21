@@ -537,30 +537,6 @@ class spell_q12634_despawn_fruit_tosser : public SpellScript
     }
 };
 
-// http://www.wowhead.com/quest=12683 Burning to Help
-// 52308 - Take Sputum Sample
-class spell_q12683_take_sputum_sample : public SpellScript
-{
-    PrepareSpellScript(spell_q12683_take_sputum_sample);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        uint32 reqAuraId = GetEffectInfo(EFFECT_1).CalcValue();
-
-        Unit* caster = GetCaster();
-        if (caster->HasAuraEffect(reqAuraId, 0))
-        {
-            uint32 spellId = GetEffectInfo().CalcValue();
-            caster->CastSpell(caster, spellId, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q12683_take_sputum_sample::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // http://www.wowhead.com/quest=12851 Going Bearback
 enum Quest12851Data
 {
@@ -611,39 +587,6 @@ class spell_q12851_going_bearback : public AuraScript
     }
 };
 
-enum Whoarethey
-{
-    SPELL_MALE_DISGUISE = 38080,
-    SPELL_FEMALE_DISGUISE = 38081,
-    SPELL_GENERIC_DISGUISE = 32756
-};
-
-// 48917 - Who Are They: Cast from Questgiver
-class spell_q10041_q10040_who_are_they : public SpellScript
-{
-    PrepareSpellScript(spell_q10041_q10040_who_are_they);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_MALE_DISGUISE, SPELL_FEMALE_DISGUISE, SPELL_GENERIC_DISGUISE });
-    }
-
-    void HandleScript(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        if (Player* target = GetHitPlayer())
-        {
-            target->CastSpell(target, target->GetNativeGender() == GENDER_MALE ? SPELL_MALE_DISGUISE : SPELL_FEMALE_DISGUISE, true);
-            target->CastSpell(target, SPELL_GENERIC_DISGUISE, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q10041_q10040_who_are_they::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // http://www.wowhead.com/quest=12659 Scalps!
 enum Quest12659Data
 {
@@ -673,40 +616,6 @@ class spell_q12659_ahunaes_knife : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q12659_ahunaes_knife::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum StoppingTheSpread
-{
-    NPC_VILLAGER_KILL_CREDIT                     = 18240,
-    SPELL_FLAMES                                 = 39199
-};
-
-// 32146 - Liquid Fire
-class spell_q9874_liquid_fire : public SpellScript
-{
-    PrepareSpellScript(spell_q9874_liquid_fire);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (Creature* target = GetHitCreature())
-            if (!target->HasAura(SPELL_FLAMES))
-            {
-                caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
-                target->CastSpell(target, SPELL_FLAMES, true);
-                target->DespawnOrUnsummon(60s);
-            }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q9874_liquid_fire::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -804,36 +713,6 @@ class spell_q13280_13283_jump_jets : public SpellScript
     }
 };
 
-enum ChumTheWaterSummons
-{
-    SUMMON_ANGRY_KVALDIR = 66737,
-    SUMMON_NORTH_SEA_MAKO = 66738,
-    SUMMON_NORTH_SEA_THRESHER = 66739,
-    SUMMON_NORTH_SEA_BLUE_SHARK = 66740
-};
-
-// 66741 - Chum the Water
-class spell_q14112_14145_chum_the_water : public SpellScript
-{
-    PrepareSpellScript(spell_q14112_14145_chum_the_water);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK });
-    }
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, RAND(SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q14112_14145_chum_the_water::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum RedSnapperVeryTasty
 {
     SPELL_FISHED_UP_RED_SNAPPER  = 29867,
@@ -866,118 +745,6 @@ class spell_q9452_cast_net : public SpellScript
     }
 };
 
-enum BreakfastOfChampions
-{
-    SPELL_SUMMON_DEEP_JORMUNGAR     = 66510,
-    SPELL_STORMFORGED_MOLE_MACHINE  = 66492
-};
-
-// 66512 - Pound Drum
-class spell_q14076_14092_pound_drum : public SpellScript
-{
-    PrepareSpellScript(spell_q14076_14092_pound_drum);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SUMMON_DEEP_JORMUNGAR, SPELL_STORMFORGED_MOLE_MACHINE });
-    }
-
-    void HandleSummon()
-    {
-        Unit* caster = GetCaster();
-
-        if (roll_chance_i(50))
-            caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
-        else
-            caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
-    }
-
-    void Register() override
-    {
-        OnCast += SpellCastFn(spell_q14076_14092_pound_drum::HandleSummon);
-    }
-};
-
-enum HodirsHelm
-{
-    SAY_1               = 1,
-    SAY_2               = 2,
-    NPC_KILLCREDIT      = 30210, // Hodir's Helm KC Bunny
-    NPC_ICE_SPIKE_BUNNY = 30215
-};
-
-// 56278 - Read Pronouncement
-class spell_q12987_read_pronouncement : public AuraScript
-{
-    PrepareAuraScript(spell_q12987_read_pronouncement);
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        // player must cast kill credit and do emote text, according to sniff
-        if (Player* target = GetTarget()->ToPlayer())
-        {
-            if (Creature* trigger = target->FindNearestCreature(NPC_ICE_SPIKE_BUNNY, 25.0f))
-            {
-                sCreatureTextMgr->SendChat(trigger, SAY_1, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
-                target->KilledMonsterCredit(NPC_KILLCREDIT);
-                sCreatureTextMgr->SendChat(trigger, SAY_2, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_q12987_read_pronouncement::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-enum LeaveNothingToChance
-{
-    NPC_UPPER_MINE_SHAFT            = 27436,
-    NPC_LOWER_MINE_SHAFT            = 27437,
-
-    SPELL_UPPER_MINE_SHAFT_CREDIT   = 48744,
-    SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
-};
-
-// 48742 - Wintergarde Mine Explosion
-class spell_q12277_wintergarde_mine_explosion : public SpellScript
-{
-    PrepareSpellScript(spell_q12277_wintergarde_mine_explosion);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Creature* unitTarget = GetHitCreature())
-        {
-            if (Unit* caster = GetCaster())
-            {
-                if (caster->GetTypeId() == TYPEID_UNIT)
-                {
-                    if (Unit* owner = caster->GetOwner())
-                    {
-                        switch (unitTarget->GetEntry())
-                        {
-                            case NPC_UPPER_MINE_SHAFT:
-                                caster->CastSpell(owner, SPELL_UPPER_MINE_SHAFT_CREDIT, true);
-                                break;
-                            case NPC_LOWER_MINE_SHAFT:
-                                caster->CastSpell(owner, SPELL_LOWER_MINE_SHAFT_CREDIT, true);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12277_wintergarde_mine_explosion::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum FocusOnTheBeach
 {
     SPELL_BUNNY_CREDIT_BEAM = 47390,
@@ -997,47 +764,6 @@ class spell_q12066_bunny_kill_credit : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q12066_bunny_kill_credit::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum ACleansingSong
-{
-    SPELL_SUMMON_SPIRIT_ATAH        = 52954,
-    SPELL_SUMMON_SPIRIT_HAKHALAN    = 52958,
-    SPELL_SUMMON_SPIRIT_KOOSU       = 52959,
-
-    AREA_BITTERTIDELAKE             = 4385,
-    AREA_RIVERSHEART                = 4290,
-    AREA_WINTERGRASPRIVER           = 4388,
-};
-
-// 52941 - Song of Cleansing
-class spell_q12735_song_of_cleansing : public SpellScript
-{
-    PrepareSpellScript(spell_q12735_song_of_cleansing);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        switch (caster->GetAreaId())
-        {
-            case AREA_BITTERTIDELAKE:
-                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_ATAH);
-                break;
-            case AREA_RIVERSHEART:
-                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_HAKHALAN);
-                break;
-            case AREA_WINTERGRASPRIVER:
-                caster->CastSpell(caster, SPELL_SUMMON_SPIRIT_KOOSU);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12735_song_of_cleansing::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1381,52 +1107,6 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScript
     }
 };
 
-enum BearFlankMaster
-{
-    SPELL_CREATE_BEAR_FLANK = 56566,
-    SPELL_BEAR_FLANK_FAIL   = 56569
-};
-
-// 56565 - Bear Flank Master
-class spell_q13011_bear_flank_master : public SpellScript
-{
-    PrepareSpellScript(spell_q13011_bear_flank_master);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_CREATE_BEAR_FLANK,
-            SPELL_BEAR_FLANK_FAIL
-        });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_UNIT;
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetHitPlayer())
-        {
-            if (roll_chance_i(50))
-            {
-                Creature* creature = GetCaster()->ToCreature();
-                player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
-                creature->AI()->Talk(0, player);
-            }
-            else
-                player->CastSpell(player, SPELL_CREATE_BEAR_FLANK);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q13011_bear_flank_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 57385 - Argent Cannon
 // 57412 - Reckoning Bomb
 class spell_q13086_cannons_target : public SpellScript
@@ -1578,8 +1258,8 @@ class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : public AuraSc
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+        target->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
         if (Creature* creature = target->ToCreature())
             creature->SetReactState(REACT_PASSIVE);
@@ -2333,21 +2013,13 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11730_ultrasonic_screwdriver);
     RegisterSpellScript(spell_q12459_seeds_of_natures_wrath);
     RegisterSpellScript(spell_q12634_despawn_fruit_tosser);
-    RegisterSpellScript(spell_q12683_take_sputum_sample);
     RegisterSpellScript(spell_q12851_going_bearback);
-    RegisterSpellScript(spell_q10041_q10040_who_are_they);
     RegisterSpellScript(spell_q12659_ahunaes_knife);
-    RegisterSpellScript(spell_q9874_liquid_fire);
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
     RegisterSpellScript(spell_q13280_13283_plant_battle_standard);
     RegisterSpellScript(spell_q13280_13283_jump_jets);
-    RegisterSpellScript(spell_q14112_14145_chum_the_water);
     RegisterSpellScript(spell_q9452_cast_net);
-    RegisterSpellScript(spell_q14076_14092_pound_drum);
-    RegisterSpellScript(spell_q12987_read_pronouncement);
-    RegisterSpellScript(spell_q12277_wintergarde_mine_explosion);
     RegisterSpellScript(spell_q12066_bunny_kill_credit);
-    RegisterSpellScript(spell_q12735_song_of_cleansing);
     RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
     RegisterSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy);
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_check_aura);
@@ -2362,7 +2034,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy);
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon);
     RegisterSpellScript(spell_q12847_summon_soul_moveto_bunny);
-    RegisterSpellScript(spell_q13011_bear_flank_master);
     RegisterSpellScript(spell_q13086_cannons_target);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
