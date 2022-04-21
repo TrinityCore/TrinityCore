@@ -115,6 +115,8 @@ namespace MMAP
 
     bool MMapManager::loadMap(const std::string& /*basePath*/, uint32 mapId, int32 x, int32 y)
     {
+        std::lock_guard<std::mutex> lock(loadTileLock);
+
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(mapId))
             return false;

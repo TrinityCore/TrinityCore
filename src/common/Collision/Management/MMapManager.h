@@ -81,6 +81,7 @@ namespace MMAP
             MMapDataSet loadedMMaps;
             uint32 loadedTiles;
             bool thread_safe_environment;
+            std::mutex loadTileLock;
     };
 }
 
