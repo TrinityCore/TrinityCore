@@ -7892,7 +7892,7 @@ void Player::ApplyItemObtainSpells(Item* item, bool apply)
 
     for (ItemEffectEntry const* effect : item->GetEffects())
     {
-        if (effect->TriggerType != ITEM_SPELLTRIGGER_ON_OBTAIN) // On obtain trigger
+        if (effect->TriggerType != ITEM_SPELLTRIGGER_ON_PICKUP) // On obtain trigger
             continue;
 
         int32 const spellId = effect->SpellID;
@@ -8336,7 +8336,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             for (ItemEffectEntry const* effectData : item->GetEffects())
             {
                 // wrong triggering type
-                if (effectData->TriggerType != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
+                if (effectData->TriggerType != ITEM_SPELLTRIGGER_ON_PROC)
                     continue;
 
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effectData->SpellID, DIFFICULTY_NONE);
@@ -8518,6 +8518,25 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             spell->prepare(targets);
             return;
         }
+    }
+}
+
+void Player::ApplyItemLootedSpell(Item* item, bool apply)
+{
+    if (item->GetTemplate()->HasFlag(ITEM_FLAG_LEGACY))
+        return;
+
+    auto lootedEffectItr = std::find_if(item->GetEffects().begin(), item->GetEffects().end(), [](ItemEffectEntry const* effectData)
+    {
+        return effectData->TriggerType == ITEM_SPELLTRIGGER_ON_LOOTED;
+    });
+
+    if (lootedEffectItr != item->GetEffects().end())
+    {
+        if (apply)
+            CastSpell(this, (*lootedEffectItr)->SpellID, item);
+        else
+            RemoveAurasDueToItemSpell((*lootedEffectItr)->SpellID, item->GetGUID());
     }
 }
 
@@ -12731,6 +12750,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         RemoveTradeableItem(pItem);
 
         ApplyItemObtainSpells(pItem, false);
+        ApplyItemLootedSpell(pItem, false);
 
         sScriptMgr->OnItemRemove(this, pItem);
 
@@ -26546,6 +26566,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
 
         Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, lootItem->BonusListIDs);
         SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
+        ApplyItemLootedSpell(pItem, true);
     }
 
     Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_LOOTED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
@@ -26642,6 +26663,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
         // LootItem is being removed (looted) from the container, delete it from the DB.
         if (!loot->containerID.IsEmpty())
             sLootItemStorage->RemoveStoredLootItemForContainer(loot->containerID.GetCounter(), item->itemid, item->count, item->itemIndex);
+
+        ApplyItemLootedSpell(newitem, true);
     }
     else
         SendEquipError(msg, nullptr, nullptr, item->itemid);

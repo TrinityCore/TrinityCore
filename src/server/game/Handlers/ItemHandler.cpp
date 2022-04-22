@@ -1204,7 +1204,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
 
     for (ItemEffectEntry const* itemEffect : item->GetEffects())
    {
-        if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+        if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_ON_LEARN)
             continue;
 
         if (BattlePetSpeciesEntry const* speciesEntry = sSpellMgr->GetBattlePetSpecies(uint32(itemEffect->SpellID)))
