@@ -2930,6 +2930,15 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 targets.push_back(target);
             break;
         }
+        case SMART_ACTION_SEND_GAME_EVENT_CRITERIA:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsPlayer(target))
+                    target->ToPlayer()->UpdateCriteria(CriteriaType::AnyoneTriggerGameEventScenario, e.action.sendGameEventCriteria.miscValue1, e.action.sendGameEventCriteria.miscValue2, e.action.sendGameEventCriteria.miscValue3, target);
+            }
+            break;
+        }
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
         default:
@@ -3093,6 +3102,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 ProcessAction(e, unit);
             break;
         }
+        
         //no params
         case SMART_EVENT_AGGRO:
         case SMART_EVENT_DEATH:

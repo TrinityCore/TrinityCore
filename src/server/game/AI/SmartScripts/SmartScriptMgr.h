@@ -603,7 +603,8 @@ enum SMART_ACTION
     SMART_ACTION_ACTIVATE_GAMEOBJECT                = 147,    // GameObjectActions
     SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 148,    // varID
     SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER   = 149,    // summonType 1-8, duration in ms
-    SMART_ACTION_END                                = 150
+    SMART_ACTION_SEND_GAME_EVENT_CRITERIA           = 150,    // miscValue1, miscValue2, miscValue3
+    SMART_ACTION_END                                = 151
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1216,6 +1217,13 @@ struct SmartAction
             uint32 type;
             uint32 duration;
         } becomePersonalClone;
+
+        struct
+        {
+            uint32 miscValue1;
+            uint32 miscValue2;
+            uint32 miscValue3;
+        } sendGameEventCriteria;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

@@ -1005,6 +1005,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_ACTIVATE_GAMEOBJECT: return sizeof(SmartAction::activateGameObject);
             case SMART_ACTION_ADD_TO_STORED_TARGET_LIST: return sizeof(SmartAction::addToStoredTargets);
             case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER: return sizeof(SmartAction::becomePersonalClone);
+            case SMART_ACTION_SEND_GAME_EVENT_CRITERIA: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -2312,6 +2313,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.action.becomePersonalClone.type < TEMPSUMMON_TIMED_OR_DEAD_DESPAWN || e.action.becomePersonalClone.type > TEMPSUMMON_MANUAL_DESPAWN)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses incorrect TempSummonType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.becomePersonalClone.type);
+                return false;
+            }
+            break;
+        }
+        case SMART_ACTION_SEND_GAME_EVENT_CRITERIA:
+        {
+            if (e.action.sendGameEventCriteria.miscValue1 == 0)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses incorrect MiscValue1 %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.sendGameEventCriteria.miscValue1);
                 return false;
             }
             break;
