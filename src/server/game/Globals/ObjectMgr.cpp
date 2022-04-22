@@ -2951,16 +2951,16 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FlagsCu = 0;
         itemTemplate.SpellPPMRate = 0.f;
 
-        for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        itemTemplate.Effects.resize(MAX_ITEM_PROTO_SPELLS);
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
-            ItemEffect effect;
+            ItemEffect& effect = itemTemplate.Effects[i];
             effect.SpellID = sparse->SpellID[i];
             effect.Trigger = sparse->SpellTrigger[i];
             effect.Charges = sparse->SpellCharges[i];
             effect.Cooldown = sparse->SpellCooldown[i];
             effect.Category = sparse->SpellCategory[i];
             effect.CategoryCooldown = sparse->SpellCategoryCooldown[i];
-            itemTemplate.Effects.push_back(effect);
         }
 
         ++sparseCount;
@@ -4984,7 +4984,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
     scripts->clear();                                       // need for reload support
 
-    bool isSpellScriptTable = (type == SCRIPTS_SPELL);
+    bool isSpellScriptTable = type == SCRIPTS_SPELL;
     //                                                 0    1       2         3         4          5    6  7  8  9
     QueryResult result = WorldDatabase.PQuery("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o%s FROM %s", isSpellScriptTable ? ", effIndex" : "", tableName.c_str());
 
@@ -5306,7 +5306,7 @@ void ObjectMgr::LoadSpellScripts()
 
         uint8 i = (uint8)((uint32(itr->first) >> 24) & 0x000000FF);
         //check for correct spellEffect
-        if (!spellInfo->Effects[i].Effect || (spellInfo->Effects[i].Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->Effects[i].Effect != SPELL_EFFECT_DUMMY))
+        if (!spellInfo->Effects[i].IsEffect() || (spellInfo->Effects[i].Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->Effects[i].Effect != SPELL_EFFECT_DUMMY))
             TC_LOG_ERROR("sql.sql", "Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, i);
     }
 }
@@ -5465,7 +5465,7 @@ void ObjectMgr::ValidateSpellScripts()
 
     uint32 count = 0;
 
-    for (auto spell : _spellScriptsStore)
+    for (auto const& spell : _spellScriptsStore)
     {
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell.first);
 
@@ -6526,7 +6526,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
         }
 
         // find now nearest graveyard at other map
-        if (MapId != entry->Continent && int16(entry->Continent) != mapEntry->ParentMapID)
+        if (MapId != entry->Continent && mapEntry && int16(entry->Continent) != mapEntry->ParentMapID)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry

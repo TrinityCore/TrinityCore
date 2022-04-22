@@ -610,6 +610,8 @@ inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemS
 
 struct ItemEffect
 {
+    ItemEffect() : SpellID(0), Trigger(0), Charges(0), Cooldown(0), Category(0), CategoryCooldown(0) { }
+
     uint32  SpellID;
     uint32  Trigger;
     int32   Charges;
