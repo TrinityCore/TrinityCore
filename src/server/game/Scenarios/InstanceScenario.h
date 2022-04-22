@@ -22,8 +22,6 @@
 
 class Map;
 
-typedef std::unordered_map<uint8, CriteriaProgressMap> StepCriteriaProgressMap;
-
 class TC_GAME_API InstanceScenario : public Scenario
 {
     public:
@@ -37,8 +35,6 @@ class TC_GAME_API InstanceScenario : public Scenario
         void SendPacket(WorldPacket const* data) const override;
 
         Map const* _map;
-        ScenarioData const* _data;
-        StepCriteriaProgressMap _stepCriteriaProgress;
 };
 
 #endif // InstanceScenario_h__
