@@ -366,7 +366,7 @@ public:
                     encounter[i] = NOT_STARTED;
             if (GhostKillCount > 0 && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
                 GhostKillCount = 0;//reset tomb of seven event
-            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM
+            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
                 GhostKillCount = TOMB_OF_SEVEN_BOSS_NUM;
 
             OUT_LOAD_INST_DATA_COMPLETE;
