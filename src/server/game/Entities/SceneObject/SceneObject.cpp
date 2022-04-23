@@ -119,6 +119,9 @@ bool SceneObject::Create(ObjectGuid::LowType lowGuid, SceneType type, uint32 sce
     Object::_Create(ObjectGuid::Create<HighGuid::SceneObject>(GetMapId(), sceneId, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
 
+    UpdatePositionData();
+    SetZoneScript();
+
     SetEntry(scriptPackageId);
     SetObjectScale(1.0f);
 

@@ -166,6 +166,9 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
         m_movementInfo.transport.guid = target->GetGUID();
     }
 
+    UpdatePositionData();
+    SetZoneScript();
+
     UpdateShape();
 
     uint32 timeToTarget = GetCreateProperties()->TimeToTarget != 0 ? GetCreateProperties()->TimeToTarget : *m_areaTriggerData->Duration;
