@@ -974,6 +974,7 @@ struct GameObjectTemplate
         {
             case GAMEOBJECT_TYPE_GOOBER:            return goober.eventID;
             case GAMEOBJECT_TYPE_CHEST:             return chest.triggeredEvent;
+            case GAMEOBJECT_TYPE_CHAIR:             return chair.triggeredEvent;
             case GAMEOBJECT_TYPE_CAMERA:            return camera.eventID;
             case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.triggeredEvent;
             default: return 0;
