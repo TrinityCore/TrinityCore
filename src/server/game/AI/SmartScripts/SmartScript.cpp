@@ -2242,10 +2242,22 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         target->ToCreature()->SetMeleeAnimKitId(e.action.animKit.animKit);
                     else if (e.action.animKit.type == 3)
                         target->ToCreature()->SetMovementAnimKitId(e.action.animKit.animKit);
-                    else
+
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: %s (%s), AnimKit: %u, Type: %u",
+                        target->GetName().c_str(), target->GetGUID().ToString().c_str(), e.action.animKit.animKit, e.action.animKit.type);
+                }
+                else if (IsGameObject(target))
+                {
+                    switch (e.action.animKit.type)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartScript: Invalid type for SMART_ACTION_PLAY_ANIMKIT, skipping");
-                        break;
+                        case 0:
+                            target->ToGameObject()->SetAnimKitId(e.action.animKit.animKit, true);
+                            break;
+                        case 1:
+                            target->ToGameObject()->SetAnimKitId(e.action.animKit.animKit, false);
+                            break;
+                        default:
+                            break;
                     }
 
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: %s (%s), AnimKit: %u, Type: %u",
