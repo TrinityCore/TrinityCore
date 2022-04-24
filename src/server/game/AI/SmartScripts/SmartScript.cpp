@@ -22,6 +22,7 @@
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
 #include "GameEventMgr.h"
+#include "GameEventSender.h"
 #include "GameObject.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
@@ -2465,6 +2466,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             // action list will continue on personal clones
             Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id > e.event_id; });
+            break;
+        }
+        case SMART_ACTION_TRIGGER_GAME_EVENT:
+        {
+            WorldObject* sourceObject = GetBaseObjectOrUnit(unit);
+            for (WorldObject* target : targets)
+            {
+                if (e.action.triggerGameEvent.useSaiTargetAsGameEventSource)
+                    GameEvents::Trigger(e.action.triggerGameEvent.eventId, sourceObject, target);
+                else
+                    GameEvents::Trigger(e.action.triggerGameEvent.eventId, target, sourceObject);
+            }
+
             break;
         }
         default:
