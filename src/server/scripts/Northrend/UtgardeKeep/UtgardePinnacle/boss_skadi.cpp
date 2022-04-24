@@ -229,7 +229,7 @@ struct boss_skadi : public BossAI
                 SpawnFirstWave();
                 Talk(SAY_AGGRO);
                 _phase = PHASE_FLYING;
-                instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
+                instance->TriggerGameEvent(ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
 
                 scheduler
                     .Schedule(Seconds(6), [this](TaskContext resetCheck)

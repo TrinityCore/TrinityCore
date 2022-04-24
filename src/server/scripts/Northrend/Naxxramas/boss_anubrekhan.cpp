@@ -144,7 +144,7 @@ struct boss_anubrekhan : public BossAI
         _JustDied();
 
         // start achievement timer (kill Maexna within 20 min)
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMED_START_EVENT);
+        instance->TriggerGameEvent(ACHIEV_TIMED_START_EVENT);
     }
 
     void JustEngagedWith(Unit* who) override

@@ -199,7 +199,7 @@ class boss_kologarn : public CreatureScript
                     if (!right && !left)
                         events.ScheduleEvent(EVENT_STONE_SHOUT, 5s);
 
-                    instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, CRITERIA_DISARMED);
+                    instance->TriggerGameEvent(CRITERIA_DISARMED);
                 }
                 else
                 {

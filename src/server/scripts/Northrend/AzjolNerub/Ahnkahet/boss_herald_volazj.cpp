@@ -269,7 +269,7 @@ struct boss_volazj : public BossAI
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_WHISPER_AGGRO);
 
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_QUICK_DEMISE_START_EVENT);
+        instance->TriggerGameEvent(ACHIEV_QUICK_DEMISE_START_EVENT);
     }
 
     uint32 GetSpellForPhaseMask(uint32 phase)

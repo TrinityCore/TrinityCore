@@ -436,7 +436,7 @@ struct boss_fjola : public boss_twin_baseAI
 
     void JustEngagedWith(Unit* who) override
     {
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent,  EVENT_START_TWINS_FIGHT);
+        instance->TriggerGameEvent(EVENT_START_TWINS_FIGHT);
         events.ScheduleEvent(EVENT_SPECIAL_ABILITY, 45s);
         me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
         boss_twin_baseAI::JustEngagedWith(who);

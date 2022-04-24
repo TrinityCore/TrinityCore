@@ -17,6 +17,7 @@
 
 #include "ZoneScript.h"
 #include "Creature.h"
+#include "GameEventSender.h"
 
 ZoneScript::ZoneScript()
 {
@@ -29,4 +30,12 @@ ZoneScript::~ZoneScript()
 uint32 ZoneScript::GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data)
 {
     return data->id;
+}
+
+void ZoneScript::TriggerGameEvent(uint32 gameEventId, WorldObject* source /*= nullptr*/, WorldObject* target /*= nullptr*/)
+{
+    if (source)
+        GameEvents::Trigger(gameEventId, source, target);
+    else
+        ProcessEvent(nullptr, gameEventId, nullptr);
 }

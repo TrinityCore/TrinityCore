@@ -67,7 +67,7 @@ struct boss_maiden_of_grief : public BossAI
         events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 15s, 25s);
         events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 15s);
 
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOOD_GRIEF_START_EVENT);
+        instance->TriggerGameEvent(ACHIEV_GOOD_GRIEF_START_EVENT);
     }
 
     void KilledUnit(Unit* /*who*/) override

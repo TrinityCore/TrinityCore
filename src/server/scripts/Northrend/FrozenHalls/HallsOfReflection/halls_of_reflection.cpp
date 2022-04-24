@@ -1084,7 +1084,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 }
                             }
                             _invincibility = false;
-                            _instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_NOT_RETREATING_EVENT);
+                            _instance->TriggerGameEvent(ACHIEV_NOT_RETREATING_EVENT);
                             _events.ScheduleEvent(EVENT_ESCAPE_7, 1s);
                             break;
                         case EVENT_ESCAPE_7:

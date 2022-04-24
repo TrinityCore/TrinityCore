@@ -188,7 +188,7 @@ struct boss_xt002 : public BossAI
         events.ScheduleEvent(EVENT_ENRAGE, 10min);
         events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, 60s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_PHASE_CHECK, 1s, 0, PHASE_1);
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_MUST_DECONSTRUCT_FASTER);
+        instance->TriggerGameEvent(ACHIEV_MUST_DECONSTRUCT_FASTER);
     }
 
     void DoAction(int32 action) override

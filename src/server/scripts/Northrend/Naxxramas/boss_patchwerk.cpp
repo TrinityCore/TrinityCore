@@ -91,7 +91,7 @@ struct boss_patchwerk : public BossAI
         events.ScheduleEvent(EVENT_HATEFUL, 3600ms);
         events.ScheduleEvent(EVENT_BERSERK, 6min);
 
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+        instance->TriggerGameEvent(ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
     }
 
     void UpdateAI(uint32 diff) override

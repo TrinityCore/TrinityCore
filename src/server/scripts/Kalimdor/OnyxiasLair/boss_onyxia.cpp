@@ -162,7 +162,7 @@ struct boss_onyxia : public BossAI
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
         events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
         events.ScheduleEvent(EVENT_WING_BUFFET, 10s, 20s);
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMED_START_EVENT);
+        instance->TriggerGameEvent(ACHIEV_TIMED_START_EVENT);
     }
 
     void JustSummoned(Creature* summoned) override

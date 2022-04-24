@@ -133,7 +133,7 @@ struct boss_drakos : public BossAI
         Talk(SAY_DEATH);
 
         // start achievement timer (kill Eregos within 20 min)
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMED_START_EVENT);
+        instance->TriggerGameEvent(ACHIEV_TIMED_START_EVENT);
     }
 
     void KilledUnit(Unit* /*victim*/) override

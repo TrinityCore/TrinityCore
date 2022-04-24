@@ -134,7 +134,7 @@ struct boss_anub_arak : public BossAI
             door2->SetGoState(GO_STATE_ACTIVE);
 
         Talk(SAY_AGGRO);
-        instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOTTA_GO_START_EVENT);
+        instance->TriggerGameEvent(ACHIEV_GOTTA_GO_START_EVENT);
 
         events.SetPhase(PHASE_EMERGE);
         events.ScheduleEvent(EVENT_CLOSE_DOOR, 5s);

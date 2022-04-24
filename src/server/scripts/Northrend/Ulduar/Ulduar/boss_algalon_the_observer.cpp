@@ -773,7 +773,7 @@ struct npc_living_constellation : public CreatureAI
         if (spellInfo->Id != SPELL_CONSTELLATION_PHASE_EFFECT)
             return;
 
-        _instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, EVENT_ID_SUPERMASSIVE_START);
+        _instance->TriggerGameEvent(EVENT_ID_SUPERMASSIVE_START);
         creatureCaster->CastSpell(nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
         DoCast(creatureCaster, SPELL_DESPAWN_BLACK_HOLE, TRIGGERED_FULL_MASK);
         me->DespawnOrUnsummon(500ms);

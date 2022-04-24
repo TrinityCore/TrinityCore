@@ -191,6 +191,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectGuid GetObjectGuid(uint32 type) const;
         virtual ObjectGuid GetGuidData(uint32 type) const override;
 
+        // Triggers a GameEvent
+        // * If source is nullptr then event is triggered for each player in the instance as "source"
+        void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr) override;
+
         Creature* GetCreature(uint32 type);
         GameObject* GetGameObject(uint32 type);
 
@@ -219,9 +223,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Update Achievement Criteria for all players in instance
         void DoUpdateCriteria(CriteriaType type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
-
-        // Start Timed Achievement Criteria for all players in instance
-        void DoStartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
 
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);

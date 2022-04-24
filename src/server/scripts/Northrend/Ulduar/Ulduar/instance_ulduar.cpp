@@ -559,7 +559,7 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_GUARDIAN_OF_LIFE:
                         if (!conSpeedAtory)
                         {
-                            DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, CRITERIA_CON_SPEED_ATORY);
+                            TriggerGameEvent(CRITERIA_CON_SPEED_ATORY);
                             conSpeedAtory = true;
                         }
                         break;
@@ -568,7 +568,7 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_BRIGHTLEAF:
                         if (!lumberjacked)
                         {
-                            DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, CRITERIA_LUMBERJACKED);
+                            TriggerGameEvent(CRITERIA_LUMBERJACKED);
                             lumberjacked = true;
                         }
                         break;
