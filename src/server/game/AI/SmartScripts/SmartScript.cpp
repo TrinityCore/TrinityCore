@@ -2474,9 +2474,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
             {
                 if (e.action.triggerGameEvent.useSaiTargetAsGameEventSource)
-                    GameEvents::Trigger(e.action.triggerGameEvent.eventId, sourceObject, target);
-                else
                     GameEvents::Trigger(e.action.triggerGameEvent.eventId, target, sourceObject);
+                else
+                    GameEvents::Trigger(e.action.triggerGameEvent.eventId, sourceObject, target);
             }
 
             break;
