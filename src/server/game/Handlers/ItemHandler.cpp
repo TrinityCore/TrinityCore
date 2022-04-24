@@ -445,7 +445,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
             {
                 _player->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);
                 _player->SendSellError(SELL_ERR_UNK, creature, itemguid, 0);
-				return;
+                return;
             }
             if (pProto->SellPrice > 0)
             {
