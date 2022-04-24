@@ -53,7 +53,15 @@ void GameEvents::TriggerForPlayer(uint32 gameEventId, Player* source)
 {
     Map* map = source->GetMap();
     if (map->Instanceable())
+    {
         source->StartCriteriaTimer(CriteriaStartEvent::SendEvent, gameEventId);
+        source->ResetCriteria(CriteriaFailEvent::SendEvent, gameEventId);
+    }
+
+    source->UpdateCriteria(CriteriaType::PlayerTriggerGameEvent, gameEventId, 0, 0, source);
+
+    if (map->IsScenario())
+        source->UpdateCriteria(CriteriaType::AnyoneTriggerGameEventScenario, gameEventId, 0, 0, source);
 }
 
 void GameEvents::TriggerForMap(uint32 gameEventId, Map* map, WorldObject* source, WorldObject* target)

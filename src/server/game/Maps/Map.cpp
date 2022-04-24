@@ -4397,6 +4397,11 @@ bool Map::IsBattlegroundOrArena() const
     return i_mapEntry && i_mapEntry->IsBattlegroundOrArena();
 }
 
+bool Map::IsScenario() const
+{
+    return i_mapEntry && i_mapEntry->IsScenario();
+}
+
 bool Map::IsGarrison() const
 {
     return i_mapEntry && i_mapEntry->IsGarrison();
