@@ -223,7 +223,7 @@ void BattlegroundWS::StartingEventOpenDoors()
     SpawnBGObject(BG_WS_OBJECT_DOOR_H_4, RESPAWN_ONE_DAY);
 
     // players joining later are not eligibles
-    StartCriteriaTimer(CriteriaStartEvent::SendEvent, WS_EVENT_START_BATTLE);
+    TriggerGameEvent(WS_EVENT_START_BATTLE);
 }
 
 void BattlegroundWS::AddPlayer(Player* player)

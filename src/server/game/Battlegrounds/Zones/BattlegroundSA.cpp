@@ -345,7 +345,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             ToggleTimer();
             DemolisherStartState(false);
             Status = BG_SA_ROUND_ONE;
-            StartCriteriaTimer(CriteriaStartEvent::SendEvent, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
+            TriggerGameEvent((Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
         }
         if (TotalTime >= BG_SA_BOAT_START)
             StartShips();
@@ -367,7 +367,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             ToggleTimer();
             DemolisherStartState(false);
             Status = BG_SA_ROUND_TWO;
-            StartCriteriaTimer(CriteriaStartEvent::SendEvent, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
+            TriggerGameEvent((Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
             // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
             SetStatus(STATUS_IN_PROGRESS);
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -544,7 +544,7 @@ void BattlegroundSA::TeleportToEntrancePosition(Player* player)
 
 void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker /*= nullptr*/)
 {
-    if (GameObject* go = obj->ToGameObject())
+    if (GameObject* go = Object::ToGameObject(obj))
     {
         switch (go->GetGoType())
         {
