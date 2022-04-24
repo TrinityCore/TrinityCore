@@ -220,9 +220,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Update Achievement Criteria for all players in instance
         void DoUpdateCriteria(CriteriaType type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
 
-        // Start/Stop Timed Achievement Criteria for all players in instance
+        // Start Timed Achievement Criteria for all players in instance
         void DoStartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
-        void DoStopCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
 
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);

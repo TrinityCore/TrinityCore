@@ -152,7 +152,6 @@ struct boss_onyxia : public BossAI
         _Reset();
         me->SetReactState(REACT_AGGRESSIVE);
         instance->SetData(DATA_ONYXIA_PHASE, Phase);
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMED_START_EVENT);
     }
 
     void JustEngagedWith(Unit* who) override

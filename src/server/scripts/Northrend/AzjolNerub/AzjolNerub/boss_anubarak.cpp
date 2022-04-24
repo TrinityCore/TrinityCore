@@ -118,7 +118,6 @@ struct boss_anub_arak : public BossAI
     {
         BossAI::Reset();
         me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOTTA_GO_START_EVENT);
         _nextSubmerge = 75;
         _petCount = 0;
     }

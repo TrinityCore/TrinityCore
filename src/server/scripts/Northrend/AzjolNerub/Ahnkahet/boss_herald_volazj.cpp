@@ -144,8 +144,6 @@ struct boss_volazj : public BossAI
 
         Initialize();
 
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_QUICK_DEMISE_START_EVENT);
-
         // Visible for all players in insanity
         for (uint32 i = 173; i <= 177; ++i)
             PhasingHandler::AddPhase(me, i, false);

@@ -56,13 +56,6 @@ struct boss_maiden_of_grief : public BossAI
 {
     boss_maiden_of_grief(Creature* creature) : BossAI(creature, DATA_MAIDEN_OF_GRIEF) { }
 
-    void Reset() override
-    {
-        _Reset();
-
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOOD_GRIEF_START_EVENT);
-    }
-
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);

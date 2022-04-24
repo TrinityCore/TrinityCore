@@ -93,7 +93,6 @@ struct boss_loken : public BossAI
     {
         Initialize();
         _Reset();
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMELY_DEATH_START_EVENT);
     }
 
     void JustEngagedWith(Unit* who) override

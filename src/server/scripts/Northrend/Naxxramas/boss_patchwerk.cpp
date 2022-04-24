@@ -69,8 +69,6 @@ struct boss_patchwerk : public BossAI
     {
         _Reset();
         _enraged = false;
-
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
     }
 
     void KilledUnit(Unit* /*Victim*/) override

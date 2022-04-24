@@ -631,15 +631,6 @@ void InstanceScript::DoStartCriteriaTimer(CriteriaStartEvent startEvent, uint32 
     });
 }
 
-// Stop timed achievement for all players in instance
-void InstanceScript::DoStopCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)
-{
-    instance->DoOnPlayers([startEvent, entry](Player* player)
-    {
-        player->RemoveCriteriaTimer(startEvent, entry);
-    });
-}
-
 void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
 {
     instance->DoOnPlayers([this, spell, includePets, includeControlled](Player* player)

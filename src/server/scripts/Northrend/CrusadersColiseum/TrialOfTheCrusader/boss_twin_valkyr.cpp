@@ -398,7 +398,6 @@ struct boss_fjola : public boss_twin_baseAI
         TouchSpellId = SPELL_LIGHT_TOUCH;
         SpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
 
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent,  EVENT_START_TWINS_FIGHT);
         boss_twin_baseAI::Reset();
     }
 

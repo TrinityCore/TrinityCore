@@ -171,7 +171,6 @@ struct boss_xt002 : public BossAI
         events.SetPhase(PHASE_1);
         me->SetReactState(REACT_DEFENSIVE);
         Initialize();
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_MUST_DECONSTRUCT_FASTER);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override

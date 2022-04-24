@@ -1227,6 +1227,8 @@ struct CriteriaEntry
     uint8 Flags;
     int16 EligibilityWorldStateID;
     int8 EligibilityWorldStateValue;
+
+    EnumFlag<CriteriaFlags> GetFlags() const { return static_cast<CriteriaFlags>(Flags); }
 };
 
 struct CriteriaTreeEntry

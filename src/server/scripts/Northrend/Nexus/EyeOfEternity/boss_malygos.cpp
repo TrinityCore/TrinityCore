@@ -376,7 +376,6 @@ struct boss_malygos : public BossAI
 
         SetPhase(PHASE_NOT_STARTED, true);
         me->SetReactState(REACT_PASSIVE);
-        instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_TIMED_START_EVENT);
         instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
     }
 
