@@ -602,7 +602,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
         ExpectedStatType stat = GetScalingExpectedStat();
         if (stat != ExpectedStatType::None)
         {
-            if (_spellInfo->HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
+            if (_spellInfo->HasAttribute(SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL))
                 stat = ExpectedStatType::CreatureAutoAttackDps;
 
             // TODO - add expansion and content tuning id args?
@@ -1574,7 +1574,7 @@ bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
 
 bool SpellInfo::IsCooldownStartedOnEvent() const
 {
-    if (HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
+    if (HasAttribute(SPELL_ATTR0_COOLDOWN_ON_EVENT))
         return true;
 
     SpellCategoryEntry const* category = sSpellCategoryStore.LookupEntry(CategoryId);
@@ -1628,7 +1628,7 @@ bool SpellInfo::IsGroupBuff() const
 
 bool SpellInfo::CanBeUsedInCombat() const
 {
-    return !HasAttribute(SPELL_ATTR0_CANT_USED_IN_COMBAT);
+    return !HasAttribute(SPELL_ATTR0_NOT_IN_COMBAT_ONLY_PEACEFUL);
 }
 
 bool SpellInfo::IsPositive() const
@@ -1658,7 +1658,7 @@ bool SpellInfo::NeedsComboPoints() const
 
 bool SpellInfo::IsNextMeleeSwingSpell() const
 {
-    return HasAttribute(SpellAttr0(SPELL_ATTR0_ON_NEXT_SWING | SPELL_ATTR0_ON_NEXT_SWING_2));
+    return HasAttribute(SpellAttr0(SPELL_ATTR0_ON_NEXT_SWING_NO_DAMAGE | SPELL_ATTR0_ON_NEXT_SWING));
 }
 
 bool SpellInfo::IsBreakingStealth() const
@@ -1670,7 +1670,7 @@ bool SpellInfo::IsRangedWeaponSpell() const
 {
     return (SpellFamilyName == SPELLFAMILY_HUNTER && !(SpellFamilyFlags[1] & 0x10000000)) // for 53352, cannot find better way
         || (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED)
-        || (Attributes & SPELL_ATTR0_REQ_AMMO);
+        || (Attributes & SPELL_ATTR0_USES_RANGED_SLOT);
 }
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
@@ -1776,11 +1776,11 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
 bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
 {
     // aura can't be pierced
-    if (!auraSpellInfo || auraSpellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (!auraSpellInfo || auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return false;
 
     // these spells pierce all available spells (Resurrection Sickness for example)
-    if (HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return true;
 
     // these spells (Cyclone for example) can pierce all...
@@ -1803,11 +1803,11 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
 bool SpellInfo::CanDispelAura(SpellInfo const* auraSpellInfo) const
 {
     // These auras (like Divine Shield) can't be dispelled
-    if (auraSpellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return false;
 
     // These spells (like Mass Dispel) can dispel all auras
-    if (HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return true;
 
     // These auras (Cyclone for example) are not dispelable
@@ -1921,7 +1921,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 
     if (actAsShifted)
     {
-        if (HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT) || (shapeInfo && shapeInfo->GetFlags().HasFlag(SpellShapeshiftFormFlags::CanOnlyCastShapeshiftSpells))) // not while shapeshifted
+        if (HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFTED) || (shapeInfo && shapeInfo->GetFlags().HasFlag(SpellShapeshiftFormFlags::CanOnlyCastShapeshiftSpells))) // not while shapeshifted
             return SPELL_FAILED_NOT_SHAPESHIFT;
         else if (Stances != 0)                   // needs other shapeshift
             return SPELL_FAILED_ONLY_SHAPESHIFT;
@@ -2324,7 +2324,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
             checkMask = VEHICLE_SEAT_FLAG_CAN_ATTACK;
 
         VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(caster);
-        if (!HasAttribute(SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE) && !HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED)
+        if (!HasAttribute(SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE) && !HasAttribute(SPELL_ATTR0_ALLOW_WHILE_MOUNTED)
             && (vehicleSeat->Flags & checkMask) != checkMask)
             return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
@@ -3675,7 +3675,7 @@ bool SpellInfo::SpellCancelsAuraEffect(AuraEffect const* aurEff) const
     if (!HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
         return false;
 
-    if (aurEff->GetSpellInfo()->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (aurEff->GetSpellInfo()->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return false;
 
     for (SpellEffectInfo const& effect : GetEffects())
@@ -3794,7 +3794,7 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
     if (spell)
         spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
 
-    if (HasAttribute(SPELL_ATTR0_REQ_AMMO) && !IsAutoRepeatRangedSpell() && !HasAttribute(SPELL_ATTR9_AIMED_SHOT))
+    if (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) && !IsAutoRepeatRangedSpell() && !HasAttribute(SPELL_ATTR9_AIMED_SHOT))
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
@@ -4031,7 +4031,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
 
     if (!unitCaster->IsControlledByPlayer() && G3D::fuzzyEq(power->PowerCostPct, 0.0f) && SpellLevel && power->PowerType == POWER_MANA)
     {
-        if (HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
+        if (HasAttribute(SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL))
         {
             GtNpcManaCostScalerEntry const* spellScaler = sNpcManaCostScalerGameTable.GetRow(SpellLevel);
             GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(unitCaster->GetLevel());
@@ -4268,7 +4268,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
         return this;
 
     // Client ignores spell with these attributes (sub_53D9D0)
-    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) || HasAttribute(SPELL_ATTR2_UNK3) || HasAttribute(SPELL_ATTR3_DRAIN_SOUL))
+    if (HasAttribute(SPELL_ATTR0_AURA_IS_DEBUFF) || HasAttribute(SPELL_ATTR2_UNK3) || HasAttribute(SPELL_ATTR3_DRAIN_SOUL))
         return this;
 
     bool needRankSelection = false;
@@ -4409,7 +4409,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
         return true;
 
     // not found a single positive spell with this attribute
-    if (spellInfo->HasAttribute(SPELL_ATTR0_NEGATIVE_1))
+    if (spellInfo->HasAttribute(SPELL_ATTR0_AURA_IS_DEBUFF))
         return false;
 
     visited.insert({ spellInfo, effect.EffectIndex });

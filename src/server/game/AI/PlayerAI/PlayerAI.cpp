@@ -652,7 +652,7 @@ void PlayerAI::CancelAllShapeshifts()
         SpellInfo const* auraInfo = aura->GetSpellInfo();
         if (!auraInfo)
             continue;
-        if (auraInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
+        if (auraInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL))
             continue;
         if (!auraInfo->IsPositive() || auraInfo->IsPassive())
             continue;

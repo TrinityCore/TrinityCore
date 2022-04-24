@@ -1333,7 +1333,7 @@ void Spell::EffectCreateItem()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    DoCreateItem(effectInfo->ItemType, m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) ? ItemContext::Trade_Skill : ItemContext::NONE);
+    DoCreateItem(effectInfo->ItemType, m_spellInfo->HasAttribute(SPELL_ATTR0_IS_TRADESKILL) ? ItemContext::Trade_Skill : ItemContext::NONE);
     ExecuteLogEffectCreateItem(SpellEffectName(effectInfo->Effect), effectInfo->ItemType);
 }
 
@@ -1347,7 +1347,7 @@ void Spell::EffectCreateItem2()
 
     Player* player = unitTarget->ToPlayer();
 
-    ItemContext context = m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) ? ItemContext::Trade_Skill : ItemContext::NONE;
+    ItemContext context = m_spellInfo->HasAttribute(SPELL_ATTR0_IS_TRADESKILL) ? ItemContext::Trade_Skill : ItemContext::NONE;
 
     // Pick a random item from spell_loot_template
     if (m_spellInfo->IsLootCrafting())
@@ -1376,7 +1376,7 @@ void Spell::EffectCreateRandomItem()
     Player* player = unitTarget->ToPlayer();
 
     // create some random items
-    player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) ? ItemContext::Trade_Skill : ItemContext::NONE);
+    player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, m_spellInfo->HasAttribute(SPELL_ATTR0_IS_TRADESKILL) ? ItemContext::Trade_Skill : ItemContext::NONE);
     /// @todo ExecuteLogEffectCreateItem(i, m_spellInfo->Effects[i].ItemType);
 }
 
@@ -2346,7 +2346,7 @@ void Spell::EffectEnchantItemPerm()
         unitTarget = player;
         // and add a scroll
         damage = 1;
-        DoCreateItem(effectInfo->ItemType, m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) ? ItemContext::Trade_Skill : ItemContext::NONE);
+        DoCreateItem(effectInfo->ItemType, m_spellInfo->HasAttribute(SPELL_ATTR0_IS_TRADESKILL) ? ItemContext::Trade_Skill : ItemContext::NONE);
         itemTarget = nullptr;
         m_targets.SetItemTarget(nullptr);
     }

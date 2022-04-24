@@ -6188,8 +6188,8 @@ void Player::CheckAreaExploreAndOutdoor()
     if (IsInFlight())
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !IsOutdoors())
-        RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
+    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK))
+        RemoveAurasWithAttribute(IsOutdoors() ? SPELL_ATTR0_ONLY_INDOORS : SPELL_ATTR0_ONLY_OUTDOORS);
 
     uint32 const areaId = GetAreaId();
     if (!areaId)

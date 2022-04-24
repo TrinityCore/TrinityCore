@@ -1348,7 +1348,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     continue;
 
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first, DIFFICULTY_NONE);
-                if (!spellInfo || !(spellInfo->IsPassive() || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
+                if (!spellInfo || !(spellInfo->IsPassive() || spellInfo->HasAttribute(SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG)))
                     continue;
 
                 if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
@@ -3557,7 +3557,7 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 
 
     // recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_ABILITY 0x00000010 flag)
     // this check is total bullshit i think
-    if ((GetMiscValueB() & 1 << STAT_STAMINA || !GetMiscValueB()) && (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY)))
+    if ((GetMiscValueB() & 1 << STAT_STAMINA || !GetMiscValueB()) && (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY)))
         target->SetHealth(std::max<uint32>(CalculatePct(target->GetMaxHealth(), healthPct), (zeroHealth ? 0 : 1)));
 }
 

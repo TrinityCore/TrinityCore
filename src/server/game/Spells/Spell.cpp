@@ -588,8 +588,8 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
 
     // Determine if spell can be reflected back to the caster
     // Patch 1.2 notes: Spell Reflection no longer reflects abilities
-    m_canReflect = caster->IsUnit() && m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY)
-        && !m_spellInfo->HasAttribute(SPELL_ATTR1_CANT_BE_REFLECTED) && !m_spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+    m_canReflect = caster->IsUnit() && m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY)
+        && !m_spellInfo->HasAttribute(SPELL_ATTR1_CANT_BE_REFLECTED) && !m_spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)
         && !m_spellInfo->IsPassive();
 
     CleanupTargetList();
@@ -2602,7 +2602,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                             procVictim |= PROC_FLAG_TAKE_HARMFUL_PERIODIC;
                         }
                     }
-                    else if (spell->m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
+                    else if (spell->m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
                     {
                         if (positive)
                         {
@@ -2730,7 +2730,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (caster->GetTypeId() == TYPEID_PLAYER && (procSpellType & (PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL)))
             {
                 if (spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
-                    if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET) && !spell->m_spellInfo->HasAttribute(SPELL_ATTR4_SUPPRESS_WEAPON_PROCS))
+                    if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT) && !spell->m_spellInfo->HasAttribute(SPELL_ATTR4_SUPPRESS_WEAPON_PROCS))
                         caster->ToPlayer()->CastItemCombatSpell(*spellDamageInfo);
             }
         }
@@ -3685,7 +3685,7 @@ void Spell::_cast(bool skipCheck)
             else
                 procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
         }
-        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
+        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
         {
             if (IsPositive())
                 procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
@@ -3958,7 +3958,7 @@ void Spell::_handle_finish_phase()
             else
                 procAttacker |= PROC_FLAG_DEAL_HARMFUL_PERIODIC;
         }
-        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY))
+        else if (m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
         {
             if (IsPositive())
                 procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
@@ -4154,7 +4154,7 @@ void Spell::finish(bool ok)
     }
 
     // Stop Attack for some spells
-    if (m_spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT))
         unitCaster->AttackStop();
 }
 
@@ -4459,7 +4459,7 @@ void Spell::SendSpellStart()
     if (((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell) && !m_fromClient)
         castFlags |= CAST_FLAG_PENDING;
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) || m_spellInfo->HasAttribute(SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) || m_spellInfo->HasAttribute(SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
         castFlags |= CAST_FLAG_PROJECTILE;
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
@@ -4560,7 +4560,7 @@ void Spell::SendSpellGo()
     if (((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell) && !m_fromClient)
         castFlags |= CAST_FLAG_PENDING;
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) || m_spellInfo->HasAttribute(SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) || m_spellInfo->HasAttribute(SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
         castFlags |= CAST_FLAG_PROJECTILE; // arrows/bullets visual
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
@@ -5312,7 +5312,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
 SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32* param2 /*= nullptr*/)
 {
     // check death state
-    if (m_caster->ToUnit() && !m_caster->ToUnit()->IsAlive() && !m_spellInfo->IsPassive() && !(m_spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
+    if (m_caster->ToUnit() && !m_caster->ToUnit()->IsAlive() && !m_spellInfo->IsPassive() && !(m_spellInfo->HasAttribute(SPELL_ATTR0_ALLOW_CAST_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
 
     // Prevent cheating in case the player has an immunity effect and tries to interact with a non-allowed gameobject. The error message is handled by the client so we don't report anything here
@@ -5332,7 +5332,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             {
                 // These two auras check SpellFamilyName defined by db2 class data instead of current spell SpellFamilyName
                 if (playerCaster->HasAuraType(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES)
-                    && !m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
+                    && !m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT)
                     && !m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
                     && !m_spellInfo->HasAttribute(SPELL_ATTR12_IGNORE_CASTING_DISABLED)
                     && !playerCaster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(playerCaster->GetClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags))
@@ -5342,7 +5342,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 {
                     if (!playerCaster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(playerCaster->GetClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags))
                     {
-                        if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
+                        if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT)
                             || m_spellInfo->IsNextMeleeSwingSpell()
                             || m_spellInfo->HasAttribute(SPELL_ATTR1_MELEE_COMBAT_START)
                             || m_spellInfo->HasAttribute(SPELL_ATTR2_UNK20)
@@ -5378,7 +5378,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
     // Check global cooldown
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown())
-        return !m_spellInfo->HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE) ? SPELL_FAILED_NOT_READY : SPELL_FAILED_DONT_REPORT;
+        return !m_spellInfo->HasAttribute(SPELL_ATTR0_COOLDOWN_ON_EVENT) ? SPELL_FAILED_NOT_READY : SPELL_FAILED_DONT_REPORT;
 
     // only triggered spells can be processed an ended battleground
     if (!IsTriggered() && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -5388,11 +5388,11 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER && VMAP::VMapFactory::createOrGetVMapManager()->isLineOfSightCalcEnabled())
     {
-        if (m_spellInfo->HasAttribute(SPELL_ATTR0_OUTDOORS_ONLY) &&
+        if (m_spellInfo->HasAttribute(SPELL_ATTR0_ONLY_OUTDOORS) &&
             !m_caster->IsOutdoors())
             return SPELL_FAILED_ONLY_OUTDOORS;
 
-        if (m_spellInfo->HasAttribute(SPELL_ATTR0_INDOORS_ONLY) &&
+        if (m_spellInfo->HasAttribute(SPELL_ATTR0_ONLY_INDOORS) &&
             m_caster->IsOutdoors())
             return SPELL_FAILED_ONLY_INDOORS;
     }
@@ -5622,7 +5622,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
     // not let players cast spells at mount (and let do it to creatures)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE))
     {
-        if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->IsMounted() && !m_spellInfo->IsPassive() && !m_spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED))
+        if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->IsMounted() && !m_spellInfo->IsPassive() && !m_spellInfo->HasAttribute(SPELL_ATTR0_ALLOW_WHILE_MOUNTED))
         {
             if (m_caster->ToPlayer()->IsInFlight())
                 return SPELL_FAILED_NOT_ON_TAXI;
@@ -6906,7 +6906,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
             rangeMod += 8.0f / 3.0f;
     }
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) && m_caster->GetTypeId() == TYPEID_PLAYER)
         if (Item* ranged = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK, true))
             maxRange *= ranged->GetTemplate()->GetRangedModRange() * 0.01f;
 
@@ -8551,8 +8551,8 @@ void Spell::TriggerGlobalCooldown()
 
         bool isMeleeOrRangedSpell = m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE ||
             m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED ||
-            m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) ||
-            m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY);
+            m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) ||
+            m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY);
 
         // Apply haste rating
         if (gcd > MinGCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell)))

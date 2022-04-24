@@ -2270,7 +2270,7 @@ void SpellMgr::LoadSpellAreas()
         if (SpellInfo const* spellInfo = GetSpellInfo(spell, DIFFICULTY_NONE))
         {
             if (spellArea.flags & SPELL_AREA_FLAG_AUTOCAST)
-                const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
+                const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_NO_AURA_CANCEL;
         }
         else
         {
@@ -3097,7 +3097,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                         default:
                         {
                             // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
-                            if (!spellEffectInfo.CalcValue() && !((spellEffectInfo.Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfoMutable->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)))
+                            if (!spellEffectInfo.CalcValue() && !((spellEffectInfo.Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfoMutable->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfoMutable->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)))
                                 break;
 
                             // Sindragosa Frost Breath
@@ -4332,7 +4332,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Val'kyr Target Search
     ApplySpellFix({ 69030 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
     // Raging Spirit Visual
@@ -4461,7 +4461,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         40167, // Introspection
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
     //
@@ -4505,7 +4505,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Travel Form (dummy) - cannot be cast indoors.
     ApplySpellFix({ 783 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_OUTDOORS_ONLY;
+        spellInfo->Attributes |= SPELL_ATTR0_ONLY_OUTDOORS;
     });
 
     // Tree of Life (Passive)
@@ -4608,7 +4608,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Torment Damage
     ApplySpellFix({ 99256 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
     // Blaze of Glory
@@ -4655,7 +4655,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Headless Horseman Climax - Head Is Dead
     ApplySpellFix({ 42401, 43105, 42428 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
     // Horde / Alliance switch (BG mercenary system)

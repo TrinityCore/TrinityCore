@@ -161,9 +161,9 @@ enum UnitFlags : uint32
                                        UNIT_FLAG_SILENCED | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
                                        UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
                                        UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
-                                       UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE),
+                                       UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE), // SKIP
 
-    UNIT_FLAG_ALLOWED               = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED)
+    UNIT_FLAG_ALLOWED               = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED) // SKIP
 };
 
 DEFINE_ENUM_FLAG(UnitFlags);
@@ -213,9 +213,9 @@ enum UnitFlags2 : uint32
                                                                 /* UNIT_FLAG2_PLAY_DEATH_ANIM | */ UNIT_FLAG2_ALLOW_CHEAT_SPELLS | UNIT_FLAG2_SUPPRESS_HIGHLIGHT_WHEN_TARGETED_OR_MOUSED_OVER |
                                                                    UNIT_FLAG2_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS | UNIT_FLAG2_LARGE_AOI | UNIT_FLAG2_GIGANTIC_AOI | UNIT_FLAG2_NO_ACTIONS |
                                                                    UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS | UNIT_FLAG2_DONT_GENERATE_COMBAT_LOG_WHEN_ENGAGED_WITH_NPCS | UNIT_FLAG2_UNTARGETABLE_BY_CLIENT | UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES |
-                                                                   UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE | UNIT_FLAG2_UNUSED_11 | UNIT_FLAG2_INFINITE_AOI | UNIT_FLAG2_UNUSED_13),
+                                                                   UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE | UNIT_FLAG2_UNUSED_11 | UNIT_FLAG2_INFINITE_AOI | UNIT_FLAG2_UNUSED_13),  // SKIP
 
-    UNIT_FLAG2_ALLOWED                                          = (0xFFFFFFFF & ~UNIT_FLAG2_DISALLOWED)
+    UNIT_FLAG2_ALLOWED                                          = (0xFFFFFFFF & ~UNIT_FLAG2_DISALLOWED) // SKIP
 };
 
 DEFINE_ENUM_FLAG(UnitFlags2);
@@ -226,8 +226,8 @@ enum UnitFlags3 : uint32
 {
     UNIT_FLAG3_UNK1                         = 0x00000001,
 
-    UNIT_FLAG3_DISALLOWED                   = 0xFFFFFFFF,
-    UNIT_FLAG3_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED)
+    UNIT_FLAG3_DISALLOWED                   = 0xFFFFFFFF, // SKIP
+    UNIT_FLAG3_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
 };
 
 DEFINE_ENUM_FLAG(UnitFlags3);

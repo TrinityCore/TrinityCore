@@ -162,7 +162,7 @@ bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std:
     uint32 spellId;
     if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
         return false;
-    return !!(val = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE)) && val->HasAttribute(SPELL_ATTR0_TRADESPELL);
+    return !!(val = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE)) && val->HasAttribute(SPELL_ATTR0_IS_TRADESKILL);
 }
 
 bool Trinity::Hyperlinks::LinkTags::garrfollower::StoreTo(GarrisonFollowerLinkData& val, std::string_view text)

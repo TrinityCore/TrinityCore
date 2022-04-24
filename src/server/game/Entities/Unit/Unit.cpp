@@ -2317,7 +2317,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
 bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType)
 {
     // These spells can't be blocked
-    if (spellProto && (spellProto->HasAttribute(SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK) || spellProto->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT)))
+    if (spellProto && (spellProto->HasAttribute(SPELL_ATTR0_NO_ACTIVE_DEFENSE) || spellProto->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT)))
         return false;
 
     // Can't block when casting/controlled
@@ -2405,7 +2405,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         return SPELL_MISS_RESIST;
 
     // Same spells cannot be parried/dodged
-    if (spellInfo->HasAttribute(SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK))
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_ACTIVE_DEFENSE))
         return SPELL_MISS_NONE;
 
     bool canDodge = !spellInfo->HasAttribute(SPELL_ATTR7_NO_ATTACK_DODGE);
@@ -7146,7 +7146,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
         return false;
 
     // for example 40175
-    if (spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY) && spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) && spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         return false;
 
     if (spellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) || spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
@@ -7184,7 +7184,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
     if (idList.count(spellInfo->Id) > 0)
         return true;
 
-    if (spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return false;
 
     if (uint32 dispel = spellInfo->Dispel)
@@ -7277,7 +7277,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
     if (!spellInfo)
         return false;
 
-    if (spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return false;
 
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
@@ -8337,7 +8337,7 @@ void Unit::AtEnterCombat()
 
     if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
         if (spell->getState() == SPELL_STATE_PREPARING
-            && spell->m_spellInfo->HasAttribute(SPELL_ATTR0_CANT_USED_IN_COMBAT)
+            && spell->m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_IN_COMBAT_ONLY_PEACEFUL)
             && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Combat))
             InterruptNonMeleeSpells(false);
 
@@ -8572,7 +8572,7 @@ bool Unit::IsInDisallowedMountForm() const
 bool Unit::IsDisallowedMountForm(uint32 spellId, ShapeshiftForm form, uint32 displayId) const
 {
     if (SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
-        if (transformSpellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOUNTED))
+        if (transformSpellInfo->HasAttribute(SPELL_ATTR0_ALLOW_WHILE_MOUNTED))
             return false;
 
     if (form)

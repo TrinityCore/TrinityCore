@@ -189,13 +189,15 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags2>::ToString(UnitFlags2 value)
         case UNIT_FLAG2_UNTARGETABLE_BY_CLIENT: return { "UNIT_FLAG2_UNTARGETABLE_BY_CLIENT", "Untargetable By Client", "" };
         case UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES: return { "UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES", "Attacker Ignores Minimum Ranges", "" };
         case UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE: return { "UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE", "Uninteractible If Hostile", "" };
+        case UNIT_FLAG2_UNUSED_11: return { "UNIT_FLAG2_UNUSED_11", "UNIT_FLAG2_UNUSED_11", "" };
         case UNIT_FLAG2_INFINITE_AOI: return { "UNIT_FLAG2_INFINITE_AOI", "Infinite (AOI)", "" };
+        case UNIT_FLAG2_UNUSED_13: return { "UNIT_FLAG2_UNUSED_13", "UNIT_FLAG2_UNUSED_13", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<UnitFlags2>::Count() { return 30; }
+TC_API_EXPORT size_t EnumUtils<UnitFlags2>::Count() { return 32; }
 
 template <>
 TC_API_EXPORT UnitFlags2 EnumUtils<UnitFlags2>::FromIndex(size_t index)
@@ -231,7 +233,9 @@ TC_API_EXPORT UnitFlags2 EnumUtils<UnitFlags2>::FromIndex(size_t index)
         case 26: return UNIT_FLAG2_UNTARGETABLE_BY_CLIENT;
         case 27: return UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES;
         case 28: return UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE;
-        case 29: return UNIT_FLAG2_INFINITE_AOI;
+        case 29: return UNIT_FLAG2_UNUSED_11;
+        case 30: return UNIT_FLAG2_INFINITE_AOI;
+        case 31: return UNIT_FLAG2_UNUSED_13;
         default: throw std::out_of_range("index");
     }
 }
@@ -270,7 +274,9 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags2>::ToIndex(UnitFlags2 value)
         case UNIT_FLAG2_UNTARGETABLE_BY_CLIENT: return 26;
         case UNIT_FLAG2_ATTACKER_IGNORES_MINIMUM_RANGES: return 27;
         case UNIT_FLAG2_UNINTERACTIBLE_IF_HOSTILE: return 28;
-        case UNIT_FLAG2_INFINITE_AOI: return 29;
+        case UNIT_FLAG2_UNUSED_11: return 29;
+        case UNIT_FLAG2_INFINITE_AOI: return 30;
+        case UNIT_FLAG2_UNUSED_13: return 31;
         default: throw std::out_of_range("value");
     }
 }
