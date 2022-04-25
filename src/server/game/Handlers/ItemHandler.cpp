@@ -440,15 +440,16 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
-            uint32 money = pProto->SellPrice * count;
-            if (_player->GetMoney() + money > MAX_MONEY_AMOUNT)               // prevent exceeding gold limit
-            {
-                _player->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);
-                _player->SendSellError(SELL_ERR_UNK, creature, itemguid, 0);
-                return;
-            }
             if (pProto->SellPrice > 0)
             {
+                uint32 money = pProto->SellPrice * count;
+                if (_player->GetMoney() >= MAX_MONEY_AMOUNT - money)               // prevent exceeding gold limit
+                {
+                    _player->SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, nullptr, nullptr);
+                    _player->SendSellError(SELL_ERR_UNK, creature, itemguid, 0);
+                    return;
+                }
+                
                 if (count < pItem->GetCount())               // need split items
                 {
                     Item* pNewItem = pItem->CloneItem(count, _player);
