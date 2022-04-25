@@ -4033,7 +4033,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         // spell should dispel area aura, but doesn't have the attribute
         // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
         // that will be clear if we get more spells with problem like this
-        spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+        spellInfo->AttributesEx |= SPELL_ATTR1_IMMUNITY_PURGES_EFFECT;
     });
 
     // Blizzard (Thorim)
@@ -4424,7 +4424,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Awaken Flames
     ApplySpellFix({ 75888 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+        spellInfo->AttributesEx |= SPELL_ATTR1_EXCLUDE_CASTER;
     });
     // ENDOF RUBY SANCTUM SPELLS
 
@@ -4523,7 +4523,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Gaze of Occu'thar
     ApplySpellFix({ 96942 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
     // Evolution

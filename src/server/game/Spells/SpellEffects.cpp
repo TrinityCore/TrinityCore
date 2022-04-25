@@ -1324,7 +1324,7 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
                 guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
 
         // we succeeded in creating at least one item, so a levelup is possible
-        player->UpdateCraftSkill(m_spellInfo->Id);
+        player->UpdateCraftSkill(m_spellInfo);
     }
 }
 
@@ -1353,7 +1353,7 @@ void Spell::EffectCreateItem2()
     if (m_spellInfo->IsLootCrafting())
     {
         player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, context, false, true);
-        player->UpdateCraftSkill(m_spellInfo->Id);
+        player->UpdateCraftSkill(m_spellInfo);
     }
     else // If there's no random loot entries for this spell, pick the item associated with this spell
     {
@@ -2132,12 +2132,16 @@ void Spell::EffectDispel()
                 return false;
             });
 
+            uint8 dispelledCharges = 1;
+            if (itr->GetAura()->GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_ALL_STACKS))
+                dispelledCharges = itr->GetDispelCharges();
+
             if (successItr == successList.end())
-                successList.emplace_back(itr->GetAura(), 0, 1);
+                successList.emplace_back(itr->GetAura(), 0, dispelledCharges);
             else
                 successItr->IncrementCharges();
 
-            if (!itr->DecrementCharge())
+            if (!itr->DecrementCharge(dispelledCharges))
             {
                 --remaining;
                 std::swap(*itr, dispelList[remaining]);
@@ -2354,7 +2358,7 @@ void Spell::EffectEnchantItemPerm()
     {
         // do not increase skill if vellum used
         if (!(m_CastItem && m_CastItem->GetTemplate()->HasFlag(ITEM_FLAG_NO_REAGENT_COST)))
-            player->UpdateCraftSkill(m_spellInfo->Id);
+            player->UpdateCraftSkill(m_spellInfo);
 
         uint32 enchant_id = effectInfo->MiscValue;
         if (!enchant_id)
@@ -3416,7 +3420,7 @@ void Spell::EffectDisEnchant()
 
     if (Player* caster = m_caster->ToPlayer())
     {
-        caster->UpdateCraftSkill(m_spellInfo->Id);
+        caster->UpdateCraftSkill(m_spellInfo);
         caster->SendLoot(itemTarget->GetGUID(), LOOT_DISENCHANTING);
     }
 
@@ -4605,7 +4609,7 @@ void Spell::EffectStealBeneficialBuff()
 
     // Ok if exist some buffs for dispel try dispel it
     uint32 failCount = 0;
-    DispelList successList;
+    std::vector<std::tuple<uint32, ObjectGuid, int32>> successList;
     successList.reserve(damage);
 
     WorldPackets::Spells::DispelFailed dispelFailed;
@@ -4622,8 +4626,12 @@ void Spell::EffectStealBeneficialBuff()
 
         if (itr->RollDispel())
         {
-            successList.emplace_back(itr->GetAura()->GetId(), itr->GetAura()->GetCasterGUID());
-            if (!itr->DecrementCharge())
+            uint8 stolenCharges = 1;
+            if (itr->GetAura()->GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_ALL_STACKS))
+                stolenCharges = itr->GetDispelCharges();
+
+            successList.emplace_back(itr->GetAura()->GetId(), itr->GetAura()->GetCasterGUID(), int32(stolenCharges));
+            if (!itr->DecrementCharge(stolenCharges))
             {
                 --remaining;
                 std::swap(*itr, stealList[remaining]);
@@ -4651,13 +4659,13 @@ void Spell::EffectStealBeneficialBuff()
     spellDispellLog.CasterGUID = m_caster->GetGUID();
     spellDispellLog.DispelledBySpellID = m_spellInfo->Id;
 
-    for (std::pair<uint32, ObjectGuid> const& dispell : successList)
+    for (auto const& [spellId, auraCaster, stolenCharges] : successList)
     {
         WorldPackets::CombatLog::SpellDispellData dispellData;
-        dispellData.SpellID = dispell.first;
+        dispellData.SpellID = spellId;
         dispellData.Harmful = false;      // TODO: use me
 
-        unitTarget->RemoveAurasDueToSpellBySteal(dispell.first, dispell.second, m_caster);
+        unitTarget->RemoveAurasDueToSpellBySteal(spellId, auraCaster, m_caster, stolenCharges);
 
         spellDispellLog.DispellData.emplace_back(dispellData);
     }
