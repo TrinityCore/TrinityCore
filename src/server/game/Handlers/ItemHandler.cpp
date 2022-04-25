@@ -449,7 +449,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
                     _player->SendSellError(SELL_ERR_UNK, creature, itemguid, 0);
                     return;
                 }
-                
+
                 if (count < pItem->GetCount())               // need split items
                 {
                     Item* pNewItem = pItem->CloneItem(count, _player);
