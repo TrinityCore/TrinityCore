@@ -3919,11 +3919,12 @@ void Spell::EffectApplyGlyph()
 
     // @tswow-begin
     bool isLocked = minLevel && player->GetLevel() < minLevel;
-    FIRE(
-        PlayerOnEffectApplyGlyphIsLocked
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectApplyGlyphIsLocked
+        , TSSpell(this)
         , m_glyphIndex
         , TSMutable<bool>(&isLocked)
-        , TSPlayer(player)
     );
 
     if (isLocked)
