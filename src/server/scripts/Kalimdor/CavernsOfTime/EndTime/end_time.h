@@ -32,7 +32,7 @@ enum ETDataTypes
 {
     // Bosses
     DATA_ECHO_OF_BAINE      = 0,
-    DATA_ECHO_OF_JANA       = 1,
+    DATA_ECHO_OF_JAINA      = 1,
     DATA_ECHO_OF_SYLVANAS   = 2,
     DATA_ECHO_OF_TYRANDE    = 3,
     DATA_MUROZOND           = 4,
@@ -40,19 +40,27 @@ enum ETDataTypes
     // Additional Data
     DATA_HOURGLASS_OF_TIME,
     DATA_MUROZOND_INTRO,
-    DATA_NOZDORMU_BRONZE_DRAGON_SHRINE
+    DATA_NOZDORMU_BRONZE_DRAGON_SHRINE,
+    DATA_ARCANE_CIRCLE,
+    DATA_COLLECTED_FRAGMENT_OF_JAINAS_STAFF,
 };
 
 enum ETCreatures
 {
     // Bosses
-    BOSS_MUROZOND                       = 54432,
+    BOSS_MUROZOND               = 54432,
 
     // Encounter Related Creatures
     /*Murozond*/
-    NPC_INFINITE_WARDEN                 = 54923,
-    NPC_INFINITE_SUPRESSOR              = 54920,
-    NPC_NOZDORMU_DRAGON_SHRINES         = 54751
+    NPC_INFINITE_WARDEN         = 54923,
+    NPC_INFINITE_SUPRESSOR      = 54920,
+    NPC_NOZDORMU_DRAGON_SHRINES = 54751,
+
+    /*Echo of Jaina*/
+    NPC_ARCANE_CIRCLE           = 54639,
+    NPC_FROST_BLADE             = 54494,
+    NPC_BLINK_TARGET            = 54542,
+    NPC_FLARECORE_EMBER         = 54446
 };
 
 enum ETGameObjectIds

@@ -49,6 +49,7 @@ void AddSC_culling_of_stratholme();
 void AddSC_instance_culling_of_stratholme();
 void AddSC_end_time();                       //CoT End Time
 void AddSC_boss_murozond();
+void AddSC_boss_echo_of_jaina();
 void AddSC_instance_end_time();
 void AddSC_instance_well_of_eternity();      //CoT Well of Eternity
 void AddSC_instance_hour_of_twilight();      //CoT Hour of Twilight
@@ -187,6 +188,7 @@ void AddKalimdorScripts()
     AddSC_instance_culling_of_stratholme();
     AddSC_end_time();                       //CoT End Time
     AddSC_boss_murozond();
+    AddSC_boss_echo_of_jaina();
     AddSC_instance_end_time();
     AddSC_instance_well_of_eternity();      //CoT Well of Eternity
     AddSC_instance_hour_of_twilight();      //CoT Hour of Twilight

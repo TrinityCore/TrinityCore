@@ -27,8 +27,9 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_MUROZOND,    DATA_MUROZOND   },
-    { 0,                0               } // END
+    { BOSS_MUROZOND,        DATA_MUROZOND       },
+    { NPC_ARCANE_CIRCLE,    DATA_ARCANE_CIRCLE  },
+    { 0,                    0                   } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -48,12 +49,29 @@ enum Events
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_ID_MUROZOND_CHEST   = 437
+    SPAWN_GROUP_ID_MUROZOND_CHEST   = 437,
+    SPAWN_GROUP_ID_ECHO_OF_JAINA    = 460
 };
 
 enum AreaIds
 {
     AREA_ID_BRONZE_DRAGON_SHRINE = 5795
+};
+
+enum WorldStates
+{
+    WORLD_STATE_ID_SHOW_COLLECTED_STAVE_FRAGMENTS   = 6046,
+    WORLD_STATE_ID_COLLECTED_STAVE_FRAGMENTS        = 6025
+};
+
+enum MapEvents
+{
+    MAP_EVENT_AZURE_DRAGONSHRINE_ENTERED = 29225
+};
+
+enum Spells
+{
+    SPELL_SUMMON_PHANTOM = 102200
 };
 
 std::array<Position const, 2> MurozondSpawnPositions =
@@ -69,12 +87,32 @@ public:
 
     struct instance_end_time_InstanceMapScript : public InstanceScript
     {
-        instance_end_time_InstanceMapScript(InstanceMap* map) : InstanceScript(map), _killedInfiniteDragonkins(0)
+        instance_end_time_InstanceMapScript(InstanceMap* map) : InstanceScript(map),
+            _killedInfiniteDragonkins(0), _collectedStaffFragments(0)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
             LoadObjectData(creatureData, gameobjectData);
+        }
+
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+        {
+            if (_executedMapEvents.find(eventId) != _executedMapEvents.end())
+                return;
+
+            switch (eventId)
+            {
+                case MAP_EVENT_AZURE_DRAGONSHRINE_ENTERED:
+                    if (GetBossState(DATA_ECHO_OF_JAINA) == DONE)
+                        break;
+                    instance->SetWorldState(WORLD_STATE_ID_SHOW_COLLECTED_STAVE_FRAGMENTS, 1);
+                    break;
+                default:
+                    break;
+            }
+
+            _executedMapEvents.insert(eventId);
         }
 
         void Create() override
@@ -157,11 +195,43 @@ public:
                     else if (state == DONE)
                         instance->SpawnGroupSpawn(SPAWN_GROUP_ID_MUROZOND_CHEST);
                     break;
+                case DATA_ECHO_OF_JAINA:
+                    if (state == IN_PROGRESS)
+                    {
+                        instance->SetWorldState(WORLD_STATE_ID_SHOW_COLLECTED_STAVE_FRAGMENTS, 0);
+                        if (Creature* circle = GetCreature(DATA_ARCANE_CIRCLE))
+                            circle->DespawnOrUnsummon();
+                    }
+                    break;
                 default:
                     break;
             }
 
             return true;
+        }
+
+        void SetData(uint32 type, uint32 /*value*/) override
+        {
+            switch (type)
+            {
+                case DATA_COLLECTED_FRAGMENT_OF_JAINAS_STAFF:
+                    if (GetBossState(DATA_ECHO_OF_JAINA) == DONE)
+                        break;
+
+                    ++_collectedStaffFragments;
+                    instance->SetWorldState(WORLD_STATE_ID_COLLECTED_STAVE_FRAGMENTS, _collectedStaffFragments);
+
+                    if (_collectedStaffFragments < 16)
+                    {
+                        if (Creature* circle = GetCreature(DATA_ARCANE_CIRCLE))
+                            circle->CastSpell(nullptr, SPELL_SUMMON_PHANTOM);
+                    }
+                    else
+                        instance->SpawnGroupSpawn(SPAWN_GROUP_ID_ECHO_OF_JAINA);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void Update(uint32 diff) override
@@ -184,6 +254,9 @@ public:
     private:
         EventMap _events;
         uint8 _killedInfiniteDragonkins;
+        uint8 _collectedStaffFragments;
+
+        std::unordered_set<uint32> _executedMapEvents;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

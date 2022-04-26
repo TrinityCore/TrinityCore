@@ -16,6 +16,8 @@
  */
 
 #include "end_time.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "PassiveAI.h"
 #include "Player.h"
@@ -50,7 +52,7 @@ enum Texts
     SAY_ENCOUNTER_OUTRO_4   = 4
 };
 
-enum GossipMenus
+enum GossipMenuIds
 {
     GOSSIP_MENU_ID_NOZDORMU                 = 13360,
     GOSSIP_MENU_OPTION_ID_WELL_OF_ETERNITY  = 0
@@ -152,7 +154,101 @@ private:
     bool _introDone;
 };
 
+enum TimeTransitDeviceAreaIds
+{
+    AREA_ID_ENTRYWAY_OF_TIME = 5796
+};
+
+enum TimeTransitDeviceSpells
+{
+    SPELL_TELEPORT_TO_ENTRANCE          = 102564,
+    SPELL_TELEPORT_TO_BLUE_DRAGONSHRINE = 102126
+};
+
+enum TimeTransitGossipMenuIds
+{
+    GOSSIP_MENU_ID_SELECT_YOUR_DESTINATION = 13321
+};
+
+enum TimeTransitGossipIndexes
+{
+    GOSSIP_INDEX_TELEPORT_TO_ENTRYWAY_OF_TIME               = 0,
+    GOSSIP_INDEX_TELEPORT_TO_BLUE_DRAGONSHRINE_FIRST_ECHO   = 3,
+    GOSSIP_INDEX_TELEPORT_TO_BLUE_DRAGONSHRINE_SECOND_ECHO  = 7
+};
+
+static std::unordered_map<uint32 /*gossipMenuId*/, uint32 /*teleportSpellId*/> TransitDeviceTeleportSpells =
+{
+    { GOSSIP_INDEX_TELEPORT_TO_ENTRYWAY_OF_TIME,                SPELL_TELEPORT_TO_ENTRANCE          },
+    { GOSSIP_INDEX_TELEPORT_TO_BLUE_DRAGONSHRINE_FIRST_ECHO,    SPELL_TELEPORT_TO_BLUE_DRAGONSHRINE },
+    { GOSSIP_INDEX_TELEPORT_TO_BLUE_DRAGONSHRINE_SECOND_ECHO,   SPELL_TELEPORT_TO_BLUE_DRAGONSHRINE }
+};
+
+struct go_end_time_time_transit_device : public GameObjectAI
+{
+    go_end_time_time_transit_device(GameObject* gameObject) : GameObjectAI(gameObject), _instance(nullptr) { }
+
+    void InitializeAI() override
+    {
+        _instance = me->GetInstanceScript();
+    }
+
+    bool GossipHello(Player* player) override
+    {
+        if (!_instance)
+            return false;
+
+        if (player->GetAreaId() != AREA_ID_ENTRYWAY_OF_TIME)
+            AddGossipItemFor(player, GOSSIP_MENU_ID_SELECT_YOUR_DESTINATION, GOSSIP_INDEX_TELEPORT_TO_ENTRYWAY_OF_TIME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_INDEX_TELEPORT_TO_ENTRYWAY_OF_TIME);
+
+        // @todo: world state based menu generation
+        AddGossipItemFor(player, GOSSIP_MENU_ID_SELECT_YOUR_DESTINATION, GOSSIP_INDEX_TELEPORT_TO_BLUE_DRAGONSHRINE_FIRST_ECHO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_INDEX_TELEPORT_TO_BLUE_DRAGONSHRINE_FIRST_ECHO);
+
+        SendGossipMenuFor(player, player->GetGossipTextId(GOSSIP_MENU_ID_SELECT_YOUR_DESTINATION, me), me->GetGUID());
+
+        return true;
+    }
+
+    bool GossipSelect(Player* player, uint32 /*gossipMenuId*/, uint32 action) override
+    {
+        uint32 index = player->PlayerTalkClass->GetGossipOptionAction(action) - GOSSIP_ACTION_INFO_DEF;
+        player->CastSpell(player, TransitDeviceTeleportSpells[index]);
+        ClearGossipMenuFor(player);
+
+        return true;
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
+struct go_end_time_fragment_of_jainas_staff : public GameObjectAI
+{
+    go_end_time_fragment_of_jainas_staff(GameObject* gameObject) : GameObjectAI(gameObject), _instance(nullptr) { }
+
+    void InitializeAI() override
+    {
+        _instance = me->GetInstanceScript();
+    }
+
+    bool GossipHello(Player* /*player*/) override
+    {
+        if (!_instance)
+            return false;
+
+        _instance->SetData(DATA_COLLECTED_FRAGMENT_OF_JAINAS_STAFF, 0);
+        me->DespawnOrUnsummon();
+
+        return true;
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
 void AddSC_end_time()
 {
     RegisterEndTimeCreatureAI(npc_end_time_nozdormu);
+    RegisterGameObjectAI(go_end_time_time_transit_device);
+    RegisterGameObjectAI(go_end_time_fragment_of_jainas_staff);
 }
