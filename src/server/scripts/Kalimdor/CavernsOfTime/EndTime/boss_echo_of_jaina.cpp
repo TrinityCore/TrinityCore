@@ -210,6 +210,7 @@ struct boss_echo_of_jaina : public BossAI
                     _frostboltVolleyCount = 0;
                     events.ScheduleEvent(EVENT_FACE_HIGHEST_THREAT_TARGET, 1ms);
                     events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 2s);
+                    events.ScheduleEvent(EVENT_FLARECORE, 10s);
                     events.CancelEvent(EVENT_PYROBLAST);
                     events.Repeat(24s);
                     break;
