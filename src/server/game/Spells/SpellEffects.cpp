@@ -3921,7 +3921,7 @@ void Spell::EffectApplyGlyph()
     bool isLocked = minLevel && player->GetLevel() < minLevel;
     FIRE_MAP(
           m_spellInfo->events
-        , SpellOnEffectApplyGlyphIsLocked
+        , SpellOnEffectApplyGlyph
         , TSSpell(this)
         , TSMutable<bool>(&isLocked)
     );
