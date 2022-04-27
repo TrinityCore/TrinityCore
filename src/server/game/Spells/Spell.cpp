@@ -2122,9 +2122,10 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     WorldObject* caster = m_originalCaster ? m_originalCaster : m_caster;
     targetInfo.MissCondition = caster->SpellHitResult(target, m_spellInfo, m_canReflect && !(IsPositive() && m_caster->IsFriendlyTo(target)));
 
+    // @tswow-begin
     uint32 miss = targetInfo.MissCondition;
     FIRE_MAP(
-        this->m_spellInfo->events,
+        m_spellInfo->events,
         SpellOnCalcMiss,
         TSSpell(this),
         TSWorldObject(caster),
@@ -2133,6 +2134,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         TSMutable<uint32>(&miss)
     );
     targetInfo.MissCondition = SpellMissInfo(miss);
+    // @swow-end
     
     // Spell have speed - need calculate incoming time
     // Incoming time is zero for self casts. At least I think so.
