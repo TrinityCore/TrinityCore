@@ -2129,8 +2129,8 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         SpellOnCalcMiss,
         TSSpell(this),
         TSUnit(target),
-        TSMutable<uint32>(&effectMask),
-        TSMutable<uint32>(&miss)
+        TSMutable<uint32>(&miss),
+        TSMutable<uint32>(&effectMask)
     );
     targetInfo.MissCondition = SpellMissInfo(miss);
 
