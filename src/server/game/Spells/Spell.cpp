@@ -2133,6 +2133,9 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         TSMutable<uint32>(&miss)
     );
     targetInfo.MissCondition = SpellMissInfo(miss);
+
+    if (!effectMask)
+        return;
     // @swow-end
     
     // Spell have speed - need calculate incoming time
