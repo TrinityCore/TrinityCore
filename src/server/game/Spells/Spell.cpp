@@ -2128,7 +2128,6 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         m_spellInfo->events,
         SpellOnCalcMiss,
         TSSpell(this),
-        TSWorldObject(caster),
         TSUnit(target),
         TSMutable<uint32>(&effectMask),
         TSMutable<uint32>(&miss)
