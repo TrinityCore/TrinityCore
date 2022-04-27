@@ -2136,7 +2136,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
     if (!effectMask)
         return;
-    // @swow-end
+    // @tswow-end
     
     // Spell have speed - need calculate incoming time
     // Incoming time is zero for self casts. At least I think so.
