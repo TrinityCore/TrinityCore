@@ -540,6 +540,10 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
 
     m_spellState = SPELL_STATE_NULL;
     _triggeredCastFlags = triggerFlags;
+
+    if (info->HasAttribute(SPELL_ATTR2_DO_NOT_REPORT_SPELL_FAILURE))
+        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
     if (info->HasAttribute(SPELL_ATTR4_CAN_CAST_WHILE_CASTING))
         _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
@@ -753,6 +757,41 @@ void Spell::SelectSpellTargets()
 
         if (m_targets.HasDst())
             AddDestTarget(*m_targets.GetDst(), spellEffectInfo.EffectIndex);
+
+        if (spellEffectInfo.TargetA.GetObjectType() == TARGET_OBJECT_TYPE_UNIT
+            || spellEffectInfo.TargetA.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST
+            || spellEffectInfo.TargetB.GetObjectType() == TARGET_OBJECT_TYPE_UNIT
+            || spellEffectInfo.TargetB.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST)
+        {
+            if (m_spellInfo->HasAttribute(SPELL_ATTR1_REQUIRE_ALL_TARGETS))
+            {
+                bool noTargetFound = std::none_of(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [effectMask = 1u << spellEffectInfo.EffectIndex](TargetInfo const& target)
+                {
+                    return target.EffectMask & effectMask;
+                });
+
+                if (noTargetFound)
+                {
+                    SendCastResult(m_spellInfo->Id == 51690 ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_BAD_TARGETS);
+                    finish(false);
+                    return;
+                }
+            }
+            if (m_spellInfo->HasAttribute(SPELL_ATTR2_FAIL_ON_ALL_TARGETS_IMMUNE))
+            {
+                bool anyNonImmuneTargetFound = std::any_of(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [effectMask = 1u << spellEffectInfo.EffectIndex](TargetInfo const& target)
+                {
+                    return target.EffectMask & effectMask && target.MissCondition != SPELL_MISS_IMMUNE && target.MissCondition != SPELL_MISS_IMMUNE2;
+                });
+
+                if (!anyNonImmuneTargetFound)
+                {
+                    SendCastResult(SPELL_FAILED_IMMUNE);
+                    finish(false);
+                    return;
+                }
+            }
+        }
 
         if (m_spellInfo->IsChanneled())
         {
@@ -2048,8 +2087,9 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
     if (isBouncingFar)
         searchRadius *= chainTargets;
 
+    WorldObject* chainSource = m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER) ? m_caster : target;
     std::list<WorldObject*> tempTargets;
-    SearchAreaTargets(tempTargets, searchRadius, target, m_caster, objectType, selectType, condList);
+    SearchAreaTargets(tempTargets, searchRadius, chainSource, m_caster, objectType, selectType, condList);
     tempTargets.remove(target);
 
     // remove targets which are always invalid for chain spells
@@ -2077,7 +2117,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
                 if (Unit* unit = (*itr)->ToUnit())
                 {
                     uint32 deficit = unit->GetMaxHealth() - unit->GetHealth();
-                    if ((deficit > maxHPDeficit || foundItr == tempTargets.end()) && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                    if ((deficit > maxHPDeficit || foundItr == tempTargets.end()) && chainSource->IsWithinDist(unit, jumpRadius) && chainSource->IsWithinLOSInMap(unit, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     {
                         foundItr = itr;
                         maxHPDeficit = deficit;
@@ -2092,19 +2132,22 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
             {
                 if (foundItr == tempTargets.end())
                 {
-                    if ((!isBouncingFar || target->IsWithinDist(*itr, jumpRadius)) && target->IsWithinLOSInMap(*itr, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                    if ((!isBouncingFar || chainSource->IsWithinDist(*itr, jumpRadius)) && chainSource->IsWithinLOSInMap(*itr, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                         foundItr = itr;
                 }
-                else if (target->GetDistanceOrder(*itr, *foundItr) && target->IsWithinLOSInMap(*itr, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                else if (chainSource->GetDistanceOrder(*itr, *foundItr) && chainSource->IsWithinLOSInMap(*itr, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     foundItr = itr;
             }
         }
         // not found any valid target - chain ends
         if (foundItr == tempTargets.end())
             break;
-        target = *foundItr;
+
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER))
+            chainSource = *foundItr;
+
+        targets.push_back(*foundItr);
         tempTargets.erase(foundItr);
-        targets.push_back(target);
         --chainTargets;
     }
 }
@@ -2139,7 +2182,7 @@ void Spell::prepareDataForTriggerSystem()
             break;
         case SPELL_DAMAGE_CLASS_RANGED:
             // Auto attack
-            if (m_spellInfo->HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG))
+            if (m_spellInfo->HasAttribute(SPELL_ATTR2_AUTO_REPEAT))
             {
                 m_procAttacker = PROC_FLAG_DEAL_RANGED_ATTACK;
                 m_procVictim   = PROC_FLAG_TAKE_RANGED_ATTACK;
@@ -2153,7 +2196,7 @@ void Spell::prepareDataForTriggerSystem()
         default:
             if (m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON &&
                 m_spellInfo->EquippedItemSubClassMask & (1 << ITEM_SUBCLASS_WEAPON_WAND)
-                && m_spellInfo->HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG)) // Wands auto attack
+                && m_spellInfo->HasAttribute(SPELL_ATTR2_AUTO_REPEAT)) // Wands auto attack
             {
                 m_procAttacker = PROC_FLAG_DEAL_RANGED_ATTACK;
                 m_procVictim   = PROC_FLAG_TAKE_RANGED_ATTACK;
@@ -3328,8 +3371,8 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         {
             // stealth must be removed at cast starting (at show channel bar)
             // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
-            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth() && !m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS))
-                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Action);
+            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_AN_ACTION))
+                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Action, m_spellInfo);
 
             // Do not register as current spell when requested to ignore cast in progress
             // We don't want to interrupt that other spell with cast time
@@ -3707,8 +3750,8 @@ void Spell::_cast(bool skipCheck)
     if (!(hitMask & PROC_HIT_CRITICAL))
         hitMask |= PROC_HIT_NORMAL;
 
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS))
-        m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed);
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_AN_ACTION))
+        m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed, m_spellInfo);
 
     Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
 
@@ -4137,7 +4180,7 @@ void Spell::finish(bool ok)
 
     if (IsAutoActionResetSpell())
     {
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
         {
             unitCaster->resetAttackTimer(BASE_ATTACK);
             if (unitCaster->haveOffhandWeapon())
@@ -5356,7 +5399,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT)
                             || m_spellInfo->IsNextMeleeSwingSpell()
                             || m_spellInfo->HasAttribute(SPELL_ATTR1_INITIATES_COMBAT_ENABLES_AUTO_ATTACK)
-                            || m_spellInfo->HasAttribute(SPELL_ATTR2_UNK20)
+                            || m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST_ENABLES_AUTO_ATTACK)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)
@@ -5570,7 +5613,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     if (DynamicObject* dynObj = m_caster->ToUnit()->GetDynObject(m_triggeredByAuraSpell->Id))
                         losTarget = dynObj;
 
-                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) && !m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     return SPELL_FAILED_LINE_OF_SIGHT;
             }
         }
@@ -5582,13 +5625,17 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
         float x, y, z;
         m_targets.GetDstPos()->GetPosition(x, y, z);
 
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) && !m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
             return SPELL_FAILED_LINE_OF_SIGHT;
     }
 
     // check pet presence
     if (Unit* unitCaster = m_caster->ToUnit())
     {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR2_NO_ACTIVE_PETS))
+            if (!unitCaster->GetPetGUID().IsEmpty())
+                return SPELL_FAILED_ALREADY_HAVE_PET;
+
         for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
         {
             if (spellEffectInfo.TargetA.GetTarget() == TARGET_UNIT_PET)
@@ -6456,6 +6503,9 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
     if (m_targets.GetTargetMask() & TARGET_FLAG_TRADE_ITEM)
     {
         if (m_CastItem)
+            return SPELL_FAILED_ITEM_ENCHANT_TRADE_WINDOW;
+
+        if (m_spellInfo->HasAttribute(SPELL_ATTR2_ENCHANT_OWN_ITEM_ONLY))
             return SPELL_FAILED_ITEM_ENCHANT_TRADE_WINDOW;
 
         if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -7730,7 +7780,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
     }
 
     // check for ignore LOS on the effect itself
-    if (m_spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS))
         return true;
 
     // check if gameobject ignores LOS
@@ -7739,7 +7789,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
             return true;
 
     // if spell is triggered, need to check for LOS disable on the aura triggering it and inherit that behaviour
-    if (IsTriggered() && m_triggeredByAuraSpell && (m_triggeredByAuraSpell->HasAttribute(SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_triggeredByAuraSpell->Id, nullptr, SPELL_DISABLE_LOS)))
+    if (IsTriggered() && m_triggeredByAuraSpell && (m_triggeredByAuraSpell->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_triggeredByAuraSpell->Id, nullptr, SPELL_DISABLE_LOS)))
         return true;
 
     /// @todo shit below shouldn't be here, but it's temporary
@@ -8925,6 +8975,7 @@ CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
 
 CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringSpell(Spell const* triggeringSpell)
 {
+    TriggeringSpell = triggeringSpell;
     if (triggeringSpell)
     {
         OriginalCastItemLevel = triggeringSpell->m_castItemLevel;

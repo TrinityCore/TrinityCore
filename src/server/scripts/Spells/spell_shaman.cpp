@@ -1242,8 +1242,10 @@ class spell_sha_mastery_elemental_overload : public AuraScript
         caster->m_Events.AddEventAtOffset([caster,
             targets = CastSpellTargetArg(procInfo.GetProcTarget()),
             overloadSpellId = GetTriggeredSpellId(procInfo.GetSpellInfo()->Id),
-            args = CastSpellExtraArgs(procInfo.GetProcSpell())]()
+            originalCastId = procInfo.GetProcSpell()->m_castId]()
         {
+            CastSpellExtraArgs args;
+            args.OriginalCastId = originalCastId;
             caster->CastSpell(targets, overloadSpellId, args);
         }, 400ms);
     }

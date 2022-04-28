@@ -247,11 +247,13 @@ class TC_GAME_API Aura
         bool CanStackWith(Aura const* existingAura) const;
 
         bool IsProcOnCooldown(TimePoint now) const;
-        void AddProcCooldown(TimePoint cooldownEnd);
+        void AddProcCooldown(SpellProcEntry const* procEntry, TimePoint now);
         void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
         void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now);
+        void PrepareProcChargeDrop(SpellProcEntry const* procEntry, ProcEventInfo const& eventInfo);
+        void ConsumeProcCharges(SpellProcEntry const* procEntry);
         uint32 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);

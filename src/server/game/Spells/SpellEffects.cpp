@@ -641,18 +641,24 @@ void Spell::EffectTriggerSpell()
     if (effectInfo->Effect == SPELL_EFFECT_TRIGGER_SPELL)
         delay = Milliseconds(effectInfo->MiscValue);
 
-    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-    args.SetOriginalCaster(m_originalCasterGUID);
-    args.SetTriggeringSpell(this);
-    // set basepoints for trigger with value effect
-    if (effectInfo->Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
-
-    m_caster->m_Events.AddEventAtOffset([caster = m_caster, targets, triggered_spell_id, args]() mutable
+    m_caster->m_Events.AddEventAtOffset([caster = m_caster, targets, originalCaster = m_originalCasterGUID, castItemGuid = m_castItemGUID, originalCastId = m_castId,
+        spellEffectInfo = effectInfo, value = damage, itemLevel = m_castItemLevel]() mutable
     {
         // original caster guid only for GO cast
-        caster->CastSpell(std::move(targets), triggered_spell_id, args);
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SetOriginalCaster(originalCaster);
+        args.OriginalCastId = originalCastId;
+        args.OriginalCastItemLevel = itemLevel;
+        if (!castItemGuid.IsEmpty() && sSpellMgr->AssertSpellInfo(spellEffectInfo->TriggerSpell, caster->GetMap()->GetDifficultyID())->HasAttribute(SPELL_ATTR2_RETAIN_ITEM_CAST))
+            if (Player const* triggeringAuraCaster = Object::ToPlayer(args.TriggeringAura->GetCaster()))
+                args.CastItem = triggeringAuraCaster->GetItemByGuid(castItemGuid);
+
+        // set basepoints for trigger with value effect
+        if (spellEffectInfo->Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
+            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), value);
+
+        caster->CastSpell(std::move(targets), spellEffectInfo->TriggerSpell, args);
     }, delay);
 }
 

@@ -454,6 +454,7 @@ struct TC_GAME_API CastSpellExtraArgs
 
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
     Item* CastItem = nullptr;
+    Spell const* TriggeringSpell = nullptr;
     AuraEffect const* TriggeringAura = nullptr;
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
     Difficulty CastDifficulty = Difficulty(0);
@@ -472,6 +473,12 @@ struct TC_GAME_API CastSpellExtraArgs
 
         std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
+
+    CastSpellExtraArgs(CastSpellExtraArgs const&) = delete;
+    CastSpellExtraArgs(CastSpellExtraArgs&&) = delete;
+
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs const&) = delete;
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs&&) = delete;
 };
 
 struct SpellCastVisual
