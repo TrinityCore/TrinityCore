@@ -184,7 +184,6 @@ float HordeOverrunWP[21][3]=//waypoints in the horde base used in the end in the
 
 hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
 {
-    Initialize();
     instance = creature->GetInstanceScript();
     IsEvent = false;
     Delay = 0;
@@ -197,11 +196,6 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
     damageTaken = 0;
     memset(DummyTarget, 0, sizeof(DummyTarget));
     Reset();
-}
-
-void hyjal_trashAI::Initialize()
-{
-    SetRun();
 }
 
 void hyjal_trashAI::DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)

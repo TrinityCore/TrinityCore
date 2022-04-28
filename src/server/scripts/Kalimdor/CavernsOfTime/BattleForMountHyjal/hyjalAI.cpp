@@ -503,6 +503,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         ++EnemyCount;
 
         creature->SetWalk(false);
+        ENSURE_AI(hyjal_trashAI, creature->AI())->SetRun();        
         creature->setActive(true);
         creature->SetFarVisible(true);
         switch (entry)
