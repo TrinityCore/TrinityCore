@@ -25,6 +25,8 @@ struct hyjal_trashAI : public EscortAI
 {
     hyjal_trashAI(Creature* creature);
 
+    void Initialize();
+
     void UpdateAI(uint32 diff) override;
 
     void JustDied(Unit* /*killer*/) override;
