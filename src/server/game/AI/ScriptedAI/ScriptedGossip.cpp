@@ -35,13 +35,13 @@ void ClearGossipMenuFor(Player* player)
 }
 
 // Using provided text, not from DB
-void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action)
+void AddGossipItemFor(Player* player, GossipOptionIcon icon, std::string const& text, uint32 sender, uint32 action)
 {
     player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0);
 }
 
 // Using provided texts, not from DB
-void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action, std::string const& popupText, uint32 popupMoney, bool coded)
+void AddGossipItemFor(Player* player, GossipOptionIcon icon, std::string const& text, uint32 sender, uint32 action, std::string const& popupText, uint32 popupMoney, bool coded)
 {
     player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, popupText, popupMoney, coded);
 }

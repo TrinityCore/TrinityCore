@@ -385,6 +385,8 @@ class TC_GAME_API AchievementGlobalMgr
         // store achievement criterias by type to speed up lookup
         AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
 
+        static AchievementCriteriaEntryList const EmptyCriteriaList;
+
         // store achievement criterias split by misc values
         AchievementCriteriaListByMiscValue m_AchievementCriteriasByMiscValue[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
 
