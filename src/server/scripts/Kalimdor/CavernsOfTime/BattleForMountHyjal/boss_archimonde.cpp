@@ -401,9 +401,8 @@ public:
                 case EVENT_PROTECTION_OF_ELUNE: // hp below 10% only cast finger of death
                     events.Reset();
                     events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
+                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1s);
                     CastProtectionOfElune(true);
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveIdle();
                     break;
                 case EVENT_SUMMON_WHISP:
                     DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s);
@@ -416,6 +415,7 @@ public:
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
                     break;
                 case EVENT_FINGER_OF_DEATH_LAST_PHASE:
+                    DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_FINGER_OF_DEATH);
                     DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_FINGER_OF_DEATH_LAST_PHASE);
                     events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
                     break;
@@ -426,32 +426,24 @@ public:
 
         void CastProtectionOfElune(bool apply)
         {
-            if (apply)
+            if (me->GetThreatManager().IsThreatListEmpty())
+                return;
+
+            std::vector<ThreatReference*> vt = me->GetThreatManager().GetModifiableThreatList(); // GetUnsortedThreatList //Trinity::IteratorPair<ThreatListIterator>   ThreatContainer::StorageType
+            for(std::vector<ThreatReference*>::iterator iter=vt.begin();iter!=vt.end();iter++)
             {
-                if (me->GetThreatManager().IsThreatListEmpty())
-                    return;
+                if (Unit* target = (*iter)->GetVictim())
+                    if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (apply)
+                            target->AddAura(SPELL_PROTECTION_OF_ELUNE, target);
+                        target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, apply);
+                        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH, IMMUNITY_ID, SPELL_FINGER_OF_DEATH, apply);
+                        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
+                        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
 
-                std::vector<ThreatReference*> vt = me->GetThreatManager().GetModifiableThreatList(); // GetUnsortedThreatList //Trinity::IteratorPair<ThreatListIterator>   ThreatContainer::StorageType
-                for(std::vector<ThreatReference*>::iterator iter=vt.begin();iter!=vt.end();iter++)
-                {
-                    if (Unit* target = (*iter)->GetVictim())
-                        if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                            spellProtectionOfEluneTargets.push_back(target);
-                }
+                    }
             }
-
-            for (auto iter = spellProtectionOfEluneTargets.begin(); iter != spellProtectionOfEluneTargets.end(); ++iter)
-                if (Unit* target = *iter)
-                {
-                    if (apply)
-                        target->AddAura(SPELL_PROTECTION_OF_ELUNE, target);
-                    target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, apply);
-                    target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
-                    target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
-                }
-
-            if (!apply)
-                spellProtectionOfEluneTargets.clear();
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -468,7 +460,6 @@ public:
                     // All members of raid must get this buff
                     events.ScheduleEvent(EVENT_PROTECTION_OF_ELUNE, 1ms);
                     HasProtected = true;
-                    events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
                 }
             }
         }
@@ -588,7 +579,6 @@ public:
         uint32 _unleashSpell;
         bool Enraged;
         bool HasProtected;
-        std::list<Unit*> spellProtectionOfEluneTargets;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
