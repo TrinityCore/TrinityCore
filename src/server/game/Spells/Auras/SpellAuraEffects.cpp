@@ -1710,7 +1710,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         case FORM_MOONKIN:                                  // 0x1F
         case FORM_SPIRITOFREDEMPTION:                       // 0x20
             break;
-        default:
+        default:;
             // @tswow-begin we allow custom shapeshift types, but beware: masks do not work (they are uint32's)
             //TC_LOG_ERROR("spells.aura.effect", "Auras: Unknown Shapeshift Type: %u", GetMiscValue());
             // @swow-end
