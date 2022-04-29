@@ -4837,28 +4837,27 @@ TC_API_EXPORT EnumText EnumUtils<ChatMsg>::ToString(ChatMsg value)
         case CHAT_MSG_TARGETICONS: return { "CHAT_MSG_TARGETICONS", "CHAT_MSG_TARGETICONS", "" };
         case CHAT_MSG_BN_WHISPER: return { "CHAT_MSG_BN_WHISPER", "CHAT_MSG_BN_WHISPER", "" };
         case CHAT_MSG_BN_WHISPER_INFORM: return { "CHAT_MSG_BN_WHISPER_INFORM", "CHAT_MSG_BN_WHISPER_INFORM", "" };
-        case CHAT_MSG_BN_CONVERSATION: return { "CHAT_MSG_BN_CONVERSATION", "CHAT_MSG_BN_CONVERSATION", "" };
-        case CHAT_MSG_BN_CONVERSATION_NOTICE: return { "CHAT_MSG_BN_CONVERSATION_NOTICE", "CHAT_MSG_BN_CONVERSATION_NOTICE", "" };
-        case CHAT_MSG_BN_CONVERSATION_LIST: return { "CHAT_MSG_BN_CONVERSATION_LIST", "CHAT_MSG_BN_CONVERSATION_LIST", "" };
         case CHAT_MSG_BN_INLINE_TOAST_ALERT: return { "CHAT_MSG_BN_INLINE_TOAST_ALERT", "CHAT_MSG_BN_INLINE_TOAST_ALERT", "" };
         case CHAT_MSG_BN_INLINE_TOAST_BROADCAST: return { "CHAT_MSG_BN_INLINE_TOAST_BROADCAST", "CHAT_MSG_BN_INLINE_TOAST_BROADCAST", "" };
         case CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM: return { "CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM", "CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM", "" };
         case CHAT_MSG_BN_INLINE_TOAST_CONVERSATION: return { "CHAT_MSG_BN_INLINE_TOAST_CONVERSATION", "CHAT_MSG_BN_INLINE_TOAST_CONVERSATION", "" };
         case CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE: return { "CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE", "CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE", "" };
-        case CHAT_MSG_COMBAT_GUILD_XP_GAIN: return { "CHAT_MSG_COMBAT_GUILD_XP_GAIN", "CHAT_MSG_COMBAT_GUILD_XP_GAIN", "" };
         case CHAT_MSG_CURRENCY: return { "CHAT_MSG_CURRENCY", "CHAT_MSG_CURRENCY", "" };
         case CHAT_MSG_QUEST_BOSS_EMOTE: return { "CHAT_MSG_QUEST_BOSS_EMOTE", "CHAT_MSG_QUEST_BOSS_EMOTE", "" };
         case CHAT_MSG_PET_BATTLE_COMBAT_LOG: return { "CHAT_MSG_PET_BATTLE_COMBAT_LOG", "CHAT_MSG_PET_BATTLE_COMBAT_LOG", "" };
         case CHAT_MSG_PET_BATTLE_INFO: return { "CHAT_MSG_PET_BATTLE_INFO", "CHAT_MSG_PET_BATTLE_INFO", "" };
         case CHAT_MSG_INSTANCE_CHAT: return { "CHAT_MSG_INSTANCE_CHAT", "CHAT_MSG_INSTANCE_CHAT", "" };
         case CHAT_MSG_INSTANCE_CHAT_LEADER: return { "CHAT_MSG_INSTANCE_CHAT_LEADER", "CHAT_MSG_INSTANCE_CHAT_LEADER", "" };
+        case CHAT_MSG_GUILD_ITEM_LOOTED: return { "CHAT_MSG_GUILD_ITEM_LOOTED", "CHAT_MSG_GUILD_ITEM_LOOTED", "" };
+        case CHAT_MSG_COMMUNITIES_CHANNEL: return { "CHAT_MSG_COMMUNITIES_CHANNEL", "CHAT_MSG_COMMUNITIES_CHANNEL", "" };
+        case CHAT_MSG_VOICE_TEXT: return { "CHAT_MSG_VOICE_TEXT", "CHAT_MSG_VOICE_TEXT", "" };
         case MAX_CHAT_MSG_TYPE: return { "MAX_CHAT_MSG_TYPE", "MAX_CHAT_MSG_TYPE", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<ChatMsg>::Count() { return 70; }
+TC_API_EXPORT size_t EnumUtils<ChatMsg>::Count() { return 69; }
 
 template <>
 TC_API_EXPORT ChatMsg EnumUtils<ChatMsg>::FromIndex(size_t index)
@@ -4919,22 +4918,21 @@ TC_API_EXPORT ChatMsg EnumUtils<ChatMsg>::FromIndex(size_t index)
         case 51: return CHAT_MSG_TARGETICONS;
         case 52: return CHAT_MSG_BN_WHISPER;
         case 53: return CHAT_MSG_BN_WHISPER_INFORM;
-        case 54: return CHAT_MSG_BN_CONVERSATION;
-        case 55: return CHAT_MSG_BN_CONVERSATION_NOTICE;
-        case 56: return CHAT_MSG_BN_CONVERSATION_LIST;
-        case 57: return CHAT_MSG_BN_INLINE_TOAST_ALERT;
-        case 58: return CHAT_MSG_BN_INLINE_TOAST_BROADCAST;
-        case 59: return CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM;
-        case 60: return CHAT_MSG_BN_INLINE_TOAST_CONVERSATION;
-        case 61: return CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE;
-        case 62: return CHAT_MSG_COMBAT_GUILD_XP_GAIN;
-        case 63: return CHAT_MSG_CURRENCY;
-        case 64: return CHAT_MSG_QUEST_BOSS_EMOTE;
-        case 65: return CHAT_MSG_PET_BATTLE_COMBAT_LOG;
-        case 66: return CHAT_MSG_PET_BATTLE_INFO;
-        case 67: return CHAT_MSG_INSTANCE_CHAT;
-        case 68: return CHAT_MSG_INSTANCE_CHAT_LEADER;
-        case 69: return MAX_CHAT_MSG_TYPE;
+        case 54: return CHAT_MSG_BN_INLINE_TOAST_ALERT;
+        case 55: return CHAT_MSG_BN_INLINE_TOAST_BROADCAST;
+        case 56: return CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM;
+        case 57: return CHAT_MSG_BN_INLINE_TOAST_CONVERSATION;
+        case 58: return CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE;
+        case 59: return CHAT_MSG_CURRENCY;
+        case 60: return CHAT_MSG_QUEST_BOSS_EMOTE;
+        case 61: return CHAT_MSG_PET_BATTLE_COMBAT_LOG;
+        case 62: return CHAT_MSG_PET_BATTLE_INFO;
+        case 63: return CHAT_MSG_INSTANCE_CHAT;
+        case 64: return CHAT_MSG_INSTANCE_CHAT_LEADER;
+        case 65: return CHAT_MSG_GUILD_ITEM_LOOTED;
+        case 66: return CHAT_MSG_COMMUNITIES_CHANNEL;
+        case 67: return CHAT_MSG_VOICE_TEXT;
+        case 68: return MAX_CHAT_MSG_TYPE;
         default: throw std::out_of_range("index");
     }
 }
@@ -4998,22 +4996,21 @@ TC_API_EXPORT size_t EnumUtils<ChatMsg>::ToIndex(ChatMsg value)
         case CHAT_MSG_TARGETICONS: return 51;
         case CHAT_MSG_BN_WHISPER: return 52;
         case CHAT_MSG_BN_WHISPER_INFORM: return 53;
-        case CHAT_MSG_BN_CONVERSATION: return 54;
-        case CHAT_MSG_BN_CONVERSATION_NOTICE: return 55;
-        case CHAT_MSG_BN_CONVERSATION_LIST: return 56;
-        case CHAT_MSG_BN_INLINE_TOAST_ALERT: return 57;
-        case CHAT_MSG_BN_INLINE_TOAST_BROADCAST: return 58;
-        case CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM: return 59;
-        case CHAT_MSG_BN_INLINE_TOAST_CONVERSATION: return 60;
-        case CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE: return 61;
-        case CHAT_MSG_COMBAT_GUILD_XP_GAIN: return 62;
-        case CHAT_MSG_CURRENCY: return 63;
-        case CHAT_MSG_QUEST_BOSS_EMOTE: return 64;
-        case CHAT_MSG_PET_BATTLE_COMBAT_LOG: return 65;
-        case CHAT_MSG_PET_BATTLE_INFO: return 66;
-        case CHAT_MSG_INSTANCE_CHAT: return 67;
-        case CHAT_MSG_INSTANCE_CHAT_LEADER: return 68;
-        case MAX_CHAT_MSG_TYPE: return 69;
+        case CHAT_MSG_BN_INLINE_TOAST_ALERT: return 54;
+        case CHAT_MSG_BN_INLINE_TOAST_BROADCAST: return 55;
+        case CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM: return 56;
+        case CHAT_MSG_BN_INLINE_TOAST_CONVERSATION: return 57;
+        case CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE: return 58;
+        case CHAT_MSG_CURRENCY: return 59;
+        case CHAT_MSG_QUEST_BOSS_EMOTE: return 60;
+        case CHAT_MSG_PET_BATTLE_COMBAT_LOG: return 61;
+        case CHAT_MSG_PET_BATTLE_INFO: return 62;
+        case CHAT_MSG_INSTANCE_CHAT: return 63;
+        case CHAT_MSG_INSTANCE_CHAT_LEADER: return 64;
+        case CHAT_MSG_GUILD_ITEM_LOOTED: return 65;
+        case CHAT_MSG_COMMUNITIES_CHANNEL: return 66;
+        case CHAT_MSG_VOICE_TEXT: return 67;
+        case MAX_CHAT_MSG_TYPE: return 68;
         default: throw std::out_of_range("value");
     }
 }
