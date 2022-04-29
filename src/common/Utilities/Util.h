@@ -390,9 +390,10 @@ class HookList final
 class TC_COMMON_API flag96
 {
 private:
-    uint32 part[3];
-
+    // @tswow-begin
 public:
+    uint32 part[3];
+    // @tswow-end
     flag96(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0)
     {
         part[0] = p1;

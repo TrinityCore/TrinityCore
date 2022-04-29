@@ -2177,7 +2177,19 @@ void Aura::LoadScripts()
 
 bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
 {
+    // @tswow-begin
     bool result = true;
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnCheckAreaTarget
+        , TSAura(this)
+        , TSUnit(target)
+        , TSMutable<bool>(&result)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return result;
+    // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_AREA_TARGET);
@@ -2192,6 +2204,18 @@ bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
 
 void Aura::CallScriptDispel(DispelInfo* dispelInfo)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnDispel
+        , TSAura(this)
+        , TSDispelInfo(dispelInfo)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_DISPEL);
@@ -2205,6 +2229,18 @@ void Aura::CallScriptDispel(DispelInfo* dispelInfo)
 
 void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnAfterDispel
+        , TSAura(this)
+        , TSDispelInfo(dispelInfo)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_DISPEL);
@@ -2263,6 +2299,19 @@ bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplicat
 
 void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnAfterEffectApply
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , static_cast<uint32>(mode)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY, aurApp);
@@ -2277,6 +2326,19 @@ void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraAppl
 
 void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnAfterEffectRemove
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , static_cast<uint32>(mode)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE, aurApp);
@@ -2291,7 +2353,16 @@ void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApp
 
 bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp)
 {
+    // @tswow-begin
     bool preventDefault = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectPeriodic
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSMutable<bool>(&preventDefault)
+    );
+    // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PERIODIC, aurApp);
@@ -2328,6 +2399,19 @@ void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
 
 void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectCalcAmount
+        , TSAuraEffect(aurEff)
+        , TSMutable<int32>(&amount)
+        , TSMutable<bool>(&canBeRecalculated)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT);
@@ -2342,6 +2426,19 @@ void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& a
 
 void Aura::CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectCalcPeriodic
+        , TSAuraEffect(aurEff)
+        , TSMutable<bool>(&isPeriodic)
+        , TSMutable<int32>(&amplitude)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC);
@@ -2356,6 +2453,18 @@ void Aura::CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool& 
 
 void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier*& spellMod)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectCalcSpellMod
+        , TSAuraEffect(aurEff)
+        , TSSpellModifier(spellMod)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD);
@@ -2370,6 +2479,19 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellM
 
 void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool& defaultPrevented)
 {
+    // @tswow-begin
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectAbsorb
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSDamageInfo(&dmgInfo)
+        , TSMutable<uint32>(&absorbAmount)
+        , TSMutable<bool>(&defaultPrevented)
+    );
+    if (defaultPrevented) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_ABSORB, aurApp);
@@ -2388,6 +2510,20 @@ void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication co
 
 void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectAfterAbsorb
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSDamageInfo(&dmgInfo)
+        , TSMutable<uint32>(&absorbAmount)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB, aurApp);
@@ -2402,6 +2538,20 @@ void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplicati
 
 void Aura::CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool& /*defaultPrevented*/)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnEffectManaShield
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSDamageInfo(&dmgInfo)
+        , TSMutable<uint32>(&absorbAmount)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_MANASHIELD, aurApp);
@@ -2416,6 +2566,20 @@ void Aura::CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplicatio
 
 void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnEffectAfterManaShield
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSDamageInfo(&dmgInfo)
+        , TSMutable<uint32>(&absorbAmount)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD, aurApp);
@@ -2430,6 +2594,20 @@ void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraAppli
 
 void Aura::CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& splitAmount)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnEffectSplit
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSDamageInfo(&dmgInfo)
+        , TSMutable<uint32>(&splitAmount)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_SPLIT, aurApp);
@@ -2444,7 +2622,20 @@ void Aura::CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication con
 
 bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    // @tswow-begin
     bool result = true;
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnCheckProc
+        , TSAuraApplication(aurApp)
+        , TSProcEventInfo(&eventInfo)
+        , TSMutable<bool>(&result)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return result;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_PROC, aurApp);
@@ -2460,7 +2651,20 @@ bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventI
 
 bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    // @tswow-begin
     bool prepare = true;
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnPrepareProc
+        , TSAuraApplication(aurApp)
+        , TSProcEventInfo(&eventInfo)
+        , TSMutable<bool>(&prepare)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return prepare;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_PREPARE_PROC, aurApp);
@@ -2479,7 +2683,20 @@ bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEven
 
 bool Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    // @tswow-begin
     bool handled = false;
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnProc
+        , TSAuraApplication(aurApp)
+        , TSProcEventInfo(&eventInfo)
+        , TSMutable<bool>(&handled)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return handled;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_PROC, aurApp);
@@ -2496,6 +2713,18 @@ bool Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& 
 
 void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnAfterProc
+        , TSAuraApplication(aurApp)
+        , TSProcEventInfo(&eventInfo)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_PROC, aurApp);
@@ -2509,7 +2738,21 @@ void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventI
 
 bool Aura::CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    // @tswow-begin
+    bool cancel = false;
     bool result = true;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnCheckEffectProc
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSProcEventInfo(&eventInfo)
+        , TSMutable<bool>(&result)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return result;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC, aurApp);
@@ -2526,7 +2769,17 @@ bool Aura::CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
 
 bool Aura::CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    // @tswow-begin
     bool preventDefault = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnEffectProc
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSProcEventInfo(&eventInfo)
+        , TSMutable<bool>(&preventDefault)
+    );
+    // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PROC, aurApp);
@@ -2545,6 +2798,19 @@ bool Aura::CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplicatio
 
 void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnAfterEffectProc
+        , TSAuraEffect(aurEff)
+        , TSAuraApplication(aurApp)
+        , TSProcEventInfo(&eventInfo)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC, aurApp);

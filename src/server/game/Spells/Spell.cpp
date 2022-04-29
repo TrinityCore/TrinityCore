@@ -7901,6 +7901,17 @@ void Spell::LoadScripts()
 
 void Spell::CallScriptBeforeCastHandlers()
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnBeforeCast
+        , TSSpell(this)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_BEFORE_CAST);
@@ -7928,6 +7939,17 @@ void Spell::CallScriptOnCastHandlers()
 
 void Spell::CallScriptAfterCastHandlers()
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+          m_spellInfo->events
+        , SpellOnAfterCast
+        , TSSpell(this)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_AFTER_CAST);
@@ -8014,7 +8036,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMo
 
 void Spell::CallScriptSuccessfulDispel(SpellEffIndex effIndex)
 {
-    FIRE_MAP(m_spellInfo->events,SpellOnDispel,TSSpell(this),(uint32)effIndex); // @tswow-line
+    FIRE_MAP(m_spellInfo->events,SpellOnSuccessfulDispel,TSSpell(this),(uint32)effIndex); // @tswow-line
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_EFFECT_SUCCESSFUL_DISPEL);
@@ -8028,6 +8050,18 @@ void Spell::CallScriptSuccessfulDispel(SpellEffIndex effIndex)
 
 void Spell::CallScriptBeforeHitHandlers(SpellMissInfo missInfo)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnBeforeHit
+        , TSSpell(this)
+        , static_cast<uint32>(missInfo)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_InitHit();
@@ -8056,6 +8090,17 @@ void Spell::CallScriptOnHitHandlers()
 
 void Spell::CallScriptAfterHitHandlers()
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnAfterHit
+        , TSSpell(this)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_AFTER_HIT);
@@ -8069,6 +8114,20 @@ void Spell::CallScriptAfterHitHandlers()
 
 void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnObjectAreaTargetSelect
+        , TSSpell(this)
+        , TSWorldObjectCollection(&targets)
+        , static_cast<uint32>(effIndex)
+        , TSSpellImplicitTargetInfo(&targetType)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_OBJECT_AREA_TARGET_SELECT);
@@ -8083,6 +8142,20 @@ void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& ta
 
 void Spell::CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnObjectTargetSelect
+        , TSSpell(this)
+        , TSMutableWorldObject(target)
+        , static_cast<uint32>(effIndex)
+        , TSSpellImplicitTargetInfo(&targetType)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_OBJECT_TARGET_SELECT);
@@ -8097,6 +8170,20 @@ void Spell::CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffI
 
 void Spell::CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnDestinationTargetSelect
+        , TSSpell(this)
+        , TSSpellDestination(&target)
+        , static_cast<uint32>(effIndex)
+        , TSSpellImplicitTargetInfo(&targetType)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
+
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_DESTINATION_TARGET_SELECT);
@@ -8257,6 +8344,19 @@ std::string Spell::GetDebugInfo() const
 
 void Spell::CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
 {
+    // @tswow-begin
+    bool cancel = false;
+    FIRE_MAP(
+        m_spellInfo->events
+        , SpellOnOnResistAbsorbCalculate
+        , TSSpell(this)
+        , TSDamageInfo(&damageInfo)
+        , TSMutable<uint32>(&resistAmount)
+        , TSMutable<int32>(&absorbAmount)
+        , TSMutable<bool>(&cancel)
+    );
+    if (cancel) return;
+    // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_RESIST_ABSORB_CALCULATION);
