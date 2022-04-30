@@ -208,12 +208,12 @@ class npc_thrall : public CreatureScript
                     else if (KazrogalEvent == DONE && AzgalorEvent == NOT_STARTED)
                     {
                         AddGossipItemFor(player, GOSSIP_ITEM_AZGALOR_MID, GOSSIP_ITEM_AZGALOR_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        SendGossipMenuFor(player, 9232, me->GetGUID());
+                        SendGossipMenuFor(player, 921062, me->GetGUID());
                     }
                     else if (AzgalorEvent == DONE)
                     {
                         AddGossipItemFor(player, GOSSIP_ITEM_HORDE_RETREAT_MID, GOSSIP_ITEM_HORDE_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                        SendGossipMenuFor(player, 9233, me->GetGUID());
+                        SendGossipMenuFor(player, 921063, me->GetGUID());
                     }
                 }
 
