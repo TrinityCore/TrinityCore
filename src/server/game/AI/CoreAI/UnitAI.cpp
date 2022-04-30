@@ -129,7 +129,7 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, me->GetMap()->GetDifficultyID()))
             {
-                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
+                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER);
                 target = SelectTarget(SelectTargetMethod::Random, 0, spellInfo->GetMaxRange(false), playerOnly);
             }
             break;
@@ -144,7 +144,7 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, me->GetMap()->GetDifficultyID()))
             {
-                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
+                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER);
                 float range = spellInfo->GetMaxRange(false);
 
                 DefaultTargetSelector targetSelector(me, range, playerOnly, true, -(int32)spellId);

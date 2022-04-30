@@ -3058,7 +3058,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
 
         // spells ignoring hit result should not be binary
-        if (!spellInfoMutable->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+        if (!spellInfoMutable->HasAttribute(SPELL_ATTR3_ALWAYS_HIT))
         {
             bool setFlag = false;
             for (SpellEffectInfo const& spellEffectInfo : spellInfoMutable->GetEffects())
@@ -3507,12 +3507,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
-    // Execute
-    ApplySpellFix({ 5308 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
-    });
-
     ApplySpellFix({
         31347, // Doom
         36327, // Shoot Arcane Explosion Arrow
@@ -3662,7 +3656,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Oscillation Field
     ApplySpellFix({ 37408 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
@@ -3717,12 +3711,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
         });
-    });
-
-    // Vampiric Embrace
-    ApplySpellFix({ 15290 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
     // Earthbind Totem (instant pulse)
@@ -3797,7 +3785,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Paralyze
     ApplySpellFix({ 48278 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     ApplySpellFix({
@@ -4005,7 +3993,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         64381  // Strength of the Pack (Auriaya)
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     ApplySpellFix({
@@ -4165,13 +4153,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Shadow's Fate
     ApplySpellFix({ 71169 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-    });
-
-    // Lock Players and Tap Chest
-    ApplySpellFix({ 72347 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Resistant Skin (Deathbringer Saurfang adds)
@@ -4238,7 +4220,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Empowered Flare (Blood Prince Council)
     ApplySpellFix({ 71708 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     // Swarming Shadows
@@ -4250,7 +4232,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Corruption
     ApplySpellFix({ 70602 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Column of Frost (visual marker)
@@ -4294,7 +4276,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Chilled to the Bone
     ApplySpellFix({ 70106 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
         spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS;
     });
 
@@ -4344,7 +4326,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Harvest Soul
     ApplySpellFix({ 73655 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     // Summon Shadow Trap
@@ -4514,12 +4496,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Stances = UI64LIT(1) << (FORM_TREE_OF_LIFE - 1);
     });
 
-    // Feral Charge (Cat Form)
-    ApplySpellFix({ 49376 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
-    });
-
     // Gaze of Occu'thar
     ApplySpellFix({ 96942 }, [](SpellInfo* spellInfo)
     {
@@ -4574,13 +4550,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Baron Rivendare (Stratholme) - Unholy Aura
     ApplySpellFix({ 17466, 17467 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Spore - Spore Visual
     ApplySpellFix({ 42525 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD;
         spellInfo->AttributesEx2 |= SPELL_ATTR2_ALLOW_DEAD_TARGET;
     });
 

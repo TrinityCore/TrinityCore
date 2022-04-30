@@ -1159,7 +1159,7 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
-                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
+                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER) && u->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
                 if (!i_funit->IsValidAttackTarget(u, _spellInfo))

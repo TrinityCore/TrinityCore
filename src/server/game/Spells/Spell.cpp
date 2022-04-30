@@ -772,7 +772,7 @@ void Spell::SelectSpellTargets()
 
                 if (noTargetFound)
                 {
-                    SendCastResult(m_spellInfo->Id == 51690 ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_BAD_TARGETS);
+                    SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
                     finish(false);
                     return;
                 }
@@ -1988,9 +1988,9 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
             break;
     }
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
         retMask &= GRID_MAP_TYPE_MASK_CORPSE | GRID_MAP_TYPE_MASK_PLAYER;
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_GHOSTS))
         retMask &= GRID_MAP_TYPE_MASK_PLAYER;
 
     if (condList)
@@ -2522,13 +2522,12 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
     if ((MissCondition == SPELL_MISS_IMMUNE || MissCondition == SPELL_MISS_IMMUNE2) && spell->m_caster->GetTypeId() == TYPEID_PLAYER && unit->GetTypeId() == TYPEID_PLAYER && spell->m_caster->IsValidAttackTarget(unit, spell->GetSpellInfo()))
         unit->SetInCombatWith(spell->m_caster->ToPlayer());
 
-    _enablePVP = false; // need to check PvP state before spell effects, but act on it afterwards
+    // if target is flagged for pvp also flag caster if a player
+    _enablePVP = (MissCondition == SPELL_MISS_NONE || spell->m_spellInfo->HasAttribute(SPELL_ATTR3_PVP_ENABLING))
+        && unit->IsPvP() && spell->m_caster->GetTypeId() == TYPEID_PLAYER; // need to check PvP state before spell effects, but act on it afterwards
+
     if (_spellHitTarget)
     {
-        // if target is flagged for pvp also flag caster if a player
-        if (unit->IsPvP() && spell->m_caster->GetTypeId() == TYPEID_PLAYER)
-            _enablePVP = true; // Decide on PvP flagging now, but act on it later.
-
         SpellMissInfo missInfo = spell->PreprocessSpellHit(_spellHitTarget, *this);
         if (missInfo != SPELL_MISS_NONE)
         {
@@ -2603,8 +2602,9 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         ProcFlagsHit hitMask = PROC_HIT_NONE;
 
         // Spells with this flag cannot trigger if effect is cast on self
-        bool const canEffectTrigger = !spell->m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_PROC) && spell->unitTarget->CanProc() &&
-            (spell->CanExecuteTriggersOnHit(EffectMask) || MissCondition == SPELL_MISS_IMMUNE || MissCondition == SPELL_MISS_IMMUNE2);
+        bool const canEffectTrigger = (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS) || !spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS))
+            && spell->unitTarget->CanProc()
+            && (spell->CanExecuteTriggersOnHit(EffectMask) || MissCondition == SPELL_MISS_IMMUNE || MissCondition == SPELL_MISS_IMMUNE2);
 
         // Trigger info was not filled in Spell::prepareDataForTriggerSystem - we do it now
         if (canEffectTrigger && !procAttacker && !procVictim)
@@ -2767,6 +2767,12 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         // Do triggers for unit
         if (canEffectTrigger)
         {
+            if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
+                procAttacker = ProcFlagsInit(PROC_FLAG_NONE, PROC_FLAG_2_NONE);
+
+            if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS))
+                procVictim = ProcFlagsInit(PROC_FLAG_NONE, PROC_FLAG_2_NONE);
+
             Unit::ProcSkillsAndAuras(caster, spell->unitTarget, procAttacker, procVictim, procSpellType, PROC_SPELL_PHASE_HIT, hitMask, spell, spellDamageInfo.get(), healInfo.get());
 
             // item spells (spell hit of non-damage spell may also activate items, for example seal of corruption hidden hit)
@@ -2791,7 +2797,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (Unit* unitCaster = spell->m_caster->ToUnit())
                 unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro());
 
-            if (!unit->IsStandState())
+            if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_DO_NOT_TRIGGER_TARGET_STAND) && !unit->IsStandState())
                 unit->SetStandState(UNIT_STAND_STATE_STAND);
         }
 
@@ -2829,10 +2835,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         spell->DoTriggersOnSpellHit(_spellHitTarget, EffectMask);
-
-        if (_enablePVP)
-            spell->m_caster->ToPlayer()->UpdatePvP(true);
     }
+
+    if (_enablePVP)
+        spell->m_caster->ToPlayer()->UpdatePvP(true);
 
     spell->_spellAura = HitAura;
     spell->CallScriptAfterHitHandlers();
@@ -3753,7 +3759,8 @@ void Spell::_cast(bool skipCheck)
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_AN_ACTION))
         m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed, m_spellInfo);
 
-    Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
+        Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
 
     // Call CreatureAI hook OnSpellCast
     if (Creature* caster = m_originalCaster->ToCreature())
@@ -4017,7 +4024,8 @@ void Spell::_handle_finish_phase()
         }
     }
 
-    Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_FINISH, m_hitMask, this, nullptr, nullptr);
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
+        Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_FINISH, m_hitMask, this, nullptr, nullptr);
 }
 
 void Spell::SendSpellCooldown()
@@ -4157,7 +4165,8 @@ void Spell::finish(bool ok)
     if (Creature* creatureCaster = unitCaster->ToCreature())
         creatureCaster->ReleaseSpellFocus(this);
 
-    Unit::ProcSkillsAndAuras(unitCaster, nullptr, PROC_FLAG_CAST_ENDED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, this, nullptr, nullptr);
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
+        Unit::ProcSkillsAndAuras(unitCaster, nullptr, PROC_FLAG_CAST_ENDED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, this, nullptr, nullptr);
 
     if (!ok)
         return;
@@ -5033,7 +5042,7 @@ void Spell::SendResurrectRequest(Player* target)
     resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
     resurrectRequest.Name = sentName;
     resurrectRequest.Sickness = m_caster->IsUnit() && m_caster->ToUnit()->IsSpiritHealer(); // "you'll be afflicted with resurrection sickness"
-    resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_RESURRECTION_TIMER);
+    resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_NO_RES_TIMER);
     if (Pet* pet = target->GetPet())
         if (CharmInfo* charmInfo = pet->GetCharmInfo())
             resurrectRequest.PetNumber = charmInfo->GetPetNumber();
@@ -5653,8 +5662,8 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
     }
 
     // Spell cast only in battleground
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_BATTLEGROUND) && m_caster->GetTypeId() == TYPEID_PLAYER)
-        if (!m_caster->ToPlayer()->InBattleground())
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_BATTLEGROUNDS))
+        if (!m_caster->GetMap()->IsBattleground())
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
     // do not allow spells to be cast in arenas or rated battlegrounds
@@ -7566,14 +7575,14 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
             return SPELL_CAST_OK;
         };
 
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_MAIN_HAND))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON))
         {
             SpellCastResult mainHandResult = weaponCheck(BASE_ATTACK);
             if (mainHandResult != SPELL_CAST_OK)
                 return mainHandResult;
         }
 
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON))
         {
             SpellCastResult offHandResult = weaponCheck(OFF_ATTACK);
             if (offHandResult != SPELL_CAST_OK)

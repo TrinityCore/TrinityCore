@@ -1569,7 +1569,7 @@ bool SpellInfo::IsMultiSlotAura() const
 bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
 {
     /// TODO: Re-verify meaning of SPELL_ATTR3_STACK_FOR_DIFF_CASTERS and update conditions here
-    return StackAmount > 1 && !IsChanneled() && !HasAttribute(SPELL_ATTR3_STACK_FOR_DIFF_CASTERS);
+    return StackAmount > 1 && !IsChanneled() && !HasAttribute(SPELL_ATTR3_DOT_STACKING_RULE);
 }
 
 bool SpellInfo::IsCooldownStartedOnEvent() const
@@ -1583,12 +1583,12 @@ bool SpellInfo::IsCooldownStartedOnEvent() const
 
 bool SpellInfo::IsDeathPersistent() const
 {
-    return HasAttribute(SPELL_ATTR3_DEATH_PERSISTENT);
+    return HasAttribute(SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD);
 }
 
 bool SpellInfo::IsRequiringDeadTarget() const
 {
-    return HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS);
+    return HasAttribute(SPELL_ATTR3_ONLY_ON_GHOSTS);
 }
 
 bool SpellInfo::IsAllowingDeadTarget() const
@@ -1689,7 +1689,7 @@ WeaponAttackType SpellInfo::GetAttackType() const
     switch (DmgClass)
     {
         case SPELL_DAMAGE_CLASS_MELEE:
-            if (HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+            if (HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON))
                 result = OFF_ATTACK;
             else
                 result = BASE_ATTACK;
@@ -1738,7 +1738,7 @@ bool SpellInfo::IsAffected(uint32 familyName, flag128 const& familyFlags) const
 
 bool SpellInfo::IsAffectedBySpellMods() const
 {
-    return !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS);
+    return !HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS);
 }
 
 bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
@@ -2120,9 +2120,9 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
             return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
-        if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
+        if (HasAttribute(SPELL_ATTR3_ONLY_ON_GHOSTS) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
         {
-            if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS))
+            if (HasAttribute(SPELL_ATTR3_ONLY_ON_GHOSTS))
                 return SPELL_FAILED_TARGET_NOT_GHOST;
             else
                 return SPELL_FAILED_BAD_TARGETS;
@@ -2178,7 +2178,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
     else return SPELL_CAST_OK;
 
     // corpseOwner and unit specific target checks
-    if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER) && unitTarget->GetTypeId() != TYPEID_PLAYER)
        return SPELL_FAILED_TARGET_NOT_PLAYER;
 
     if (!IsAllowingDeadTarget() && !unitTarget->IsAlive())
@@ -3632,7 +3632,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
                 }
             }
 
-            if (!auraSpellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+            if (!auraSpellInfo->HasAttribute(SPELL_ATTR3_ALWAYS_HIT))
             {
                 if (AuraType auraName = auraSpellEffectInfo.ApplyAuraName)
                 {
@@ -3951,7 +3951,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         else
         {
             WeaponAttackType slot = BASE_ATTACK;
-            if (!HasAttribute(SPELL_ATTR3_MAIN_HAND) && HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+            if (!HasAttribute(SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON) && HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON))
                 slot = OFF_ATTACK;
 
             speed = unitCaster->GetBaseAttackTime(slot);
@@ -4263,7 +4263,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
         return this;
 
     // Client ignores spell with these attributes (sub_53D9D0)
-    if (HasAttribute(SPELL_ATTR0_AURA_IS_DEBUFF) || HasAttribute(SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF) || HasAttribute(SPELL_ATTR3_DRAIN_SOUL))
+    if (HasAttribute(SPELL_ATTR0_AURA_IS_DEBUFF) || HasAttribute(SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF) || HasAttribute(SPELL_ATTR3_ONLY_PROC_ON_CASTER))
         return this;
 
     bool needRankSelection = false;

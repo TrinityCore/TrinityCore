@@ -1632,7 +1632,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         if (existingAura->GetSpellInfo()->IsChanneled())
             return true;
 
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_STACK_FOR_DIFF_CASTERS))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_DOT_STACKING_RULE))
             return true;
 
         // check same periodic auras
@@ -1875,6 +1875,14 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
                 return 0;
         }
     }
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_PROC_OUTDOORS))
+        if (!target->IsOutdoors())
+            return 0;
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_PROC_ON_CASTER))
+        if (target->GetGUID() != GetCasterGUID())
+            return 0;
 
     bool success = roll_chance_f(CalcProcChance(*procEntry, eventInfo));
 
