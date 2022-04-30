@@ -400,6 +400,7 @@ public:
                     break;
                 case EVENT_PROTECTION_OF_ELUNE: // hp below 10% only cast finger of death
                     events.Reset();
+                    events.ScheduleEvent(EVENT_HAND_OF_DEATH, 1s);
                     events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1s);
                     CastProtectionOfElune(true);
@@ -415,7 +416,6 @@ public:
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500ms);
                     break;
                 case EVENT_FINGER_OF_DEATH_LAST_PHASE:
-                    DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_FINGER_OF_DEATH);
                     DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_FINGER_OF_DEATH_LAST_PHASE);
                     events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
                     break;
@@ -437,11 +437,6 @@ public:
                     {
                         if (apply)
                             target->AddAura(SPELL_PROTECTION_OF_ELUNE, target);
-                        target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, apply);
-                        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH, IMMUNITY_ID, SPELL_FINGER_OF_DEATH, apply);
-                        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
-                        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, apply);
-
                     }
             }
         }
@@ -620,6 +615,44 @@ class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
         }
 };
 
+// Protection of Elune 38528
+class spell_protection_of_elune : public AuraScript
+{
+    PrepareAuraScript(spell_protection_of_elune);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PROTECTION_OF_ELUNE
+        });
+    }
+
+    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, true);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH, IMMUNITY_ID, SPELL_FINGER_OF_DEATH, true);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, true);
+        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, true);
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, false);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH, IMMUNITY_ID, SPELL_FINGER_OF_DEATH, false);
+        target->ApplySpellImmune(SPELL_FINGER_OF_DEATH_LAST_PHASE, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, false);
+        target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FINGER_OF_DEATH_LAST_PHASE, false);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_protection_of_elune::HandleEffectApply, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_protection_of_elune::HandleEffectRemove, EFFECT_0, SPELL_AURA_SCHOOL_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_boss_archimonde()
 {
     new boss_archimonde();
@@ -627,4 +660,5 @@ void AddSC_boss_archimonde()
     new npc_doomfire_targetting();
     new npc_ancient_wisp();
     new spell_archimonde_drain_world_tree_dummy();
+    RegisterSpellScript(spell_protection_of_elune);
 }

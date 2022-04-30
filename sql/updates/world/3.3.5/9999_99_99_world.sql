@@ -49,5 +49,10 @@ INSERT INTO `creature_template_movement`(`CreatureId`, `Ground`, `Swim`, `Flight
 (17906, 0, 0, 1, 0, 0, 0, NULL),
 (17907, 0, 0, 1, 0, 0, 0, NULL);
 
+-- add protection of elune(38528) spell script 
+DELETE FROM `spell_script_names` WHERE `spell_id`=38528;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(38528,'spell_protection_of_elune');
+
 -- add alliance and horde guard AI
 UPDATE `creature_template` SET `ScriptName`='alliance_horde_guard' WHERE `entry` IN (17919,17934,17932,17933,17936);
