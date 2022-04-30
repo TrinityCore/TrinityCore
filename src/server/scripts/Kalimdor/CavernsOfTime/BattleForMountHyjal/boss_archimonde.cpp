@@ -88,8 +88,7 @@ enum Summons
 {
     NPC_DOOMFIRE               = 18095,
     NPC_DOOMFIRE_SPIRIT        = 18104,
-    NPC_ANCIENT_WISP           = 17946,
-    WORLDTREE_CHANNEL_TARGET   = 22418
+    NPC_ANCIENT_WISP           = 17946
 };
 
 enum Actions
@@ -291,9 +290,10 @@ public:
             Enraged = false;
             HasProtected = false;
             summons.DespawnAll();
-            Creature* WorldtreeTraget = reinterpret_cast<Creature*>(me->SummonCreature(WORLDTREE_CHANNEL_TARGET, 5503.713f, -3523.436f, 1608.781f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 360000s));
-            DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
-            WorldtreeTraget->AI()->DoCast(me, SPELL_DRAIN_WORLD_TREE_TRIGGERED);
+            WorldtreeTragetGUID=instance->GetGuidData(DATA_CHANNEL_TARGET);
+            if (Creature* WorldtreeTraget = ObjectAccessor::GetCreature(*me, WorldtreeTragetGUID)){
+                DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
+            }
         }
 
         void InitializeAI() override
@@ -568,6 +568,7 @@ public:
 
     private:
         ObjectGuid DoomfireSpiritGUID;
+        ObjectGuid WorldtreeTragetGUID;
         uint8 SoulChargeCount;
         uint8 WispCount;
         uint32 _chargeSpell;
@@ -628,7 +629,7 @@ class spell_protection_of_elune : public AuraScript
         });
     }
 
-    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
         target->ApplySpellImmune(SPELL_HAND_OF_DEATH, IMMUNITY_ID, SPELL_HAND_OF_DEATH, true);
