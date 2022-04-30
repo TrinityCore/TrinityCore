@@ -59,5 +59,8 @@ DELETE FROM `creature` WHERE `guid`=6747;
 INSERT INTO `creature`(`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (6747, 22418, 534, 0, 0, 1, 1, 0, 0, 5502.2876, -3525.4714, 1607.9094, 2.61799, 7200, 0, 0, 1, 0, 0, 0, 0, 0, '', 0);
 
+-- update doomfire(18095) and doomfire_spirit(18104) flag_extra to 128
+UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry` IN (18095,18104);
+
 -- add alliance and horde guard AI
 UPDATE `creature_template` SET `ScriptName`='alliance_horde_guard' WHERE `entry` IN (17919,17934,17932,17933,17936);
