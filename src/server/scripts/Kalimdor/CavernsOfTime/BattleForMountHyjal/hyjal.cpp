@@ -53,6 +53,11 @@ enum GOSSIPS
     GOSSIP_ITEM_TYRANDE_OID        = 0
 };
 
+enum NPCTEXTS
+{
+    JAINA_RETREAT_ALLIANCE_BASE    = 5
+};
+
 #define ITEM_TEAR_OF_GODDESS        24494
 
 #define GOSSIP_ITEM_GM1             "[GM] Toggle Debug Timers"
@@ -94,7 +99,7 @@ class npc_jaina_proudmoore : public CreatureScript
                         StartEvent(player);
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 3:
-                        me->AI()->Talk(5);
+                        me->AI()->Talk(JAINA_RETREAT_ALLIANCE_BASE);
                         Retreat();
                         break;
                     case GOSSIP_ACTION_INFO_DEF:

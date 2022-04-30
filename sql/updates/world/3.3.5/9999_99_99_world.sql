@@ -1,6 +1,6 @@
 --
 -- Add missing gossip_menu
-DELETE FROM `gossip_menu` WHERE (`MenuID`,`TextID`) IN ((7552,9380),(7581,9232),(7581,9233));
+DELETE FROM `gossip_menu` WHERE (`MenuID`,`TextID`) IN ((7552,9380),(7581,16777216),(7581,16777217));
 INSERT INTO `gossip_menu`(`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 (7552, 9380, 0),
 (7581, 16777216, 0),

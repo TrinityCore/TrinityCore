@@ -40,6 +40,11 @@ enum Spawns
     SPAWN_NEAR_TOWER    = 2,
 };
 
+enum NPCTEXTS
+{
+    JAINA_RETREAT_HORDE_BASE    = 7
+};
+
 // Locations for summoning gargoyls and frost wyrms in special cases
 float SpawnPointSpecial[3][3]=
 {
@@ -948,7 +953,7 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {
                 hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
-                ai->Talk(7);
+                ai->Talk(JAINA_RETREAT_HORDE_BASE);
                 ai->DoMassTeleport = true;
                 ai->MassTeleportTimer = 20000;
                 creature->CastSpell(me, SPELL_MASS_TELEPORT, false);
