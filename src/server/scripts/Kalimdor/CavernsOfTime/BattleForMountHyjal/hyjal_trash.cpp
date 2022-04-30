@@ -1545,18 +1545,6 @@ public:
             Talk(TRASH_SAY_SLAY);
         }
 
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (!who || me->GetVictim())
-                return;
-
-            if (me->IsValidAttackTarget(who))
-            {
-                if (me->IsWithinDistInMap(who, 10))
-                    AttackStart(who);
-            }
-        }
-
     };
 
 };
