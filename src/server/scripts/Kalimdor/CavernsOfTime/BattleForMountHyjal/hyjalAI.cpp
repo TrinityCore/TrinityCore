@@ -836,7 +836,7 @@ void hyjalAI::UpdateAI(uint32 diff)
                     }
                     else if (BossGUID[i] == BossGUID[1])
                     {
-                        if (me->GetEntry()!=JAINA) // jaina yell success after select gossip
+                        if (me->GetEntry()==THRALL) // thrall yell success after boss deaded,jaina yell success after select gossip
                         {
                             Talk(SUCCESS);
                         }
