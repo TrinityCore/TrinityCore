@@ -306,7 +306,6 @@ public:
             Initialize();
             _Reset();
             me->RemoveAllAuras();                     // Reset Soul Charge auras.
-            CastProtectionOfElune(false);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -403,7 +402,7 @@ public:
                     events.ScheduleEvent(EVENT_HAND_OF_DEATH, 1s);
                     events.ScheduleEvent(EVENT_FINGER_OF_DEATH_LAST_PHASE, 1s);
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1s);
-                    CastProtectionOfElune(true);
+                    DoCastAOE(SPELL_PROTECTION_OF_ELUNE);
                     break;
                 case EVENT_SUMMON_WHISP:
                     DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s);
@@ -421,23 +420,6 @@ public:
                     break;
                 default:
                     break;
-            }
-        }
-
-        void CastProtectionOfElune(bool apply)
-        {
-            if (me->GetThreatManager().IsThreatListEmpty())
-                return;
-
-            std::vector<ThreatReference*> vt = me->GetThreatManager().GetModifiableThreatList(); // GetUnsortedThreatList //Trinity::IteratorPair<ThreatListIterator>   ThreatContainer::StorageType
-            for(std::vector<ThreatReference*>::iterator iter=vt.begin();iter!=vt.end();iter++)
-            {
-                if (Unit* target = (*iter)->GetVictim())
-                    if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (apply)
-                            target->AddAura(SPELL_PROTECTION_OF_ELUNE, target);
-                    }
             }
         }
 
@@ -497,7 +479,6 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-            CastProtectionOfElune(false);
             summons.DespawnAll();
             _JustDied();
             // @todo: remove this when instance script gets updated, kept for compatibility only
