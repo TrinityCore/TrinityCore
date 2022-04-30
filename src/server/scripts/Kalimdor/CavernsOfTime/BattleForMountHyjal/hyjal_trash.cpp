@@ -1194,14 +1194,12 @@ public:
             Initialize();
             instance = creature->GetInstanceScript();
             go = false;
-            me->SetCanFly(true);
         }
 
         void Initialize()
         {
             FrostBreathTimer = 5000;
             MoveTimer = 0;
-            me->SetDisableGravity(true);
         }
 
         bool go;
@@ -1328,8 +1326,6 @@ public:
             Zpos = 10.0f;
             StrikeTimer = 2000 + rand32() % 5000;
             MoveTimer = 0;
-            me->SetCanFly(true);
-            me->SetDisableGravity(true);
         }
 
         bool go;

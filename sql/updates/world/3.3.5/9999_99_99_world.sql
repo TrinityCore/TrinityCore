@@ -43,5 +43,11 @@ INSERT INTO `creature_text`(`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lang
 (17936, 1, 0, 'My spirit... goes on.', 12, 0, 100, 0, 0, 0, 18496, 0, 'Horde Shaman say death'),
 (17772, 7, 0, '%s begins channelling a massive teleport spell. ', 16, 0, 100, 0, 0, 0, 15310, 0, 'jaina hyjal horde base SUCCESS');
 
+-- enable gargoyle frost wyrm fly
+DELETE FROM `creature_template_movement` WHERE `CreatureID` IN (17906,17907);
+INSERT INTO `creature_template_movement`(`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
+(17906, 0, 0, 1, 0, 0, 0, NULL),
+(17907, 0, 0, 1, 0, 0, 0, NULL);
+
 -- add alliance and horde guard AI
 UPDATE `creature_template` SET `ScriptName`='alliance_horde_guard' WHERE `entry` IN (17919,17934,17932,17933,17936);
