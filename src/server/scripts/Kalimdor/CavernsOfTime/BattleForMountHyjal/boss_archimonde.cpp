@@ -537,12 +537,12 @@ public:
             if (!target)
                 return;
 
-            Creature* DoomfireSpirit = reinterpret_cast<Creature*>(me->SummonCreature(NPC_DOOMFIRE_SPIRIT,
+            me->SummonCreature(NPC_DOOMFIRE_SPIRIT,
                 target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27s));
-            Creature* Doomfire = reinterpret_cast<Creature*>(me->SummonCreature(NPC_DOOMFIRE,
+                TEMPSUMMON_TIMED_DESPAWN, 27s);
+            me->SummonCreature(NPC_DOOMFIRE,
                 target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27s));
+                TEMPSUMMON_TIMED_DESPAWN, 27s);
         }
 
     private:
