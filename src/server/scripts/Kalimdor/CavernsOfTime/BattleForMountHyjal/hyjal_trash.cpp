@@ -833,7 +833,7 @@ public:
         void JustDied(Unit* killer) override
         {
             hyjal_trashAI::JustDied(killer);
-            me->AI()->Talk(TRASH_SAY_DEATH);
+            Talk(TRASH_SAY_DEATH);
         }
 
         void UpdateAI(uint32 diff) override

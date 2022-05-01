@@ -280,7 +280,6 @@ public:
 
         void Initialize()
         {
-            DoomfireSpiritGUID.Clear();
 
             SoulChargeCount = 0;
             WispCount = 0;                                      // When ~30 wisps are summoned, Archimonde dies
@@ -289,11 +288,6 @@ public:
 
             Enraged = false;
             HasProtected = false;
-            summons.DespawnAll();
-            WorldtreeTragetGUID=instance->GetGuidData(DATA_CHANNEL_TARGET);
-            if (Creature* WorldtreeTraget = ObjectAccessor::GetCreature(*me, WorldtreeTragetGUID)){
-                DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
-            }
         }
 
         void InitializeAI() override
@@ -305,6 +299,13 @@ public:
         {
             Initialize();
             _Reset();
+            DoomfireSpiritGUID.Clear();
+            summons.DespawnAll();
+            WorldtreeTragetGUID=instance->GetGuidData(DATA_CHANNEL_TARGET);
+            if (Creature* WorldtreeTraget = ObjectAccessor::GetCreature(*me, WorldtreeTragetGUID))
+            {
+                DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
+            }
             me->RemoveAllAuras();                     // Reset Soul Charge auras.
         }
 
