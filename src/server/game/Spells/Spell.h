@@ -433,7 +433,7 @@ class TC_GAME_API Spell
 
         WorldObject* SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList = nullptr);
         void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, WorldObject* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionContainer* condList);
-        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionContainer* condList, bool isChainHeal);
+        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo const& spellEffectInfo, bool isChainHeal);
 
         GameObject* SearchSpellFocus();
 
@@ -805,7 +805,7 @@ class TC_GAME_API Spell
         SpellMissInfo PreprocessSpellHit(Unit* unit, TargetInfo& targetInfo);
         void DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo, TargetInfo& targetInfo);
 
-        void DoTriggersOnSpellHit(Unit* unit, uint32 effMask);
+        void DoTriggersOnSpellHit(Unit* unit);
         bool UpdateChanneledTargetList();
         bool IsValidDeadOrAliveTarget(Unit const* target) const;
         void HandleLaunchPhase();
@@ -846,7 +846,7 @@ class TC_GAME_API Spell
             int32 chance;
         };
 
-        bool CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura = nullptr) const;
+        bool CanExecuteTriggersOnHit(Unit* unit, SpellInfo const* triggeredByAura = nullptr) const;
         void PrepareTriggersExecutedOnHit();
         typedef std::vector<HitTriggerSpell> HitTriggerSpellList;
         HitTriggerSpellList m_hitTriggerSpells;

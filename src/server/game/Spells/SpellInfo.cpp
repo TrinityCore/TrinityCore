@@ -1675,7 +1675,7 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
 
 bool SpellInfo::HasInitialAggro() const
 {
-    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT));
+    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT) || HasAttribute(SPELL_ATTR4_NO_HARMFUL_THREAT));
 }
 
 bool SpellInfo::HasHitDelay() const
@@ -1952,7 +1952,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     }
 
     // continent limitation (virtual continent)
-    if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
+    if (HasAttribute(SPELL_ATTR4_ONLY_FLYING_AREAS))
     {
         uint32 mountFlags = 0;
         if (player && player->HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
@@ -3943,7 +3943,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     bool initiallyNegative = powerCost < 0;
 
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
-    if (HasAttribute(SPELL_ATTR4_SPELL_VS_EXTEND_COST))
+    if (HasAttribute(SPELL_ATTR4_WEAPON_SPEED_COST_SCALING))
     {
         uint32 speed = 0;
         if (SpellShapeshiftFormEntry const* ss = sSpellShapeshiftFormStore.LookupEntry(unitCaster->GetShapeshiftForm()))
@@ -4406,6 +4406,9 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
     // not found a single positive spell with this attribute
     if (spellInfo->HasAttribute(SPELL_ATTR0_AURA_IS_DEBUFF))
         return false;
+
+    if (spellInfo->HasAttribute(SPELL_ATTR4_AURA_IS_BUFF))
+        return true;
 
     visited.insert({ spellInfo, effect.EffectIndex });
 

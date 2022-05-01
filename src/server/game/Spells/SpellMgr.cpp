@@ -3478,7 +3478,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         60864  // Jaws of Death
         }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS;
     });
 
     // Howl of Azgalor
@@ -4142,12 +4142,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
         });
-    });
-
-    // Coldflame (Lord Marrowgar)
-    ApplySpellFix({ 69146 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
     });
 
     // Shadow's Fate

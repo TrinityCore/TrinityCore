@@ -544,7 +544,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     if (info->HasAttribute(SPELL_ATTR2_DO_NOT_REPORT_SPELL_FAILURE))
         _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
-    if (info->HasAttribute(SPELL_ATTR4_CAN_CAST_WHILE_CASTING))
+    if (info->HasAttribute(SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING))
         _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
     m_CastItem = nullptr;
@@ -1012,6 +1012,9 @@ void Spell::SelectImplicitChannelTargets(SpellEffectInfo const& spellEffectInfo,
                     if (target)
                     {
                         SpellDestination dest(*target);
+                        if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+                            dest._position.SetOrientation(spellEffectInfo.PositionFacing);
+
                         CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
                         m_targets.SetDst(dest);
                     }
@@ -1023,6 +1026,9 @@ void Spell::SelectImplicitChannelTargets(SpellEffectInfo const& spellEffectInfo,
         case TARGET_DEST_CHANNEL_CASTER:
         {
             SpellDestination dest(*channeledSpell->GetCaster());
+            if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+                dest._position.SetOrientation(spellEffectInfo.PositionFacing);
+
             CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
             m_targets.SetDst(dest);
             break;
@@ -1089,6 +1095,9 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                     if (focusObject)
                     {
                         SpellDestination dest(*focusObject);
+                        if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+                            dest._position.SetOrientation(spellEffectInfo.PositionFacing);
+
                         CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
                         m_targets.SetDst(dest);
                     }
@@ -1161,6 +1170,9 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
         case TARGET_OBJECT_TYPE_DEST:
         {
             SpellDestination dest(*target);
+            if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+                dest._position.SetOrientation(spellEffectInfo.PositionFacing);
+
             CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
             m_targets.SetDst(dest);
             break;
@@ -1320,6 +1332,8 @@ void Spell::SelectImplicitAreaTargets(SpellEffectInfo const& spellEffectInfo, Sp
     if (targetType.GetObjectType() == TARGET_OBJECT_TYPE_UNIT_AND_DEST)
     {
         SpellDestination dest(*referer);
+        if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+            dest._position.SetOrientation(spellEffectInfo.PositionFacing);
 
         CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
 
@@ -1517,6 +1531,9 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
         }
     }
 
+    if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+        dest._position.SetOrientation(spellEffectInfo.PositionFacing);
+
     CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
     m_targets.SetDst(dest);
 }
@@ -1548,6 +1565,9 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectIn
             break;
         }
     }
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+        dest._position.SetOrientation(spellEffectInfo.PositionFacing);
 
     CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
     m_targets.SetDst(dest);
@@ -1587,6 +1607,9 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
             break;
         }
     }
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+        dest._position.SetOrientation(spellEffectInfo.PositionFacing);
 
     CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
     m_targets.ModDst(dest);
@@ -1696,14 +1719,21 @@ void Spell::SelectImplicitChainTargets(SpellEffectInfo const& spellEffectInfo, S
 
         std::list<WorldObject*> targets;
         SearchChainTargets(targets, maxTargets - 1, target, targetType.GetObjectType(), targetType.GetCheckType()
-            , spellEffectInfo.ImplicitTargetConditions, targetType.GetTarget() == TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
+            , spellEffectInfo, targetType.GetTarget() == TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
 
         // Chain primary target is added earlier
         CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
 
+        Position const* losPosition = m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER) ? m_caster : target;
+
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+        {
             if (Unit* unit = (*itr)->ToUnit())
-                AddUnitTarget(unit, effMask, false);
+                AddUnitTarget(unit, effMask, false, true, losPosition);
+
+            if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER) && !spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::ChainFromInitialTarget))
+                losPosition = *itr;
+        }
     }
 }
 
@@ -1797,6 +1827,9 @@ void Spell::SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, Sp
         float z = m_targets.GetSrcPos()->m_positionZ + bestDist * (a * bestDist + b);
 
         SpellDestination dest(x, y, z, unitCaster->GetOrientation());
+        if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+            dest._position.SetOrientation(spellEffectInfo.PositionFacing);
+
         CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
         m_targets.ModDst(dest);
     }
@@ -2049,7 +2082,7 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Pos
     SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, position, range);
 }
 
-void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionContainer* condList, bool isChainHeal)
+void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo const& spellEffectInfo, bool isChainHeal)
 {
     // max dist for jump target selection
     float jumpRadius = 0.0f;
@@ -2077,31 +2110,31 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo, SpellModOp::ChainJumpDistance, jumpRadius, this);
 
-    // chain lightning/heal spells and similar - allow to jump at larger distance and go out of los
-    bool isBouncingFar = (m_spellInfo->HasAttribute(SPELL_ATTR4_AREA_TARGET_CHAIN)
-        || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE
-        || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC);
-
     // max dist which spell can reach
-    float searchRadius = jumpRadius;
-    if (isBouncingFar)
-        searchRadius *= chainTargets;
+    float searchRadius = [&]()
+    {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER))
+            return GetMinMaxRange(false).second;
+
+        if (spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::ChainFromInitialTarget))
+            return jumpRadius;
+
+        return jumpRadius * chainTargets;
+    }();
 
     WorldObject* chainSource = m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER) ? m_caster : target;
     std::list<WorldObject*> tempTargets;
-    SearchAreaTargets(tempTargets, searchRadius, chainSource, m_caster, objectType, selectType, condList);
+    SearchAreaTargets(tempTargets, searchRadius, chainSource, m_caster, objectType, selectType, spellEffectInfo.ImplicitTargetConditions);
     tempTargets.remove(target);
 
     // remove targets which are always invalid for chain spells
     // for some spells allow only chain targets in front of caster (swipe for example)
-    if (!isBouncingFar)
+    if (m_spellInfo->HasAttribute(SPELL_ATTR5_MELEE_CHAIN_TARGETING))
     {
-        for (std::list<WorldObject*>::iterator itr = tempTargets.begin(); itr != tempTargets.end();)
+        tempTargets.remove_if([&](WorldObject* object)
         {
-            std::list<WorldObject*>::iterator checkItr = itr++;
-            if (!m_caster->HasInArc(static_cast<float>(M_PI), *checkItr))
-                tempTargets.erase(checkItr);
-        }
+            return !m_caster->HasInArc(static_cast<float>(M_PI), object);
+        });
     }
 
     while (chainTargets)
@@ -2132,7 +2165,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
             {
                 if (foundItr == tempTargets.end())
                 {
-                    if ((!isBouncingFar || chainSource->IsWithinDist(*itr, jumpRadius)) && chainSource->IsWithinLOSInMap(*itr, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                    if (chainSource->IsWithinDist(*itr, jumpRadius) && chainSource->IsWithinLOSInMap(*itr, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                         foundItr = itr;
                 }
                 else if (chainSource->GetDistanceOrder(*itr, *foundItr) && chainSource->IsWithinLOSInMap(*itr, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
@@ -2143,7 +2176,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
         if (foundItr == tempTargets.end())
             break;
 
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_CHAIN_FROM_CASTER) && !spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes::ChainFromInitialTarget))
             chainSource = *foundItr;
 
         targets.push_back(*foundItr);
@@ -2290,17 +2323,35 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     if (m_caster != target)
     {
         float hitDelay = m_spellInfo->LaunchDelay;
+        WorldObject const* missileSource = m_caster;
+        if (m_spellInfo->HasAttribute(SPELL_ATTR4_BOUNCY_CHAIN_MISSILES))
+        {
+            auto previousTargetItr = std::find_if(m_UniqueTargetInfo.rbegin(), m_UniqueTargetInfo.rend(), [effectMask](TargetInfo const& target)
+            {
+                return (target.EffectMask & effectMask) != 0;
+            });
+            if (previousTargetItr != std::rend(m_UniqueTargetInfo))
+            {
+                hitDelay = 0.0f; // this is not the first target in chain, LaunchDelay was already included
+
+                if (WorldObject* previousTarget = ObjectAccessor::GetWorldObject(*m_caster, previousTargetItr->TargetGUID))
+                    missileSource = previousTarget;
+
+                targetInfo.TimeDelay += previousTargetItr->TimeDelay;
+            }
+        }
+
         if (m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
             hitDelay += m_spellInfo->Speed;
         else if (m_spellInfo->Speed > 0.0f)
         {
             // calculate spell incoming interval
             /// @todo this is a hack
-            float dist = std::max(m_caster->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()), 5.0f);
+            float dist = std::max(missileSource->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()), 5.0f);
             hitDelay += dist / m_spellInfo->Speed;
         }
 
-        targetInfo.TimeDelay = uint64(std::floor(hitDelay * 1000.0f));
+        targetInfo.TimeDelay += uint64(std::floor(hitDelay * 1000.0f));
     }
     else
         targetInfo.TimeDelay = 0ULL;
@@ -2603,8 +2654,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
         // Spells with this flag cannot trigger if effect is cast on self
         bool const canEffectTrigger = (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS) || !spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS))
-            && spell->unitTarget->CanProc()
-            && (spell->CanExecuteTriggersOnHit(EffectMask) || MissCondition == SPELL_MISS_IMMUNE || MissCondition == SPELL_MISS_IMMUNE2);
+            && spell->unitTarget->CanProc();
 
         // Trigger info was not filled in Spell::prepareDataForTriggerSystem - we do it now
         if (canEffectTrigger && !procAttacker && !procVictim)
@@ -2834,7 +2884,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         }
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
-        spell->DoTriggersOnSpellHit(_spellHitTarget, EffectMask);
+        spell->DoTriggersOnSpellHit(_spellHitTarget);
     }
 
     if (_enablePVP)
@@ -3099,7 +3149,7 @@ void Spell::DoSpellEffectHit(Unit* unit, SpellEffectInfo const& spellEffectInfo,
     _spellAura = nullptr;
 }
 
-void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
+void Spell::DoTriggersOnSpellHit(Unit* unit)
 {
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
     // this is executed after spell proc spells on target hit
@@ -3110,7 +3160,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
         int32 _duration = 0;
         for (auto i = m_hitTriggerSpells.begin(); i != m_hitTriggerSpells.end(); ++i)
         {
-            if (CanExecuteTriggersOnHit(effMask, i->triggeredByAura) && roll_chance_i(i->chance))
+            if (CanExecuteTriggersOnHit(unit, i->triggeredByAura) && roll_chance_i(i->chance))
             {
                 m_caster->CastSpell(unit, i->triggeredSpell->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                     .SetTriggeringSpell(this)
@@ -3668,7 +3718,7 @@ void Spell::_cast(bool skipCheck)
             creatureCaster->ReleaseSpellFocus(this);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4))
+    if ((m_spellInfo->HasHitDelay() && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_NO_HARMFUL_THREAT))
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -6500,7 +6550,10 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
         }
 
         // check if target already has the same type, but more powerful aura
-        if (!nonAuraEffectMask && (approximateAuraEffectMask & (1 << spellEffectInfo.EffectIndex)) && !m_spellInfo->IsTargetingArea())
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR4_AURA_NEVER_BOUNCES)
+            && (!nonAuraEffectMask || m_spellInfo->HasAttribute(SPELL_ATTR4_AURA_BOUNCE_FAILS_SPELL))
+            && (approximateAuraEffectMask & (1 << spellEffectInfo.EffectIndex))
+            && !m_spellInfo->IsTargetingArea())
             if (Unit* target = m_targets.GetUnitTarget())
                 if (!target->IsHighestExclusiveAuraEffect(m_spellInfo, spellEffectInfo.ApplyAuraName,
                     spellEffectInfo.CalcValue(m_caster, &m_spellValue->EffectBasePoints[spellEffectInfo.EffectIndex], nullptr, nullptr, m_castItemEntry, m_castItemLevel),
@@ -6786,11 +6839,11 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
     if (isRatedBattleground && m_spellInfo->HasAttribute(SPELL_ATTR9_USABLE_IN_RATED_BATTLEGROUNDS))
         return SPELL_CAST_OK;
 
-    if (isArena && m_spellInfo->HasAttribute(SPELL_ATTR4_USABLE_IN_ARENA))
+    if (isArena && m_spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_DEFAULT_ARENA_RESTRICTIONS))
         return SPELL_CAST_OK;
 
     // check NOT_USABLE attributes
-    if (m_spellInfo->HasAttribute(SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR4_NOT_IN_ARENA_OR_RATED_BATTLEGROUND))
         return isArena ? SPELL_FAILED_NOT_IN_ARENA : SPELL_FAILED_NOT_IN_RATED_BATTLEGROUND;
 
     if (isArena && m_spellInfo->HasAttribute(SPELL_ATTR9_NOT_USABLE_IN_ARENA))
@@ -8530,15 +8583,20 @@ bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToC
     return true;
 }
 
-bool Spell::CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura /*= nullptr*/) const
+bool Spell::CanExecuteTriggersOnHit(Unit* unit, SpellInfo const* triggeredByAura /*= nullptr*/) const
 {
-    bool only_on_caster = (triggeredByAura && (triggeredByAura->HasAttribute(SPELL_ATTR4_PROC_ONLY_ON_CASTER)));
-    // If triggeredByAura has SPELL_ATTR4_PROC_ONLY_ON_CASTER then it can only proc on a cast spell with TARGET_UNIT_CASTER
-    for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
-    {
-        if ((effMask & (1 << spellEffectInfo.EffectIndex)) && (!only_on_caster || (spellEffectInfo.TargetA.GetTarget() == TARGET_UNIT_CASTER)))
-            return true;
-    }
+    bool onlyOnTarget = (triggeredByAura && (triggeredByAura->HasAttribute(SPELL_ATTR4_CLASS_TRIGGER_ONLY_ON_TARGET)));
+    if (!onlyOnTarget)
+        return true;
+
+    // If triggeredByAura has SPELL_ATTR4_CLASS_TRIGGER_ONLY_ON_TARGET then it can only proc on either noncaster units...
+    if (unit != m_caster)
+        return true;
+
+    // ... or caster if it is the only target
+    if (m_UniqueTargetInfo.size() == 1)
+        return true;
+
     return false;
 }
 

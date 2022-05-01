@@ -1499,6 +1499,7 @@ enum class SpellEffectAttributes
     None                                    = 0,
     UnaffectedByInvulnerability             = 0x000001, // not cancelled by immunities
     NoScaleWithStack                        = 0x000040,
+    ChainFromInitialTarget                  = 0x000080,
     StackAuraAmountOnRecast                 = 0x008000, // refreshing periodic auras with this attribute will add remaining damage to new aura
     AllowAnyExplicitTarget                  = 0x100000,
     IgnoreDuringCooldownTimeRateCalculation = 0x800000
