@@ -3716,7 +3716,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Earthbind Totem (instant pulse)
     ApplySpellFix({ 6474 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_EXTRA_INITIAL_PERIOD;
     });
 
     ApplySpellFix({
@@ -4700,7 +4700,7 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         // due to the way spell system works, unit would change orientation in Spell::_cast
         if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-            spellInfo->AttributesEx5 |= SPELL_ATTR5_DONT_TURN_DURING_CAST;
+            spellInfo->AttributesEx5 |= SPELL_ATTR5_AI_DOESNT_FACE_TARGET;
 
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
