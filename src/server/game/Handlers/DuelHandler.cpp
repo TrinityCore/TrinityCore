@@ -72,6 +72,9 @@ void WorldSession::HandleDuelAccepted(ObjectGuid arbiterGuid)
     player->duel->StartTime = now + 3;
     target->duel->StartTime = now + 3;
 
+    player->duel->State = DUEL_STATE_COUNTDOWN;
+    target->duel->State = DUEL_STATE_COUNTDOWN;
+
     WorldPackets::Duel::DuelCountdown packet(3000); // milliseconds
     WorldPacket const* worldPacket = packet.Write();
     player->GetSession()->SendPacket(worldPacket);
