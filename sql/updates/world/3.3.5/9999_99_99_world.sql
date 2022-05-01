@@ -30,15 +30,21 @@ INSERT INTO `creature_text`(`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lang
 (17934, 0, 0, 'Dis no good....', 12, 0, 100, 0, 0, 0, 18501, 0, 'Horde Headhunter say slay'),
 (17934, 0, 1, 'Take their heads!', 12, 0, 100, 0, 0, 0, 18499, 0, 'Horde Headhunter say slay'),
 (17934, 0, 2, 'We kill \'em good, mon.', 12, 0, 100, 0, 0, 0, 18500, 0, 'Horde Headhunter say slay'),
+(17934, 0, 3, 'You stay dead.', 12, 0, 100, 0, 0, 0, 18503, 0, 'Horde Headhunter say slay'),
+(17934, 0, 4, 'Da Legion gonna pay.', 12, 0, 100, 0, 0, 0, 18504, 0, 'Horde Headhunter say slay'),
 (17934, 1, 0, 'It all over... now.', 12, 0, 100, 0, 0, 0, 18502, 0, 'Horde Headhunter say death'),
 (17932, 0, 0, 'Destroy them all!', 12, 0, 100, 0, 0, 0, 18486, 0, 'Horde Grunt say slay'),
 (17932, 0, 1, 'Have at them! Lok-Tar!', 12, 0, 100, 0, 0, 0, 18485, 0, 'Horde Grunt say slay'),
 (17932, 0, 2, 'Spill their... blood!', 12, 0, 100, 0, 0, 0, 18488, 0, 'Horde Grunt say slay'),
 (17932, 0, 3, 'Another one down!', 12, 0, 100, 0, 0, 0, 18490, 0, 'Horde Grunt say slay'),
+(17932, 0, 4, 'Demon filth!', 12, 0, 100, 0, 0, 0, 18489, 0, 'Horde Grunt say slay'),
 (17932, 1, 0, 'Keep... fighting!', 12, 0, 100, 0, 0, 0, 18487, 0, 'Horde Grunt say death'),
 (17933, 0, 0, 'For the Earth Mother!', 12, 0, 100, 0, 0, 0, 18493, 0, 'Tauren Warrior say slay'),
 (17933, 0, 1, 'Crush them!', 12, 0, 100, 0, 0, 0, 18494, 0, 'Tauren Warrior say slay'),
+(17933, 0, 2, 'Balance must be restored!', 12, 0, 100, 0, 0, 0, 18497, 0, 'Tauren Warrior say slay'),
+(17933, 0, 3, 'This world is not for you!', 12, 0, 100, 0, 0, 0, 18498, 0, 'Tauren Warrior say slay'),
 (17933, 1, 0, 'I return... to the earth.', 12, 0, 100, 0, 0, 0, 18495, 0, 'Tauren Warrior say death'),
+(17933, 1, 1, 'My spirit... goes on.', 12, 0, 100, 0, 0, 0, 18496, 0, 'Tauren Warrior say death'),
 (17936, 0, 1, 'I am one... with all.', 12, 0, 100, 0, 0, 0, 18510, 0, 'Horde Shaman say slay'),
 (17936, 1, 0, 'My spirit... goes on.', 12, 0, 100, 0, 0, 0, 18496, 0, 'Horde Shaman say death'),
 (17772, 7, 0, '%s begins channelling a massive teleport spell. ', 16, 0, 100, 0, 0, 0, 15310, 0, 'jaina hyjal horde base SUCCESS');
@@ -62,5 +68,17 @@ INSERT INTO `creature`(`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `ph
 -- update doomfire(18095) and doomfire_spirit(18104) flag_extra to 128
 UPDATE `creature_template` SET `flags_extra` = `flags_extra`|128 WHERE `entry` IN (18095,18104);
 
--- add alliance and horde guard AI
-UPDATE `creature_template` SET `ScriptName`='alliance_horde_guard' WHERE `entry` IN (17919,17934,17932,17933,17936);
+-- add say slay and death text for guards
+DELETE FROM `smart_scripts` WHERE (`entryorguid`,`source_type`,`id`,`link`) IN ((17919,0,1,0),(17919,0,2,0),(17932,0,1,0),(17932,0,2,0),(17933,0,1,0),(17933,0,2,0),(17934,0,0,0),(17934,0,1,0),(17936,0,3,0),(17936,0,4,0));
+INSERT INTO `smart_scripts`(`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(17919, 0, 1, 0, 5, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Alliance Footman - In Combat - Say Slay'),
+(17919, 0, 2, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Alliance Footman - In Combat - Say Death'),
+(17932, 0, 1, 0, 5, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Horde Grunt - In Combat - Say Slay'),
+(17932, 0, 2, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Horde Grunt - In Combat - Say Death'),
+(17933, 0, 1, 0, 5, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tauren Warrior - In Combat - Say Slay'),
+(17933, 0, 2, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tauren Warrior - In Combat - Say Death'),
+(17934, 0, 0, 0, 5, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Horde Headhunter - In Combat - Say Slay'),
+(17934, 0, 1, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Horde Headhunter - In Combat - Say Death'),
+(17936, 0, 3, 0, 5, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Horde Shaman - In Combat - Say Slay'),
+(17936, 0, 4, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Horde Shaman - In Combat - Say Death');
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (17919,17934,17932,17933,17936);

@@ -1520,35 +1520,6 @@ public:
 
 };
 
-class alliance_horde_guard : public CreatureScript
-{
-public:
-    alliance_horde_guard() : CreatureScript("alliance_horde_guard") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetHyjalAI<alliance_horde_guardAI>(creature);
-    }
-
-    struct alliance_horde_guardAI : public ScriptedAI
-    {
-        alliance_horde_guardAI(Creature* creature) : ScriptedAI(creature) {}
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(TRASH_SAY_DEATH);
-            me->SetRespawnDelay(me->GetRespawnDelay()+480); // prevent respawn in combat,add wave spawn time to delay respawn
-        }
-
-        void KilledUnit(Unit* /*victim*/) override
-        {
-            Talk(TRASH_SAY_SLAY);
-        }
-
-    };
-
-};
-
 void AddSC_hyjal_trash()
 {
     new npc_giant_infernal();
@@ -1561,5 +1532,4 @@ void AddSC_hyjal_trash()
     new npc_frost_wyrm();
     new npc_gargoyle();
     new alliance_rifleman();
-    new alliance_horde_guard();
 }
