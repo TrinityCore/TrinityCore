@@ -618,7 +618,7 @@ enum SpellAttr5 : uint32
     SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT                            = 0x04000000, // TITLE Always AOE Line of Sight DESCRIPTION Requires line of sight between caster and target in addition to between dest and target
     SPELL_ATTR5_NO_CASTER_AURA_ICON                                 = 0x08000000, // TITLE No Caster Aura Icon (client only)
     SPELL_ATTR5_NO_TARGET_AURA_ICON                                 = 0x10000000, // TITLE No Target Aura Icon (client only)
-    SPELL_ATTR5_AURA_UNIQUE_PER_CASTER                              = 0x20000000, /*NYI*/ // TITLE Aura Unique Per Caster
+    SPELL_ATTR5_AURA_UNIQUE_PER_CASTER                              = 0x20000000, // TITLE Aura Unique Per Caster
     SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE                          = 0x40000000, // TITLE Always Show Ground Texture
     SPELL_ATTR5_ADD_MELEE_HIT_RATING                                = 0x80000000  /*NYI*/ // TITLE Add Melee Hit Rating
 };
