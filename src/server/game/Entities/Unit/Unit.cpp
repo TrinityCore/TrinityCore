@@ -6679,6 +6679,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask(), true);
+    // modify spell power by victim's SPELL_AURA_MOD_DAMAGE_TAKEN auras (eg Amplify/Dampen Magic)
+    DoneAdvertisedBenefit += victim->SpellBaseDamageBonusTaken(spellProto);
 
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
@@ -6746,7 +6748,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (DoneAdvertisedBenefit)
     {
         if (spellPowerCoeff < 0.f)
-            spellPowerCoeff = CalculateDefaultCoefficient(spellProto, damagetype);
+            spellPowerCoeff = CalculateDefaultCoefficient(spellProto, damagetype);  // As wowwiki says: C = (Cast Time / 3.5)
+
 
         if (Player* modOwner = GetSpellModOwner())
         {
@@ -6754,6 +6757,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, spellPowerCoeff);
             spellPowerCoeff /= 100.0f;
         }
+
         DoneTotal += int32(DoneAdvertisedBenefit * spellPowerCoeff * stack);
     }
 
@@ -6954,7 +6958,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         return pdamage;
 
     float TakenTotalMod = 1.0f;
-    int32 TakenTotalFlat = SpellBaseDamageBonusTaken(spellProto);
 
     // Mod damage from spell mechanic
     if (uint32 mechanicMask = spellProto->GetAllEffectsMechanicMask())
@@ -7000,14 +7003,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             return false;
         });
 
-        // From avoidance
-        if (spellProto->IsAffectingArea() || spellProto->HasAreaAuraEffect())
-        {
-            TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-            if (caster->IsCreature())
-                TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
-        }
-
         // From caster spells
         if (caster)
         {
@@ -7039,7 +7034,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         TakenTotalMod = 1.0f - damageReduction;
     }
 
-    float tmpDamage = (pdamage + TakenTotalFlat) * TakenTotalMod;
+    float tmpDamage = pdamage * TakenTotalMod;
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
@@ -7664,10 +7659,15 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         TakenTotal += int32(TakenAdvertisedBenefit * coeff * stack);
     }
 
-    AuraEffectList const& mHealingGet= GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_RECEIVED);
-    for (AuraEffectList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
-        if (caster->GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectingSpell(spellProto))
-            AddPct(TakenTotalMod, (*i)->GetAmount());
+    if (caster)
+    {
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_RECEIVED, [caster, spellProto](AuraEffect const* aurEff) -> bool
+        {
+            if (caster->GetGUID() == aurEff->GetCasterGUID() && aurEff->IsAffectingSpell(spellProto))
+                return true;
+            return false;
+        });
+    }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
