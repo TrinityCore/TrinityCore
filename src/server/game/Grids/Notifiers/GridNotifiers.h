@@ -1159,8 +1159,19 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
-                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER) && u->GetTypeId() != TYPEID_PLAYER)
-                    return false;
+                if (_spellInfo)
+                {
+                    if (!u->IsPlayer())
+                    {
+                        if (_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
+                            return false;
+
+                        if (_spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && u->IsControlledByPlayer())
+                            return false;
+                    }
+                    else if (_spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
+                        return false;
+                }
 
                 if (!i_funit->IsValidAttackTarget(u, _spellInfo))
                     return false;

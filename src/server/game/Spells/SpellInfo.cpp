@@ -2169,8 +2169,16 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
     else return SPELL_CAST_OK;
 
     // corpseOwner and unit specific target checks
-    if (HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER) && unitTarget->GetTypeId() != TYPEID_PLAYER)
-       return SPELL_FAILED_TARGET_NOT_PLAYER;
+    if (!unitTarget->IsPlayer())
+    {
+        if (HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
+            return SPELL_FAILED_TARGET_NOT_PLAYER;
+
+        if (HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && unitTarget->IsControlledByPlayer())
+            return SPELL_FAILED_TARGET_IS_PLAYER_CONTROLLED;
+    }
+    else if (HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
+        return SPELL_FAILED_TARGET_IS_PLAYER;
 
     if (!IsAllowingDeadTarget() && !unitTarget->IsAlive())
        return SPELL_FAILED_TARGETS_DEAD;
