@@ -570,7 +570,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
+            args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     // original caster guid only for GO cast
     m_caster->CastSpell(targets, spellInfo->Id, args);
@@ -617,7 +617,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
+            args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     // original caster guid only for GO cast
     m_caster->CastSpell(targets, spellInfo->Id, args);
@@ -654,7 +654,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             case 52349: // Overtake
             {
                 CastSpellExtraArgs args(m_originalCasterGUID);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damage);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
                 unitTarget->CastSpell(unitTarget, spellInfo->Id, args);
                 return;
             }
@@ -671,7 +671,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_FORCE_CAST_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
+            args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     unitTarget->CastSpell(m_caster, spellInfo->Id, args);
 }
@@ -2094,7 +2094,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->GetCategory() == SPELLCATEGORY_DEVOUR_MAGIC)
     {
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, m_spellInfo->Effects[EFFECT_1].CalcValue());
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, m_spellInfo->Effects[EFFECT_1].CalcValue());
         m_caster->CastSpell(m_caster, 19658, args);
         // Glyph of Felhunter
         if (Unit* owner = m_caster->GetOwner())
@@ -3438,7 +3438,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         if (totem && totem->IsTotem())
                         {
                             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                            args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damage);
+                            args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
                             m_caster->CastSpell(totem, 55277, args);
                         }
                     }
@@ -3446,7 +3446,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (AuraEffect* aur=unitTarget->GetAuraEffect(63298, 0))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damage* aur->GetAmount());
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage* aur->GetAmount());
                         m_caster->CastSpell(unitTarget, 55277, args);
                     }
                     break;
@@ -3984,7 +3984,7 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     player->DestroyItemCount(foodItem, count, true);
     /// @todo fix crash when a spell has two effects, both pointed at the same item target
     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, benefit);
+    args.AddSpellMod(SPELLVALUE_BASE_POINT0, benefit);
     m_caster->CastSpell(pet, m_spellInfo->Effects[effIndex].TriggerSpell, args);
 }
 
@@ -4715,7 +4715,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
     if (mana)
     {
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, mana);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, mana);
         m_caster->CastSpell(m_caster, 39104, args);
     }
 }

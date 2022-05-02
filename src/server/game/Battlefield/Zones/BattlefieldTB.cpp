@@ -438,7 +438,7 @@ void BattlefieldTB::OnPlayerJoinWar(Player* player)
     if (player->GetTeam() == GetAttackerTeam() && GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED) > 0)
     {
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED));
+        args.AddSpellMod(SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED));
         player->CastSpell(player, SPELL_TOWER_ATTACK_BONUS, args);
     }
 }
@@ -990,7 +990,7 @@ void BattlefieldTB::TowerDestroyed(TBTowerId tbTowerId)
         if (Player* player = ObjectAccessor::FindPlayer(*itr))
         {
             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-            args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED));
+            args.AddSpellMod(SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED));
             player->CastSpell(player, SPELL_TOWER_ATTACK_BONUS, args);
         }
     }

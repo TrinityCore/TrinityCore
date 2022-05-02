@@ -1344,7 +1344,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 if (heartOfTheWildSpellId)
                 {
                     CastSpellExtraArgs args(this);
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, heartOfTheWildAmount);
+                    args.AddSpellMod(SPELLVALUE_BASE_POINT0, heartOfTheWildAmount);
                     target->CastSpell(target, heartOfTheWildSpellId, args);
                 }
             }
@@ -1374,7 +1374,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
                         target->CastSpell(target, 48420, args);
                     }
                     break;
@@ -1383,14 +1383,14 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
                         target->CastSpell(target, 48418, args);
                     }
                     // Survival of the Fittest
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DRUID, 961, EFFECT_0))
                     {
                         CastSpellExtraArgs args(this);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, aurEff->GetSpellInfo()->Effects[EFFECT_2].CalcValue());
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetSpellInfo()->Effects[EFFECT_2].CalcValue());
                         target->CastSpell(target, 62069, args);
                     }
                     break;
@@ -1399,7 +1399,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, 2851, EFFECT_0))
                     {
                         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
                         target->CastSpell(target, 48421, args);
                     }
                     break;
@@ -1847,7 +1847,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                     {
                         // Allow to retain up to x% of the caster's energy when shape shifting into cat form
                         CastSpellExtraArgs args(this);
-                        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, std::min<int32>(oldPower, furorEffect->GetAmount()));
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::min<int32>(oldPower, furorEffect->GetAmount()));
                         target->CastSpell(target, 17099, args);
                     }
                 }
@@ -5075,7 +5075,7 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
             CastSpellExtraArgs args(this);
 
             if (GetAmount()) // If amount avalible cast with basepoints (Crypt Fever for example)
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, GetAmount());
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetAmount());
 
             caster->CastSpell(target, triggeredSpellId, args);
         }
@@ -5261,7 +5261,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         break;
 
                     CastSpellExtraArgs args;
-                    args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
+                    args.AddSpellMod(SPELLVALUE_MAX_TARGETS, urand(1, 6));
 
                     caster->CastSpell(target, 66152, args);
                     caster->CastSpell(target, 66153, args);
@@ -5296,7 +5296,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 if (caster)
                 {
                     CastSpellExtraArgs args;
-                    args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0), GetAmount());
+                    args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0), GetAmount());
                     args.SetTriggeringAura(this);
                     caster->CastSpell(target, 53352, args);
                 }
@@ -5413,7 +5413,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                         if (caster)
                         {
                             CastSpellExtraArgs args(this);
-                            args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0), int32(target->CountPctFromMaxHealth(21)));
+                            args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0), int32(target->CountPctFromMaxHealth(21)));
                             caster->CastSpell(target, triggerSpellId, args);
                         }
                         return;
@@ -5564,7 +5564,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             case 16191:
             {
                 CastSpellExtraArgs args(this);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, GetAmount());
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetAmount());
                 args.SetTriggeringAura(this);
                 target->CastSpell(target, triggerSpellId, args);
                 return;
@@ -5573,7 +5573,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             case 46284:
             {
                 CastSpellExtraArgs args(this);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_MAX_TARGETS, int32(m_tickNumber / 10 + 1));
+                args.AddSpellMod(SPELLVALUE_MAX_TARGETS, int32(m_tickNumber / 10 + 1));
                 args.SetTriggeringAura(this);
                 target->CastSpell(nullptr, triggerSpellId, args);
                 return;
@@ -5582,7 +5582,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             case 66882:
             {
                 CastSpellExtraArgs args(this);
-                args.SpellValueOverrides.AddMod(SPELLVALUE_RADIUS_MOD, int32((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000 * 2 / 3));
+                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, int32((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000 * 2 / 3));
                 args.SetTriggeringAura(this);
                 target->CastSpell(nullptr, triggerSpellId, args);
                 return;
@@ -5644,7 +5644,7 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         {
             CastSpellExtraArgs args(this);
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                args.SpellValueOverrides.AddMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), GetAmount());
+                args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), GetAmount());
             triggerCaster->CastSpell(target, triggerSpellId, args);
             TC_LOG_DEBUG("spells", "AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell %u Trigger %u", GetId(), triggeredSpellInfo->Id);
         }
@@ -6111,7 +6111,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
         {
 
             CastSpellExtraArgs args(this);
-            args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, int32(CalculatePct(gainedAmount, manaFeedVal)));
+            args.AddSpellMod(SPELLVALUE_BASE_POINT0, int32(CalculatePct(gainedAmount, manaFeedVal)));
             args.SetTriggeringAura(this);
             caster->CastSpell(caster, 32554, args);
         }
@@ -6283,7 +6283,7 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         CastSpellExtraArgs args(this);
-        args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, GetAmount());
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetAmount());
         triggerCaster->CastSpell(triggerTarget, triggerSpellId, args);
         TC_LOG_DEBUG("spells", "AuraEffect::HandleProcTriggerSpellWithValueAuraProc: Triggering spell %u with value %d from aura %u proc", triggeredSpellInfo->Id, GetAmount(), GetId());
     }
@@ -6382,7 +6382,7 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
 
     CastSpellExtraArgs args(this);
     args.OriginalCaster = GetCasterGUID();
-    args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, GetAmount());
+    args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetAmount());
 
     // next target selection
     if (jumps > 0)
