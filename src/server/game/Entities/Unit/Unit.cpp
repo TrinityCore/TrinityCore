@@ -9512,6 +9512,9 @@ void CharmInfo::InitPossessCreateSpells()
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, _unit->GetMap()->GetDifficultyID());
             if (spellInfo)
             {
+                if (spellInfo->HasAttribute(SPELL_ATTR5_NOT_AVAILABLE_WHILE_CHARMED))
+                    continue;
+
                 if (spellInfo->IsPassive())
                     _unit->CastSpell(_unit, spellInfo->Id, true);
                 else
@@ -9543,6 +9546,9 @@ void CharmInfo::InitCharmCreateSpells()
             _charmspells[x].SetActionAndType(spellId, ACT_DISABLED);
             continue;
         }
+
+        if (spellInfo->HasAttribute(SPELL_ATTR5_NOT_AVAILABLE_WHILE_CHARMED))
+            continue;
 
         if (spellInfo->IsPassive())
         {
