@@ -614,8 +614,8 @@ enum SpellAttr5 : uint32
     SPELL_ATTR5_NOT_ON_TRIVIAL                                      = 0x00400000, /*NYI*/ // TITLE Not On Trivial
     SPELL_ATTR5_NO_PARTIAL_RESISTS                                  = 0x00800000, /*NYI*/ // TITLE No Partial Resists
     SPELL_ATTR5_IGNORE_CASTER_REQUIREMENTS                          = 0x01000000, /*NYI*/ // TITLE Ignore Caster Requirements
-    SPELL_ATTR5_ALWAYS_LINE_OF_SIGHT                                = 0x02000000, /*NYI*/ // TITLE Always Line of Sight
-    SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT                            = 0x04000000, /*WRONG IMPL*/ // TITLE Always AOE Line of Sight DESCRIPTION Requires line of sight between caster and target in addition to between dest and target
+    SPELL_ATTR5_ALWAYS_LINE_OF_SIGHT                                = 0x02000000, // TITLE Always Line of Sight
+    SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT                            = 0x04000000, // TITLE Always AOE Line of Sight DESCRIPTION Requires line of sight between caster and target in addition to between dest and target
     SPELL_ATTR5_NO_CASTER_AURA_ICON                                 = 0x08000000, // TITLE No Caster Aura Icon (client only)
     SPELL_ATTR5_NO_TARGET_AURA_ICON                                 = 0x10000000, // TITLE No Target Aura Icon (client only)
     SPELL_ATTR5_AURA_UNIQUE_PER_CASTER                              = 0x20000000, /*NYI*/ // TITLE Aura Unique Per Caster

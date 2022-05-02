@@ -5677,7 +5677,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     if (DynamicObject* dynObj = m_caster->ToUnit()->GetDynObject(m_triggeredByAuraSpell->Id))
                         losTarget = dynObj;
 
-                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) && !m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     return SPELL_FAILED_LINE_OF_SIGHT;
             }
         }
@@ -5689,7 +5689,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
         float x, y, z;
         m_targets.GetDstPos()->GetPosition(x, y, z);
 
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) && !m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
             return SPELL_FAILED_LINE_OF_SIGHT;
     }
 
@@ -7856,7 +7856,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
             return true;
 
     // if spell is triggered, need to check for LOS disable on the aura triggering it and inherit that behaviour
-    if (IsTriggered() && m_triggeredByAuraSpell && (m_triggeredByAuraSpell->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_triggeredByAuraSpell->Id, nullptr, SPELL_DISABLE_LOS)))
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_LINE_OF_SIGHT) && IsTriggered() && m_triggeredByAuraSpell && (m_triggeredByAuraSpell->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_triggeredByAuraSpell->Id, nullptr, SPELL_DISABLE_LOS)))
         return true;
 
     /// @todo shit below shouldn't be here, but it's temporary
@@ -7890,9 +7890,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
         }
         default:
         {
-            if (losPosition)
-                return target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ(), LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2);
-            else
+            if (!losPosition || m_spellInfo->HasAttribute(SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT))
             {
                 // Get GO cast coordinates if original caster -> GO
                 WorldObject* caster = nullptr;
@@ -7903,6 +7901,10 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
                 if (target != m_caster && !target->IsWithinLOSInMap(caster, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     return false;
             }
+
+            if (losPosition)
+                if (!target->IsWithinLOS(losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ(), LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                    return false;
         }
     }
 
