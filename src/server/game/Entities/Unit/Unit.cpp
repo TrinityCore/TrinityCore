@@ -3183,18 +3183,18 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
 
         // register single target aura
         caster->GetSingleCastAuras().push_back(aura);
+
+        std::queue<Aura*> aurasSharingLimit;
         // remove other single target auras
-        Unit::AuraList& scAuras = caster->GetSingleCastAuras();
-        for (Unit::AuraList::iterator itr = scAuras.begin(); itr != scAuras.end();)
+        for (Aura* scAura : caster->GetSingleCastAuras())
+            if (scAura != aura && scAura->IsSingleTargetWith(aura))
+                aurasSharingLimit.push(scAura);
+
+        uint32 maxOtherAuras = aura->GetSpellInfo()->MaxAffectedTargets - 1;
+        while (aurasSharingLimit.size() > maxOtherAuras)
         {
-            if ((*itr) != aura &&
-                (*itr)->IsSingleTargetWith(aura))
-            {
-                (*itr)->Remove();
-                itr = scAuras.begin();
-            }
-            else
-                ++itr;
+            aurasSharingLimit.front()->Remove();
+            aurasSharingLimit.pop();
         }
     }
 }

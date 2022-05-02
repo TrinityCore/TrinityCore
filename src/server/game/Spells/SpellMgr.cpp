@@ -4705,7 +4705,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
 
-        if (spellInfo->IsSingleTarget())
+        if (spellInfo->IsSingleTarget() && !spellInfo->MaxAffectedTargets)
             spellInfo->MaxAffectedTargets = 1;
     }
 
