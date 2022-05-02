@@ -609,10 +609,10 @@ enum SpellAttr5 : uint32
     SPELL_ATTR5_ALLOW_WHILE_FLEEING                                 = 0x00020000, // TITLE Allow While Fleeing
     SPELL_ATTR5_ALLOW_WHILE_CONFUSED                                = 0x00040000, // TITLE Allow While Confused
     SPELL_ATTR5_AI_DOESNT_FACE_TARGET                               = 0x00080000, // TITLE AI Doesn't Face Target
-    SPELL_ATTR5_DO_NOT_ATTEMPT_A_PET_RESUMMON_WHEN_DISMOUNTING      = 0x00100000, /*NYI*/ // TITLE Do Not Attempt a Pet Resummon When Dismounting
+    SPELL_ATTR5_DO_NOT_ATTEMPT_A_PET_RESUMMON_WHEN_DISMOUNTING      = 0x00100000, // TITLE Do Not Attempt a Pet Resummon When Dismounting DESCRIPTION No generic handling possible, used by scripted dismount spells
     SPELL_ATTR5_IGNORE_TARGET_REQUIREMENTS                          = 0x00200000, /*NYI*/ // TITLE Ignore Target Requirements
     SPELL_ATTR5_NOT_ON_TRIVIAL                                      = 0x00400000, /*NYI*/ // TITLE Not On Trivial
-    SPELL_ATTR5_NO_PARTIAL_RESISTS                                  = 0x00800000, /*NYI*/ // TITLE No Partial Resists
+    SPELL_ATTR5_NO_PARTIAL_RESISTS                                  = 0x00800000, /*NYI, resisting only some spell effects not implemented*/ // TITLE No Partial Resists
     SPELL_ATTR5_IGNORE_CASTER_REQUIREMENTS                          = 0x01000000, /*NYI*/ // TITLE Ignore Caster Requirements
     SPELL_ATTR5_ALWAYS_LINE_OF_SIGHT                                = 0x02000000, // TITLE Always Line of Sight
     SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT                            = 0x04000000, // TITLE Always AOE Line of Sight DESCRIPTION Requires line of sight between caster and target in addition to between dest and target
@@ -620,7 +620,7 @@ enum SpellAttr5 : uint32
     SPELL_ATTR5_NO_TARGET_AURA_ICON                                 = 0x10000000, // TITLE No Target Aura Icon (client only)
     SPELL_ATTR5_AURA_UNIQUE_PER_CASTER                              = 0x20000000, // TITLE Aura Unique Per Caster
     SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE                          = 0x40000000, // TITLE Always Show Ground Texture
-    SPELL_ATTR5_ADD_MELEE_HIT_RATING                                = 0x80000000  /*NYI*/ // TITLE Add Melee Hit Rating
+    SPELL_ATTR5_ADD_MELEE_HIT_RATING                                = 0x80000000  // TITLE Add Melee Hit Rating
 };
 
 // EnumUtils: DESCRIBE THIS
