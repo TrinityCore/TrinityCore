@@ -570,7 +570,7 @@ struct boss_lord_rhyolith : public BossAI
 
                     // Deal damage to trigger the damage taken hook, which manages the model changes and phase switch
                     if (targetHealthPct < me->GetHealthPct())
-                        me->DealDamage(me, CalculatePct(me->GetMaxHealth(), me->GetHealthPct() - targetHealthPct));
+                        Unit::DealDamage(me, me, CalculatePct(me->GetMaxHealth(), me->GetHealthPct() - targetHealthPct));
                     events.Repeat(5s);
                     break;
                 }

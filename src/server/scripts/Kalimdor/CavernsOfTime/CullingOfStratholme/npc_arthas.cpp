@@ -1672,7 +1672,7 @@ class spell_stratholme_crusader_strike : public SpellScript
     {
         if (Unit* target = GetHitUnit())
             if (target->GetEntry() == NPC_CITIZEN || target->GetEntry() == NPC_RESIDENT)
-                GetCaster()->Kill(target);
+                Unit::Kill(GetCaster(), target);
     }
 
     void Register() override

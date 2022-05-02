@@ -265,7 +265,7 @@ class boss_drakkari_elemental : public CreatureScript
                 Talk(EMOTE_ACTIVATE_ALTAR);
 
                 if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-                    killer->Kill(colossus);
+                    Unit::Kill(killer, colossus);
             }
 
             void UpdateAI(uint32 diff) override

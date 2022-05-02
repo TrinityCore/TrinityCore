@@ -494,7 +494,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 {
                                     corruptor->AI()->DoAction(-ACTION_CORRUPTOR_LEAVE);
                                     if (Creature* guardian = instance->GetCreature(_guardianGUID))
-                                        corruptor->Kill(guardian); // @todo is there some spell for this?
+                                        Unit::Kill(corruptor, guardian); // @todo is there some spell for this?
                                 }
                                 SetBossState(DATA_INFINITE_CORRUPTOR, FAIL);
                             }
