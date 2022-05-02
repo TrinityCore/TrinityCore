@@ -1167,7 +1167,6 @@ bool Aura::IsSingleTargetWith(Aura const* aura) const
     // spell with single target specific types
     switch (spec)
     {
-        case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_MAGE_POLYMORPH:
             if (aura->GetSpellInfo()->GetSpellSpecific() == spec)
                 return true;
