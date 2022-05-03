@@ -516,7 +516,7 @@ class TC_GAME_API SpellInfo
         bool IsNextMeleeSwingSpell() const;
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
-        bool HasInitialAggro() const;
+        bool HasInitialAggro(SpellMissInfo missCondition = SPELL_MISS_NONE) const;
         bool HasHitDelay() const;
 
         WeaponAttackType GetAttackType() const;

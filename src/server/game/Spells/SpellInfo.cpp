@@ -1673,8 +1673,10 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return HasAttribute(SPELL_ATTR2_AUTO_REPEAT);
 }
 
-bool SpellInfo::HasInitialAggro() const
+bool SpellInfo::HasInitialAggro(SpellMissInfo missCondition) const
 {
+    if (HasAttribute(SPELL_ATTR1_THREAT_ONLY_ON_MISS))
+        return missCondition != SPELL_MISS_NONE;
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT) || HasAttribute(SPELL_ATTR4_NO_HARMFUL_THREAT));
 }
 
