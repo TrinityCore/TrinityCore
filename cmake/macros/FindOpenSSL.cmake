@@ -80,7 +80,6 @@ Set ``OPENSSL_MSVC_STATIC_RT`` set ``TRUE`` to choose the MT version of the lib.
 #]=======================================================================]
 
 set(OPENSSL_EXPECTED_VERSION "1.0")
-set(OPENSSL_MAX_VERSION "1.2")
 
 macro(_OpenSSL_test_and_find_dependencies ssl_library crypto_library)
   if((CMAKE_SYSTEM_NAME STREQUAL "Linux") AND
@@ -574,7 +573,7 @@ if(OPENSSL_FOUND)
   message(STATUS "Found OpenSSL library: ${OPENSSL_LIBRARIES}")
   message(STATUS "Found OpenSSL headers: ${OPENSSL_INCLUDE_DIR}")
   include(EnsureVersion)
-  ENSURE_VERSION_RANGE("${OPENSSL_EXPECTED_VERSION}" "${OPENSSL_VERSION}" "${OPENSSL_MAX_VERSION}" OPENSSL_VERSION_OK)
+  ENSURE_VERSION("${OPENSSL_EXPECTED_VERSION}" "${OPENSSL_VERSION}" OPENSSL_VERSION_OK)
   if(NOT OPENSSL_VERSION_OK)
       message(FATAL_ERROR "TrinityCore needs OpenSSL version ${OPENSSL_EXPECTED_VERSION} but found too new version ${OPENSSL_VERSION}. TrinityCore needs OpenSSL 1.0.x or 1.1.x to work properly. If you still have problems please install OpenSSL 1.0.x if you still have problems search on forum for TCE00022")
   endif()
