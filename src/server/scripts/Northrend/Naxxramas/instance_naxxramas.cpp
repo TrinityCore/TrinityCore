@@ -123,7 +123,7 @@ class instance_naxxramas : public InstanceMapScript
                 hadSapphironBirth       = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
-                playerDied              = 0;
+                playerDied              = false;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -248,9 +248,9 @@ class instance_naxxramas : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
-                if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
+                if (!playerDied && unit->IsPlayer() && IsEncounterInProgress())
                 {
-                    playerDied = 1;
+                    playerDied = true;
                     SaveToDB();
                 }
 
@@ -552,6 +552,18 @@ class instance_naxxramas : public InstanceMapScript
                 return false;
             }
 
+            void WriteSaveDataMore(std::ostringstream& data) override
+            {
+                data << uint32(playerDied ? 1 : 0);
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                uint32 tmpState;
+                data >> tmpState;
+                playerDied = tmpState != 0;
+            }
+
         protected:
             /* The Arachnid Quarter */
             // Anub'rekhan
@@ -597,7 +609,7 @@ class instance_naxxramas : public InstanceMapScript
             uint8 CurrentWingTaunt;
 
             /* The Immortal / The Undying */
-            uint32 playerDied;
+            bool playerDied;
 
             EventMap events;
         };
