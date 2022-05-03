@@ -128,9 +128,9 @@ if (WIN32)
   if(PLATFORM EQUAL 64)
     set(_OPENSSL_MSI_INSTALL_GUID "117551DB-A110-4BBD-BB05-CFE0BCB3ED31")
     set(_OPENSSL_ROOT_HINTS
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]"
       ${OPENSSL_ROOT_DIR}
       ENV OPENSSL_ROOT_DIR
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]"
       )
     file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" _programfiles)
     set(_OPENSSL_ROOT_PATHS
@@ -142,9 +142,9 @@ if (WIN32)
   else()
     set(_OPENSSL_MSI_INSTALL_GUID "A1EEC576-43B9-4E75-9E02-03DA542D2A38")
     set(_OPENSSL_ROOT_HINTS
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;Inno Setup: App Path]"
       ${OPENSSL_ROOT_DIR}
       ENV OPENSSL_ROOT_DIR
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;Inno Setup: App Path]"
       )
     file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" _programfiles)
     set(_OPENSSL_ROOT_PATHS
