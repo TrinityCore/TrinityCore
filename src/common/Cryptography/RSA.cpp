@@ -33,7 +33,6 @@ struct BIODeleter
     }
 };
 
-
 struct HMAC_SHA256_MD
 {
     struct CTX_DATA

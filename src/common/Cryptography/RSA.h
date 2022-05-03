@@ -59,7 +59,6 @@ public:
         size_t _keyLength;
     };
 
-
     RsaSignature();
     RsaSignature(RsaSignature&& rsa) noexcept;
     ~RsaSignature();
