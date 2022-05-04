@@ -2407,7 +2407,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const;
         bool CanUseBattlegroundObject(GameObject* gameobject) const;
-        bool isTotalImmune() const;
+        bool IsImmuneToAllSchool() const;
         bool CanCaptureTowerPoint() const;
 
         bool GetRandomWinner() const { return m_IsBGRandomWinner; }

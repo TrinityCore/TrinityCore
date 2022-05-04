@@ -1770,7 +1770,7 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
     return false;
 }
 
-bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
+bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo, uint32 schoolMask) const
 {
     // aura can't be pierced
     if (!auraSpellInfo || auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
@@ -1780,8 +1780,11 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
     if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return true;
 
+    if (schoolMask && HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+        return true;
+
     // these spells (Cyclone for example) can pierce all...
-    if (HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+    if (HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS))
     {
         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
         if (auraSpellInfo->Mechanic != MECHANIC_IMMUNE_SHIELD &&
