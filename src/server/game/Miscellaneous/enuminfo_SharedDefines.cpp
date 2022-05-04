@@ -1281,7 +1281,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr8>::ToString(SpellAttr8 value)
     {
         case SPELL_ATTR8_CANT_MISS: return { "SPELL_ATTR8_CANT_MISS", "No Attack Block", "" };
         case SPELL_ATTR8_UNK1: return { "SPELL_ATTR8_UNK1", "Unknown attribute 1@Attr8", "" };
-        case SPELL_ATTR8_UNK2: return { "SPELL_ATTR8_UNK2", "Unknown attribute 2@Attr8", "" };
+        case SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS: return { "SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS", "SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS", "2 Remove Outside Dungeons and Raids" };
         case SPELL_ATTR8_UNK3: return { "SPELL_ATTR8_UNK3", "Unknown attribute 3@Attr8", "" };
         case SPELL_ATTR8_UNK4: return { "SPELL_ATTR8_UNK4", "Unknown attribute 4@Attr8", "" };
         case SPELL_ATTR8_UNK5: return { "SPELL_ATTR8_UNK5", "Unknown attribute 5@Attr8", "" };
@@ -1325,7 +1325,7 @@ TC_API_EXPORT SpellAttr8 EnumUtils<SpellAttr8>::FromIndex(size_t index)
     {
         case 0: return SPELL_ATTR8_CANT_MISS;
         case 1: return SPELL_ATTR8_UNK1;
-        case 2: return SPELL_ATTR8_UNK2;
+        case 2: return SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS;
         case 3: return SPELL_ATTR8_UNK3;
         case 4: return SPELL_ATTR8_UNK4;
         case 5: return SPELL_ATTR8_UNK5;
@@ -1366,7 +1366,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr8>::ToIndex(SpellAttr8 value)
     {
         case SPELL_ATTR8_CANT_MISS: return 0;
         case SPELL_ATTR8_UNK1: return 1;
-        case SPELL_ATTR8_UNK2: return 2;
+        case SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS: return 2;
         case SPELL_ATTR8_UNK3: return 3;
         case SPELL_ATTR8_UNK4: return 4;
         case SPELL_ATTR8_UNK5: return 5;

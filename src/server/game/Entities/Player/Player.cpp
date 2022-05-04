@@ -1327,6 +1327,17 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
 
+    RemoveAppliedAuras([mEntry](AuraApplication const* aurApp) -> bool
+    {
+        bool isEnteringInstance = mEntry->IsDungeon() || mEntry->IsRaid();
+        bool removeOutsideInstance = aurApp->GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS);
+
+        if (removeOutsideInstance && !isEnteringInstance)
+            return true;
+
+        return false;
+    });
+
     // don't let enter battlegrounds without assigned battleground id (for example through areatrigger)...
     // don't let gm level > 1 either
     if (!InBattleground() && mEntry->IsBattlegroundOrArena())

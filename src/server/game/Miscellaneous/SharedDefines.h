@@ -702,7 +702,7 @@ enum SpellAttr8 : uint32
 {
     SPELL_ATTR8_CANT_MISS                        = 0x00000001, // TITLE No Attack Block
     SPELL_ATTR8_UNK1                             = 0x00000002, // TITLE Unknown attribute 1@Attr8
-    SPELL_ATTR8_UNK2                             = 0x00000004, // TITLE Unknown attribute 2@Attr8
+    SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS = 0x00000004, //  2 Remove Outside Dungeons and Raids
     SPELL_ATTR8_UNK3                             = 0x00000008, // TITLE Unknown attribute 3@Attr8
     SPELL_ATTR8_UNK4                             = 0x00000010, // TITLE Unknown attribute 4@Attr8
     SPELL_ATTR8_UNK5                             = 0x00000020, // TITLE Unknown attribute 5@Attr8

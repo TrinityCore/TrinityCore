@@ -620,7 +620,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, Unit* calcTarget /*= nullptr*/)
 {
     // default amount calculation
     int32 amount = 0;
-    
+
     if (!m_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS) || G3D::fuzzyEq(GetSpellEffectInfo().BonusCoefficient, 0.0f))
         amount = GetSpellEffectInfo().CalcValue(caster, &m_baseAmount, calcTarget != nullptr ? calcTarget : GetBase()->GetOwner()->ToUnit(), nullptr, GetBase()->GetCastItemId(), GetBase()->GetCastItemLevel());
     else if (caster && caster->GetTypeId() == TYPEID_PLAYER)
