@@ -1596,6 +1596,10 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
                 armor = std::floor(AddPct(armor, -aurEff->GetAmount()));
         }
 
+        // armor is normal school partial resit, level base resist is elemental resist, not affect by SPELL_ATTR5_NO_PARTIAL_RESISTS
+        if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR5_NO_PARTIAL_RESISTS))
+            armor = 0.0f;
+
         // Apply Player CR_ARMOR_PENETRATION rating
         if (attacker->GetTypeId() == TYPEID_PLAYER)
         {
