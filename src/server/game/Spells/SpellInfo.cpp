@@ -1583,7 +1583,7 @@ bool SpellInfo::IsCooldownStartedOnEvent() const
 
 bool SpellInfo::IsDeathPersistent() const
 {
-    return HasAttribute(SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD);
+    return HasAttribute(SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD) || HasAttribute(SPELL_ATTR1_IGNORE_OWNERS_DEATH);
 }
 
 bool SpellInfo::IsRequiringDeadTarget() const
