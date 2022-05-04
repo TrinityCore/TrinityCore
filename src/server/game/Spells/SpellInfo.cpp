@@ -508,6 +508,9 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
         if (casterUnit && basePointsPerLevel != 0.0f)
         {
             int32 level = int32(casterUnit->GetLevel());
+            if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING))
+                level = target->GetLevel();
+
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
 
@@ -539,7 +542,8 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
     if (Scaling.Coefficient != 0.0f)
     {
         uint32 level = _spellInfo->SpellLevel;
-        if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+
+        if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING))
             level = target->GetLevel();
         else if (caster && caster->IsUnit())
             level = caster->ToUnit()->GetLevel();
@@ -612,6 +616,10 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 expansion = contentTuning->ExpansionID;
 
             int32 level = caster && caster->IsUnit() ? int32(caster->ToUnit()->GetLevel()) : 1;
+
+            if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING))
+                level = target->GetLevel();
+
             value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE) * BasePoints / 100.0f;
         }
 

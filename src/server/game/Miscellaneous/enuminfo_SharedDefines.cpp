@@ -1287,7 +1287,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr8>::ToString(SpellAttr8 value)
         case SPELL_ATTR8_UNK5: return { "SPELL_ATTR8_UNK5", "Unknown attribute 5@Attr8", "" };
         case SPELL_ATTR8_UNK6: return { "SPELL_ATTR8_UNK6", "Unknown attribute 6@Attr8", "" };
         case SPELL_ATTR8_UNK7: return { "SPELL_ATTR8_UNK7", "Unknown attribute 7@Attr8", "" };
-        case SPELL_ATTR8_AFFECT_PARTY_AND_RAID: return { "SPELL_ATTR8_AFFECT_PARTY_AND_RAID", "Use Target's Level for Spell Scaling", "" };
+        case SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING: return { "SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING", "Use Target's Level for Spell Scaling", "" };
         case SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER: return { "SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER", "Periodic Can Crit", "(WRONG) Periodic auras with this flag keep old periodic timer when refreshing at close to one tick remaining (kind of anti DoT clipping)" };
         case SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM: return { "SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM", "Mirror creature name", "" };
         case SPELL_ATTR8_UNK11: return { "SPELL_ATTR8_UNK11", "Unknown attribute 11@Attr8", "" };
@@ -1331,7 +1331,7 @@ TC_API_EXPORT SpellAttr8 EnumUtils<SpellAttr8>::FromIndex(size_t index)
         case 5: return SPELL_ATTR8_UNK5;
         case 6: return SPELL_ATTR8_UNK6;
         case 7: return SPELL_ATTR8_UNK7;
-        case 8: return SPELL_ATTR8_AFFECT_PARTY_AND_RAID;
+        case 8: return SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING;
         case 9: return SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
         case 10: return SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM;
         case 11: return SPELL_ATTR8_UNK11;
@@ -1372,7 +1372,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr8>::ToIndex(SpellAttr8 value)
         case SPELL_ATTR8_UNK5: return 5;
         case SPELL_ATTR8_UNK6: return 6;
         case SPELL_ATTR8_UNK7: return 7;
-        case SPELL_ATTR8_AFFECT_PARTY_AND_RAID: return 8;
+        case SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING: return 8;
         case SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER: return 9;
         case SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM: return 10;
         case SPELL_ATTR8_UNK11: return 11;

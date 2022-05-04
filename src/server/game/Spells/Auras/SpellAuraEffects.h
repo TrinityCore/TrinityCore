@@ -63,7 +63,7 @@ class TC_GAME_API AuraEffect
         int32 GetPeriodicTimer() const { return _periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { _periodicTimer = periodicTimer; }
 
-        int32 CalculateAmount(Unit* caster);
+        int32 CalculateAmount(Unit* caster, Unit* calcTarget = nullptr);
         void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false, AuraEffect const* triggeredBy = nullptr);
