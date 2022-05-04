@@ -678,7 +678,7 @@ enum SpellAttr7 : uint32
     SPELL_ATTR7_SILENCE_ONLY_NONPLAYER           = 0x00001000, // TITLE Can Cause Silence
     SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED        = 0x00002000, // TITLE No UI Not Interruptible DESCRIPTION Can always be interrupted, even if caster is immune
     SPELL_ATTR7_UNK14                            = 0x00004000, // TITLE Unknown attribute 14@Attr7
-    SPELL_ATTR7_UNK15                            = 0x00008000, // TITLE Unknown attribute 15@Attr7 DESCRIPTION Exorcism - guaranteed crit vs families?
+    SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START = 0x00008000, // 15 Reset Swing Timer at spell start
     SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED = 0x00010000, // TITLE Only In Spellbook Until Learned DESCRIPTION After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)
     SPELL_ATTR7_UNK17                            = 0x00020000, // TITLE Unknown attribute 17@Attr7
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // TITLE Has charge effect

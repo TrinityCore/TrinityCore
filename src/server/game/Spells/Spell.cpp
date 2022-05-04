@@ -507,6 +507,8 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_applyMultiplierMask = 0;
     memset(m_damageMultipliers, 0, sizeof(m_damageMultipliers));
 
+    _isSwingTimerReseted = false;
+
     // Get data for type of attack
     m_attackType = info->GetAttackType();
 
@@ -3731,6 +3733,7 @@ void Spell::_cast(bool skipCheck)
         m_spellState = SPELL_STATE_DELAYED;
         SetDelayStart(0);
 
+        ResetSwingTimer(false);
         if (Unit* unitCaster = m_caster->ToUnit())
             if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
                 unitCaster->ClearUnitState(UNIT_STATE_CASTING);
@@ -4185,6 +4188,40 @@ void Spell::update(uint32 difftime)
     }
 }
 
+void Spell::ResetSwingTimer(bool onCastStart)
+{
+    if (onCastStart != m_spellInfo->HasAttribute(SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START))
+        return;
+
+    if (_isSwingTimerReseted)
+        return;
+
+    _isSwingTimerReseted = true;
+
+    int32 originalCastTime = m_spellInfo->CastTimeEntry ? m_spellInfo->CastTimeEntry->Base : 0;
+    bool isCastTimeCancel = !m_casttime && originalCastTime;
+
+    if (isCastTimeCancel && m_spellInfo->HasAttribute(SPELL_ATTR6_DOESNT_RESET_SWING_TIMER_IF_INSTANT))
+        return;
+
+    if (IsTriggered())
+        return;
+
+    if (!originalCastTime)
+        return;
+
+    if (Unit* unitCaster = m_caster->ToUnit())
+    {
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
+        {
+            unitCaster->resetAttackTimer(BASE_ATTACK);
+            if (unitCaster->haveOffhandWeapon())
+                unitCaster->resetAttackTimer(OFF_ATTACK);
+            unitCaster->resetAttackTimer(RANGED_ATTACK);
+        }
+    }
+}
+
 void Spell::finish(bool ok)
 {
     if (m_spellState == SPELL_STATE_FINISHED)
@@ -4200,6 +4237,8 @@ void Spell::finish(bool ok)
 
     if (m_spellInfo->IsChanneled())
         unitCaster->UpdateInterruptMask();
+
+    ResetSwingTimer(false);
 
     if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
         unitCaster->ClearUnitState(UNIT_STATE_CASTING);
@@ -4236,17 +4275,6 @@ void Spell::finish(bool ok)
             if (unitCaster->getDeathState() != JUST_DIED)
                 unitCaster->setDeathState(JUST_DIED);
             return;
-        }
-    }
-
-    if (IsAutoActionResetSpell())
-    {
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
-        {
-            unitCaster->resetAttackTimer(BASE_ATTACK);
-            if (unitCaster->haveOffhandWeapon())
-                unitCaster->resetAttackTimer(OFF_ATTACK);
-            unitCaster->resetAttackTimer(RANGED_ATTACK);
         }
     }
 
@@ -4543,6 +4571,8 @@ void Spell::SendMountResult(MountResult result)
 
 void Spell::SendSpellStart()
 {
+    ResetSwingTimer(true);
+
     if (!IsNeedSendToClient())
         return;
 
@@ -7959,17 +7989,6 @@ bool Spell::IsProcDisabled() const
 bool Spell::IsChannelActive() const
 {
     return m_caster->IsUnit() && m_caster->ToUnit()->GetChannelSpellId() != 0;
-}
-
-bool Spell::IsAutoActionResetSpell() const
-{
-    if (IsTriggered())
-        return false;
-
-    if (!m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR6_DOESNT_RESET_SWING_TIMER_IF_INSTANT))
-        return false;
-
-    return true;
 }
 
 bool Spell::IsPositive() const

@@ -1165,7 +1165,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
         case SPELL_ATTR7_SILENCE_ONLY_NONPLAYER: return { "SPELL_ATTR7_SILENCE_ONLY_NONPLAYER", "Can Cause Silence", "" };
         case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return { "SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED", "No UI Not Interruptible", "Can always be interrupted, even if caster is immune" };
         case SPELL_ATTR7_UNK14: return { "SPELL_ATTR7_UNK14", "Unknown attribute 14@Attr7", "" };
-        case SPELL_ATTR7_UNK15: return { "SPELL_ATTR7_UNK15", "Unknown attribute 15@Attr7", "Exorcism - guaranteed crit vs families?" };
+        case SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START: return { "SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START", "SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START", "15 Reset Swing Timer at spell start" };
         case SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED: return { "SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED", "Only In Spellbook Until Learned", "After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)" };
         case SPELL_ATTR7_UNK17: return { "SPELL_ATTR7_UNK17", "Unknown attribute 17@Attr7", "" };
         case SPELL_ATTR7_HAS_CHARGE_EFFECT: return { "SPELL_ATTR7_HAS_CHARGE_EFFECT", "Has charge effect", "" };
@@ -1209,7 +1209,7 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 12: return SPELL_ATTR7_SILENCE_ONLY_NONPLAYER;
         case 13: return SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED;
         case 14: return SPELL_ATTR7_UNK14;
-        case 15: return SPELL_ATTR7_UNK15;
+        case 15: return SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START;
         case 16: return SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED;
         case 17: return SPELL_ATTR7_UNK17;
         case 18: return SPELL_ATTR7_HAS_CHARGE_EFFECT;
@@ -1250,7 +1250,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
         case SPELL_ATTR7_SILENCE_ONLY_NONPLAYER: return 12;
         case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return 13;
         case SPELL_ATTR7_UNK14: return 14;
-        case SPELL_ATTR7_UNK15: return 15;
+        case SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START: return 15;
         case SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED: return 16;
         case SPELL_ATTR7_UNK17: return 17;
         case SPELL_ATTR7_HAS_CHARGE_EFFECT: return 18;

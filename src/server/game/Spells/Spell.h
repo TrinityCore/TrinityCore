@@ -443,6 +443,7 @@ class TC_GAME_API Spell
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
         void TakePower();
+        void ResetSwingTimer(bool onCastStart);
 
         void TakeRunePower(bool didHit);
         void TakeReagents();
@@ -585,7 +586,6 @@ class TC_GAME_API Spell
         bool IsFocusDisabled() const;
         bool IsProcDisabled() const;
         bool IsChannelActive() const;
-        bool IsAutoActionResetSpell() const;
         bool IsPositive() const;
 
         bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
@@ -875,6 +875,8 @@ class TC_GAME_API Spell
         std::unique_ptr<PathGenerator> m_preGeneratedPath;
 
         std::vector<SpellLogEffect> _executeLogEffects;
+
+        bool _isSwingTimerReseted;
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
