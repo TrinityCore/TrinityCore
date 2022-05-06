@@ -203,13 +203,15 @@ namespace WorldPackets
             WorldAttempt5   = 89
         };
 
-        class ConnectTo final : public ServerPacket
+        class TC_GAME_API ConnectTo final : public ServerPacket
         {
         public:
             static bool InitializeEncryption();
+            static void ShutdownEncryption();
 
             enum AddressType : uint8
             {
+                None = 0,
                 IPv4 = 1,
                 IPv6 = 2,
                 NamedSocket = 3 // not supported by windows client
@@ -217,20 +219,20 @@ namespace WorldPackets
 
             struct SocketAddress
             {
-                AddressType Type;
+                AddressType Type = None;
                 union
                 {
                     std::array<uint8, 4> V4;
                     std::array<uint8, 16> V6;
                     std::array<char, 128> Name;
-                } Address;
+                } Address = { };
             };
 
             struct ConnectPayload
             {
                 SocketAddress Where;
-                uint16 Port;
-                std::array<uint8, 256> Signature;
+                uint16 Port = 0;
+                std::array<uint8, 256> Signature = { };
             };
 
             ConnectTo();

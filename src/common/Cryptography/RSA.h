@@ -60,11 +60,12 @@ public:
     };
 
     RsaSignature();
-    RsaSignature(RsaSignature&& rsa) noexcept;
+    RsaSignature(RsaSignature const& other);
+    RsaSignature(RsaSignature&& other) noexcept;
     ~RsaSignature();
 
-    RsaSignature(RsaSignature const& rsa) = delete;
-    RsaSignature& operator=(RsaSignature const& rsa) = delete;
+    RsaSignature& operator=(RsaSignature const& right);
+    RsaSignature& operator=(RsaSignature&& right) noexcept;
 
     bool LoadKeyFromFile(std::string const& fileName);
 

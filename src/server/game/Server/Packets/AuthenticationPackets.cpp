@@ -247,6 +247,11 @@ bool WorldPackets::Auth::ConnectTo::InitializeEncryption()
     return true;
 }
 
+void WorldPackets::Auth::ConnectTo::ShutdownEncryption()
+{
+    ConnectToRSA.reset();
+}
+
 WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 256 + 1 + 16 + 2 + 4 + 1 + 8)
 {
 }
@@ -274,9 +279,11 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     signBuffer.append(whereBuffer);
     signBuffer << uint32(Payload.Where.Type);
     signBuffer << uint16(Payload.Port);
+
+    Trinity::Crypto::RsaSignature rsa(*ConnectToRSA);
     Trinity::Crypto::RsaSignature::SHA256 digestGenerator;
     std::vector<uint8> signature;
-    ConnectToRSA->Sign(signBuffer.contents(), signBuffer.size(), digestGenerator, signature);
+    rsa.Sign(signBuffer.contents(), signBuffer.size(), digestGenerator, signature);
 
     _worldPacket.append(signature.data(), signature.size());
     _worldPacket.append(whereBuffer);
@@ -310,10 +317,11 @@ WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
     msg[0] = Enabled ? 1 : 0;
     std::copy_n(std::begin(EnableEncryptionSeed), std::size(EnableEncryptionSeed), &msg[1]);
 
+    Trinity::Crypto::RsaSignature rsa(*ConnectToRSA);
     Trinity::Crypto::RsaSignature::HMAC_SHA256 digestGenerator(EncryptionKey, 16);
     std::vector<uint8> signature;
 
-    ConnectToRSA->Sign(msg, digestGenerator, signature);
+    rsa.Sign(msg, digestGenerator, signature);
 
     _worldPacket.append(signature.data(), signature.size());
     _worldPacket.WriteBit(Enabled);

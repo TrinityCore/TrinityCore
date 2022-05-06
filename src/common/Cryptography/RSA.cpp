@@ -160,30 +160,60 @@ EVP_MD const* RsaSignature::HMAC_SHA256::GetGenerator() const
 void RsaSignature::HMAC_SHA256::PostInitCustomizeContext(EVP_MD_CTX* ctx)
 {
     HMAC_SHA256_MD::CTX_DATA* ctxData = reinterpret_cast<HMAC_SHA256_MD::CTX_DATA*>(EVP_MD_CTX_md_data(ctx));
-    if (ctxData->hmac)
-        delete ctxData->hmac;
 
+    delete ctxData->hmac;
     ctxData->hmac = new Crypto::HMAC_SHA256(_key, _keyLength);
 }
 
-RsaSignature::RsaSignature()
+RsaSignature::RsaSignature() : _ctx(Impl::GenericHashImpl::MakeCTX())
 {
-    _ctx = Impl::GenericHashImpl::MakeCTX();
 }
 
-RsaSignature::RsaSignature(RsaSignature&& rsa) noexcept
+RsaSignature::RsaSignature(RsaSignature const& other) : _ctx(Impl::GenericHashImpl::MakeCTX())
 {
-    _ctx = rsa._ctx;
-    rsa._ctx = Impl::GenericHashImpl::MakeCTX();
+    *this = other;
+}
+
+RsaSignature::RsaSignature(RsaSignature&& other) noexcept
+{
+    *this = std::move(other);
 }
 
 RsaSignature::~RsaSignature()
 {
     EVP_MD_CTX_free(_ctx);
+    EVP_PKEY_free(_key);
+}
+
+RsaSignature& RsaSignature::operator=(RsaSignature const& right)
+{
+    if (this == &right)
+        return *this;
+
+    EVP_MD_CTX_copy_ex(_ctx, right._ctx);   // Allowed to fail if not yet initialized
+    _key = right._key;                      // EVP_PKEY uses reference counting internally, just copy the pointer
+    EVP_PKEY_up_ref(_key);                  // Bump reference count for PKEY, as every instance of this class holds two references to PKEY and destructor decrements it twice
+    return *this;
+}
+
+RsaSignature& RsaSignature::operator=(RsaSignature&& right) noexcept
+{
+    if (this == &right)
+        return *this;
+
+    _ctx = std::exchange(right._ctx, Impl::GenericHashImpl::MakeCTX());
+    _key = std::exchange(right._key, EVP_PKEY_new());
+    return *this;
 }
 
 bool RsaSignature::LoadKeyFromFile(std::string const& fileName)
 {
+    if (_key)
+    {
+        EVP_PKEY_free(_key);
+        _key = nullptr;
+    }
+
     std::unique_ptr<BIO, BIODeleter> keyBIO(BIO_new_file(fileName.c_str(), "r"));
     if (!keyBIO)
         return false;
@@ -197,6 +227,12 @@ bool RsaSignature::LoadKeyFromFile(std::string const& fileName)
 
 bool RsaSignature::LoadKeyFromString(std::string const& keyPem)
 {
+    if (_key)
+    {
+        EVP_PKEY_free(_key);
+        _key = nullptr;
+    }
+
     std::unique_ptr<BIO, BIODeleter> keyBIO(BIO_new_mem_buf(
         const_cast<char*>(keyPem.c_str()) /*api hack - this function assumes memory is readonly but lacks const modifier*/,
         keyPem.length() + 1));

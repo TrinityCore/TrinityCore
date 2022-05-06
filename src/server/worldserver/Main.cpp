@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "AppenderDB.h"
 #include "AsyncAcceptor.h"
+#include "AuthenticationPackets.h"
 #include "Banner.h"
 #include "BattlegroundMgr.h"
 #include "BigNumber.h"
@@ -401,6 +402,8 @@ extern int main(int argc, char** argv)
     WorldUpdateLoop();
 
     // Shutdown starts here
+    WorldPackets::Auth::ConnectTo::ShutdownEncryption();
+
     threadPool.reset();
 
     sLog->SetSynchronous();
