@@ -86,9 +86,10 @@ namespace Trinity::Impl
                 if (this == &right)
                     return *this;
 
-                int result = EVP_MD_CTX_copy(_ctx, right._ctx);
+                int result = EVP_MD_CTX_copy_ex(_ctx, right._ctx);
                 ASSERT(result == 1);
-                _key = right._key; // EVP_PKEY uses reference counting internally, just copy the pointer
+                _key = right._key;      // EVP_PKEY uses reference counting internally, just copy the pointer
+                EVP_PKEY_up_ref(_key);  // Bump reference count for PKEY, as every instance of this class holds two references to PKEY and destructor decrements it twice
                 _digest = right._digest;
                 return *this;
             }
