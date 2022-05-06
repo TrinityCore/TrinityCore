@@ -93,7 +93,7 @@ struct RaceMask
         return raceId < MAX_RACES && raceBits[raceId] >= 0 && raceBits[raceId] < 64 ? (T(1) << raceBits[raceId]) : T(0);
     }
 
-    constexpr bool IsEmpty() const { return RawValue != T(0); }
+    constexpr bool IsEmpty() const { return RawValue == T(0); }
 
     constexpr RaceMask operator&(RaceMask right) const { return { RawValue & right.RawValue }; }
     constexpr RaceMask operator|(RaceMask right) const { return { RawValue | right.RawValue }; }
