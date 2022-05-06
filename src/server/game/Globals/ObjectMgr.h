@@ -687,7 +687,7 @@ struct PetLevelInfo
 struct MailLevelReward
 {
     MailLevelReward() : raceMask({ 0 }), mailTemplateId(0), senderEntry(0) { }
-    MailLevelReward(uint64 _raceMask, uint32 _mailTemplateId, uint32 _senderEntry) : raceMask({ _raceMask }), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) { }
+    MailLevelReward(Trinity::RaceMask<uint64> _raceMask, uint32 _mailTemplateId, uint32 _senderEntry) : raceMask(_raceMask), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) { }
 
     Trinity::RaceMask<uint64> raceMask;
     uint32 mailTemplateId;

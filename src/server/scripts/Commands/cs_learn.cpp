@@ -438,7 +438,7 @@ public:
                 continue;
 
             // skip racial skills
-            if (skillLine->RaceMask)
+            if (!skillLine->RaceMask.IsEmpty())
                 continue;
 
             // skip wrong class skills
