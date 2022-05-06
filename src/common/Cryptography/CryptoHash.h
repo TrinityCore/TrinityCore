@@ -96,7 +96,7 @@ namespace Trinity::Impl
                 if (this == &right)
                     return *this;
 
-                int result = EVP_MD_CTX_copy(_ctx, right._ctx);
+                int result = EVP_MD_CTX_copy_ex(_ctx, right._ctx);
                 ASSERT(result == 1);
                 _digest = right._digest;
                 return *this;
