@@ -3650,7 +3650,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         41487  // Envenom - Black Temple
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
 
     // Oscillation Field
@@ -4393,7 +4393,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Twilight Mending
     ApplySpellFix({ 75509 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
