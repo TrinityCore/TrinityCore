@@ -643,7 +643,7 @@ enum SpellAttr6 : uint32
     SPELL_ATTR6_AI_PRIMARY_RANGED_ATTACK                            = 0x00004000, /*NYI*/ // TITLE AI Primary Ranged Attack
     SPELL_ATTR6_NO_PUSHBACK                                         = 0x00008000, /*NYI*/ // TITLE No Pushback
     SPELL_ATTR6_NO_JUMP_PATHING                                     = 0x00010000, /*NYI*/ // TITLE No Jump Pathing
-    SPELL_ATTR6_ALLOW_EQUIP_WHILE_CASTING                           = 0x00020000, /*NYI*/ // TITLE Allow Equip While Casting
+    SPELL_ATTR6_ALLOW_EQUIP_WHILE_CASTING                           = 0x00020000, // TITLE Allow Equip While Casting
     SPELL_ATTR6_ORIGINATE_FROM_CONTROLLER                           = 0x00040000, // TITLE Originate From Controller DESCRIPTION Client will prevent casting if not possessed, charmer will be caster for all intents and purposes
     SPELL_ATTR6_DELAY_COMBAT_TIMER_DURING_CAST                      = 0x00080000, /*NYI*/ // TITLE Delay Combat Timer During Cast
     SPELL_ATTR6_AURA_ICON_ONLY_FOR_CASTER_LIMIT_10                  = 0x00100000, // TITLE Aura Icon Only For Caster (Limit 10) (client only)
