@@ -11488,7 +11488,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 }
 
                 if (IsInCombat() && (pProto->GetClass() == ITEM_CLASS_WEAPON || pProto->GetInventoryType() == INVTYPE_RELIC) && m_weaponChangeTimer != 0)
-                    return EQUIP_ERR_CLIENT_LOCKED_OUT;         // maybe exist better err
+                    return EQUIP_ERR_ITEM_COOLDOWN;
 
                 if (IsNonMeleeSpellCast(false))
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
