@@ -124,7 +124,7 @@ public:
                 return;
 
             Talk(TEXT_AGGRO);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             instance->SetBossState(DATA_JEDOGA_SHADOWSEEKER, IN_PROGRESS);
         }
 

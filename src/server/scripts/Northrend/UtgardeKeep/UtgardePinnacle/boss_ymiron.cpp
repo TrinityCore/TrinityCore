@@ -323,7 +323,7 @@ class spell_dark_slash : public SpellScript
 
     void Register() override
     {
-        OnHit.Register(spell_dark_slash::CalculateDamage);
+        OnHit.Register(&spell_dark_slash::CalculateDamage);
     }
 };
 

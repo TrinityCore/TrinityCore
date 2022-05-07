@@ -230,7 +230,7 @@ class npc_legion_flame : public CreatureScript
             void Reset() override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 DoCast(SPELL_LEGION_FLAME_EFFECT);
             }
 
@@ -324,7 +324,7 @@ class npc_fel_infernal : public CreatureScript
                         DoCast(target, SPELL_FEL_STREAK_VISUAL);
                     context.Repeat(Seconds(15));
                 });
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
             }
 
             void UpdateAI(uint32 diff) override
@@ -427,7 +427,7 @@ class npc_mistress_of_pain : public CreatureScript
                 _events.ScheduleEvent(EVENT_SPINNING_STRIKE, 30*IN_MILLISECONDS);
                 if (IsHeroic())
                     _events.ScheduleEvent(EVENT_MISTRESS_KISS, 15*IN_MILLISECONDS);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/) override

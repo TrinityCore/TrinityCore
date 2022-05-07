@@ -256,7 +256,7 @@ class npc_announcer_toc10 : public CreatureScript
                         jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         jaraxxus->SetImmuneToPC(false);
                         jaraxxus->SetReactState(REACT_DEFENSIVE);
-                        jaraxxus->SetInCombatWithZone();
+                        DoZoneInCombat(jaraxxus);
                     }
                     else
                     {
@@ -446,7 +446,7 @@ class npc_fizzlebang_toc : public CreatureScript
                     jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     jaraxxus->SetImmuneToPC(false);
                     jaraxxus->SetReactState(REACT_AGGRESSIVE);
-                    jaraxxus->SetInCombatWithZone();
+                    DoZoneInCombat(jaraxxus);
                 }
             }
 
@@ -655,7 +655,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 155:
                             // keep the raid in combat for the whole encounter, pauses included
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
                             _updateTimer = 5*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 160);
                             break;

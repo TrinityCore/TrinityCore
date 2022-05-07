@@ -466,7 +466,7 @@ public:
                         alexstraszaBunny->GetNearPoint2D(nullptr, pos.m_positionX, pos.m_positionY, 30.0f, alexstraszaBunny->GetAngle(me));
                         me->GetMotionMaster()->MoveLand(POINT_LAND_P_ONE, pos);
                         me->SetImmuneToAll(false);
-                        me->SetInCombatWithZone();
+                        DoZoneInCombat();
                         events.ScheduleEvent(EVENT_LAND_START_ENCOUNTER, 7*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
                     }
                     break;
@@ -1159,7 +1159,7 @@ public:
                 if (unit->GetTypeId() == TYPEID_UNIT)
                 {
                     unit->CastSpell(unit, SPELL_TELEPORT_VISUAL_ONLY);
-                    unit->ToCreature()->SetInCombatWithZone();
+                    DoZoneInCombat(unit->ToCreature());
                 }
                 else if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->SetDisableGravity(true);

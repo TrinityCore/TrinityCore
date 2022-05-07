@@ -167,7 +167,7 @@ public:
                 events.SetPhase(PHASE_ONE);
                 me->SetImmuneToPC(false);
                 me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
 
                 EntryCheckPredicate pred(NPC_ANTAGONIST);
                 summons.DoAction(ACTION_ANTAGONIST_HOSTILE, pred);
@@ -215,7 +215,7 @@ public:
         void SummonSister(uint32 entry)
         {
             if (Creature* sister = me->SummonCreature(entry, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN))
-                sister->SetInCombatWithZone();
+                DoZoneInCombat(sister);
         }
 
         void UpdateAI(uint32 diff) override
@@ -359,7 +359,7 @@ public:
         {
             me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
             DoCastAOE(SPELL_MOLE_MACHINE_EMERGE, true);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
         }
 
         void IsSummonedBy(Unit* /*summoner*/) override
@@ -400,7 +400,7 @@ public:
                 case ACTION_ANTAGONIST_HOSTILE:
                     me->SetImmuneToPC(false);
                     me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     break;
                 default:
                     break;

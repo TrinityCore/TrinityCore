@@ -258,7 +258,7 @@ class boss_auriaya : public CreatureScript
                                 Defender->Respawn();
                                 if (defenderLives)
                                     Defender->SetAuraStack(SPELL_FERAL_ESSENCE, Defender, defenderLives);
-                                Defender->SetInCombatWithZone();
+                                DoZoneInCombat(Defender);
                                 if (!Defender->IsInCombat())
                                     Defender->AI()->AttackStart(me->GetVictim());
                                 events.CancelEvent(EVENT_RESPAWN_DEFENDER);

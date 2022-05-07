@@ -207,7 +207,7 @@ class boss_gormok : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetInCombatWithZone();
+                        DoZoneInCombat();
                         break;
                     default:
                         break;
@@ -332,7 +332,7 @@ class npc_snobold_vassal : public CreatureScript
             void Reset() override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 _events.ScheduleEvent(EVENT_CHECK_MOUNT, Seconds(1));
                 _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(5), Seconds(30));
             }
@@ -566,7 +566,7 @@ struct boss_jormungarAI : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        me->SetInCombatWithZone();
+        DoZoneInCombat();
         instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
     }
 
@@ -617,7 +617,7 @@ struct boss_jormungarAI : public BossAI
                         acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         acidmaw->SetImmuneToPC(false);
                         acidmaw->SetReactState(REACT_AGGRESSIVE);
-                        acidmaw->SetInCombatWithZone();
+                        DoZoneInCombat(acidmaw);
                         acidmaw->CastSpell(acidmaw, SPELL_EMERGE);
                         acidmaw->CastSpell(acidmaw, SPELL_GROUND_VISUAL_1, true);
                     }
@@ -646,7 +646,7 @@ struct boss_jormungarAI : public BossAI
         DoCast(me, SPELL_SUBMERGE);
         DoCast(me, SPELL_GROUND_VISUAL_0, true);
         me->RemoveAurasDueToSpell(SPELL_EMERGE);
-        me->SetInCombatWithZone();
+        DoZoneInCombat();
         events.SetPhase(PHASE_SUBMERGED);
         events.ScheduleEvent(EVENT_EMERGE, 5*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -775,7 +775,7 @@ class boss_dreadscale : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetInCombatWithZone();
+                        DoZoneInCombat();
                         break;
                     default:
                         break;
@@ -947,7 +947,7 @@ class boss_icehowl : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetInCombatWithZone();
+                        DoZoneInCombat();
                         break;
                     default:
                         break;

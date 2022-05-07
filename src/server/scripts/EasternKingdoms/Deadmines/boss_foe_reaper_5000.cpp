@@ -432,7 +432,7 @@ class npc_foe_reaper_5000_molten_slag : public CreatureScript
                         case EVENT_MOLTEN_SHIELD:
                             DoCastSelf(SPELL_MOLTEN_SHIELD, true);
                             me->SetReactState(REACT_AGGRESSIVE);
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
                             break;
                         case EVENT_FIXATE_PLAYER:
                             DoCastAOE(SPELL_FIXATE_TARGETING, true);

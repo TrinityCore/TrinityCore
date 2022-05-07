@@ -345,7 +345,8 @@ struct boss_lord_rhyolith : public BossAI
                 summon->m_Events.AddEventAtOffset([summon]()
                 {
                     summon->SetReactState(REACT_AGGRESSIVE);
-                    summon->SetInCombatWithZone();
+                    if (CreatureAI* ai = summon->AI())
+                        ai->DoZoneInCombat(summon);
 
                     if (summon->GetEntry() == NPC_SPARK_OF_RHYOLITH)
                         summon->CastSpell(nullptr, SPELL_IMMOLATION_2);

@@ -310,7 +310,7 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             events.Reset();
             events.ScheduleEvent(EVENT_ORB_ADD_VISUAL, Seconds(1));
             events.ScheduleEvent(EVENT_ORB_SET_AGGRESSIVE, Seconds(2));
@@ -410,7 +410,7 @@ public:
             {
                 case ACTION_IMAGES_SET_AGGRESSIVE:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->SetInCombatWithZone();
+                    DoZoneInCombat();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         AttackStart(target);
                     break;

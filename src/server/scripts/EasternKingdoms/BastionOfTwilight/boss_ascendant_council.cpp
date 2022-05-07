@@ -349,14 +349,14 @@ struct boss_ascendant_council_controller final : public BossAI
 
                 if (Creature* arion = instance->GetCreature(DATA_ARION))
                 {
-                    arion->SetInCombatWithZone();
+                    DoZoneInCombat(arion);
                     if (IsHeroic())
                         arion->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
                 }
 
                 if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
                 {
-                    terrastra->SetInCombatWithZone();
+                    DoZoneInCombat(terrastra);
                     if (IsHeroic())
                         terrastra->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
                 }
