@@ -2021,6 +2021,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void ResetAllPowers();
 
+        SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = BASE_ATTACK) const override;
+
         void CastAllObtainSpells();
         void ApplyItemObtainSpells(Item* item, bool apply);
 
