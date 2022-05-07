@@ -312,6 +312,21 @@ public:
     }
 };
 
+// 48292 - Dark Slash
+class spell_dark_slash : public SpellScript
+{
+    void CalculateDamage()
+    {
+        // Slashes the target with darkness, dealing damage equal to half the target's current health.
+        SetHitDamage(int32(ceil(GetHitUnit()->GetHealth() / 2.f)));
+    }
+
+    void Register() override
+    {
+        OnHit.Register(spell_dark_slash::CalculateDamage);
+    }
+};
+
 class achievement_kings_bane : public AchievementCriteriaScript
 {
     public:
@@ -333,5 +348,6 @@ class achievement_kings_bane : public AchievementCriteriaScript
 void AddSC_boss_ymiron()
 {
     new boss_ymiron();
+    RegisterSpellScript(spell_dark_slash);
     new achievement_kings_bane();
 }

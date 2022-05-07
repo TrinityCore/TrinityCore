@@ -1473,16 +1473,16 @@ class spell_blood_council_shadow_prison_damage : public SpellScriptLoader
 
         class spell_blood_council_shadow_prison_SpellScript : public SpellScript
         {
-            void AddExtraDamage()
+            void AddExtraDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Aura* aur = GetHitUnit()->GetAura(GetSpellInfo()->Id))
                     if (AuraEffect const* eff = aur->GetEffect(EFFECT_1))
-                        SetHitDamage(GetHitDamage() + eff->GetAmount());
+                        SetEffectValue(GetEffectValue() + eff->GetAmount());
             }
 
             void Register() override
             {
-                OnHit.Register(&spell_blood_council_shadow_prison_SpellScript::AddExtraDamage);
+                OnEffectLaunchTarget.Register(&spell_blood_council_shadow_prison_SpellScript::AddExtraDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
