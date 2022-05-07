@@ -563,7 +563,7 @@ struct npc_feludius final : public ScriptedAI
 
     void DamageTaken(Unit* attacker, uint32& damage) override
     {
-        if (attacker->HasAura(SPELL_FLAME_IMBUED))
+        if (attacker && attacker->HasAura(SPELL_FLAME_IMBUED))
             damage *= 2;
 
         if (me->HealthBelowPctDamaged(25, damage))
@@ -731,7 +731,7 @@ struct npc_ignacious final : public ScriptedAI
 
     void DamageTaken(Unit* attacker, uint32& damage) override
     {
-        if (attacker->HasAura(SPELL_FROST_IMBUED))
+        if (attacker && attacker->HasAura(SPELL_FROST_IMBUED))
             damage *= 2;
 
         if (me->HealthBelowPctDamaged(25, damage))

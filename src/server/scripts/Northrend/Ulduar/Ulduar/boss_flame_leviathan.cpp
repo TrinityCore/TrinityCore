@@ -733,7 +733,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
 
             void DamageTaken(Unit* who, uint32 &damage) override
             {
-                if (!CanAIAttack(who))
+                if (!who || !CanAIAttack(who))
                     damage = 0;
             }
 
