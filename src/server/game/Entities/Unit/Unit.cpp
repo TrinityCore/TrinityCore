@@ -1705,7 +1705,7 @@ static float GetArmorReduction(float armor, uint8 attackerLevel)
             // Spells with melee and magic school mask, decide whether resistance or armor absorb is higher
             if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC))
             {
-                uint32 damageAfterArmor = Unit::CalcArmorReducedDamage(attacker, victim, damage, spellInfo, BASE_ATTACK);
+                uint32 damageAfterArmor = Unit::CalcArmorReducedDamage(attacker, victim, damage, spellInfo, spellInfo->GetAttackType());
                 float armorReduction = damage - damageAfterArmor;
 
                 // pick the lower one, the weakest resistance counts
