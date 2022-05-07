@@ -644,21 +644,14 @@ class spell_dru_lifebloom : public AuraScript
 
         // final heal
         int32 stack = GetStackAmount();
-        int32 healAmount = aurEff->GetAmount();
         if (Unit* caster = GetCaster())
         {
-            healAmount = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, stack);
-            healAmount = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, stack);
-
-            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount).SetOriginalCaster(GetCasterGUID()));
-
             // restore mana
             int32 returnMana = CalculatePct(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2;
             caster->CastSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellBP0(returnMana).SetOriginalCaster(GetCasterGUID()));
-            return;
         }
 
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount).SetOriginalCaster(GetCasterGUID()));
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, { aurEff, GetCasterGUID() });
     }
 
     void HandleDispel(DispelInfo* dispelInfo)
