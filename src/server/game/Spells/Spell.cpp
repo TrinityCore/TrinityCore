@@ -2847,7 +2847,14 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
         {
             if (Unit* unitCaster = spell->m_caster->ToUnit())
+            {
                 unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro());
+
+                if (spell->m_spellInfo->HasAttribute(SPELL_ATTR6_TAPS_IMMEDIATELY))
+                    if (Creature* targetCreature = unit->ToCreature())
+                        if (!targetCreature->hasLootRecipient() && unitCaster->IsPlayer())
+                            targetCreature->SetLootRecipient(unitCaster);
+            }
 
             if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_DO_NOT_TRIGGER_TARGET_STAND) && !unit->IsStandState())
                 unit->SetStandState(UNIT_STAND_STATE_STAND);
