@@ -77,7 +77,8 @@ enum RogueSpells
     SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED       = 51699,
     SPELL_ROGUE_BLACKJACK_R1                        = 79123,
-    SPELL_RACIAL_ELUSIVENESS                        = 21009
+    SPELL_RACIAL_ELUSIVENESS                        = 21009,
+    SPELL_ROGUE_STEALTH                             =  1784
 };
 
 enum RogueSpellIcons
@@ -1522,6 +1523,36 @@ class spell_rog_gouge : public AuraScript
     }
 };
 
+// -11327 - Vanish
+class spell_rog_vanish : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_STEALTH });
+    }
+
+    void ApplyStealth(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* unitTarget = GetTarget();
+        unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+
+        // See if we already are stealthed. If so, we're done.
+        if (unitTarget->HasAura(SPELL_ROGUE_STEALTH))
+            return;
+
+        // Reset cooldown on stealth if needed
+        if (unitTarget->GetSpellHistory()->HasCooldown(SPELL_ROGUE_STEALTH))
+            unitTarget->GetSpellHistory()->ResetCooldown(SPELL_ROGUE_STEALTH);
+
+        unitTarget->CastSpell(nullptr, SPELL_ROGUE_STEALTH, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_rog_vanish::ApplyStealth, EFFECT_1, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_bandits_guile);
@@ -1557,4 +1588,5 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_rog_tricks_of_the_trade, spell_rog_tricks_of_the_trade_aura);
     RegisterSpellScript(spell_rog_tricks_of_the_trade_proc);
     RegisterSpellScript(spell_rog_honor_among_thieves);
+    RegisterSpellScript(spell_rog_vanish);
 }
