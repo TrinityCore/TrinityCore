@@ -362,7 +362,7 @@ struct npc_westfall_hobo_witness : public ScriptedAI
 
     void JustDied(Unit* who) override
     {
-        if (who->IsCreature() && who->ToCreature()->IsAIEnabled())
+        if (who && who->IsCreature() && who->ToCreature()->IsAIEnabled())
             who->ToCreature()->AI()->DoAction(ACTION_AGGRO_HOBO_DONE);
         me->CastSpell(me, SPELL_SUMMON_RAGAMUFFIN_LOOTER);
     }
