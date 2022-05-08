@@ -15226,7 +15226,7 @@ void Unit::ProcessPendingSpellCastRequest()
             player->SetArchData(archaeologyCastData);
     }
 
-    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
     spell->m_cast_count = _pendingSpellCastRequest->CastRequest.CastID; // set count of casts
     spell->m_glyphIndex = _pendingSpellCastRequest->CastRequest.Misc;
     spell->prepare(targets);
