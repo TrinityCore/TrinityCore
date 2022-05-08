@@ -5082,10 +5082,7 @@ void Spell::TakePower()
         return;
     }
 
-    if (hit)
-        m_caster->ModifyPower(powerType, -m_powerCost);
-    else
-        m_caster->ModifyPower(powerType, -irand(0, m_powerCost/4));
+    m_caster->ModifyPower(powerType, -m_powerCost);
 }
 
 void Spell::TakeAmmo()
