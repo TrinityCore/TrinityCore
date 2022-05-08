@@ -1603,6 +1603,10 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
                 armor = std::floor(AddPct(armor, -aurEff->GetAmount()));
         }
 
+        // armor is normal school partial resit, level base resist is elemental resist, not affect by SPELL_ATTR5_NO_PARTIAL_RESISTS
+        if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR5_NO_PARTIAL_RESISTS))
+            armor = 0.0f;
+
         // Apply Player CR_ARMOR_PENETRATION rating
         if (attacker->GetTypeId() == TYPEID_PLAYER)
         {
@@ -7181,7 +7185,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
     if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) && spellInfo->HasAttribute(SPELL_ATTR3_ALWAYS_HIT))
         return false;
 
-    if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+    if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS))
         return false;
 
     if (uint32 schoolMask = spellInfo->GetSchoolMask())
@@ -7190,7 +7194,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
         uint32 schoolImmunityMask = 0;
         SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-            if ((itr->first & schoolMask) && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->second, GetMap()->GetDifficultyID())))
+            if ((itr->first & schoolMask) && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->second, GetMap()->GetDifficultyID()), schoolMask))
                 schoolImmunityMask |= itr->first;
 
         // // We need to be immune to all types
@@ -7266,7 +7270,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
             // Consider the school immune if any of these conditions are not satisfied.
             // In case of no immuneSpellInfo, ignore that condition and check only the other conditions
             if ((immuneSpellInfo && !immuneSpellInfo->IsPositive()) || !spellInfo->IsPositive() || !caster || !IsFriendlyTo(caster))
-                if (!spellInfo->CanPierceImmuneAura(immuneSpellInfo))
+                if (!spellInfo->CanPierceImmuneAura(immuneSpellInfo, schoolMask))
                     schoolImmunityMask |= itr->first;
         }
         if ((schoolImmunityMask & schoolMask) == schoolMask)

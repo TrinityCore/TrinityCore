@@ -616,13 +616,13 @@ void AuraEffect::GetApplicationList(Container& applicationContainer) const
     }
 }
 
-int32 AuraEffect::CalculateAmount(Unit* caster)
+int32 AuraEffect::CalculateAmount(Unit* caster, Unit* calcTarget /*= nullptr*/)
 {
     // default amount calculation
     int32 amount = 0;
 
     if (!m_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS) || G3D::fuzzyEq(GetSpellEffectInfo().BonusCoefficient, 0.0f))
-        amount = GetSpellEffectInfo().CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), nullptr, GetBase()->GetCastItemId(), GetBase()->GetCastItemLevel());
+        amount = GetSpellEffectInfo().CalcValue(caster, &m_baseAmount, calcTarget != nullptr ? calcTarget : GetBase()->GetOwner()->ToUnit(), nullptr, GetBase()->GetCastItemId(), GetBase()->GetCastItemLevel());
     else if (caster && caster->GetTypeId() == TYPEID_PLAYER)
         amount = int32(caster->ToPlayer()->m_activePlayerData->Mastery * GetSpellEffectInfo().BonusCoefficient);
 
@@ -910,7 +910,12 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply, 
 
     // real aura apply/remove, handle modifier
     if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
+    {
+        // lot of aura calc amount on effect launch, was true before SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING, now we need to recalc amount for those spell on target hit
+        if (m_spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING))
+            SetAmount(CalculateAmount(GetCaster(), aurApp->GetTarget()));
         ApplySpellMod(aurApp->GetTarget(), apply, triggeredBy);
+    }
 
     // call scripts helping/replacing effect handlers
     bool prevented = false;

@@ -507,6 +507,8 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_applyMultiplierMask = 0;
     memset(m_damageMultipliers, 0, sizeof(m_damageMultipliers));
 
+    _isSwingTimerReseted = false;
+
     // Get data for type of attack
     m_attackType = info->GetAttackType();
 
@@ -2847,7 +2849,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
         {
             if (Unit* unitCaster = spell->m_caster->ToUnit())
-                unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro());
+                unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->HasInitialAggro(MissCondition));
 
             if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_DO_NOT_TRIGGER_TARGET_STAND) && !unit->IsStandState())
                 unit->SetStandState(UNIT_STAND_STATE_STAND);
@@ -3730,6 +3732,7 @@ void Spell::_cast(bool skipCheck)
         m_spellState = SPELL_STATE_DELAYED;
         SetDelayStart(0);
 
+        ResetSwingTimer(false);
         if (Unit* unitCaster = m_caster->ToUnit())
             if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
                 unitCaster->ClearUnitState(UNIT_STATE_CASTING);
@@ -4180,6 +4183,40 @@ void Spell::update(uint32 difftime)
     }
 }
 
+void Spell::ResetSwingTimer(bool onCastStart)
+{
+    if (onCastStart != m_spellInfo->HasAttribute(SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START))
+        return;
+
+    if (_isSwingTimerReseted)
+        return;
+
+    _isSwingTimerReseted = true;
+
+    int32 originalCastTime = m_spellInfo->CastTimeEntry ? m_spellInfo->CastTimeEntry->Base : 0;
+    bool isCastTimeCancel = !m_casttime && originalCastTime;
+
+    if (isCastTimeCancel && m_spellInfo->HasAttribute(SPELL_ATTR6_DOESNT_RESET_SWING_TIMER_IF_INSTANT))
+        return;
+
+    if (IsTriggered())
+        return;
+
+    if (!originalCastTime)
+        return;
+
+    if (Unit* unitCaster = m_caster->ToUnit())
+    {
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
+        {
+            unitCaster->resetAttackTimer(BASE_ATTACK);
+            if (unitCaster->haveOffhandWeapon())
+                unitCaster->resetAttackTimer(OFF_ATTACK);
+            unitCaster->resetAttackTimer(RANGED_ATTACK);
+        }
+    }
+}
+
 void Spell::finish(bool ok)
 {
     if (m_spellState == SPELL_STATE_FINISHED)
@@ -4199,6 +4236,8 @@ void Spell::finish(bool ok)
 
     if (m_spellInfo->IsChanneled())
         unitCaster->UpdateInterruptMask();
+
+    ResetSwingTimer(false);
 
     if (unitCaster->HasUnitState(UNIT_STATE_CASTING) && !unitCaster->IsNonMeleeSpellCast(false, false, true))
         unitCaster->ClearUnitState(UNIT_STATE_CASTING);
@@ -4235,17 +4274,6 @@ void Spell::finish(bool ok)
             if (unitCaster->getDeathState() != JUST_DIED)
                 unitCaster->setDeathState(JUST_DIED);
             return;
-        }
-    }
-
-    if (IsAutoActionResetSpell())
-    {
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
-        {
-            unitCaster->resetAttackTimer(BASE_ATTACK);
-            if (unitCaster->haveOffhandWeapon())
-                unitCaster->resetAttackTimer(OFF_ATTACK);
-            unitCaster->resetAttackTimer(RANGED_ATTACK);
         }
     }
 
@@ -4542,6 +4570,8 @@ void Spell::SendMountResult(MountResult result)
 
 void Spell::SendSpellStart()
 {
+    ResetSwingTimer(true);
+
     if (!IsNeedSendToClient())
         return;
 
@@ -5372,10 +5402,17 @@ void Spell::HandleThreatSpells()
     // since 2.0.1 threat from positive effects also is distributed among all targets, so the overall caused threat is at most the defined bonus
     threat /= m_UniqueTargetInfo.size();
 
+    bool isMissed = false;
+    for (auto ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && !isMissed; ++ihit)
+        isMissed = ihit->MissCondition != SPELL_MISS_NONE;
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR1_THREAT_ONLY_ON_MISS) && !isMissed)
+        return;
+
     for (auto ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
         float threatToAdd = threat;
-        if (ihit->MissCondition != SPELL_MISS_NONE)
+        if (ihit->MissCondition != SPELL_MISS_NONE && !m_spellInfo->HasAttribute(SPELL_ATTR1_THREAT_ONLY_ON_MISS))
             threatToAdd = 0.0f;
 
         Unit* target = ObjectAccessor::GetUnit(*unitCaster, ihit->TargetGUID);
@@ -7972,17 +8009,6 @@ bool Spell::IsChannelActive() const
     return m_caster->IsUnit() && m_caster->ToUnit()->GetChannelSpellId() != 0;
 }
 
-bool Spell::IsAutoActionResetSpell() const
-{
-    if (IsTriggered())
-        return false;
-
-    if (!m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR6_DOESNT_RESET_SWING_TIMER_IF_INSTANT))
-        return false;
-
-    return true;
-}
-
 bool Spell::IsPositive() const
 {
     return m_spellInfo->IsPositive() && (!m_triggeredByAuraSpell || m_triggeredByAuraSpell->IsPositive());
@@ -8183,7 +8209,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
         return;
 
     // This will only cause combat - the target will engage once the projectile hits (in DoAllEffectOnTarget)
-    if (m_originalCaster && targetInfo.MissCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || unit->IsEngaged()))
+    if (m_originalCaster && targetInfo.MissCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro(targetInfo.MissCondition) || unit->IsEngaged()))
         m_originalCaster->SetInCombatWith(unit);
 
     m_damage = 0;

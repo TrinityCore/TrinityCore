@@ -508,6 +508,9 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
         if (casterUnit && basePointsPerLevel != 0.0f)
         {
             int32 level = int32(casterUnit->GetLevel());
+            if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING))
+                level = target->GetLevel();
+
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
 
@@ -539,7 +542,8 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
     if (Scaling.Coefficient != 0.0f)
     {
         uint32 level = _spellInfo->SpellLevel;
-        if (target && _spellInfo->IsPositiveEffect(EffectIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+
+        if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING))
             level = target->GetLevel();
         else if (caster && caster->IsUnit())
             level = caster->ToUnit()->GetLevel();
@@ -612,6 +616,10 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 expansion = contentTuning->ExpansionID;
 
             int32 level = caster && caster->IsUnit() ? int32(caster->ToUnit()->GetLevel()) : 1;
+
+            if (target && _spellInfo->HasAttribute(SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING))
+                level = target->GetLevel();
+
             value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE) * BasePoints / 100.0f;
         }
 
@@ -1673,8 +1681,10 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return HasAttribute(SPELL_ATTR2_AUTO_REPEAT);
 }
 
-bool SpellInfo::HasInitialAggro() const
+bool SpellInfo::HasInitialAggro(SpellMissInfo missCondition) const
 {
+    if (HasAttribute(SPELL_ATTR1_THREAT_ONLY_ON_MISS))
+        return missCondition != SPELL_MISS_NONE;
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT) || HasAttribute(SPELL_ATTR4_NO_HARMFUL_THREAT));
 }
 
@@ -1768,7 +1778,7 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier const* mod) const
     return false;
 }
 
-bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
+bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo, uint32 schoolMask) const
 {
     // aura can't be pierced
     if (!auraSpellInfo || auraSpellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
@@ -1778,8 +1788,11 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* auraSpellInfo) const
     if (HasAttribute(SPELL_ATTR0_NO_IMMUNITIES))
         return true;
 
+    if (schoolMask && HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+        return true;
+
     // these spells (Cyclone for example) can pierce all...
-    if (HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
+    if (HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS))
     {
         // ...but not these (Divine shield, Ice block, Cyclone and Banish for example)
         if (auraSpellInfo->Mechanic != MECHANIC_IMMUNE_SHIELD &&

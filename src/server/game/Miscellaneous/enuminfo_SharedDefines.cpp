@@ -1165,7 +1165,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
         case SPELL_ATTR7_SILENCE_ONLY_NONPLAYER: return { "SPELL_ATTR7_SILENCE_ONLY_NONPLAYER", "Can Cause Silence", "" };
         case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return { "SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED", "No UI Not Interruptible", "Can always be interrupted, even if caster is immune" };
         case SPELL_ATTR7_UNK14: return { "SPELL_ATTR7_UNK14", "Unknown attribute 14@Attr7", "" };
-        case SPELL_ATTR7_UNK15: return { "SPELL_ATTR7_UNK15", "Unknown attribute 15@Attr7", "Exorcism - guaranteed crit vs families?" };
+        case SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START: return { "SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START", "SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START", "15 Reset Swing Timer at spell start" };
         case SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED: return { "SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED", "Only In Spellbook Until Learned", "After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)" };
         case SPELL_ATTR7_UNK17: return { "SPELL_ATTR7_UNK17", "Unknown attribute 17@Attr7", "" };
         case SPELL_ATTR7_HAS_CHARGE_EFFECT: return { "SPELL_ATTR7_HAS_CHARGE_EFFECT", "Has charge effect", "" };
@@ -1209,7 +1209,7 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 12: return SPELL_ATTR7_SILENCE_ONLY_NONPLAYER;
         case 13: return SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED;
         case 14: return SPELL_ATTR7_UNK14;
-        case 15: return SPELL_ATTR7_UNK15;
+        case 15: return SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START;
         case 16: return SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED;
         case 17: return SPELL_ATTR7_UNK17;
         case 18: return SPELL_ATTR7_HAS_CHARGE_EFFECT;
@@ -1250,7 +1250,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
         case SPELL_ATTR7_SILENCE_ONLY_NONPLAYER: return 12;
         case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return 13;
         case SPELL_ATTR7_UNK14: return 14;
-        case SPELL_ATTR7_UNK15: return 15;
+        case SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START: return 15;
         case SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED: return 16;
         case SPELL_ATTR7_UNK17: return 17;
         case SPELL_ATTR7_HAS_CHARGE_EFFECT: return 18;
@@ -1281,13 +1281,13 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr8>::ToString(SpellAttr8 value)
     {
         case SPELL_ATTR8_CANT_MISS: return { "SPELL_ATTR8_CANT_MISS", "No Attack Block", "" };
         case SPELL_ATTR8_UNK1: return { "SPELL_ATTR8_UNK1", "Unknown attribute 1@Attr8", "" };
-        case SPELL_ATTR8_UNK2: return { "SPELL_ATTR8_UNK2", "Unknown attribute 2@Attr8", "" };
+        case SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS: return { "SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS", "SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS", "2 Remove Outside Dungeons and Raids" };
         case SPELL_ATTR8_UNK3: return { "SPELL_ATTR8_UNK3", "Unknown attribute 3@Attr8", "" };
         case SPELL_ATTR8_UNK4: return { "SPELL_ATTR8_UNK4", "Unknown attribute 4@Attr8", "" };
         case SPELL_ATTR8_UNK5: return { "SPELL_ATTR8_UNK5", "Unknown attribute 5@Attr8", "" };
         case SPELL_ATTR8_UNK6: return { "SPELL_ATTR8_UNK6", "Unknown attribute 6@Attr8", "" };
         case SPELL_ATTR8_UNK7: return { "SPELL_ATTR8_UNK7", "Unknown attribute 7@Attr8", "" };
-        case SPELL_ATTR8_AFFECT_PARTY_AND_RAID: return { "SPELL_ATTR8_AFFECT_PARTY_AND_RAID", "Use Target's Level for Spell Scaling", "" };
+        case SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING: return { "SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING", "Use Target's Level for Spell Scaling", "" };
         case SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER: return { "SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER", "Periodic Can Crit", "(WRONG) Periodic auras with this flag keep old periodic timer when refreshing at close to one tick remaining (kind of anti DoT clipping)" };
         case SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM: return { "SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM", "Mirror creature name", "" };
         case SPELL_ATTR8_UNK11: return { "SPELL_ATTR8_UNK11", "Unknown attribute 11@Attr8", "" };
@@ -1325,13 +1325,13 @@ TC_API_EXPORT SpellAttr8 EnumUtils<SpellAttr8>::FromIndex(size_t index)
     {
         case 0: return SPELL_ATTR8_CANT_MISS;
         case 1: return SPELL_ATTR8_UNK1;
-        case 2: return SPELL_ATTR8_UNK2;
+        case 2: return SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS;
         case 3: return SPELL_ATTR8_UNK3;
         case 4: return SPELL_ATTR8_UNK4;
         case 5: return SPELL_ATTR8_UNK5;
         case 6: return SPELL_ATTR8_UNK6;
         case 7: return SPELL_ATTR8_UNK7;
-        case 8: return SPELL_ATTR8_AFFECT_PARTY_AND_RAID;
+        case 8: return SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING;
         case 9: return SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
         case 10: return SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM;
         case 11: return SPELL_ATTR8_UNK11;
@@ -1366,13 +1366,13 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr8>::ToIndex(SpellAttr8 value)
     {
         case SPELL_ATTR8_CANT_MISS: return 0;
         case SPELL_ATTR8_UNK1: return 1;
-        case SPELL_ATTR8_UNK2: return 2;
+        case SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS: return 2;
         case SPELL_ATTR8_UNK3: return 3;
         case SPELL_ATTR8_UNK4: return 4;
         case SPELL_ATTR8_UNK5: return 5;
         case SPELL_ATTR8_UNK6: return 6;
         case SPELL_ATTR8_UNK7: return 7;
-        case SPELL_ATTR8_AFFECT_PARTY_AND_RAID: return 8;
+        case SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING: return 8;
         case SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER: return 9;
         case SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM: return 10;
         case SPELL_ATTR8_UNK11: return 11;

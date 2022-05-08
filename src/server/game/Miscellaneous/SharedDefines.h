@@ -678,7 +678,7 @@ enum SpellAttr7 : uint32
     SPELL_ATTR7_SILENCE_ONLY_NONPLAYER           = 0x00001000, // TITLE Can Cause Silence
     SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED        = 0x00002000, // TITLE No UI Not Interruptible DESCRIPTION Can always be interrupted, even if caster is immune
     SPELL_ATTR7_UNK14                            = 0x00004000, // TITLE Unknown attribute 14@Attr7
-    SPELL_ATTR7_UNK15                            = 0x00008000, // TITLE Unknown attribute 15@Attr7 DESCRIPTION Exorcism - guaranteed crit vs families?
+    SPELL_ATTR7_RESET_SWING_TIMER_AT_SPELL_START = 0x00008000, // 15 Reset Swing Timer at spell start
     SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED = 0x00010000, // TITLE Only In Spellbook Until Learned DESCRIPTION After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)
     SPELL_ATTR7_UNK17                            = 0x00020000, // TITLE Unknown attribute 17@Attr7
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // TITLE Has charge effect
@@ -702,13 +702,13 @@ enum SpellAttr8 : uint32
 {
     SPELL_ATTR8_CANT_MISS                        = 0x00000001, // TITLE No Attack Block
     SPELL_ATTR8_UNK1                             = 0x00000002, // TITLE Unknown attribute 1@Attr8
-    SPELL_ATTR8_UNK2                             = 0x00000004, // TITLE Unknown attribute 2@Attr8
+    SPELL_ATTR8_REMOVE_OUTSIDE_DUNGEONS_AND_RAIDS = 0x00000004, //  2 Remove Outside Dungeons and Raids
     SPELL_ATTR8_UNK3                             = 0x00000008, // TITLE Unknown attribute 3@Attr8
     SPELL_ATTR8_UNK4                             = 0x00000010, // TITLE Unknown attribute 4@Attr8
     SPELL_ATTR8_UNK5                             = 0x00000020, // TITLE Unknown attribute 5@Attr8
     SPELL_ATTR8_UNK6                             = 0x00000040, // TITLE Unknown attribute 6@Attr8
     SPELL_ATTR8_UNK7                             = 0x00000080, // TITLE Unknown attribute 7@Attr8
-    SPELL_ATTR8_AFFECT_PARTY_AND_RAID            = 0x00000100, // TITLE Use Target's Level for Spell Scaling
+    SPELL_ATTR8_USE_TARGET_LEVEL_FOR_SPELL_SCALING = 0x00000100, // TITLE Use Target's Level for Spell Scaling
     SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER        = 0x00000200, // TITLE Periodic Can Crit DESCRIPTION (WRONG) Periodic auras with this flag keep old periodic timer when refreshing at close to one tick remaining (kind of anti DoT clipping)
     SPELL_ATTR8_NAME_CHANGED_DURING_TRANSFORM    = 0x00000400, // TITLE Mirror creature name
     SPELL_ATTR8_UNK11                            = 0x00000800, // TITLE Unknown attribute 11@Attr8
