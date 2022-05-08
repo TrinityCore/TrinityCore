@@ -3338,7 +3338,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     // handle just the general SPELL_FAILED_BAD_TARGETS result which is the default result for most DBC target checks
     if (_triggeredCastFlags & TRIGGERED_IGNORE_TARGET_CHECK && result == SPELL_FAILED_BAD_TARGETS)
         result = SPELL_CAST_OK;
-    if (result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
+    if (result != SPELL_CAST_OK)
     {
         // Periodic auras should be interrupted when aura triggers a spell which can't be cast
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
@@ -3354,6 +3354,10 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
             SendCastResult(result, &param1, &param2);
         else
             SendCastResult(result);
+
+        // queue autorepeat spells for future repeating
+        if (GetCurrentContainer() == CURRENT_AUTOREPEAT_SPELL && m_caster->IsUnit())
+            m_caster->ToUnit()->SetCurrentCastSpell(this);
 
         finish(false);
         return result;
@@ -4084,6 +4088,9 @@ void Spell::SendSpellCooldown()
         m_caster->ToUnit()->GetSpellHistory()->HandleCooldowns(m_spellInfo, m_CastItem, this);
     else
         m_caster->ToUnit()->GetSpellHistory()->HandleCooldowns(m_spellInfo, m_castItemEntry, this);
+
+    if (IsAutoRepeat())
+        m_caster->ToUnit()->resetAttackTimer(RANGED_ATTACK);
 }
 
 void Spell::update(uint32 difftime)
@@ -4126,7 +4133,7 @@ void Spell::update(uint32 difftime)
                     m_timer -= difftime;
             }
 
-            if (m_timer == 0 && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat())
+            if (m_timer == 0 && !m_spellInfo->IsNextMeleeSwingSpell())
                 // don't CheckCast for instant spells - done in spell::prepare, skip duplicate checks, needed for range checks for example
                 cast(!m_casttime);
             break;
@@ -4185,6 +4192,10 @@ void Spell::finish(bool ok)
     Unit* unitCaster = m_caster->ToUnit();
     if (!unitCaster)
         return;
+
+    // successful cast of the initial autorepeat spell is moved to idle state so that it is not deleted as long as autorepeat is active
+    if (IsAutoRepeat() && unitCaster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL) == this)
+        m_spellState = SPELL_STATE_IDLE;
 
     if (m_spellInfo->IsChanneled())
         unitCaster->UpdateInterruptMask();
@@ -5464,12 +5475,18 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 return SPELL_FAILED_NOT_READY;
         }
 
-        if (!IsIgnoringCooldowns() && m_caster->ToUnit() && !m_caster->ToUnit()->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry))
+        if (!IsIgnoringCooldowns() && m_caster->ToUnit())
         {
-            if (m_triggeredByAuraSpell)
+            if (!m_caster->ToUnit()->GetSpellHistory()->IsReady(m_spellInfo, m_castItemEntry))
+            {
+                if (m_triggeredByAuraSpell)
+                    return SPELL_FAILED_DONT_REPORT;
+                else
+                    return SPELL_FAILED_NOT_READY;
+            }
+
+            if ((IsAutoRepeat() || m_spellInfo->CategoryId == 76) && !m_caster->ToUnit()->isAttackReady(RANGED_ATTACK))
                 return SPELL_FAILED_DONT_REPORT;
-            else
-                return SPELL_FAILED_NOT_READY;
         }
     }
 
