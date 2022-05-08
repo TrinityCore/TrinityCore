@@ -7626,38 +7626,18 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     if (proto->GetArmorDamageModifier() > 0)
         HandleStatFlatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->GetArmorDamageModifier()), apply);
 
-    WeaponAttackType attType = BASE_ATTACK;
-
-    if (slot == EQUIPMENT_SLOT_RANGED && (
-        proto->GetInventoryType() == INVTYPE_RANGED || proto->GetInventoryType() == INVTYPE_THROWN ||
-        proto->GetInventoryType() == INVTYPE_RANGEDRIGHT))
-    {
-        attType = RANGED_ATTACK;
-    }
-    else if (slot == EQUIPMENT_SLOT_OFFHAND)
-    {
-        attType = OFF_ATTACK;
-    }
-
-    if (CanUseAttackType(attType))
+    WeaponAttackType attType = Player::GetAttackBySlot(slot);
+    if (attType != MAX_ATTACK && CanUseAttackType(attType))
         _ApplyWeaponDamage(slot, proto, ssv, apply);
 }
 
 void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply)
 {
-    WeaponAttackType attType = BASE_ATTACK;
-    float damage = 0.0f;
+    WeaponAttackType attType = Player::GetAttackBySlot(slot);
+    if (attType == MAX_ATTACK)
+        return;
 
-    if (slot == EQUIPMENT_SLOT_RANGED && (
-        proto->GetInventoryType() == INVTYPE_RANGED || proto->GetInventoryType() == INVTYPE_THROWN ||
-        proto->GetInventoryType() == INVTYPE_RANGEDRIGHT))
-    {
-        attType = RANGED_ATTACK;
-    }
-    else if (slot == EQUIPMENT_SLOT_OFFHAND)
-    {
-        attType = OFF_ATTACK;
-    }
+    float damage = 0.0f;
 
     float minDamage, maxDamage, dps;
     proto->GetWeaponDamage(this, minDamage, maxDamage, dps);
