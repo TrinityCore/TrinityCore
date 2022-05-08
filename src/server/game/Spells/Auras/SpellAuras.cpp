@@ -407,6 +407,9 @@ bool Aura::CanPeriodicTickCrit(Unit const* caster) const
     if (m_spellInfo->HasAttribute(SPELL_ATTR8_PERIODIC_CAN_CRIT))
         return true;
 
+    if (m_spellInfo->HasAttribute(SPELL_ATTR2_CANT_CRIT))
+        return false;
+
     return caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_PERIODIC_CRIT, GetSpellInfo());
 
 }
