@@ -65,11 +65,11 @@ class TC_COMMON_API Log
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
-        bool ShouldLog(std::string const& type, LogLevel level) const;
+        bool ShouldLog(std::string_view type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
         template<typename Format, typename... Args>
-        inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)
+        inline void outMessage(std::string_view filter, LogLevel const level, Format&& fmt, Args&&... args)
         {
             outMessage(filter, level, Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
         }
@@ -103,7 +103,7 @@ class TC_COMMON_API Log
         static std::string GetTimestampStr();
         void write(std::unique_ptr<LogMessage>&& msg) const;
 
-        Logger const* GetLoggerByType(std::string const& type) const;
+        Logger const* GetLoggerByType(std::string_view type) const;
         Appender* GetAppenderByName(std::string_view name);
         uint8 NextAppenderId();
         void CreateAppenderFromConfig(std::string const& name);
@@ -111,12 +111,12 @@ class TC_COMMON_API Log
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
         void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
-        void outMessage(std::string const& filter, LogLevel level, std::string&& message);
+        void outMessage(std::string_view filter, LogLevel level, std::string&& message);
         void outCommand(std::string&& message, std::string&& param1);
 
         std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
         std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;
-        std::unordered_map<std::string, std::unique_ptr<Logger>> loggers;
+        std::unordered_map<std::string_view, std::unique_ptr<Logger>> loggers;
         uint8 AppenderId;
         LogLevel lowestLogLevel;
 

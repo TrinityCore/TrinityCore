@@ -143,8 +143,7 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
         return;
     }
 
-    std::unique_ptr<Logger>& logger = loggers[name];
-    if (logger)
+    if (loggers.find(name) != loggers.end())
     {
         fprintf(stderr, "Error while configuring Logger %s. Already defined\n", name.c_str());
         return;
@@ -160,7 +159,8 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
     if (level < lowestLogLevel)
         lowestLogLevel = level;
 
-    logger = std::make_unique<Logger>(name, level);
+    Logger* logger = new Logger(name, level);
+    loggers[logger->getName()].reset(logger);
     //fprintf(stdout, "Log::CreateLoggerFromConfig: Created Logger %s, Level %u\n", name.c_str(), level);
 
     for (std::string_view appenderName : Trinity::Tokenize(tokens[1], ' ', false))
@@ -206,11 +206,11 @@ void Log::ReadLoggersFromConfig()
 
         Logger* rootLogger = new Logger(LOGGER_ROOT, LOG_LEVEL_ERROR);
         rootLogger->addAppender(appender->getId(), appender);
-        loggers[LOGGER_ROOT].reset(rootLogger);
+        loggers[rootLogger->getName()].reset(rootLogger);
 
         Logger* serverLogger = new Logger("server", LOG_LEVEL_INFO);
         serverLogger->addAppender(appender->getId(), appender);
-        loggers["server"].reset(serverLogger);
+        loggers[serverLogger->getName()].reset(serverLogger);
     }
 }
 
@@ -221,9 +221,9 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
     appenderFactory[index] = appenderCreateFn;
 }
 
-void Log::outMessage(std::string const& filter, LogLevel level, std::string&& message)
+void Log::outMessage(std::string_view filter, LogLevel level, std::string&& message)
 {
-    write(std::make_unique<LogMessage>(level, filter, std::move(message)));
+    write(std::make_unique<LogMessage>(level, std::string(filter), std::move(message)));
 }
 
 void Log::outCommand(std::string&& message, std::string&& param1)
@@ -244,7 +244,7 @@ void Log::write(std::unique_ptr<LogMessage>&& msg) const
         logger->write(msg.get());
 }
 
-Logger const* Log::GetLoggerByType(std::string const& type) const
+Logger const* Log::GetLoggerByType(std::string_view type) const
 {
     auto it = loggers.find(type);
     if (it != loggers.end())
@@ -253,7 +253,7 @@ Logger const* Log::GetLoggerByType(std::string const& type) const
     if (type == LOGGER_ROOT)
         return nullptr;
 
-    std::string parentLogger = LOGGER_ROOT;
+    std::string_view parentLogger = LOGGER_ROOT;
     size_t found = type.find_last_of('.');
     if (found != std::string::npos)
         parentLogger = type.substr(0, found);
@@ -350,7 +350,7 @@ void Log::Close()
     appenders.clear();
 }
 
-bool Log::ShouldLog(std::string const& type, LogLevel level) const
+bool Log::ShouldLog(std::string_view type, LogLevel level) const
 {
     // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
     // Speed up in cases where requesting "Type.sub1.sub2" but only configured
