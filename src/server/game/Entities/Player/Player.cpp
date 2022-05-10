@@ -25681,7 +25681,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // @tswow-begin
     bool cancel = false;
-    FIRE(PlayerOnLearnTalent, TSPlayer(this), tTab, talentId, talentRank, spellid, TSMutable<bool>(&cancel));
+    FIRE(PlayerOnLearnTalent, TSPlayer(this), talentInfo->TabID, talentId, talentRank, spellid, TSMutable<bool>(&cancel));
     if (cancel)
     {
         return;
