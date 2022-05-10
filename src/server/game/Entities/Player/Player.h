@@ -1480,6 +1480,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
         void SendTalentsInfoData(bool pet);
+        // @tswow-begin
+        uint32 GetTalentPointsInTree(uint32 tabId);
+        // @tswow-end
         void LearnTalent(uint32 talentId, uint32 talentRank);
         void LearnPetTalent(ObjectGuid petGuid, uint32 talentId, uint32 talentRank);
         void SendTameFailure(uint8 result);

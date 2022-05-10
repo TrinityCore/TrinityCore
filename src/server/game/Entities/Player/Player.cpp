@@ -25585,6 +25585,21 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
     m_achievementMgr->CompletedAchievement(entry);
 }
 
+// @tswow-begin
+uint32 Player::GetTalentPointsInTree(uint32 tabId)
+{
+    uint32 spentPoints = 0;
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)          // Loop through all talents.
+        if (TalentEntry const* tmpTalent = sTalentStore.LookupEntry(i))                                  // the way talents are tracked
+            if (tmpTalent->TabID == tabId)
+                for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
+                    if (tmpTalent->SpellRank[rank] != 0)
+                        if (HasSpell(tmpTalent->SpellRank[rank]))
+                            spentPoints += (rank + 1);
+    return spentPoints;
+}
+// @tswow-end
+
 void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 {
     uint32 CurTalentPoints = GetFreeTalentPoints();
@@ -25646,20 +25661,10 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     }
 
     // Find out how many points we have in this field
-    uint32 spentPoints = 0;
-
-    uint32 tTab = talentInfo->TabID;
-    if (talentInfo->TierID > 0)
-        for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)          // Loop through all talents.
-            if (TalentEntry const* tmpTalent = sTalentStore.LookupEntry(i))                                  // the way talents are tracked
-                if (tmpTalent->TabID == tTab)
-                    for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
-                        if (tmpTalent->SpellRank[rank] != 0)
-                            if (HasSpell(tmpTalent->SpellRank[rank]))
-                                spentPoints += (rank + 1);
-
+    // @tswow-begin move to function
     // not have required min points spent in talent tree
-    if (spentPoints < (talentInfo->TierID * MAX_TALENT_RANK))
+    if (talentInfo->TierID > 0 && GetTalentPointsInTree(talentInfo->TabID) < (talentInfo->TierID * MAX_TALENT_RANK))
+    // @tswow-end
         return;
 
     // spell not set in talent.dbc
