@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
-#include <array>
+#include <vector>
 
 #pragma pack(push, 1)
 
@@ -1579,8 +1579,25 @@ enum class SpellVisualEffectNameType : uint32
     UnitItemRangedIgnoreDisarmed    = 10
 };
 
-#define TaxiMaskSize 345
-typedef std::array<uint8, TaxiMaskSize> TaxiMask;
+class TaxiMask
+{
+public:
+    using value_type = uint8;
+
+    TaxiMask();
+
+    value_type& operator[](size_t i) { return _data[i]; }
+    value_type const& operator[](size_t i) const { return _data[i]; }
+
+    size_t size() const { return _data.size(); }
+    value_type const* data() const { return _data.data(); }
+
+    decltype(auto) begin() { return _data.begin(); }
+    decltype(auto) end() { return _data.end(); }
+
+private:
+    std::vector<value_type> _data;
+};
 
 enum TotemCategoryType
 {

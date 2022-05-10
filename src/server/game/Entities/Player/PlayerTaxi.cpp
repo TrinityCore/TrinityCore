@@ -31,7 +31,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     {
         case CLASS_DEATH_KNIGHT:
         {
-            for (std::size_t i = 0; i < TaxiMaskSize; ++i)
+            for (std::size_t i = 0; i < m_taximask.size(); ++i)
                 m_taximask[i] |= sOldContinentsNodesMask[i] & factionMask[i];
             break;
         }
@@ -99,7 +99,7 @@ bool PlayerTaxi::LoadTaxiMask(std::string const& data)
 {
     bool warn = false;
     std::vector<std::string_view> tokens = Trinity::Tokenize(data, ' ', false);
-    for (size_t index = 0; (index < TaxiMaskSize) && (index < tokens.size()); ++index)
+    for (size_t index = 0; (index < m_taximask.size()) && (index < tokens.size()); ++index)
     {
         if (Optional<uint32> mask = Trinity::StringTo<uint32>(tokens[index]))
         {
@@ -209,7 +209,7 @@ uint32 PlayerTaxi::GetCurrentTaxiPath() const
 
 std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi)
 {
-    for (std::size_t i = 0; i < TaxiMaskSize; ++i)
+    for (std::size_t i = 0; i < taxi.m_taximask.size(); ++i)
         ss << uint32(taxi.m_taximask[i]) << ' ';
     return ss;
 }
