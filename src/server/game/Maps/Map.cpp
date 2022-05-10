@@ -3533,6 +3533,24 @@ void Map::AddFarSpellCallback(FarSpellCallback&& callback)
     _farSpellCallbacks.Enqueue(new FarSpellCallback(std::move(callback)));
 }
 
+void DoDelayedUpdate(TSWorldObject obj)
+{
+    if (!obj.IsNull())
+    {
+        for (auto callback : obj->obj->m_delayedCallbacks)
+        {
+            callback(obj, TSMapManager());
+        }
+
+        for (sol::protected_function callback: obj->obj->m_delayedLuaCallbacks)
+        {
+            callback(obj, TSMapManager());
+        }
+        obj->obj->m_delayedCallbacks.clear();
+        obj->obj->m_delayedLuaCallbacks.clear();
+    }
+}
+
 void Map::DelayedUpdate(uint32 t_diff)
 {
     // @tswow-begin
@@ -3547,7 +3565,21 @@ void Map::DelayedUpdate(uint32 t_diff)
     {
         callback(TSMap(this), TSMapManager());
     }
+
+    for (sol::protected_function callback : m_delayLuaCallbacks)
+    {
+        callback(TSMap(this), TSMapManager());
+    }
     m_delayCallbacks.clear();
+
+    for (ObjectGuid guid : m_delayedGuids)
+    {
+        if (guid.IsPlayer()) DoDelayedUpdate(TSWorldObject(GetPlayer(guid)));
+        if (guid.IsCreature()) DoDelayedUpdate(TSWorldObject(GetCreature(guid)));
+        if (guid.IsPet()) DoDelayedUpdate(TSWorldObject(GetPet(guid)));
+        if (guid.IsGameObject()) DoDelayedUpdate(TSWorldObject(GetGameObject(guid)));
+    }
+    m_delayedGuids.clear();
     // @tswow-end
     {
         FarSpellCallback* callback;

@@ -43,6 +43,7 @@
 #include "TSEntity.h"
 #include "TSJson.h"
 #include "TSWorldEntity.h"
+#include <sol/sol.hpp>
 // @tswow-end
 
 class Battleground;
@@ -338,6 +339,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         TSWorldEntity<TSMap> m_tsWorldEntity;
         TSEntity m_tsEntity;
         std::vector < std::function<void(TSMap, TSMapManager)>> m_delayCallbacks;
+        std::vector < sol::protected_function> m_delayLuaCallbacks;
+        std::set<ObjectGuid> m_delayedGuids;
         // @tswow-end
 
         // currently unused for normal maps
