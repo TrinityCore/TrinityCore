@@ -17,6 +17,7 @@
 
 #include "AuctionHousePackets.h"
 #include "AuctionHouseMgr.h"
+#include "DB2Stores.h"
 #include "ObjectGuid.h"
 #include "Util.h"
 
