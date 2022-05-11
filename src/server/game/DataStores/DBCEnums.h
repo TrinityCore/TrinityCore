@@ -191,8 +191,6 @@ enum AzeriteTierUnlockSetFlags
     AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 3248
-
 enum class BattlePetSpeciesFlags : uint16
 {
     NoRename                 = 0x0001,

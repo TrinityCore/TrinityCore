@@ -280,7 +280,13 @@ void AuctionBrowseQuery::Read()
     _worldPacket >> MinLevel;
     _worldPacket >> MaxLevel;
     Filters = _worldPacket.read<AuctionHouseFilterMask, uint32>();
-    KnownPets.resize(_worldPacket.read<uint32>());
+
+    uint32 knownPetsSize = _worldPacket.read<uint32>();
+    uint32 const sizeLimit = sBattlePetSpeciesStore.GetNumRows() / (sizeof(decltype(KnownPets)::value_type) * 8) + 1;
+    if (knownPetsSize >= sizeLimit)
+        throw PacketArrayMaxCapacityException(knownPetsSize, sizeLimit);
+
+    KnownPets.resize(knownPetsSize);
     _worldPacket >> MaxPetLevel;
     for (uint8& knownPetMask : KnownPets)
         _worldPacket >> knownPetMask;
