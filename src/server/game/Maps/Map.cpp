@@ -96,6 +96,9 @@ Map::~Map()
         delete m_childTerrainMaps;
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
+
+    if (!Instanceable())
+        sMapMgr->FreeInstanceId(i_InstanceId);
 }
 
 void Map::DiscoverGridMapFiles()
@@ -323,9 +326,9 @@ void Map::DeleteStateMachine()
     delete si_GridStates[GRID_STATE_REMOVAL];
 }
 
-Map::Map(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, Map* _parent):
+Map::Map(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, Map* _parent, TeamId teamId):
 _creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false), _areaTriggersToMoveLock(false),
-i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
+i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId), m_teamId(teamId),
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
@@ -344,6 +347,9 @@ i_scriptLock(false), _respawnCheckTimer(0)
         m_parentTerrainMap = this;
         m_childTerrainMaps = new std::vector<Map*>();
     }
+
+    if (!i_InstanceId)
+        i_InstanceId = sMapMgr->GenerateInstanceId();
 
     for (uint32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
     {
@@ -3351,6 +3357,7 @@ void Map::DeleteRespawnInfoFromDB(SpawnObjectType type, ObjectGuid::LowType spaw
     stmt->setUInt64(1, spawnId);
     stmt->setUInt16(2, GetId());
     stmt->setUInt32(3, GetInstanceId());
+    stmt->setUInt8(4, GetTeamId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 }
 
@@ -3921,9 +3928,9 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 /* ******* Dungeon Instance Maps ******* */
 
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, Map* _parent, TeamId InstanceTeam)
-  : Map(id, expiry, InstanceId, SpawnMode, _parent),
+  : Map(id, expiry, InstanceId, SpawnMode, _parent, InstanceTeam),
     m_resetAfterUnload(false), m_unloadWhenEmpty(false),
-    i_data(nullptr), i_script_id(0), i_script_team(InstanceTeam), i_scenario(nullptr)
+    i_data(nullptr), i_script_id(0), i_scenario(nullptr)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -4345,6 +4352,11 @@ uint32 Map::GetId() const
     return i_mapEntry->ID;
 }
 
+bool Map::IsFactioned() const
+{
+    return i_mapEntry && i_mapEntry->IsFactioned();
+}
+
 bool Map::Instanceable() const
 {
     return i_mapEntry && i_mapEntry->Instanceable();
@@ -4603,6 +4615,28 @@ AreaTrigger* Map::GetAreaTriggerBySpawnId(ObjectGuid::LowType spawnId) const
     return bounds.first->second;
 }
 
+void Map::CreateGameobject(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint)
+{
+    if (!IsGridLoaded(spawnPoint))
+        return;
+
+    if (GameObject* go = GameObject::CreateGameObjectFromDB(spawnId, this, addToMap))
+    {
+        /// @todo find out when it is add to map
+        if (go->isSpawnedByDefault())
+        {
+            if (!AddToMap(go))
+                delete go;
+        }
+    }
+}
+
+void Map::CreateCreature(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint)
+{
+    if (IsGridLoaded(spawnPoint))
+        Creature::CreateCreatureFromDB(spawnId, this, addToMap);
+}
+
 void Map::UpdateIteratorBack(Player* player)
 {
     if (m_mapRefIter == player->GetMapRef())
@@ -4650,6 +4684,7 @@ void Map::SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransactio
     stmt->setInt64(2, info.respawnTime);
     stmt->setUInt16(3, GetId());
     stmt->setUInt32(4, GetInstanceId());
+    stmt->setUInt8(5, GetTeamId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 }
 
@@ -4658,6 +4693,7 @@ void Map::LoadRespawnTimes()
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RESPAWNS);
     stmt->setUInt16(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
+    stmt->setUInt8(2, GetTeamId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
     {
         do
@@ -4683,11 +4719,12 @@ void Map::LoadRespawnTimes()
     }
 }
 
-/*static*/ void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
+/*static*/ void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId, TeamId teamId)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_RESPAWNS);
     stmt->setUInt16(0, mapId);
     stmt->setUInt32(1, instanceId);
+    stmt->setUInt8(2, teamId);
     CharacterDatabase.Execute(stmt);
 }
 
@@ -4712,9 +4749,10 @@ void Map::LoadCorpseData()
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES);
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
+    stmt->setUInt8(2, GetTeamId());
 
-    //        0     1     2     3            4      5          6          7     8      9       10     11        12    13          14          15
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, race, class, gender, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
+    //        0     1     2     3            4      5          6          7     8      9       10     11        12    13          14          15    16
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, race, class, gender, flags, dynFlags, time, corpseType, instanceId, guid, mapTeamId FROM corpse WHERE mapId = ? AND instanceId = ? AND mapTeamId = ?
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return;
@@ -4725,9 +4763,10 @@ void Map::LoadCorpseData()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_PHASES);
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
+    stmt->setUInt8(2, GetTeamId());
 
     //        0          1
-    // SELECT OwnerGuid, PhaseId FROM corpse_phases cp LEFT JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
+    // SELECT OwnerGuid, PhaseId FROM corpse_phases cp LEFT JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ? AND mapTeamId = ?
     if (PreparedQueryResult phaseResult = CharacterDatabase.Query(stmt))
     {
         do
@@ -4744,9 +4783,10 @@ void Map::LoadCorpseData()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_CUSTOMIZATIONS);
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
+    stmt->setUInt8(2, GetTeamId());
 
     //        0             1                            2
-    // SELECT cc.ownerGuid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM corpse_customizations cc LEFT JOIN corpse c ON cc.ownerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
+    // SELECT cc.ownerGuid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM corpse_customizations cc LEFT JOIN corpse c ON cc.ownerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ? AND mapTeamId = ?
     if (PreparedQueryResult customizationResult = CharacterDatabase.Query(stmt))
     {
         do
@@ -4793,10 +4833,11 @@ void Map::LoadCorpseData()
 
 void Map::DeleteCorpseData()
 {
-    // DELETE cp, c FROM corpse_phases cp INNER JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
+    // DELETE cp, c FROM corpse_phases cp INNER JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ? AND c.mapTeamId = ?
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSES_FROM_MAP);
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
+    stmt->setUInt8(2, GetTeamId());
     CharacterDatabase.Execute(stmt);
 }
 

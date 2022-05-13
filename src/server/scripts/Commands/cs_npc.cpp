@@ -132,9 +132,10 @@ public:
             data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
             data.id = id;
             data.spawnPoint.Relocate(chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+            data.teamId = map->GetTeamId();
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
             {
-                creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() });
+                creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() }, map->GetTeamId());
                 sObjectMgr->AddCreatureToGrid(&data);
             }
             return true;
@@ -145,7 +146,7 @@ public:
             return false;
 
         PhasingHandler::InheritPhaseShift(creature, chr);
-        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
+        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() }, map->GetTeamId());
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 

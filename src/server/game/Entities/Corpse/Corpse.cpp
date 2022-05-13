@@ -120,6 +120,7 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, uint32(m_time));                                         // time
     stmt->setUInt8 (index++, GetType());                                              // corpseType
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
+    stmt->setUInt8 (index++, GetMapTeamId());                                         // mapTeamId
     trans->Append(stmt);
 
     for (PhaseShift::PhaseRef const& phase : GetPhaseShift().GetPhases())

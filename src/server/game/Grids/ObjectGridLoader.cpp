@@ -149,14 +149,14 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>&
 void ObjectGridLoader::Visit(GameObjectMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
+    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), i_map->GetTeamId(), cellCoord.GetId());
     LoadHelper(cell_guids.gameobjects, cellCoord, m, i_gameObjects, i_map);
 }
 
 void ObjectGridLoader::Visit(CreatureMapType &m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
+    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), i_map->GetTeamId(), cellCoord.GetId());
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
 }
 
@@ -219,14 +219,14 @@ void ObjectGridLoader::LoadN(void)
 void PersonalPhaseGridLoader::Visit(GameObjectMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId()))
+    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, i_map->GetTeamId(), cellCoord.GetId()))
         LoadHelper(cell_guids->gameobjects, cellCoord, m, i_gameObjects, i_map, _phaseId, _phaseOwner);
 }
 
 void PersonalPhaseGridLoader::Visit(CreatureMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId()))
+    if (CellObjectGuids const* cell_guids = sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, i_map->GetTeamId(), cellCoord.GetId()))
         LoadHelper(cell_guids->creatures, cellCoord, m, i_creatures, i_map, _phaseId, _phaseOwner);
 }
 

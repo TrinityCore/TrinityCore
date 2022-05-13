@@ -540,7 +540,7 @@ void Transport::LoadStaticPassengers()
 {
     if (uint32 mapId = GetGOInfo()->moTransport.SpawnMap)
     {
-        CellObjectGuidsMap const& cells = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetDifficultyID());
+        CellObjectGuidsMap const& cells = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetDifficultyID(), GetMap()->GetTeamId());
         CellGuidSet::const_iterator guidEnd;
         for (CellObjectGuidsMap::const_iterator cellItr = cells.begin(); cellItr != cells.end(); ++cellItr)
         {

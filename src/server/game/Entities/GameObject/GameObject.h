@@ -155,7 +155,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
+        void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties, TeamId teamId);
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool = true); // arg4 is unused, only present to match the signature on Creature
         static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 

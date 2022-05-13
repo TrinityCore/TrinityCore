@@ -1901,6 +1901,7 @@ CREATE TABLE `corpse` (
   `time` int unsigned NOT NULL DEFAULT '0',
   `corpseType` tinyint unsigned NOT NULL DEFAULT '0',
   `instanceId` int unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
+  `mapTeamId` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Team Identifier for splitted Faction Maps',
   PRIMARY KEY (`guid`),
   KEY `idx_type` (`corpseType`),
   KEY `idx_instance` (`instanceId`),
@@ -3493,7 +3494,8 @@ CREATE TABLE `respawn` (
   `respawnTime` bigint NOT NULL,
   `mapId` smallint unsigned NOT NULL,
   `instanceId` int unsigned NOT NULL,
-  PRIMARY KEY (`type`,`spawnId`,`instanceId`),
+  `teamId` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`type`,`spawnId`,`instanceId`,`teamId`),
   KEY `idx_instance` (`instanceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Stored respawn times';
 /*!40101 SET character_set_client = @saved_cs_client */;

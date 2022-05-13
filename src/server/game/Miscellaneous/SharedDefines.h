@@ -1124,7 +1124,7 @@ enum Language
     LANG_UNKNOWABLE         = 298,
 };
 
-enum TeamId
+enum TeamId : uint8
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,

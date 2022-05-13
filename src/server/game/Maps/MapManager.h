@@ -20,6 +20,7 @@
 
 #include "Map.h"
 #include "MapInstanced.h"
+#include "MapFactioned.h"
 #include "GridStates.h"
 #include "MapUpdater.h"
 #include <boost/dynamic_bitset_fwd.hpp>
@@ -34,8 +35,8 @@ class TC_GAME_API MapManager
 
         Map* CreateBaseMap(uint32 mapId);
         Map* FindBaseNonInstanceMap(uint32 mapId) const;
-        Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId=0);
-        Map* FindMap(uint32 mapId, uint32 instanceId) const;
+        Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId = 0, TeamId teamId = TEAM_NEUTRAL);
+        Map* FindMap(uint32 mapId, uint32 instanceId, TeamId teamId = TEAM_NEUTRAL) const;
 
         uint32 GetAreaId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z)
         {
@@ -187,6 +188,12 @@ void MapManager::DoForAllMaps(Worker&& worker)
             for (auto& instancePair : instances)
                 worker(instancePair.second);
         }
+        else if (MapFactioned* mapFactioned = map->ToMapFactioned())
+        {
+            MapFactioned::FactionedMaps& factionedMaps = mapFactioned->GetFactionedMaps();
+            for (auto& factionMapPair : factionedMaps)
+                worker(factionMapPair.second);
+        }
         else
             worker(map);
     }
@@ -206,6 +213,12 @@ inline void MapManager::DoForAllMapsWithMapId(uint32 mapId, Worker&& worker)
             MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
             for (auto& p : instances)
                 worker(p.second);
+        }
+        else if (MapFactioned* mapFactioned = map->ToMapFactioned())
+        {
+            MapFactioned::FactionedMaps& factionedMaps = mapFactioned->GetFactionedMaps();
+            for (auto& factionMapPair : factionedMaps)
+                worker(factionMapPair.second);
         }
         else
             worker(map);

@@ -116,19 +116,20 @@ void TransportMgr::LoadTransportSpawns()
 
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
+    QueryResult result = WorldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup, teamId FROM transports");
 
     uint32 count = 0;
     if (result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field* fields            = result->Fetch();
             ObjectGuid::LowType guid = fields[0].GetUInt64();
-            uint32 entry = fields[1].GetUInt32();
-            uint8 phaseUseFlags = fields[2].GetUInt8();
-            uint32 phaseId = fields[3].GetUInt32();
-            uint32 phaseGroupId = fields[4].GetUInt32();
+            uint32 entry             = fields[1].GetUInt32();
+            uint8 phaseUseFlags      = fields[2].GetUInt8();
+            uint32 phaseId           = fields[3].GetUInt32();
+            uint32 phaseGroupId      = fields[4].GetUInt32();
+            TeamId teamId            = fields[5].IsNull() ? TEAM_NEUTRAL : TeamId(fields[5].GetUInt8());
 
             if (!GetTransportTemplate(entry))
             {
@@ -179,6 +180,7 @@ void TransportMgr::LoadTransportSpawns()
             spawn.PhaseUseFlags = phaseUseFlags;
             spawn.PhaseId = phaseId;
             spawn.PhaseGroup = phaseGroupId;
+            spawn.MapTeamId = teamId;
 
         } while (result->NextRow());
     }
@@ -447,7 +449,7 @@ void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg,
     animNode.Path[timeSeg] = node;
 }
 
-Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/)
+Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/, TeamId teamId /*= TEAM_NEUTRAL*/)
 {
     // instance case, execute GetGameObjectEntry hook
     if (map)
@@ -500,7 +502,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
     }
 
     // use preset map for instances (need to know which instance)
-    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, nullptr));
+    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, nullptr, 0, teamId));
     if (map && map->IsDungeon())
         trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
 
@@ -517,7 +519,7 @@ void TransportMgr::SpawnContinentTransports()
 
     for (auto itr = _transportSpawns.begin(); itr != _transportSpawns.end(); ++itr)
         if (!ASSERT_NOTNULL(GetTransportTemplate(itr->second.TransportGameObjectId))->inInstance)
-            if (CreateTransport(itr->second.TransportGameObjectId, itr->second.SpawnId, nullptr, itr->second.PhaseUseFlags, itr->second.PhaseId, itr->second.PhaseGroup))
+            if (CreateTransport(itr->second.TransportGameObjectId, itr->second.SpawnId, nullptr, itr->second.PhaseUseFlags, itr->second.PhaseId, itr->second.PhaseGroup, itr->second.MapTeamId))
                 ++count;
 
     TC_LOG_INFO("server.loading", ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));

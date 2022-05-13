@@ -98,6 +98,8 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
     Map* map;
     if (mapEntry->Instanceable())
         map = new MapInstanced(mapEntry->ID, i_gridCleanUpDelay);
+    else if (mapEntry->IsFactioned())
+        map = new MapFactioned(mapEntry->ID, i_gridCleanUpDelay);
     else
         map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, DIFFICULTY_NONE);
 
@@ -108,7 +110,7 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
     for (uint32 childMapId : _parentMapData[mapEntry->ID])
         map->AddChildTerrainMap(CreateBaseMap_i(sMapStore.AssertEntry(childMapId)));
 
-    if (!mapEntry->Instanceable())
+    if (!mapEntry->Instanceable() && !mapEntry->IsFactioned())
     {
         map->LoadRespawnTimes();
         map->LoadCorpseData();
@@ -125,26 +127,32 @@ Map* MapManager::FindBaseNonInstanceMap(uint32 mapId) const
     return map;
 }
 
-Map* MapManager::CreateMap(uint32 id, Player* player, uint32 loginInstanceId)
+Map* MapManager::CreateMap(uint32 id, Player* player, uint32 loginInstanceId, TeamId teamId)
 {
     Map* m = CreateBaseMap(id);
 
     if (m && m->Instanceable())
-        m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player, loginInstanceId);
+        m = ((MapInstanced*)m)->CreateInstanceForPlayer(player, loginInstanceId);
+
+    if (m && m->IsFactioned())
+        m = ((MapFactioned*)m)->CreateFactionMapForTeam(player ? player->GetTeamId() : teamId);
 
     return m;
 }
 
-Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
+Map* MapManager::FindMap(uint32 mapid, uint32 instanceId, TeamId teamId) const
 {
     Map* map = FindBaseMap(mapid);
     if (!map)
         return nullptr;
 
-    if (!map->Instanceable())
-        return instanceId == 0 ? map : nullptr;
+    if (map->Instanceable() && instanceId)
+        return ((MapInstanced*)map)->FindInstanceMap(instanceId);
 
-    return ((MapInstanced*)map)->FindInstanceMap(instanceId);
+    if (map->IsFactioned())
+        return ((MapFactioned*)map)->FindFactionMap(teamId, instanceId);
+
+    return map;
 }
 
 Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck)

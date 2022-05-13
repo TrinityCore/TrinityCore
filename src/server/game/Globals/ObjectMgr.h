@@ -487,8 +487,8 @@ struct CellObjectGuids
     CellGuidSet gameobjects;
 };
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
-typedef std::unordered_map<std::pair<uint32 /*mapId*/, Difficulty>, CellObjectGuidsMap> MapObjectGuids;
-typedef std::map<std::tuple<uint32/*mapId*/, Difficulty, uint32 /*phaseId*/>, CellObjectGuidsMap> MapPersonalObjectGuids;
+typedef std::map<std::tuple<uint32 /*mapId*/, Difficulty, TeamId /*teamId*/>, CellObjectGuidsMap> MapObjectGuids;
+typedef std::map<std::tuple<uint32 /*mapId*/, Difficulty, uint32 /*phaseId*/, TeamId /*teamId*/>, CellObjectGuidsMap> MapPersonalObjectGuids;
 
 struct TrinityString
 {
@@ -1470,18 +1470,18 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        CellObjectGuids const& GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 cell_id)
+        CellObjectGuids const& GetCellObjectGuids(uint32 mapid, Difficulty spawnMode, TeamId teamId, uint32 cell_id)
         {
-            return _mapObjectGuidsStore[{ mapid, spawnMode }][cell_id];
+            return _mapObjectGuidsStore[{ mapid, spawnMode, teamId }][cell_id];
         }
 
-        CellObjectGuidsMap const& GetMapObjectGuids(uint32 mapid, Difficulty spawnMode)
+        CellObjectGuidsMap const& GetMapObjectGuids(uint32 mapid, Difficulty spawnMode, TeamId teamId)
         {
-            return _mapObjectGuidsStore[{ mapid, spawnMode }];
+            return _mapObjectGuidsStore[{ mapid, spawnMode, teamId }];
         }
 
-        bool HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId) const;
-        CellObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, uint32 cell_id) const;
+        bool HasPersonalSpawns(uint32 mapid, Difficulty spawnMode, uint32 phaseId, TeamId teamId) const;
+        CellObjectGuids const* GetCellPersonalObjectGuids(uint32 mapid, Difficulty spawnMode, uint32 phaseId, TeamId teamId, uint32 cell_id) const;
 
         /**
          * Gets temp summon data for all creatures of specified group.

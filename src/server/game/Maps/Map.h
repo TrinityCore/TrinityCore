@@ -53,6 +53,7 @@ class InstanceMap;
 class InstanceSave;
 class InstanceScript;
 class InstanceScenario;
+class MapFactioned;
 class MapInstanced;
 class Object;
 class PhaseShift;
@@ -263,7 +264,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
-        Map(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, Map* _parent = nullptr);
+        Map(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, Map* _parent = nullptr, TeamId teamId = TEAM_NEUTRAL);
         virtual ~Map();
 
         MapEntry const* GetEntry() const { return i_mapEntry; }
@@ -376,6 +377,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static bool CheckGridIntegrity(T* object, bool moved, char const* objType);
 
         uint32 GetInstanceId() const { return i_InstanceId; }
+        TeamId GetTeamId() const { return m_teamId; }
 
         enum EnterState
         {
@@ -401,6 +403,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         ItemContext GetDifficultyLootItemContext() const;
 
         uint32 GetId() const;
+        bool IsFactioned() const;
         bool Instanceable() const;
         bool IsDungeon() const;
         bool IsNonRaidDungeon() const;
@@ -490,6 +493,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             }
         }
 
+        virtual void CreateGameobject(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint);
+        virtual void CreateCreature(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint);
+
         MapStoredObjectTypesContainer& GetObjectsStore() { return _objectsStore; }
 
         typedef std::unordered_multimap<ObjectGuid::LowType, Creature*> CreatureBySpawnIdContainer;
@@ -521,6 +527,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
             return nullptr;
         }
+
+        MapFactioned* ToMapFactioned() { if (IsFactioned()) return reinterpret_cast<MapFactioned*>(this); return nullptr; }
+        MapFactioned const* ToMapFactioned() const { if (IsFactioned()) return reinterpret_cast<MapFactioned const*>(this); return nullptr; }
 
         MapInstanced* ToMapInstanced() { if (Instanceable()) return reinterpret_cast<MapInstanced*>(this); return nullptr; }
         MapInstanced const* ToMapInstanced() const { if (Instanceable()) return reinterpret_cast<MapInstanced const*>(this); return nullptr; }
@@ -571,8 +580,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, CharacterDatabaseTransaction dbTrans = nullptr, bool startup = false);
         void SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransaction dbTrans = nullptr);
         void LoadRespawnTimes();
-        void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(GetId(), GetInstanceId()); }
-        static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
+        void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(GetId(), GetInstanceId(), GetTeamId()); }
+        static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId, TeamId teamId = TEAM_NEUTRAL);
 
         void LoadCorpseData();
         void DeleteCorpseData();
@@ -702,6 +711,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapEntry const* i_mapEntry;
         Difficulty i_spawnMode;
         uint32 i_InstanceId;
+        TeamId m_teamId;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
         DynamicMapTree _dynamicTree;
@@ -781,7 +791,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
                 Respawn(info, dbTrans);
         }
-        void RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr, bool alwaysDeleteFromDB = false)
+        virtual void RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr, bool alwaysDeleteFromDB = false)
         {
             if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
                 DeleteRespawnInfo(info, dbTrans);
@@ -954,8 +964,8 @@ class TC_GAME_API InstanceMap : public Map
         bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
-        TeamId GetTeamIdInInstance() const { return i_script_team; }
-        Team GetTeamInInstance() const { return i_script_team == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
+        TeamId GetTeamIdInInstance() const { return m_teamId; }
+        Team GetTeamInInstance() const { return m_teamId == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
 
         virtual void InitVisibilityDistance() override;
 
@@ -965,7 +975,6 @@ class TC_GAME_API InstanceMap : public Map
         bool m_unloadWhenEmpty;
         InstanceScript* i_data;
         uint32 i_script_id;
-        TeamId i_script_team;
         InstanceScenario* i_scenario;
 };
 

@@ -75,7 +75,9 @@ void WorldSession::HandleMoveWorldportAck()
         player->m_InstanceValid = true;
 
     Map* oldMap = player->GetMap();
-    Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), player);
+    Map* newMap = player->GetTeleportDestInstanceId() ?
+        sMapMgr->FindMap(loc.GetMapId(), player->GetTeleportDestInstanceId()) :
+        sMapMgr->CreateMap(loc.GetMapId(), player);
 
     if (player->IsInWorld())
     {

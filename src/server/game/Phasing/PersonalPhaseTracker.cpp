@@ -129,7 +129,7 @@ void MultiPersonalPhaseTracker::LoadGrid(PhaseShift const& phaseShift, NGridType
         if (!phaseRef.IsPersonal())
             continue;
 
-        if (!sObjectMgr->HasPersonalSpawns(map->GetId(), map->GetDifficultyID(), phaseRef.Id))
+        if (!sObjectMgr->HasPersonalSpawns(map->GetId(), map->GetDifficultyID(), phaseRef.Id, map->GetTeamId()))
             continue;
 
         if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Id))

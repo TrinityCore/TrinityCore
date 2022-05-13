@@ -1164,10 +1164,10 @@ void GameObject::SaveToDB()
         return;
     }
 
-    SaveToDB(GetMapId(), data->spawnDifficulties);
+    SaveToDB(GetMapId(), data->spawnDifficulties, data->teamId);
 }
 
-void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties)
+void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties, TeamId teamId)
 {
     GameObjectTemplate const* goI = GetGOInfo();
     if (!goI)
@@ -1196,6 +1196,7 @@ void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiff
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
     data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
+    data.teamId = teamId;
 
     // Update in DB
     WorldDatabaseTransaction trans = WorldDatabase.BeginTransaction();
@@ -1226,6 +1227,7 @@ void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiff
     }());
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
+    stmt->setUInt8 (index++, data.teamId);
     stmt->setFloat(index++, GetPositionX());
     stmt->setFloat(index++, GetPositionY());
     stmt->setFloat(index++, GetPositionZ());

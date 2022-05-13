@@ -19,6 +19,7 @@
 #define TRANSPORTMGR_H
 
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 #include <map>
 #include <memory>
 #include <unordered_map>
@@ -102,6 +103,7 @@ struct TransportSpawn
     uint8 PhaseUseFlags = 0;
     uint32 PhaseId = 0;
     uint32 PhaseGroup = 0;
+    TeamId MapTeamId = TEAM_NEUTRAL;
 };
 
 class TC_GAME_API TransportMgr
@@ -118,7 +120,7 @@ class TC_GAME_API TransportMgr
         void LoadTransportSpawns();
 
         // Creates a transport using given GameObject template entry
-        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0);
+        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0, TeamId teamId = TEAM_NEUTRAL);
 
         // Spawns all continent transports, used at core startup
         void SpawnContinentTransports();

@@ -85,13 +85,26 @@ void MapInstanced::DelayedUpdate(uint32 diff)
     Map::DelayedUpdate(diff); // this may be removed
 }
 
-/*
-void MapInstanced::RelocationNotify()
+
+void MapInstanced::RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans, bool alwaysDeleteFromDB)
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        i->second->RelocationNotify();
+        i->second->RemoveRespawnTime(type, spawnId, dbTrans, alwaysDeleteFromDB);
 }
-*/
+
+void MapInstanced::CreateGameobject(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint)
+{
+    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+        if (i->second->IsGridLoaded(spawnPoint))
+            i->second->CreateGameobject(spawnId, addToMap, spawnPoint);
+}
+
+void MapInstanced::CreateCreature(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint)
+{
+    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+        if (i->second->IsGridLoaded(spawnPoint))
+            i->second->CreateCreature(spawnId, addToMap, spawnPoint);
+}
 
 void MapInstanced::UnloadAll()
 {
@@ -114,9 +127,9 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 loginInstanceId /*= 0*/)
+Map* MapInstanced::CreateInstanceForPlayer(Player* player, uint32 loginInstanceId /*= 0*/)
 {
-    if (GetId() != mapId || !player)
+    if (!player)
         return nullptr;
 
     Map* map = nullptr;
@@ -130,7 +143,7 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
         if (!newInstanceId)
             return nullptr;
 
-        map = sMapMgr->FindMap(mapId, newInstanceId);
+        map = FindInstanceMap(newInstanceId);
         if (!map)
         {
             if (Battleground* bg = player->GetBattleground())

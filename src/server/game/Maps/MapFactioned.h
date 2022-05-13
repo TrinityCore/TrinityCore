@@ -15,26 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_MAP_INSTANCED_H
-#define TRINITY_MAP_INSTANCED_H
+#ifndef TRINITY_MAP_FACTIONED_H
+#define TRINITY_MAP_FACTIONED_H
 
 #include "Map.h"
-#include "InstanceSaveMgr.h"
 
-class GarrisonMap;
-
-class TC_GAME_API MapInstanced : public Map
+class TC_GAME_API MapFactioned : public Map
 {
     friend class MapManager;
     public:
-        typedef std::unordered_map< uint32, Map*> InstancedMaps;
+        typedef std::unordered_map<TeamId, Map*> FactionedMaps;
 
-        MapInstanced(uint32 id, time_t expiry);
-        MapInstanced(MapInstanced const& right) = delete;
-        MapInstanced(MapInstanced&& right) = delete;
-        MapInstanced& operator=(MapInstanced const& right) = delete;
-        MapInstanced& operator=(MapInstanced&& right) = delete;
-        ~MapInstanced();
+        MapFactioned(uint32 id, time_t expiry);
+        MapFactioned(MapFactioned const& right) = delete;
+        MapFactioned(MapFactioned&& right) = delete;
+        MapFactioned& operator=(MapInstanced const& right) = delete;
+        MapFactioned& operator=(MapInstanced&& right) = delete;
+        ~MapFactioned();
 
         // functions overwrite Map versions
         void Update(uint32 diff) override;
@@ -45,24 +42,33 @@ class TC_GAME_API MapInstanced : public Map
         void CreateCreature(ObjectGuid::LowType spawnId, bool addToMap, Position const& spawnPoint) override;
 
         void UnloadAll() override;
-        EnterState CannotEnter(Player* /*player*/) override;
 
-        Map* CreateInstanceForPlayer(Player* player, uint32 loginInstanceId = 0);
-        Map* FindInstanceMap(uint32 instanceId) const
+        Map* CreateFactionMapForTeam(TeamId teamId);
+
+        Map* FindFactionMap(TeamId teamId, uint32 instanceId = 0) const
         {
-            InstancedMaps::const_iterator i = m_InstancedMaps.find(instanceId);
-            return(i == m_InstancedMaps.end() ? nullptr : i->second);
-        }
-        bool DestroyInstance(InstancedMaps::iterator &itr);
+            for (auto& factionMapPair : _factionedMaps)
+            {
+                Map* map = factionMapPair.second;
 
-        InstancedMaps &GetInstancedMaps() { return m_InstancedMaps; }
+                if (instanceId)
+                {
+                    if (map->GetInstanceId() == instanceId)
+                        return map;
+                }
+                else if (map->GetTeamId() == teamId)
+                    return map;
+            }
+            return nullptr;
+        }
+
+        FactionedMaps& GetFactionedMaps() { return _factionedMaps; }
         virtual void InitVisibilityDistance() override;
 
     private:
-        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty, TeamId team);
-        BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
-        GarrisonMap* CreateGarrison(uint32 instanceId, Player* owner);
+        Map* CreateFactionMap(TeamId team);
 
-        InstancedMaps m_InstancedMaps;
+        FactionedMaps _factionedMaps;
 };
+
 #endif

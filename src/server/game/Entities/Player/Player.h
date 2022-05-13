@@ -1148,8 +1148,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
-        bool TeleportTo(WorldLocation const& loc, uint32 options = 0);
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, uint32 instanceId = 0);
+        bool TeleportTo(WorldLocation const& loc, uint32 options = 0, uint32 instanceId = 0);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -2195,6 +2195,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         uint32 GetTeleportOptions() const { return m_teleport_options; }
+        uint32 GetTeleportDestInstanceId() const { return m_teleport_instanceId; }
         bool IsBeingTeleported() const { return IsBeingTeleportedNear() || IsBeingTeleportedFar(); }
         bool IsBeingTeleportedNear() const { return mSemaphoreTeleport_Near; }
         bool IsBeingTeleportedFar() const { return mSemaphoreTeleport_Far; }
@@ -2454,8 +2455,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetSaveTimer() const { return m_nextSave; }
         void SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
-        void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); }
-        void Recall() { TeleportTo(m_recall_location); }
+        void SaveRecallPosition() { m_recall_location.WorldRelocate(*this); m_recall_instanceId = GetInstanceId(); }
+        void Recall() { TeleportTo(m_recall_location, 0, m_recall_instanceId); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
         void SendBindPointUpdate() const;
@@ -3073,6 +3074,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         // Recall position
         WorldLocation m_recall_location;
+        uint32 m_recall_instanceId;
 
         DeclinedName *m_declinedname;
         Runes *m_runes;
@@ -3125,6 +3127,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Current teleport data
         WorldLocation m_teleport_dest;
         uint32 m_teleport_options;
+        uint32 m_teleport_instanceId;
         bool mSemaphoreTeleport_Near;
         bool mSemaphoreTeleport_Far;
 

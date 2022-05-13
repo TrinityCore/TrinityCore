@@ -194,6 +194,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_bCanDelayTeleport = false;
     m_bHasDelayedTeleport = false;
     m_teleport_options = 0;
+    m_teleport_instanceId = 0;
 
     m_trade = nullptr;
 
@@ -245,6 +246,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     //when dying/logging out
     m_oldpetspell = 0;
     m_lastpetnumber = 0;
+
+    m_recall_instanceId = 0;
 
     m_mailsUpdated = false;
     unReadMails = 0;
@@ -1306,7 +1309,7 @@ uint8 Player::GetChatFlags() const
     return tag;
 }
 
-bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
+bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options /*= 0*/, uint32 instanceId /*= 0*/)
 {
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
@@ -1372,7 +1375,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (duel && GetMapId() != mapid && GetMap()->GetGameObject(m_playerData->DuelArbiter))
         DuelComplete(DUEL_FLED);
 
-    if (GetMapId() == mapid)
+    if (GetMapId() == mapid && (!instanceId || GetInstanceId() == instanceId))
     {
         //lets reset far teleport flag if it wasn't reset during chained teleport
         SetSemaphoreTeleportFar(false);
@@ -1386,6 +1389,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             //lets save teleport destination for player
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_options = options;
+            m_teleport_instanceId = 0;
             return true;
         }
 
@@ -1405,6 +1409,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         // this will be used instead of the current location in SaveToDB
         m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
         m_teleport_options = options;
+        m_teleport_instanceId = instanceId;
         SetFallInformation(0, GetPositionZ());
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
@@ -1521,6 +1526,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_options = options;
+            m_teleport_instanceId = instanceId;
             SetFallInformation(0, GetPositionZ());
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
@@ -1543,9 +1549,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
-bool Player::TeleportTo(WorldLocation const& loc, uint32 options /*= 0*/)
+bool Player::TeleportTo(WorldLocation const& loc, uint32 options /*= 0*/, uint32 instanceId /*= 0*/)
 {
-    return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
+    return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options, instanceId);
 }
 
 bool Player::TeleportToBGEntryPoint()

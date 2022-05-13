@@ -1385,10 +1385,10 @@ void Creature::SaveToDB()
     }
 
     uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.SpawnMap : GetMapId();
-    SaveToDB(mapId, data->spawnDifficulties);
+    SaveToDB(mapId, data->spawnDifficulties, data->teamId);
 }
 
-void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties)
+void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties, TeamId teamId)
 {
     // update in loaded data
     if (!m_spawnId)
@@ -1463,6 +1463,7 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
     data.phaseGroup = GetDBPhase() < 0 ? -GetDBPhase() : data.phaseGroup;
+    data.teamId = teamId;
 
     // update in DB
     WorldDatabaseTransaction trans = WorldDatabase.BeginTransaction();
@@ -1493,6 +1494,7 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     }());
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
+    stmt->setUInt8(index++, data.teamId);
     stmt->setUInt32(index++, displayId);
     stmt->setUInt8(index++, GetCurrentEquipmentId());
     stmt->setFloat(index++, GetPositionX());

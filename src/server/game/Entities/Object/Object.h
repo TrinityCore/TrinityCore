@@ -456,6 +456,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetRandomPoint(Position const& srcPos, float distance, float& rand_x, float& rand_y, float& rand_z) const;
         Position GetRandomPoint(Position const& srcPos, float distance) const;
 
+        TeamId GetMapTeamId() const { return m_mapTeamId; }
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         bool IsInPhase(WorldObject const* obj) const
@@ -752,6 +753,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     private:
         Map* m_currMap;                                   // current object's Map location
 
+        TeamId m_mapTeamId;
         uint32 m_InstanceId;                              // in map copy with instance id
         PhaseShift _phaseShift;
         PhaseShift _suppressedPhaseShift;                 // contains phases for current area but not applied due to conditions
