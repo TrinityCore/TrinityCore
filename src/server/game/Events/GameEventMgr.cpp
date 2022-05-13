@@ -26,6 +26,7 @@
 #include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapFactioned.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -1260,7 +1261,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             Map* map = sMapMgr->CreateBaseMap(data->mapId);
             map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
-            map->CreateGameobject(*itr, false, data->spawnPoint);
+            map->CreateGameobject(*itr, true, data->spawnPoint);
         }
     }
 

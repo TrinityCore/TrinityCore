@@ -85,7 +85,6 @@ void MapInstanced::DelayedUpdate(uint32 diff)
     Map::DelayedUpdate(diff); // this may be removed
 }
 
-
 void MapInstanced::RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans, bool alwaysDeleteFromDB)
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
