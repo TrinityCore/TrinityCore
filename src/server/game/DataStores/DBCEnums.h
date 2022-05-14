@@ -863,6 +863,10 @@ enum ItemBonusType
     ITEM_BONUS_REQUIRED_LEVEL_CURVE             = 27,
     ITEM_BONUS_DESCRIPTION_TEXT                 = 30,             // Item description
     ITEM_BONUS_OVERRIDE_NAME                    = 31,             // ItemNameDescription id
+    ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34,
+    ITEM_BONUS_ITEM_LIMIT_CATEGORY              = 35,
+    ITEM_BONUS_ITEM_CONVERSION                  = 37,
+    ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
 };
 
 enum class ItemContext : uint8
