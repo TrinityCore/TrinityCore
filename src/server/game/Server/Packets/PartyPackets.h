@@ -642,6 +642,27 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class BroadcastSummonCast final : public ServerPacket
+        {
+        public:
+            BroadcastSummonCast() : ServerPacket(SMSG_BROADCAST_SUMMON_CAST, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+        };
+
+        class BroadcastSummonResponse final : public ServerPacket
+        {
+        public:
+            BroadcastSummonResponse() : ServerPacket(SMSG_BROADCAST_SUMMON_RESPONSE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            bool Accepted = false;
+        };
     }
 }
 

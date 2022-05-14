@@ -1633,9 +1633,9 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     }
 }
 
-void Group::BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group /*= -1*/, ObjectGuid ignore /*= ObjectGuid::Empty*/)
+void Group::BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group /*= -1*/, ObjectGuid ignore /*= ObjectGuid::Empty*/) const
 {
-    for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
         Player* player = itr->GetSource();
         if (!player || (!ignore.IsEmpty() && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
@@ -1646,11 +1646,11 @@ void Group::BroadcastAddonMessagePacket(WorldPacket const* packet, const std::st
     }
 }
 
-void Group::BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group, ObjectGuid ignoredPlayer)
+void Group::BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group, ObjectGuid ignoredPlayer) const
 {
-    for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
-        Player* player = itr->GetSource();
+        Player const* player = itr->GetSource();
         if (!player || (!ignoredPlayer.IsEmpty() && player->GetGUID() == ignoredPlayer) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 

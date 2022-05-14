@@ -89,6 +89,7 @@
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
+#include "PartyPackets.h"
 #include "Pet.h"
 #include "PetPackets.h"
 #include "PoolMgr.h"
@@ -25523,19 +25524,41 @@ void Player::SendSummonRequestFrom(Unit* summoner)
     summonRequest.SummonerVirtualRealmAddress = GetVirtualRealmAddress();
     summonRequest.AreaID = summoner->GetZoneId();
     SendDirectMessage(summonRequest.Write());
+
+    if (Group const* group = GetGroup())
+    {
+        WorldPackets::Party::BroadcastSummonCast summonCast;
+        summonCast.Target = GetGUID();
+        group->BroadcastPacket(summonCast.Write(), false, -1, GetGUID());
+    }
 }
 
 void Player::SummonIfPossible(bool agree)
 {
+    auto broadcastSummonResponse = [&](bool accepted)
+    {
+        if (Group const* group = GetGroup())
+        {
+            WorldPackets::Party::BroadcastSummonResponse summonResponse;
+            summonResponse.Target = GetGUID();
+            summonResponse.Accepted = accepted;
+            group->BroadcastPacket(summonResponse.Write(), false, -1, GetGUID());
+        }
+    };
+
     if (!agree)
     {
         m_summon_expire = 0;
+        broadcastSummonResponse(false);
         return;
     }
 
     // expire and auto declined
     if (m_summon_expire < GameTime::GetGameTime())
+    {
+        broadcastSummonResponse(false);
         return;
+    }
 
     // stop taxi flight at summon
     FinishTaxiFlight();
@@ -25551,6 +25574,8 @@ void Player::SummonIfPossible(bool agree)
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Summon);
 
     TeleportTo(m_summon_location, 0, m_summon_instanceId);
+
+    broadcastSummonResponse(true);
 }
 
 void Player::RemoveItemDurations(Item* item)

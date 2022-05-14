@@ -604,8 +604,9 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     MemberStats.WmoDoodadPlacementID = 0;
 
     // Vehicle
-    if (player->GetVehicle() && player->GetVehicle()->GetVehicleInfo())
-        MemberStats.VehicleSeat = player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat];
+    if (::Vehicle const* vehicle = player->GetVehicle())
+        if (VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(player))
+            MemberStats.VehicleSeat = vehicleSeat->ID;
 
     // Auras
     for (AuraApplication const* aurApp : player->GetVisibleAuras())
@@ -677,6 +678,22 @@ WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
 {
     _worldPacket << Player;
     _worldPacket << Victim;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::BroadcastSummonCast::Write()
+{
+    _worldPacket << Target;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::BroadcastSummonResponse::Write()
+{
+    _worldPacket << Target;
+    _worldPacket.WriteBit(Accepted);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
