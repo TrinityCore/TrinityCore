@@ -155,6 +155,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isWorldBoss() const;
 
         bool HasScalableLevels() const;
+        void ApplyLevelScaling();
         uint8 GetLevelForTarget(WorldObject const* target) const override;
 
         uint64 GetMaxHealthByLevel(uint8 level) const;
