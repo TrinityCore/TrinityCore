@@ -713,9 +713,9 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
 
-        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetUnitFlags(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void Reset() override
@@ -1158,9 +1158,9 @@ struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
 
-        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetUnitFlags(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -1260,9 +1260,9 @@ struct boss_sylvanas_windrunner : public BossAI
         Talk(SAY_SLAY);
     }
 
-    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    void OnSpellFailed(SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_RUIN && reason == SPELL_FINISHED_CANCELED)
+        if (spell->Id == SPELL_RUIN)
         {
             // TODO: change this since she's interrupted 5 times
             if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
@@ -2840,7 +2840,7 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
 
         me->SetReactState(REACT_PASSIVE);
 
-        me->SetUnitFlags(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void DoAction(int32 action) override
@@ -5408,7 +5408,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
 
                 _scheduler.Schedule(12s, [this](TaskContext /*task*/)
                 {
-                    me->AddUnitFlag2(UNIT_FLAG2_UNTARGETABLE_BY_CLIENT);
+                    me->SetUnitFlag2(UNIT_FLAG2_UNTARGETABLE_BY_CLIENT);
 
                     me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
 
