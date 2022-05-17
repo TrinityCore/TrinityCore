@@ -1278,7 +1278,7 @@ struct boss_sylvanas_windrunner : public BossAI
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-        // This could be a serverside spell instead of raw summoning
+        // NOTE: This could be a serverside spell instead of raw summoning, it doesn't make sense to me that they're raw summoned.
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
@@ -1778,7 +1778,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else if (events.IsInPhase(PHASE_THREE))
                     {
-
+                        // NOTE: this should be almost exactly like the one in phase 1, but it doesn't apply dots
                     }
                     break;
                 }
@@ -1826,6 +1826,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         ChooseDesecratingShotPattern(_disecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
                     else if (_windrunnerCastTimes == 4)
                         ChooseDesecratingShotPattern(_disecratingShotCastTimes == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
+                    // NOTE: we don't know what happens on the fifth cast, so we have set a reset to restart the combo here.
                     break;
                 }
 
