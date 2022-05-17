@@ -507,3 +507,45 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPackets::Party::SummonRaidMemberValidateFailed::SummonRaidMemberValidateFailed(ObjectGuid const& memberGuid, SummonRaidMemberValidateReasonCode reasonCode)
+    : ServerPacket(SMSG_SUMMON_RAID_MEMBER_VALIDATE_FAILED, 4 + sizeof(SummonRaidMemberValidateReason))
+{
+    Members.emplace_back(memberGuid, AsUnderlyingType(reasonCode));
+}
+
+WorldPacket const* WorldPackets::Party::SummonRaidMemberValidateFailed::Write()
+{
+    _worldPacket.WriteBits(Members.size(), 23);
+
+    for (SummonRaidMemberValidateReason const& reason : Members)
+    {
+        _worldPacket.WriteBit(reason.Member[5]);
+        _worldPacket.WriteBit(reason.Member[3]);
+        _worldPacket.WriteBit(reason.Member[1]);
+        _worldPacket.WriteBit(reason.Member[7]);
+        _worldPacket.WriteBit(reason.Member[2]);
+        _worldPacket.WriteBit(reason.Member[0]);
+        _worldPacket.WriteBit(reason.Member[6]);
+        _worldPacket.WriteBit(reason.Member[4]);
+    }
+
+    _worldPacket.FlushBits();
+
+    for (SummonRaidMemberValidateReason const& reason : Members)
+    {
+        _worldPacket.WriteByteSeq(reason.Member[4]);
+        _worldPacket.WriteByteSeq(reason.Member[2]);
+        _worldPacket.WriteByteSeq(reason.Member[0]);
+        _worldPacket.WriteByteSeq(reason.Member[6]);
+        _worldPacket.WriteByteSeq(reason.Member[5]);
+
+        _worldPacket << int32(reason.ReasonCode);
+
+        _worldPacket.WriteByteSeq(reason.Member[7]);
+        _worldPacket.WriteByteSeq(reason.Member[3]);
+        _worldPacket.WriteByteSeq(reason.Member[1]);
+    }
+
+    return &_worldPacket;
+}

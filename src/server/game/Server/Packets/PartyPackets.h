@@ -23,6 +23,7 @@
 #include "Optional.h"
 
 class Player;
+enum class SummonRaidMemberValidateReasonCode : int32;
 
 namespace WorldPackets
 {
@@ -223,6 +224,26 @@ namespace WorldPackets
             PartyLootSettings LootSettings;
             PartyLFGInfo LfgInfo;
             PartyDifficultySettings DifficultySettings;
+        };
+
+        struct SummonRaidMemberValidateReason
+        {
+            SummonRaidMemberValidateReason(ObjectGuid const& member, int32 reasonCode) : Member(member), ReasonCode(reasonCode) { }
+
+            ObjectGuid Member;
+            int32 ReasonCode = 0;
+        };
+
+        class SummonRaidMemberValidateFailed final : public ServerPacket
+        {
+        public:
+            SummonRaidMemberValidateFailed() : ServerPacket(SMSG_SUMMON_RAID_MEMBER_VALIDATE_FAILED, 4) { }
+
+            SummonRaidMemberValidateFailed(ObjectGuid const& memberGuid, SummonRaidMemberValidateReasonCode reasonCode);
+
+            WorldPacket const* Write() override;
+
+            std::vector<SummonRaidMemberValidateReason> Members;
         };
     }
 }

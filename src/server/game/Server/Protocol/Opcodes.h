@@ -1118,7 +1118,7 @@ enum OpcodeServer
     SMSG_RAID_INSTANCE_MESSAGE                        = 0x6E15,
     SMSG_RAID_MARKERS_CHANGED                         = 0x10A1,
     SMSG_RAID_READY_CHECK_THROTTLED_ERROR             = 0x2607,
-    SMSG_RAID_SUMMON_FAILED                           = 0x18B6,
+    SMSG_SUMMON_RAID_MEMBER_VALIDATE_FAILED           = 0x18B6,
     SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT        = 0x38B1,
     SMSG_RATED_BG_RATING                              = 0x15A1,
     SMSG_RATED_BG_STATS                               = 0x34A1,

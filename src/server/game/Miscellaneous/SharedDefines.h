@@ -4361,6 +4361,16 @@ enum RaidGroupReason
     RAID_GROUP_ERR_REQUIREMENTS_UNMATCH = 4  // "You do not meet the requirements to enter this instance."
 };
 
+enum class SummonRaidMemberValidateReasonCode : int32
+{
+    None                = 0,
+    RealmMismatch       = 1,
+    RaidLocked          = 2,
+    MapConditionFailed  = 3,
+    DeadOrGhost         = 4,
+    Offline             = 5
+};
+
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif

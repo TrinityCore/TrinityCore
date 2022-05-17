@@ -39,12 +39,14 @@
 #include "Language.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "MapManager.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
+#include "PartyPackets.h"
 #include "PathGenerator.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
@@ -678,18 +680,63 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id);
-
+    uint32 summonSpellId = m_spellInfo->Effects[effIndex].TriggerSpell;
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(summonSpellId);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("spells", "EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i.", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells", "EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i.", m_spellInfo->Id, summonSpellId);
         return;
     }
 
     finish();
 
-    m_caster->CastSpell(nullptr, spellInfo->Id, false);
+    if (!m_spellInfo->Effects[effIndex].IsTargetingArea())
+        m_caster->CastSpell(nullptr, spellInfo->Id, false);
+    else if (m_caster->IsPlayer())
+    {
+        Player* player = m_caster->ToPlayer();
+        Group* group = player->GetGroup();
+        if (!group)
+            return;
+
+        for (Group::MemberSlot const& memberSlot : group->GetMemberSlots())
+        {
+            if (memberSlot.guid == player->GetGUID())
+                continue;
+
+            Player* member = ObjectAccessor::FindPlayer(memberSlot.guid);
+            if (!member || member->GetSession()->PlayerLogout())
+            {
+                player->SendDirectMessage(WorldPackets::Party::SummonRaidMemberValidateFailed(memberSlot.guid, SummonRaidMemberValidateReasonCode::Offline).Write());
+                continue;
+            }
+
+            if (member->isDead())
+            {
+                player->SendDirectMessage(WorldPackets::Party::SummonRaidMemberValidateFailed(memberSlot.guid, SummonRaidMemberValidateReasonCode::DeadOrGhost).Write());
+                continue;
+            }
+
+            Map::EnterState enterState = sMapMgr->PlayerCannotEnter(player->GetMapId(), member, false);
+            if (enterState != Map::CAN_ENTER)
+            {
+                if (enterState == Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH)
+                {
+                    // @todo: this will also cause denied summons for dynamic lockouts. Gotta wait for grumpy Shauren to wrap up his lock rework.
+                    player->SendDirectMessage(WorldPackets::Party::SummonRaidMemberValidateFailed(memberSlot.guid, SummonRaidMemberValidateReasonCode::RaidLocked).Write());
+                    continue;
+                }
+                else
+                {
+                    player->SendDirectMessage(WorldPackets::Party::SummonRaidMemberValidateFailed(memberSlot.guid, SummonRaidMemberValidateReasonCode::MapConditionFailed).Write());
+                    continue;
+                }
+            }
+
+            // Member passed all checks. Cast summon spell
+            m_caster->CastSpell(member, spellInfo->Id, false);
+        }
+    }
 }
 
 void Spell::EffectJump(SpellEffIndex effIndex)
@@ -3635,14 +3682,16 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
 {
-    // workaround - this effect should not use target map
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    unitTarget->ToPlayer()->SendSummonRequestFrom(m_caster);
+    if (m_targets.GetOrigUnitTargetGUID().IsEmpty())
+    {
+        if (Player* target = ObjectAccessor::FindPlayer(m_caster->GetTarget()))
+            target->SendSummonRequestFrom(m_caster);
+    }
+    else if (Player* target = ObjectAccessor::FindPlayer(m_targets.GetOrigUnitTargetGUID()))
+       target->SendSummonRequestFrom(m_caster);
 }
 
 void Spell::EffectActivateObject(SpellEffIndex effIndex)
@@ -5543,13 +5592,11 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
 void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER || !unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    m_caster->CastSpell(unitTarget, m_spellInfo->Effects[effIndex].TriggerSpell, true);
+    if (Player* target = ObjectAccessor::FindPlayer(m_caster->GetTarget()))
+        m_caster->CastSpell(nullptr, m_spellInfo->Effects[effIndex].TriggerSpell);
 }
 
 void Spell::EffectUnlockGuildVaultTab(SpellEffIndex effIndex)

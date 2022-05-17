@@ -1808,26 +1808,6 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
 void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
 {
-    // special case for SPELL_EFFECT_SUMMON_RAF_FRIEND and SPELL_EFFECT_SUMMON_PLAYER
-    /// @todo this is a workaround - target shouldn't be stored in target map for those spells
-    switch (m_spellInfo->Effects[effIndex].Effect)
-    {
-        case SPELL_EFFECT_SUMMON_RAF_FRIEND:
-        case SPELL_EFFECT_SUMMON_PLAYER:
-            if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->GetTarget())
-            {
-                WorldObject* target = ObjectAccessor::FindPlayer(m_caster->GetTarget());
-
-                CallScriptObjectTargetSelectHandlers(target, SpellEffIndex(effIndex), SpellImplicitTargetInfo());
-
-                if (target && target->ToPlayer())
-                    AddUnitTarget(target->ToUnit(), 1 << effIndex, false);
-            }
-            return;
-        default:
-            break;
-    }
-
     // select spell implicit targets based on effect type
     if (!m_spellInfo->Effects[effIndex].GetImplicitTargetType())
         return;
@@ -6125,35 +6105,37 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             }
             case SPELL_EFFECT_SUMMON_PLAYER:
             {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_BAD_TARGETS;
-                if (!m_caster->GetTarget())
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
-                if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                if (target->HasSummonPending())
-                    return SPELL_FAILED_SUMMON_PENDING;
-
-                // check if our map is dungeon
-                MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
-                if (map->IsDungeon())
+                // Single target summoning case
+                if (m_targets.GetOrigUnitTargetGUID().IsEmpty())
                 {
-                    uint32 mapId = m_caster->GetMap()->GetId();
-                    Difficulty difficulty = m_caster->GetMap()->GetDifficulty();
-                    if (map->IsRaid())
-                        if (InstancePlayerBind* targetBind = target->GetBoundInstance(mapId, difficulty))
-                            if (InstancePlayerBind* casterBind = m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
-                                if (targetBind->perm && targetBind->save != casterBind->save)
-                                    return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
-
-                    InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapId);
-                    if (!instance)
-                        return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
-                    if (!target->Satisfy(sObjectMgr->GetAccessRequirement(mapId, difficulty), mapId))
+                    if (!m_caster->GetTarget())
                         return SPELL_FAILED_BAD_TARGETS;
+
+                    Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
+                    if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if (target->HasSummonPending())
+                        return SPELL_FAILED_SUMMON_PENDING;
+
+                    // check if our map is dungeon
+                    MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
+                    if (map->IsDungeon())
+                    {
+                        uint32 mapId = m_caster->GetMap()->GetId();
+                        Difficulty difficulty = m_caster->GetMap()->GetDifficulty();
+                        if (map->IsRaid())
+                            if (InstancePlayerBind* targetBind = target->GetBoundInstance(mapId, difficulty))
+                                if (InstancePlayerBind* casterBind = m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
+                                    if (targetBind->perm && targetBind->save != casterBind->save)
+                                        return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
+
+                        InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapId);
+                        if (!instance)
+                            return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
+                        if (!target->Satisfy(sObjectMgr->GetAccessRequirement(mapId, difficulty), mapId))
+                            return SPELL_FAILED_BAD_TARGETS;
+                    }
                 }
                 break;
             }
