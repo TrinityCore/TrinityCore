@@ -341,6 +341,7 @@ enum SpellVisualKits
     SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08      = 150077,
     SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09      = 150076,
     SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10      = 150075,
+    SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01        = 150073,
 
     SPELL_VISUAL_KIT_SYLVANAS_NORMAL_CAST               = 142405,
     SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW             = 143939,
@@ -836,7 +837,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                             {
                                 for (uint32 i = 0; i < _selectedArrowCountsPerJump[_jumpCount]; ++i)
                                 {
-                                    Position const arrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
+                                    Position const arrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 55.0f));
 
                                     if (Creature* dominationArrow = sylvanas->SummonCreature(NPC_DOMINATION_ARROW, arrowPos, TEMPSUMMON_MANUAL_DESPAWN))
                                     {
@@ -1285,18 +1286,22 @@ struct boss_sylvanas_windrunner : public BossAI
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
+        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s, 1, PHASE_ONE);
+
+        /*
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 45s, 1, PHASE_ONE);
 
-        // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
+        // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting.
         _specialEvents.SetPhase(PHASE_ONE);
         _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, 1, PHASE_ONE);
-
+        
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
+        */
     }
 
     void DoAction(int32 action) override
@@ -1367,6 +1372,16 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(42s, [this](TaskContext /*task*/)
                 {
                     me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntroPos[2], false);
+                });
+
+                scheduler.Schedule(47s + 89ms, [this](TaskContext /*task*/)
+                {
+                    if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                    {
+                        bolvar->SetFacingToObject(me);
+
+                        bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01, 0, 0);
+                    }
                 });
 
                 scheduler.Schedule(50s + 484ms, [this](TaskContext /*task*/)
@@ -1849,123 +1864,111 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_DOMINATION_CHAIN_BEFORE_RIVE_EVENT);
                         }
 
-                        shadowCopy->NearTeleportTo(me->GetPosition(), false);
-                    }
+                        TeleportShadowcopiesToMe();
 
-                    DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, true);
+                        DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, true);
 
-                    scheduler.Schedule(15ms, [this](TaskContext /*task*/)
-                    {
-                        DoCastSelf(SPELL_DOMINATION_CHAINS, false);
+                        scheduler.Schedule(15ms, [this](TaskContext /*task*/)
+                        {
+                            DoCastSelf(SPELL_DOMINATION_CHAINS, false);
 
-                        me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
-                    });
+                            me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
+                        });
 
-                    scheduler.Schedule(31ms, [this, jumpFirstPos](TaskContext /*task*/)
-                    {
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                        scheduler.Schedule(31ms, [this, shadowCopy, jumpFirstPos](TaskContext /*task*/)
+                        {
                             shadowCopy->CastSpell(jumpFirstPos, SPELL_DOMINATION_CHAINS_JUMP, true);
 
-                        me->SendPlayOrphanSpellVisual(jumpFirstPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                    });
+                            me->SendPlayOrphanSpellVisual(jumpFirstPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        });
 
-                    scheduler.Schedule(151ms, [this](TaskContext /*task*/)
-                    {
-                        Talk(SAY_ANNOUNCE_DOMINATION_CHAINS);
+                        scheduler.Schedule(151ms, [this](TaskContext /*task*/)
+                        {
+                            Talk(SAY_ANNOUNCE_DOMINATION_CHAINS);
 
-                        if (events.GetPhaseMask() == PHASE_ONE)
-                            Talk(SAY_DOMINATION_CHAINS);
-                        else
-                            Talk(SAY_INTERMISSION_BEGIN);
-                    });
+                            if (events.GetPhaseMask() == PHASE_ONE)
+                                Talk(SAY_DOMINATION_CHAINS);
+                            else
+                                Talk(SAY_INTERMISSION_BEGIN);
+                        });
 
-                    scheduler.Schedule(766ms, [this, jumpFirstPos](TaskContext /*task*/)
-                    {
-                        me->NearTeleportTo(jumpFirstPos, true);
+                        scheduler.Schedule(766ms, [this, jumpFirstPos](TaskContext /*task*/)
+                        {
+                            me->NearTeleportTo(jumpFirstPos, true);
+                        });
 
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                            me->SetFacingTo(shadowCopy->GetOrientation());
-                    });
-
-                    scheduler.Schedule(828ms, [this, jumpSecondPos](TaskContext /*task*/)
-                    {
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                        scheduler.Schedule(828ms, [this, shadowCopy, jumpSecondPos](TaskContext /*task*/)
+                        {
                             shadowCopy->CastSpell(jumpSecondPos, SPELL_DOMINATION_CHAINS_JUMP, true);
 
-                        me->SendPlayOrphanSpellVisual(jumpSecondPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                    });
+                            me->SendPlayOrphanSpellVisual(jumpSecondPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        });
 
-                    scheduler.Schedule(1s + 578ms, [this, jumpSecondPos](TaskContext /*task*/)
-                    {
-                        me->NearTeleportTo(jumpSecondPos, true);
+                        scheduler.Schedule(1s + 578ms, [this, jumpSecondPos](TaskContext /*task*/)
+                        {
+                            me->NearTeleportTo(jumpSecondPos, true);
+                        });
 
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                            me->SetFacingTo(shadowCopy->GetOrientation());
-                    });
-
-                    scheduler.Schedule(1s + 641ms, [this, jumpThirdPos](TaskContext /*task*/)
-                    {
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                        scheduler.Schedule(1s + 641ms, [this, shadowCopy, jumpThirdPos](TaskContext /*task*/)
+                        {
                             shadowCopy->CastSpell(jumpThirdPos, SPELL_DOMINATION_CHAINS_JUMP, true);
 
-                        me->SendPlayOrphanSpellVisual(jumpThirdPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                    });
+                            me->SendPlayOrphanSpellVisual(jumpThirdPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        });
 
-                    scheduler.Schedule(2s + 201ms, [this, jumpThirdPos](TaskContext /*task*/)
-                    {
-                        me->NearTeleportTo(jumpThirdPos, true);
-
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                            me->SetFacingTo(shadowCopy->GetOrientation());
-                    });
-
-                    scheduler.Schedule(2s + 281ms, [this](TaskContext /*task*/)
-                    {
-                        TeleportShadowcopiesToMe();
-                    });
-
-                    scheduler.Schedule(2s + 500ms, [this](TaskContext /*task*/)
-                    {
-                        me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_02);
-                        me->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                    });
-
-                    scheduler.Schedule(7s + 500ms, [this](TaskContext /*task*/)
-                    {
-                        if (events.GetPhaseMask() == PHASE_ONE)
+                        scheduler.Schedule(2s + 201ms, [this, jumpThirdPos](TaskContext /*task*/)
                         {
-                            me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
+                            me->NearTeleportTo(jumpThirdPos, true);
+                        });
 
-                            for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
-                            {
-                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
-                                {
-                                    if (shadowCopy->IsAIEnabled())
-                                        shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
-                                }
-                            }
-
-                            DoAction(ACTION_RESET_MELEE_KIT);
-
-                            if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2s + 500ms)
-                                events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s + 500ms, 1, PHASE_ONE);
-
-                            events.Repeat(54s);
-                        }
-                        else
+                        scheduler.Schedule(2s + 281ms, [this](TaskContext /*task*/)
                         {
-                            for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
-                            {
-                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
-                                {
-                                    if (shadowCopy->IsAIEnabled())
-                                        shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_RIVE_EVENT);
-                                }
-                            }
+                            TeleportShadowcopiesToMe();
+                        });
 
-                            events.ScheduleEvent(EVENT_RIVE, 1s, PHASE_INTERMISSION);
-                        }
-                    });
+                        scheduler.Schedule(2s + 500ms, [this](TaskContext /*task*/)
+                        {
+                            me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_02);
+                            me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                        });
+
+                        scheduler.Schedule(7s + 500ms, [this](TaskContext /*task*/)
+                        {
+                            if (events.GetPhaseMask() == PHASE_ONE)
+                            {
+                                me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
+
+                                for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+                                {
+                                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                                    {
+                                        if (shadowCopy->IsAIEnabled())
+                                            shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
+                                    }
+                                }
+
+                                DoAction(ACTION_RESET_MELEE_KIT);
+
+                                if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2s + 500ms)
+                                    events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s + 500ms, 1, PHASE_ONE);
+
+                                events.Repeat(54s);
+                            }
+                            else
+                            {
+                                for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+                                {
+                                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                                    {
+                                        if (shadowCopy->IsAIEnabled())
+                                            shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_RIVE_EVENT);
+                                    }
+                                }
+
+                                events.ScheduleEvent(EVENT_RIVE, 1s, PHASE_INTERMISSION);
+                            }
+                        });
+                    }
                     break;
                 }
 
@@ -2006,7 +2009,9 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (events.IsInPhase(PHASE_ONE))
                     {
                         me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
-                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+
+                        if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
+                            DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
 
                         scheduler.Schedule(1s, [this](TaskContext /*task*/)
                         {
@@ -2018,32 +2023,53 @@ struct boss_sylvanas_windrunner : public BossAI
                             scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                             {
                                 DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
+                            });
+
+                            scheduler.Schedule(500ms, [this](TaskContext /*task*/)
+                            {
                                 me->NearTeleportTo(SylvanasVeilOnePos, false);
                             });
 
                             scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                             {
+                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
+
                                 if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
                                 {
                                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SylvanasNonMeleeSelector(me)))
+                                    {
                                         me->NearTeleportTo(target->GetPosition(), false);
+
+                                        // TODO: Find out which number for SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_MM is.
+                                    }
                                 }
                                 else
                                 {
                                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
+                                    {
                                         me->NearTeleportTo(target->GetPosition(), false);
-                                }
 
-                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
+                                        float x = target->GetPositionX();
+                                        float y = target->GetPositionY();
+                                        float z = target->GetPositionZ() + 0.5f;
+
+                                        if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID)
+                                            me->SendPlayOrphanSpellVisual(Position{ x, y, z }, SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC, 5.0f, true, false);
+                                        else
+                                            me->SendPlayOrphanSpellVisual(Position{ x, y, z }, SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM, 5.0f, true, false);
+                                    }
+                                }
                             });
 
                             scheduler.Schedule(2s, [this](TaskContext /*task*/)
                             {
-                                TeleportShadowcopiesToMe();
+                                DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
                             });
 
-                            scheduler.Schedule(9s, [this](TaskContext /*task*/)
+                            scheduler.Schedule(8s, [this](TaskContext /*task*/)
                             {
+                                TeleportShadowcopiesToMe();
+
                                 me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
                                 DoAction(ACTION_RESET_MELEE_KIT);
                             });
@@ -2378,7 +2404,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
     void DoSylvanasAttackIfReady()
     {
-        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_WINDRUNNER))
+        if (me->HasReactState(REACT_PASSIVE) || me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_WINDRUNNER))
             return;
 
         Aura* rangerHeartseekerCharge = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
@@ -3307,10 +3333,10 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
     }
 };
 
-// Wailing Arrow (Damage) - 348056
-class spell_sylvanas_windrunner_wailing_arrow_damage : public SpellScript
+// Wailing Arrow (Trigger) - 348056
+class spell_sylvanas_windrunner_wailing_arrow_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_sylvanas_windrunner_wailing_arrow_damage);
+    PrepareSpellScript(spell_sylvanas_windrunner_wailing_arrow_trigger);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -3328,8 +3354,39 @@ class spell_sylvanas_windrunner_wailing_arrow_damage : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_wailing_arrow_damage::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_wailing_arrow_damage::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_wailing_arrow_trigger::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_wailing_arrow_trigger::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// Wailing Arrow (Raid damage) - 357618
+class spell_sylvanas_windrunner_wailing_arrow_raid_damage : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_wailing_arrow_raid_damage);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (!caster)
+            return;
+
+        // NOTE: This is completely based off research on different sniffs. The reduction might be inaccurate, but it's pretty close to Blizzard's.
+        uint32 damage = GetHitDamage();
+
+        float distanceDmgMod = caster->GetExactDist2d(GetHitUnit()) / 4.5f;
+
+        if (distanceDmgMod < 1.0f)
+            return;
+
+        damage /= distanceDmgMod;
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_wailing_arrow_raid_damage::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -3384,15 +3441,10 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     void OnPrecast() override
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
-
-        GetCaster()->SetPlayHoverAnim(true);
-
         GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
+        GetCaster()->SetAnimTier(AnimTier::Fly);
 
-        GetCaster()->SendPlayOrphanSpellVisual(GetCaster()->GetGUID(), SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC, 5.0f, true);
-
-        // TODO: Set AnimTier 3 when it gets implemented
+        GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_COPY), GetCaster()->m_Events.CalculateTime(25ms));
 
         GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS, 0, 0);
     }
@@ -3404,8 +3456,10 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     void HandleAfterCast()
     {
-        GetCaster()->SetPlayHoverAnim(false);
         GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+        GetCaster()->SetAnimTier(AnimTier::Ground);
+
+        GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_SYLVANAS), GetCaster()->m_Events.CalculateTime(25ms));
     }
 
     void Register() override
@@ -5974,7 +6028,8 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_domination_chain);
     RegisterSpellScript(spell_sylvanas_windrunner_domination_chain_periodic);
     RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow);
-    RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_damage);
+    RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_trigger);
+    RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_raid_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_fade);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_1);
     RegisterSpellScript(spell_sylvanas_windrunner_rive);

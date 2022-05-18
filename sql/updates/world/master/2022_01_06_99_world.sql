@@ -300,10 +300,15 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=347609 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (347609, 'spell_sylvanas_windrunner_wailing_arrow');
 
- -- Wailing Arrow (Damage)
-DELETE FROM `spell_script_names` WHERE `spell_id`=348056 AND `ScriptName`='spell_sylvanas_windrunner_wailing_arrow_damage';
+ -- Wailing Arrow (Trigger)
+DELETE FROM `spell_script_names` WHERE `spell_id`=348056 AND `ScriptName`='spell_sylvanas_windrunner_wailing_arrow_trigger';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(348056, 'spell_sylvanas_windrunner_wailing_arrow_damage');
+(348056, 'spell_sylvanas_windrunner_wailing_arrow_trigger');
+
+ -- Wailing Arrow (Raid damage)
+DELETE FROM `spell_script_names` WHERE `spell_id`=357618 AND `ScriptName`='spell_sylvanas_windrunner_wailing_arrow_raid_damage';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357618, 'spell_sylvanas_windrunner_wailing_arrow_raid_damage');
 
  -- Veil of Darkness (Phase 1 - Fade)
 DELETE FROM `spell_script_names` WHERE `spell_id`=352470 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
