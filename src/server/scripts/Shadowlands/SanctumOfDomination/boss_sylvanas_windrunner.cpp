@@ -106,7 +106,7 @@ enum Spells
     SPELL_DOMINATION_ARROW_FALL                         = 352317,
     SPELL_DOMINATION_ARROW_FALL_AND_VISUAL              = 352319,
     SPELL_DOMINATION_ARROW_ACTIVATE                     = 356650,
-    SPELL_DOMINATION_ARROW_CALAMITY_AREA                = 356769,
+    SPELL_DOMINATION_ARROW_CALAMITY_VISUAL              = 356769,
     SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER         = 356624, // 2 SpellXSpellVisual
     SPELL_DOMINATION_ARROW_CALAMITY_DAMAGE              = 356649,
 
@@ -819,7 +819,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                         {
                             for (uint8 i = 0; i < 5; i++)
                             {
-                                Position const falseArrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 40.0f));
+                                Position const falseArrowPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(2.5f, 55.0f));
 
                                 me->SendPlaySpellVisual(falseArrowPos, 0.0f, SPELL_VISUAL_DOMINATION_ARROW, 0, 0, 2.0f, true);
 
@@ -843,9 +843,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                                     {
                                         me->SendPlaySpellVisual(arrowPos, 0.0f, SPELL_VISUAL_DOMINATION_ARROW_SPAWN, 0, 0, 2.0f, true);
 
-                                        _scheduler.Schedule(2s, [sylvanas, dominationArrow](TaskContext /*task*/)
+                                        _scheduler.Schedule(2s, [this, sylvanas, dominationArrow](TaskContext /*task*/)
                                         {
                                             sylvanas->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_FALL_AND_VISUAL, true);
+
+                                            if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                                                dominationArrow->CastSpell(dominationArrow, SPELL_DOMINATION_ARROW_CALAMITY_VISUAL, false);
                                         });
                                     }
                                 }
@@ -1286,7 +1289,7 @@ struct boss_sylvanas_windrunner : public BossAI
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
-        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s, 1, PHASE_ONE);
+        events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 5s, 1, PHASE_ONE);
 
         /*
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
@@ -1952,7 +1955,8 @@ struct boss_sylvanas_windrunner : public BossAI
                                 if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2s + 500ms)
                                     events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s + 500ms, 1, PHASE_ONE);
 
-                                events.Repeat(54s);
+                                events.Repeat(10s);
+                                //events.Repeat(54s);
                             }
                             else
                             {
@@ -2877,18 +2881,19 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
             {
                 me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
-                DoCastSelf(SPELL_DOMINATION_ARROW_ACTIVATE, true);
+                me->RemoveAura(SPELL_DOMINATION_ARROW_CALAMITY_VISUAL);
 
-                if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
-                    DoCastSelf(SPELL_DOMINATION_ARROW_CALAMITY_AREA, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, -1));
+                DoCastSelf(SPELL_DOMINATION_ARROW_ACTIVATE, true);
 
                 if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 250.0f, true, true, -SPELL_DOMINATION_CHAIN_PLAYER))
                 {
                     _playerGUID = target->GetGUID();
 
                     me->CastSpell(target, SPELL_DOMINATION_CHAIN_PLAYER, false);
-                }
 
+                    if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                        target->CastSpell(me, SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER, false);
+                }
                 break;
             }
 
@@ -2909,6 +2914,7 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
 private:
     InstanceScript* _instance;
     ObjectGuid _playerGUID;
+
 };
 
 // Ranger (Bow) - 347560
@@ -3265,15 +3271,9 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
-            return;
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DOMINATION_CHAIN_PERIODIC);
 
-        if (Player* chainedPlayer = ObjectAccessor::GetPlayer(*GetCaster(), _playerGUID))
-        {
-            chainedPlayer->RemoveAurasDueToSpell(SPELL_DOMINATION_CHAIN_PERIODIC);
-
-            chainedPlayer->RemoveMovementForce(_arrowAreaTriggerGUID);
-        }
+        GetTarget()->RemoveMovementForce(_arrowAreaTriggerGUID);
     }
 
     void Register() override
@@ -3291,11 +3291,6 @@ private:
 class spell_sylvanas_windrunner_domination_chain_periodic : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_domination_chain_periodic);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DOMINATION_CHAIN_PERIODIC });
-    }
 
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
@@ -5795,6 +5790,39 @@ private:
     TaskScheduler _scheduler;
 };
 
+// Calamity - 23389
+struct at_sylvanas_windrunner_calamity : AreaTriggerAI
+{
+    at_sylvanas_windrunner_calamity(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
+
+    void OnCreate() override
+    {
+        if (!_instance)
+            return;
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!_instance || !unit->IsPlayer() || unit->GetGUID() != at->GetCasterGuid())
+            return;
+
+        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+        {
+            sylvanas->CastSpell(unit, SPELL_DOMINATION_ARROW_CALAMITY_DAMAGE, true);
+
+            if (Creature* dominationArrow = at->FindNearestCreature(NPC_DOMINATION_ARROW, 4.0f, true))
+                dominationArrow->KillSelf();
+
+            at->Remove();
+        }
+    }
+
+private:
+    InstanceScript* _instance;
+    ObjectGuid _chainedPlayer;
+};
+
 class DebrisEvent : public BasicEvent
 {
     public:
@@ -6073,6 +6101,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_blasphemy);
 
     RegisterAreaTriggerAI(at_sylvanas_windrunner_disecrating_shot);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_calamity);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_rive);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_bridges);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy_pre);
