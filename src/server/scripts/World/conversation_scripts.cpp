@@ -60,7 +60,7 @@ public:
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
     {
         if (Creature* bolvar = creator->FindNearestCreature(NPC_BOLVAR_FORDRAGON_PINNACLE, 50.0f, true))
-            conversation->AddActor(bolvar->GetGUID(), 1);
+            conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, 1, bolvar->GetGUID());
     }
 };
 

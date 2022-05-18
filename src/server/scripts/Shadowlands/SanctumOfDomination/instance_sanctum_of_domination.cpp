@@ -241,9 +241,9 @@ public:
                             {
                                 if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                 {
-                                    sylvanas->AddUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                    sylvanas->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                                    sylvanas->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                                    sylvanas->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+                                    sylvanas->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                                    sylvanas->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 
                                     sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 4.0f);
                                 }
