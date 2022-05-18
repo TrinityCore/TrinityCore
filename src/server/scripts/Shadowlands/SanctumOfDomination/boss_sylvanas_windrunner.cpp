@@ -117,6 +117,7 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_DESELECT                     = 354366,
     SPELL_VEIL_OF_DARKNESS_SCREEN_FOG                   = 354580,
     SPELL_VEIL_OF_DARKNESS_ABSORB_AURA                  = 347704,
+    SPELL_VEIL_OF_DARKNESS_VISUAL_SPREAD                = 355749,
 
     // Veil of Darkness (Phase 1)
     SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE                 = 352470,
@@ -196,6 +197,7 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE                 = 354168,
     SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW                 = 354143,
     SPELL_VEIL_OF_DARKNESS_PHASE_3                      = 354142,
+    SPELL_VEIL_OF_DARKNESS_PHASE_3_TARGETED             = 357876,
 
     // Banshee's Fury
     SPELL_BANSHEES_FURY                                 = 354068,
@@ -1288,10 +1290,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
         Talk(SAY_AGGRO);
 
-        events.SetPhase(PHASE_ONE);
-        events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 5s, 1, PHASE_ONE);
-
         /*
+        events.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s + 500ms, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 26s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 45s, 1, PHASE_ONE);
@@ -1299,12 +1299,12 @@ struct boss_sylvanas_windrunner : public BossAI
         // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting.
         _specialEvents.SetPhase(PHASE_ONE);
         _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, 1, PHASE_ONE);
-        
+        */
+
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
-        */
     }
 
     void DoAction(int32 action) override
@@ -1483,7 +1483,10 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                 {
                     if (!me->IsWithinMeleeRange(me->GetVictim()))
-                        DoAction(ACTION_RANGER_SHOT);
+                    {
+                        if (IsHeartseekerReady() == false)
+                            DoAction(ACTION_RANGER_SHOT);
+                    }
                     else
                         _rangerShotOnCD = false;
                 });
@@ -1955,8 +1958,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2s + 500ms)
                                     events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s + 500ms, 1, PHASE_ONE);
 
-                                events.Repeat(10s);
-                                //events.Repeat(54s);
+                                events.Repeat(54s);
                             }
                             else
                             {
@@ -2411,19 +2413,14 @@ struct boss_sylvanas_windrunner : public BossAI
         if (me->HasReactState(REACT_PASSIVE) || me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_WINDRUNNER))
             return;
 
-        Aura* rangerHeartseekerCharge = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
-
-        if (rangerHeartseekerCharge && rangerHeartseekerCharge->GetStackAmount() >= 3)
+        if (IsHeartseekerReady() == true)
         {
-            if (me->isAttackReady(BASE_ATTACK))
-            {
-                if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                    DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-                else
-                    DoCastVictim(SPELL_RANGER_HEARTSEEKER, false);
+            if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
+                DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+            else
+                DoCastVictim(SPELL_RANGER_HEARTSEEKER, false);
 
-                me->resetAttackTimer(BASE_ATTACK);
-            }
+            me->resetAttackTimer(BASE_ATTACK);
         }
         else
         {
@@ -2746,6 +2743,18 @@ struct boss_sylvanas_windrunner : public BossAI
     ObjectGuid GetShadowCopyJumperGuid(int32 index)
     {
         return _shadowCopyGUID[index];
+    }
+
+    bool IsHeartseekerReady()
+    {
+        Aura* rangerHeartseekerCharge = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
+
+        if (rangerHeartseekerCharge && rangerHeartseekerCharge->GetStackAmount() >= 3)
+            return true;
+        else
+            return false;
+
+        return true;
     }
 
     bool IsPlatformDesecrated(int8 index)
@@ -3146,14 +3155,29 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
         if (!GetCaster())
             return;
 
+        GetCaster()->SetFacingToObject(GetCaster()->GetVictim());
+
         GetCaster()->m_Events.AddEvent(new RangerHeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(1ms));
         GetCaster()->m_Events.AddEvent(new RangerHeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(281ms));
         GetCaster()->m_Events.AddEvent(new RangerHeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(562ms));
     }
 
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        {
+            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            {
+                if (sylvanas->IsAIEnabled())
+                    sylvanas->AI()->DoAction(ACTION_RANGER_SHOT);
+            }
+        }
+    }
+
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_ranger_heartseeker_aura::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_ranger_heartseeker_aura::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -3199,7 +3223,7 @@ class spell_sylvanas_windrunner_domination_chains : public SpellScript
     void OnCast(SpellMissInfo /*missInfo*/)
     {
         std::list<Creature*> arrowList;
-        GetCreatureListWithEntryInGrid(arrowList, GetCaster(), NPC_DOMINATION_ARROW, 250.0f);
+        GetCreatureListWithEntryInGrid(arrowList, GetCaster(), NPC_DOMINATION_ARROW, 500.0f);
 
         for (Creature* arrow : arrowList)
         {
