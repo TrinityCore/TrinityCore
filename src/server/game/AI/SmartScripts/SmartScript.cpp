@@ -2481,6 +2481,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_DO_ACTION:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (!IsCreature(target))
+                    continue;
+
+                Creature* creature = target->ToCreature();
+
+                if (creature->GetAI())
+                    creature->GetAI()->DoAction(e.action.doAction.actionId);
+            }
+
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
