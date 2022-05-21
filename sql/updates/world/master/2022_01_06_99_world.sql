@@ -250,6 +250,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=348299 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (348299, 'spell_sylvanas_windrunner_ranger_strike');
 
+ -- Windrunner
+DELETE FROM `spell_script_names` WHERE `spell_id`=347504 AND `ScriptName`='spell_sylvanas_windrunner_windrunner';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(347504, 'spell_sylvanas_windrunner_windrunner');
+
  -- Withering Fire
 DELETE FROM `spell_script_names` WHERE `spell_id`=347928 AND `ScriptName`='spell_sylvanas_windrunner_withering_fire';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -1048,14 +1053,10 @@ DELETE FROM `creature_template_movement` WHERE `CreatureId`=178072;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (178072, 1, 0, 0, 0, 0, 0);
 
- -- Blasphemy 
-DELETE FROM `spell_script_names` WHERE `spell_id`=357729 AND `ScriptName`='spell_sylvanas_windrunner_blasphemy_pre';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(357729, 'spell_sylvanas_windrunner_blasphemy_pre');
-
  -- Blasphemy
-DELETE FROM `spell_script_names` WHERE `spell_id`=357730 AND `ScriptName`='spell_sylvanas_windrunner_blasphemy';
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (357729, 357730) AND `ScriptName`='spell_sylvanas_windrunner_blasphemy';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(357729, 'spell_sylvanas_windrunner_blasphemy'),
 (357730, 'spell_sylvanas_windrunner_blasphemy');
 
  -- The Arbiter
