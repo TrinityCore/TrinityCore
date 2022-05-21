@@ -3884,6 +3884,13 @@ uint32 Player::ResetTalentsCost() const
 
 bool Player::ResetTalents(bool no_cost)
 {
+    // @tswow-begin
+    FIRE(
+          PlayerOnTalentsResetEarly
+        , TSPlayer(this)
+        , TSMutable<bool>(&no_cost)
+    );
+    // @tswow-end
     sScriptMgr->OnPlayerTalentsReset(this, no_cost);
 
     // not need after this call
@@ -3975,6 +3982,13 @@ bool Player::ResetTalents(bool no_cost)
             RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
     }
     */
+
+    // @tswow-begin
+    FIRE(
+          PlayerOnTalentsResetLate
+        , no_cost
+    );
+    // @tswow-end
 
     return true;
 }
