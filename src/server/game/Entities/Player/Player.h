@@ -2551,6 +2551,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+
+        // @tswow-begin
+        friend class TSPlayer;
+        // @tswow-end
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

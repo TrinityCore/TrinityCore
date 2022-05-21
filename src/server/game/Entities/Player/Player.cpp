@@ -25272,21 +25272,34 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         SendEquipError(msg, nullptr, nullptr, item->itemid);
 }
 
+// @tswow-begin change layout to attach event
 uint32 Player::CalculateTalentsPoints() const
 {
     uint32 base_talent = GetLevel() < 10 ? 0 : GetLevel()-9;
+    uint32 out_talent;
 
     if (GetClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
-        return uint32(base_talent * sWorld->getRate(RATE_TALENT)) + m_questRewardTalentCount;
+    {
+        out_talent = uint32(base_talent * sWorld->getRate(RATE_TALENT));
+    }
+    else
+    {
+        uint32 talentPointsForLevel = GetLevel() < 56 ? 0 : GetLevel() - 55;
+        talentPointsForLevel += m_questRewardTalentCount;
 
-    uint32 talentPointsForLevel = GetLevel() < 56 ? 0 : GetLevel() - 55;
-    talentPointsForLevel += m_questRewardTalentCount;
+        if (talentPointsForLevel > base_talent)
+            talentPointsForLevel = base_talent;
 
-    if (talentPointsForLevel > base_talent)
-        talentPointsForLevel = base_talent;
-
-    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+        out_talent = uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+    }
+    FIRE(
+          PlayerOnCalculateTalents
+        , TSPlayer(const_cast<Player*>(this))
+        , TSMutable<uint32>(&out_talent)
+    )
+    return out_talent;
 }
+// @tswow-end
 
 bool Player::CanFlyInZone(uint32 mapid, uint32 zone, SpellInfo const* bySpell) const
 {
