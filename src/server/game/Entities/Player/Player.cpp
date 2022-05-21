@@ -25293,7 +25293,7 @@ uint32 Player::CalculateTalentsPoints() const
         out_talent = uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
     }
     FIRE(
-          PlayerOnCalculateTalents
+          PlayerOnCalculateTalentPoints
         , TSPlayer(const_cast<Player*>(this))
         , TSMutable<uint32>(&out_talent)
     )
