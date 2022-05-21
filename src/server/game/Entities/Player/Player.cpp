@@ -3986,6 +3986,7 @@ bool Player::ResetTalents(bool no_cost)
     // @tswow-begin
     FIRE(
           PlayerOnTalentsResetLate
+        , TSPlayer(this)
         , no_cost
     );
     // @tswow-end
