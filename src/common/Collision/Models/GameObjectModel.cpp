@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "MapTree.h"
 #include "Timer.h"
+#include <G3D/Quat.h>
 
 using G3D::Vector3;
 using G3D::Ray;
@@ -124,7 +125,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
     iScale = modelOwner->GetScale();
     iInvScale = 1.f / iScale;
 
-    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(modelOwner->GetOrientation(), 0, 0);
+    G3D::Matrix3 iRotation = modelOwner->GetRotation().toRotationMatrix();
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
@@ -275,7 +276,7 @@ bool GameObjectModel::UpdatePosition()
 
     iPos = owner->GetPosition();
 
-    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(owner->GetOrientation(), 0, 0);
+    G3D::Matrix3 iRotation = owner->GetRotation().toRotationMatrix();
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
