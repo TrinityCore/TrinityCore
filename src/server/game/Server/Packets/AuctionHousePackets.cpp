@@ -585,6 +585,7 @@ WorldPacket const* AuctionFavoriteList::Write()
 WorldPacket const* AuctionHelloResponse::Write()
 {
     _worldPacket << Guid;
+    _worldPacket << AuctionHouseId;
     _worldPacket.WriteBit(OpenForBusiness);
     _worldPacket.FlushBits();
 

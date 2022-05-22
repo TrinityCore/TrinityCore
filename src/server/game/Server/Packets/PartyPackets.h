@@ -212,8 +212,6 @@ namespace WorldPackets
             int8 PartyType[2] = { };
 
             CTROptions ChromieTime;
-
-            MythicPlus::DungeonScoreSummary DungeonScore;
         };
 
         class PartyMemberFullState final : public ServerPacket

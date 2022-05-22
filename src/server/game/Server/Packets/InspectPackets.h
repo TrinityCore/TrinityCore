@@ -114,17 +114,13 @@ namespace WorldPackets
         class InspectResult final : public ServerPacket
         {
         public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
-            {
-                PvpTalents.fill(0);
-            }
+            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45) { }
 
             WorldPacket const* Write() override;
 
             PlayerModelDisplayInfo DisplayInfo;
             std::vector<uint16> Glyphs;
             std::vector<uint16> Talents;
-            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
             Optional<InspectGuildData> GuildData;
             std::array<PVPBracketData, 6> Bracket;
             Optional<int32> AzeriteLevel;

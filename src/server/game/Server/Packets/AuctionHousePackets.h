@@ -409,6 +409,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
+            uint32 AuctionHouseId = 0;
             bool OpenForBusiness = true;
         };
 

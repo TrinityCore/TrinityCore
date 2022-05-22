@@ -179,14 +179,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     data << uint8(rosterMemberData.ClassID);
     data << uint8(rosterMemberData.Gender);
 
+    data << uint64(0); // Unused
+    data << uint8(0);  // Unused
+
     data.WriteBits(rosterMemberData.Name.length(), 6);
     data.WriteBits(rosterMemberData.Note.length(), 8);
     data.WriteBits(rosterMemberData.OfficerNote.length(), 8);
     data.WriteBit(rosterMemberData.Authenticated);
     data.WriteBit(rosterMemberData.SorEligible);
     data.FlushBits();
-
-    data << rosterMemberData.DungeonScore;
 
     data.WriteString(rosterMemberData.Name);
     data.WriteString(rosterMemberData.Note);

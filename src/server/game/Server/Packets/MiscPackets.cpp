@@ -155,7 +155,6 @@ WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
 WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
 {
     _worldPacket << uint32(CinematicID);
-    _worldPacket << ConversationGuid;
 
     return &_worldPacket;
 }

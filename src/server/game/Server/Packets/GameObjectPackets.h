@@ -128,7 +128,6 @@ namespace WorldPackets
 
             ObjectGuid ObjectGUID;
             int32 UILink = 0;
-            int32 UIItemInteractionID = 0;
         };
 
         class GameObjectPlaySpellVisual final : public ServerPacket

@@ -83,12 +83,20 @@ namespace WorldPackets
         class ServerPetitionShowList final : public ServerPacket
         {
         public:
+            struct PetitionCharter
+            {
+                uint32 Index = 0;
+                uint32 Entry = 0;
+                uint32 DisplayID = 0;
+                uint32 Cost = 0;
+                uint32 RequiredSigns = 0;
+            };
             ServerPetitionShowList() : ServerPacket(SMSG_PETITION_SHOW_LIST, 20) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid Unit;
-            uint32 Price = 0;
+            std::vector<PetitionCharter> Charters;
         };
 
         class PetitionBuy final : public ClientPacket

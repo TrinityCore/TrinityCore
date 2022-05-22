@@ -138,6 +138,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid StableMaster;
+            uint8 StableSlots = 0;
             std::vector<PetStableInfo> Pets;
         };
 

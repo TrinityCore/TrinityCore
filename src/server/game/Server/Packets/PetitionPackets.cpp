@@ -78,7 +78,16 @@ void WorldPackets::Petition::PetitionShowList::Read()
 WorldPacket const* WorldPackets::Petition::ServerPetitionShowList::Write()
 {
     _worldPacket << Unit;
-    _worldPacket << Price;
+
+    _worldPacket << uint32(Charters.size());
+    for (PetitionCharter const& charter : Charters)
+    {
+        _worldPacket << charter.Index;
+        _worldPacket << charter.Entry;
+        _worldPacket << charter.DisplayID;
+        _worldPacket << charter.Cost;
+        _worldPacket << charter.RequiredSigns;
+    }
 
     return &_worldPacket;
 }

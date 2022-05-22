@@ -115,7 +115,6 @@ namespace WorldPackets
             bool Authenticated = false;
             bool SorEligible = false;
             GuildRosterProfessionData Profession[2];
-            MythicPlus::DungeonScoreSummary DungeonScore;
         };
 
         class GuildRoster final : public ServerPacket
