@@ -23,6 +23,8 @@
 #include <vector>
 #include <map>
 
+class Map;
+class WorldObject;
 struct VehicleSeatEntry;
 
 enum PowerType
@@ -160,6 +162,8 @@ public:
 
     /// This method transforms supplied global coordinates into local offsets
     virtual void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const = 0;
+
+    void UpdatePassengerPosition(Map* map, WorldObject* passenger, float x, float y, float z, float o, bool setHomePosition);
 
     static void CalculatePassengerPosition(float& x, float& y, float& z, float* o, float transX, float transY, float transZ, float transO)
     {

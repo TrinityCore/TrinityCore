@@ -107,7 +107,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         float CalculateSegmentPos(float perc);
         bool TeleportTransport(uint32 newMapid, float x, float y, float z, float o);
         void DelayedTeleportTransport();
-        void UpdatePassengerPositions(PassengerSet& passengers);
+        void UpdatePassengerPositions(PassengerSet const& passengers);
         void DoEventIfAny(KeyFrame const& node, bool departure);
 
         //! Helpers to know if stop frame was reached
