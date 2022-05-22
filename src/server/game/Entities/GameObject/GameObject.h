@@ -211,11 +211,11 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoState(GOState state);
         virtual uint32 GetTransportPeriod() const;
         void SetTransportState(GOState state, uint32 stopFrame = 0);
-        uint8 GetGoArtKit() const { return m_gameObjectData->ArtKit; }
-        void SetGoArtKit(uint8 artkit);
+        uint32 GetGoArtKit() const { return m_gameObjectData->ArtKit; }
+        void SetGoArtKit(uint32 artkit);
         uint8 GetGoAnimProgress() const { return m_gameObjectData->PercentHealth; }
         void SetGoAnimProgress(uint8 animprogress) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress); }
-        static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
+        static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
         void EnableCollision(bool enable);
 
