@@ -107,18 +107,15 @@ namespace WorldPackets
             int32 DisplayID = 0;
         };
 
-        struct QuestCompleteDisplaySpell
-        {
-            int32 SpellID = 0;
-            int32 PlayerConditionID = 0;
-        };
-
         struct QuestInfo
         {
             int32 QuestID                   = 0;
             int32 QuestType                 = 0; // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
-            int32 ContentTuningID           = 0;
+            int32 QuestLevel                = 0; // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
+            int32 QuestScalingFactionGroup  = 0;
+            int32 QuestMaxScalingLevel      = 255;
             int32 QuestPackageID            = 0;
+            int32 QuestMinLevel             = 0;
             int32 QuestSortID               = 0; // zone or sort to display in quest log
             int32 QuestInfoID               = 0;
             int32 SuggestedGroupNum         = 0;
@@ -129,7 +126,7 @@ namespace WorldPackets
             int32 RewardMoneyDifficulty     = 0;
             float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
-            std::vector<QuestCompleteDisplaySpell> RewardDisplaySpell; // reward spell, this spell will be displayed (icon)
+            int32 RewardDisplaySpell[QUEST_REWARD_DISPLAY_SPELL_COUNT] = { }; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
@@ -169,8 +166,6 @@ namespace WorldPackets
             int32 TimeAllowed               = 0;
             int32 TreasurePickerID          = 0;
             int32 Expansion                 = 0;
-            int32 ManagedWorldStateID       = 0;
-            int32 QuestSessionBonus         = 0;
             std::vector<QuestObjective> Objectives;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
@@ -183,7 +178,6 @@ namespace WorldPackets
             int32 RewardFactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = { };
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = { };
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = { };
-            bool ReadyForTranslation        = false;
         };
 
         class QueryQuestInfoResponse final : public ServerPacket

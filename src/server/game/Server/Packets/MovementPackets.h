@@ -99,19 +99,6 @@ namespace WorldPackets
             uint8 AnimTier = 0;
         };
 
-        struct MonsterSplineUnknown901
-        {
-            struct Inner
-            {
-                int32 Unknown_1 = 0;
-                int32 Unknown_2 = 0;
-                int32 Unknown_3 = 0;
-                uint32 Unknown_4 = 0;
-            };
-
-            std::array<Inner, 16> Data;
-        };
-
         struct MovementSpline
         {
             uint32 Flags                = 0;    // Spline flags
@@ -130,7 +117,6 @@ namespace WorldPackets
             Optional<MonsterSplineSpellEffectExtraData> SpellEffectExtraData;
             Optional<MonsterSplineJumpExtraData> JumpExtraData;
             Optional<MonsterSplineAnimTierTransition> AnimTierTransition;
-            Optional<MonsterSplineUnknown901> Unknown901;
             float FaceDirection         = 0.0f;
             ObjectGuid FaceGUID;
             TaggedPosition<Position::XYZ> FaceSpot;

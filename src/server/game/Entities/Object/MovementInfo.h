@@ -142,8 +142,8 @@ struct MovementForce
     TaggedPosition<Position::XYZ> Direction;
     uint32 TransportID = 0;
     float Magnitude = 0.0f;
+    int32 Unk340 = 0;
     MovementForceType Type = MovementForceType::SingleDirectional;
-    int32 Unused910 = 0;
 };
 
 class MovementForces

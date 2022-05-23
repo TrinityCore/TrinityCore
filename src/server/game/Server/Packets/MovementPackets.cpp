@@ -256,19 +256,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineAn
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineUnknown901 const& unk)
-{
-    for (WorldPackets::Movement::MonsterSplineUnknown901::Inner const& unkInner : unk.Data)
-    {
-        data << int32(unkInner.Unknown_1);
-        data << int32(unkInner.Unknown_2);
-        data << int32(unkInner.Unknown_3);
-        data << uint32(unkInner.Unknown_4);
-    }
-
-    return data;
-}
-
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
 {
     data << uint32(movementSpline.Flags);
@@ -287,7 +274,6 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data.WriteBit(movementSpline.SpellEffectExtraData.has_value());
     data.WriteBit(movementSpline.JumpExtraData.has_value());
     data.WriteBit(movementSpline.AnimTierTransition.has_value());
-    data.WriteBit(movementSpline.Unknown901.has_value());
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -321,9 +307,6 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
 
     if (movementSpline.AnimTierTransition)
         data << *movementSpline.AnimTierTransition;
-
-    if (movementSpline.Unknown901)
-        data << *movementSpline.Unknown901;
 
     return data;
 }
@@ -487,12 +470,9 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
 
     data << uint32(movementForce.TransportID);
     data << float(movementForce.Magnitude);
+    data << int32(movementForce.Unk340);
     data.WriteBits(AsUnderlyingType(movementForce.Type), 2);
-    data.WriteBit(movementForce.Unused910 != 0);
     data.FlushBits();
-
-    if (movementForce.Unused910)
-        data << int32(movementForce.Unused910);
 }
 
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
@@ -723,10 +703,8 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
     data >> movementForce.Direction;
     data >> movementForce.TransportID;
     data >> movementForce.Magnitude;
+    data >> movementForce.Unk340;
     movementForce.Type = MovementForceType(data.ReadBits(2));
-    bool has910 = data.ReadBit();
-    if (has910)
-        data >> movementForce.Unused910;
 
     return data;
 }

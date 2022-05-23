@@ -22,14 +22,6 @@ namespace WorldPackets
 {
 namespace Quest
 {
-ByteBuffer& operator<<(ByteBuffer& data, QuestCompleteDisplaySpell const& questDisplaySpell)
-{
-    data << int32(questDisplaySpell.SpellID);
-    data << int32(questDisplaySpell.PlayerConditionID);
-
-    return data;
-}
-
 void QuestGiverStatusQuery::Read()
 {
     _worldPacket >> QuestGiverGUID;
@@ -77,8 +69,11 @@ WorldPacket const* QueryQuestInfoResponse::Write()
     {
         _worldPacket << int32(Info.QuestID);
         _worldPacket << int32(Info.QuestType);
+        _worldPacket << int32(Info.QuestLevel);
+        _worldPacket << int32(Info.QuestScalingFactionGroup);
+        _worldPacket << int32(Info.QuestMaxScalingLevel);
         _worldPacket << int32(Info.QuestPackageID);
-        _worldPacket << int32(Info.ContentTuningID);
+        _worldPacket << int32(Info.QuestMinLevel);
         _worldPacket << int32(Info.QuestSortID);
         _worldPacket << int32(Info.QuestInfoID);
         _worldPacket << int32(Info.SuggestedGroupNum);
@@ -89,7 +84,12 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.RewardMoneyDifficulty);
         _worldPacket << float(Info.RewardMoneyMultiplier);
         _worldPacket << int32(Info.RewardBonusMoney);
-        _worldPacket << uint32(Info.RewardDisplaySpell.size());
+
+        for (uint32 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
+        {
+            _worldPacket << int32(Info.RewardDisplaySpell[i]);
+        }
+
         _worldPacket << int32(Info.RewardSpell);
         _worldPacket << int32(Info.RewardHonor);
         _worldPacket << float(Info.RewardKillHonor);
@@ -157,11 +157,6 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket << uint64(Info.AllowableRaces.RawValue);
         _worldPacket << int32(Info.TreasurePickerID);
         _worldPacket << int32(Info.Expansion);
-        _worldPacket << int32(Info.ManagedWorldStateID);
-        _worldPacket << int32(Info.QuestSessionBonus);
-
-        for (QuestCompleteDisplaySpell const& rewardDisplaySpell : Info.RewardDisplaySpell)
-            _worldPacket << rewardDisplaySpell;
 
         _worldPacket.WriteBits(Info.LogTitle.size(), 9);
         _worldPacket.WriteBits(Info.LogDescription.size(), 12);
@@ -172,7 +167,6 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         _worldPacket.WriteBits(Info.PortraitTurnInText.size(), 10);
         _worldPacket.WriteBits(Info.PortraitTurnInName.size(), 8);
         _worldPacket.WriteBits(Info.QuestCompletionLog.size(), 11);
-        _worldPacket.WriteBit(Info.ReadyForTranslation);
         _worldPacket.FlushBits();
 
         for (QuestObjective const& questObjective : Info.Objectives)
