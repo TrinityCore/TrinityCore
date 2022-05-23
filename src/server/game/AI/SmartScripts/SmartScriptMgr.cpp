@@ -1332,15 +1332,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 break;
             }
-            case SMART_EVENT_ACTION_DONE:
-            {
-                if (e.event.doAction.eventId > EVENT_CHARGE)
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid event id %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.doAction.eventId);
-                    return false;
-                }
-                break;
-            }
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
                 if (!IsMinMaxValid(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax))
                     return false;
@@ -1467,6 +1458,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_TRANSPORT_RELOCATE:
             case SMART_EVENT_CORPSE_REMOVED:
             case SMART_EVENT_AI_INIT:
+            case SMART_EVENT_ACTION_DONE:
             case SMART_EVENT_TRANSPORT_ADDPLAYER:
             case SMART_EVENT_TRANSPORT_REMOVE_PLAYER:
             case SMART_EVENT_AGGRO:
