@@ -1044,11 +1044,10 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         }
     }
 
-    void StartDesecratingShotEvent(uint8 pattern)
+    void StartDesecratingShotEvent(uint8 pattern, Position pos)
     {
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
-            sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
             sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2550));
 
             switch (pattern)
@@ -1056,6 +1055,9 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
                 case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
                 {
+                    if (sylvanas->IsAIEnabled())
+                        sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
+
                     me->NearTeleportTo(sylvanas->GetNearPosition(5.0f, float(M_PI)), false);
 
                     _scheduler.Schedule(50ms, [this, sylvanas](TaskContext /*task*/)
@@ -1067,7 +1069,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     {
                         if (sylvanas->IsAIEnabled())
                         {
-
                             // NOTE: TC needs to implement a cooldown in DB for creature_texts, otherwise we need to add random bools to avoid spam.
                             if (_sayDesecrating == 0)
                             {
@@ -1105,6 +1106,17 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
                 {
+                    sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
+
+                    me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10.0f, false);
+
+                    _scheduler.Schedule(400ms, [this, sylvanas](TaskContext /*task*/)
+                    {
+                        sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+
+                        DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_LEFT, false);
+                    });
+
                     break;
                 }
 
@@ -1291,6 +1303,10 @@ struct boss_sylvanas_windrunner : public BossAI
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
+        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s, 1, PHASE_ONE);
+
+        /*
+        events.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 22s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 44s, 1, PHASE_ONE);
@@ -1303,6 +1319,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
+        */
 
         me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
     }
@@ -1825,6 +1842,9 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DESECRATING_SHOT:
                 {
+                    ChooseDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
+
+                    /*
                     _disecratingShotCastTimes++;
 
                     if (_windrunnerCastTimes == 1)
@@ -1835,6 +1855,9 @@ struct boss_sylvanas_windrunner : public BossAI
                         ChooseDesecratingShotPattern(_disecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
                     else if (_windrunnerCastTimes == 4)
                         ChooseDesecratingShotPattern(_disecratingShotCastTimes == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
+                    */
+
+                    events.Repeat(8s);
                     break;
                 }
 
@@ -2391,7 +2414,7 @@ struct boss_sylvanas_windrunner : public BossAI
             }
         }
 
-        DoSylvanasAttackIfReady();
+        //DoSylvanasAttackIfReady();
     }
 
     void DoSylvanasAttackIfReady()
@@ -2457,17 +2480,19 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 int32 step = 1;
 
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 500.0f, true, true))
                 {
                     float orientation = me->GetAbsoluteAngle(target);
 
-                    while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, me->GetPosition(), orientation))
+                    Position* currentPoint(me->GetPosition())
+
+                    while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, currentPoint, orientation))
                         ++step;
 
                     scheduler.Schedule(2s, [this](TaskContext /*task*/)
                     {
                         if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                            ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT);
+                            ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, me->GetPosition());
                     });
                 }
                 break;
@@ -2477,15 +2502,19 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 int32 step = 1;
 
+                Position* currentPoint;
+
                 int32 amount = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
 
-                while (amount > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, amount, step, me->GetPosition(), me->GetOrientation()))
+                *currentPoint = me->GetPosition();
+
+                while (amount > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, amount, step, currentPoint, me->GetOrientation()))
                     --amount;
 
                 scheduler.Schedule(2s, [this](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
+                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, me->GetPosition());
                 });
                 break;
             }
@@ -2499,7 +2528,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(2s, [this](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_WAVE);
+                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_WAVE, me->GetPosition());
                 });
                 break;
             }
@@ -2507,22 +2536,30 @@ struct boss_sylvanas_windrunner : public BossAI
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
                 int32 step = 0;
-                int32 shadowCopyIndex = 0;
+                int32 nextCopy = 0;
+
+                Position* currentPoint;
+
+                float currentOrientation;
 
                 std::list<Unit*> targets;
-                SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 250.0f, true, true);
+                SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, true, true);
 
                 for (Unit* target : targets)
                 {
-                    ++shadowCopyIndex;
+                    *currentPoint = target->GetPosition();
 
-                    while (step < 10 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, 0, step, target->GetPosition(), target->GetOrientation()))
+                    currentOrientation = target->GetOrientation();
+
+                    while (step < 10 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, 0, step, currentPoint, currentOrientation))
                         ++step;
 
-                    scheduler.Schedule(2s, [this, shadowCopyIndex](TaskContext /*task*/)
+                    nextCopy++;
+
+                    scheduler.Schedule(1s + 500ms + Milliseconds(500 * nextCopy), [this, target](TaskContext /*task*/)
                     {
-                        if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(shadowCopyIndex))
-                            ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
+                        if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
+                            ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, target->GetPosition());
                     });
                 }
                 break;
@@ -2537,7 +2574,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(2s, [this](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_JAR);
+                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_JAR, me->GetPosition());
                 });
                 break;
             }
@@ -2547,7 +2584,7 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool DrawDesecratingShotPattern(int8 pattern, int32 amount, int32 step, Position pos, float orientation)
+    bool DrawDesecratingShotPattern(int8 pattern, int32 amount, int32 step, Position* pos, float orientation)
     {
         switch (pattern)
         {
@@ -2624,6 +2661,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
             {
+                /*
                 float distance = -4.0f * step;
 
                 if (step == 0)
@@ -2642,51 +2680,71 @@ struct boss_sylvanas_windrunner : public BossAI
                 }
                 else
                 {
-                    scheduler.Schedule(50ms, [this, pos, orientation, distance](TaskContext /*task*/)
+                    scheduler.Schedule(50ms, [this, pos, orientation, distance](TaskContext /*task*//*)
                     {
                         Position rightLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * 4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * 4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
 
                         me->CastSpell(rightLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
 
-                    scheduler.Schedule(75ms, [this, pos, orientation, distance](TaskContext /*task*/)
+                    scheduler.Schedule(75ms, [this, pos, orientation, distance](TaskContext /*task*//*)/*
                     {
                         Position leftLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * -4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * -4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
 
                         me->CastSpell(leftLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
 
-                    scheduler.Schedule(100ms, [this, pos, orientation, distance](TaskContext /*task*/)
+                    scheduler.Schedule(100ms, [this, pos, orientation, distance](TaskContext /*task*//*)/*
                     {
                         Position middleLine(pos.GetPositionX() + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation) * distance), pos.GetPositionZ());
 
                         me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
                 }
+                */
 
                 return true;
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                // TODO: verify if non-mythic always chooses ranged classes
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true))
+                float distance = 4.0f;
+
+                uint8 spiralSideCount = 3;
+
+                float angleOffset = float(M_PI * 2) / spiralSideCount;
+
+                switch (step)
                 {
-                    float distance = 4.0f * step;
-
-                    // NOTE: let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform.
-                    Position arrowCenter(target->GetPosition());
-
-                    if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
-                        return false;
-
-                    scheduler.Schedule(Milliseconds(step * 25), [this, arrowCenter](TaskContext /*task*/)
+                    case 0:
                     {
-                        me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
+                        scheduler.Schedule(Milliseconds(step * 50), [this, pos](TaskContext /*task*/)
+                        {
+                            me->CastSpell(*pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        });
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        for (uint8 i = 0; i < spiralSideCount; ++i)
+                        {
+                            float angle = angleOffset * i;
+
+                            (*pos).m_positionX += std::cos(angle + 0.2 * step) * distance;
+                            (*pos).m_positionY += std::sin(angle + 0.2 * step) * distance;
+
+                            scheduler.Schedule(Milliseconds(step * 25), [this, pos](TaskContext /*task*/)
+                            {
+                                me->CastSpell(*pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+
+                        break;
+                    }
                 }
 
-                // NOTE: for amount 3 and choose target on the loop, each part of the spiral max 9 steps x 3 (each side) + 1 (center).
                 break;
             }
 
