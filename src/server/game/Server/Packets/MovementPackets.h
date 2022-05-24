@@ -693,6 +693,16 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
             std::vector<MoveStateChange> StateChanges;
         };
+
+        class MoveInitActiveMoverComplete final : public ClientPacket
+        {
+        public:
+            MoveInitActiveMoverComplete(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Ticks = 0;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey);

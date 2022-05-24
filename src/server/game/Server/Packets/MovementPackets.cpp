@@ -1067,3 +1067,8 @@ WorldPacket const* WorldPackets::Movement::MoveSetCompoundState::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Movement::MoveInitActiveMoverComplete::Read()
+{
+    _worldPacket >> Ticks;
+}

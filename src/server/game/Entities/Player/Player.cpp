@@ -1660,6 +1660,9 @@ void Player::RemoveFromWorld()
             GetName().c_str(), GetGUID().ToString().c_str(), viewpoint->GetEntry(), viewpoint->GetTypeId());
         SetViewpoint(viewpoint, false);
     }
+
+    RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+    SetTransportServerTime(0);
 }
 
 void Player::SetObjectScale(float scale)
@@ -24099,6 +24102,13 @@ bool Player::IsNeverVisibleFor(WorldObject const* seer) const
         return true;
 
     return false;
+}
+
+bool Player::CanNeverSee(WorldObject const* /*obj*/) const
+{
+    // the intent is to delay sending visible objects until client is ready for them
+    // some gameobjects dont function correctly if they are sent before TransportServerTime is correctly set (after CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE)
+    return !HasPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
 }
 
 bool Player::CanAlwaysSee(WorldObject const* obj) const

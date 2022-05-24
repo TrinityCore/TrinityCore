@@ -785,3 +785,11 @@ void WorldSession::ComputeNewClockDelta()
         _timeSyncClockDelta = back.first;
     }
 }
+
+void WorldSession::HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete& moveInitActiveMoverComplete)
+{
+    _player->SetPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+    _player->SetTransportServerTime(GameTime::GetGameTimeMS() - moveInitActiveMoverComplete.Ticks);
+
+    _player->UpdateObjectVisibility(false);
+}
