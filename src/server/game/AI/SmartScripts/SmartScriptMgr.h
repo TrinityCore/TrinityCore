@@ -1280,6 +1280,7 @@ enum SMARTAI_TARGETS
     SMART_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
     SMART_TARGET_VEHICLE_PASSENGER              = 29,   // seatMask (0 - all seats)
     SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT   = 30,   // entry(0any), maxDist
+    SMART_TARGET_OWNER_OR_SUMMONER_VICTIM       = 31,   // Victim of Owner or Summoner, Use Owner/Charmer of this unit
 
     SMART_TARGET_END                            = 31
 };

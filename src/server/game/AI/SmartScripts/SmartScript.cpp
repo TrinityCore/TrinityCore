@@ -2956,6 +2956,26 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 targets.push_back(target);
             break;
         }
+        case SMART_TARGET_OWNER_OR_SUMMONER_VICTIM:
+        {
+            if (me)
+            {
+                ObjectGuid charmerOrOwnerGuid = me->GetCharmerOrOwnerGUID();
+
+                if (!charmerOrOwnerGuid)
+                    if (TempSummon* tempSummon = me->ToTempSummon())
+                        if (WorldObject* summoner = tempSummon->GetSummoner())
+                            charmerOrOwnerGuid = summoner->GetGUID();
+
+                if (!charmerOrOwnerGuid)
+                    charmerOrOwnerGuid = me->GetCreatorGUID();
+
+                if (Unit* owner = ObjectAccessor::GetUnit(*me, charmerOrOwnerGuid))
+                    if (Unit* victim = owner->GetVictim())
+                        targets.push_back(victim);
+            }
+            break;
+        }
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
         default:
