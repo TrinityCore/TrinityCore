@@ -448,12 +448,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* source, Object* target);
 
         // must called with AddToWorld
-        template<class T>
-        void AddToActive(T* obj);
+        void AddToActive(WorldObject* obj);
 
         // must called with RemoveFromWorld
-        template<class T>
-        void RemoveFromActive(T* obj);
+        void RemoveFromActive(WorldObject* obj);
 
         template<class T> void SwitchGridContainers(T* obj, bool on);
         std::unordered_map<ObjectGuid::LowType /*leaderSpawnId*/, CreatureGroup*> CreatureGroupHolder;

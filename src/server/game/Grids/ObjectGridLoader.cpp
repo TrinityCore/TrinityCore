@@ -82,32 +82,14 @@ class ObjectWorldLoader
         uint32& i_corpses;
 };
 
-template<class T>
-void ObjectGridLoaderBase::SetObjectCell(T* /*obj*/, CellCoord const& /*cellCoord*/) { }
-
-template<> void ObjectGridLoaderBase::SetObjectCell(Creature* obj, CellCoord const& cellCoord)
-{
-    Cell cell(cellCoord);
-    obj->SetCurrentCell(cell);
-}
-
-template<> void ObjectGridLoaderBase::SetObjectCell(GameObject* obj, CellCoord const& cellCoord)
+void ObjectGridLoaderBase::SetObjectCell(MapObject* obj, CellCoord const& cellCoord)
 {
     Cell cell(cellCoord);
     obj->SetCurrentCell(cell);
 }
 
 template <class T>
-void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* /*map*/, T *obj)
-{
-    obj->AddToGrid(m);
-    ObjectGridLoader::SetObjectCell(obj, cell);
-    obj->AddToWorld();
-    ++count;
-}
-
-template <>
-void AddObjectHelper(CellCoord &cell, CreatureMapType &m, uint32 &count, Map* map, Creature *obj)
+void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
 {
     obj->AddToGrid(m);
     ObjectGridLoader::SetObjectCell(obj, cell);

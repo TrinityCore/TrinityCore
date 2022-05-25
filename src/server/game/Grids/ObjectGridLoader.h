@@ -22,6 +22,7 @@
 #include "GridDefines.h"
 #include "Cell.h"
 
+class MapObject;
 class ObjectGuid;
 class ObjectWorldLoader;
 
@@ -32,8 +33,7 @@ class TC_GAME_API ObjectGridLoaderBase
             : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
             { }
 
-        template<class T>
-        static void SetObjectCell(T* obj, CellCoord const& cellCoord);
+        static void SetObjectCell(MapObject* obj, CellCoord const& cellCoord);
 
         uint32 GetLoadedCreatures() const { return i_creatures; }
         uint32 GetLoadedGameObjects() const { return i_gameObjects; }
