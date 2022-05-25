@@ -774,7 +774,6 @@ class npc_gunship : public CreatureScript
                     if (Transport* otherTransport = HashMapHolder<Transport>::Find(instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                         otherTransport->EnableMovement(true);
 
-
                     if (Transport* transport = dynamic_cast<Transport*>(me->GetTransport()))
                         transport->EnableMovement(true);
 
