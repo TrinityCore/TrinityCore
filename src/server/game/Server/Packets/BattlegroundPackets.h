@@ -44,6 +44,8 @@ namespace WorldPackets
             int32 PvpSeasonID = 0;
             int32 ConquestWeeklyProgressCurrencyID = 0;
             bool WeeklyRewardChestsEnabled = false;
+            bool Unused340_1 = false;
+            bool Unused340_2 = false;
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket

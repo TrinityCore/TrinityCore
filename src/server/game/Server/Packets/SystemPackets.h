@@ -158,11 +158,13 @@ namespace WorldPackets
             bool ChatDisabledByDefault               = false;
             bool ChatDisabledByPlayer                = false;
             bool LFGListCustomRequiresAuthenticator  = false;
+            bool BattlegroundsEnabled                = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
             std::vector<GameRuleValuePair> GameRuleValues;
+            Optional<std::vector<uint8>> RaceClassExpansionLevels;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -189,6 +191,11 @@ namespace WorldPackets
             bool LiveRegionAccountCopyEnabled        = false; // NYI
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool Unknown901CheckoutRelated           = false; // NYI
+            bool NameReservationsEnabled             = false; // NYI
+            bool TbcInfoPaneEnabled                  = false; // NYI
+            bool TbcInfoPanePriceEnabled             = false; // NYI
+            bool TbcTransitionUiEnabled              = false; // NYI
+            bool SeasonOfMasteryNotificationEnabled  = false; // NYI
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
@@ -203,6 +210,7 @@ namespace WorldPackets
             int32 GameRuleUnknown1 = 0;
             std::vector<GameRuleValuePair> GameRuleValues;
             int16 MaxPlayerNameQueriesPerPacket = 50;
+            Optional<int32> LaunchEta;
         };
 
         class MOTD final : public ServerPacket

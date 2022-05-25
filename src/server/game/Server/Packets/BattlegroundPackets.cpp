@@ -26,6 +26,8 @@ WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
     _worldPacket << int32(ConquestWeeklyProgressCurrencyID);
     _worldPacket << int32(PvpSeasonID);
     _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
+    _worldPacket.WriteBit(Unused340_1);
+    _worldPacket.WriteBit(Unused340_2);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

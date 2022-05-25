@@ -121,6 +121,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ChatDisabledByDefault);
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
+    _worldPacket.WriteBit(RaceClassExpansionLevels.has_value());
+    _worldPacket.WriteBit(BattlegroundsEnabled);
 
     _worldPacket.FlushBits();
 
@@ -157,6 +159,13 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->DisplayTime);
     }
 
+    if (RaceClassExpansionLevels)
+    {
+        _worldPacket << uint32(RaceClassExpansionLevels->size());
+        for (uint8 raceClassExpansionLevel : *RaceClassExpansionLevels)
+            _worldPacket << uint8(raceClassExpansionLevel);
+    }
+
     {
         _worldPacket.WriteBit(Squelch.IsSquelched);
         _worldPacket << Squelch.BnetAccountGuid;
@@ -189,6 +198,12 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
+    _worldPacket.WriteBit(NameReservationsEnabled);
+    _worldPacket.WriteBit(LaunchEta.has_value());
+    _worldPacket.WriteBit(TbcInfoPaneEnabled);
+    _worldPacket.WriteBit(TbcInfoPanePriceEnabled);
+    _worldPacket.WriteBit(TbcTransitionUiEnabled);
+    _worldPacket.WriteBit(SeasonOfMasteryNotificationEnabled);
     _worldPacket.FlushBits();
 
     if (EuropaTicketSystemStatus)
@@ -207,6 +222,9 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(GameRuleUnknown1);
     _worldPacket << uint32(GameRuleValues.size());
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
+
+    if (LaunchEta)
+        _worldPacket << int32(*LaunchEta);
 
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
