@@ -536,7 +536,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
                         LadyDeathwisperElevatorGUID = go->GetGUID();
                         if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
-                            go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                        {
+                            go->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+                            go->HandleCustomTypeCommand(GameObjectType::SetTransportAutoCycleBetweenStopFrames(true));
+                        }
                         break;
                     case GO_THE_SKYBREAKER_H:
                     case GO_ORGRIMS_HAMMER_A:
@@ -874,7 +877,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 SetTeleporterState(teleporter, true);
 
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
-                                elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                            {
+                                elevator->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+                                elevator->HandleCustomTypeCommand(GameObjectType::SetTransportAutoCycleBetweenStopFrames(true));
+                            }
 
                             SpawnGunship();
                         }

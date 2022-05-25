@@ -43,8 +43,8 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         void BuildUpdate(UpdateDataMapType& data_map) override;
 
-        void AddPassenger(WorldObject* passenger);
-        void RemovePassenger(WorldObject* passenger);
+        void AddPassenger(WorldObject* passenger) override;
+        Transport* RemovePassenger(WorldObject* passenger) override;
         PassengerSet const& GetPassengers() const { return _passengers; }
 
         Creature* CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data);
@@ -68,21 +68,27 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         */
         TempSummon* SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0);
 
+        ObjectGuid GetTransportGUID() const override { return GetGUID(); }
+
+        float GetTransportOrientation() const override { return GetOrientation(); }
+
         /// This method transforms supplied transport offsets into global coordinates
         void CalculatePassengerPosition(float& x, float& y, float& z, float* o = nullptr) const override
         {
-            TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
         }
 
         /// This method transforms supplied global coordinates into local offsets
         void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const override
         {
-            TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
         }
 
-        uint32 GetTransportPeriod() const override { return m_gameObjectData->Level; }
+        int32 GetMapIdForSpawning() const override;
+
+        uint32 GetTransportPeriod() const { return m_gameObjectData->Level; }
         void SetPeriod(uint32 period) { SetLevel(period); }
-        uint32 GetTimer() const { return GetGOValue()->Transport.PathProgress; }
+        uint32 GetTimer() const { return _pathProgress; }
 
         KeyFrameVec const& GetKeyFrames() const { return _transportInfo->keyFrames; }
 
@@ -118,6 +124,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         KeyFrameVec::const_iterator _currentFrame;
         KeyFrameVec::const_iterator _nextFrame;
+        uint32 _pathProgress;
         TimeTracker _positionChangeTimer;
         bool _isMoving;
         bool _pendingStop;

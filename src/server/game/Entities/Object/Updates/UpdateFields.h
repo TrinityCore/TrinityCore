@@ -804,13 +804,11 @@ struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<
     UpdateField<QuaternionData, 0, 12> ParentRotation;
     UpdateField<int32, 0, 13> FactionTemplate;
     UpdateField<int8, 0, 14> State;
-    struct StateTag : ViewerDependentValueTag<int8> {};
     UpdateField<int8, 0, 15> TypeID;
     UpdateField<uint8, 0, 16> PercentHealth;
     UpdateField<uint32, 0, 17> ArtKit;
     UpdateField<uint32, 0, 18> CustomParam;
     UpdateField<int32, 0, 19> Level;
-    struct LevelTag : ViewerDependentValueTag<int32> {};
     UpdateField<uint32, 0, 20> AnimGroupInstance;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, GameObject const* owner, Player const* receiver) const;

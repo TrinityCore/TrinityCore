@@ -301,9 +301,9 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
                 owner->SetHomePosition(x, y, z, o);
             else
             {
-                if (Transport* trans = owner->GetTransport())
+                if (TransportBase* trans = owner->GetTransport())
                 {
-                    o -= trans->GetOrientation();
+                    o -= trans->GetTransportOrientation();
                     owner->SetTransportHomePosition(x, y, z, o);
                     trans->CalculatePassengerPosition(x, y, z, &o);
                     owner->SetHomePosition(x, y, z, o);

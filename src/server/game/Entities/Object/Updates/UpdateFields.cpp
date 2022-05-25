@@ -4264,13 +4264,13 @@ void GameObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fie
     data << float(ParentRotation->z);
     data << float(ParentRotation->w);
     data << int32(FactionTemplate);
-    data << int8(ViewerDependentValue<StateTag>::GetValue(this, owner, receiver));
+    data << int8(State);
     data << int8(TypeID);
     data << uint8(PercentHealth);
     data << uint32(ArtKit);
     data << uint32(EnableDoodadSets.size());
     data << uint32(CustomParam);
-    data << int32(ViewerDependentValue<LevelTag>::GetValue(this, owner, receiver));
+    data << int32(Level);
     data << uint32(AnimGroupInstance);
     for (uint32 i = 0; i < EnableDoodadSets.size(); ++i)
     {
@@ -4371,7 +4371,7 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[14])
         {
-            data << int8(ViewerDependentValue<StateTag>::GetValue(this, owner, receiver));
+            data << int8(State);
         }
         if (changesMask[15])
         {
@@ -4391,7 +4391,7 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[19])
         {
-            data << int32(ViewerDependentValue<LevelTag>::GetValue(this, owner, receiver));
+            data << int32(Level);
         }
         if (changesMask[20])
         {

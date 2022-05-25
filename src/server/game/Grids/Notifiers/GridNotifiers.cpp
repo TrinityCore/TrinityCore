@@ -30,7 +30,7 @@ void VisibleNotifier::SendToSelf()
 {
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
     // but exist one case when this possible and object not out of range: transports
-    if (Transport* transport = i_player.GetTransport())
+    if (Transport* transport = dynamic_cast<Transport*>(i_player.GetTransport()))
     {
         for (Transport::PassengerSet::const_iterator itr = transport->GetPassengers().begin(); itr != transport->GetPassengers().end(); ++itr)
         {
@@ -53,6 +53,9 @@ void VisibleNotifier::SendToSelf()
                         break;
                     case TYPEID_DYNAMICOBJECT:
                         i_player.UpdateVisibilityOf((*itr)->ToDynObject(), i_data, i_visibleNow);
+                        break;
+                    case TYPEID_AREATRIGGER:
+                        i_player.UpdateVisibilityOf((*itr)->ToAreaTrigger(), i_data, i_visibleNow);
                         break;
                     default:
                         break;

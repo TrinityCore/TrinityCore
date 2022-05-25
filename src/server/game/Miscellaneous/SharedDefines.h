@@ -2820,7 +2820,7 @@ enum GameObjectFlags
 
 DEFINE_ENUM_FLAG(GameObjectFlags);
 
-enum GameObjectDynamicLowFlags
+enum GameObjectDynamicLowFlags : uint16
 {
     GO_DYNFLAG_LO_HIDE_MODEL        = 0x0002,               // Object model is not shown with this flag
     GO_DYNFLAG_LO_ACTIVATE          = 0x0004,               // enables interaction with GO

@@ -54,7 +54,7 @@ class SpellCastTargets;
 class SpellEffectInfo;
 class SpellInfo;
 class TempSummon;
-class Transport;
+class TransportBase;
 class Unit;
 class UpdateData;
 class WorldObject;
@@ -676,7 +676,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32  LastUsedScriptID;
 
         // Transports
-        Transport* GetTransport() const { return m_transport; }
+        TransportBase* GetTransport() const { return m_transport; }
         float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
         float GetTransOffsetY() const { return m_movementInfo.transport.pos.GetPositionY(); }
         float GetTransOffsetZ() const { return m_movementInfo.transport.pos.GetPositionZ(); }
@@ -685,7 +685,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
         int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual ObjectGuid GetTransGUID() const;
-        void SetTransport(Transport* t) { m_transport = t; }
+        void SetTransport(TransportBase* t) { m_transport = t; }
 
         MovementInfo m_movementInfo;
 
@@ -728,8 +728,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool const m_isWorldObject;
         ZoneScript* m_zoneScript;
 
-        // transports
-        Transport* m_transport;
+        // transports (gameobjects only)
+        TransportBase* m_transport;
 
         virtual void ProcessPositionDataChanged(PositionFullTerrainStatus const& data);
         uint32 m_zoneId;

@@ -72,7 +72,7 @@ class icecrown_citadel_teleport : public GameObjectScript
 
                 // If the player is on the ship, Unit::NearTeleport() will try to keep the player on the ship, causing issues.
                 // For that we simply always remove the player from the ship.
-                if (Transport* transport = player->GetTransport())
+                if (TransportBase* transport = player->GetTransport())
                     transport->RemovePassenger(player);
 
                 player->CastSpell(player, spell->Id, true);

@@ -417,7 +417,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
  * @return true if it succeeds, false if it fails.
  */
 
-bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
+bool Vehicle::AddVehiclePassenger(Unit* unit, int8 seatId)
 {
     /// @Prevent adding passengers when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
     if (_status == STATUS_UNINSTALLING)
@@ -488,8 +488,12 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
  * @param [in, out] unit The passenger to remove.
  */
 
-Vehicle* Vehicle::RemovePassenger(Unit* unit)
+Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
 {
+    Unit* unit = passenger->ToUnit();
+    if (!unit)
+        return nullptr;
+
     if (unit->GetVehicle() != this)
         return nullptr;
 
@@ -928,7 +932,7 @@ void VehicleJoinEvent::Abort(uint64)
         Target->RemovePendingEvent(this);
 
         /// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
-        /// When this code is triggered it means that something went wrong in @Vehicle::AddPassenger, and we should remove
+        /// When this code is triggered it means that something went wrong in @Vehicle::AddVehiclePassenger, and we should remove
         /// the aura manually.
         Target->GetBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID());
     }

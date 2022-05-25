@@ -283,7 +283,7 @@ public:
             zoneId, (zoneEntry ? zoneEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
             areaId, (areaEntry ? areaEntry->AreaName[handler->GetSessionDbcLocale()] : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
-        if (Transport* transport = object->GetTransport())
+        if (Transport* transport = dynamic_cast<Transport*>(object->GetTransport()))
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
                 transport->GetGOInfo()->moTransport.SpawnMap, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
                 transport->GetEntry(), transport->GetName().c_str());

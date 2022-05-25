@@ -124,7 +124,7 @@ public:
         Player* chr = handler->GetSession()->GetPlayer();
         Map* map = chr->GetMap();
 
-        if (Transport* trans = chr->GetTransport())
+        if (Transport* trans = dynamic_cast<Transport*>(chr->GetTransport()))
         {
             ObjectGuid::LowType guid = sObjectMgr->GenerateCreatureSpawnId();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);

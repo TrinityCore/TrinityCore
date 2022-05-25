@@ -352,7 +352,7 @@ enum ICGameObjectsIds
     GO_SPIRIT_ALARM_3                       = 201816,
     GO_SPIRIT_ALARM_4                       = 201817,
 
-    // Lord Marrogar
+    // Lord Marrowgar
     GO_DOODAD_ICECROWN_ICEWALL02            = 201910,
     GO_ICEWALL                              = 201911,
     GO_LORD_MARROWGAR_S_ENTRANCE            = 201857,

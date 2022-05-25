@@ -25,11 +25,13 @@
 #include "MapObject.h"
 #include "SharedDefines.h"
 
+class GameObject;
 class GameObjectAI;
 class GameObjectModel;
 class Group;
 class OPvPCapturePoint;
 class Transport;
+class TransportBase;
 class Unit;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
@@ -42,17 +44,44 @@ namespace WorldPackets
     }
 }
 
+// Base class for GameObject type specific implementations
+class GameObjectTypeBase
+{
+public:
+    class TC_GAME_API CustomCommand
+    {
+    public:
+        virtual ~CustomCommand();
+        virtual void Execute(GameObjectTypeBase& type) const = 0;
+    };
+
+    explicit GameObjectTypeBase(GameObject& owner) : _owner(owner) { }
+    virtual ~GameObjectTypeBase() = default;
+
+    virtual void Update([[maybe_unused]] uint32 diff) { }
+    virtual void OnStateChanged([[maybe_unused]] GOState oldState, [[maybe_unused]] GOState newState) { }
+    virtual void OnRelocated() { }
+
+protected:
+    GameObject& _owner;
+};
+
+namespace GameObjectType
+{
+class TC_GAME_API SetTransportAutoCycleBetweenStopFrames : public GameObjectTypeBase::CustomCommand
+{
+public:
+    explicit SetTransportAutoCycleBetweenStopFrames(bool on);
+
+    void Execute(GameObjectTypeBase& type) const override;
+
+private:
+    bool _on;
+};
+}
+
 union GameObjectValue
 {
-    //11 GAMEOBJECT_TYPE_TRANSPORT
-    struct
-    {
-        uint32 PathProgress;
-        TransportAnimation const* AnimationInfo;
-        uint32 CurrentSeg;
-        std::vector<uint32>* StopFrames;
-        uint32 StateUpdateTimer;
-    } Transport;
     //25 GAMEOBJECT_TYPE_FISHINGHOLE
     struct
     {
@@ -209,13 +238,14 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoType(GameobjectTypes type) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::TypeID), type); }
         GOState GetGoState() const { return GOState(*m_gameObjectData->State); }
         void SetGoState(GOState state);
-        virtual uint32 GetTransportPeriod() const;
-        void SetTransportState(GOState state, uint32 stopFrame = 0);
         uint32 GetGoArtKit() const { return m_gameObjectData->ArtKit; }
         void SetGoArtKit(uint32 artkit);
         uint8 GetGoAnimProgress() const { return m_gameObjectData->PercentHealth; }
         void SetGoAnimProgress(uint8 animprogress) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress); }
         static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
+
+        std::vector<uint32> const* GetPauseTimes() const;
+        void SetPathProgressForClient(float progress);
 
         void EnableCollision(bool enable);
 
@@ -313,6 +343,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectModel* m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr) const;
 
+        TransportBase* ToTransportBase() { return const_cast<TransportBase*>(const_cast<GameObject const*>(this)->ToTransportBase()); }
+        TransportBase const* ToTransportBase() const;
+
         Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return nullptr; }
         Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return nullptr; }
 
@@ -320,7 +353,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         float GetStationaryY() const override { return m_stationaryPosition.GetPositionY(); }
         float GetStationaryZ() const override { return m_stationaryPosition.GetPositionZ(); }
         float GetStationaryO() const override { return m_stationaryPosition.GetOrientation(); }
+        Position const& GetStationaryPosition() const { return m_stationaryPosition; }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
+
+        void AfterRelocation();
 
         float GetInteractionDistance() const;
 
@@ -351,6 +387,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         std::string GetDebugInfo() const override;
 
         void UpdateDynamicFlagsForNearbyPlayers() const;
+
+        void HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const;
 
         UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
 
@@ -383,7 +421,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectTemplate const* m_goInfo;
         GameObjectTemplateAddon const* m_goTemplateAddon;
         GameObjectData const* m_goData;
-        GameObjectValue m_goValue;
+        std::unique_ptr<GameObjectTypeBase> m_goTypeImpl;
+        GameObjectValue m_goValue; // TODO: replace with m_goTypeImpl
 
         int64 m_packedRotation;
         QuaternionData m_localRotation;

@@ -447,6 +447,15 @@ void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg,
     animNode.Path[timeSeg] = node;
 }
 
+void TransportMgr::AddPathRotationToTransport(uint32 transportEntry, uint32 timeSeg, TransportRotationEntry const* node)
+{
+    TransportAnimation& animNode = _transportAnimations[transportEntry];
+    animNode.Rotations[timeSeg] = node;
+
+    if (animNode.Path.empty() && animNode.TotalTime < timeSeg)
+        animNode.TotalTime = timeSeg;
+}
+
 Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/)
 {
     // instance case, execute GetGameObjectEntry hook
@@ -551,20 +560,50 @@ TransportSpawn const* TransportMgr::GetTransportSpawn(ObjectGuid::LowType spawnI
     return Trinity::Containers::MapGetValuePtr(_transportSpawns, spawnId);
 }
 
-TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
+TransportAnimationEntry const* TransportAnimation::GetPrevAnimNode(uint32 time) const
 {
+    if (Path.empty())
+        return nullptr;
+
+    auto itr = Path.lower_bound(time);
+    if (itr != Path.begin())
+        return std::prev(itr)->second;
+
+    return Path.rbegin()->second;
+}
+
+TransportRotationEntry const* TransportAnimation::GetPrevAnimRotation(uint32 time) const
+{
+    if (Rotations.empty())
+        return nullptr;
+
+    auto itr = Rotations.lower_bound(time);
+    if (itr != Rotations.begin())
+        return std::prev(itr)->second;
+
+    return Rotations.rbegin()->second;
+}
+
+TransportAnimationEntry const* TransportAnimation::GetNextAnimNode(uint32 time) const
+{
+    if (Path.empty())
+        return nullptr;
+
     auto itr = Path.lower_bound(time);
     if (itr != Path.end())
         return itr->second;
 
-    return nullptr;
+    return Path.begin()->second;
 }
 
-TransportRotationEntry const* TransportAnimation::GetAnimRotation(uint32 time) const
+TransportRotationEntry const* TransportAnimation::GetNextAnimRotation(uint32 time) const
 {
+    if (Rotations.empty())
+        return nullptr;
+
     auto itr = Rotations.lower_bound(time);
     if (itr != Rotations.end())
         return itr->second;
 
-    return nullptr;
+    return Rotations.begin()->second;
 }

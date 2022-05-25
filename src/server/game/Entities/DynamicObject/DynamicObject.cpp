@@ -111,7 +111,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container
 
-    Transport* transport = caster->GetTransport();
+    TransportBase* transport = caster->GetTransport();
     if (transport)
     {
         float x, y, z, o;

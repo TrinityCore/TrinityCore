@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -85,11 +86,17 @@ public:
                         dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
+                {
+                    dynFlags = dynamicFlags & 0xFFFF;
+                    pathProgress = dynamicFlags >> 16;
+                    break;
+                }
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
                 {
-                    if (uint32 transportPeriod = gameObject->GetTransportPeriod())
+                    Transport const* transport = gameObject->ToTransport();
+                    if (uint32 transportPeriod = transport->GetTransportPeriod())
                     {
-                        float timer = float(gameObject->GetGOValue()->Transport.PathProgress % transportPeriod);
+                        float timer = float(transport->GetTimer() % transportPeriod);
                         pathProgress = uint16(timer / float(transportPeriod) * 65535.0f);
                     }
                     break;
@@ -253,38 +260,6 @@ public:
                 flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
         return flags;
-    }
-};
-
-template<>
-class ViewerDependentValue<UF::GameObjectData::LevelTag>
-{
-public:
-    using value_type = UF::GameObjectData::LevelTag::value_type;
-
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* /*receiver*/)
-    {
-        value_type level = gameObjectData->Level;
-        bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
-        return isStoppableTransport ? gameObject->GetGOValue()->Transport.PathProgress : level;
-    }
-};
-
-template<>
-class ViewerDependentValue<UF::GameObjectData::StateTag>
-{
-public:
-    using value_type = UF::GameObjectData::StateTag::value_type;
-
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* /*receiver*/)
-    {
-        value_type state = gameObjectData->State;
-        bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
-        if (isStoppableTransport && gameObject->GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
-            if ((gameObject->GetGOValue()->Transport.StateUpdateTimer / 20000) & 1)
-                state = GO_STATE_TRANSPORT_STOPPED;
-
-        return state;
     }
 };
 

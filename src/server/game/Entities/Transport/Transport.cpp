@@ -90,7 +90,7 @@ void TransportBase::UpdatePassengerPosition(Map* map, WorldObject* passenger, fl
 }
 
 Transport::Transport() : GameObject(),
-    _transportInfo(nullptr), _isMoving(true), _pendingStop(false),
+    _transportInfo(nullptr), _pathProgress(0), _isMoving(true), _pendingStop(false),
     _triggeredArrivalEvent(false), _triggeredDepartureEvent(false),
     _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false), _delayedTeleport(false)
 {
@@ -149,7 +149,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
         ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
     }
 
-    m_goValue.Transport.PathProgress = 0;
+    _pathProgress = 0;
     SetObjectScale(goinfo->size);
     SetPeriod(tInfo->pathTime);
     SetEntry(goinfo->entry);
@@ -190,9 +190,9 @@ void Transport::Update(uint32 diff)
         return;
 
     if (IsMoving() || !_pendingStop)
-        m_goValue.Transport.PathProgress += diff;
+        _pathProgress += diff;
 
-    uint32 timer = m_goValue.Transport.PathProgress % GetTransportPeriod();
+    uint32 timer = _pathProgress % GetTransportPeriod();
     bool justStopped = false;
 
     // Set current waypoint
@@ -216,9 +216,9 @@ void Transport::Update(uint32 diff)
                 if (_pendingStop && GetGoState() != GO_STATE_READY)
                 {
                     SetGoState(GO_STATE_READY);
-                    m_goValue.Transport.PathProgress = (m_goValue.Transport.PathProgress / GetTransportPeriod());
-                    m_goValue.Transport.PathProgress *= GetTransportPeriod();
-                    m_goValue.Transport.PathProgress += _currentFrame->ArriveTime;
+                    _pathProgress = (_pathProgress / GetTransportPeriod());
+                    _pathProgress *= GetTransportPeriod();
+                    _pathProgress += _currentFrame->ArriveTime;
                 }
                 break;  // its a stop frame and we are waiting
             }
@@ -321,7 +321,7 @@ void Transport::AddPassenger(WorldObject* passenger)
     }
 }
 
-void Transport::RemovePassenger(WorldObject* passenger)
+Transport* Transport::RemovePassenger(WorldObject* passenger)
 {
     bool erased = false;
     if (_passengerTeleportItr != _passengers.end())
@@ -351,6 +351,8 @@ void Transport::RemovePassenger(WorldObject* passenger)
             plr->SetFallInformation(0, plr->GetPositionZ());
         }
     }
+
+    return this;
 }
 
 Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)
@@ -563,6 +565,11 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     summon->SetTempSummonType(summonType);
 
     return summon;
+}
+
+int32 Transport::GetMapIdForSpawning() const
+{
+    return GetGOInfo()->moTransport.SpawnMap;
 }
 
 void Transport::UpdatePosition(float x, float y, float z, float o)
