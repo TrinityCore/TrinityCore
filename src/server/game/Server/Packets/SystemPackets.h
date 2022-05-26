@@ -158,7 +158,7 @@ namespace WorldPackets
             bool ChatDisabledByDefault               = false;
             bool ChatDisabledByPlayer                = false;
             bool LFGListCustomRequiresAuthenticator  = false;
-            bool BattlegroundsEnabled                = false;
+            bool WarGameEnabled                      = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;

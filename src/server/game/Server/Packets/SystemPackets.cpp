@@ -122,7 +122,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
     _worldPacket.WriteBit(RaceClassExpansionLevels.has_value());
-    _worldPacket.WriteBit(BattlegroundsEnabled);
+    _worldPacket.WriteBit(WarGameEnabled);
 
     _worldPacket.FlushBits();
 
