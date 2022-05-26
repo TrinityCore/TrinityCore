@@ -274,7 +274,155 @@ private:
     GuidVector _childrenGUIDs;
 };
 
+enum NA_Creatures {
+    NPC_BROTHER_PAXTON = 951,
+    NPC_STORWIND_INFANTRY = 49869,
+    NPC_BLACKROCK_WORG = 49871,
+};
+enum NA_Events {
+    EVENT_ASK_FOR_HELP = 1,
+    EVENT_HEAL_INFANTRY,
+};
+
+enum NA_Says {
+    SAY_ASK_FOR_HELP = 0,
+    SAY_HEAL_INFANTRY = 0,
+};
+
+enum NA_Spells {
+    SPELL_FLASH_HEAL                        = 17843,
+    SPELL_PRAYER_OF_HEALING                 = 93091,
+    SPELL_RENEW                             = 93094,
+};
+
+struct npc_stormwind_infantry : public ScriptedAI
+{
+    npc_stormwind_infantry(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_ASK_FOR_HELP, Seconds(urand(1, 10) * 10));
+    }
+
+    void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+    {
+        if (target->ToCreature() && target->ToCreature()->GetEntry()==NPC_BLACKROCK_WORG)
+            if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
+                damage = 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // No UpdateVictim() here on purpose
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ASK_FOR_HELP:
+                    Talk(SAY_ASK_FOR_HELP);
+                    _events.ScheduleEvent(EVENT_ASK_FOR_HELP, Seconds(urand(3, 10) * 10));
+                    _events.ScheduleEvent(EVENT_HEAL_INFANTRY, 2s);
+                    break;
+                case EVENT_HEAL_INFANTRY:
+                    if (Creature* paxton = me->FindNearestCreature(NPC_BROTHER_PAXTON, 30.0f, true))
+                    {
+                        if (!paxton->HasUnitState(UNIT_STATE_CASTING))
+                        {
+                            paxton->AI()->Talk(SAY_HEAL_INFANTRY, me);
+                            if (me->GetHealthPct() <= 85)
+                            {
+                                paxton->StopMoving();
+                                switch (urand(0, 2))
+                                {
+                                    case 0: // Prayer of Healing
+                                        paxton->CastSpell(paxton, SPELL_PRAYER_OF_HEALING);
+                                        break;
+                                    case 1: // Renew
+                                        paxton->SetFacingToObject(me);
+                                        paxton->CastSpell(me, SPELL_RENEW);
+                                        break;
+                                    case 2: // Flash Heal
+                                        paxton->SetFacingToObject(me);
+                                        paxton->CastSpell(me, SPELL_FLASH_HEAL);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_blackrock_worg : public ScriptedAI
+{
+    npc_blackrock_worg(Creature* creature) : ScriptedAI(creature), _isAttackingInfantry(false) { }
+
+    void Reset() override
+    {
+        me->m_Events.AddEventAtOffset([this]
+        {
+            if (Creature* infantry = me->FindNearestCreature(NPC_STORWIND_INFANTRY, 15.0f, true))
+            {
+                _isAttackingInfantry = true;
+                _infantryGUID = infantry->GetGUID();
+                AttackStart(infantry);
+
+                if (infantry->IsAIEnabled())
+                    infantry->AI()->AttackStart(me);
+            }
+        }, 1s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* infantry = ObjectAccessor::GetCreature(*me, _infantryGUID))
+            infantry->AI()->EnterEvadeMode();
+    }
+    void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+    {
+        if (target->ToCreature() && target->ToCreature()->GetEntry()==NPC_STORWIND_INFANTRY)
+            if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
+                damage = 0;
+    }
+
+    void DamageTaken(Unit* attacker, uint32& /*damage*/, DamageEffectType /* effectType */, const SpellInfo* /* info */) override
+    {
+        if (attacker && attacker->GetEntry() != NPC_STORWIND_INFANTRY)
+            _isAttackingInfantry = false;
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!_isAttackingInfantry && !UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _infantryGUID;
+    bool _isAttackingInfantry;
+};
+
 void AddSC_elwynn_forest()
 {
     RegisterCreatureAI(npc_cameron);
+    RegisterCreatureAI(npc_stormwind_infantry);
+    RegisterCreatureAI(npc_blackrock_worg);
 }
