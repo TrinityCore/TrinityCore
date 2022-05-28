@@ -37,6 +37,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "SmartScript.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
@@ -829,6 +830,10 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
     }
 
     sScriptMgr->OnPlayerChoiceResponse(GetPlayer(), choiceResponse.ChoiceID, choiceResponse.ResponseIdentifier);
+
+    SmartScript smartScript;
+    smartScript.OnInitialize(nullptr, nullptr, nullptr, nullptr, playerChoice);
+    smartScript.ProcessEventsFor(SMART_EVENT_ON_PLAYER_CHOICE_RESPONSE, GetPlayer(), choiceResponse.ResponseIdentifier);
 
     if (playerChoiceResponse->Reward)
     {

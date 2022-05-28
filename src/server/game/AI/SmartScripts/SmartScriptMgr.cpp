@@ -243,6 +243,16 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
+                case SMART_SCRIPT_TYPE_PLAYER_CHOICE:
+                {
+                    if (!sObjectMgr->GetPlayerChoice(static_cast<uint32>(temp.entryOrGuid)))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: PlayerChoice id (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        break;
+                    }
+
+                    break;
+                }
                 default:
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: not yet implemented source_type %u", (uint32)source_type);
                     continue;
@@ -518,6 +528,7 @@ SmartScriptHolder& SmartAIMgr::FindLinkedEvent(SmartAIEventList& list, uint32 li
         case SMART_EVENT_SCENE_TRIGGER:
         case SMART_EVENT_SCENE_CANCEL:
         case SMART_EVENT_SCENE_COMPLETE:
+        case SMART_EVENT_ON_PLAYER_CHOICE_RESPONSE:
             return true;
         default:
             return false;
@@ -844,6 +855,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_PLAYER_CHOICE_RESPONSE: return sizeof(SmartEvent::playerChoice);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1445,6 +1457,18 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
                 break;
+            case SMART_EVENT_ON_PLAYER_CHOICE_RESPONSE:
+            {
+                if (PlayerChoice const* choice = sObjectMgr->GetPlayerChoice(e.entryOrGuid))
+                {
+                    if (!choice->GetResponseByIdentifier(e.event.playerChoice.responseId))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_ON_PLAYER_CHOICE_RESPONSE using invalid Response id %u, skipped.", e.event.playerChoice.responseId);
+                        return false;
+                    }
+                }
+                break;
+            }
             case SMART_EVENT_QUEST_ACCEPTED:
             case SMART_EVENT_QUEST_COMPLETION:
             case SMART_EVENT_QUEST_REWARDED:

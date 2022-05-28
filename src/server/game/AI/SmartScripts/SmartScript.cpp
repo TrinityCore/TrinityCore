@@ -51,6 +51,7 @@ SmartScript::SmartScript()
     areaTrigger = nullptr;
     sceneTemplate = nullptr;
     quest = nullptr;
+    playerChoice = nullptr;
     mEventPhase = 0;
     mPathId = 0;
     mTextTimer = 0;
@@ -3119,6 +3120,12 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 ProcessAction(e, unit);
             break;
         }
+        case SMART_EVENT_ON_PLAYER_CHOICE_RESPONSE:
+        {
+            if (e.event.playerChoice.responseId == var0)
+                ProcessAction(e, unit, var0, var1);
+            break;
+        }
         //no params
         case SMART_EVENT_AGGRO:
         case SMART_EVENT_DEATH:
@@ -3977,7 +3984,7 @@ void SmartScript::GetScript()
     }
 }
 
-void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* qst)
+void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* qst, PlayerChoice const* choice)
 {
     if (obj)//handle object based scripts
     {
@@ -4025,6 +4032,12 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
         mScriptType = SMART_SCRIPT_TYPE_QUEST;
         quest = qst;
         TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is Quest with id %u", qst->GetQuestId());
+    }
+    else if (playerChoice)
+    {
+        mScriptType = SMART_SCRIPT_TYPE_PLAYER_CHOICE;
+        playerChoice = choice;
+        TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is PlayerChoice with id %u", playerChoice->ChoiceId);
     }
     else
     {

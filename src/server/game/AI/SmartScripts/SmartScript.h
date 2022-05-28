@@ -38,7 +38,7 @@ class TC_GAME_API SmartScript
         SmartScript();
         ~SmartScript();
 
-        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr, Quest const* qst = nullptr);
+        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr, Quest const* qst = nullptr, PlayerChoice const* choice = nullptr);
         void GetScript();
         void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* quest);
 
@@ -123,6 +123,7 @@ class TC_GAME_API SmartScript
         AreaTrigger* areaTrigger;
         SceneTemplate const* sceneTemplate;
         Quest const* quest;
+        PlayerChoice const* playerChoice;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 
