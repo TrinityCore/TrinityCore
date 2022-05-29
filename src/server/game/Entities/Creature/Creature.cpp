@@ -2544,7 +2544,7 @@ bool Creature::LoadCreaturesAddon()
         // 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
 
         SetSheath(SheathState(cainfo->bytes2 & 0xFF));
-        ReplaceAllPvpFlags(UNIT_BYTE2_FLAG_NONE);
+        ReplaceAllPvpFlags(UnitPVPStateFlags((cainfo->bytes2 >> 8) & 0xFF));
         ReplaceAllPetFlags(UNIT_PET_FLAG_NONE);
         SetShapeshiftForm(FORM_NONE);
     }
