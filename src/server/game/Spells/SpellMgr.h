@@ -764,8 +764,6 @@ class TC_GAME_API SpellMgr
 
         uint32 GetModelForTotem(uint32 spellId, uint8 race) const;
 
-        BattlePetSpeciesEntry const* GetBattlePetSpecies(uint32 spellId) const;
-
     // Modifiers
     public:
 
@@ -823,7 +821,6 @@ class TC_GAME_API SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellTotemModelMap         mSpellTotemModel;
-        std::unordered_map<uint32, BattlePetSpeciesEntry const*> mBattlePets;
 };
 
 #define sSpellMgr SpellMgr::instance()

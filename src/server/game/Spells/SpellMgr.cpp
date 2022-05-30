@@ -2438,12 +2438,6 @@ void SpellMgr::LoadSpellInfoStore()
 
     std::unordered_map<std::pair<uint32, Difficulty>, SpellInfoLoadHelper> loadData;
 
-    std::unordered_map<int32, BattlePetSpeciesEntry const*> battlePetSpeciesByCreature;
-    std::unordered_map<uint32, BattlePetSpeciesEntry const*> battlePetSpeciesBySpellId;
-    for (BattlePetSpeciesEntry const* battlePetSpecies : sBattlePetSpeciesStore)
-        if (battlePetSpecies->CreatureID)
-            battlePetSpeciesByCreature[battlePetSpecies->CreatureID] = battlePetSpecies;
-
     for (SpellEffectEntry const* effect : sSpellEffectStore)
     {
         ASSERT(effect->EffectIndex < MAX_SPELL_EFFECTS, "MAX_SPELL_EFFECTS must be at least %d", effect->EffectIndex + 1);
@@ -2453,12 +2447,6 @@ void SpellMgr::LoadSpellInfoStore()
         ASSERT(effect->ImplicitTarget[1] < TOTAL_SPELL_TARGETS, "TOTAL_SPELL_TARGETS must be at least %u", effect->ImplicitTarget[1] + 1);
 
         loadData[{ effect->SpellID, Difficulty(effect->DifficultyID) }].Effects[effect->EffectIndex] = effect;
-
-        if (effect->Effect == SPELL_EFFECT_SUMMON)
-            if (SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(effect->EffectMiscValue[1]))
-                if (summonProperties->Slot == SUMMON_SLOT_MINIPET && summonProperties->GetFlags().HasFlag(SummonPropertiesFlags::SummonFromBattlePetJournal))
-                    if (BattlePetSpeciesEntry const* battlePetSpecies = Trinity::Containers::MapGetValuePtr(battlePetSpeciesByCreature, effect->EffectMiscValue[0]))
-                        mBattlePets[effect->SpellID] = battlePetSpecies;
 
         if (effect->Effect == SPELL_EFFECT_LANGUAGE)
             sLanguageMgr->LoadSpellEffectLanguage(effect);
@@ -4844,9 +4832,4 @@ uint32 SpellMgr::GetModelForTotem(uint32 spellId, uint8 race) const
         return itr->second;
 
     return 0;
-}
-
-BattlePetSpeciesEntry const* SpellMgr::GetBattlePetSpecies(uint32 spellId) const
-{
-    return Trinity::Containers::MapGetValuePtr(mBattlePets, spellId);
 }
