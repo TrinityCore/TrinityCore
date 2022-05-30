@@ -24104,11 +24104,11 @@ bool Player::IsNeverVisibleFor(WorldObject const* seer) const
     return false;
 }
 
-bool Player::CanNeverSee(WorldObject const* /*obj*/) const
+bool Player::CanNeverSee(WorldObject const* obj) const
 {
     // the intent is to delay sending visible objects until client is ready for them
     // some gameobjects dont function correctly if they are sent before TransportServerTime is correctly set (after CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE)
-    return !HasPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME);
+    return !HasPlayerLocalFlag(PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME) || WorldObject::CanNeverSee(obj);
 }
 
 bool Player::CanAlwaysSee(WorldObject const* obj) const
