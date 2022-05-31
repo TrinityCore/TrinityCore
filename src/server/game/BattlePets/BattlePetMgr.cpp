@@ -99,13 +99,8 @@ void BattlePetMgr::Initialize()
         sObjectMgr->GetGenerator<HighGuid::BattlePet>().Set((*result)[0].GetUInt64() + 1);
 
     for (BattlePetSpeciesEntry const* battlePetSpecies : sBattlePetSpeciesStore)
-    {
         if (uint32 creatureId = battlePetSpecies->CreatureID)
             _battlePetSpeciesByCreature[creatureId] = battlePetSpecies;
-
-        if (uint32 spellId = battlePetSpecies->SummonSpellID)
-            _battlePetSpeciesByCreature[spellId] = battlePetSpecies;
-    }
 
     for (BattlePetBreedStateEntry const* battlePetBreedState : sBattlePetBreedStateStore)
         _battlePetBreedStates[battlePetBreedState->BattlePetBreedID][BattlePetState(battlePetBreedState->BattlePetStateID)] = battlePetBreedState->Value;
@@ -186,6 +181,11 @@ void BattlePetMgr::LoadDefaultPetQualities()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u battle pet qualities.", uint32(_defaultQualityPerSpecies.size()));
+}
+
+void BattlePetMgr::AddBattlePetSpeciesBySpell(uint32 spellId, BattlePetSpeciesEntry const* speciesEntry)
+{
+    _battlePetSpeciesBySpell[spellId] = speciesEntry;
 }
 
 BattlePetSpeciesEntry const* BattlePetMgr::GetBattlePetSpeciesByCreature(uint32 creatureId)
