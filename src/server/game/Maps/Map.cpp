@@ -51,6 +51,7 @@
 #include <unordered_set>
 #include <vector>
 // @tswow-begin
+#include "TSProfile.h"
 #include "TSEventLoader.h"
 #include "TSEvents.h"
 #include "TSMap.h"
@@ -775,9 +776,11 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
     ++_zonePlayerCountMap[newZone];
 }
 
+// @tswow-begin tracy
 void Map::Update(uint32 t_diff)
 {
-    // @tswow-begin
+    TC_ZONE_SCOPED(MAP_PROFILE)
+    // @tswow-begin tswow-events
     m_tsWorldEntity.tick(TSMap(this));
     FIRE_MAP(
           GetExtraData()->events
@@ -785,24 +788,29 @@ void Map::Update(uint32 t_diff)
         , TSMap(this)
         , t_diff
         );
-    // @tswow-end
+    // @tswow-end tswow-events
     _dynamicTree.update(t_diff);
-    /// update worldsessions for existing players
-    for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
+
     {
-        Player* player = m_mapRefIter->GetSource();
-        if (player && player->IsInWorld())
+        TC_ZONE_SCOPED_N(MAP_PROFILE,"UpdateWorldSessions")
+        /// update worldsessions for existing players
+        for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
         {
-            //player->Update(t_diff);
-            WorldSession* session = player->GetSession();
-            MapSessionFilter updater(session);
-            session->Update(t_diff, updater);
+            Player* player = m_mapRefIter->GetSource();
+            if (player && player->IsInWorld())
+            {
+                //player->Update(t_diff);
+                WorldSession* session = player->GetSession();
+                MapSessionFilter updater(session);
+                session->Update(t_diff, updater);
+            }
         }
     }
 
     /// process any due respawns
     if (_respawnCheckTimer <= t_diff)
     {
+        TC_ZONE_SCOPED_N(MAP_PROFILE,"ProcessRespawns")
         ProcessRespawns();
         _respawnCheckTimer = sWorld->getIntConfig(CONFIG_RESPAWN_MINCHECKINTERVALMS);
     }
@@ -818,91 +826,107 @@ void Map::Update(uint32 t_diff)
     // for pets
     TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
 
-    // the player iterator is stored in the map object
-    // to make sure calls to Map::Remove don't invalidate it
-    for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
-        Player* player = m_mapRefIter->GetSource();
-
-        if (!player || !player->IsInWorld())
-            continue;
-
-        // update players at tick
-        player->Update(t_diff);
-
-        VisitNearbyCellsOf(player, grid_object_update, world_object_update);
-
-        // If player is using far sight or mind vision, visit that object too
-        if (WorldObject* viewPoint = player->GetViewpoint())
-            VisitNearbyCellsOf(viewPoint, grid_object_update, world_object_update);
-
-        // Handle updates for creatures in combat with player and are more than 60 yards away
-        if (player->IsInCombat())
+            TC_ZONE_SCOPED_N(MAP_PROFILE, "EntityUpdates");
         {
-            std::vector<Unit*> toVisit;
-            for (auto const& pair : player->GetCombatManager().GetPvECombatRefs())
-                if (Creature* unit = pair.second->GetOther(player)->ToCreature())
-                    if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
-                        toVisit.push_back(unit);
-            for (Unit* unit : toVisit)
-                VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
-        }
-
-        { // Update any creatures that own auras the player has applications of
-            std::unordered_set<Unit*> toVisit;
-            for (std::pair<uint32, AuraApplication*> pair : player->GetAppliedAuras())
+            TC_ZONE_SCOPED_N(MAP_PROFILE, "EntityUpdates(Source:Players)");
+            // the player iterator is stored in the map object
+            // to make sure calls to Map::Remove don't invalidate it
+            for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
             {
-                if (Unit* caster = pair.second->GetBase()->GetCaster())
-                    if (caster->GetTypeId() != TYPEID_PLAYER && !caster->IsWithinDistInMap(player, GetVisibilityRange(), false))
-                        toVisit.insert(caster);
+                Player* player = m_mapRefIter->GetSource();
+
+                if (!player || !player->IsInWorld())
+                    continue;
+
+                // update players at tick
+                player->Update(t_diff);
+
+                VisitNearbyCellsOf(player, grid_object_update, world_object_update);
+
+                // If player is using far sight or mind vision, visit that object too
+                if (WorldObject* viewPoint = player->GetViewpoint())
+                    VisitNearbyCellsOf(viewPoint, grid_object_update, world_object_update);
+
+                // Handle updates for creatures in combat with player and are more than 60 yards away
+                if (player->IsInCombat())
+                {
+                    std::vector<Unit*> toVisit;
+                    for (auto const& pair : player->GetCombatManager().GetPvECombatRefs())
+                        if (Creature* unit = pair.second->GetOther(player)->ToCreature())
+                            if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                                toVisit.push_back(unit);
+                    for (Unit* unit : toVisit)
+                        VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+                }
+
+                { // Update any creatures that own auras the player has applications of
+                    std::unordered_set<Unit*> toVisit;
+                    for (std::pair<uint32, AuraApplication*> pair : player->GetAppliedAuras())
+                    {
+                        if (Unit* caster = pair.second->GetBase()->GetCaster())
+                            if (caster->GetTypeId() != TYPEID_PLAYER && !caster->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                                toVisit.insert(caster);
+                    }
+                    for (Unit* unit : toVisit)
+                        VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+                }
+
+                { // Update player's summons
+                    std::vector<Unit*> toVisit;
+
+                    // Totems
+                    for (ObjectGuid const& summonGuid : player->m_SummonSlot)
+                        if (summonGuid)
+                            if (Creature* unit = GetCreature(summonGuid))
+                                if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                                    toVisit.push_back(unit);
+
+                    for (Unit* unit : toVisit)
+                        VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+                }
             }
-            for (Unit* unit : toVisit)
-                VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
         }
 
-        { // Update player's summons
-            std::vector<Unit*> toVisit;
+        {
+            TC_ZONE_SCOPED_N(MAP_PROFILE, "EntityUpdates(Source:Active Objects)");
+            // non-player active objects, increasing iterator in the loop in case of object removal
+            for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end();)
+            {
+                WorldObject* obj = *m_activeNonPlayersIter;
+                ++m_activeNonPlayersIter;
 
-            // Totems
-            for (ObjectGuid const& summonGuid : player->m_SummonSlot)
-                if (summonGuid)
-                    if (Creature* unit = GetCreature(summonGuid))
-                        if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
-                            toVisit.push_back(unit);
+                if (!obj || !obj->IsInWorld())
+                    continue;
 
-            for (Unit* unit : toVisit)
-                VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+                VisitNearbyCellsOf(obj, grid_object_update, world_object_update);
+            }
         }
     }
 
-    // non-player active objects, increasing iterator in the loop in case of object removal
-    for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end();)
     {
-        WorldObject* obj = *m_activeNonPlayersIter;
-        ++m_activeNonPlayersIter;
+        TC_ZONE_SCOPED_N(MAP_PROFILE, "TransportUpdates")
+        for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
+        {
+            WorldObject* obj = *_transportsUpdateIter;
+            ++_transportsUpdateIter;
 
-        if (!obj || !obj->IsInWorld())
-            continue;
+            if (!obj->IsInWorld())
+                continue;
 
-        VisitNearbyCellsOf(obj, grid_object_update, world_object_update);
+            obj->Update(t_diff);
+        }
     }
 
-    for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
     {
-        WorldObject* obj = *_transportsUpdateIter;
-        ++_transportsUpdateIter;
-
-        if (!obj->IsInWorld())
-            continue;
-
-        obj->Update(t_diff);
+        TC_ZONE_SCOPED_N(MAP_PROFILE, "Map::SendObjectUpdates")
+        SendObjectUpdates();
     }
-
-    SendObjectUpdates();
 
     ///- Process necessary scripts
     if (!m_scriptSchedule.empty())
     {
+        TC_ZONE_SCOPED_N(MAP_PROFILE, "Map::ScriptsProcess")
         i_scriptLock = true;
         ScriptsProcess();
         i_scriptLock = false;
@@ -911,6 +935,7 @@ void Map::Update(uint32 t_diff)
     _weatherUpdateTimer.Update(t_diff);
     if (_weatherUpdateTimer.Passed())
     {
+        TC_ZONE_SCOPED_N(MAP_PROFILE, "Update Weather")
         for (auto&& zoneInfo : _zoneDynamicInfo)
             if (zoneInfo.second.DefaultWeather && !zoneInfo.second.DefaultWeather->Update(_weatherUpdateTimer.GetInterval()))
                 zoneInfo.second.DefaultWeather.reset();
@@ -918,13 +943,22 @@ void Map::Update(uint32 t_diff)
         _weatherUpdateTimer.Reset();
     }
 
-    MoveAllCreaturesInMoveList();
-    MoveAllGameObjectsInMoveList();
+    {
+        TC_ZONE_SCOPED_N(MAP_PROFILE, "MoveWorldObjects")
+        MoveAllCreaturesInMoveList();
+        MoveAllGameObjectsInMoveList();
+    }
 
     if (!m_mapRefManager.isEmpty() || !m_activeNonPlayers.empty())
+    {
+        TC_ZONE_SCOPED_N(MAP_PROFILE, "Map::ProcessRelocationNotifies")
         ProcessRelocationNotifies(t_diff);
+    }
 
-    sScriptMgr->OnMapUpdate(this, t_diff);
+    {
+        TC_ZONE_SCOPED_N(MAP_PROFILE, "ScriptMgr::OnMapUpdate")
+        sScriptMgr->OnMapUpdate(this, t_diff);
+    }
 
     TC_METRIC_VALUE("map_creatures", uint64(GetObjectsStore().Size<Creature>()),
         TC_METRIC_TAG("map_id", std::to_string(GetId())),
@@ -934,6 +968,7 @@ void Map::Update(uint32 t_diff)
         TC_METRIC_TAG("map_id", std::to_string(GetId())),
         TC_METRIC_TAG("map_instanceid", std::to_string(GetInstanceId())));
 }
+// @tswow-end tracy
 
 struct ResetNotifier
 {

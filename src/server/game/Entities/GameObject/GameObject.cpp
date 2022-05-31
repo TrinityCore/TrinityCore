@@ -45,6 +45,7 @@
 #include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>
 // @tswow-begin
+#include "TSProfile.h"
 #include "TSEventLoader.h"
 #include "TSPlayer.h"
 #include "TSGameObject.h"
@@ -444,6 +445,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 void GameObject::Update(uint32 diff)
 {
     // @tswow-begin
+    TC_ZONE_SCOPED(ENTITY_PROFILE)
     m_tsWorldEntity.tick(TSWorldObject(this));
     m_tsCollisions.Tick(TSWorldObject(this));
     FIRE_MAP(this->GetGOInfo()->events,GameObjectOnUpdate,TSGameObject(this),diff);

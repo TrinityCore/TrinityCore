@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// @tswow-begin
+#include "TSProfile.hpp"
+// @tswow-end
 #include "MapUpdater.h"
 #include "DatabaseEnv.h"
 #include "Map.h"
@@ -49,7 +52,9 @@ void MapUpdater::activate(size_t num_threads)
 {
     for (size_t i = 0; i < num_threads; ++i)
     {
-        _workerThreads.push_back(std::thread(&MapUpdater::WorkerThread, this));
+        // @tswow-begin label map thread
+        _workerThreads.push_back(std::thread(&MapUpdater::WorkerThread, this, i));
+        // @tswow-end
     }
 }
 
@@ -100,8 +105,12 @@ void MapUpdater::update_finished()
     _condition.notify_all();
 }
 
-void MapUpdater::WorkerThread()
+// @tswow-begin tracy thread name
+void MapUpdater::WorkerThread(int id)
 {
+    std::string name = "Map Update " + std::to_string(id);
+    tracy::SetThreadName(name.c_str());
+// @tswow-end tracy thread name
     LoginDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);

@@ -107,6 +107,7 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 // @tswow-begin
+#include "TSProfile.h"
 #include "TSEvents.h"
 #include "TSQuest.h"
 #include "TSPlayer.h"
@@ -1022,6 +1023,7 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
 
 void Player::Update(uint32 p_time)
 {
+    TC_ZONE_SCOPED(ENTITY_PROFILE) // @tswow-line tracy
     if (!IsInWorld())
         return;
 

@@ -23,6 +23,7 @@ include(FetchContent)
 
 SET(LUA_ROOT ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src)
 file(GLOB SRC_LUA ${LUA_ROOT}/*.h ${LUA_ROOT}/*.c)
+LIST(REMOVE_ITEM SRC_LUA ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src/lua.c)
 add_library ( liblua ${SRC_LUA} )
 if(NOT WIN32)
     target_compile_options(liblua PUBLIC -fPIC)
@@ -64,6 +65,36 @@ target_include_directories(sourcemaps PUBLIC
 if(NOT WIN32)
     target_compile_options(sourcemaps PUBLIC -fPIC)
 endif()
+
+#
+# tracy
+#
+SET(TRACY_ON_DEMAND ON CACHE BOOL "")
+FetchContent_Declare (
+  tracy
+  GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+  GIT_TAG 80f6a93da79af94fc4604e37439f5a75d5e7dfbd
+  GIT_SHALLOW TRUE
+  GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable (tracy)
+target_compile_definitions(TracyClient
+  PRIVATE
+  TRACY_DATA_PORT=8084
+  TRACY_ON_DEMAND=1
+)
+
+function(add_tracy_categories tgt)
+  if(TRACY_CATEGORIES)
+    foreach(category ${TRACY_CATEGORIES})
+      target_compile_definitions(${tgt}
+        PRIVATE
+        "PROFILE_${category}=1"
+      )
+    endforeach()
+  endif()
+endfunction()
+add_tracy_categories(TracyClient)
 
 #
 # tswow

@@ -80,6 +80,7 @@
 #include "WorldSession.h"
 #include <cmath>
 // @tswow-begin
+#include "TSProfile.h"
 #include "TSEventLoader.h"
 #include "TSDamageInfo.h"
 #include "TSUnit.h"
@@ -439,6 +440,7 @@ Unit::~Unit()
 void Unit::Update(uint32 p_time)
 {
     // @tswow-begin
+    TC_ZONE_SCOPED(ENTITY_PROFILE)
     m_tsWorldEntity.tick(TSWorldObject(this));
     m_tsCollisions.Tick(TSWorldObject(this));
     // @tswow-end

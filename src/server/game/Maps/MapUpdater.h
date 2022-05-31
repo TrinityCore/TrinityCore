@@ -59,7 +59,9 @@ class TC_GAME_API MapUpdater
 
         void update_finished();
 
-        void WorkerThread();
+        // @tswow-begin thread id for tracy
+        void WorkerThread(int id);
+        // @tswow-end
 };
 
 #endif //_MAP_UPDATER_H_INCLUDED

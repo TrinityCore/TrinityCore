@@ -21,6 +21,7 @@
 
 // @tswow-begin
 #include "TSLibLoader.h"
+#include "TSProfile.h"
 // @tswow-end
 #include "Common.h"
 #include "AppenderDB.h"
@@ -380,7 +381,17 @@ extern int main(int argc, char** argv)
         FreezeDetector::Start(freezeDetector);
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
-
+    // @tswow-begin
+    TC_LOG_INFO(
+        "server.worldserver",
+        "Tracy: "
+#ifdef TRACY_ENABLE
+        "Enabled"
+#else
+        "Disabled"
+#endif
+    );
+    // @tswow-end
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
@@ -480,6 +491,7 @@ void ShutdownCLIThread(std::thread* cliThread)
 
 void WorldUpdateLoop()
 {
+    tracy::SetThreadName("Main"); // @tswow-line tracy
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
