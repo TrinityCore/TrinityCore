@@ -384,6 +384,31 @@ LOCK TABLES `battlenet_account_toys` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battlenet_account_transmog_illusions`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_transmog_illusions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_transmog_illusions` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `blobIndex` smallint unsigned NOT NULL,
+  `illusionMask` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`battlenetAccountId`,`blobIndex`),
+  CONSTRAINT `battlenet_account_transmog_illusions_ibfk_1` FOREIGN KEY (`battlenetAccountId`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_transmog_illusions`
+--
+
+LOCK TABLES `battlenet_account_transmog_illusions` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_transmog_illusions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_transmog_illusions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battlenet_accounts`
 --
 
@@ -2572,7 +2597,8 @@ INSERT INTO `updates` VALUES
 ('2022_06_01_00_auth.sql','DCFC7EC6C52993769B568EAF87CA2DAA10359AEB','RELEASED','2022-06-02 00:52:17',0),
 ('2022_06_06_00_auth.sql','68D73F068598D37FD6FBC84362F1BA7BA4EC2709','RELEASED','2022-06-06 21:35:16',0),
 ('2022_06_07_00_auth.sql','76B4D21F13B0024445E5C0B48C630C1DF7E80966','RELEASED','2022-06-07 16:09:58',0),
-('2022_06_08_00_auth.sql','250081465C76AC9668E3F66D386CE2AAC05379E9','RELEASED','2022-06-08 10:45:01',0);
+('2022_06_08_00_auth.sql','250081465C76AC9668E3F66D386CE2AAC05379E9','RELEASED','2022-06-08 10:45:01',0),
+('2022_06_09_00_auth.sql','29C2A4209FB977373440666F00B2E04F0E095247','RELEASED','2022-06-09 18:31:38',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
