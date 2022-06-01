@@ -37,7 +37,7 @@ WorldPacket const* GarrisonDeleteResult::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, GarrisonPlotInfo& plotInfo)
+ByteBuffer& operator<<(ByteBuffer& data, GarrisonPlotInfo const& plotInfo)
 {
     data << uint32(plotInfo.GarrPlotInstanceID);
     data << plotInfo.PlotPos;
@@ -87,19 +87,18 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonFollower const& follower)
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, GarrisonMission const& mission)
+ByteBuffer& operator<<(ByteBuffer& data, GarrisonEncounter const& encounter)
 {
-    data << uint64(mission.DbID);
-    data << mission.OfferTime;
-    data << mission.OfferDuration;
-    data << mission.StartTime;
-    data << mission.TravelDuration;
-    data << mission.MissionDuration;
-    data << uint32(mission.MissionRecID);
-    data << uint32(mission.MissionState);
-    data << uint32(mission.SuccessChance);
-    data << uint32(mission.Flags);
-    data << float(mission.MissionScalar);
+    data << int32(encounter.GarrEncounterID);
+    data << uint32(encounter.Mechanics.size());
+    data << int32(encounter.GarrAutoCombatantID);
+    data << int32(encounter.Health);
+    data << int32(encounter.MaxHealth);
+    data << int32(encounter.Attack);
+    data << int8(encounter.BoardIndex);
+
+    if (!encounter.Mechanics.empty())
+        data.append(encounter.Mechanics.data(), encounter.Mechanics.size());
 
     return data;
 }
@@ -118,6 +117,36 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonMissionReward const& missionRew
 
     if (missionRewardItem.ItemInstance)
         data << *missionRewardItem.ItemInstance;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, GarrisonMission const& mission)
+{
+    data << uint64(mission.DbID);
+    data << int32(mission.MissionRecID);
+    data << mission.OfferTime;
+    data << mission.OfferDuration;
+    data << mission.StartTime;
+    data << mission.TravelDuration;
+    data << mission.MissionDuration;
+    data << int32(mission.MissionState);
+    data << int32(mission.SuccessChance);
+    data << uint32(mission.Flags);
+    data << float(mission.MissionScalar);
+    data << int32(mission.ContentTuningID);
+    data << uint32(mission.Encounters.size());
+    data << uint32(mission.Rewards.size());
+    data << uint32(mission.OvermaxRewards.size());
+
+    for (GarrisonEncounter const& encounter : mission.Encounters)
+        data << encounter;
+
+    for (GarrisonMissionReward const& missionRewardItem : mission.Rewards)
+        data << missionRewardItem;
+
+    for (GarrisonMissionReward const& missionRewardItem : mission.OvermaxRewards)
+        data << missionRewardItem;
 
     return data;
 }
@@ -227,9 +256,6 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     for (GarrisonPlotInfo* plot : garrison.Plots)
         data << *plot;
 
-    for (GarrisonMission const* mission : garrison.Missions)
-        data << *mission;
-
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
         data << uint32(missionReward.size());
 
@@ -264,6 +290,9 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
 
     for (GarrisonFollower const* follower : garrison.AutoTroops)
         data << *follower;
+
+    for (GarrisonMission const* mission : garrison.Missions)
+        data << *mission;
 
     for (GarrisonTalent const& talent : garrison.Talents)
         data << talent;
@@ -395,7 +424,7 @@ WorldPacket const* GarrisonRequestBlueprintAndSpecializationDataResult::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, GarrisonBuildingMapData& building)
+ByteBuffer& operator<<(ByteBuffer& data, GarrisonBuildingMapData const& building)
 {
     data << uint32(building.GarrBuildingPlotInstID);
     data << building.Pos;

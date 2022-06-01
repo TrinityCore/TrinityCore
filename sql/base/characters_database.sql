@@ -2063,7 +2063,9 @@ CREATE TABLE `gm_complaint` (
   `posZ` float NOT NULL DEFAULT '0',
   `facing` float NOT NULL DEFAULT '0',
   `targetCharacterGuid` bigint unsigned NOT NULL,
-  `complaintType` smallint unsigned NOT NULL,
+  `reportType` int NOT NULL DEFAULT '0',
+  `reportMajorCategory` int NOT NULL DEFAULT '0',
+  `reportMinorCategoryFlags` int NOT NULL DEFAULT '0',
   `reportLineIndex` int NOT NULL,
   `closedBy` bigint NOT NULL DEFAULT '0',
   `assignedTo` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'GUID of admin to whom ticket is assigned',
@@ -3667,7 +3669,8 @@ INSERT INTO `updates` VALUES
 ('2022_01_31_02_characters.sql','6E3A3F02276287DD540BC4C17E246DFB850260D8','ARCHIVED','2022-01-31 21:43:38',0),
 ('2022_02_28_00_characters_2020_09_27_00_characters.sql','2292A1ED0E7F46DEC41384F75FA6D9461464EEB8','ARCHIVED','2022-02-28 12:43:58',0),
 ('2022_03_06_00_characters.sql','474AAF9D03E6A56017899C968DC9875368301934','ARCHIVED','2022-03-06 15:12:24',0),
-('2022_03_11_00_characters_2021_07_18_00_characters.sql','0BA579ED21F4E75AC2B4797421B5029568B3F6E2','RELEASED','2022-03-11 18:56:07',0);
+('2022_03_11_00_characters_2021_07_18_00_characters.sql','0BA579ED21F4E75AC2B4797421B5029568B3F6E2','RELEASED','2022-03-11 18:56:07',0),
+('2022_06_01_00_characters.sql','582AC6E256F8365F83AB70BA165CCC8B218E19FF','RELEASED','2022-06-01 21:16:56',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

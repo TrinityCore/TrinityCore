@@ -579,6 +579,35 @@ void WorldSession::HandleAuctionReplicateItems(WorldPackets::AuctionHouse::Aucti
     SendPacket(response.Write());
 }
 
+void WorldSession::HandleAuctionRequestFavoriteList(WorldPackets::AuctionHouse::AuctionRequestFavoriteList& /*requestFavoriteList*/)
+{
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_FAVORITE_AUCTIONS);
+    stmt->setUInt64(0, _player->GetGUID().GetCounter());
+    GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(stmt)).WithPreparedCallback([this](PreparedQueryResult favoriteAuctionResult)
+    {
+        WorldPackets::AuctionHouse::AuctionFavoriteList favoriteItems;
+        if (favoriteAuctionResult)
+        {
+            favoriteItems.Items.reserve(favoriteAuctionResult->GetRowCount());
+
+            do
+            {
+                Field* fields = favoriteAuctionResult->Fetch();
+
+                WorldPackets::AuctionHouse::AuctionFavoriteInfo& item = favoriteItems.Items.emplace_back();
+                item.Order = fields[0].GetUInt32();
+                item.ItemID = fields[1].GetUInt32();
+                item.ItemLevel = fields[2].GetUInt32();
+                item.BattlePetSpeciesID = fields[3].GetUInt32();
+                item.SuffixItemNameDescriptionID = fields[4].GetUInt32();
+
+            } while (favoriteAuctionResult->NextRow());
+
+        }
+        SendPacket(favoriteItems.Write());
+    });
+}
+
 void WorldSession::HandleAuctionSellCommodity(WorldPackets::AuctionHouse::AuctionSellCommodity& sellCommodity)
 {
     AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, sellCommodity.TaintedBy.has_value(), AuctionCommand::SellItem);

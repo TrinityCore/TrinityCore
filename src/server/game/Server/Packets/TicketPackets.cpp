@@ -265,8 +265,10 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
     _worldPacket >> TargetCharacterGUID;
+    _worldPacket >> ReportType;
+    _worldPacket >> MajorCategory;
+    _worldPacket >> MinorCategoryFlags;
     _worldPacket >> ChatLog;
-    ComplaintType = _worldPacket.ReadBits(5);
 
     uint32 noteLength = _worldPacket.ReadBits(10);
     bool hasMailInfo = _worldPacket.ReadBit();

@@ -112,6 +112,8 @@ namespace WorldPackets
             uint8 Level = 0;
             uint8 ClassID = 0;
             uint8 Gender = 0;
+            uint64 GuildClubMemberID = 0;
+            uint8 RaceID = 0;
             bool Authenticated = false;
             bool SorEligible = false;
             GuildRosterProfessionData Profession[2];

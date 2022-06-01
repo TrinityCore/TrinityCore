@@ -487,12 +487,9 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
 
     data << uint32(movementForce.TransportID);
     data << float(movementForce.Magnitude);
+    data << int32(movementForce.Unused910);
     data.WriteBits(AsUnderlyingType(movementForce.Type), 2);
-    data.WriteBit(movementForce.Unused910 != 0);
     data.FlushBits();
-
-    if (movementForce.Unused910)
-        data << int32(movementForce.Unused910);
 }
 
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
@@ -723,10 +720,8 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
     data >> movementForce.Direction;
     data >> movementForce.TransportID;
     data >> movementForce.Magnitude;
+    data >> movementForce.Unused910;
     movementForce.Type = MovementForceType(data.ReadBits(2));
-    bool has910 = data.ReadBit();
-    if (has910)
-        data >> movementForce.Unused910;
 
     return data;
 }

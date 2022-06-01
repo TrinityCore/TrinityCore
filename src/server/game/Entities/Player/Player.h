@@ -1483,7 +1483,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SwapItem(uint16 src, uint16 dst);
         void AddItemToBuyBackSlot(Item* pItem);
         void SetBuybackPrice(uint32 slot, uint32 price) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BuybackPrice, slot), price); }
-        void SetBuybackTimestamp(uint32 slot, uint32 timestamp) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BuybackTimestamp, slot), timestamp); }
+        void SetBuybackTimestamp(uint32 slot, time_t timestamp) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BuybackTimestamp, slot), timestamp); }
         Item* GetItemFromBuyBackSlot(uint32 slot);
         void RemoveItemFromBuyBackSlot(uint32 slot, bool del);
         void SendEquipError(InventoryResult msg, Item const* item1 = nullptr, Item const* item2 = nullptr, uint32 itemId = 0) const;

@@ -175,3 +175,10 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPackets::Social::SetContactN
     TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: %s, Notes: %s", packet.Player.Guid.ToString().c_str(), packet.Notes.c_str());
     _player->GetSocial()->SetFriendNote(packet.Player.Guid, packet.Notes);
 }
+
+void WorldSession::HandleSocialContractRequest(WorldPackets::Social::SocialContractRequest& /*socialContractRequest*/)
+{
+    WorldPackets::Social::SocialContractRequestResponse response;
+    response.ShowSocialContract = false;
+    SendPacket(response.Write());
+}

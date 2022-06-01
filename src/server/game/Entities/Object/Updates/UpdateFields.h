@@ -772,7 +772,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateFieldArray<float, 3, 585, 586> WeaponDmgMultipliers;
     UpdateFieldArray<float, 3, 585, 589> WeaponAtkSpeedMultipliers;
     UpdateFieldArray<uint32, 12, 592, 593> BuybackPrice;
-    UpdateFieldArray<uint32, 12, 592, 605> BuybackTimestamp;
+    UpdateFieldArray<int64, 12, 592, 605> BuybackTimestamp;
     UpdateFieldArray<int32, 32, 617, 618> CombatRatings;
     UpdateFieldArray<UF::PVPInfo, 6, 650, 651> PvpInfo;
     UpdateFieldArray<uint32, 4, 657, 658> NoReagentCostMask;

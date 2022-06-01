@@ -312,7 +312,7 @@ class TC_GAME_API Guild
                 Member(ObjectGuid::LowType guildId, ObjectGuid guid, GuildRankId rankId);
 
                 void SetStats(Player* player);
-                void SetStats(std::string_view name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId, uint32 reputation);
+                void SetStats(std::string_view name, uint8 level, uint8 race, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId, uint32 reputation);
                 bool CheckStats() const;
 
                 void SetPublicNote(std::string_view publicNote);
@@ -336,6 +336,7 @@ class TC_GAME_API Guild
                 float GetInactiveDays() const;
                 std::string GetPublicNote() const { return m_publicNote; }
                 std::string GetOfficerNote() const { return m_officerNote; }
+                uint8 GetRace() const { return m_race; }
                 uint8 GetClass() const { return m_class; }
                 uint8 GetGender() const { return m_gender; }
                 uint8 GetLevel() const { return m_level; }
@@ -375,6 +376,7 @@ class TC_GAME_API Guild
                 std::string m_name;
                 uint32 m_zoneId;
                 uint8 m_level;
+                uint8 m_race;
                 uint8 m_class;
                 uint8 m_gender;
                 uint8 m_flags;

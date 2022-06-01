@@ -23,6 +23,7 @@
 #include "GroupRefManager.h"
 #include "Loot.h"
 #include "Object.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 #include <map>
@@ -224,6 +225,7 @@ class TC_GAME_API Group
         {
             ObjectGuid  guid;
             std::string name;
+            Races       race;
             uint8       _class;
             uint8       group;
             uint8       flags;

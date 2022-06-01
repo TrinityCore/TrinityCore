@@ -32,6 +32,7 @@ namespace WorldPackets
             int32 MapID = 0;
             TaggedPosition<::Position::XYZ> Position;
             float Facing = 0.0f;
+            int32 Program = 0;
         };
 
         class GMTicketGetSystemStatus final : public ClientPacket
@@ -115,7 +116,7 @@ namespace WorldPackets
 
         struct SupportTicketChatLog
         {
-            std::vector<SupportTicketChatLine> Lines;
+            Array<SupportTicketChatLine, 255> Lines;
             Optional<uint32> ReportLineIndex;
         };
 
@@ -141,7 +142,7 @@ namespace WorldPackets
 
         struct SupportTicketHorusChatLog
         {
-            std::vector<SupportTicketHorusChatLine> Lines;
+            Array<SupportTicketHorusChatLine, 255> Lines;
         };
 
         struct SupportTicketMailInfo
@@ -219,7 +220,9 @@ namespace WorldPackets
             SupportTicketHeader Header;
             SupportTicketChatLog ChatLog;
             ObjectGuid TargetCharacterGUID;
-            uint8 ComplaintType = 0;
+            int32 ReportType = 0;
+            int32 MajorCategory = 0;
+            int32 MinorCategoryFlags = 0;
             SupportTicketHorusChatLog HorusChatLog;
             std::string Note;
             Optional<SupportTicketMailInfo> MailInfo;
