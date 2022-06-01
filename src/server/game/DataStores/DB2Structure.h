@@ -64,7 +64,7 @@ struct AdventureJournalEntry
     LocalizedString ContinueDescription;
     uint8 Type;
     uint32 PlayerConditionID;
-    uint8 Flags;
+    int32 Flags;
     uint8 ButtonActionType;
     int32 TextureFileDataID;
     uint16 LfgDungeonID;
@@ -613,7 +613,7 @@ struct ChrClassesEntry
     uint32 SelectScreenFileDataID;
     uint32 IconFileDataID;
     uint32 LowResScreenFileDataID;
-    uint32 Flags;
+    int32 Flags;
     uint32 SpellTextureBlobFileDataID;
     uint32 RolesMask;
     uint32 ArmorTypeMask;
@@ -723,7 +723,7 @@ struct ChrModelEntry
     std::array<float, 3> FaceCustomizationOffset;
     std::array<float, 3> CustomizeOffset;
     uint32 ID;
-    int32 Sex;
+    int8 Sex;
     int32 DisplayID;
     int32 CharComponentTextureLayoutID;
     int32 Flags;
@@ -1289,7 +1289,7 @@ struct CurvePointEntry
 {
     uint32 ID;
     DBCPosition2D Pos;
-    DBCPosition2D PosPreSquish;
+    DBCPosition2D PreSLSquishPos;
     uint16 CurveID;
     uint8 OrderIndex;
 };
@@ -1984,8 +1984,8 @@ struct ItemBonusTreeNodeEntry
     uint16 ChildItemBonusTreeID;
     uint16 ChildItemBonusListID;
     uint16 ChildItemLevelSelectorID;
-    int32 ItemBonusListGroupID;
-    int32 ParentItemBonusTreeNodeID;
+    int32 ChildItemBonusListGroupID;
+    int32 IblGroupPointsModSetID;
     uint32 ParentItemBonusTreeID;
 };
 
@@ -2316,7 +2316,7 @@ struct JournalEncounterEntry
     uint16 FirstSectionID;
     uint16 UiMapID;
     uint32 MapDisplayConditionID;
-    uint8 Flags;
+    int32 Flags;
     int8 DifficultyMask;
 };
 
@@ -2335,8 +2335,8 @@ struct JournalEncounterSectionEntry
     int32 UiModelSceneID;
     int32 SpellID;
     int32 IconFileDataID;
-    uint16 Flags;
-    uint16 IconFlags;
+    int32 Flags;
+    int32 IconFlags;
     int8 DifficultyMask;
 };
 
@@ -2351,7 +2351,7 @@ struct JournalInstanceEntry
     int32 ButtonSmallFileDataID;
     int32 LoreFileDataID;
     uint8 OrderIndex;
-    uint8 Flags;
+    int32 Flags;
     uint16 AreaID;
 };
 
@@ -2400,7 +2400,7 @@ struct LFGDungeonsEntry
     LocalizedString Name;
     LocalizedString Description;
     uint8 TypeID;
-    uint8 Subtype;
+    int8 Subtype;
     int8 Faction;
     int32 IconTextureFileID;
     int32 RewardsBgTextureFileID;
@@ -2510,7 +2510,7 @@ struct MapEntry
     int16 WindSettingsID;
     int32 ZmpFileDataID;
     int32 WdtFileDataID;
-    std::array<int32, 2> Flags;
+    std::array<int32, 3> Flags;
 
     // Helpers
     uint8 Expansion() const { return ExpansionID; }
@@ -3666,9 +3666,9 @@ struct SummonPropertiesEntry
     int32 Faction;
     int32 Title;
     int32 Slot;
-    int32 Flags;
+    std::array<int32, 2> Flags;
 
-    EnumFlag<SummonPropertiesFlags> GetFlags() const { return static_cast<SummonPropertiesFlags>(Flags); }
+    EnumFlag<SummonPropertiesFlags> GetFlags() const { return static_cast<SummonPropertiesFlags>(Flags[0]); }
 };
 
 #define TACTKEY_SIZE 16

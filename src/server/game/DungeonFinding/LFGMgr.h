@@ -76,6 +76,8 @@ enum LfgType
     LFG_TYPE_NONE                                = 0,
     LFG_TYPE_DUNGEON                             = 1,
     LFG_TYPE_RAID                                = 2,
+    LFG_TYPE_QUEST                               = 3,
+    LFG_TYPE_ZONE                                = 4,
     LFG_TYPE_HEROIC                              = 5,
     LFG_TYPE_RANDOM                              = 6
 };

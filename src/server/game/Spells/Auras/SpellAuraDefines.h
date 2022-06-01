@@ -598,6 +598,10 @@ enum AuraType : uint32
     SPELL_AURA_MOD_HEALING_TAKEN_FROM_CASTER                = 504,
     SPELL_AURA_MOD_PLAYER_CHOICE_REROLLS                    = 505, // NYI
     SPELL_AURA_DISABLE_INERTIA                              = 506,
+    SPELL_AURA_507                                          = 507,
+    SPELL_AURA_508                                          = 508,
+    SPELL_AURA_509                                          = 509,
+    SPELL_AURA_MODIFIED_RAID_INSTANCE                       = 510, // Related to "Fated" raid affixes
     TOTAL_AURAS
 };
 
