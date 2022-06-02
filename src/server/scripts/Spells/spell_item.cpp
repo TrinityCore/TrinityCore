@@ -5086,7 +5086,7 @@ class spell_item_herbouflage : public AuraScript
 };
 
 // 96966, 97136 - Blaze of Life
-class spell_item_blaze_of_light : public SpellScript
+class spell_item_blaze_of_life : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -5099,7 +5099,7 @@ class spell_item_blaze_of_light : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect.Register(&spell_item_blaze_of_light::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect.Register(&spell_item_blaze_of_life::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -5238,5 +5238,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_world_queller_focus);
     RegisterSpellScript(spell_item_jom_gabbar);
     RegisterSpellScript(spell_item_satisfied);
-    RegisterSpellScript(spell_item_blaze_of_light);
+    RegisterSpellScript(spell_item_blaze_of_life);
 }
