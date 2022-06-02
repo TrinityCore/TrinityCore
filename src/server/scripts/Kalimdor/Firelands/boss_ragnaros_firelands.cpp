@@ -1537,7 +1537,10 @@ class spell_ragnaros_magma_trap_periodic : public SpellScript
             return;
 
         caster->CastSpell(nullptr, SPELL_MAGMA_TRAP_ERUPTION);
-        caster->CastSpell(nullptr, SPELL_MAGMA_TRAP_VULNERABILITY);
+
+        if (caster->GetMap()->IsHeroic())
+            caster->CastSpell(nullptr, SPELL_MAGMA_TRAP_VULNERABILITY);
+
         caster->RemoveAllAuras();
 
         if (caster->IsCreature())
