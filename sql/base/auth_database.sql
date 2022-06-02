@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.28, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.29, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	8.0.28-0ubuntu0.20.04.3
+-- Server version	8.0.29-0ubuntu0.20.04.3
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2000,7 +2000,8 @@ INSERT INTO `updates` VALUES
 ('2022_01_01_00_auth.sql','CDC8349AA1135258D66F351141C0D9AD4EE7EB14','ARCHIVED','2022-01-01 19:35:19',0),
 ('2022_01_15_00_auth.sql','A2123CEC10327ECA4C92A8B2212AEE25B43C457B','ARCHIVED','2022-01-15 18:05:55',0),
 ('2022_02_16_00_auth.sql','CFB54EB37319916B1B80E29F5572D12A7D9A33F5','ARCHIVED','2022-02-16 21:52:01',0),
-('2022_04_14_00_auth.sql','B1ED102EB7C9A2A0BDA866201960E70CCCA22FB5','ARCHIVED','2022-04-14 16:24:35',0);
+('2022_04_14_00_auth.sql','B1ED102EB7C9A2A0BDA866201960E70CCCA22FB5','ARCHIVED','2022-04-14 16:24:35',0),
+('2022_06_01_00_auth.sql','351FA0BEE4F99B4EF451D0B1B6D822376DE4C26C','ARCHIVED','2022-06-01 10:50:50',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2102,8 +2103,8 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET character_set_client      = utf8mb3 */;
+/*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 */
@@ -2120,8 +2121,8 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET character_set_client      = utf8mb3 */;
+/*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 */
@@ -2139,4 +2140,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-14 16:24:38
+-- Dump completed on 2022-06-01 10:50:53
