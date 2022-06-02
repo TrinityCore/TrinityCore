@@ -84,6 +84,12 @@ target_compile_definitions(TracyClient
   TRACY_ON_DEMAND=1
 )
 
+# note: temporary workaround until the latest server that tracy publishes
+# does this automatically via CMake.
+if(TRACY_TIMER_FALLBACK)
+  target_compile_definitions(TracyClient PRIVATE TRACY_TIMER_FALLBACK=1)
+endif()
+
 function(add_tracy_categories tgt)
   if(TRACY_CATEGORIES)
     foreach(category ${TRACY_CATEGORIES})
