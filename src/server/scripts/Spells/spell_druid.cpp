@@ -117,7 +117,8 @@ enum DruidSpells
     SPELL_DRUID_WILD_MUSHROOM               = 88747,
     SPELL_DRUID_WILD_MUSHROOM_DAMAGE        = 78777,
     SPELL_DRUID_WILD_MUSHROOM_SUICIDE       = 92853,
-    SPELL_DRUID_WILD_MUSHROOM_VISUAL        = 92701
+    SPELL_DRUID_WILD_MUSHROOM_VISUAL        = 92701,
+    SPELL_DRUID_FIREBLOOM                   = 99017
 };
 
 enum DruidSpellIconIds
@@ -2020,6 +2021,44 @@ class spell_dru_ravage : public SpellScript
     }
 };
 
+// 99015 - Item - Druid T12 Restoration 4P Bonus
+class spell_dru_t12_restoration_4p_bonus : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_FIREBLOOM });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_FIREBLOOM, CastSpellExtraArgs(aurEff).AddSpellBP0(eventInfo.GetHealInfo()->GetEffectiveHeal()));
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_dru_t12_restoration_4p_bonus::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 99017 - Firebloom
+class spell_dru_firebloom : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() < 2)
+            return;
+
+        targets.sort(Trinity::HealthPctOrderPred());
+        targets.resize(1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect.Register(&spell_dru_firebloom::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -2036,6 +2075,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_empowered_touch_script);
     RegisterSpellScript(spell_dru_enrage);
     RegisterSpellScript(spell_dru_ferocious_bite);
+    RegisterSpellScript(spell_dru_firebloom);
     RegisterSpellScript(spell_dru_frenzied_regeneration);
     RegisterSpellScript(spell_dru_glyph_of_starfire);
     RegisterSpellScript(spell_dru_glyph_of_starfire_proc);
@@ -2069,6 +2109,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_tree_of_life);
     RegisterSpellScript(spell_dru_typhoon);
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus);
+    RegisterSpellScript(spell_dru_t12_restoration_4p_bonus);
     RegisterSpellScript(spell_dru_item_t11_feral_4p_bonus);
     RegisterSpellScript(spell_dru_wild_growth);
     RegisterSpellScript(spell_dru_wild_mushroom);
