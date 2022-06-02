@@ -16,7 +16,7 @@
  */
 
 // @tswow-begin
-#include "TSProfile.hpp"
+#include "TSProfile.h"
 // @tswow-end
 #include "MapUpdater.h"
 #include "DatabaseEnv.h"

@@ -382,15 +382,11 @@ extern int main(int argc, char** argv)
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
     // @tswow-begin
-    TC_LOG_INFO(
-        "server.worldserver",
-        "Tracy: "
 #ifdef TRACY_ENABLE
-        "Enabled"
+    TC_LOG_INFO("server.worldserver", "Tracy: Enabled");
 #else
-        "Disabled"
+    TC_LOG_INFO("server.worldserver", "Tracy: Disabled");
 #endif
-    );
     // @tswow-end
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
