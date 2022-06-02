@@ -6401,7 +6401,7 @@ void ObjectMgr::LoadNPCText()
             continue;
         }
 
-        NpcText& npcText = _npcTextStore[textID];
+        NpcText npcText;
 
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
         {
@@ -6409,7 +6409,6 @@ void ObjectMgr::LoadNPCText()
             npcText.Data[i].BroadcastTextID  = fields[9 + i].GetUInt32();
         }
 
-        std::bitset<MAX_NPC_TEXT_OPTIONS> erasedBroadcastTexts;
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
             if (npcText.Data[i].BroadcastTextID)
@@ -6417,20 +6416,29 @@ void ObjectMgr::LoadNPCText()
                 if (!sBroadcastTextStore.LookupEntry(npcText.Data[i].BroadcastTextID))
                 {
                     TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a non-existing BroadcastText (ID: %u, Index: %u)", textID, npcText.Data[i].BroadcastTextID, i);
+                    npcText.Data[i].Probability = 0.0f;
                     npcText.Data[i].BroadcastTextID = 0;
-                    erasedBroadcastTexts[i] = true;
                 }
             }
         }
 
         for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; i++)
         {
-            if (npcText.Data[i].Probability > 0 && npcText.Data[i].BroadcastTextID == 0 && !erasedBroadcastTexts[i])
+            if (npcText.Data[i].Probability > 0 && npcText.Data[i].BroadcastTextID == 0)
             {
                 TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability (Index: %u) set, but no BroadcastTextID to go with it", textID, i);
                 npcText.Data[i].Probability = 0;
             }
         }
+
+        float probabilitySum = std::accumulate(std::begin(npcText.Data), std::end(npcText.Data), 0.0f, [](float sum, NpcTextData const& data) { return sum + data.Probability; });
+        if (probabilitySum <= 0.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "NPCText (ID: %u) has a probability sum 0, no text can be selected from it, skipped.", textID);
+            continue;
+        }
+
+        _npcTextStore[textID] = npcText;
     }
     while (result->NextRow());
 

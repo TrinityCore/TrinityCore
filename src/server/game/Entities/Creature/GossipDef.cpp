@@ -16,6 +16,7 @@
  */
 
 #include "GossipDef.h"
+#include "Containers.h"
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "Log.h"
@@ -213,7 +214,8 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
     WorldPackets::NPC::GossipMessage packet;
     packet.GossipGUID = objectGUID;
     packet.GossipID = _gossipMenu.GetMenuId();
-    packet.TextID = titleTextId;
+    if (NpcText const* text = sObjectMgr->GetNpcText(titleTextId))
+        packet.TextID = Trinity::Containers::SelectRandomWeightedContainerElement(text->Data, [](NpcTextData const& data) { return data.Probability; })->BroadcastTextID;
 
     packet.GossipOptions.resize(_gossipMenu.GetMenuItems().size());
     uint32 count = 0;
