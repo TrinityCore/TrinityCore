@@ -5085,6 +5085,24 @@ class spell_item_herbouflage : public AuraScript
     }
 };
 
+// 96966, 97136 - Blaze of Life
+class spell_item_blaze_of_light : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() < 2)
+            return;
+
+        targets.sort(Trinity::HealthPctOrderPred());
+        targets.resize(1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect.Register(&spell_item_blaze_of_light::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -5220,4 +5238,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_world_queller_focus);
     RegisterSpellScript(spell_item_jom_gabbar);
     RegisterSpellScript(spell_item_satisfied);
+    RegisterSpellScript(spell_item_blaze_of_light);
 }
