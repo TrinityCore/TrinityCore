@@ -24,7 +24,7 @@ include(FetchContent)
 SET(LUA_ROOT ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src)
 file(GLOB SRC_LUA ${LUA_ROOT}/*.h ${LUA_ROOT}/*.c)
 LIST(REMOVE_ITEM SRC_LUA ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src/lua.c)
-add_library ( liblua ${SRC_LUA} )
+add_library ( liblua STATIC ${SRC_LUA} )
 if(NOT WIN32)
     target_compile_options(liblua PUBLIC -fPIC)
 endif()
@@ -56,7 +56,7 @@ file(GLOB SOURCEMAP_SRC
     ${sourcemap_SOURCE_DIR}/deps/json/*
     ${sourcemap_SOURCE_DIR}/deps/cencode/*
 )
-add_library(sourcemaps ${SOURCEMAP_SRC})
+add_library(sourcemaps STATIC ${SOURCEMAP_SRC})
 target_include_directories(sourcemaps PUBLIC
     ${sourcemap_SOURCE_DIR}/src
     ${sourcemap_SOURCE_DIR}/deps/json
