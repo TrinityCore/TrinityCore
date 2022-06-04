@@ -515,6 +515,50 @@ class spell_fjord_the_way_to_his_heart_anuniaq_net : public SpellScript
     }
 };
 
+// 44455 - The Way to His Heart...: Character Script Effect Reverse Cast
+class spell_fjord_the_way_to_his_heart_reverse_cast : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_the_way_to_his_heart_reverse_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 44462 - The Way to His Heart...: Cast Quest Complete on Master
+class spell_fjord_the_way_to_his_heart_quest_complete : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_the_way_to_his_heart_quest_complete::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
@@ -527,4 +571,6 @@ void AddSC_howling_fjord()
     RegisterSpellScript(spell_fjord_the_cleansing_mirror_image_script_effect);
     RegisterSpellScript(spell_fjord_the_cleansing_on_death_cast_on_master);
     RegisterSpellScript(spell_fjord_the_way_to_his_heart_anuniaq_net);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
 }
