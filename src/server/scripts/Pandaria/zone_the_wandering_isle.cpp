@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "TaskScheduler.h"
 
 enum Aspirant
 {
