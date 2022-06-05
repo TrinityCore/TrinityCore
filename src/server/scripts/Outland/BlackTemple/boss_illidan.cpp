@@ -595,7 +595,7 @@ struct boss_illidan_stormrage : public BossAI
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetDisableGravity(true);
                 DoPlaySoundToSet(me, ILLIDAN_TAKEOFF_SOUND_ID);
@@ -625,7 +625,7 @@ struct boss_illidan_stormrage : public BossAI
                 summons.DoAction(ACTION_START_PHASE_4, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 events.ScheduleEvent(EVENT_SHADOW_PRISON_TEXT, Milliseconds(500), GROUP_PHASE_ALL);
                 break;
             case ACTION_ILLIDAN_CAGED:
@@ -638,7 +638,7 @@ struct boss_illidan_stormrage : public BossAI
                 events.Reset();
                 specialEvents.Reset();
                 DoCastSelf(SPELL_DEATH, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 events.ScheduleEvent(EVENT_DEFEATED_TEXT, 4s);
                 break;
             default:
@@ -648,7 +648,7 @@ struct boss_illidan_stormrage : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         instance->SetBossState(DATA_ILLIDAN_STORMRAGE, DONE);
         events.Reset();
     }
@@ -932,7 +932,7 @@ struct boss_illidan_stormrage : public BossAI
                     events.ScheduleEvent(EVENT_RESUME_COMBAT, Seconds(3), GROUP_PHASE_ALL);
                     break;
                 case EVENT_RESUME_COMBAT:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     ScheduleEvents(GROUP_PHASE_3, GROUP_PHASE_3);
                     if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
@@ -996,7 +996,7 @@ struct boss_illidan_stormrage : public BossAI
                     events.ScheduleEvent(EVENT_RESUME_COMBAT_PHASE_4, Seconds(13), GROUP_PHASE_ALL);
                     break;
                 case EVENT_RESUME_COMBAT_PHASE_4:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     ScheduleEvents(GROUP_PHASE_4, GROUP_PHASE_4);
                     summons.DoAction(ACTION_RESUME_COMBAT, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
@@ -1070,7 +1070,7 @@ struct npc_akama_illidan : public ScriptedAI
         {
             _instance->SetData(DATA_AKAMA, AKAMA_FIGHT);
             me->GetMotionMaster()->MoveAlongSplineChain(POINT_STAIRS, SPLINE_STAIRS, false);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                 illidan->AI()->DoAction(ACTION_INTRO_DONE);
             CloseGossipMenuFor(player);
@@ -1080,7 +1080,7 @@ struct npc_akama_illidan : public ScriptedAI
         {
             _events.SetPhase(PHASE_INTRO);
             me->GetMotionMaster()->MoveAlongSplineChain(POINT_FACE_ILLIDAN, SPLINE_FACE_ILLIDAN, false);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             CloseGossipMenuFor(player);
         }
         return false;
@@ -1105,12 +1105,12 @@ struct npc_akama_illidan : public ScriptedAI
         if (summon->GetEntry() == NPC_SPIRIT_OF_UDALO)
         {
             _spiritOfUdaloGUID = summon->GetGUID();
-            summon->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            summon->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
         else if (summon->GetEntry() == NPC_SPIRIT_OF_OLUM)
         {
             _spiritOfOlumGUID = summon->GetGUID();
-            summon->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            summon->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
     }
 
@@ -1120,7 +1120,7 @@ struct npc_akama_illidan : public ScriptedAI
         {
             case ACTION_ACTIVE_AKAMA_INTRO:
                 _events.SetPhase(PHASE_INTRO);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 _events.SetPhase(PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_TELEPORT, 1s);
                 _events.ScheduleEvent(EVENT_MOVE_TO_ILLIDARI_ROOM, Seconds(1) + Milliseconds(500));
@@ -1165,7 +1165,7 @@ struct npc_akama_illidan : public ScriptedAI
         {
             case POINT_ILLIDARI_COUNCIL:
                 Talk(SAY_AKAMA_FINISH);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 break;
             case POINT_STAIRS:
                 ChangeOrientation(6.265732f);
@@ -1174,7 +1174,7 @@ struct npc_akama_illidan : public ScriptedAI
             case POINT_ILLIDAN_ROOM:
                 ChangeOrientation(2.129302f);
                 Talk(SAY_AKAMA_BETRAYER);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 break;
             case POINT_FACE_ILLIDAN:
                 ChangeOrientation(3.140537f);
@@ -1301,7 +1301,7 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_ROAR:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                    me->SetEmoteState(EMOTE_STATE_READY1H);
                     break;
                 case EVENT_CHANGE_ORIENTATION:
                     me->SetFacingTo(_orientation);
@@ -2305,12 +2305,12 @@ class spell_maiev_down : public AuraScript
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         GetTarget()->GetAI()->DoAction(ACTION_MAIEV_DOWN_FADE);
     }
 

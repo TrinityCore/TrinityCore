@@ -190,7 +190,7 @@ struct boss_reliquary_of_souls : public BossAI
                 break;
             case ACTION_START_COMBAT:
                 _inCombat = true;
-                me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
                 events.ScheduleEvent(EVENT_SUBMERGE, 10s);
                 break;
             default:
@@ -770,12 +770,12 @@ class spell_reliquary_of_souls_submerge : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_SUBMERGED);
+        GetTarget()->SetStandState(UNIT_STAND_STATE_SUBMERGED);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+        GetTarget()->SetStandState(UNIT_STAND_STATE_STAND);
     }
 
     void Register() override

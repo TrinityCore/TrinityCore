@@ -71,7 +71,7 @@ class instance_scarlet_monastery : public InstanceMapScript
                 _horsemanState = IN_PROGRESS;
                 for (uint32 data : {DATA_PUMPKIN_SHRINE, DATA_LOOSELY_TURNED_SOIL})
                     if (GameObject* gob = GetGameObject(data))
-                        gob->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        gob->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                 instance->SummonCreature(NPC_HEADLESS_HORSEMAN_HEAD, HeadlessHorsemanHeadSpawnPosition);
                 instance->SummonCreature(NPC_FLAME_BUNNY, BunnySpawnPosition);

@@ -29,6 +29,7 @@
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
+constexpr uint8 TOMB_OF_SEVEN_BOSS_NUM = 7;
 
 enum Creatures
 {
@@ -134,7 +135,7 @@ public:
 
         uint32 BarAleCount;
         uint32 GhostKillCount;
-        ObjectGuid TombBossGUIDs[7];
+        ObjectGuid TombBossGUIDs[TOMB_OF_SEVEN_BOSS_NUM];
         ObjectGuid TombEventStarterGUID;
         uint32 TombTimer;
         uint32 TombEventCounter;
@@ -193,7 +194,7 @@ public:
                 case GO_TOMB_ENTER: GoTombEnterGUID = go->GetGUID(); break;
                 case GO_TOMB_EXIT:
                     GoTombExitGUID = go->GetGUID();
-                    if (GhostKillCount >= 7)
+                    if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     else
                         HandleGameObject(ObjectGuid::Empty, false, go);
@@ -257,7 +258,7 @@ public:
                     break;
             }
 
-            if (data == DONE || GhostKillCount >= 7)
+            if (data == DONE || GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
             {
                 OUT_SAVE_INST_DATA;
 
@@ -363,10 +364,10 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (encounter[i] == IN_PROGRESS)
                     encounter[i] = NOT_STARTED;
-            if (GhostKillCount > 0 && GhostKillCount < 7)
+            if (GhostKillCount > 0 && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
                 GhostKillCount = 0;//reset tomb of seven event
-            if (GhostKillCount >= 7)
-                GhostKillCount = 7;
+            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
+                GhostKillCount = TOMB_OF_SEVEN_BOSS_NUM;
             // @tswow-begin
             FIRE_ID(
                 instance->GetEntry()->ID
@@ -379,7 +380,7 @@ public:
 
         void TombOfSevenEvent()
         {
-            if (GhostKillCount < 7 && TombBossGUIDs[TombEventCounter])
+            if (GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM && TombBossGUIDs[TombEventCounter])
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
                 {
@@ -395,7 +396,7 @@ public:
         {
             HandleGameObject(GoTombExitGUID, false);//event reseted, close exit door
             HandleGameObject(GoTombEnterGUID, true);//event reseted, open entrance door
-            for (uint8 i = 0; i < 7; ++i)
+            for (uint8 i = 0; i < TOMB_OF_SEVEN_BOSS_NUM; ++i)
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
                 {
@@ -430,15 +431,19 @@ public:
 
         void Update(uint32 diff) override
         {
-            if (TombEventStarterGUID && GhostKillCount < 7)
+            if (TombEventStarterGUID && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
             {
                 if (TombTimer <= diff)
                 {
                     TombTimer = TIMER_TOMBOFTHESEVEN;
-                    ++TombEventCounter;
-                    TombOfSevenEvent();
+                    if (TombEventCounter < TOMB_OF_SEVEN_BOSS_NUM)
+                    {
+                        TombOfSevenEvent();
+                        ++TombEventCounter;
+                    }
+
                     // Check Killed bosses
-                    for (uint8 i = 0; i < 7; ++i)
+                    for (uint8 i = 0; i < TOMB_OF_SEVEN_BOSS_NUM; ++i)
                     {
                         if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
                         {
@@ -450,7 +455,7 @@ public:
                     }
                 } else TombTimer -= diff;
             }
-            if (GhostKillCount >= 7 && TombEventStarterGUID)
+            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM && TombEventStarterGUID)
                 TombOfSevenEnd();
             // @tswow-begin call super
             InstanceScript::Update(diff);

@@ -224,7 +224,7 @@ struct boss_kelthuzad : public BossAI
                 return;
             _Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetImmuneToPC(true);
             _skeletonCount = 0;
             _bansheeCount = 0;
@@ -429,7 +429,7 @@ struct boss_kelthuzad : public BossAI
                     case EVENT_PHASE_TWO:
                         me->CastStop();
                         events.SetPhase(PHASE_TWO);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         me->SetImmuneToPC(false);
                         ResetThreatList();
                         me->SetReactState(REACT_AGGRESSIVE);

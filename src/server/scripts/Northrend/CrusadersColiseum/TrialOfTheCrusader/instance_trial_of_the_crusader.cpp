@@ -120,6 +120,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 TributeToImmortalityEligible = true;
                 NeedSave = false;
                 CrusadersSpecialState = false;
+                TributeToDedicatedInsanity = false; // NYI, set to true when implement it
             }
 
             void OnPlayerEnter(Player* player) override
@@ -213,7 +214,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
                                 DoRespawnGameObject(GetGuidData(DATA_CRUSADERS_CHEST), 7_days);
                                 if (GameObject* cache = GetGameObject(DATA_CRUSADERS_CHEST))
-                                    cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    cache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 if (Creature* fordring = GetCreature(DATA_FORDRING))
                                     fordring->AI()->DoAction(ACTION_CHAMPIONS_DEFEATED);
                                 EventStage = 3100;
@@ -585,7 +586,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 for (uint8 i = 0; i < EncounterCount; ++i)
                     saveStream << GetBossState(i) << ' ';
 
-                saveStream << TrialCounter;
+                saveStream << TrialCounter << ' '
+                    << uint32(TributeToImmortalityEligible ? 1 : 0) << ' '
+                    << uint32(TributeToDedicatedInsanity ? 1 : 0);
                 SaveDataBuffer = saveStream.str();
 
                 SaveToDB();
@@ -610,9 +613,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 std::istringstream loadStream(strIn);
 
+                uint32 tmpState;
                 for (uint8 i = 0; i < EncounterCount; ++i)
                 {
-                    uint32 tmpState;
                     loadStream >> tmpState;
                     if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                         tmpState = NOT_STARTED;
@@ -620,6 +623,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
 
                 loadStream >> TrialCounter;
+                loadStream >> tmpState;
+                TributeToImmortalityEligible = tmpState != 0;
+                loadStream >> tmpState;
+                TributeToDedicatedInsanity = tmpState != 0;
                 EventStage = 0;
                 // @tswow-begin
                 FIRE_ID(
@@ -660,7 +667,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case A_TRIBUTE_TO_IMMORTALITY_ALLIANCE:
                         return TrialCounter == 50 && TributeToImmortalityEligible;
                     case A_TRIBUTE_TO_DEDICATED_INSANITY:
-                        return false/*uiGrandCrusaderAttemptsLeft == 50 && !bHasAtAnyStagePlayerEquippedTooGoodItem*/;
+                        return false/*TrialCounter == 50 && TributeToDedicatedInsanity*/;
                     default:
                         break;
                 }
@@ -686,6 +693,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint8 MistressOfPainCount;
                 uint8 NorthrendBeastsCount;
                 bool TributeToImmortalityEligible;
+                bool TributeToDedicatedInsanity;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

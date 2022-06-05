@@ -138,9 +138,9 @@ struct npc_koltira_deathweaver : public ScriptedAI
 
     void Reset() override
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_DEAD);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->SetStandState(UNIT_STAND_STATE_DEAD);
         me->RemoveAllAuras();
 
         _events.Reset();
@@ -164,14 +164,14 @@ struct npc_koltira_deathweaver : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_INTRO_0:
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_SIT);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetStandState(UNIT_STAND_STATE_SIT);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_KOLTIRA_0);
 
                     _events.ScheduleEvent(EVENT_INTRO_1, 5s);
                     break;
                 case EVENT_INTRO_1:
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
                     Talk(SAY_KOLTIRA_1);
 
                     _events.ScheduleEvent(EVENT_INTRO_2, 2s);
@@ -190,7 +190,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                 case EVENT_INTRO_4:
                     DoCastSelf(SPELL_KOLTIRA_TRANSFORM);
                     me->LoadEquipment(POINT_ID_1);
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
                     me->GetMotionMaster()->MovePoint(POINT_ID_2, koltiraPos[2], true, 3.839724f);
 
                     break;
@@ -202,8 +202,8 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     break;
                 case EVENT_INTRO_6:
                     Talk(SAY_KOLTIRA_3);
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     _eventGossip = true;
 
                     break;
@@ -240,8 +240,8 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     break;
                 case EVENT_OUTRO_1:
                     me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_KOLTIRA_8);
 
                     _events.ScheduleEvent(EVENT_OUTRO_2, 7s);
@@ -259,7 +259,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     break;
                 case EVENT_OUTRO_4:
                     me->SetWalk(false);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                     DoCastSelf(SPELL_HERO_AGGRO);
                     me->GetMotionMaster()->MovePath(NPC_KOLTIRA, false);
 
@@ -290,7 +290,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
         {
             if (pointId == POINT_ID_1)
             {
-                me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
+                me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 FakeValrothTalk(SAY_VALROTH_0);
 
                 _events.ScheduleEvent(EVENT_SPAWN_WAVE_1, 1s);

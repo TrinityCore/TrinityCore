@@ -691,7 +691,7 @@ class spell_hun_masters_call : public SpellScript
 
         // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
         SpellCastResult result = SPELL_CAST_OK;
-        uint32 const unitflag = pet->GetUInt32Value(UNIT_FIELD_FLAGS);
+        uint32 const unitflag = pet->GetUnitFlags();
         if (pet->GetCharmerGUID())
             result = SPELL_FAILED_CHARMED;
         else if (unitflag & UNIT_FLAG_STUNNED)

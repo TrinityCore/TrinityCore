@@ -455,10 +455,12 @@ struct npc_bone_spike : public ScriptedAI
         /// @HACK - Change passenger offset to the one taken directly from sniffs
         /// Remove this when proper calculations are implemented.
         /// This fixes healing spiked people
-        Movement::MoveSplineInit init(passenger);
-        init.DisableTransportPathTransformations();
-        init.MoveTo(-0.02206125f, -0.02132235f, 5.514783f, false);
-        passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
+        std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+        {
+            init.DisableTransportPathTransformations();
+            init.MoveTo(-0.02206125f, -0.02132235f, 5.514783f, false);
+        };
+        passenger->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
     }
 
     void UpdateAI(uint32 diff) override

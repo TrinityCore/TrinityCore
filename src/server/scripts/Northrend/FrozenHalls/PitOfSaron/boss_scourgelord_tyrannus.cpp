@@ -147,7 +147,7 @@ struct boss_tyrannus : public BossAI
         events.Reset();
         events.SetPhase(PHASE_NONE);
         me->SetReactState(REACT_PASSIVE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         instance->SetBossState(DATA_TYRANNUS, NOT_STARTED);
     }
 
@@ -163,7 +163,7 @@ struct boss_tyrannus : public BossAI
 
     void AttackStart(Unit* victim) override
     {
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         if (victim && me->Attack(victim, true) && !events.IsInPhase(PHASE_INTRO))
@@ -238,7 +238,7 @@ struct boss_tyrannus : public BossAI
                     if (Creature* rimefang = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIMEFANG)))
                         rimefang->AI()->DoAction(ACTION_START_RIMEFANG);    //set rimefang also infight
                     events.SetPhase(PHASE_COMBAT);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     DoCast(me, SPELL_FULL_HEAL);
                     DoZoneInCombat();
@@ -300,7 +300,7 @@ struct boss_rimefang : public ScriptedAI
         Initialize();
         me->SetCanFly(true);
         me->SetReactState(REACT_PASSIVE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void JustReachedHome() override

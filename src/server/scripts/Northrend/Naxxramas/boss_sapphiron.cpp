@@ -141,7 +141,7 @@ struct boss_sapphiron : public BossAI
         if (!instance->GetData(DATA_HAD_SAPPHIRON_BIRTH))
         {
             me->SetVisible(false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
         }
 
@@ -394,7 +394,7 @@ struct boss_sapphiron : public BossAI
                         return;
                     case EVENT_BIRTH:
                         me->SetVisible(true);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         return;
                     case EVENT_DRAIN:

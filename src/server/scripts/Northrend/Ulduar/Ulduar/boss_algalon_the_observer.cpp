@@ -313,16 +313,18 @@ struct boss_algalon_the_observer : public BossAI
         {
             case ACTION_START_INTRO:
             {
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DO_NOT_FADE_IN);
+                me->SetUnitFlag2(UNIT_FLAG2_DO_NOT_FADE_IN);
                 me->SetDisableGravity(true);
                 DoCastSelf(SPELL_ARRIVAL, true);
                 DoCastSelf(SPELL_RIDE_THE_LIGHTNING, true);
                 me->SetHomePosition(AlgalonLandPos);
 
-                Movement::MoveSplineInit init(me);
-                init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ(), false);
-                init.SetOrientationFixed(true);
-                me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+                {
+                    init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ(), false);
+                    init.SetOrientationFixed(true);
+                };
+                me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
                 events.Reset();
                 events.SetPhase(PHASE_ROLE_PLAY);
@@ -343,7 +345,7 @@ struct boss_algalon_the_observer : public BossAI
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17s);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26s);
                 me->DespawnOrUnsummon(34s);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToNPC(true);
                 break;
             case ACTION_INIT_ALGALON:
@@ -363,7 +365,7 @@ struct boss_algalon_the_observer : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         Milliseconds introDelay = 0ms;
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetImmuneToNPC(true);
         events.Reset();
         events.SetPhase(PHASE_ROLE_PLAY);
@@ -487,7 +489,7 @@ struct boss_algalon_the_observer : public BossAI
             events.SetPhase(PHASE_ROLE_PLAY);
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             DoCastSelf(SPELL_SELF_STUN);
             events.Reset();
             summons.DespawnAll();
@@ -562,7 +564,7 @@ struct boss_algalon_the_observer : public BossAI
                 {
                     events.SetPhase(PHASE_NORMAL);
                     me->SetSheath(SHEATH_STATE_MELEE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetImmuneToNPC(false);
                     me->SetReactState(REACT_DEFENSIVE);
                     DoCastAOE(SPELL_SUPERMASSIVE_FAIL, true);
@@ -639,7 +641,7 @@ struct boss_algalon_the_observer : public BossAI
                     me->RemoveAllAuras();
                     ResetThreatList();
                     me->SetFaction(FACTION_FRIENDLY);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME);
+                    me->SetUnitFlag(UNIT_FLAG_RENAME);
                     events.ScheduleEvent(EVENT_OUTRO_2, 2s);
                     break;
                 case EVENT_OUTRO_2:
@@ -654,7 +656,7 @@ struct boss_algalon_the_observer : public BossAI
                     break;
                 case EVENT_OUTRO_4:
                     DoCastAOE(SPELL_SUPERMASSIVE_FAIL);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     break;
                 case EVENT_OUTRO_5:
                     if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos))
@@ -749,7 +751,7 @@ struct npc_living_constellation : public CreatureAI
                     if (Unit* target = algalon->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(algalon)))
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         AttackStart(target);
                         DoZoneInCombat();
                         _isActive = true;
@@ -974,7 +976,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
 
     bool OnReportUse(Player* player) override
     {
-        if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+        if (me->HasFlag(GO_FLAG_IN_USE))
             return true;
 
         bool hasKey = true;
@@ -998,7 +1000,7 @@ struct go_celestial_planetarium_access : public GameObjectAI
             return false;
 
         // Start Algalon event
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+        me->SetFlag(GO_FLAG_IN_USE);
         _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5s);
         if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannIntroSpawnPos))
             brann->AI()->DoAction(ACTION_START_INTRO);
