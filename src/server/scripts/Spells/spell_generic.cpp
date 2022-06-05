@@ -1015,7 +1015,6 @@ class spell_gen_clone_weapon_aura : public AuraScript
                 if (Player* player = caster->ToPlayer())
                 {
                     if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-<<<<<<< HEAD
                     {
                         // @tswow-begin (Using Rochet2/Transmog)
                         if (rangedItem->transmog)
@@ -1024,9 +1023,6 @@ class spell_gen_clone_weapon_aura : public AuraScript
                             target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry());
                         // @tswow-end
                     }
-=======
-                        target->SetVirtualItem(2, rangedItem->GetEntry());
->>>>>>> tc/3.3.5
                 }
                 else
                     target->SetVirtualItem(2, caster->GetVirtualItemId(2));
