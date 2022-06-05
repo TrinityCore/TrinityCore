@@ -206,7 +206,7 @@ ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_S
 add_library(scripts STATIC
   ScriptLoader.h
   ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${PRIVATE_SOURCES})
+  ${PRIVATE_SOURCES} "Pandaria/pandaria_script_loader.cpp" "Pandaria/zone_the_wandering_isle.cpp")
 
 target_link_libraries(scripts
   PRIVATE
