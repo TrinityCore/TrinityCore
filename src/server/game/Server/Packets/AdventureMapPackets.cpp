@@ -25,5 +25,17 @@ void AdventureMapStartQuest::Read()
 {
     _worldPacket >> QuestID;
 }
+WorldPacket const* PlayerIsAdventureMapPoiValid::Write()
+{
+    _worldPacket << ID;
+    _worldPacket.WriteBit(Active);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+void CheckIsAdventureMapPoiValid::Read()
+{
+    _worldPacket >> ID;
+}
 }
 }

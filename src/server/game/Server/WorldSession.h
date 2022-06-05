@@ -108,6 +108,7 @@ namespace WorldPackets
     namespace AdventureMap
     {
         class AdventureMapStartQuest;
+        class CheckIsAdventureMapPoiValid;
     }
 
     namespace AreaTrigger
@@ -1747,6 +1748,7 @@ class TC_GAME_API WorldSession
 
         // Adventure Map
         void HandleAdventureMapStartQuest(WorldPackets::AdventureMap::AdventureMapStartQuest& startQuest);
+        void HandleCheckIsAdventureMapPoiValid(WorldPackets::AdventureMap::CheckIsAdventureMapPoiValid& poiValid);
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);

@@ -33,6 +33,27 @@ namespace WorldPackets
 
             int32 QuestID = 0;
         };
+
+        class CheckIsAdventureMapPoiValid final : public ClientPacket
+        {
+        public:
+            CheckIsAdventureMapPoiValid(WorldPacket&& packet) : ClientPacket(CMSG_CHECK_IS_ADVENTURE_MAP_POI_VALID, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ID = 0;
+        };
+
+        class PlayerIsAdventureMapPoiValid final : public ServerPacket
+        {
+        public:
+            PlayerIsAdventureMapPoiValid() : ServerPacket(SMSG_PLAYER_IS_ADVENTURE_MAP_POI_VALID, 5) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 ID = 0;
+            bool Active = true;
+        };
     }
 }
 
