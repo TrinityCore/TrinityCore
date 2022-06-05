@@ -219,9 +219,9 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     _player->PlayerTalkClass->ClearMenus();
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(
-          unit->GetCreatureTemplate()->events
-        , CreatureOnGossipHello
+    FIRE_ID(
+          unit->GetCreatureTemplate()->events.id
+        , Creature,OnGossipHello
         , TSCreature(unit)
         , TSPlayer(_player)
         , TSMutable<bool>(&b)

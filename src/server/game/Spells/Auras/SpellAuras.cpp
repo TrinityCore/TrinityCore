@@ -38,7 +38,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 // @tswow-begin
-#include "TSEventLoader.h"
 #include "TSAura.h"
 // @tswow-end
 
@@ -2180,9 +2179,9 @@ bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
     // @tswow-begin
     bool result = true;
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnCheckAreaTarget
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnCheckAreaTarget
         , TSAura(this)
         , TSUnit(target)
         , TSMutable<bool>(&result)
@@ -2206,9 +2205,9 @@ void Aura::CallScriptDispel(DispelInfo* dispelInfo)
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnDispel
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnDispel
         , TSAura(this)
         , TSDispelInfo(dispelInfo)
         , TSMutable<bool>(&cancel)
@@ -2231,9 +2230,9 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnAfterDispel
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnAfterDispel
         , TSAura(this)
         , TSDispelInfo(dispelInfo)
         , TSMutable<bool>(&cancel)
@@ -2255,7 +2254,7 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
 bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     // @tswow-begin
-    FIRE_MAP(m_spellInfo->events,SpellOnApply,TSAuraEffect(const_cast<AuraEffect*>(aurEff)),TSAuraApplication(const_cast<AuraApplication*>(aurApp)),mode);
+    FIRE_ID(m_spellInfo->events.id,Spell,OnApply,TSAuraEffect(const_cast<AuraEffect*>(aurEff)),TSAuraApplication(const_cast<AuraApplication*>(aurApp)),mode);
     // @tswow-end
     bool preventDefault = false;
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2278,7 +2277,7 @@ bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplicati
 bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     // @tswow-begin
-    FIRE_MAP(m_spellInfo->events,SpellOnRemove,TSAuraEffect(const_cast<AuraEffect*>(aurEff)),TSAuraApplication(const_cast<AuraApplication*>(aurApp)),mode);
+    FIRE_ID(m_spellInfo->events.id,Spell,OnRemove,TSAuraEffect(const_cast<AuraEffect*>(aurEff)),TSAuraApplication(const_cast<AuraApplication*>(aurApp)),mode);
     // @tswow-end
     bool preventDefault = false;
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2301,9 +2300,9 @@ void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraAppl
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnAfterEffectApply
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnAfterEffectApply
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , static_cast<uint32>(mode)
@@ -2328,9 +2327,9 @@ void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApp
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnAfterEffectRemove
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnAfterEffectRemove
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , static_cast<uint32>(mode)
@@ -2355,9 +2354,9 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
 {
     // @tswow-begin
     bool preventDefault = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectPeriodic
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectPeriodic
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSMutable<bool>(&preventDefault)
@@ -2383,7 +2382,7 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
 void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
 {
     // @tswow-begin
-    FIRE_MAP(m_spellInfo->events,SpellOnTick,TSAuraEffect(aurEff));
+    FIRE_ID(m_spellInfo->events.id,Spell,OnTick,TSAuraEffect(aurEff));
     // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -2401,9 +2400,9 @@ void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& a
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectCalcAmount
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectCalcAmount
         , TSAuraEffect(aurEff)
         , TSMutable<int32>(&amount)
         , TSMutable<bool>(&canBeRecalculated)
@@ -2428,9 +2427,9 @@ void Aura::CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool& 
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectCalcPeriodic
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectCalcPeriodic
         , TSAuraEffect(aurEff)
         , TSMutable<bool>(&isPeriodic)
         , TSMutable<int32>(&amplitude)
@@ -2455,9 +2454,9 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellM
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectCalcSpellMod
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectCalcSpellMod
         , TSAuraEffect(aurEff)
         , TSSpellModifier(spellMod)
         , TSMutable<bool>(&cancel)
@@ -2480,9 +2479,9 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellM
 void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool& defaultPrevented)
 {
     // @tswow-begin
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectAbsorb
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectAbsorb
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
@@ -2512,9 +2511,9 @@ void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplicati
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectAfterAbsorb
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectAfterAbsorb
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
@@ -2540,9 +2539,9 @@ void Aura::CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplicatio
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectManaShield
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectManaShield
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
@@ -2568,9 +2567,9 @@ void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraAppli
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnEffectAfterManaShield
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnEffectAfterManaShield
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
@@ -2596,9 +2595,9 @@ void Aura::CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication con
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnEffectSplit
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnEffectSplit
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
@@ -2625,9 +2624,9 @@ bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventI
     // @tswow-begin
     bool result = true;
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnCheckProc
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnCheckProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
         , TSMutable<bool>(&result)
@@ -2654,9 +2653,9 @@ bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEven
     // @tswow-begin
     bool prepare = true;
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnPrepareProc
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnPrepareProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
         , TSMutable<bool>(&prepare)
@@ -2686,9 +2685,9 @@ bool Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& 
     // @tswow-begin
     bool handled = false;
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnProc
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
         , TSMutable<bool>(&handled)
@@ -2715,9 +2714,9 @@ void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventI
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnAfterProc
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnAfterProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
         , TSMutable<bool>(&cancel)
@@ -2741,9 +2740,9 @@ bool Aura::CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
     // @tswow-begin
     bool cancel = false;
     bool result = true;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnCheckEffectProc
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnCheckEffectProc
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
@@ -2771,9 +2770,9 @@ bool Aura::CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplicatio
 {
     // @tswow-begin
     bool preventDefault = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnEffectProc
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnEffectProc
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
@@ -2800,9 +2799,9 @@ void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnAfterEffectProc
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnAfterEffectProc
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)

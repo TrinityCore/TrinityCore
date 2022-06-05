@@ -1299,9 +1299,10 @@ void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet
 
     WorldPacket copy(packet);
     // @tswow-begin
-    FIRE_MAP(
-          GetWorldPacketEvent(packet.GetOpcode())
-        , WorldPacketOnReceive
+    FIRE_ID(
+          packet.GetOpcode()
+        , WorldPacket,OnReceive
+        , packet.GetOpcode()
         , TSWorldPacket(const_cast<WorldPacket*>(&packet))
         , TSPlayer(session->GetPlayer())
     );
@@ -1319,9 +1320,9 @@ void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
     WorldPacket copy(packet);
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
     // @tswow-begin
-    FIRE_MAP(
-          GetWorldPacketEvent(packet.GetOpcode())
-        , WorldPacketOnSend
+    FIRE_ID(
+          packet.GetOpcode()
+        , WorldPacket,OnSend
         , TSWorldPacket(const_cast<WorldPacket*>(&packet))
         , TSPlayer(session->GetPlayer())
     );
@@ -1417,7 +1418,7 @@ void ScriptMgr::OnCreateMap(Map* map)
 {
     ASSERT(map);
     // @tswow-begin
-    FIRE_MAP(map->GetExtraData()->events,MapOnCreate,TSMap(map));
+    FIRE_ID(map->GetId(),Map,OnCreate,TSMap(map));
     // @tswow-end
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
@@ -1598,7 +1599,7 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
 
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(proto->events,ItemOnExpire,TSItemTemplate(proto),TSPlayer(player),TSMutable<bool>(&b));
+    FIRE_ID(proto->events.id,Item,OnExpire,TSItemTemplate(proto),TSPlayer(player),TSMutable<bool>(&b));
     if(b) return b;
     // @tswow-end
     GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
@@ -1612,7 +1613,7 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
 
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(item->GetTemplate()->events,ItemOnRemove,TSItem(item),TSPlayer(player),TSMutable<bool>(&b));
+    FIRE_ID(item->GetTemplate()->events.id,Item,OnRemove,TSItem(item),TSPlayer(player),TSMutable<bool>(&b));
     if(b) return b;
     // @tswow-end
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
@@ -1628,7 +1629,7 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
 
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(item->GetTemplate()->events,ItemOnCastSpell,TSItem(item),TSPlayer(player),TSUnit(victim),TSSpellInfo(spellInfo),TSMutable<bool>(&b));
+    FIRE_ID(item->GetTemplate()->events.id,Item,OnCastSpell,TSItem(item),TSPlayer(player),TSUnit(victim),TSSpellInfo(spellInfo),TSMutable<bool>(&b));
     if(b) return b;
     // @tswow-end
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);

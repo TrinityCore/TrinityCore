@@ -368,9 +368,9 @@ public:
             if (GhostKillCount >= 7)
                 GhostKillCount = 7;
             // @tswow-begin
-            FIRE_MAP(
-                GetInstanceEvent(instance->GetEntry()->ID)
-                , InstanceOnLoad
+            FIRE_ID(
+                instance->GetEntry()->ID
+                , Instance,OnLoad
                 , TSInstance(instance,this)
             );
             // @tswow-end

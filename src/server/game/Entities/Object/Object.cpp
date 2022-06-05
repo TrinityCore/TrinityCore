@@ -2517,9 +2517,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
         HitChance += int32(unit->m_modSpellHitChance * 100.0f);
 
     // @tswow-begin
-    FIRE_MAP(
-          spellInfo->events
-        , SpellOnCalcHit
+    FIRE_ID(
+          spellInfo->events.id
+        , Spell,OnCalcHit
         , TSSpellInfo(spellInfo)
         , TSMutable<int32>(&HitChance)
         , TSWorldObject(const_cast<WorldObject*>(this))
@@ -2560,9 +2560,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     }
 
     // @tswow-begin
-    FIRE_MAP(
-        spellInfo->events
-        , SpellOnCalcResist
+    FIRE_ID(
+          spellInfo->events.id
+        , Spell,OnCalcResist
         , TSSpellInfo(spellInfo)
         , TSMutable<int32>(&resist_chance)
         , TSWorldObject(const_cast<WorldObject*>(this))
@@ -2579,9 +2579,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     {
         int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         // @tswow-begin
-        FIRE_MAP(
-              spellInfo->events
-            , SpellOnCalcResist
+        FIRE_ID(
+              spellInfo->events.id
+            , Spell,OnCalcResist
             , TSSpellInfo(spellInfo)
             , TSMutable<int32>(&resist_chance)
             , TSWorldObject(const_cast<WorldObject*>(this))
@@ -2632,9 +2632,9 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         reflectchance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_REFLECT_SPELLS_SCHOOL, spellInfo->GetSchoolMask());
         // @tswow-begin
-        FIRE_MAP(
-            spellInfo->events
-            , SpellOnCalcReflect
+        FIRE_ID(
+              spellInfo->events.id
+            , Spell,OnCalcReflect
             , TSSpellInfo(spellInfo)
             , TSMutable<int32>(&reflectchance)
             , TSWorldObject(const_cast<WorldObject*>(this))

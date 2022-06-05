@@ -35,7 +35,6 @@
 // @tswow-begin
 #include "TSUnit.h"
 #include "TSCreature.h"
-#include "TSEventLoader.h"
 // @tswow-end
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
@@ -540,7 +539,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     // @tswow-begin
     if(Creature* creature = _me->ToCreature())
     {
-        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnPassengerBoarded,TSCreature(creature),TSUnit(unit),seat->first,false);
+        FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnPassengerBoarded,TSCreature(creature),TSUnit(unit),seat->first,false);
     }
     // @tswow-end
 
@@ -908,7 +907,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
         // @tswow-begin
-        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnPassengerBoarded,TSCreature(creature),TSUnit(Passenger),Seat->first,true);
+        FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnPassengerBoarded,TSCreature(creature),TSUnit(Passenger),Seat->first,true);
         // @tswow-end
         if (CreatureAI* ai = creature->AI())
             ai->PassengerBoarded(Passenger, Seat->first, true);

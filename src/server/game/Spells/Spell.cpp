@@ -62,7 +62,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 // @tswow-begin
-#include "TSEventLoader.h"
 #include "TSSpell.h"
 #include "TSSpellInfo.h"
 #include "TSUnit.h"
@@ -2124,9 +2123,9 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
     // @tswow-begin
     uint32 miss = targetInfo.MissCondition;
-    FIRE_MAP(
-        m_spellInfo->events,
-        SpellOnCalcMiss,
+    FIRE_ID(
+        m_spellInfo->events.id,
+        Spell,OnCalcMiss,
         TSSpell(this),
         TSUnit(target),
         TSMutable<uint32>(&miss),
@@ -2608,12 +2607,12 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         // @tswow-begin
         if(Creature* target = _spellHitTarget->ToCreature())
         {
-            FIRE_MAP(target->GetCreatureTemplate()->events,CreatureOnHitBySpell,TSCreature(target),TSWorldObject(spell->m_caster),TSSpellInfo(spell->m_spellInfo));
+            FIRE_ID(target->GetCreatureTemplate()->events.id,Creature,OnHitBySpell,TSCreature(target),TSWorldObject(spell->m_caster),TSSpellInfo(spell->m_spellInfo));
         }
 
         if(Creature* caster = spell->m_caster->ToCreature())
         {
-            FIRE_MAP(caster->GetCreatureTemplate()->events,CreatureOnSpellHitTarget,TSCreature(caster), TSWorldObject(_spellHitTarget),TSSpellInfo(spell->m_spellInfo));
+            FIRE_ID(caster->GetCreatureTemplate()->events.id,Creature,OnSpellHitTarget,TSCreature(caster), TSWorldObject(_spellHitTarget),TSSpellInfo(spell->m_spellInfo));
         }
 
         // @tswow-end
@@ -3304,7 +3303,7 @@ void Spell::_cast(bool skipCheck)
                 for (Unit* controlled : playerCaster->m_Controlled)
                     // @tswow-begin
                     if (Creature* cControlled = controlled->ToCreature()){
-                        FIRE_MAP(cControlled->GetCreatureTemplate()->events,CreatureOnOwnerAttacks,TSCreature(cControlled),TSUnit(target));
+                        FIRE_ID(cControlled->GetCreatureTemplate()->events.id,Creature,OnOwnerAttacks,TSCreature(cControlled),TSUnit(target));
                         if (CreatureAI* controlledAI = cControlled->AI())
                                 controlledAI->OwnerAttacked(target);
                     }
@@ -3536,7 +3535,7 @@ void Spell::_cast(bool skipCheck)
     // @tswow-begin
     if(Creature* caster = m_originalCaster->ToCreature())
     {
-        FIRE_MAP(caster->GetCreatureTemplate()->events,CreatureOnSpellCastFinished,TSCreature(caster),GetSpellInfo(),SPELL_FINISHED_SUCCESSFUL_CAST);
+        FIRE_ID(caster->GetCreatureTemplate()->events.id,Creature,OnSpellCastFinished,TSCreature(caster),GetSpellInfo(),SPELL_FINISHED_SUCCESSFUL_CAST);
     }
     // @tswow-end
 
@@ -3859,7 +3858,7 @@ void Spell::update(uint32 difftime)
                 // @tswow-begin
                 if(Creature* caster = m_originalCaster->ToCreature())
                 {
-                    FIRE_MAP(caster->GetCreatureTemplate()->events,CreatureOnSpellCastFinished,TSCreature(caster),TSSpellInfo(m_spellInfo),SPELL_FINISHED_CHANNELING_COMPLETE);
+                    FIRE_ID(caster->GetCreatureTemplate()->events.id,Creature,OnSpellCastFinished,TSCreature(caster),TSSpellInfo(m_spellInfo),SPELL_FINISHED_CHANNELING_COMPLETE);
                 }
                 // @tswow-end
 
@@ -5128,9 +5127,9 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
 
     // @tswow-begin
     bool preventDefault = false;
-    FIRE_MAP(
-        this->m_spellInfo->events
-        , SpellOnEffect
+    FIRE_ID(
+        this->m_spellInfo->events.id
+        , Spell,OnEffect
         , TSSpell(this)
         , TSMutable<bool>(&preventDefault)
         , TSSpellEffectInfo(&spellEffectInfo)
@@ -7736,9 +7735,9 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
         critChance = unit->SpellCritChanceTaken(m_originalCaster, m_spellInfo, m_spellSchoolMask, critChance, m_attackType);
     }
     // @tswow-begin
-    FIRE_MAP(
-        this->m_spellInfo->events
-        , SpellOnCalcCrit
+    FIRE_ID(
+        this->m_spellInfo->events.id
+        , Spell,OnCalcCrit
         , TSSpell(this)
         , TSMutable<float>(&critChance)
     );
@@ -7903,9 +7902,9 @@ void Spell::CallScriptBeforeCastHandlers()
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnBeforeCast
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnBeforeCast
         , TSSpell(this)
         , TSMutable<bool>(&cancel)
     );
@@ -7925,7 +7924,7 @@ void Spell::CallScriptBeforeCastHandlers()
 
 void Spell::CallScriptOnCastHandlers()
 {
-    FIRE_MAP(m_spellInfo->events,SpellOnCast,TSSpell(this)); // @tswow-line
+    FIRE_ID(m_spellInfo->events.id,Spell,OnCast,TSSpell(this)); // @tswow-line
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_CAST);
@@ -7941,9 +7940,9 @@ void Spell::CallScriptAfterCastHandlers()
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnAfterCast
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnAfterCast
         , TSSpell(this)
         , TSMutable<bool>(&cancel)
     );
@@ -7977,8 +7976,8 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
 
         (*scritr)->_FinishScriptCall();
     }
-    FIRE_MAP(m_spellInfo->events
-        , SpellOnCheckCast
+    FIRE_ID(m_spellInfo->events.id
+        , Spell,OnCheckCast
         , TSSpell(this)
         , TSMutable<uint8>(reinterpret_cast<uint8_t*>(&retVal)));
     return retVal;
@@ -8036,7 +8035,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMo
 
 void Spell::CallScriptSuccessfulDispel(SpellEffIndex effIndex)
 {
-    FIRE_MAP(m_spellInfo->events,SpellOnSuccessfulDispel,TSSpell(this),(uint32)effIndex); // @tswow-line
+    FIRE_ID(m_spellInfo->events.id,Spell,OnSuccessfulDispel,TSSpell(this),(uint32)effIndex); // @tswow-line
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_EFFECT_SUCCESSFUL_DISPEL);
@@ -8052,9 +8051,9 @@ void Spell::CallScriptBeforeHitHandlers(SpellMissInfo missInfo)
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnBeforeHit
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnBeforeHit
         , TSSpell(this)
         , static_cast<uint32>(missInfo)
         , TSMutable<bool>(&cancel)
@@ -8076,7 +8075,7 @@ void Spell::CallScriptBeforeHitHandlers(SpellMissInfo missInfo)
 
 void Spell::CallScriptOnHitHandlers()
 {
-    FIRE_MAP(m_spellInfo->events,SpellOnHit,TSSpell(this)); // @tswow-line
+    FIRE_ID(m_spellInfo->events.id,Spell,OnHit,TSSpell(this)); // @tswow-line
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_HIT);
@@ -8092,9 +8091,9 @@ void Spell::CallScriptAfterHitHandlers()
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnAfterHit
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnAfterHit
         , TSSpell(this)
         , TSMutable<bool>(&cancel)
     );
@@ -8116,9 +8115,9 @@ void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& ta
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnObjectAreaTargetSelect
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnObjectAreaTargetSelect
         , TSSpell(this)
         , TSWorldObjectCollection(&targets)
         , static_cast<uint32>(effIndex)
@@ -8144,9 +8143,9 @@ void Spell::CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffI
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnObjectTargetSelect
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnObjectTargetSelect
         , TSSpell(this)
         , TSMutableWorldObject(target)
         , static_cast<uint32>(effIndex)
@@ -8172,9 +8171,9 @@ void Spell::CallScriptDestinationTargetSelectHandlers(SpellDestination& target, 
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnDestinationTargetSelect
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnDestinationTargetSelect
         , TSSpell(this)
         , TSSpellDestination(&target)
         , static_cast<uint32>(effIndex)
@@ -8346,9 +8345,9 @@ void Spell::CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageIn
 {
     // @tswow-begin
     bool cancel = false;
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnOnResistAbsorbCalculate
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnOnResistAbsorbCalculate
         , TSSpell(this)
         , TSDamageInfo(&damageInfo)
         , TSMutable<uint32>(&resistAmount)

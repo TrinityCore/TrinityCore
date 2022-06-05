@@ -3888,7 +3888,7 @@ bool Player::ResetTalents(bool no_cost)
 {
     // @tswow-begin
     FIRE(
-          PlayerOnTalentsResetEarly
+          Player,OnTalentsResetEarly
         , TSPlayer(this)
         , TSMutable<bool>(&no_cost)
     );
@@ -3987,7 +3987,7 @@ bool Player::ResetTalents(bool no_cost)
 
     // @tswow-begin
     FIRE(
-          PlayerOnTalentsResetLate
+          Player,OnTalentsResetLate
         , TSPlayer(this)
         , no_cost
     );
@@ -5738,7 +5738,7 @@ inline int SkillGainChance(Player* player, uint32 skillId, uint32 SkillValue, ui
     else
         chance = sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10;
 
-    FIRE(PlayerOnCalcSkillGainChance
+    FIRE(Player,OnCalcSkillGainChance
         , TSPlayer(player)
         , TSMutable<int>(&chance)
         , skillId
@@ -8539,7 +8539,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 go->SetLootGenerationTime();
 
                 // @tswow-begin
-                FIRE_MAP(go->GetGOInfo()->events,GameObjectOnGenerateLoot,TSGameObject(go),TSPlayer(this));
+                FIRE_ID(go->GetGOInfo()->events.id,GameObject,OnGenerateLoot,TSGameObject(go),TSPlayer(this));
                 // @tswow-end
 
                 // get next RR player (for next loot)
@@ -8652,7 +8652,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     break;
             }
             // @tswow-begin
-            FIRE(PlayerOnGenerateItemLoot,TSPlayer(this),TSItem(item),TSLoot(loot),loot_type);
+            FIRE(Player,OnGenerateItemLoot,TSPlayer(this),TSItem(item),TSLoot(loot),loot_type);
             // @tswow-end
         }
     }
@@ -8694,7 +8694,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             permission = OWNER_PERMISSION;
 
         // @tswow-begin
-        FIRE(PlayerOnLootCorpse,TSPlayer(this),TSCorpse(bones));
+        FIRE(Player,OnLootCorpse,TSPlayer(this),TSCorpse(bones));
         // @tswow-end
     }
     else
@@ -8722,7 +8722,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             {
                 // @tswow-begin
                 bool b = creature->CanGeneratePickPocketLoot();
-                FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnCanGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSMutable<bool>(&b));
+                FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnCanGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSMutable<bool>(&b));
                 if (b)
                 // @tswow-end
                 {
@@ -8738,7 +8738,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     loot->gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
                     permission = OWNER_PERMISSION;
                     // @tswow-begin
-                    FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSLoot(loot));
+                    FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSLoot(loot));
                     // @tswow-end
                 }
                 else
@@ -8804,7 +8804,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 // Set new loot recipient
                 creature->SetLootRecipient(this, false);
                 // @tswow-begin
-                FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnGenerateSkinningLoot,TSCreature(creature),TSPlayer(this),TSLoot(loot));
+                FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnGenerateSkinningLoot,TSCreature(creature),TSPlayer(this),TSLoot(loot));
                 // @tswow-end
             }
             // set group rights only for loot_type != LOOT_SKINNING
@@ -11579,8 +11579,8 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             dest = ((INVENTORY_SLOT_BAG_0 << 8) | eslot);
             // @tswow-begin
             uint32 evtRes = EQUIP_ERR_OK;
-            FIRE_MAP(pProto->events
-                , ItemOnCanEquip
+            FIRE_ID(pProto->events.id
+                , Item,OnCanEquip
                 , TSItem(pItem)
                 , TSPlayer(const_cast<Player*>(this))
                 , slot
@@ -11639,8 +11639,8 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
 
     // @tswow-begin
     uint32 status = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
-    FIRE_MAP( pProto->events
-            , ItemOnUnequip
+    FIRE_ID( pProto->events.id
+            , Item,OnUnequip
             , TSItem(pItem)
             , TSPlayer(const_cast<Player*>(this))
             , swap
@@ -11665,8 +11665,8 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
 
     // @tswow-begin
     uint32 eventRes = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
-    FIRE_MAP( pProto->events
-            , ItemOnBank
+    FIRE_ID( pProto->events.id
+            , Item,OnBank
             , TSItem(pItem)
             , TSPlayer(const_cast<Player*>(this))
             , bag
@@ -11912,8 +11912,8 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
             // @tswow-begin
             {
                 uint32 evtRes = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
-                FIRE_MAP( pProto->events
-                        , ItemOnCanUse
+                FIRE_ID( pProto->events.id
+                        , Item,OnCanUse
                         , TSItem(pItem)
                         , TSPlayer(const_cast<Player*>(this))
                         , TSMutable<uint32>(&evtRes)
@@ -11969,8 +11969,8 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
             return EQUIP_ERR_NONE;
     // @tswow-begin
     uint32 res = EQUIP_ERR_OK;
-    FIRE_MAP(proto->events
-        , ItemOnCanUseType
+    FIRE_ID(proto->events.id
+        , Item,OnCanUseType
         , TSItemTemplate(proto)
         , TSPlayer(const_cast<Player*>(this))
         , TSMutable<uint32>(&res)
@@ -11995,8 +11995,8 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 
     // @tswow-begin
     int32 evtRes = -1;
-    FIRE_MAP( proto->events
-            , ItemOnLFGRollEarly
+    FIRE_ID( proto->events.id
+            , Item,OnLFGRollEarly
             , TSItemTemplate(proto)
             , TSWorldObject(const_cast<WorldObject*>(lootedObject))
             , TSPlayer(const_cast<Player*>(this))
@@ -12416,9 +12416,9 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         ApplyEquipCooldown(pItem2);
 
         // @tswow-begin
-        FIRE_MAP(
-              pItem2->GetTemplate()->events
-            , ItemOnEquip
+        FIRE_ID(
+              pItem2->GetTemplate()->events.id
+            , Item,OnEquip
             , TSItem(pItem2)
             , TSPlayer(this)
             , slot
@@ -12436,9 +12436,9 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, slot, pItem->GetEntry());
 
     // @tswow-begin
-    FIRE_MAP(
-          pItem->GetTemplate()->events
-        , ItemOnEquip
+    FIRE_ID(
+          pItem->GetTemplate()->events.id
+        , Item,OnEquip
         , TSItem(pItem)
         , TSPlayer(this)
         , slot
@@ -12664,8 +12664,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         // @tswow-begin
         {
             bool evtCanDestroy = true;
-            FIRE_MAP( pItem->GetTemplate()->events
-                    , ItemOnDestroyEarly
+            FIRE_ID( pItem->GetTemplate()->events.id
+                    , Item,OnDestroyEarly
                     , TSItem(pItem)
                     , TSPlayer(this)
                     , TSMutable<bool>(&evtCanDestroy)
@@ -15166,10 +15166,10 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         case TYPEID_UNIT:
             PlayerTalkClass->ClearMenus();
             // @tswow-begin
-            FIRE_MAP(questGiver->ToCreature()->GetCreatureTemplate()->events,CreatureOnQuestAccept,TSCreature(questGiver->ToCreature()),TSPlayer(this),TSQuest(quest));
-            FIRE_MAP(
-                  quest->events
-                , QuestOnAccept
+            FIRE_ID(questGiver->ToCreature()->GetCreatureTemplate()->events.id,Creature,OnQuestAccept,TSCreature(questGiver->ToCreature()),TSPlayer(this),TSQuest(quest));
+            FIRE_ID(
+                  quest->events.id
+                , Quest,OnAccept
                 , TSQuest(quest)
                 , TSPlayer(this)
                 , TSObject(questGiver)
@@ -15182,10 +15182,10 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         {
             Item* item = static_cast<Item*>(questGiver);
             // @tswow-begin
-            FIRE_MAP(item->GetTemplate()->events,ItemOnQuestAccept,TSItem(item),TSPlayer(this),TSQuest(quest));
-            FIRE_MAP(
-                quest->events
-                , QuestOnAccept
+            FIRE_ID(item->GetTemplate()->events.id,Item,OnQuestAccept,TSItem(item),TSPlayer(this),TSQuest(quest));
+            FIRE_ID(
+                quest->events.id
+                , Quest,OnAccept
                 , TSQuest(quest)
                 , TSPlayer(this)
                 , TSObject(item)
@@ -15218,10 +15218,10 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         case TYPEID_GAMEOBJECT:
             PlayerTalkClass->ClearMenus();
             // @tswow-begin
-            FIRE_MAP(questGiver->ToGameObject()->GetGOInfo()->events,GameObjectOnQuestAccept,TSGameObject(questGiver->ToGameObject()),TSPlayer(this),TSQuest(quest));
-            FIRE_MAP(
-                  quest->events
-                , QuestOnAccept
+            FIRE_ID(questGiver->ToGameObject()->GetGOInfo()->events.id,GameObject,OnQuestAccept,TSGameObject(questGiver->ToGameObject()),TSPlayer(this),TSQuest(quest));
+            FIRE_ID(
+                  quest->events.id
+                , Quest,OnAccept
                 , TSQuest(quest)
                 , TSPlayer(this)
                 , TSObject(questGiver)
@@ -15359,9 +15359,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     }
 
     // @tswow-begin
-    FIRE_MAP(
-          quest->events
-        , QuestOnStatusChanged
+    FIRE_ID(
+          quest->events.id
+        , Quest,OnStatusChanged
         , TSQuest(quest)
         , TSPlayer(this)
     );
@@ -15482,9 +15482,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     XP *= GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_QUEST_PCT);
     // @tswow-begin
-    FIRE_MAP(
-          quest->events
-        , QuestOnRewardXP
+    FIRE_ID(
+          quest->events.id
+        , Quest,OnRewardXP
         , TSQuest(quest)
         , TSPlayer(this)
         , TSMutable<uint32>(&XP)
@@ -15606,9 +15606,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SetCanDelayTeleport(false);
 
     // @tswow-begin
-    FIRE_MAP(
-        quest->events
-        , QuestOnStatusChanged
+    FIRE_ID(
+        quest->events.id
+        , Quest,OnStatusChanged
         , TSQuest(quest)
         , TSPlayer(this)
     );
@@ -16269,9 +16269,9 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
             m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
 
         // @tswow-begin
-        FIRE_MAP(
-            quest->events
-            , QuestOnStatusChanged
+        FIRE_ID(
+            quest->events.id
+            , Quest,OnStatusChanged
             , TSQuest(quest)
             , TSPlayer(this)
         );
@@ -22084,9 +22084,9 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     // @tswow-begin check masks
     bool shouldSend = true;
 
-    FIRE_MAP(
-          creature->GetCreatureTemplate()->events
-        , CreatureOnSendVendorItem
+    FIRE_ID(
+          creature->GetCreatureTemplate()->events.id
+        , Creature,OnSendVendorItem
         , TSCreature(creature)
         , TSItemTemplate(pProto)
         , TSPlayer(this)
@@ -24905,7 +24905,7 @@ void Player::InitGlyphsForLevel()
         value |= 0x20;
 
     // @tswow-begin
-    FIRE(PlayerOnGlyphInitForLevel
+    FIRE(Player,OnGlyphInitForLevel
         , TSPlayer(this)
         , TSMutable<uint32>(&value)
     );
@@ -25234,8 +25234,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
 
         // @tswow-begin
-        FIRE_MAP( newitem->GetTemplate()->events
-                , ItemOnTakenAsLoot
+        FIRE_ID( newitem->GetTemplate()->events.id
+                , Item,OnTakenAsLoot
                 , TSItem(newitem)
                 , TSLootItem(item)
                 , TSLoot(loot)
@@ -25310,7 +25310,7 @@ uint32 Player::CalculateTalentsPoints() const
         out_talent = uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
     }
     FIRE(
-          PlayerOnCalculateTalentPoints
+          Player,OnCalculateTalentPoints
         , TSPlayer(const_cast<Player*>(this))
         , TSMutable<uint32>(&out_talent)
     )
@@ -25711,7 +25711,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // @tswow-begin
     bool cancel = false;
-    FIRE(PlayerOnLearnTalent, TSPlayer(this), talentInfo->TabID, talentId, talentRank, spellid, TSMutable<bool>(&cancel));
+    FIRE(Player,OnLearnTalent, TSPlayer(this), talentInfo->TabID, talentId, talentRank, spellid, TSMutable<bool>(&cancel));
     if (cancel)
     {
         return;
@@ -27401,7 +27401,7 @@ void Player::ApplyAutolearnSpells(uint32 fromLevel)
 void Player::SetSelection(ObjectGuid guid) {
     uint64_t old = GetGuidValue(UNIT_FIELD_TARGET).GetRawValue();
     SetGuidValue(UNIT_FIELD_TARGET, guid);
-    FIRE(UnitOnSetTarget, TSUnit(this), guid.GetRawValue(), old);
+    FIRE(Unit,OnSetTarget, TSUnit(this), guid.GetRawValue(), old);
 }
 
 

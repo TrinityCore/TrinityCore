@@ -1437,10 +1437,9 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     // @tswow-begin
     auto ach = const_cast<AchievementEntry*>(
         sAchievementStore.LookupEntry(entry->AchievementID));
-    auto events = GetAchievementEvent(entry->AchievementID);
-    FIRE_MAP(
-        events
-        , AchievementOnUpdate
+    FIRE_ID(
+          entry->AchievementID
+        , Achievement,OnUpdate
         , TSPlayer(m_player)
         , TSAchievementEntry(ach)
         , TSAchievementCriteriaEntry(const_cast<AchievementCriteriaEntry*>(entry))
@@ -1561,10 +1560,9 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
     // @tswow-begin
     auto nonConstAchievement = const_cast<AchievementEntry*>(achievement);
-    auto events = GetAchievementEvent(achievement->ID);
-    FIRE_MAP(
-        events
-        , AchievementOnComplete
+    FIRE_ID(
+          achievement->ID
+        , Achievement,OnComplete
         , TSPlayer(m_player), TSAchievementEntry(nonConstAchievement)
     );
     // @tswow-end

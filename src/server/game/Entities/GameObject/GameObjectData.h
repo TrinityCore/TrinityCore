@@ -437,7 +437,7 @@ struct GameObjectTemplate
     WorldPacket QueryData[TOTAL_LOCALES];
 
     // @tswow-begin
-    TSGameObjectEvents* events = nullptr;
+    TSRegistryRef events;
     TSEntity m_tsEntity;
     // @tswow-end
 

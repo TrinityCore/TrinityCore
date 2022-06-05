@@ -42,6 +42,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
     // @tswow-begin masks
     PrepareStatement(WORLD_SEL_NPC_VENDOR_REF, "SELECT item, maxcount, incrtime, ExtendedCost, raceMask, classMask FROM npc_vendor WHERE entry = ? ORDER BY slot ASC", CONNECTION_SYNCH);
     // @tswow-end
+    // @tswow-begin 
     PrepareStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE, "UPDATE creature SET MovementType = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_UPD_CREATURE_FACTION, "UPDATE creature_template SET faction = ? WHERE entry = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_UPD_CREATURE_NPCFLAG, "UPDATE creature_template SET npcflag = ? WHERE entry = ?", CONNECTION_ASYNC);

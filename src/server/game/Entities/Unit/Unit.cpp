@@ -81,7 +81,6 @@
 #include <cmath>
 // @tswow-begin
 #include "TSProfile.h"
-#include "TSEventLoader.h"
 #include "TSDamageInfo.h"
 #include "TSUnit.h"
 #include "TSCreature.h"
@@ -739,7 +738,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             // @tswow-begin
             if (Creature* cControlled = controlled->ToCreature())
             {
-                FIRE_MAP(cControlled->GetCreatureTemplate()->events,CreatureOnOwnerAttacked,TSCreature(cControlled),TSUnit(attacker));
+                FIRE_ID(cControlled->GetCreatureTemplate()->events.id,Creature,OnOwnerAttacked,TSCreature(cControlled),TSUnit(attacker));
 
                 if (CreatureAI* controlledAI = cControlled->AI())
                     controlledAI->OwnerAttackedBy(attacker);
@@ -1019,9 +1018,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     uint32 crTypeMask = victim->GetCreatureTypeMask();
 
     // @tswow-begin
-    FIRE_MAP(
-          spellInfo->events
-        , SpellOnDamageEarly
+    FIRE_ID(
+          spellInfo->events.id
+        , Spell,OnDamageEarly
         , TSSpell(spell)
         , TSMutable<int32>(&damage)
         , TSSpellDamageInfo(damageInfo)
@@ -1144,9 +1143,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
     damageInfo->damage = dmgInfo.GetDamage();
     // @tswow-begin
-    FIRE_MAP(
-          spellInfo->events
-        , SpellOnDamageLate
+    FIRE_ID(
+          spellInfo->events.id
+        , Spell,OnDamageLate
         , TSSpell(spell)
         , TSMutable<uint32>(&damageInfo->damage)
         , TSSpellDamageInfo(damageInfo)
@@ -1263,7 +1262,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
         // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
         sScriptMgr->ModifyMeleeDamage(damageInfo->Target, damageInfo->Attacker, damage);
         // @tswow-begin
-        FIRE(UnitOnMeleeDamageEarly
+        FIRE(Unit,OnMeleeDamageEarly
             , TSMeleeDamageInfo(damageInfo)
             , TSMutable<uint32>(&damage)
             , attackType
@@ -1471,7 +1470,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             damageInfo->Damages[i].Damage = 0;
 
         // @tswow-begin
-        FIRE(UnitOnMeleeDamageLate
+        FIRE(Unit,OnMeleeDamageLate
             , TSMeleeDamageInfo(damageInfo)
             , TSMutable<uint32>(&damageInfo->Damages[i].Damage)
             , attackType
@@ -2239,7 +2238,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     float block_chance_f = GetUnitBlockChance(attType, victim);
     float parry_chance_f = GetUnitParryChance(attType, victim);
 
-    FIRE(UnitOnCalcMeleeOutcome
+    FIRE(Unit,OnCalcMeleeOutcome
         , TSUnit(const_cast<Unit*>(this))
         , TSUnit(const_cast<Unit*>(victim))
         , TSMutable<float>(&miss_chance_f)
@@ -2424,9 +2423,9 @@ float Unit::CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInf
         result = 1.0f;
     else
         result = std::max(0.0f, std::min(1.0f, (22.0f + spellInfo->MaxLevel - GetLevel()) / 20.0f));
-    FIRE_MAP(
-          spellInfo->events
-        , SpellOnCalcSpellPowerLevelPenalty
+    FIRE_ID(
+          spellInfo->events.id
+        , Spell,OnCalcSpellPowerLevelPenalty
         , TSSpellInfo(spellInfo)
         , TSMutable<float>(&result)
         , TSUnit(const_cast<Unit*>(this))
@@ -2791,7 +2790,7 @@ float Unit::GetUnitMissChance() const
         miss_chance += player->GetMissPercentageFromDefense();
     // @tswow-begin
     FIRE(
-          UnitOnCalcMissChance
+          Unit,OnCalcMissChance
         , TSUnit(const_cast<Unit*>(this))
         , TSMutable<float>(&miss_chance)
     );
@@ -2906,7 +2905,7 @@ float Unit::GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType at
 
     chance += skillBonus;
     // @tswow-begin
-    FIRE(UnitOnCalcMeleeCrit
+    FIRE(Unit,OnCalcMeleeCrit
         , TSUnit(const_cast<Unit*>(attacker))
         , TSUnit(const_cast<Unit*>(this))
         , TSMutable<float>(&chance)
@@ -3183,7 +3182,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
         // @tswow-begin
         if(Creature *c = ToCreature())
         {
-            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnSpellCastFinished,TSCreature(c),TSSpellInfo(spell->GetSpellInfo()),SPELL_FINISHED_CANCELED);
+            FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnSpellCastFinished,TSCreature(c),TSSpellInfo(spell->GetSpellInfo()),SPELL_FINISHED_CANCELED);
         }
         // @tswow-end
 
@@ -5778,7 +5777,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
             // @tswow-begin
             if (Creature* cControlled = controlled->ToCreature())
             {
-                FIRE_MAP(cControlled->GetCreatureTemplate()->events,CreatureOnOwnerAttacks,TSCreature(cControlled),TSUnit(victim));
+                FIRE_ID(cControlled->GetCreatureTemplate()->events.id,Creature,OnOwnerAttacks,TSCreature(cControlled),TSUnit(victim));
 
                 if (CreatureAI* controlledAI = cControlled->AI())
                     controlledAI->OwnerAttacked(victim);
@@ -9616,7 +9615,7 @@ void Unit::AIUpdateTick(uint32 diff)
     if(Creature* c = ToCreature())
     {
         m_aiLocked = true;
-        FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnUpdateAI,TSCreature(c),diff);
+        FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnUpdateAI,TSCreature(c),diff);
         m_aiLocked = false;
     }
     // @tswow-end
@@ -9820,7 +9819,7 @@ void Unit::UpdateCharmAI()
         // @tswow-begin
         if(Creature* c = ToCreature())
         {
-            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c), true);
+            FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnCharmed,TSCreature(c), true);
         }
         // @tswow-end
         newAI->OnCharmed(true);
@@ -9833,7 +9832,7 @@ void Unit::UpdateCharmAI()
         // @tswow-begin
         if(Creature* c = ToCreature())
         {
-            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c), true);
+            FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnCharmed,TSCreature(c), true);
         }
         // @tswow-end
         if (UnitAI* ai = GetAI())
@@ -11157,7 +11156,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
                 loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
 
             // @tswow-begin
-            FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnGenerateLoot,TSCreature(creature),TSPlayer(player));
+            FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnGenerateLoot,TSCreature(creature),TSPlayer(player));
             // @tswow-end
 
             if (group)
@@ -11177,10 +11176,10 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     }
 
     // @tswow-begin
-    FIRE(UnitOnDeathEarly, TSUnit(victim), TSUnit(attacker));
+    FIRE(Unit,OnDeathEarly, TSUnit(victim), TSUnit(attacker));
     if (creature)
     {
-        FIRE_MAP(creature->GetCreatureTemplate()->events, CreatureOnDeathEarly, TSCreature(creature), TSUnit(attacker));
+        FIRE_ID(creature->GetCreatureTemplate()->events.id, Creature,OnDeathEarly, TSCreature(creature), TSUnit(attacker));
     }
     // @tswow-end
 
@@ -11264,7 +11263,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         if(Creature* c = attacker->ToCreature())
         {
             // @tswow-begin
-            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnKilledUnit,TSCreature(c),TSUnit(victim));
+            FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnKilledUnit,TSCreature(c),TSUnit(victim));
             // @tswow-end
         }
         // @tswow-end
@@ -11303,8 +11302,8 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 
         // @tswow-begin
         sTSBossAI->OnJustDied(creature,attacker);
-        FIRE(UnitOnDeath, TSUnit(creature), TSUnit(attacker));
-        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnDeath,TSCreature(creature),TSUnit(attacker));
+        FIRE(Unit,OnDeath, TSUnit(creature), TSUnit(attacker));
+        FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnDeath,TSCreature(creature),TSUnit(attacker));
         // @tswow-end
 
         if (TempSummon * summon = creature->ToTempSummon())
@@ -11314,7 +11313,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
                 // @tswow-begin
                 if(Creature *c = summoner->ToCreature())
                 {
-                    FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnSummonDies,TSCreature(c),TSCreature(summon),TSUnit(attacker));
+                    FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnSummonDies,TSCreature(c),TSCreature(summon),TSUnit(attacker));
                 }
                 // @tswow-end
                 if (summoner->ToCreature() && summoner->ToCreature()->IsAIEnabled())
@@ -11851,7 +11850,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         // @tswow-begin
         if(Creature* c = ToCreature())
         {
-            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c), false);
+            FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnCharmed,TSCreature(c), false);
         }
         // @tswow-begin
 
@@ -11962,7 +11961,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
         // @tswow-begin
         if(Creature* c = ToCreature())
         {
-            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c),false);
+            FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnCharmed,TSCreature(c),false);
         }
         // @tswow-begin
 
@@ -12359,9 +12358,9 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
     // @tswow-begin
     if (spellInfo)
     {
-        FIRE_MAP(
-              spellInfo->events
-            , SpellOnCalcMeleeMiss
+        FIRE_ID(
+              spellInfo->events.id
+            , Spell,OnCalcMeleeMiss
             , TSSpellInfo(spellInfo)
             , TSMutable<float>(&missChance)
             , TSUnit(const_cast<Unit*>(this))
@@ -12792,7 +12791,7 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
     // @tswow-begin
     if(creature)
     {
-        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnSpellClick,TSCreature(creature),TSUnit(clicker),spellClickHandled);
+        FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnSpellClick,TSCreature(creature),TSUnit(clicker),spellClickHandled);
     }
     // @tswow-end
     if (creature && creature->IsAIEnabled())

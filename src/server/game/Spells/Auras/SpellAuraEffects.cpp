@@ -5109,9 +5109,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
     sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
     // @tswow-begin
-    FIRE_MAP(
-        this->m_spellInfo->events
-        , SpellOnPeriodicDamage
+    FIRE_ID(
+        this->m_spellInfo->events.id
+        , Spell,OnPeriodicDamage
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<uint32>(&damage)
     );
@@ -5151,9 +5151,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     // @tswow-begin
     float crit_chance = GetCritChanceFor(caster,target);
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnCalcAuraCrit
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnCalcAuraCrit
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<float>(&crit_chance)
     );
@@ -5238,9 +5238,9 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
     sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
     // @tswow-begin
-    FIRE_MAP(
-        this->m_spellInfo->events
-        , SpellOnPeriodicDamage
+    FIRE_ID(
+        this->m_spellInfo->events.id
+        , Spell,OnPeriodicDamage
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<uint32>(&damage)
     );
@@ -5253,9 +5253,9 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     // @tswow-begin
     float crit_chance = GetCritChanceFor(caster,target);
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnCalcAuraCrit
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnCalcAuraCrit
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<float>(&crit_chance)
     );
@@ -5380,9 +5380,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     // Script Hook For HandlePeriodicHealAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
     sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
     // @tswow-begin
-    FIRE_MAP(
-          this->m_spellInfo->events
-        , SpellOnPeriodicDamage
+    FIRE_ID(
+          this->m_spellInfo->events.id
+        , Spell,OnPeriodicDamage
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<uint32>(&damage)
     );
@@ -5401,9 +5401,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     // @tswow-begin
     float crit_chance = GetCritChanceFor(caster,target);
-    FIRE_MAP(
-        m_spellInfo->events
-        , SpellOnCalcAuraCrit
+    FIRE_ID(
+        m_spellInfo->events.id
+        , Spell,OnCalcAuraCrit
         , TSAuraEffect(const_cast<AuraEffect*>(this))
         , TSMutable<float>(&crit_chance)
     );

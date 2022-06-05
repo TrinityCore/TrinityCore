@@ -3919,9 +3919,9 @@ void Spell::EffectApplyGlyph()
 
     // @tswow-begin
     bool isLocked = minLevel && player->GetLevel() < minLevel;
-    FIRE_MAP(
-          m_spellInfo->events
-        , SpellOnEffectApplyGlyph
+    FIRE_ID(
+          m_spellInfo->events.id
+        , Spell,OnEffectApplyGlyph
         , TSSpell(this)
         , TSMutable<bool>(&isLocked)
     );
@@ -4272,9 +4272,9 @@ void Spell::EffectQuestComplete()
             return;
 
         // @tswow-begin
-        FIRE_MAP(
-              quest->events
-            , QuestOnSpellFinish
+        FIRE_ID(
+              quest->events.id
+            , Quest,OnSpellFinish
             , TSQuest(quest)
             , TSPlayer(player)
             , TSSpell(this)
@@ -4547,9 +4547,9 @@ void Spell::EffectQuestClear()
     player->RemoveRewardedQuest(quest_id);
 
     // @tswow-begin
-    FIRE_MAP(
-          quest->events
-        , QuestOnStatusChanged
+    FIRE_ID(
+          quest->events.id
+        , Quest,OnStatusChanged
         , TSQuest(quest)
         , TSPlayer(player)
     );

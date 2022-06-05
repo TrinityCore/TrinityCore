@@ -546,9 +546,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
     }
 
     // @tswow-begin event
-    FIRE_MAP(
-          GetConditionEvent(ConditionType)
-        , ConditionOnCheck
+    FIRE_ID(
+          ConditionType
+        , Condition,OnCheck
         , TSCondition(const_cast<Condition*>(this))
         , TSConditionSourceInfo(&sourceInfo)
         , TSMutable<bool>(&condMeets)

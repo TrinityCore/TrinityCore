@@ -414,9 +414,9 @@ class instance_serpent_shrine : public InstanceMapScript
                     if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                         m_auiEncounter[i] = NOT_STARTED;
                 // @tswow-begin
-                FIRE_MAP(
-                    GetInstanceEvent(instance->GetEntry()->ID)
-                    , InstanceOnLoad
+                FIRE_ID(
+                    instance->GetEntry()->ID
+                    , Instance,OnLoad
                     , TSInstance(instance, this)
                 );
                 // @tswow-end

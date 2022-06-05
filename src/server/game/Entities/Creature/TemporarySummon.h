@@ -19,9 +19,6 @@
 #define TRINITYCORE_TEMPSUMMON_H
 
 #include "Creature.h"
-// @tswow-begin
-#include "TSEventLoader.h"
-// @tswow-end
 
 enum PetEntry : uint32
 {

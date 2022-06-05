@@ -52,7 +52,6 @@
 #include <vector>
 // @tswow-begin
 #include "TSProfile.h"
-#include "TSEventLoader.h"
 #include "TSEvents.h"
 #include "TSMap.h"
 #include "TSPlayer.h"
@@ -284,9 +283,6 @@ m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry),
-// @tswow-begin
-i_mapExtra(GetMapDataExtra(id)),
-// @tswow-end
 i_scriptLock(false), _respawnCheckTimer(0)
 {
     m_parentMap = (_parent ? _parent : this);
@@ -309,8 +305,8 @@ i_scriptLock(false), _respawnCheckTimer(0)
 
     sScriptMgr->OnCreateMap(this);
     // @tswow-begin
-    FIRE_MAP(GetExtraData()->events,MapOnCreate,TSMap(this));
-    FIRE_MAP(GetExtraData()->events,MapOnReload,TSMap(this));
+    FIRE_ID(GetId(),Map,OnCreate,TSMap(this));
+    FIRE_ID(GetId(),Map,OnReload,TSMap(this));
     // @tswow-end
 }
 
@@ -623,7 +619,7 @@ bool Map::AddPlayerToMap(Player* player)
         ConvertCorpseToBones(player->GetGUID());
 
     // @tswow-begin
-    FIRE_MAP(GetExtraData()->events,MapOnPlayerEnter,TSMap(this),TSPlayer(player));
+    FIRE_ID(GetId(),Map,OnPlayerEnter,TSMap(this),TSPlayer(player));
     // @tswow-end
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
@@ -782,9 +778,9 @@ void Map::Update(uint32 t_diff)
     TC_ZONE_SCOPED(MAP_PROFILE)
     // @tswow-begin tswow-events
     m_tsWorldEntity.tick(TSMap(this));
-    FIRE_MAP(
-          GetExtraData()->events
-        , MapOnUpdate
+    FIRE_ID(
+          GetId()
+        , Map,OnUpdate
         , TSMap(this)
         , t_diff
         );
@@ -1064,7 +1060,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     // Before leaving map, update zone/area for stats
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     // @tswow-begin
-    FIRE_MAP(GetExtraData()->events,MapOnPlayerLeave,TSMap(this),TSPlayer(player));
+    FIRE_ID(GetId(),Map,OnPlayerLeave,TSMap(this),TSPlayer(player));
     player->m_tsWorldEntity.m_timers.remove_on_map_change();
     // @tswow-end
     sScriptMgr->OnPlayerLeaveMap(this, player);
@@ -3589,9 +3585,9 @@ void DoDelayedUpdate(TSWorldObject obj)
 void Map::DelayedUpdate(uint32 t_diff)
 {
     // @tswow-begin
-    FIRE_MAP(
-          GetExtraData()->events
-        , MapOnUpdateDelayed
+    FIRE_ID(
+          GetId()
+        , Map,OnUpdateDelayed
         , TSMap(this)
         , t_diff
         , TSMapManager()
@@ -3931,7 +3927,7 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
 
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(GetExtraData()->events,MapOnCheckEncounter,TSMap(this),TSPlayer(player));
+    FIRE_ID(GetId(),Map,OnCheckEncounter,TSMap(this),TSPlayer(player));
     // cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
     if (b || (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress()))
     // @tswow-end

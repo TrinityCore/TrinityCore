@@ -339,7 +339,9 @@ class TC_GAME_API Quest
         std::vector<uint32> DependentBreadcrumbQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
 
-        TSQuestEvents* events = nullptr;
+        // @tswow-begin
+        TSRegistryRef events;
+        // @tswow-end
 
         // cached data
     private:

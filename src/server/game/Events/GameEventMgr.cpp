@@ -148,9 +148,9 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         // When event is started, set its worldstate to current time
         sWorld->setWorldState(event_id, GameTime::GetGameTime());
         // @tswow-begin
-        FIRE_MAP(
-            GetGameEventsEvent(event_id)
-            , GameEventOnStart
+        FIRE_ID(
+              event_id
+            , GameEvent,OnStart
             , event_id
         );
         // @tswow-end
@@ -178,9 +178,9 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
             sWorld->ForceGameEventUpdate();
 
         // @tswow-begin
-        FIRE_MAP(
-            GetGameEventsEvent(event_id)
-            , GameEventOnStart
+        FIRE_ID(
+              event_id
+            , GameEvent,OnStart
             , event_id
         );
         // @tswow-end
@@ -232,9 +232,9 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
     }
 
     // @tswow-begin
-    FIRE_MAP(
-          GetGameEventsEvent(event_id)
-        , GameEventOnEnd
+    FIRE_ID(
+          event_id
+        , GameEvent, OnEnd
         , event_id
     );
     // @tswow-end
@@ -1723,9 +1723,9 @@ bool GameEventMgr::CheckOneGameEventConditions(uint16 event_id)
         mGameEvent[event_id].nextstart = currenttime + mGameEvent[event_id].length * 60;
     }
     // @tswow-begin
-    FIRE_MAP(
-        GetGameEventsEvent(event_id)
-        , GameEventOnUpdateState
+    FIRE_ID(
+          event_id
+        , GameEvent,OnUpdateState
         , event_id
     );
     // @tswow-end

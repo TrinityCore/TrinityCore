@@ -335,7 +335,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapEntry const* GetEntry() const { return i_mapEntry; }
 
         // @tswow-begin
-        TSMapDataExtra* GetExtraData() { return i_mapExtra; }
         TSWorldEntity<TSMap> m_tsWorldEntity;
         TSEntity m_tsEntity;
         std::vector < std::function<void(TSMap, TSMapManager)>> m_delayCallbacks;
@@ -728,9 +727,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::mutex _gridLock;
 
         MapEntry const* i_mapEntry;
-        // @tswow-begin
-        TSMapDataExtra* i_mapExtra;
-        // @tswow-end
         uint8 i_spawnMode;
         uint32 i_InstanceId;
         uint32 m_unloadTimer;

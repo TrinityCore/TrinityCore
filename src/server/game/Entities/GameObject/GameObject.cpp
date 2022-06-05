@@ -46,7 +46,6 @@
 #include <G3D/Quat.h>
 // @tswow-begin
 #include "TSProfile.h"
-#include "TSEventLoader.h"
 #include "TSPlayer.h"
 #include "TSGameObject.h"
 #include "TSEvents.h"
@@ -217,8 +216,8 @@ void GameObject::AddToWorld()
     {
         // @tswow-begin
         bool b = false;
-        FIRE_MAP(GetGOInfo()->events,GameObjectOnCreate,TSGameObject(this),TSMutable<bool>(&b));
-        FIRE_MAP(GetMap()->GetExtraData()->events,MapOnGameObjectCreate,TSMap(GetMap()),TSGameObject(this),TSMutable<bool>(&b));
+        FIRE_ID(GetGOInfo()->events.id,GameObject,OnCreate,TSGameObject(this),TSMutable<bool>(&b));
+        FIRE_ID(GetMap()->GetId(),Map,OnGameObjectCreate,TSMap(GetMap()),TSGameObject(this),TSMutable<bool>(&b));
         if(b)
         {
             // TODO: Is this enough?
@@ -253,8 +252,8 @@ void GameObject::RemoveFromWorld()
     if (IsInWorld())
     {
         // @tswow-begin
-        FIRE_MAP(this->GetGOInfo()->events,GameObjectOnRemove,TSGameObject(this));
-        FIRE_MAP(GetMap()->GetExtraData()->events,MapOnGameObjectRemove,TSMap(GetMap()),TSGameObject(this));
+        FIRE_ID(this->GetGOInfo()->events.id,GameObject,OnRemove,TSGameObject(this));
+        FIRE_ID(GetMap()->GetId(),Map,OnGameObjectRemove,TSMap(GetMap()),TSGameObject(this));
         // @tswow-end
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
@@ -448,7 +447,7 @@ void GameObject::Update(uint32 diff)
     TC_ZONE_SCOPED(ENTITY_PROFILE)
     m_tsWorldEntity.tick(TSWorldObject(this));
     m_tsCollisions.Tick(TSWorldObject(this));
-    FIRE_MAP(this->GetGOInfo()->events,GameObjectOnUpdate,TSGameObject(this),diff);
+    FIRE_ID(GetGOInfo()->events.id,GameObject,OnUpdate,TSGameObject(this),diff);
     // @tswow-end
     m_Events.Update(diff);
 
@@ -975,7 +974,7 @@ void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
             fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true);
     }
     // @tswow-begin
-    FIRE_MAP(GetGOInfo()->events,GameObjectOnGenerateFishLoot, TSGameObject(this), TSPlayer(loot_owner), TSLoot(fishloot), false);
+    FIRE_ID(GetGOInfo()->events.id,GameObject,OnGenerateFishLoot, TSGameObject(this), TSPlayer(loot_owner), TSLoot(fishloot), false);
     // @tswow-end
 }
 
@@ -998,7 +997,7 @@ void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
             fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
     }
     // @tswow-begin
-    FIRE_MAP(GetGOInfo()->events,GameObjectOnGenerateFishLoot, TSGameObject(this), TSPlayer(loot_owner), TSLoot(fishloot), true);
+    FIRE_ID(GetGOInfo()->events.id,GameObject,OnGenerateFishLoot, TSGameObject(this), TSPlayer(loot_owner), TSLoot(fishloot), true);
     // @tswow-end
 }
 
@@ -1598,7 +1597,7 @@ void GameObject::Use(Unit* user)
     // @tswow-begin
     WorldObject* target = user;
     bool shouldCancel = false;
-    FIRE_MAP(GetGOInfo()->events,GameObjectOnUse,TSGameObject(this),TSUnit(user),TSMutable<bool>(&shouldCancel));
+    FIRE_ID(GetGOInfo()->events.id,GameObject,OnUse,TSGameObject(this),TSUnit(user),TSMutable<bool>(&shouldCancel));
     if(shouldCancel)
     {
         return;
@@ -1620,9 +1619,9 @@ void GameObject::Use(Unit* user)
         playerUser->PlayerTalkClass->ClearMenus();
         // @tswow-begin
         bool b = false;
-        FIRE_MAP(
-              GetGOInfo()->events
-            , GameObjectOnGossipHello
+        FIRE_ID(
+              GetGOInfo()->events.id
+            , GameObject,OnGossipHello
             , TSGameObject(this)
             , TSPlayer(playerUser)
             , TSMutable<bool>(&b)
@@ -2433,7 +2432,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DAMAGED:
         {
             // @tswow-begin
-            FIRE_MAP(GetGOInfo()->events,GameObjectOnDamaged,TSGameObject(this),TSWorldObject(attackerOrHealer));
+            FIRE_ID(GetGOInfo()->events.id,GameObject,OnDamaged,TSGameObject(this),TSWorldObject(attackerOrHealer));
             // @tswow-end
             EventInform(m_goInfo->building.damagedEvent, attackerOrHealer);
             AI()->Damaged(attackerOrHealer, m_goInfo->building.damagedEvent);
@@ -2461,7 +2460,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DESTROYED:
         {
             // @tswow-begin
-            FIRE_MAP(GetGOInfo()->events,GameObjectOnDestroyed,TSGameObject(this),TSWorldObject(attackerOrHealer));
+            FIRE_ID(GetGOInfo()->events.id,GameObject,OnDestroyed,TSGameObject(this),TSWorldObject(attackerOrHealer));
             // @tswow-end
             EventInform(m_goInfo->building.destroyedEvent, attackerOrHealer);
             AI()->Destroyed(attackerOrHealer, m_goInfo->building.destroyedEvent);
@@ -2518,7 +2517,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     else
         m_lootStateUnitGUID.Clear();
     // @tswow-begin
-    FIRE_MAP(GetGOInfo()->events,GameObjectOnLootStateChanged,TSGameObject(this),state,TSUnit(unit));
+    FIRE_ID(GetGOInfo()->events.id,GameObject,OnLootStateChanged,TSGameObject(this),state,TSUnit(unit));
     // @tswow-end
     AI()->OnLootStateChanged(state, unit);
 
@@ -2549,7 +2548,7 @@ void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
     // @tswow-begin
-    FIRE_MAP(GetGOInfo()->events,GameObjectOnGOStateChanged,TSGameObject(this),state);
+    FIRE_ID(GetGOInfo()->events.id,GameObject,OnGOStateChanged,TSGameObject(this),state);
     // @tswow-end
     if (AI())
         AI()->OnStateChanged(state);

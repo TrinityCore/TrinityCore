@@ -228,7 +228,7 @@ void TempSummon::InitSummon()
         if (owner->GetTypeId() == TYPEID_UNIT)
         {
             // @tswow-begin
-            FIRE_MAP(owner->ToCreature()->GetCreatureTemplate()->events,CreatureOnSummoned,TSCreature(owner->ToCreature()),TSCreature(this));
+            FIRE_ID(owner->ToCreature()->GetCreatureTemplate()->events.id,Creature,OnSummoned,TSCreature(owner->ToCreature()),TSCreature(this));
             // @tswow-end
 
             if (owner->ToCreature()->IsAIEnabled())
@@ -240,7 +240,7 @@ void TempSummon::InitSummon()
                 owner->ToGameObject()->AI()->JustSummoned(this);
         }
         // @tswow-begin
-        FIRE_MAP(this->GetCreatureTemplate()->events,CreatureOnIsSummoned,TSCreature(this),TSWorldObject(owner));
+        FIRE_ID(this->GetCreatureTemplate()->events.id,Creature,OnIsSummoned,TSCreature(this),TSWorldObject(owner));
         // @tswow-end
         if (IsAIEnabled())
             AI()->IsSummonedBy(owner);
@@ -281,7 +281,7 @@ void TempSummon::UnSummon(uint32 msTime)
         if(Creature *c = owner->ToCreature())
         {
             // @tswow-begin
-            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnSummonDespawn,TSCreature(c),TSCreature(this));
+            FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnSummonDespawn,TSCreature(c),TSCreature(this));
             // @tswow-end
         }
         // @tswow-end

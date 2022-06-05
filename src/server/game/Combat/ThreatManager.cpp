@@ -361,7 +361,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     }
 
     // @tswow-begin
-    FIRE(UnitOnCalcThreatEarly
+    FIRE(Unit,OnCalcThreatEarly
         , TSUnit(const_cast<Unit*>(_owner))
         , TSUnit(target)
         , TSMutable<float>(&amount)
@@ -374,7 +374,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         amount = CalculateModifiedThreat(amount, target, spell);
 
     // @tswow-begin
-    FIRE(UnitOnCalcThreatLate
+    FIRE(Unit,OnCalcThreatLate
         , TSUnit(const_cast<Unit*>(_owner))
         , TSUnit(target)
         , TSMutable<float>(&amount)
@@ -454,7 +454,7 @@ void ThreatManager::ScaleThreat(Unit* target, float factor, bool isRaw)
 {
     auto it = _myThreatListEntries.find(target->GetGUID());
     // @tswow-begin
-    FIRE(UnitOnCalcScaleThreat
+    FIRE(Unit,OnCalcScaleThreat
         , TSUnit(const_cast<Unit*>(_owner))
         , TSUnit(target)
         , TSMutable<float>(&factor)

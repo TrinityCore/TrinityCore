@@ -439,9 +439,9 @@ class instance_stratholme : public InstanceMapScript
                 if (EncounterState[5] == IN_PROGRESS)
                     EncounterState[5] = NOT_STARTED;
                 // @tswow-begin
-                FIRE_MAP(
-                    GetInstanceEvent(instance->GetEntry()->ID)
-                    , InstanceOnLoad
+                FIRE_ID(
+                    instance->GetEntry()->ID
+                    , Instance,OnLoad
                     , TSInstance(instance,this)
                 );
                 // @tswow-end

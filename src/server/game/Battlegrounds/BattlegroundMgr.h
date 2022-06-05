@@ -60,10 +60,6 @@ struct BattlegroundTemplate
     uint8 Weight;
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
-    // @tswow-begin
-    TSBattlegroundEvents* m_events = nullptr;
-    // @tswow-end
-
     bool IsArena() const;
 };
 

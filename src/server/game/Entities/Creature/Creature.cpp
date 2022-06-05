@@ -57,7 +57,6 @@
 #include "TSProfile.h"
 #include "TSUnit.h"
 #include "TSCreature.h"
-#include "TSEventLoader.h"
 #include "TSMap.h"
 #include "TSBossAI.h"
 // @tswow-end
@@ -284,8 +283,8 @@ void Creature::AddToWorld()
 {
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(GetCreatureTemplate()->events,CreatureOnCreate,TSCreature(this),TSMutable<bool>(&b));
-    FIRE_MAP(GetMap()->GetExtraData()->events,MapOnCreatureCreate,TSMap(GetMap()),TSCreature(this),TSMutable<bool>(&b));
+    FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnCreate,TSCreature(this),TSMutable<bool>(&b));
+    FIRE_ID(GetMap()->GetId(),Map,OnCreatureCreate,TSMap(GetMap()),TSCreature(this),TSMutable<bool>(&b));
     if(b)
     {
         // TODO: Is this enough to stop spawning?
@@ -318,8 +317,8 @@ void Creature::RemoveFromWorld()
     if (IsInWorld())
     {
         // @tswow-begin
-        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnRemove,TSCreature(this));
-        FIRE_MAP(GetMap()->GetExtraData()->events,MapOnCreatureRemove,TSMap(GetMap()),TSCreature(this));
+        FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnRemove,TSCreature(this));
+        FIRE_ID(GetMap()->GetId(),Map,OnCreatureRemove,TSMap(GetMap()),TSCreature(this));
         // @tswow-end
         if (GetZoneScript())
             GetZoneScript()->OnCreatureRemove(this);
@@ -458,7 +457,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         loot.clear();
         uint32 respawnDelay = m_respawnDelay;
         //@tswow-begin
-        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnCorpseRemoved,TSCreature(this),respawnDelay);
+        FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnCorpseRemoved,TSCreature(this),respawnDelay);
         //@tswow-end
         if (CreatureAI* ai = AI())
             ai->CorpseRemoved(respawnDelay);
@@ -497,7 +496,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
     else
     {
         //@tswow-begin
-        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnCorpseRemoved,TSCreature(this),m_respawnDelay);
+        FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnCorpseRemoved,TSCreature(this),m_respawnDelay);
         //@tswow-end
 
         if (CreatureAI* ai = AI())
@@ -767,7 +766,7 @@ void Creature::Update(uint32 diff)
             m_vehicleKit->Reset();
         m_triggerJustAppeared = false;
         // @tswow-begin
-        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnJustAppeared,TSCreature(this));
+        FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnJustAppeared,TSCreature(this));
         // @tswow-end
         AI()->JustAppeared();
     }
@@ -1541,9 +1540,9 @@ void Creature::UpdateLevelDependantStats()
     uint32 health = uint32(basehp * healthmod);
 
     // @tswow-begin
-    FIRE_MAP(
-        this->GetCreatureTemplate()->events
-        , CreatureOnUpdateLvlDepMaxHealth
+    FIRE_ID(
+          this->GetCreatureTemplate()->events.id
+        , Creature,OnUpdateLvlDepMaxHealth
         , TSCreature(this)
         , TSMutable<uint32>(&health)
         , healthmod
@@ -1559,9 +1558,9 @@ void Creature::UpdateLevelDependantStats()
     // mana
     uint32 mana = stats->GenerateMana(cInfo);
     // @tswow-begin
-    FIRE_MAP(
-        this->GetCreatureTemplate()->events
-        , CreatureOnUpdateLvlDepMaxMana
+    FIRE_ID(
+          GetCreatureTemplate()->events.id
+        , Creature,OnUpdateLvlDepMaxMana
         , TSCreature(this)
         , TSMutable<uint32>(&mana)
         , stats->BaseMana
@@ -1589,9 +1588,9 @@ void Creature::UpdateLevelDependantStats()
     float weaponBaseMaxDamage = basedamage * 1.5f;
 
     // @tswow-begin
-    FIRE_MAP(
-        this->GetCreatureTemplate()->events
-        , CreatureOnUpdateLvlDepBaseDamage
+    FIRE_ID(
+          this->GetCreatureTemplate()->events.id
+        , Creature,OnUpdateLvlDepBaseDamage
         , TSCreature(this)
         , TSMutable<float>(&weaponBaseMinDamage)
         , TSMutable<float>(&weaponBaseMaxDamage)
@@ -1611,9 +1610,9 @@ void Creature::UpdateLevelDependantStats()
     // @tswow-begin
     uint32 attackPower = stats->AttackPower;
     uint32 rangedAttackPower = stats->RangedAttackPower;
-    FIRE_MAP(
-          this->GetCreatureTemplate()->events
-        , CreatureOnUpdateLvlDepAttackPower
+    FIRE_ID(
+          GetCreatureTemplate()->events.id
+        , Creature,OnUpdateLvlDepAttackPower
         , TSCreature(this)
         , TSMutable<uint32>(&attackPower)
         , TSMutable<uint32>(&rangedAttackPower)
@@ -1624,9 +1623,9 @@ void Creature::UpdateLevelDependantStats()
 
     float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
     // @tswow-begin
-    FIRE_MAP(
-        this->GetCreatureTemplate()->events
-        , CreatureOnUpdateLvlDepArmor
+    FIRE_ID(
+          GetCreatureTemplate()->events.id
+        , Creature,OnUpdateLvlDepArmor
         , TSCreature(this)
         , TSMutable<float>(&armor)
         , stats->BaseArmor
@@ -3332,13 +3331,13 @@ void Creature::SetTarget(ObjectGuid guid)
     {
         uint64_t old = _spellFocusInfo.Target.GetRawValue();
         _spellFocusInfo.Target = guid;
-        FIRE(UnitOnSetTarget, TSUnit(this), guid, old);
+        FIRE(Unit,OnSetTarget, TSUnit(this), guid, old);
     }
     else
     {
         uint64_t old = GetGuidValue(UNIT_FIELD_TARGET).GetRawValue();
         SetGuidValue(UNIT_FIELD_TARGET, guid);
-        FIRE(UnitOnSetTarget, TSUnit(this), guid, old);
+        FIRE(Unit,OnSetTarget, TSUnit(this), guid, old);
     }
     // @tswow-end
 }
@@ -3570,7 +3569,7 @@ void Creature::AtEngage(Unit* target)
         }
 
         // @tswow-begin
-        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnJustEngagedWith,TSCreature(this),TSUnit(target));
+        FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnJustEngagedWith,TSCreature(this),TSUnit(target));
         // @tswow-end
     }
 

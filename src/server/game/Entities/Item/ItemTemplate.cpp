@@ -57,9 +57,9 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
 
     // @tswow-begin
     bool canChange = false;
-    FIRE_MAP(
-          this->events
-        , ItemOnCanChangeEquipState
+    FIRE_ID(
+          events.id
+        , Item,OnCanChangeEquipState
         , TSItemTemplate(this)
         , TSMutable<bool>(&canChange)
     );

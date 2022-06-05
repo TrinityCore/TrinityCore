@@ -254,7 +254,7 @@ namespace Trinity::Impl::ChatCommands
     // @tswow-begin
     bool found = false;
     std::string str(cmdStr);
-    FIRE( PlayerOnCommand
+    FIRE( Player,OnCommand
         , TSPlayer(handler.GetPlayer())
         , TSMutableString(&str)
         , TSMutable<bool>(&found)

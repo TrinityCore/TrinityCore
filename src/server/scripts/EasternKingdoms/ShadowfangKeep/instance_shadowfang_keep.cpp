@@ -242,9 +242,9 @@ public:
                     m_auiEncounter[i] = NOT_STARTED;
             }
             // @tswow-begin
-            FIRE_MAP(
-                GetInstanceEvent(instance->GetEntry()->ID)
-                , InstanceOnLoad
+            FIRE_ID(
+                instance->GetEntry()->ID
+                , Instance,OnLoad
                 , TSInstance(instance,this)
             );
             // @tswow-end

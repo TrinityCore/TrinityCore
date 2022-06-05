@@ -30,7 +30,6 @@
 // @tswow-begin
 #include "TSUnit.h"
 #include "TSCreature.h"
-#include "TSEventLoader.h"
 // @tswow-end
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
@@ -260,7 +259,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
     }
 
     // @tswow-begin
-    FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointReached,TSCreature(owner),waypoint.id,_path->id);
+    FIRE_ID(owner->GetCreatureTemplate()->events.id,Creature,OnWaypointReached,TSCreature(owner),waypoint.id,_path->id);
     // @tswow-end
 
     // inform AI
@@ -294,7 +293,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
 
             // @tswow-begin
-            FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointStarted,TSCreature(owner),_path->nodes[_currentNode].id, _path->id);
+            FIRE_ID(owner->GetCreatureTemplate()->events.id,Creature,OnWaypointStarted,TSCreature(owner),_path->nodes[_currentNode].id, _path->id);
             // @tswow-end
 
             // inform AI
@@ -326,7 +325,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             owner->UpdateCurrentWaypointInfo(0, 0);
 
             // @tswow-begin
-            FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointPathEnded,TSCreature(owner),waypoint.id,_path->id);
+            FIRE_ID(owner->GetCreatureTemplate()->events.id,Creature,OnWaypointPathEnded,TSCreature(owner),waypoint.id,_path->id);
             // @tswow-end
 
             // inform AI
@@ -340,7 +339,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
         AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
         // @tswow-begin
-        FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointStarted,TSCreature(owner),_path->nodes[_currentNode].id, _path->id);
+        FIRE_ID(owner->GetCreatureTemplate()->events.id,Creature,OnWaypointStarted,TSCreature(owner),_path->nodes[_currentNode].id, _path->id);
         // @tswow-end
 
         // inform AI

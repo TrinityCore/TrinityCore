@@ -686,7 +686,7 @@ struct TC_GAME_API ItemTemplate
     // @tswow-end
 
     // @tswow-begin
-    TSItemEvents* events = nullptr;
+    TSRegistryRef events;
     TSEntity m_tsEntity;
     bool m_isDirty = false;
     // @tswow-end

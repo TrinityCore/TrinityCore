@@ -408,7 +408,7 @@ class TC_GAME_API SpellInfo
         SpellChainNode const* ChainEntry;
 
         // @tswow-begin
-        TSSpellEvents* events = nullptr;
+        TSRegistryRef events;
         TSEntity m_tsEntity;
         // @tswow-end
 

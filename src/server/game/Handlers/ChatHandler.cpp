@@ -46,7 +46,6 @@
 // @tswow-begin
 #include "TSUnit.h"
 #include "TSCreature.h"
-#include "TSEventLoader.h"
 // @tswow-end
 
 inline bool isNasty(uint8 c)
@@ -679,7 +678,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     // @tswow-begin
     if(Creature* c = unit->ToCreature())
     {
-        FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnReceiveEmote,TSCreature(c),TSPlayer(GetPlayer()),text_emote);
+        FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnReceiveEmote,TSCreature(c),TSPlayer(GetPlayer()),text_emote);
     }
     // @tswow-end
 

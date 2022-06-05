@@ -884,6 +884,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
         ")"
     , CONNECTION_ASYNC);
     // @tswow-end
+
+    // @tswow-begin json data
+    PrepareStatement(CHAR_UPD_JSON_DATA, "REPLACE INTO `json_data` (`entity_type`, `table_type`, `guid`, `json`) VALUES (?,?,?,?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_JSON_DATA, "SELECT `entity_type`,`table_type`,`json` from `json_data` WHERE `guid` = ?", CONNECTION_ASYNC);
+    // @tswow-end
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

@@ -36,7 +36,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 // @tswow-begin
-#include "TSEventLoader.h"
 #include "TSUnit.h"
 #include "TSCreature.h"
 #include "TSSpellInfo.h"
@@ -114,9 +113,9 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     _player->PlayerTalkClass->ClearMenus();
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(
-          creature->GetCreatureTemplate()->events
-        , CreatureOnGossipHello
+    FIRE_ID(
+          creature->GetCreatureTemplate()->events.id
+        , Creature,OnGossipHello
         , TSCreature(creature)
         , TSPlayer(_player)
         , TSMutable<bool>(&b)
@@ -344,10 +343,10 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                         _player->PlayerTalkClass->ClearMenus();
                         // @tswow-begin
-                        FIRE_MAP(questgiver->GetCreatureTemplate()->events,CreatureOnQuestReward,TSCreature(questgiver),TSPlayer(_player),TSQuest(quest),reward);
-                        FIRE_MAP(
-                              quest->events
-                            , QuestOnReward
+                        FIRE_ID(questgiver->GetCreatureTemplate()->events.id,Creature,OnQuestReward,TSCreature(questgiver),TSPlayer(_player),TSQuest(quest),reward);
+                        FIRE_ID(
+                              quest->events.id
+                            , Quest,OnReward
                             , TSQuest(quest)
                             , TSPlayer(_player)
                             , TSObject(questgiver)
@@ -375,10 +374,10 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                         _player->PlayerTalkClass->ClearMenus();
                         // @tswow-begin
-                        FIRE_MAP(questGiver->GetGOInfo()->events,GameObjectOnQuestReward,TSGameObject(questGiver),TSPlayer(_player),TSQuest(quest),reward);
-                        FIRE_MAP(
-                            quest->events
-                            , QuestOnReward
+                        FIRE_ID(questGiver->GetGOInfo()->events.id,GameObject,OnQuestReward,TSGameObject(questGiver),TSPlayer(_player),TSQuest(quest),reward);
+                        FIRE_ID(
+                            quest->events.id
+                            , Quest,OnReward
                             , TSQuest(quest)
                             , TSPlayer(_player)
                             , TSObject(questGiver)
@@ -470,9 +469,9 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
                 }
 
                 // @tswow-begin
-                FIRE_MAP(
-                      quest->events
-                    , QuestOnStatusChanged
+                FIRE_ID(
+                      quest->events.id
+                    , Quest,OnStatusChanged
                     , TSQuest(quest)
                     , TSPlayer(_player)
                 );

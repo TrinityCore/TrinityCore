@@ -679,9 +679,9 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
                     continue;
                 }
                 bool shouldSend = true;
-                FIRE_MAP(
-                      vendor->GetCreatureTemplate()->events
-                    , CreatureOnSendVendorItem
+                FIRE_ID(
+                      vendor->GetCreatureTemplate()->events.id
+                    , Creature,OnSendVendorItem
                     , TSCreature(vendor)
                     , TSItemTemplate(itemTemplate)
                     , TSPlayer(_player)

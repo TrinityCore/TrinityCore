@@ -67,9 +67,9 @@ namespace Trainer
             }
             bool allowTrain = true;
 
-            FIRE_MAP(
-                trainerSpellInfo->events
-                , SpellOnTrainerSend
+            FIRE_ID(
+                  trainerSpellInfo->events.id
+                , Spell,OnTrainerSend
                 , TSSpellInfo(trainerSpellInfo)
                 , _trainerId
                 , TSPlayer(const_cast<Player*>(player))
@@ -173,9 +173,9 @@ namespace Trainer
             return false;
         }
         bool allowTrain = true;
-        FIRE_MAP(
-              trainerSpellInfo->events
-            , SpellOnTrainerSend
+        FIRE_ID(
+              trainerSpellInfo->events.id
+            , Spell,OnTrainerSend
             , TSSpellInfo(trainerSpellInfo)
             , _trainerId
             , TSPlayer(const_cast<Player*>(player))

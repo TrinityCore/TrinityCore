@@ -21,9 +21,9 @@
 
 // @tswow-begin
 #include "TSLibLoader.h"
-#include "TSEventLoader.h"
 #include "TSLua.h"
 #include "TSProfile.h"
+#include "TSScriptMgrEvents.h"
 // @tswow-end
 #include "World.h"
 #include "AccountMgr.h"
@@ -2141,13 +2141,9 @@ void World::SetInitialWorldSettings()
 
     // @tswow-begin
     sScriptMgr->SetScriptContext("tswow");
-    TSInitializeEvents();
-    UpdateTSLibraries(false);
+    TSLoadScriptMgrEvents();
     sScriptMgr->SwapScriptContext(true);
-    if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false))
-    {
-        TSLuaState::Load();
-    }
+    LoadTSLibraries();
     // @tswow-end
 
     TC_LOG_INFO("server.loading", "Initializing Scripts...");

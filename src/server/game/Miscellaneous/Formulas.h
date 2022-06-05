@@ -42,7 +42,7 @@ namespace Trinity
         {
             float honor = multiplier * level * 1.55f;
             sScriptMgr->OnHonorCalculation(honor, level, multiplier);
-            FIRE(WorldOnCalcHonor, TSMutable<float>(&honor), level, multiplier);
+            FIRE(World,OnCalcHonor, TSMutable<float>(&honor), level, multiplier);
             return honor;
         }
 
@@ -72,7 +72,7 @@ namespace Trinity
             sScriptMgr->OnGrayLevelCalculation(level, pl_level);
             // @tswow-begin
             FIRE(
-                  PlayerOnCalcGreyLevel
+                  Player,OnCalcGreyLevel
                 , TSPlayer(player)
                 , TSMutable<uint8>(&level)
                 );
@@ -101,9 +101,9 @@ namespace Trinity
 
             sScriptMgr->OnColorCodeCalculation(color, pl_level, mob_level);
             // @tswow-begin
-            FIRE_MAP(
-                  creature->GetCreatureTemplate()->events
-                , CreatureOnCalcColorCode
+            FIRE_ID(
+                  creature->GetCreatureTemplate()->events.id
+                , Creature,OnCalcColorCode
                 , TSCreature(creature)
                 , TSMutable<uint8>((uint8*)(&color))
                 , TSPlayer(player)
@@ -146,7 +146,7 @@ namespace Trinity
                 diff = 17;
 
             sScriptMgr->OnZeroDifferenceCalculation(diff, pl_level);
-            FIRE(PlayerOnCalcZeroDiff
+            FIRE(Player,OnCalcZeroDiff
                 , TSPlayer(player)
                 , TSMutable<uint8>(&diff)
             );
@@ -209,9 +209,9 @@ namespace Trinity
             }
 
             // @tswow-begin
-            FIRE_MAP(
-                  creature->GetCreatureTemplate()->events
-                , CreatureOnCalcBaseGain
+            FIRE_ID(
+                  creature->GetCreatureTemplate()->events.id
+                , Creature,OnCalcBaseGain
                 , TSCreature(creature)
                 , TSMutable<uint32>(&baseGain)
                 , TSPlayer(player)
@@ -257,9 +257,9 @@ namespace Trinity
 
             sScriptMgr->OnGainCalculation(gain, player, u);
             // @tswow-begin
-            FIRE_MAP(
-                creature->GetCreatureTemplate()->events
-                , CreatureOnCalcGain
+            FIRE_ID(
+                creature->GetCreatureTemplate()->events.id
+                , Creature,OnCalcGain
                 , TSCreature(creature)
                 , TSMutable<uint32>(&gain)
                 , TSPlayer(player)
@@ -303,7 +303,7 @@ namespace Trinity
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
             // @tswow-begin
             FIRE(
-                  PlayerOnCalcGroupGain
+                  Player,OnCalcGroupGain
                 , TSPlayer(player)
                 , TSMutable<float>(&rate)
                 , count

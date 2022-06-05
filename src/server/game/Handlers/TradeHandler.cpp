@@ -545,7 +545,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         CharacterDatabase.CommitTransaction(trans);
 
         // @tswow-begin
-        if (GetTSEvents()->PlayerOnTradeCompleted.GetSize() > 0)
+        if (ts_events.Player.OnTradeCompleted_callbacks.has_non_id_entries())
         {
             TSArray<TSItem> myItemsTS;
             TSArray<TSItem> hisItemsTS;
@@ -557,7 +557,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
                 if(hisItems[i]) hisItemsTS.push(TSItem(hisItems[i]));
             }
             FIRE(
-                  PlayerOnTradeCompleted
+                  Player,OnTradeCompleted
                 , TSPlayer(_player)
                 , TSPlayer(trader)
                 , myItemsTS

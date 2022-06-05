@@ -173,9 +173,9 @@ Battleground::~Battleground()
 void Battleground::Update(uint32 diff)
 {
     // @tswow-begin
-    FIRE_MAP(
-          GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnUpdateEarly
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnUpdateEarly
         , TSBattleground(m_Map,this)
         , diff
     );
@@ -244,9 +244,9 @@ void Battleground::Update(uint32 diff)
 
     PostUpdateImpl(diff);
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnUpdateLate
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnUpdateLate
         , TSBattleground(m_Map,this)
         , diff
     );
@@ -698,9 +698,9 @@ void Battleground::UpdateWorldState(uint32 variable, uint32 value)
 void Battleground::EndBattleground(uint32 winner)
 {
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnEndEarly
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnEndEarly
         , TSBattleground(m_Map, this)
         , TSMutable<uint32>(&winner)
     );
@@ -842,9 +842,9 @@ void Battleground::EndBattleground(uint32 winner)
     }
 
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnEndLate
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnEndLate
         , TSBattleground(m_Map, this)
         , winner
     );
@@ -1012,9 +1012,9 @@ void Battleground::Reset()
 
     ResetBGSubclass();
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnReset
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnReset
         , TSBattleground(m_Map, this)
     );
     // @tswow-end
@@ -1033,9 +1033,9 @@ void Battleground::StartBattleground()
     sBattlegroundMgr->AddBattleground(this);
 
     // tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnCreate
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnCreate
         , TSBattleground(m_Map, this)
     );
     // @tswow-end
@@ -1098,9 +1098,9 @@ void Battleground::AddPlayer(Player* player)
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnAddPlayer
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnAddPlayer
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
@@ -1156,9 +1156,9 @@ void Battleground::EventPlayerLoggedIn(Player* player)
     // if battleground is starting, then add preparation aura
     // we don't have to do that, because preparation aura isn't removed when player logs out
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnPlayerLogin
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnPlayerLogin
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
@@ -1187,9 +1187,9 @@ void Battleground::EventPlayerLoggedOut(Player* player)
                 EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnPlayerLogout
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnPlayerLogout
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
@@ -1325,9 +1325,9 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
         return false;
 
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnUpdateScore
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnUpdateScore
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , type
@@ -1399,9 +1399,9 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
 {
     // If the assert is called, means that BgObjects must be resized!
     // @tswow-begin
-    FIRE_MAP(
-          GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnAddGameObject
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnAddGameObject
         , TSBattleground(m_Map, this)
         , type
         , TSMutable<uint32>(&entry)
@@ -1572,9 +1572,9 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
 {
     // If the assert is called, means that BgCreatures must be resized!
     // @tswow-begin
-    FIRE_MAP(
-          GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnAddCreature
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnAddCreature
         , TSBattleground(m_Map, this)
         , type
         , TSMutable<uint32>(&entry)
@@ -1701,9 +1701,9 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
 
     uint8 _teamId = (uint8)teamId;
     // @tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnAddSpiritGuide
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnAddSpiritGuide
         , TSBattleground(m_Map, this)
         , type
         , TSMutable<uint32>(&entry)
@@ -1852,9 +1852,9 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
         RewardXPAtKill(killer, victim);
     }
     // tswow-begin
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnKillPlayer
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnKillPlayer
         , TSBattleground(m_Map, this)
         , TSPlayer(victim)
         , TSPlayer(killer)
@@ -1979,9 +1979,9 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     // @tswow-begin
     bool handled = false;
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnAreaTrigger
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnAreaTrigger
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , trigger
@@ -1997,9 +1997,9 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscvalue1)
 {
     bool handled = false;
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnAchievementCriteria
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnAchievementCriteria
         , TSBattleground(m_Map, this)
         , criteriaId
         , TSPlayer(const_cast<Player*>(source))
@@ -2023,14 +2023,14 @@ uint8 Battleground::GetUniqueBracketId() const
 bool Battleground::SetupBattleground()
 {
     bool result = true;
-    FIRE_MAP(
-          GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnReload
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnReload
         , TSBattleground(m_Map, this)
     );
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnCanCreate
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnCanCreate
         , TSBattleground(m_Map, this)
         , TSMutable<bool>(&result)
     );
@@ -2060,9 +2060,9 @@ void Battleground::StartingEventCloseDoors()
             }
         }
     }
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnCloseDoors
+    FIRE_ID(
+        m_MapId
+        , Battleground,OnCloseDoors
         , TSBattleground(m_Map, this)
     );
 }
@@ -2090,18 +2090,18 @@ void Battleground::StartingEventOpenDoors()
             }
         }
     }
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnOpenDoors
+    FIRE_ID(
+        m_MapId
+        , Battleground,OnOpenDoors
         , TSBattleground(m_Map, this)
     );
 }
 
 void Battleground::DestroyGate(Player* player, GameObject* go)
 {
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnDestroyGate
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnDestroyGate
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , TSGameObject(go)
@@ -2110,9 +2110,9 @@ void Battleground::DestroyGate(Player* player, GameObject* go)
 
 void Battleground::EventPlayerDroppedFlag(Player* player)
 {
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnDropFlag
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnDropFlag
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
@@ -2120,9 +2120,9 @@ void Battleground::EventPlayerDroppedFlag(Player* player)
 
 void Battleground::EventPlayerClickedOnFlag(Player* player, GameObject* target)
 {
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnClickFlag
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnClickFlag
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , TSGameObject(target)
@@ -2131,9 +2131,9 @@ void Battleground::EventPlayerClickedOnFlag(Player* player, GameObject* target)
 
 void Battleground::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker)
 {
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnGenericEvent
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnGenericEvent
         , TSBattleground(m_Map, this)
         , TSWorldObject(obj)
         , eventId
@@ -2144,9 +2144,9 @@ void Battleground::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* i
 bool Battleground::HandlePlayerUnderMap(Player* player)
 {
     bool handled = false;
-    FIRE_MAP(
-          GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnPlayerUnderMap
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnPlayerUnderMap
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , TSMutable<bool>(&handled)
@@ -2156,9 +2156,9 @@ bool Battleground::HandlePlayerUnderMap(Player* player)
 
 void Battleground::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 {
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnRemovePlayer
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnRemovePlayer
         , TSBattleground(m_Map, this)
         , guid.GetRawValue()
         , TSPlayer(player)
@@ -2168,9 +2168,9 @@ void Battleground::RemovePlayer(Player* player, ObjectGuid guid, uint32 team)
 
 void Battleground::HandleKillUnit(Creature* creature, Player* killer)
 {
-    FIRE_MAP(
-        GetBattlegroundEvent(m_MapId)
-        , BattlegroundOnKillCreature
+    FIRE_ID(
+          m_MapId
+        , Battleground,OnKillCreature
         , TSBattleground(m_Map, this)
         , TSCreature(creature)
         , TSPlayer(killer)

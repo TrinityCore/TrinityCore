@@ -593,7 +593,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             newChar->SetAtLoginFlag(AT_LOGIN_FIRST);              // First login
             // @tswow-begin
-            FIRE(PlayerOnCreateEarly,TSPlayer(newChar.get()));
+            FIRE(Player,OnCreateEarly,TSPlayer(newChar.get()));
             // @tswow-end
 
             CharacterDatabaseTransaction characterTransaction = CharacterDatabase.BeginTransaction();

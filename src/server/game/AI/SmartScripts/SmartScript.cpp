@@ -294,9 +294,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     bool shouldCancel = false;
     bool shouldCancelLink = false;
     // TODO: send values by ref?
-    FIRE_MAP(
-          GetSmartActionEvent(e.GetActionType())
-        , SmartActionOnActivateEarly
+    FIRE_ID(
+          e.GetActionType()
+        , SmartAction,OnActivateEarly
         , values
         , TSMutable<bool>(&shouldCancel)
         , TSMutable<bool>(&shouldCancelLink)
@@ -2353,9 +2353,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     }
 
     // @tswow-begin - event and link cancelling
-    FIRE_MAP(
-        GetSmartActionEvent(e.GetActionType())
-        , SmartActionOnActivateLate
+    FIRE_ID(
+          e.GetActionType()
+        , SmartAction,OnActivateLate
         , values
         , TSMutable<bool>(&shouldCancelLink)
     );
