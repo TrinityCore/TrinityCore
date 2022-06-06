@@ -740,6 +740,27 @@ namespace WorldPackets
             int32 ResponseIdentifier = 0;
             bool IsReroll = false;
         };
+
+        class UiMapQuestLinesRequest final : public ClientPacket
+        {
+        public:
+            UiMapQuestLinesRequest(WorldPacket&& packet) : ClientPacket(CMSG_UI_MAP_QUEST_LINES_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 UiMapID = 0;
+        };
+
+        class UiMapQuestLinesResponse final : public ServerPacket
+        {
+        public:
+            UiMapQuestLinesResponse(WorldPacket&& packet) : ServerPacket(SMSG_UI_MAP_QUEST_LINES_RESPONSE, 8) { }
+
+            WorldPacket const* Write() override;
+
+            int32 UiMapID = 0;
+            std::vector<QuestLineXQuestEntry> QuestIDs;
+        };
     }
 }
 
