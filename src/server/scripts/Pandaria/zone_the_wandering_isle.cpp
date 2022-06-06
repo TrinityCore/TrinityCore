@@ -56,8 +56,7 @@ struct npc_aspiring_trainee : public ScriptedAI
             me->CombatStop();
             attacker->ToPlayer()->KilledMonsterCredit(QUEST_29524_KILLCREDIT);
 
-
-            _scheduler.Schedule(Seconds(1), [this](TaskContext task)
+            _scheduler.Schedule(Seconds(1), [this](TaskContext /* task */)
                 {
                     Talk(SAY_FINISH_FIGHT);
                 });
