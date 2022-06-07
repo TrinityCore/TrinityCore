@@ -1190,7 +1190,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
         float GetReputationPriceDiscount(Creature const* creature) const;
-        float GetReputationPriceDiscount(FactionTemplateEntry const* factionTemplate) const;
+        // @tswow-begin
+        float GetReputationPriceDiscount(FactionTemplateEntry const* factionTemplate, Creature const* creature = nullptr) const;
+        // @tswow-end
 
         Player* GetTrader() const;
         TradeData* GetTradeData() const { return m_trade; }

@@ -109,6 +109,7 @@
 // @tswow-begin
 #include "TSProfile.h"
 #include "TSEvents.h"
+#include "TSFactionTemplate.h"
 #include "TSQuest.h"
 #include "TSPlayer.h"
 #include "TSCreature.h"
@@ -23815,20 +23816,32 @@ bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 
 float Player::GetReputationPriceDiscount(Creature const* creature) const
 {
-    return GetReputationPriceDiscount(creature->GetFactionTemplateEntry());
+    return GetReputationPriceDiscount(creature->GetFactionTemplateEntry(), creature);
 }
 
-float Player::GetReputationPriceDiscount(FactionTemplateEntry const* factionTemplate) const
+// @tswow-begin rewrite flow for hook
+float Player::GetReputationPriceDiscount(FactionTemplateEntry const* factionTemplate, Creature const* creature) const
 {
+    float money;
     if (!factionTemplate || !factionTemplate->Faction)
-        return 1.0f;
+        money = 1.0f;
+    else {
+        ReputationRank rank = GetReputationRank(factionTemplate->Faction);
+        if (rank <= REP_NEUTRAL)
+            money = 1.0f;
+        else
+            money = 1.0f - 0.05f * (rank - REP_NEUTRAL);
+    }
 
-    ReputationRank rank = GetReputationRank(factionTemplate->Faction);
-    if (rank <= REP_NEUTRAL)
-        return 1.0f;
-
-    return 1.0f - 0.05f* (rank - REP_NEUTRAL);
+    FIRE(Player, OnReputationPriceDiscount
+        , TSPlayer(const_cast<Player*>(this))
+        , TSFactionTemplate(factionTemplate)
+        , TSCreature(const_cast<Creature*>(creature))
+        , TSMutable<float>(&money)
+    );
+    return money;
 }
+// @tswow-end
 
 Player* Player::GetTrader() const
 {
