@@ -26,7 +26,6 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -86,19 +85,10 @@ public:
                         dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
+                case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
                 {
                     dynFlags = dynamicFlags & 0xFFFF;
                     pathProgress = dynamicFlags >> 16;
-                    break;
-                }
-                case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
-                {
-                    Transport const* transport = gameObject->ToTransport();
-                    if (uint32 transportPeriod = transport->GetTransportPeriod())
-                    {
-                        float timer = float(transport->GetTimer() % transportPeriod);
-                        pathProgress = uint16(timer / float(transportPeriod) * 65535.0f);
-                    }
                     break;
                 }
                 case GAMEOBJECT_TYPE_CAPTURE_POINT:
@@ -111,7 +101,7 @@ public:
                     break;
             }
 
-            dynamicFlags = (pathProgress << 16) | dynFlags;
+            dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
         }
 
         return dynamicFlags;
