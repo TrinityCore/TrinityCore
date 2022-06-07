@@ -335,7 +335,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetPhaseMask() const { return m_phaseMask; }
         // @tswow-begin
         bool InSamePhase(uint32 phasemask, uint64 phase_id) const {
-            return (GetPhaseMask() & phasemask) && (phase_id == m_phase_id);
+            return (GetPhaseMask() & phasemask) && ((phase_id == m_phase_id) || (phase_id == BROADCAST_PHASE_ID) || (m_phase_id == BROADCAST_PHASE_ID));
         }
         bool InSamePhase(WorldObject const* obj) const { return obj && InSamePhase(obj->GetPhaseMask(),obj->m_phase_id); }
         // @tswow-end
