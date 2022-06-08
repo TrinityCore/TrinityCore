@@ -87,7 +87,7 @@ namespace WorldPackets
         public:
             CancelModSpeedNoControlAuras(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOD_SPEED_NO_CONTROL_AURAS, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
 
             ObjectGuid TargetGUID;
         };
