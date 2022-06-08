@@ -870,17 +870,16 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
 void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest)
 {
     UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapQuestLinesRequest.UiMapID);
-
     if (!uiMap)
         return;
 
     WorldPackets::Quest::UiMapQuestLinesResponse response;
     response.UiMapID = uiMapQuestLinesRequest.UiMapID;
 
-    for (QuestLineXQuestEntry const* QuestLineXQuest : sQuestLineXQuestStore)
+    for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
     {
-        if(QuestLineXQuest->OrderIndex == 0)
-            response.QuestLineXQuestIDs.push_back(QuestLineXQuest->ID);
+        if(questLineXQuest->OrderIndex == 0)
+            response.QuestLineXQuestIDs.push_back(questLineXQuest->ID);
     }
 
     SendPacket(response.Write());

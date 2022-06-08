@@ -777,8 +777,8 @@ WorldPacket const* UiMapQuestLinesResponse::Write()
     _worldPacket << int32(UiMapID);
     _worldPacket << uint32(QuestLineXQuestIDs.size());
 
-    for (uint32 questIDs : QuestLineXQuestIDs)
-        _worldPacket << questIDs;
+    for (uint32 const& questID : QuestLineXQuestIDs)
+        _worldPacket << uint32(questID);
 
     return &_worldPacket;
 }
