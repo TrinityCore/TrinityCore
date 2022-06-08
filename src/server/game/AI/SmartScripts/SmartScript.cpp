@@ -2485,13 +2485,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
             {
-                if (!IsCreature(target))
-                    continue;
-
-                Creature* creature = target->ToCreature();
-
-                if (creature->GetAI())
-                    creature->GetAI()->DoAction(e.action.doAction.actionId);
+                if (Unit* unitTarget = Object::ToUnit(target))
+                {
+                    if (unitTarget->GetAI())
+                        unitTarget->GetAI()->DoAction(e.action.doAction.actionId);
+                }
+                else if (GameObject* goTarget = Object::ToGameObject(target))
+                {
+                    if (goTarget->AI())
+                        goTarget->AI()->DoAction(e.action.doAction.actionId);
+                }
             }
 
             break;
