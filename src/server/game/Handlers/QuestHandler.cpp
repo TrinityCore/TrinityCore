@@ -867,3 +867,21 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             _player->GetReputationMgr().ModifyReputation(sFactionStore.AssertEntry(faction.Id), faction.Quantity);
     }
 }
+void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest)
+{
+    UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapQuestLinesRequest.UiMapID);
+
+    if (!uiMap)
+        return;
+
+    WorldPackets::Quest::UiMapQuestLinesResponse response;
+    response.UiMapID = uiMapQuestLinesRequest.UiMapID;
+
+    for (QuestLineXQuestEntry const* QuestLineXQuest : sQuestLineXQuestStore)
+    {
+        if(QuestLineXQuest->OrderIndex == 0)
+            response.QuestLineXQuestIDs.push_back(QuestLineXQuest->ID);
+    }
+
+    SendPacket(response.Write());
+}
