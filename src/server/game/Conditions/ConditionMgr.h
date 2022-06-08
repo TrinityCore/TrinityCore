@@ -111,6 +111,7 @@ enum ConditionTypes
     CONDITION_TYPE_MASK                = 52,                   // TypeMask         0              0                  true if object is type object's TypeMask matches provided TypeMask
     CONDITION_BATTLE_PET_COUNT         = 53,                   // SpecieId         count          ComparisonType     true if player has `count` of battle pet species
     CONDITION_SCENARIO_STEP            = 54,                   // ScenarioStepId   0              0                  true if player is at scenario with current step equal to ScenarioStepID
+    CONDITION_SCENE_IN_PROGRESS        = 55,                   // SceneScriptPackageId   0        0                  true if player is playing a scene with ScriptPackageId equal to given value
     CONDITION_MAX
 };
 
