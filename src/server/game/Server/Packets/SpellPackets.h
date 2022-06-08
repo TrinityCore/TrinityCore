@@ -82,6 +82,16 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class CancelModSpeedNoControlAuras final : public ClientPacket
+        {
+        public:
+            CancelModSpeedNoControlAuras(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOD_SPEED_NO_CONTROL_AURAS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TargetGUID;
+        };
+
         class PetCancelAura final : public ClientPacket
         {
         public:
