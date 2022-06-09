@@ -1883,6 +1883,37 @@ class spell_borean_tundra_prototype_neural_needle : public SpellScript
     }
 };
 
+/*######
+## Quest 11587: Prison Break
+######*/
+
+enum PrisonBreak
+{
+    SPELL_SUMMON_ARCANE_PRISONER_1    = 45446,
+    SPELL_SUMMON_ARCANE_PRISONER_2    = 45448
+};
+
+// 45449 - Arcane Prisoner Rescue
+class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_ARCANE_PRISONER_1, SPELL_SUMMON_ARCANE_PRISONER_2 });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), RAND(SPELL_SUMMON_ARCANE_PRISONER_1, SPELL_SUMMON_ARCANE_PRISONER_2));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_arcane_prisoner_rescue::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_corastrasza);
@@ -1910,4 +1941,5 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_kodo_delivered);
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
+    RegisterSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
 }
