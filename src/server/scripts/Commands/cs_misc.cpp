@@ -1492,7 +1492,7 @@ public:
         return true;
     }
 
-    static bool HandleAddItemSetCommand(ChatHandler* handler, Variant<Hyperlink<itemset>, uint32> itemSetId)
+    static bool HandleAddItemSetCommand(ChatHandler* handler, Variant<Hyperlink<itemset>, uint32> itemSetId, Optional<std::string_view> bonuses, Optional<uint8> context)
     {
         // prevent generation all items with itemset field value '0'
         if (*itemSetId == 0)
@@ -1503,19 +1503,16 @@ public:
         }
 
         std::vector<int32> bonusListIDs;
-        char const* bonuses = strtok(nullptr, " ");
-
-        char const* context = strtok(nullptr, " ");
 
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonuses)
-            for (std::string_view token : Trinity::Tokenize(bonuses, ';', false))
+            for (std::string_view token : Trinity::Tokenize(*bonuses, ';', false))
                 if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token))
                     bonusListIDs.push_back(*bonusListId);
 
         ItemContext itemContext = ItemContext::NONE;
         if (context)
-            itemContext = ItemContext(atoul(context));
+            itemContext = ItemContext(*context);
 
         Player* player = handler->GetSession()->GetPlayer();
         Player* playerTarget = handler->getSelectedPlayer();
