@@ -675,9 +675,16 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
 
     // @tswow-begin
-    if(Creature* c = unit->ToCreature())
+    if(unit && unit->IsCreature())
     {
-        FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnReceiveEmote,TSCreature(c),TSPlayer(GetPlayer()),text_emote);
+        FIRE_ID(
+            unit->ToCreature()->GetCreatureTemplate()->events.id,
+            Creature,
+            OnReceiveEmote,
+            TSCreature(unit->ToCreature()),
+            TSPlayer(GetPlayer()),
+            text_emote
+        );
     }
     // @tswow-end
 
