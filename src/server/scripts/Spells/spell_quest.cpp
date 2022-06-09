@@ -87,34 +87,6 @@ class spell_q55_sacred_cleansing : public SpellScriptLoader
         }
 };
 
-enum BendingShinbone
-{
-    SPELL_BENDING_SHINBONE1 = 8854,
-    SPELL_BENDING_SHINBONE2 = 8855
-};
-
-// 8856 - Bending Shinbone
-class spell_q1846_bending_shinbone : public SpellScript
-{
-    PrepareSpellScript(spell_q1846_bending_shinbone);
-
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
-    {
-        Item* target = GetHitItem();
-        Unit* caster = GetCaster();
-        if (!target && caster->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        uint32 const spellId = roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2;
-        caster->CastSpell(caster, spellId, GetSpell());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q1846_bending_shinbone::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum ThaumaturgyChannel
 {
     SPELL_THAUMATURGY_CHANNEL = 21029
@@ -140,41 +112,6 @@ class spell_q2203_thaumaturgy_channel : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_q2203_thaumaturgy_channel::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
-// http://www.wowhead.com/quest=5206 Marauders of Darrowshire
-enum Quest5206Data
-{
-    SPELL_CREATE_RESONATING_SKULL = 17269,
-    SPELL_CREATE_BONE_DUST = 17270
-};
-
-// 17271 - Test Fetid Skull
-class spell_q5206_test_fetid_skull : public SpellScript
-{
-    PrepareSpellScript(spell_q5206_test_fetid_skull);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_CREATE_RESONATING_SKULL, SPELL_CREATE_BONE_DUST });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        uint32 spellId = roll_chance_i(50) ? SPELL_CREATE_RESONATING_SKULL : SPELL_CREATE_BONE_DUST;
-        caster->CastSpell(caster, spellId, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q5206_test_fetid_skull::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -349,38 +286,6 @@ class spell_q11515_fel_siphon_dummy : public SpellScriptLoader
         {
             return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_0, NPC_FELBLOOD_INITIATE, NPC_EMACIATED_FELBLOOD, true);
         }
-};
-
-// http://www.wowhead.com/quest=11587 Prison Break
-enum Quest11587Data
-{
-    SPELL_SUMMON_ARCANE_PRISONER_MALE    = 45446,    // Summon Arcane Prisoner - Male
-    SPELL_SUMMON_ARCANE_PRISONER_FEMALE  = 45448     // Summon Arcane Prisoner - Female
-};
-
-// 45449 - Arcane Prisoner Rescue
-class spell_q11587_arcane_prisoner_rescue : public SpellScript
-{
-    PrepareSpellScript(spell_q11587_arcane_prisoner_rescue);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SUMMON_ARCANE_PRISONER_MALE, SPELL_SUMMON_ARCANE_PRISONER_FEMALE });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        uint32 spellId = SPELL_SUMMON_ARCANE_PRISONER_MALE;
-        if (rand32() % 2)
-            spellId = SPELL_SUMMON_ARCANE_PRISONER_FEMALE;
-        caster->CastSpell(caster, spellId, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q11587_arcane_prisoner_rescue::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
 };
 
 // http://www.wowhead.com/quest=11730 Master and Servant
@@ -712,38 +617,6 @@ class spell_q13280_13283_jump_jets : public SpellScript
     }
 };
 
-enum RedSnapperVeryTasty
-{
-    SPELL_FISHED_UP_RED_SNAPPER  = 29867,
-    SPELL_FISHED_UP_MURLOC       = 29869
-};
-
-// 29866 - Cast Fishing Net
-class spell_q9452_cast_net : public SpellScript
-{
-    PrepareSpellScript(spell_q9452_cast_net);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FISHED_UP_RED_SNAPPER, SPELL_FISHED_UP_MURLOC });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-
-        if (roll_chance_i(66))
-            caster->CastSpell(caster, SPELL_FISHED_UP_RED_SNAPPER, true);
-        else
-            caster->CastSpell(nullptr, SPELL_FISHED_UP_MURLOC, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q9452_cast_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum FocusOnTheBeach
 {
     SPELL_BUNNY_CREDIT_BEAM = 47390,
@@ -925,38 +798,6 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_q11010_q11102_q11023_q11008_check_fly_mount::CheckRequirement);
-    }
-};
-
-enum RecoverTheCargo
-{
-    SPELL_SUMMON_LOCKBOX        = 42288,
-    SPELL_SUMMON_BURROWER       = 42289
-};
-
-// 42287 - Salvage Wreckage
-class spell_q11140salvage_wreckage : public SpellScript
-{
-    PrepareSpellScript(spell_q11140salvage_wreckage);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SUMMON_LOCKBOX, SPELL_SUMMON_BURROWER });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-
-        if (roll_chance_i(50))
-            caster->CastSpell(caster, SPELL_SUMMON_LOCKBOX, true);
-        else
-            caster->CastSpell(nullptr, SPELL_SUMMON_BURROWER, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q11140salvage_wreckage::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -2106,16 +1947,13 @@ class spell_q14386_call_attack_mastiffs : public SpellScript
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
-    RegisterSpellScript(spell_q1846_bending_shinbone);
     RegisterSpellScript(spell_q2203_thaumaturgy_channel);
-    RegisterSpellScript(spell_q5206_test_fetid_skull);
     RegisterSpellScript(spell_q6124_6129_apply_salve);
     new spell_q10255_administer_antidote();
     RegisterSpellScript(spell_q11396_11399_force_shield_arcane_purple_x3);
     RegisterSpellScript(spell_q11396_11399_scourging_crystal_controller);
     RegisterSpellScript(spell_q11396_11399_scourging_crystal_controller_dummy);
     new spell_q11515_fel_siphon_dummy();
-    RegisterSpellScript(spell_q11587_arcane_prisoner_rescue);
     RegisterSpellScript(spell_q11730_ultrasonic_screwdriver);
     RegisterSpellScript(spell_q12459_seeds_of_natures_wrath);
     RegisterSpellScript(spell_q12634_despawn_fruit_tosser);
@@ -2124,7 +1962,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
     RegisterSpellScript(spell_q13280_13283_plant_battle_standard);
     RegisterSpellScript(spell_q13280_13283_jump_jets);
-    RegisterSpellScript(spell_q9452_cast_net);
     RegisterSpellScript(spell_q12066_bunny_kill_credit);
     RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
     RegisterSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy);
@@ -2133,7 +1970,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_burst);
     RegisterSpellScript(spell_q11010_q11102_q11023_choose_loc);
     RegisterSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount);
-    RegisterSpellScript(spell_q11140salvage_wreckage);
     RegisterSpellScript(spell_q12527_zuldrak_rat);
     RegisterSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan);
     RegisterSpellScript(spell_q12730_quenching_mist);
