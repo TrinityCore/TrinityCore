@@ -38,6 +38,8 @@ namespace
 {
 std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetBreedStates;
 std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetSpeciesStates;
+std::unordered_map<uint32 /*CreatureID*/, BattlePetSpeciesEntry const*> _battlePetSpeciesByCreature;
+std::unordered_map<uint32 /*SpellID*/, BattlePetSpeciesEntry const*> _battlePetSpeciesBySpell;
 std::unordered_map<uint32 /*SpeciesID*/, std::unordered_set<uint8 /*breed*/>> _availableBreedsPerSpecies;
 std::unordered_map<uint32 /*SpeciesID*/, uint8 /*quality*/> _defaultQualityPerSpecies;
 }
@@ -95,6 +97,10 @@ void BattlePetMgr::Initialize()
 {
     if (QueryResult result = LoginDatabase.Query("SELECT MAX(guid) FROM battle_pets"))
         sObjectMgr->GetGenerator<HighGuid::BattlePet>().Set((*result)[0].GetUInt64() + 1);
+
+    for (BattlePetSpeciesEntry const* battlePetSpecies : sBattlePetSpeciesStore)
+        if (uint32 creatureId = battlePetSpecies->CreatureID)
+            _battlePetSpeciesByCreature[creatureId] = battlePetSpecies;
 
     for (BattlePetBreedStateEntry const* battlePetBreedState : sBattlePetBreedStateStore)
         _battlePetBreedStates[battlePetBreedState->BattlePetBreedID][BattlePetState(battlePetBreedState->BattlePetStateID)] = battlePetBreedState->Value;
@@ -175,6 +181,21 @@ void BattlePetMgr::LoadDefaultPetQualities()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u battle pet qualities.", uint32(_defaultQualityPerSpecies.size()));
+}
+
+void BattlePetMgr::AddBattlePetSpeciesBySpell(uint32 spellId, BattlePetSpeciesEntry const* speciesEntry)
+{
+    _battlePetSpeciesBySpell[spellId] = speciesEntry;
+}
+
+BattlePetSpeciesEntry const* BattlePetMgr::GetBattlePetSpeciesByCreature(uint32 creatureId)
+{
+    return Trinity::Containers::MapGetValuePtr(_battlePetSpeciesByCreature, creatureId);
+}
+
+BattlePetSpeciesEntry const* BattlePetMgr::GetBattlePetSpeciesBySpell(uint32 spellId)
+{
+    return Trinity::Containers::MapGetValuePtr(_battlePetSpeciesBySpell, spellId);
 }
 
 uint16 BattlePetMgr::RollPetBreed(uint32 species)

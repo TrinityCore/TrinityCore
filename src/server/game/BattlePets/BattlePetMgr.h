@@ -153,6 +153,9 @@ public:
 
     static void Initialize();
 
+    static void AddBattlePetSpeciesBySpell(uint32 spellId, BattlePetSpeciesEntry const* speciesEntry);
+    static BattlePetSpeciesEntry const* GetBattlePetSpeciesByCreature(uint32 creatureId);
+    static BattlePetSpeciesEntry const* GetBattlePetSpeciesBySpell(uint32 spellId);
     static uint16 RollPetBreed(uint32 species);
     static BattlePetBreedQuality GetDefaultPetQuality(uint32 species);
     static uint32 SelectPetDisplay(BattlePetSpeciesEntry const* speciesEntry);
