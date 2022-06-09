@@ -108,6 +108,8 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 uint32 CONF_Locale = 0;
 
 char const* CONF_Product = "wow";
+char const* CONF_Region = "eu";
+bool CONF_UseRemoteCasc = false;
 
 #define CASC_LOCALES_COUNT 17
 
@@ -161,6 +163,8 @@ void Usage(char const* prg)
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
         "-p which installed product to open (wow/wowt/wow_beta)\n"\
+        "-c use remote casc\n"\
+        "-r set remote casc region - standard: eu\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
     exit(1);
 }
@@ -175,6 +179,8 @@ void HandleArgs(int argc, char* arg[])
         // f - use float to int conversion
         // h - limit minimum height
         // l - dbc locale
+        // c - use remote casc
+        // r - set casc remote region - standard: eu
         if (arg[c][0] != '-')
             Usage(arg[0]);
 
@@ -222,6 +228,18 @@ void HandleArgs(int argc, char* arg[])
             case 'p':
                 if (c + 1 < argc && strlen(arg[c + 1]))      // all ok
                     CONF_Product = arg[++c];
+                else
+                    Usage(arg[0]);
+                break;
+            case 'c':
+                if (c + 1 < argc)                            // all ok
+                    CONF_UseRemoteCasc = atoi(arg[c++ + 1]) != 0;
+                else
+                    Usage(arg[0]);
+                break;
+            case 'r':
+                if (c + 1 < argc && strlen(arg[c + 1]))      // all ok
+                    CONF_Region = arg[c++ + 1];
                 else
                     Usage(arg[0]);
                 break;
@@ -1359,6 +1377,16 @@ bool OpenCascStorage(int locale)
 {
     try
     {
+        if (CONF_UseRemoteCasc)
+        {
+            boost::filesystem::path const cache_dir(boost::filesystem::canonical(input_path) / "CascCache");
+            CascStorage.reset(CASC::Storage::OpenRemote(cache_dir, WowLocaleToCascLocaleFlags[locale], CONF_Product, CONF_Region));
+            if (CascStorage)
+                return true;
+
+            printf("Unable to open remote casc fallback to local casc\n");
+        }
+
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
         CascStorage.reset(CASC::Storage::Open(storage_dir, WowLocaleToCascLocaleFlags[locale], CONF_Product));
         if (!CascStorage)
@@ -1380,6 +1408,16 @@ uint32 GetInstalledLocalesMask()
 {
     try
     {
+        if (CONF_UseRemoteCasc)
+        {
+            boost::filesystem::path const cache_dir(boost::filesystem::canonical(input_path) / "CascCache");
+            std::unique_ptr<CASC::Storage> storage(CASC::Storage::OpenRemote(cache_dir, CASC_LOCALE_ALL_WOW, CONF_Product, CONF_Region));
+            if (storage)
+                return CASC_LOCALE_ALL_WOW;
+
+            printf("Unable to open remote casc fallback to local casc\n");
+        }
+
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
         std::unique_ptr<CASC::Storage> storage(CASC::Storage::Open(storage_dir, CASC_LOCALE_ALL_WOW, CONF_Product));
         if (!storage)
@@ -1397,6 +1435,9 @@ uint32 GetInstalledLocalesMask()
 
 static bool RetardCheck()
 {
+    if (CONF_UseRemoteCasc)
+        return true;
+
     try
     {
         boost::filesystem::path storageDir(boost::filesystem::canonical(input_path) / "Data");

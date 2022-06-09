@@ -190,6 +190,29 @@ CASC::Storage* CASC::Storage::Open(boost::filesystem::path const& path, uint32 l
     return storage;
 }
 
+CASC::Storage* CASC::Storage::OpenRemote(boost::filesystem::path const& path, uint32 localeMask, char const* product, char const* region)
+{
+    HANDLE handle = nullptr;
+    std::string cacheArgument = std::string(path.string() + ":" + product + ":" + region);
+
+    printf("Open casc remote storage...\n");
+    if (!::CascOpenOnlineStorage(cacheArgument.c_str(), localeMask, &handle))
+    {
+        DWORD lastError = GetCascError(); // support checking error set by *Open* call, not the next *Close*
+        printf("Error opening remote casc storage: %s\n", HumanReadableCASCError(lastError));
+        CascCloseStorage(handle);
+        SetCascError(lastError);
+        return nullptr;
+    }
+
+    Storage* storage = new Storage(handle);
+
+    if (!storage->LoadOnlineTactKeys())
+        printf("Failed to load additional encryption keys from wow.tools, some files might not be extracted.\n");
+
+    return storage;
+}
+
 uint32 CASC::Storage::GetBuildNumber() const
 {
     CASC_STORAGE_PRODUCT product;

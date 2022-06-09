@@ -62,6 +62,9 @@ std::unordered_set<uint32> maps_that_are_parents;
 boost::filesystem::path input_path;
 bool preciseVectorData = false;
 char const* CascProduct = "wow";
+char const* CascRegion = "eu";
+bool UseRemoteCasc = false;
+uint32 DbcLocale = 0;
 std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
@@ -102,6 +105,16 @@ bool OpenCascStorage(int locale)
 {
     try
     {
+        if (UseRemoteCasc)
+        {
+            boost::filesystem::path const casc_cache_dir(boost::filesystem::canonical(input_path) / "CascCache");
+            CascStorage.reset(CASC::Storage::OpenRemote(casc_cache_dir, WowLocaleToCascLocaleFlags[locale], CascProduct, CascRegion));
+            if (CascStorage)
+                return true;
+
+            printf("Unable to open remote casc fallback to local casc\n");
+        }
+
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
         CascStorage.reset(CASC::Storage::Open(storage_dir, WowLocaleToCascLocaleFlags[locale], CascProduct));
         if (!CascStorage)
@@ -123,6 +136,17 @@ uint32 GetInstalledLocalesMask()
 {
     try
     {
+        if (UseRemoteCasc)
+        {
+            boost::filesystem::path const casc_cache_dir(boost::filesystem::canonical(input_path) / "CascCache");
+
+            std::unique_ptr<CASC::Storage> storage(CASC::Storage::OpenRemote(casc_cache_dir, 0, CascProduct, CascRegion));
+            if (storage)
+                return CASC_LOCALE_ALL_WOW;
+
+            printf("Unable to open remote casc fallback to local casc\n");
+        }
+
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
         std::unique_ptr<CASC::Storage> storage(CASC::Storage::Open(storage_dir, 0, CascProduct));
         if (!storage)
@@ -340,6 +364,29 @@ bool processArgv(int argc, char ** argv, const char *versionString)
             else
                 result = false;
         }
+        else if (strcmp("-c", argv[i]) == 0)
+        {
+            UseRemoteCasc = true;
+        }
+        else if (strcmp("-r", argv[i]) == 0)
+        {
+            if (i + 1 < argc && strlen(argv[i + 1]))
+                CascRegion = argv[++i];
+            else
+                result = false;
+        }
+        else if (strcmp("-dl", argv[i]) == 0)
+        {
+            if (i + 1 < argc && strlen(argv[i + 1]))
+            {
+                for (uint32 l = 0; l < TOTAL_LOCALES; ++l)
+                    if (!strcmp(argv[i + 1], localeNames[l]))
+                        DbcLocale = 1 << l;
+                i++;
+            }
+            else
+                result = false;
+        }
         else
         {
             result = false;
@@ -351,10 +398,13 @@ bool processArgv(int argc, char ** argv, const char *versionString)
     {
         printf("Extract %s.\n",versionString);
         printf("%s [-?][-s][-l][-d <path>][-p <product>]\n", argv[0]);
-        printf("   -s : (default) small size (data size optimization), ~500MB less vmap data.\n");
-        printf("   -l : large size, ~500MB more vmap data. (might contain more details)\n");
-        printf("   -d <path>: Path to the vector data source folder.\n");
-        printf("   -p <product>: which installed product to open (wow/wowt/wow_beta)\n");
+        printf("   -s  : (default) small size (data size optimization), ~500MB less vmap data.\n");
+        printf("   -l  : large size, ~500MB more vmap data. (might contain more details)\n");
+        printf("   -d  <path>: Path to the vector data source folder.\n");
+        printf("   -p  <product>: which installed product to open (wow/wowt/wow_beta)\n");
+        printf("   -c  use remote casc\n");
+        printf("   -r  set remote casc region - standard: eu\n");
+        printf("   -dl dbc locale\n");
         printf("   -? : This message.\n");
     }
 
@@ -365,6 +415,9 @@ static bool RetardCheck()
 {
     try
     {
+        if (UseRemoteCasc)
+            return true;
+
         boost::filesystem::path storageDir(boost::filesystem::canonical(input_path) / "Data");
         boost::filesystem::directory_iterator end;
         for (boost::filesystem::directory_iterator itr(storageDir); itr != end; ++itr)
@@ -432,6 +485,9 @@ int main(int argc, char ** argv)
     int32 FirstLocale = -1;
     for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
+        if (DbcLocale && !(DbcLocale & (1 << i)))
+            continue;
+
         if (i == LOCALE_none)
             continue;
 
@@ -449,7 +505,7 @@ int main(int argc, char ** argv)
             continue;
         }
 
-        printf("Detected client build: %u\n\n", build);
+        printf("Detected client build %u for locale %s\n\n", build, localeNames[i]);
         break;
     }
 
