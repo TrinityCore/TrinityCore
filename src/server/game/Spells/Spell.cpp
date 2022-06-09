@@ -2579,8 +2579,9 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
         unit->SetInCombatWith(spell->m_caster->ToPlayer());
 
     // if target is flagged for pvp also flag caster if a player
+    // but respect current pvp rules (buffing/healing npcs flagged for pvp only flags you if they are in combat)
     _enablePVP = (MissCondition == SPELL_MISS_NONE || spell->m_spellInfo->HasAttribute(SPELL_ATTR3_PVP_ENABLING))
-        && unit->IsPvP() && spell->m_caster->GetTypeId() == TYPEID_PLAYER; // need to check PvP state before spell effects, but act on it afterwards
+        && unit->IsPvP() && (unit->IsInCombat() || unit->IsCharmedOwnedByPlayerOrPlayer()) && spell->m_caster->GetTypeId() == TYPEID_PLAYER; // need to check PvP state before spell effects, but act on it afterwards
 
     if (_spellHitTarget)
     {
