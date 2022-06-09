@@ -140,9 +140,10 @@ public:
 
     // Illusions
     void LoadTransmogIllusions();
-    void LoadAccountTransmogIllusions(PreparedQueryResult knownIllusions);
+    void LoadAccountTransmogIllusions(PreparedQueryResult knownTransmogIllusions);
     void SaveAccountTransmogIllusions(LoginDatabaseTransaction trans);
-    void AddTransmogIllusion(uint16 illusionId);
+    void AddTransmogIllusion(uint32 transmogIllusionId);
+    bool HasTransmogIllusion(uint32 transmogIllusionId) const;
 
     enum class FavoriteAppearanceState
     {

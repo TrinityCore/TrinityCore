@@ -950,21 +950,26 @@ void CollectionMgr::SaveAccountTransmogIllusions(LoginDatabaseTransaction trans)
     }));
 }
 
-void CollectionMgr::AddTransmogIllusion(uint16 illusionId)
+void CollectionMgr::AddTransmogIllusion(uint32 transmogIllusionId)
 {
     Player* owner = _owner->GetPlayer();
-    if (_transmogIllusions->size() <= illusionId)
+    if (_transmogIllusions->size() <= transmogIllusionId)
     {
         std::size_t numBlocks = _transmogIllusions->num_blocks();
-        _transmogIllusions->resize(illusionId + 1);
+        _transmogIllusions->resize(transmogIllusionId + 1);
         numBlocks = _transmogIllusions->num_blocks() - numBlocks;
         while (numBlocks--)
             owner->AddIllusionBlock(0);
     }
 
-    _transmogIllusions->set(illusionId);
-    uint32 blockIndex = illusionId / 32;
-    uint32 bitIndex = illusionId % 32;
+    _transmogIllusions->set(transmogIllusionId);
+    uint32 blockIndex = transmogIllusionId / 32;
+    uint32 bitIndex = transmogIllusionId % 32;
 
     owner->AddIllusionFlag(blockIndex, 1 << bitIndex);
+}
+
+bool CollectionMgr::HasTransmogIllusion(uint32 transmogIllusionId) const
+{
+    return transmogIllusionId < _transmogIllusions->size() && _transmogIllusions->test(transmogIllusionId);
 }

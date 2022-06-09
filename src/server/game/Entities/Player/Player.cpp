@@ -18715,6 +18715,22 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
 
     PushQuests();
+
+    for (TransmogIllusionEntry const* transmogIllusion : sTransmogIllusionStore)
+    {
+        if (!transmogIllusion->GetFlags().HasFlag(TransmogIllusionFlags::PlayerConditionGrantsOnLogin))
+            continue;
+
+        if (GetSession()->GetCollectionMgr()->HasTransmogIllusion(transmogIllusion->ID))
+            continue;
+
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(transmogIllusion->UnlockConditionID))
+            if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+                continue;
+
+        GetSession()->GetCollectionMgr()->AddTransmogIllusion(transmogIllusion->ID);
+    }
+
     return true;
 }
 
