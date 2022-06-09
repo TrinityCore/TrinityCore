@@ -877,10 +877,10 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
     response.UiMapID = uiMapQuestLinesRequest.UiMapID;
 
     for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
-    {
-        if(questLineXQuest->OrderIndex == 0)
-            response.QuestLineXQuestIDs.push_back(questLineXQuest->ID);
-    }
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineXQuest->QuestID))
+            if (_player->CanTakeQuest(quest, false))
+                if (questLineXQuest->OrderIndex == 0)
+                    response.QuestLineXQuestIDs.push_back(questLineXQuest->ID);
 
     SendPacket(response.Write());
 }
