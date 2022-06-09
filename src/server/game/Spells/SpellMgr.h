@@ -41,7 +41,6 @@ class SpellInfo;
 class Player;
 class Unit;
 class ProcEventInfo;
-struct BattlePetSpeciesEntry;
 struct SkillLineAbilityEntry;
 struct SpellAuraOptionsEntry;
 struct SpellAuraRestrictionsEntry;
