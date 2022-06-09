@@ -450,6 +450,19 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPackets::Spells::CancelMount
     });
 }
 
+void WorldSession::HandleCancelModSpeedNoControlAuras(WorldPackets::Spells::CancelModSpeedNoControlAuras& cancelModSpeedNoControlAuras)
+{
+    Unit* mover = _player->GetUnitBeingMoved();
+    if (!mover || mover->GetGUID() != cancelModSpeedNoControlAuras.TargetGUID)
+        return;
+
+    _player->RemoveAurasByType(SPELL_AURA_MOD_SPEED_NO_CONTROL, [](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return !spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive();
+    });
+}
+
 void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::CancelAutoRepeatSpell& /*cancelAutoRepeatSpell*/)
 {
     // may be better send SMSG_CANCEL_AUTO_REPEAT?

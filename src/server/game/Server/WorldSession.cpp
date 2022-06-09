@@ -1321,6 +1321,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_BANK_TEXT_QUERY:                //   0               1.5
         case CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT:    //   0               1.5
         case CMSG_MOVE_SET_FACING:                      //   0               1.5
+        case CMSG_MOVE_SET_FACING_HEARTBEAT:            //   0               1.5
+        case CMSG_MOVE_SET_PITCH:                       //   0               1.5
         case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
         case CMSG_QUEST_GIVER_COMPLETE_QUEST:           //   0               1.5
         case CMSG_SET_ACTION_BUTTON:                    //   0               1.5

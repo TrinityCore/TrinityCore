@@ -20,6 +20,7 @@
 #include "AuctionHousePackets.h"
 #include "AccountMgr.h"
 #include "Bag.h"
+#include "BattlePetMgr.h"
 #include "DB2Stores.h"
 #include "CharacterCache.h"
 #include "CollectionMgr.h"
@@ -35,7 +36,6 @@
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
-#include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -1280,7 +1280,7 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
                     if (player->HasSpell(itemTemplate->Effects[1]->SpellID))
                         continue;
 
-                    if (BattlePetSpeciesEntry const* battlePetSpecies = sSpellMgr->GetBattlePetSpecies(itemTemplate->Effects[1]->SpellID))
+                    if (BattlePetSpeciesEntry const* battlePetSpecies = BattlePets::BattlePetMgr::GetBattlePetSpeciesBySpell(itemTemplate->Effects[1]->SpellID))
                         if (knownPetSpecies.test(battlePetSpecies->ID))
                             continue;
                 }
