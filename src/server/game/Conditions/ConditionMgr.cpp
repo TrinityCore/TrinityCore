@@ -88,7 +88,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "ConversationLine",
     "AreaTrigger Client Triggered",
     "Trainer Spell",
-    "Object Visibility (by ID)"
+    "Object Visibility (by ID)",
     "Point Of Interest"
 };
 
