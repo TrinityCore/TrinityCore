@@ -14749,7 +14749,11 @@ void Player::SendPreparedGossip(WorldObject* source)
             return;
         }
     }
+    SendPreparedGossipForced(source);
+}
 
+void Player::SendPreparedGossipForced(WorldObject* source)
+{
     // in case non empty gossip menu (that not included quests list size) show it
     // (quest entries from quest menu will be included in list)
 
@@ -14823,7 +14827,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_QUESTGIVER:
             PrepareQuestMenu(guid);
-            SendPreparedQuest(source);
+            SendPreparedGossip(source);
             break;
         case GOSSIP_OPTION_VENDOR:
         case GOSSIP_OPTION_ARMORER:
@@ -15064,7 +15068,10 @@ void Player::SendPreparedQuest(WorldObject* source)
         }
     }
 
-    PlayerTalkClass->SendQuestGiverQuestListMessage(source);
+    if (sObjectMgr->GetQuestGreeting(source->GetTypeId(), source->GetEntry()))
+        PlayerTalkClass->SendQuestGiverQuestListMessage(source);
+    else
+        SendPreparedGossipForced(source); // fallback to regular gossip menu
 }
 
 bool Player::IsActiveQuest(uint32 quest_id) const
