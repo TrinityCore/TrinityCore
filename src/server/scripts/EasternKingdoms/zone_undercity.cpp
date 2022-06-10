@@ -34,6 +34,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner
@@ -322,6 +323,37 @@ public:
 };
 
 /*######
+## Quest 1846: Dragonmaw Shinbones
+######*/
+
+enum DragonmawShinbones
+{
+    SPELL_BENDING_SHINBONE1 = 8854,
+    SPELL_BENDING_SHINBONE2 = 8855
+};
+
+// 8856 - Bending Shinbone
+class spell_undercity_bending_shinbone : public SpellScript
+{
+    PrepareSpellScript(spell_undercity_bending_shinbone);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BENDING_SHINBONE1, SPELL_BENDING_SHINBONE2 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_undercity_bending_shinbone::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
 ## AddSC
 ######*/
 
@@ -329,4 +361,5 @@ void AddSC_undercity()
 {
     new npc_lady_sylvanas_windrunner();
     new npc_highborne_lamenter();
+    RegisterSpellScript(spell_undercity_bending_shinbone);
 }
