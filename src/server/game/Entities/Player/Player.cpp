@@ -14802,8 +14802,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     {
         case GOSSIP_OPTION_GOSSIP:
         {
-            if (menuItemData->GossipActionPoi)
-                PlayerTalkClass->SendPointOfInterest(menuItemData->GossipActionPoi);
+            if (uint32 gossipActionPoi = menuItemData->GossipActionPoi)
+                if (sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_POINT_OF_INTEREST, gossipActionPoi, this, source))
+                    PlayerTalkClass->SendPointOfInterest(gossipActionPoi);
 
             if (menuItemData->GossipActionMenuId)
             {

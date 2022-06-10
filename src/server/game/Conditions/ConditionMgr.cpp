@@ -89,6 +89,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "AreaTrigger Client Triggered",
     "Trainer Spell",
     "Object Visibility (by ID)"
+    "Point Of Interest"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -812,6 +813,7 @@ uint32 Condition::GetMaxAvailableConditionTargets() const
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NPC_VENDOR:
         case CONDITION_SOURCE_TYPE_SPELL_PROC:
+        case CONDITION_SOURCE_TYPE_POINT_OF_INTEREST:
             return 2;
         default:
             return 1;
@@ -1170,6 +1172,9 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         TC_LOG_INFO("misc", "Re-Loading `gossip_menu_option` Table for Conditions!");
         sObjectMgr->LoadGossipMenuItems();
+
+        TC_LOG_INFO("misc", "Re-Loading `points_of_interest` Table for Conditions!");
+        sObjectMgr->LoadPointsOfInterest();
 
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
 
@@ -2083,6 +2088,15 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             else
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, uses unchecked type id, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        }
+        case CONDITION_SOURCE_TYPE_POINT_OF_INTEREST:
+        {
+            if (!sObjectMgr->GetPointOfInterest(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `points_of_interest`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;

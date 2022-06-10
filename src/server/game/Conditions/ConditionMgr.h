@@ -178,7 +178,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30,
     CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31,
     CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32,
-    CONDITION_SOURCE_TYPE_MAX                            = 33  // MAX
+    CONDITION_SOURCE_TYPE_POINT_OF_INTEREST              = 33,
+    CONDITION_SOURCE_TYPE_MAX                            = 34  // MAX
 };
 
 enum RelationType
