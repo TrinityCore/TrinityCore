@@ -257,10 +257,12 @@ struct boss_svala : public BossAI
                         arthas->CastSpell(me, SPELL_TRANSFORMING_CHANNEL, true);
 
                     me->SetDisableGravity(true);
-                    Movement::MoveSplineInit init(me);
-                    init.MoveTo(296.614f, -346.2484f, 95.62769f);
-                    init.SetFly();
-                    me->GetMotionMaster()->LaunchMoveSpline(std::move(init));
+                    std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+                    {
+                        init.MoveTo(296.614f, -346.2484f, 95.62769f);
+                        init.SetFly();
+                    };
+                    me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer));
 
                     // spectators flee event
                     std::list<Creature*> spectators;

@@ -329,12 +329,14 @@ struct boss_razorscale : public BossAI
 
     void HandleInitialMovement()
     {
-        Movement::PointsArray path(RazorscalePath, RazorscalePath + pathSize);
-        Movement::MoveSplineInit init(me);
-        init.MovebyPath(path, 0);
-        init.SetCyclic();
-        init.SetFly();
-        me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+        std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+        {
+            Movement::PointsArray path(RazorscalePath, RazorscalePath + pathSize);
+            init.MovebyPath(path, 0);
+            init.SetCyclic();
+            init.SetFly();
+        };
+        me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
     }
 
     bool CanAIAttack(Unit const* target) const override

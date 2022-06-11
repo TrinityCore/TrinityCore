@@ -209,44 +209,37 @@ private:
 
 enum SomeAssemblyRequired
 {
-    SPELL_PING_MASTER                          = 43393, // casted on owner after spawn, presumably has a spell script to force owner cast SPELL_MINDLESS_ABOMINATION_CONTROL (currently handled by linked spells)
     SPELL_MINDLESS_ABOMINATION_CONTROL         = 42168,
-
     SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON    = 42266,
     SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE      = 42267,
     SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2    = 42274
 };
 
-struct npc_mindless_abomination : public ScriptedAI
+// 43393 - Ping Master
+class spell_fjord_mindless_abomination_ping_master : public SpellScript
 {
-    npc_mindless_abomination(Creature* creature) : ScriptedAI(creature) { }
+    PrepareSpellScript(spell_fjord_mindless_abomination_ping_master);
 
-    void JustAppeared() override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        me->SetCorpseDelay(0, true);
-
-        _scheduler.Schedule(1s, [this](TaskContext task)
-        {
-            if (!me->IsCharmedOwnedByPlayerOrPlayer())
-                me->DespawnOrUnsummon();
-            else
-                task.Repeat();
-        });
+        return ValidateSpellInfo({ SPELL_MINDLESS_ABOMINATION_CONTROL });
     }
 
-    void UpdateAI(uint32 diff) override
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        _scheduler.Update(diff);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MINDLESS_ABOMINATION_CONTROL);
     }
 
-private:
-    TaskScheduler _scheduler;
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_mindless_abomination_ping_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 42268 - Quest - Mindless Abomination Explosion FX Master
-class spell_mindless_abomination_explosion_fx_master : public SpellScript
+class spell_fjord_mindless_abomination_explosion_fx_master : public SpellScript
 {
-    PrepareSpellScript(spell_mindless_abomination_explosion_fx_master);
+    PrepareSpellScript(spell_fjord_mindless_abomination_explosion_fx_master);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -260,9 +253,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScript
 
     void HandleScript(SpellEffIndex /*eff*/)
     {
-        Creature* caster = GetCaster()->ToCreature();
-        if (!caster)
-            return;
+        Unit* caster = GetCaster();
 
         for (uint8 i = 0; i < 11; ++i)
             caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
@@ -276,7 +267,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_fjord_mindless_abomination_explosion_fx_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -316,9 +307,9 @@ std::array<uint32, 11> const CocoonSummonSpells =
 };
 
 // 43288 - Rivenwood Captives: Player Not On Quest
-class spell_rivenwood_captives_not_on_quest : public SpellScript
+class spell_fjord_rivenwood_captives_not_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_rivenwood_captives_not_on_quest);
+    PrepareSpellScript(spell_fjord_rivenwood_captives_not_on_quest);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -332,14 +323,14 @@ class spell_rivenwood_captives_not_on_quest : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_rivenwood_captives_not_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_rivenwood_captives_not_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 43287 - Rivenwood Captives: Player On Quest
-class spell_rivenwood_captives_on_quest : public SpellScript
+class spell_fjord_rivenwood_captives_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_rivenwood_captives_on_quest);
+    PrepareSpellScript(spell_fjord_rivenwood_captives_on_quest);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -359,7 +350,7 @@ class spell_rivenwood_captives_on_quest : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_rivenwood_captives_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_rivenwood_captives_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -379,9 +370,9 @@ enum TheCleansing
 };
 
 // 43365 - The Cleansing: Shrine Cast
-class spell_the_cleansing_shrine_cast : public SpellScript
+class spell_fjord_the_cleansing_shrine_cast : public SpellScript
 {
-    PrepareSpellScript(spell_the_cleansing_shrine_cast);
+    PrepareSpellScript(spell_fjord_the_cleansing_shrine_cast);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -412,15 +403,15 @@ class spell_the_cleansing_shrine_cast : public SpellScript
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_the_cleansing_shrine_cast::CheckCast);
-        OnEffectHitTarget += SpellEffectFn(spell_the_cleansing_shrine_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnCheckCast += SpellCheckCastFn(spell_fjord_the_cleansing_shrine_cast::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_the_cleansing_shrine_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 43351 - Cleansing Soul
-class spell_the_cleansing_cleansing_soul : public AuraScript
+class spell_fjord_the_cleansing_cleansing_soul : public AuraScript
 {
-    PrepareAuraScript(spell_the_cleansing_cleansing_soul);
+    PrepareAuraScript(spell_fjord_the_cleansing_cleansing_soul);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -442,15 +433,15 @@ class spell_the_cleansing_cleansing_soul : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_the_cleansing_cleansing_soul::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_the_cleansing_cleansing_soul::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_fjord_the_cleansing_cleansing_soul::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fjord_the_cleansing_cleansing_soul::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 50217 - The Cleansing: Script Effect Player Cast Mirror Image
-class spell_the_cleansing_mirror_image_script_effect : public SpellScript
+class spell_fjord_the_cleansing_mirror_image_script_effect : public SpellScript
 {
-    PrepareSpellScript(spell_the_cleansing_mirror_image_script_effect);
+    PrepareSpellScript(spell_fjord_the_cleansing_mirror_image_script_effect);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -464,14 +455,14 @@ class spell_the_cleansing_mirror_image_script_effect : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_the_cleansing_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_the_cleansing_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 50238 - The Cleansing: Your Inner Turmoil's On Death Cast on Master
-class spell_the_cleansing_on_death_cast_on_master : public SpellScript
+class spell_fjord_the_cleansing_on_death_cast_on_master : public SpellScript
 {
-    PrepareSpellScript(spell_the_cleansing_on_death_cast_on_master);
+    PrepareSpellScript(spell_fjord_the_cleansing_on_death_cast_on_master);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -487,7 +478,7 @@ class spell_the_cleansing_on_death_cast_on_master : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_the_cleansing_on_death_cast_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_fjord_the_cleansing_on_death_cast_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -502,9 +493,9 @@ enum TheWayToHisHeart
 };
 
 // 21014 - Anuniaq's Net
-class spell_the_way_to_his_heart_anuniaq_net : public SpellScript
+class spell_fjord_the_way_to_his_heart_anuniaq_net : public SpellScript
 {
-    PrepareSpellScript(spell_the_way_to_his_heart_anuniaq_net);
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_anuniaq_net);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -519,20 +510,66 @@ class spell_the_way_to_his_heart_anuniaq_net : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_the_way_to_his_heart_anuniaq_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_fjord_the_way_to_his_heart_anuniaq_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 44455 - The Way to His Heart...: Character Script Effect Reverse Cast
+class spell_fjord_the_way_to_his_heart_reverse_cast : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_the_way_to_his_heart_reverse_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 44462 - The Way to His Heart...: Cast Quest Complete on Master
+class spell_fjord_the_way_to_his_heart_quest_complete : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_the_way_to_his_heart_quest_complete::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
-    RegisterCreatureAI(npc_mindless_abomination);
-    RegisterSpellScript(spell_mindless_abomination_explosion_fx_master);
-    RegisterSpellScript(spell_rivenwood_captives_not_on_quest);
-    RegisterSpellScript(spell_rivenwood_captives_on_quest);
-    RegisterSpellScript(spell_the_cleansing_shrine_cast);
-    RegisterSpellScript(spell_the_cleansing_cleansing_soul);
-    RegisterSpellScript(spell_the_cleansing_mirror_image_script_effect);
-    RegisterSpellScript(spell_the_cleansing_on_death_cast_on_master);
-    RegisterSpellScript(spell_the_way_to_his_heart_anuniaq_net);
+    RegisterSpellScript(spell_fjord_mindless_abomination_ping_master);
+    RegisterSpellScript(spell_fjord_mindless_abomination_explosion_fx_master);
+    RegisterSpellScript(spell_fjord_rivenwood_captives_not_on_quest);
+    RegisterSpellScript(spell_fjord_rivenwood_captives_on_quest);
+    RegisterSpellScript(spell_fjord_the_cleansing_shrine_cast);
+    RegisterSpellScript(spell_fjord_the_cleansing_cleansing_soul);
+    RegisterSpellScript(spell_fjord_the_cleansing_mirror_image_script_effect);
+    RegisterSpellScript(spell_fjord_the_cleansing_on_death_cast_on_master);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_anuniaq_net);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
 }

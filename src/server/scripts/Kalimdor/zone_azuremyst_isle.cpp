@@ -632,6 +632,37 @@ class spell_inoculate_nestlewood : public AuraScript
     }
 };
 
+/*######
+## Quest 9452: Red Snapper - Very Tasty!
+######*/
+
+enum RedSnapperVeryTasty
+{
+    SPELL_FISHED_UP_RED_SNAPPER  = 29867,
+    SPELL_FISHED_UP_MURLOC       = 29869
+};
+
+// 29866 - Cast Fishing Net
+class spell_azuremyst_isle_cast_fishing_net : public SpellScript
+{
+    PrepareSpellScript(spell_azuremyst_isle_cast_fishing_net);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FISHED_UP_RED_SNAPPER, SPELL_FISHED_UP_MURLOC });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(66) ? SPELL_FISHED_UP_RED_SNAPPER : SPELL_FISHED_UP_MURLOC);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_azuremyst_isle_cast_fishing_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_azuremyst_isle()
 {
     new npc_draenei_survivor();
@@ -639,4 +670,5 @@ void AddSC_azuremyst_isle()
     new npc_injured_draenei();
     new npc_magwin();
     RegisterSpellScript(spell_inoculate_nestlewood);
+    RegisterSpellScript(spell_azuremyst_isle_cast_fishing_net);
 }

@@ -20,6 +20,7 @@
 
 #include "MoveSplineInitArgs.h"
 
+class ObjectGuid;
 class Unit;
 
 enum class AnimTier : uint8;
@@ -47,11 +48,13 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
-        MoveSplineInit(MoveSplineInit&& init) = default;
 
         ~MoveSplineInit();
+
         MoveSplineInit(MoveSplineInit const&) = delete;
         MoveSplineInit& operator=(MoveSplineInit const&) = delete;
+        MoveSplineInit(MoveSplineInit&& init) = delete;
+        MoveSplineInit& operator=(MoveSplineInit&&) = delete;
 
         /*  Final pass of initialization that launches spline movement.
          */

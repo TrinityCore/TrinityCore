@@ -33,6 +33,7 @@
 #include "InstanceScript.h"
 #include "Item.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -2829,6 +2830,23 @@ class spell_gen_pet_summoned : public SpellScript
     }
 };
 
+// 36553 - PetWait
+class spell_gen_pet_wait : public SpellScript
+{
+    PrepareSpellScript(spell_gen_pet_wait);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->GetMotionMaster()->Clear();
+        GetCaster()->GetMotionMaster()->MoveIdle();
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_pet_wait::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum ProfessionResearch
 {
     SPELL_NORTHREND_INSCRIPTION_RESEARCH = 61177
@@ -5056,6 +5074,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_proc_charge_drop_only);
     RegisterSpellScript(spell_gen_parachute);
     RegisterSpellScript(spell_gen_pet_summoned);
+    RegisterSpellScript(spell_gen_pet_wait);
     RegisterSpellScript(spell_gen_profession_research);
     RegisterSpellScript(spell_gen_pvp_trinket);
     RegisterSpellScript(spell_gen_remove_flight_auras);

@@ -122,9 +122,41 @@ class spell_energize_aoe : public SpellScript
     }
 };
 
+/*######
+## Quest 11140: Recover the Cargo!
+######*/
+
+enum RecoverTheCargo
+{
+    SPELL_SUMMON_LOCKBOX        = 42288,
+    SPELL_SUMMON_BURROWER       = 42289
+};
+
+// 42287 - Salvage Wreckage
+class spell_dustwallow_marsh_salvage_wreckage : public SpellScript
+{
+    PrepareSpellScript(spell_dustwallow_marsh_salvage_wreckage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_LOCKBOX, SPELL_SUMMON_BURROWER });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_SUMMON_LOCKBOX : SPELL_SUMMON_BURROWER);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dustwallow_marsh_salvage_wreckage::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_dustwallow_marsh()
 {
     RegisterSpellScript(spell_ooze_zap);
     RegisterSpellScript(spell_ooze_zap_channel_end);
     RegisterSpellScript(spell_energize_aoe);
+    RegisterSpellScript(spell_dustwallow_marsh_salvage_wreckage);
 }

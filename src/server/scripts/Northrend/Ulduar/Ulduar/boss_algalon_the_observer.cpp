@@ -317,10 +317,12 @@ struct boss_algalon_the_observer : public BossAI
                 DoCastSelf(SPELL_RIDE_THE_LIGHTNING, true);
                 me->SetHomePosition(AlgalonLandPos);
 
-                Movement::MoveSplineInit init(me);
-                init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ(), false);
-                init.SetOrientationFixed(true);
-                me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+                {
+                    init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ(), false);
+                    init.SetOrientationFixed(true);
+                };
+                me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
                 events.Reset();
                 events.SetPhase(PHASE_ROLE_PLAY);
