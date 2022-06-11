@@ -867,3 +867,53 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             _player->GetReputationMgr().ModifyReputation(sFactionStore.AssertEntry(faction.Id), faction.Quantity);
     }
 }
+
+void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest)
+{
+    UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapQuestLinesRequest.UiMapID);
+    if (!uiMap)
+        return;
+
+    WorldPackets::Quest::UiMapQuestLinesResponse response;
+
+    if (uiMap->Type > 2)
+    {
+        response.UiMapID = uiMap->ID;
+        for (UiMapEntry const* uiMaps : sUiMapStore)
+        {
+            // ParentUiMap Parent
+            if (uiMap->ParentUiMapID == uiMaps->ParentUiMapID)
+                for (QuestPOIBlobEntry const* questPoiBlob : sQuestPOIBlobStore)
+                    if (questPoiBlob->UiMapID == int32(uiMaps->ID))
+                        for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
+                            if (questLineXQuest->QuestID == questPoiBlob->QuestID && questLineXQuest->OrderIndex == 0)
+                                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineXQuest->QuestID))
+                                    if (_player->CanTakeQuest(quest, false))
+                                        response.QuestLineXQuestIDs.push_back(questLineXQuest->ID);
+
+            // ParentUiMap Children
+            if (int32(uiMap->ID) == uiMaps->ParentUiMapID)
+                for (QuestPOIBlobEntry const* questPoiBlob : sQuestPOIBlobStore)
+                    if (questPoiBlob->UiMapID == int32(uiMaps->ID))
+                        for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
+                            if (questLineXQuest->QuestID == questPoiBlob->QuestID && questLineXQuest->OrderIndex == 0)
+                                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineXQuest->QuestID))
+                                    if (_player->CanTakeQuest(quest, false))
+                                        response.QuestLineXQuestIDs.push_back(questLineXQuest->ID);
+
+            // ParentUiMap Children of Children
+            if (uiMap->ParentUiMapID == uiMaps->ParentUiMapID)
+                for (UiMapEntry const* childrenUiMaps : sUiMapStore)
+                    if (int32(uiMaps->ID) == childrenUiMaps->ParentUiMapID)
+                        for (QuestPOIBlobEntry const* questPoiBlob : sQuestPOIBlobStore)
+                            if (questPoiBlob->UiMapID == int32(childrenUiMaps->ID))
+                                for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
+                                    if (questLineXQuest->QuestID == questPoiBlob->QuestID && questLineXQuest->OrderIndex == 0)
+                                        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineXQuest->QuestID))
+                                            if (_player->CanTakeQuest(quest, false))
+                                                response.QuestLineXQuestIDs.push_back(questLineXQuest->ID);
+        }
+    }
+
+    SendPacket(response.Write());
+}
