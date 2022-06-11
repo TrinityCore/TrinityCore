@@ -535,6 +535,10 @@ static Position GetSineWavePoint(Position const& origin, float angle, uint32 tic
     return point;
 }
 
+Position LastFrontSpiralPoint = { 0.0f, 0.0f, 0.0f };
+Position LastLeftSpiralPoint = { 0.0f, 0.0f, 0.0f };
+Position LastRightSpiralPoint = { 0.0f, 0.0f, 0.0f };
+
 Position const RiveThrowPos[8] =
 {
     { 166.617f, -856.656f, 4113.2285f },
@@ -2484,9 +2488,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     float orientation = me->GetAbsoluteAngle(target);
 
-                    Position* currentPoint(me->GetPosition())
-
-                    while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, currentPoint, orientation))
+                    while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, me->GetPosition(), orientation))
                         ++step;
 
                     scheduler.Schedule(2s, [this](TaskContext /*task*/)
@@ -2502,13 +2504,9 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 int32 step = 1;
 
-                Position* currentPoint;
-
                 int32 amount = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
 
-                *currentPoint = me->GetPosition();
-
-                while (amount > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, amount, step, currentPoint, me->GetOrientation()))
+                while (amount > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, amount, step, me->GetPosition(), me->GetOrientation()))
                     --amount;
 
                 scheduler.Schedule(2s, [this](TaskContext /*task*/)
@@ -2535,24 +2533,16 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                int32 step = 0;
+                int32 step = 10;
                 int32 nextCopy = 0;
-
-                Position* currentPoint;
-
-                float currentOrientation;
 
                 std::list<Unit*> targets;
                 SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, true, true);
 
                 for (Unit* target : targets)
                 {
-                    *currentPoint = target->GetPosition();
-
-                    currentOrientation = target->GetOrientation();
-
-                    while (step < 10 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, 0, step, currentPoint, currentOrientation))
-                        ++step;
+                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, 0, step, target->GetPosition(), target->GetOrientation()))
+                        --step;
 
                     nextCopy++;
 
@@ -2584,7 +2574,7 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool DrawDesecratingShotPattern(int8 pattern, int32 amount, int32 step, Position* pos, float orientation)
+    bool DrawDesecratingShotPattern(int8 pattern, int32 amount, int32 step, Position pos, float orientation)
     {
         switch (pattern)
         {
@@ -2708,19 +2698,31 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                float distance = 4.0f;
+                float distance = 40.0f;
 
-                uint8 spiralSideCount = 3;
+                float angle = 0.1f * (step - 1);
 
-                float angleOffset = float(M_PI * 2) / spiralSideCount;
+                uint8 spiralCount = 3;
 
                 switch (step)
                 {
-                    case 0:
+                    case 1:
                     {
-                        scheduler.Schedule(Milliseconds(step * 50), [this, pos](TaskContext /*task*/)
+                        me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        break;
+                    }
+
+                    case 10:
+                    {
+                        LastFrontSpiralPoint = { pos.GetPositionX() + (std::cos(orientation + 0.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionY() + (std::sin(orientation + 0.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionZ() };
+                        LastLeftSpiralPoint = { pos.GetPositionX() + (std::cos(orientation + 120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionY() + (std::sin(orientation + 120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionZ() };
+                        LastRightSpiralPoint = { pos.GetPositionX() + (std::cos(orientation + -120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionY() + (std::sin(orientation + -120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionZ() };
+
+                        scheduler.Schedule(Milliseconds(step * 25), [this](TaskContext /*task*/)
                         {
-                            me->CastSpell(*pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            me->CastSpell(LastFrontSpiralPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            me->CastSpell(LastLeftSpiralPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            me->CastSpell(LastRightSpiralPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                         });
 
                         break;
@@ -2728,16 +2730,41 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     default:
                     {
-                        for (uint8 i = 0; i < spiralSideCount; ++i)
+                        Position pointToConvert;
+                        Position nextPoint;
+
+                        for (uint8 i = 0; i < spiralCount; i++)
                         {
-                            float angle = angleOffset * i;
-
-                            (*pos).m_positionX += std::cos(angle + 0.2 * step) * distance;
-                            (*pos).m_positionY += std::sin(angle + 0.2 * step) * distance;
-
-                            scheduler.Schedule(Milliseconds(step * 25), [this, pos](TaskContext /*task*/)
+                            switch (i)
                             {
-                                me->CastSpell(*pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                                case 0:
+                                    pointToConvert = LastFrontSpiralPoint;
+
+                                    nextPoint = { pointToConvert.GetPositionX() + std::cos(angle) * distance * angle / (2 * float(M_PI)), pointToConvert.GetPositionY() + std::sin(angle) * distance * angle / (2 * float(M_PI)),
+                                        pointToConvert.GetPositionZ() };
+                                    break;
+
+                                case 1:
+                                    pointToConvert = LastLeftSpiralPoint;
+
+                                    nextPoint = { pointToConvert.GetPositionX() + std::cos(angle + (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)), pointToConvert.GetPositionY() + std::sin(angle + (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)),
+                                        pointToConvert.GetPositionZ()};
+                                    break;
+
+                                case 2:
+                                    pointToConvert = LastRightSpiralPoint;
+
+                                    nextPoint = { pointToConvert.GetPositionX() + std::cos(angle - (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)), pointToConvert.GetPositionY() + std::sin(angle - (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)),
+                                        pointToConvert.GetPositionZ() };
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            scheduler.Schedule(Milliseconds(step * 25), [this, nextPoint](TaskContext /*task*/)
+                            {
+                                 me->CastSpell(nextPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                             });
                         }
 
