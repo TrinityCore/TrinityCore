@@ -2177,7 +2177,7 @@ void ObjectMgr::LoadCreatures()
         data.movementType   = fields[14].GetUInt8();
         data.spawnDifficulties = ParseSpawnDifficulties(fields[15].GetString(), "creature", guid, data.mapId, spawnMasks[data.mapId]);
         int16 gameEvent     = fields[16].GetInt8();
-        uint32 PoolId       = fields[17].GetUInt32();
+        data.poolId         = fields[17].GetUInt32();
         data.npcflag        = fields[18].GetUInt64();
         data.unit_flags     = fields[19].GetUInt32();
         data.unit_flags2    = fields[20].GetUInt32();
@@ -2370,8 +2370,8 @@ void ObjectMgr::LoadCreatures()
             WorldDatabase.Execute(stmt);
         }
 
-        // Add to grid if not managed by the game event or pool system
-        if (gameEvent == 0 && PoolId == 0)
+        // Add to grid if not managed by the game event
+        if (gameEvent == 0)
             AddCreatureToGrid(&data);
     }
     while (result->NextRow());
@@ -2659,7 +2659,7 @@ void ObjectMgr::LoadGameObjects()
         }
 
         int16 gameEvent     = fields[15].GetInt8();
-        uint32 PoolId       = fields[16].GetUInt32();
+        data.poolId         = fields[16].GetUInt32();
         data.phaseUseFlags  = fields[17].GetUInt8();
         data.phaseId        = fields[18].GetUInt32();
         data.phaseGroup     = fields[19].GetUInt32();
@@ -2771,7 +2771,7 @@ void ObjectMgr::LoadGameObjects()
             WorldDatabase.Execute(stmt);
         }
 
-        if (gameEvent == 0 && PoolId == 0)                      // if not this is to be managed by GameEvent System or Pool system
+        if (gameEvent == 0)                      // if not this is to be managed by GameEvent System
             AddGameobjectToGrid(&data);
     }
     while (result->NextRow());

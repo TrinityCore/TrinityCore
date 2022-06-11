@@ -105,6 +105,7 @@ struct SpawnData : public SpawnMetadata
     uint32 phaseId = 0;
     uint32 phaseGroup = 0;
     int32 terrainSwapMap = -1;
+    uint32 poolId = 0;
     int32 spawntimesecs = 0;
     std::vector<Difficulty> spawnDifficulties;
     uint32 scriptId = 0;
