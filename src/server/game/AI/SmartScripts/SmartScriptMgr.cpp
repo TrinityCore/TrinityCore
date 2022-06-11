@@ -81,7 +81,9 @@ void SmartWaypointMgr::LoadFromDB()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
-        float o = fields[5].GetFloat();
+        Optional<float> o;
+        if (!fields[5].IsNull())
+            o = fields[5].GetFloat();
         uint32 delay = fields[6].GetUInt32();
 
         if (lastEntry != entry)
@@ -1006,6 +1008,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_ADD_TO_STORED_TARGET_LIST: return sizeof(SmartAction::addToStoredTargets);
             case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER: return sizeof(SmartAction::becomePersonalClone);
             case SMART_ACTION_TRIGGER_GAME_EVENT: return sizeof(SmartAction::triggerGameEvent);
+            case SMART_ACTION_DO_ACTION: return sizeof(SmartAction::doAction);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -2299,6 +2302,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
+        case SMART_ACTION_DO_ACTION:
             break;
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
         {

@@ -118,12 +118,14 @@ struct npc_frogger_trigger_naxx : public NullCreatureAI
 private:
     EventMap _events;
 
-    static void LaunchSpline(Creature* slime, Position const dest)
+    static void LaunchSpline(Creature* slime, Position const& dest)
     {
-        Movement::MoveSplineInit init(slime);
-        init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
-        init.SetWalk(true);
-        slime->GetMotionMaster()->LaunchMoveSpline(std::move(init));
+        std::function<void(Movement::MoveSplineInit&)> initializer = [dest = dest](Movement::MoveSplineInit& init)
+        {
+            init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
+            init.SetWalk(true);
+        };
+        slime->GetMotionMaster()->LaunchMoveSpline(std::move(initializer));
     }
 };
 

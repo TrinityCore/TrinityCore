@@ -36,79 +36,68 @@ enum ArgentValiant
     SPELL_KILL_CREDIT           = 63049
 };
 
-class npc_argent_valiant : public CreatureScript
+struct npc_argent_valiant : public ScriptedAI
 {
-public:
-    npc_argent_valiant() : CreatureScript("npc_argent_valiant") { }
-
-    struct npc_argent_valiantAI : public ScriptedAI
+    npc_argent_valiant(Creature* creature) : ScriptedAI(creature)
     {
-        npc_argent_valiantAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
-            creature->SetFaction(FACTION_FRIENDLY); //wrong faction in db?
-        }
+        Initialize();
+        creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
+        creature->SetFaction(FACTION_FRIENDLY); //wrong faction in db?
+    }
 
-        void Initialize()
+    void Initialize()
+    {
+        uiChargeTimer = 7000;
+        uiShieldBreakerTimer = 10000;
+    }
+
+    uint32 uiChargeTimer;
+    uint32 uiShieldBreakerTimer;
+
+    void Reset() override
+    {
+        Initialize();
+    }
+
+    void MovementInform(uint32 uiType, uint32 /*uiId*/) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        me->SetFaction(FACTION_MONSTER);
+    }
+
+    void DamageTaken(Unit* pDoneBy, uint32& uiDamage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (uiDamage > me->GetHealth() && pDoneBy && pDoneBy->GetTypeId() == TYPEID_PLAYER)
         {
+            uiDamage = 0;
+            pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
+            me->SetFaction(FACTION_FRIENDLY);
+            me->DespawnOrUnsummon(5s);
+            me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            EnterEvadeMode();
+        }
+    }
+
+    void UpdateAI(uint32 uiDiff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (uiChargeTimer <= uiDiff)
+        {
+            DoCastVictim(SPELL_CHARGE);
             uiChargeTimer = 7000;
+        } else uiChargeTimer -= uiDiff;
+
+        if (uiShieldBreakerTimer <= uiDiff)
+        {
+            DoCastVictim(SPELL_SHIELD_BREAKER);
             uiShieldBreakerTimer = 10000;
-        }
+        } else uiShieldBreakerTimer -= uiDiff;
 
-        uint32 uiChargeTimer;
-        uint32 uiShieldBreakerTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
-        {
-            if (uiType != POINT_MOTION_TYPE)
-                return;
-
-            me->SetFaction(FACTION_MONSTER);
-        }
-
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-        {
-            if (uiDamage > me->GetHealth() && pDoneBy && pDoneBy->GetTypeId() == TYPEID_PLAYER)
-            {
-                uiDamage = 0;
-                pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
-                me->SetFaction(FACTION_FRIENDLY);
-                me->DespawnOrUnsummon(5s);
-                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                EnterEvadeMode();
-            }
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (uiChargeTimer <= uiDiff)
-            {
-                DoCastVictim(SPELL_CHARGE);
-                uiChargeTimer = 7000;
-            } else uiChargeTimer -= uiDiff;
-
-            if (uiShieldBreakerTimer <= uiDiff)
-            {
-                DoCastVictim(SPELL_SHIELD_BREAKER);
-                uiShieldBreakerTimer = 10000;
-            } else uiShieldBreakerTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_argent_valiantAI(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -125,41 +114,30 @@ enum GuardianPavilion
     SPELL_TRESPASSER_A                            = 63986,
 };
 
-class npc_guardian_pavilion : public CreatureScript
+struct npc_guardian_pavilion : public ScriptedAI
 {
-public:
-    npc_guardian_pavilion() : CreatureScript("npc_guardian_pavilion") { }
-
-    struct npc_guardian_pavilionAI : public ScriptedAI
+    npc_guardian_pavilion(Creature* creature) : ScriptedAI(creature)
     {
-        npc_guardian_pavilionAI(Creature* creature) : ScriptedAI(creature)
-        {
-            SetCombatMovement(false);
-        }
+        SetCombatMovement(false);
+    }
 
-        void MoveInLineOfSight(Unit* who) override
+    void MoveInLineOfSight(Unit* who) override
 
-        {
-            if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
-                return;
-
-            if (!who || who->GetTypeId() != TYPEID_PLAYER || !me->IsHostileTo(who) || !me->isInBackInMap(who, 5.0f))
-                return;
-
-            if (who->HasAura(SPELL_TRESPASSER_H) || who->HasAura(SPELL_TRESPASSER_A))
-                return;
-
-            if (who->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
-                who->CastSpell(who, SPELL_TRESPASSER_H, true);
-            else
-                who->CastSpell(who, SPELL_TRESPASSER_A, true);
-
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_guardian_pavilionAI(creature);
+        if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
+            return;
+
+        if (!who || who->GetTypeId() != TYPEID_PLAYER || !me->IsHostileTo(who) || !me->isInBackInMap(who, 5.0f))
+            return;
+
+        if (who->HasAura(SPELL_TRESPASSER_H) || who->HasAura(SPELL_TRESPASSER_A))
+            return;
+
+        if (who->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+            who->CastSpell(who, SPELL_TRESPASSER_H, true);
+        else
+            who->CastSpell(who, SPELL_TRESPASSER_A, true);
+
     }
 };
 
@@ -190,134 +168,122 @@ enum TournamentDummy
     EVENT_DUMMY_RESET         = 2,
 };
 
-class npc_tournament_training_dummy : public CreatureScript
+struct npc_tournament_training_dummy : ScriptedAI
 {
-    public:
-        npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){ }
+    npc_tournament_training_dummy(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+        SetCombatMovement(false);
+    }
 
-        struct npc_tournament_training_dummyAI : ScriptedAI
+    void Initialize()
+    {
+        isVulnerable = false;
+    }
+
+    EventMap events;
+    bool isVulnerable;
+
+    void Reset() override
+    {
+        me->SetControlled(true, UNIT_STATE_STUNNED);
+        Initialize();
+
+        events.Reset();
+        events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5s);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (!_EnterEvadeMode(why))
+            return;
+
+        Reset();
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        damage = 0;
+        events.RescheduleEvent(EVENT_DUMMY_RESET, 10s);
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Unit* unitCaster = caster->ToUnit();
+        if (!unitCaster)
+            return;
+
+        switch (me->GetEntry())
         {
-            npc_tournament_training_dummyAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-                SetCombatMovement(false);
-            }
+            case NPC_CHARGE_TARGET:
+                if (spellInfo->Id == SPELL_PLAYER_CHARGE)
+                    if (isVulnerable)
+                        DoCast(unitCaster, SPELL_CHARGE_CREDIT, true);
+                break;
+            case NPC_MELEE_TARGET:
+                if (spellInfo->Id == SPELL_PLAYER_THRUST)
+                {
+                    DoCast(unitCaster, SPELL_MELEE_CREDIT, true);
 
-            void Initialize()
-            {
-                isVulnerable = false;
-            }
+                    if (Unit* target = unitCaster->GetVehicleBase())
+                        DoCast(target, SPELL_COUNTERATTACK, true);
+                }
+                break;
+            case NPC_RANGED_TARGET:
+                if (spellInfo->Id == SPELL_PLAYER_BREAK_SHIELD)
+                    if (isVulnerable)
+                        DoCast(unitCaster, SPELL_RANGED_CREDIT, true);
+                break;
+        }
 
-            EventMap events;
-            bool isVulnerable;
+        if (spellInfo->Id == SPELL_PLAYER_BREAK_SHIELD)
+            if (!me->HasAura(SPELL_CHARGE_DEFEND) && !me->HasAura(SPELL_RANGED_DEFEND))
+                isVulnerable = true;
+    }
 
-            void Reset() override
-            {
-                me->SetControlled(true, UNIT_STATE_STUNNED);
-                Initialize();
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
 
-                events.Reset();
-                events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5s);
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                if (!_EnterEvadeMode(why))
-                    return;
-
-                Reset();
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-            {
-                damage = 0;
-                events.RescheduleEvent(EVENT_DUMMY_RESET, 10s);
-            }
-
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-            {
-                Unit* unitCaster = caster->ToUnit();
-                if (!unitCaster)
-                    return;
-
+        switch (events.ExecuteEvent())
+        {
+            case EVENT_DUMMY_RECAST_DEFEND:
                 switch (me->GetEntry())
                 {
                     case NPC_CHARGE_TARGET:
-                        if (spellInfo->Id == SPELL_PLAYER_CHARGE)
-                            if (isVulnerable)
-                                DoCast(unitCaster, SPELL_CHARGE_CREDIT, true);
+                    {
+                        if (!me->HasAura(SPELL_CHARGE_DEFEND))
+                            DoCast(me, SPELL_CHARGE_DEFEND, true);
                         break;
-                    case NPC_MELEE_TARGET:
-                        if (spellInfo->Id == SPELL_PLAYER_THRUST)
-                        {
-                            DoCast(unitCaster, SPELL_MELEE_CREDIT, true);
-
-                            if (Unit* target = unitCaster->GetVehicleBase())
-                                DoCast(target, SPELL_COUNTERATTACK, true);
-                        }
-                        break;
+                    }
                     case NPC_RANGED_TARGET:
-                        if (spellInfo->Id == SPELL_PLAYER_BREAK_SHIELD)
-                            if (isVulnerable)
-                                DoCast(unitCaster, SPELL_RANGED_CREDIT, true);
+                    {
+                        Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
+                        if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
+                            DoCast(me, SPELL_RANGED_DEFEND, true);
                         break;
+                    }
                 }
-
-                if (spellInfo->Id == SPELL_PLAYER_BREAK_SHIELD)
-                    if (!me->HasAura(SPELL_CHARGE_DEFEND) && !me->HasAura(SPELL_RANGED_DEFEND))
-                        isVulnerable = true;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                events.Update(diff);
-
-                switch (events.ExecuteEvent())
+                isVulnerable = false;
+                events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5s);
+                break;
+            case EVENT_DUMMY_RESET:
+                if (UpdateVictim())
                 {
-                    case EVENT_DUMMY_RECAST_DEFEND:
-                        switch (me->GetEntry())
-                        {
-                            case NPC_CHARGE_TARGET:
-                            {
-                                if (!me->HasAura(SPELL_CHARGE_DEFEND))
-                                    DoCast(me, SPELL_CHARGE_DEFEND, true);
-                                break;
-                            }
-                            case NPC_RANGED_TARGET:
-                            {
-                                Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
-                                if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
-                                    DoCast(me, SPELL_RANGED_DEFEND, true);
-                                break;
-                            }
-                        }
-                        isVulnerable = false;
-                        events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5s);
-                        break;
-                    case EVENT_DUMMY_RESET:
-                        if (UpdateVictim())
-                        {
-                            EnterEvadeMode(EVADE_REASON_OTHER);
-                            events.ScheduleEvent(EVENT_DUMMY_RESET, 10s);
-                        }
-                        break;
+                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    events.ScheduleEvent(EVENT_DUMMY_RESET, 10s);
                 }
-
-                if (!UpdateVictim())
-                    return;
-
-                if (!me->HasUnitState(UNIT_STATE_STUNNED))
-                    me->SetControlled(true, UNIT_STATE_STUNNED);
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_tournament_training_dummyAI(creature);
+                break;
         }
+
+        if (!UpdateVictim())
+            return;
+
+        if (!me->HasUnitState(UNIT_STATE_STUNNED))
+            me->SetControlled(true, UNIT_STATE_STUNNED);
+    }
+
+    void MoveInLineOfSight(Unit* /*who*/) override { }
 
 };
 
@@ -406,291 +372,280 @@ Position const Mason3Pos[3] =
     {6417.070f, 438.824f, 511.395f, 3.6651f}, // mason3 action pos
 };
 
-class npc_blessed_banner : public CreatureScript
+struct npc_blessed_banner : public ScriptedAI
 {
-public:
-    npc_blessed_banner() : CreatureScript("npc_blessed_banner") { }
-
-    struct npc_blessed_bannerAI : public ScriptedAI
+    npc_blessed_banner(Creature* creature) : ScriptedAI(creature), Summons(me)
     {
-        npc_blessed_bannerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        HalofSpawned = false;
+        PhaseCount = 0;
+
+        SetCombatMovement(false);
+    }
+
+    EventMap events;
+
+    bool HalofSpawned;
+
+    uint32 PhaseCount;
+
+    SummonList Summons;
+
+    ObjectGuid guidDalfors;
+    ObjectGuid guidPriest[3];
+    ObjectGuid guidMason[3];
+    ObjectGuid guidHalof;
+
+    void Reset() override
+    {
+        me->SetRegenerateHealth(false);
+        DoCast(SPELL_THREAT_PULSE);
+        Talk(BANNER_SAY);
+        events.ScheduleEvent(EVENT_SPAWN, 3s);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override { }
+
+    void MoveInLineOfSight(Unit* /*who*/) override { }
+
+    void JustSummoned(Creature* Summoned) override
+    {
+        Summons.Summon(Summoned);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Summons.DespawnAll();
+        me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        switch (events.ExecuteEvent())
         {
-            HalofSpawned = false;
-            PhaseCount = 0;
-
-            SetCombatMovement(false);
-        }
-
-        EventMap events;
-
-        bool HalofSpawned;
-
-        uint32 PhaseCount;
-
-        SummonList Summons;
-
-        ObjectGuid guidDalfors;
-        ObjectGuid guidPriest[3];
-        ObjectGuid guidMason[3];
-        ObjectGuid guidHalof;
-
-        void Reset() override
-        {
-            me->SetRegenerateHealth(false);
-            DoCast(SPELL_THREAT_PULSE);
-            Talk(BANNER_SAY);
-            events.ScheduleEvent(EVENT_SPAWN, 3s);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void JustSummoned(Creature* Summoned) override
-        {
-            Summons.Summon(Summoned);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Summons.DespawnAll();
-            me->DespawnOrUnsummon();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            switch (events.ExecuteEvent())
-            {
-                case EVENT_SPAWN:
+            case EVENT_SPAWN:
+                {
+                    if (Creature* Dalfors = DoSummon(NPC_CRUSADER_LORD_DALFORS, DalforsPos[0]))
                     {
-                        if (Creature* Dalfors = DoSummon(NPC_CRUSADER_LORD_DALFORS, DalforsPos[0]))
-                        {
-                            guidDalfors = Dalfors->GetGUID();
-                            Dalfors->GetMotionMaster()->MovePoint(0, DalforsPos[1]);
-                        }
-                        if (Creature* Priest1 = DoSummon(NPC_ARGENT_BATTLE_PRIEST, Priest1Pos[0]))
-                        {
-                            guidPriest[0] = Priest1->GetGUID();
-                            Priest1->GetMotionMaster()->MovePoint(0, Priest1Pos[1]);
-                        }
-                        if (Creature* Priest2 = DoSummon(NPC_ARGENT_BATTLE_PRIEST, Priest2Pos[0]))
-                        {
-                            guidPriest[1] = Priest2->GetGUID();
-                            Priest2->GetMotionMaster()->MovePoint(0, Priest2Pos[1]);
-                        }
-                        if (Creature* Priest3 = DoSummon(NPC_ARGENT_BATTLE_PRIEST, Priest3Pos[0]))
-                        {
-                            guidPriest[2] = Priest3->GetGUID();
-                            Priest3->GetMotionMaster()->MovePoint(0, Priest3Pos[1]);
-                        }
-                        if (Creature* Mason1 = DoSummon(NPC_ARGENT_MASON, Mason1Pos[0]))
-                        {
-                            guidMason[0] = Mason1->GetGUID();
-                            Mason1->GetMotionMaster()->MovePoint(0, Mason1Pos[1]);
-                        }
-                        if (Creature* Mason2 = DoSummon(NPC_ARGENT_MASON, Mason2Pos[0]))
-                        {
-                            guidMason[1] = Mason2->GetGUID();
-                            Mason2->GetMotionMaster()->MovePoint(0, Mason2Pos[1]);
-                        }
-                        if (Creature* Mason3 = DoSummon(NPC_ARGENT_MASON, Mason3Pos[0]))
-                        {
-                            guidMason[2] = Mason3->GetGUID();
-                            Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[1]);
-                        }
-                        events.ScheduleEvent(EVENT_INTRO_1, 15s);
+                        guidDalfors = Dalfors->GetGUID();
+                        Dalfors->GetMotionMaster()->MovePoint(0, DalforsPos[1]);
                     }
-                    break;
-                case EVENT_INTRO_1:
+                    if (Creature* Priest1 = DoSummon(NPC_ARGENT_BATTLE_PRIEST, Priest1Pos[0]))
                     {
-                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
-                            Dalfors->AI()->Talk(DALFORS_SAY_PRE_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 5s);
+                        guidPriest[0] = Priest1->GetGUID();
+                        Priest1->GetMotionMaster()->MovePoint(0, Priest1Pos[1]);
                     }
-                    break;
-                case EVENT_INTRO_2:
+                    if (Creature* Priest2 = DoSummon(NPC_ARGENT_BATTLE_PRIEST, Priest2Pos[0]))
                     {
-                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
-                        {
-                            Dalfors->SetFacingTo(6.215f);
-                            Dalfors->AI()->Talk(DALFORS_SAY_PRE_2);
-                        }
-                    events.ScheduleEvent(EVENT_INTRO_3, 5s);
+                        guidPriest[1] = Priest2->GetGUID();
+                        Priest2->GetMotionMaster()->MovePoint(0, Priest2Pos[1]);
                     }
-                    break;
-                case EVENT_INTRO_3:
+                    if (Creature* Priest3 = DoSummon(NPC_ARGENT_BATTLE_PRIEST, Priest3Pos[0]))
                     {
-                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
-                        {
-                            Dalfors->GetMotionMaster()->MovePoint(0, DalforsPos[2]);
-                            Dalfors->SetHomePosition(DalforsPos[2]);
-                        }
-                        if (Creature* Priest1 = ObjectAccessor::GetCreature(*me, guidPriest[0]))
-                        {
-                            Priest1->SetFacingTo(5.7421f);
-                            Priest1->SetHomePosition(Priest1Pos[1]);
-                        }
-                        if (Creature* Priest2 = ObjectAccessor::GetCreature(*me, guidPriest[1]))
-                        {
-                            Priest2->SetFacingTo(5.7421f);
-                            Priest2->SetHomePosition(Priest2Pos[1]);
-                        }
-                        if (Creature* Priest3 = ObjectAccessor::GetCreature(*me, guidPriest[2]))
-                        {
-                            Priest3->SetFacingTo(5.7421f);
-                            Priest3->SetHomePosition(Priest3Pos[1]);
-                        }
-                        if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
-                        {
-                            Mason1->GetMotionMaster()->MovePoint(0, Mason1Pos[2]);
-                            Mason1->SetHomePosition(Mason1Pos[2]);
-                        }
-                        if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
-                        {
-                            Mason2->GetMotionMaster()->MovePoint(0, Mason2Pos[2]);
-                            Mason2->SetHomePosition(Mason2Pos[2]);
-                        }
-                        if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
-                        {
-                            Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[2]);
-                            Mason3->SetHomePosition(Mason3Pos[2]);
-                        }
-                        events.ScheduleEvent(EVENT_START_FIGHT, 5s);
-                        events.ScheduleEvent(EVENT_MASON_ACTION, 15s);
+                        guidPriest[2] = Priest3->GetGUID();
+                        Priest3->GetMotionMaster()->MovePoint(0, Priest3Pos[1]);
                     }
-                    break;
-                case EVENT_MASON_ACTION:
+                    if (Creature* Mason1 = DoSummon(NPC_ARGENT_MASON, Mason1Pos[0]))
                     {
-                        if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
-                        {
-                            Mason1->SetFacingTo(2.8972f);
-                            Mason1->AI()->SetData(1, 1); // triggers SAI actions on npc
-                        }
-                        if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
-                        {
-                            Mason2->SetFacingTo(3.1241f);
-                            Mason2->AI()->SetData(1, 1); // triggers SAI actions on npc
-                        }
-                        if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
-                        {
-                            Mason3->SetFacingTo(3.6651f);
-                            Mason3->AI()->SetData(1, 1); // triggers SAI actions on npc
-                        }
+                        guidMason[0] = Mason1->GetGUID();
+                        Mason1->GetMotionMaster()->MovePoint(0, Mason1Pos[1]);
                     }
-                    break;
-                case EVENT_START_FIGHT:
+                    if (Creature* Mason2 = DoSummon(NPC_ARGENT_MASON, Mason2Pos[0]))
+                    {
+                        guidMason[1] = Mason2->GetGUID();
+                        Mason2->GetMotionMaster()->MovePoint(0, Mason2Pos[1]);
+                    }
+                    if (Creature* Mason3 = DoSummon(NPC_ARGENT_MASON, Mason3Pos[0]))
+                    {
+                        guidMason[2] = Mason3->GetGUID();
+                        Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[1]);
+                    }
+                    events.ScheduleEvent(EVENT_INTRO_1, 15s);
+                }
+                break;
+            case EVENT_INTRO_1:
+                {
+                    if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
+                        Dalfors->AI()->Talk(DALFORS_SAY_PRE_1);
+                    events.ScheduleEvent(EVENT_INTRO_2, 5s);
+                }
+                break;
+            case EVENT_INTRO_2:
+                {
+                    if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
+                    {
+                        Dalfors->SetFacingTo(6.215f);
+                        Dalfors->AI()->Talk(DALFORS_SAY_PRE_2);
+                    }
+                events.ScheduleEvent(EVENT_INTRO_3, 5s);
+                }
+                break;
+            case EVENT_INTRO_3:
+                {
+                    if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
+                    {
+                        Dalfors->GetMotionMaster()->MovePoint(0, DalforsPos[2]);
+                        Dalfors->SetHomePosition(DalforsPos[2]);
+                    }
+                    if (Creature* Priest1 = ObjectAccessor::GetCreature(*me, guidPriest[0]))
+                    {
+                        Priest1->SetFacingTo(5.7421f);
+                        Priest1->SetHomePosition(Priest1Pos[1]);
+                    }
+                    if (Creature* Priest2 = ObjectAccessor::GetCreature(*me, guidPriest[1]))
+                    {
+                        Priest2->SetFacingTo(5.7421f);
+                        Priest2->SetHomePosition(Priest2Pos[1]);
+                    }
+                    if (Creature* Priest3 = ObjectAccessor::GetCreature(*me, guidPriest[2]))
+                    {
+                        Priest3->SetFacingTo(5.7421f);
+                        Priest3->SetHomePosition(Priest3Pos[1]);
+                    }
+                    if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
+                    {
+                        Mason1->GetMotionMaster()->MovePoint(0, Mason1Pos[2]);
+                        Mason1->SetHomePosition(Mason1Pos[2]);
+                    }
+                    if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
+                    {
+                        Mason2->GetMotionMaster()->MovePoint(0, Mason2Pos[2]);
+                        Mason2->SetHomePosition(Mason2Pos[2]);
+                    }
+                    if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
+                    {
+                        Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[2]);
+                        Mason3->SetHomePosition(Mason3Pos[2]);
+                    }
+                    events.ScheduleEvent(EVENT_START_FIGHT, 5s);
+                    events.ScheduleEvent(EVENT_MASON_ACTION, 15s);
+                }
+                break;
+            case EVENT_MASON_ACTION:
+                {
+                    if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
+                    {
+                        Mason1->SetFacingTo(2.8972f);
+                        Mason1->AI()->SetData(1, 1); // triggers SAI actions on npc
+                    }
+                    if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
+                    {
+                        Mason2->SetFacingTo(3.1241f);
+                        Mason2->AI()->SetData(1, 1); // triggers SAI actions on npc
+                    }
+                    if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
+                    {
+                        Mason3->SetFacingTo(3.6651f);
+                        Mason3->AI()->SetData(1, 1); // triggers SAI actions on npc
+                    }
+                }
+                break;
+            case EVENT_START_FIGHT:
+                {
+                    if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
+                        LK->AI()->Talk(LK_TALK_1);
+                    if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
+                        Dalfors->AI()->Talk(DALFORS_SAY_START);
+                    events.ScheduleEvent(EVENT_WAVE_SPAWN, 1s);
+                }
+                break;
+            case EVENT_WAVE_SPAWN:
+                {
+                    if (PhaseCount == 3)
                     {
                         if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
-                            LK->AI()->Talk(LK_TALK_1);
-                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
-                            Dalfors->AI()->Talk(DALFORS_SAY_START);
-                        events.ScheduleEvent(EVENT_WAVE_SPAWN, 1s);
+                            LK->AI()->Talk(LK_TALK_2);
                     }
-                    break;
-                case EVENT_WAVE_SPAWN:
-                    {
-                        if (PhaseCount == 3)
-                        {
-                            if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
-                                LK->AI()->Talk(LK_TALK_2);
-                        }
-                        else if (PhaseCount == 6)
-                        {
-                            if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
-                                LK->AI()->Talk(LK_TALK_3);
-                        }
-                        if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason3Pos[0]))
-                            {
-                                tempsum->SetHomePosition(DalforsPos[2]);
-                                tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                            }
-                        if (urand(0, 1) == 0)
-                        {
-                            if (Creature* tempsum = DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason1Pos[0]))
-                            {
-                                tempsum->SetHomePosition(DalforsPos[2]);
-                                tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                            }
-                            if (Creature* tempsum = DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason2Pos[0]))
-                            {
-                                tempsum->SetHomePosition(DalforsPos[2]);
-                                tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                            }
-                        }
-                        else
-                        {
-                            if (Creature* tempsum = DoSummon(NPC_REANIMATED_CAPTAIN, Mason1Pos[0]))
-                            {
-                                tempsum->SetHomePosition(DalforsPos[2]);
-                                tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                            }
-                            if (Creature* tempsum = DoSummon(NPC_REANIMATED_CAPTAIN, Mason2Pos[0]))
-                            {
-                                tempsum->SetHomePosition(DalforsPos[2]);
-                                tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                            }
-                        }
-
-                        PhaseCount++;
-
-                        if (PhaseCount < 8)
-                            events.ScheduleEvent(EVENT_WAVE_SPAWN, 10s, 20s);
-                        else
-                            events.ScheduleEvent(EVENT_HALOF, 10s, 20s);
-                    }
-                    break;
-                case EVENT_HALOF:
+                    else if (PhaseCount == 6)
                     {
                         if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
-                            LK->AI()->Talk(LK_TALK_4);
-                        if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason1Pos[0]))
-                        {
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
-                        if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason2Pos[0]))
-                        {
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
-                        if (Creature* tempsum = DoSummon(NPC_HALOF_THE_DEATHBRINGER, DalforsPos[0]))
-                        {
-                            HalofSpawned = true;
-                            guidHalof = tempsum->GetGUID();
-                            tempsum->SetHomePosition(DalforsPos[2]);
-                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
-                        }
+                            LK->AI()->Talk(LK_TALK_3);
                     }
-                    break;
-                case EVENT_ENDED:
+                    if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason3Pos[0]))
+                        {
+                            tempsum->SetHomePosition(DalforsPos[2]);
+                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
+                        }
+                    if (urand(0, 1) == 0)
                     {
-                        Summons.DespawnAll();
-                        me->DespawnOrUnsummon();
+                        if (Creature* tempsum = DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason1Pos[0]))
+                        {
+                            tempsum->SetHomePosition(DalforsPos[2]);
+                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
+                        }
+                        if (Creature* tempsum = DoSummon(NPC_HIDEOUS_PLAGEBRINGER, Mason2Pos[0]))
+                        {
+                            tempsum->SetHomePosition(DalforsPos[2]);
+                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
+                        }
                     }
-                    break;
-            }
+                    else
+                    {
+                        if (Creature* tempsum = DoSummon(NPC_REANIMATED_CAPTAIN, Mason1Pos[0]))
+                        {
+                            tempsum->SetHomePosition(DalforsPos[2]);
+                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
+                        }
+                        if (Creature* tempsum = DoSummon(NPC_REANIMATED_CAPTAIN, Mason2Pos[0]))
+                        {
+                            tempsum->SetHomePosition(DalforsPos[2]);
+                            tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
+                        }
+                    }
 
-            if (PhaseCount == 8)
-                if (Creature* Halof = ObjectAccessor::GetCreature(*me, guidHalof))
-                    if (Halof->isDead())
+                    PhaseCount++;
+
+                    if (PhaseCount < 8)
+                        events.ScheduleEvent(EVENT_WAVE_SPAWN, 10s, 20s);
+                    else
+                        events.ScheduleEvent(EVENT_HALOF, 10s, 20s);
+                }
+                break;
+            case EVENT_HALOF:
+                {
+                    if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
+                        LK->AI()->Talk(LK_TALK_4);
+                    if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason1Pos[0]))
                     {
-                        DoCast(me, SPELL_CRUSADERS_SPIRE_VICTORY, true);
-                        Summons.DespawnEntry(NPC_HIDEOUS_PLAGEBRINGER);
-                        Summons.DespawnEntry(NPC_REANIMATED_CAPTAIN);
-                        Summons.DespawnEntry(NPC_SCOURGE_DRUDGE);
-                        Summons.DespawnEntry(NPC_HALOF_THE_DEATHBRINGER);
-                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
-                            Dalfors->AI()->Talk(DALFORS_YELL_FINISHED);
-                        events.ScheduleEvent(EVENT_ENDED, 10s);
+                        tempsum->SetHomePosition(DalforsPos[2]);
+                        tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
                     }
+                    if (Creature* tempsum = DoSummon(NPC_SCOURGE_DRUDGE, Mason2Pos[0]))
+                    {
+                        tempsum->SetHomePosition(DalforsPos[2]);
+                        tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
+                    }
+                    if (Creature* tempsum = DoSummon(NPC_HALOF_THE_DEATHBRINGER, DalforsPos[0]))
+                    {
+                        HalofSpawned = true;
+                        guidHalof = tempsum->GetGUID();
+                        tempsum->SetHomePosition(DalforsPos[2]);
+                        tempsum->AI()->AttackStart(GetClosestCreatureWithEntry(me, NPC_BLESSED_BANNER, 100));
+                    }
+                }
+                break;
+            case EVENT_ENDED:
+                {
+                    Summons.DespawnAll();
+                    me->DespawnOrUnsummon();
+                }
+                break;
         }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_blessed_bannerAI(creature);
+        if (PhaseCount == 8)
+            if (Creature* Halof = ObjectAccessor::GetCreature(*me, guidHalof))
+                if (Halof->isDead())
+                {
+                    DoCast(me, SPELL_CRUSADERS_SPIRE_VICTORY, true);
+                    Summons.DespawnEntry(NPC_HIDEOUS_PLAGEBRINGER);
+                    Summons.DespawnEntry(NPC_REANIMATED_CAPTAIN);
+                    Summons.DespawnEntry(NPC_SCOURGE_DRUDGE);
+                    Summons.DespawnEntry(NPC_HALOF_THE_DEATHBRINGER);
+                    if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
+                        Dalfors->AI()->Talk(DALFORS_YELL_FINISHED);
+                    events.ScheduleEvent(EVENT_ENDED, 10s);
+                }
     }
 };
 
@@ -715,69 +670,58 @@ enum BorrowedTechnologyAndVolatility
     EVENT_FLY_AWAY         = 1
 };
 
-class npc_frostbrood_skytalon : public CreatureScript
+struct npc_frostbrood_skytalon : public VehicleAI
 {
-    public:
-        npc_frostbrood_skytalon() : CreatureScript("npc_frostbrood_skytalon") { }
+    npc_frostbrood_skytalon(Creature* creature) : VehicleAI(creature) { }
 
-        struct npc_frostbrood_skytalonAI : public VehicleAI
+    EventMap events;
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        me->GetMotionMaster()->MovePoint(POINT_GRAB_DECOY, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == POINT_GRAB_DECOY)
+            if (TempSummon* summon = me->ToTempSummon())
+                if (Unit* summoner = summon->GetSummonerUnit())
+                    DoCast(summoner, SPELL_GRAB);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        VehicleAI::UpdateAI(diff);
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            npc_frostbrood_skytalonAI(Creature* creature) : VehicleAI(creature) { }
-
-            EventMap events;
-
-            void IsSummonedBy(WorldObject* summoner) override
+            if (eventId == EVENT_FLY_AWAY)
             {
-                me->GetMotionMaster()->MovePoint(POINT_GRAB_DECOY, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
+                Position randomPosOnRadius;
+                randomPosOnRadius.m_positionZ = (me->GetPositionZ() + 40.0f);
+                me->GetNearPoint2D(nullptr, randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 40.0f, me->GetAbsoluteAngle(me));
+                me->GetMotionMaster()->MovePoint(POINT_FLY_AWAY, randomPosOnRadius);
             }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != POINT_MOTION_TYPE)
-                    return;
-
-                if (id == POINT_GRAB_DECOY)
-                    if (TempSummon* summon = me->ToTempSummon())
-                        if (Unit* summoner = summon->GetSummonerUnit())
-                            DoCast(summoner, SPELL_GRAB);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                VehicleAI::UpdateAI(diff);
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    if (eventId == EVENT_FLY_AWAY)
-                    {
-                        Position randomPosOnRadius;
-                        randomPosOnRadius.m_positionZ = (me->GetPositionZ() + 40.0f);
-                        me->GetNearPoint2D(nullptr, randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 40.0f, me->GetAbsoluteAngle(me));
-                        me->GetMotionMaster()->MovePoint(POINT_FLY_AWAY, randomPosOnRadius);
-                    }
-                }
-            }
-
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-            {
-                switch (spellInfo->Id)
-                {
-                    case SPELL_EXPLOSION:
-                        DoCast(me, SPELL_IMMOLATION);
-                        break;
-                    case SPELL_RIDE:
-                        DoCastAOE(SPELL_PING_BUNNY);
-                        events.ScheduleEvent(EVENT_FLY_AWAY, 100ms);
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_frostbrood_skytalonAI(creature);
         }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_EXPLOSION:
+                DoCast(me, SPELL_IMMOLATION);
+                break;
+            case SPELL_RIDE:
+                DoCastAOE(SPELL_PING_BUNNY);
+                events.ScheduleEvent(EVENT_FLY_AWAY, 100ms);
+                break;
+        }
+    }
 };
 
 /*######
@@ -785,9 +729,9 @@ class npc_frostbrood_skytalon : public CreatureScript
 ######*/
 
 // 55288 - It's All Fun and Games: The Ocular On Death
-class spell_the_ocular_on_death : public SpellScript
+class spell_icecrown_the_ocular_on_death : public SpellScript
 {
-    PrepareSpellScript(spell_the_ocular_on_death);
+    PrepareSpellScript(spell_icecrown_the_ocular_on_death);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -802,7 +746,7 @@ class spell_the_ocular_on_death : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_the_ocular_on_death::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_the_ocular_on_death::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -811,9 +755,9 @@ class spell_the_ocular_on_death : public SpellScript
 ######*/
 
 // 66411 - Summon Tualiq Proxy
-class spell_summon_tualiq_proxy : public SpellScript
+class spell_icecrown_summon_tualiq_proxy : public SpellScript
 {
-    PrepareSpellScript(spell_summon_tualiq_proxy);
+    PrepareSpellScript(spell_icecrown_summon_tualiq_proxy);
 
     void SetDest(SpellDestination& dest)
     {
@@ -823,7 +767,7 @@ class spell_summon_tualiq_proxy : public SpellScript
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_tualiq_proxy::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icecrown_summon_tualiq_proxy::SetDest, EFFECT_0, TARGET_DEST_CASTER);
     }
 };
 
@@ -838,9 +782,9 @@ enum BreakfastOfChampions
 };
 
 // 66512 - Pound Drum
-class spell_q14076_14092_pound_drum : public SpellScript
+class spell_icecrown_pound_drum : public SpellScript
 {
-    PrepareSpellScript(spell_q14076_14092_pound_drum);
+    PrepareSpellScript(spell_icecrown_pound_drum);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -854,7 +798,7 @@ class spell_q14076_14092_pound_drum : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_q14076_14092_pound_drum::HandleSummon);
+        OnCast += SpellCastFn(spell_icecrown_pound_drum::HandleSummon);
     }
 };
 
@@ -879,9 +823,9 @@ std::array<uint32, 4> const ChumTheWaterSummonSpells =
 };
 
 // 66741 - Chum the Water
-class spell_q14112_14145_chum_the_water : public SpellScript
+class spell_icecrown_chum_the_water : public SpellScript
 {
-    PrepareSpellScript(spell_q14112_14145_chum_the_water);
+    PrepareSpellScript(spell_icecrown_chum_the_water);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -896,19 +840,19 @@ class spell_q14112_14145_chum_the_water : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_q14112_14145_chum_the_water::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_icecrown_chum_the_water::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 void AddSC_icecrown()
 {
-    new npc_argent_valiant;
-    new npc_guardian_pavilion;
-    new npc_tournament_training_dummy;
-    new npc_blessed_banner();
-    new npc_frostbrood_skytalon();
-    RegisterSpellScript(spell_the_ocular_on_death);
-    RegisterSpellScript(spell_summon_tualiq_proxy);
-    RegisterSpellScript(spell_q14076_14092_pound_drum);
-    RegisterSpellScript(spell_q14112_14145_chum_the_water);
+    RegisterCreatureAI(npc_argent_valiant);
+    RegisterCreatureAI(npc_guardian_pavilion);
+    RegisterCreatureAI(npc_tournament_training_dummy);
+    RegisterCreatureAI(npc_blessed_banner);
+    RegisterCreatureAI(npc_frostbrood_skytalon);
+    RegisterSpellScript(spell_icecrown_the_ocular_on_death);
+    RegisterSpellScript(spell_icecrown_summon_tualiq_proxy);
+    RegisterSpellScript(spell_icecrown_pound_drum);
+    RegisterSpellScript(spell_icecrown_chum_the_water);
 }

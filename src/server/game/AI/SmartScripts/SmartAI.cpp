@@ -852,6 +852,7 @@ void SmartAI::StopFollow(bool complete)
     _followArrivedTimer = 1000;
     _followArrivedEntry = 0;
     _followCreditType = 0;
+    me->GetMotionMaster()->Clear();
     me->GetMotionMaster()->MoveIdle();
 
     if (!complete)

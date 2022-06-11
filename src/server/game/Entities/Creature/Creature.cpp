@@ -1775,7 +1775,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
         if (!m_respawnCompatibilityMode)
         {
             // @todo pools need fixing! this is just a temporary thing, but they violate dynspawn principles
-            if (!sPoolMgr->IsPartOfAPool<Creature>(spawnId))
+            if (!data->poolId)
             {
                 TC_LOG_ERROR("entities.unit", "Creature (SpawnID " UI64FMTD ") trying to load in inactive spawn group '%s':\n%s", spawnId, data->spawnGroupData->name.c_str(), GetDebugInfo().c_str());
                 return false;
@@ -1790,7 +1790,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
         if (!m_respawnCompatibilityMode)
         {
             // @todo same as above
-            if (!sPoolMgr->IsPartOfAPool<Creature>(spawnId))
+            if (!data->poolId)
             {
                 TC_LOG_ERROR("entities.unit", "Creature (SpawnID " UI64FMTD ") trying to load despite a respawn timer in progress:\n%s", spawnId, GetDebugInfo().c_str());
                 return false;
@@ -2235,9 +2235,9 @@ void Creature::Respawn(bool force)
 
             m_triggerJustAppeared = true;
 
-            uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<Creature>(GetSpawnId()) : 0;
+            uint32 poolid = GetCreatureData() ? GetCreatureData()->poolId : 0;
             if (poolid)
-                sPoolMgr->UpdatePool<Creature>(poolid, GetSpawnId());
+                sPoolMgr->UpdatePool<Creature>(GetMap()->GetPoolData(), poolid, GetSpawnId());
         }
         UpdateObjectVisibility();
     }
@@ -2668,7 +2668,7 @@ bool Creature::LoadCreaturesAddon()
         // 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
 
         SetSheath(SheathState(cainfo->bytes2 & 0xFF));
-        ReplaceAllPvpFlags(UNIT_BYTE2_FLAG_NONE);
+        ReplaceAllPvpFlags(UnitPVPStateFlags((cainfo->bytes2 >> 8) & 0xFF));
         ReplaceAllPetFlags(UNIT_PET_FLAG_NONE);
         SetShapeshiftForm(FORM_NONE);
     }

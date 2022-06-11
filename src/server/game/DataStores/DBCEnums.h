@@ -1612,6 +1612,14 @@ enum TotemCategoryType
     TOTEM_CATEGORY_TYPE_SPANNER         = 24
 };
 
+enum class TransmogIllusionFlags : int32
+{
+    HideUntilCollected              = 0x1,
+    PlayerConditionGrantsOnLogin    = 0x2,
+};
+
+DEFINE_ENUM_FLAG(TransmogIllusionFlags);
+
 // SummonProperties.dbc, col 1
 enum SummonPropGroup
 {

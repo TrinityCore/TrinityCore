@@ -106,12 +106,12 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
             return;
         }
 
-        if (transmogItem.ItemModifiedAppearanceID || transmogItem.SecondaryItemModifiedAppearanceID)
+        if (transmogItem.ItemModifiedAppearanceID || transmogItem.SecondaryItemModifiedAppearanceID > 0)
         {
             if (transmogItem.ItemModifiedAppearanceID && !validateAndStoreTransmogItem(itemTransmogrified, transmogItem.ItemModifiedAppearanceID, false))
                 return;
 
-            if (transmogItem.SecondaryItemModifiedAppearanceID && !validateAndStoreTransmogItem(itemTransmogrified, transmogItem.SecondaryItemModifiedAppearanceID, true))
+            if (transmogItem.SecondaryItemModifiedAppearanceID > 0 && !validateAndStoreTransmogItem(itemTransmogrified, transmogItem.SecondaryItemModifiedAppearanceID, true))
                 return;
 
             // add cost
@@ -128,32 +128,20 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
                 return;
             }
 
-            SpellItemEnchantmentEntry const* illusion = sSpellItemEnchantmentStore.LookupEntry(transmogItem.SpellItemEnchantmentID);
+            TransmogIllusionEntry const* illusion = sDB2Manager.GetTransmogIllusionForEnchantment(transmogItem.SpellItemEnchantmentID);
             if (!illusion)
             {
                 TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify illusion using invalid enchant (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SpellItemEnchantmentID);
                 return;
             }
 
-            if (!illusion->ItemVisual || !illusion->GetFlags().HasFlag(SpellItemEnchantmentFlags::AllowTransmog))
+            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->UnlockConditionID))
             {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify illusion using not allowed enchant (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SpellItemEnchantmentID);
-                return;
-            }
-
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogUseConditionID))
-            {
-                if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
+                if (!ConditionMgr::IsPlayerMeetingCondition(player, condition))
                 {
                     TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify illusion using not allowed enchant (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SpellItemEnchantmentID);
                     return;
                 }
-            }
-
-            if (illusion->ScalingClassRestricted > 0 && uint8(illusion->ScalingClassRestricted) != player->GetClass())
-            {
-                TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify illusion using not allowed class enchant (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SpellItemEnchantmentID);
-                return;
             }
 
             illusionItems[itemTransmogrified] = transmogItem.SpellItemEnchantmentID;

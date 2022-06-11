@@ -604,7 +604,8 @@ enum SMART_ACTION
     SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 148,    // varID
     SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER   = 149,    // summonType 1-8, duration in ms
     SMART_ACTION_TRIGGER_GAME_EVENT                 = 150,    // eventId, useSaiTargetAsGameEventSource
-    SMART_ACTION_END                                = 151
+    SMART_ACTION_DO_ACTION                          = 151,    // actionId
+    SMART_ACTION_END                                = 152
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1223,6 +1224,11 @@ struct SmartAction
             uint32 eventId;
             SAIBool useSaiTargetAsGameEventSource;
         } triggerGameEvent;
+
+        struct
+        {
+            uint32 actionId;
+        } doAction;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

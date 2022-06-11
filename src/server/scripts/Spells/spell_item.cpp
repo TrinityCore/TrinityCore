@@ -3092,40 +3092,6 @@ class spell_item_nitro_boosts_backfire : public AuraScript
     float lastZ = INVALID_HEIGHT;
 };
 
-enum TeachLanguage
-{
-    SPELL_LEARN_GNOMISH_BINARY      = 50242,
-    SPELL_LEARN_GOBLIN_BINARY       = 50246,
-};
-
-class spell_item_teach_language : public SpellScript
-{
-    PrepareSpellScript(spell_item_teach_language);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_LEARN_GNOMISH_BINARY, SPELL_LEARN_GOBLIN_BINARY });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-
-        if (roll_chance_i(34))
-            caster->CastSpell(caster, caster->GetTeam() == ALLIANCE ? SPELL_LEARN_GNOMISH_BINARY : SPELL_LEARN_GOBLIN_BINARY, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_teach_language::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum RocketBoots
 {
     SPELL_ROCKET_BOOTS_PROC      = 30452,
@@ -4499,7 +4465,6 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_impale_leviroth);
     RegisterSpellScript(spell_item_nitro_boosts);
     RegisterSpellScript(spell_item_nitro_boosts_backfire);
-    RegisterSpellScript(spell_item_teach_language);
     RegisterSpellScript(spell_item_rocket_boots);
     RegisterSpellScript(spell_item_runic_healing_injector);
     RegisterSpellScript(spell_item_pygmy_oil);

@@ -85,7 +85,7 @@ namespace
     }
 }
 
-CollectionMgr::CollectionMgr(WorldSession* owner) : _owner(owner), _appearances(std::make_unique<boost::dynamic_bitset<uint32>>())
+CollectionMgr::CollectionMgr(WorldSession* owner) : _owner(owner), _appearances(std::make_unique<boost::dynamic_bitset<uint32>>()), _transmogIllusions(std::make_unique<boost::dynamic_bitset<uint32>>())
 {
 }
 
@@ -881,4 +881,95 @@ void CollectionMgr::SendFavoriteAppearances() const
             accountTransmogUpdate.FavoriteAppearances.push_back(itr->first);
 
     _owner->SendPacket(accountTransmogUpdate.Write());
+}
+
+void CollectionMgr::LoadTransmogIllusions()
+{
+    Player* owner = _owner->GetPlayer();
+    boost::to_block_range(*_transmogIllusions, DynamicBitsetBlockOutputIterator([owner](uint32 blockValue)
+    {
+        owner->AddIllusionBlock(blockValue);
+    }));
+}
+
+void CollectionMgr::LoadAccountTransmogIllusions(PreparedQueryResult knownTransmogIllusions)
+{
+    if (knownTransmogIllusions)
+    {
+        std::vector<uint32> blocks;
+        do
+        {
+            Field* fields = knownTransmogIllusions->Fetch();
+            uint16 blobIndex = fields[0].GetUInt16();
+            if (blobIndex >= blocks.size())
+                blocks.resize(blobIndex + 1);
+
+            blocks[blobIndex] = fields[1].GetUInt32();
+
+        } while (knownTransmogIllusions->NextRow());
+
+        _transmogIllusions->init_from_block_range(blocks.begin(), blocks.end());
+    }
+
+    // Static illusions known by every player
+    static uint16 constexpr defaultIllusions[] =
+    {
+        3, // Lifestealing
+        13, // Crusader
+        22, // Striking
+        23, // Agility
+        34, // Hide Weapon Enchant
+        43, // Beastslayer
+        44, // Titanguard
+    };
+
+    for (uint16 illusionId : defaultIllusions)
+    {
+        if (_transmogIllusions->size() <= illusionId)
+            _transmogIllusions->resize(illusionId + 1);
+
+        _transmogIllusions->set(illusionId);
+    }
+}
+
+void CollectionMgr::SaveAccountTransmogIllusions(LoginDatabaseTransaction trans)
+{
+    uint16 blockIndex = 0;
+
+    boost::to_block_range(*_transmogIllusions, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans](uint32 blockValue)
+    {
+        if (blockValue) // this table is only appended/bits are set (never cleared) so don't save empty blocks
+        {
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_TRANSMOG_ILLUSIONS);
+            stmt->setUInt32(0, _owner->GetBattlenetAccountId());
+            stmt->setUInt16(1, blockIndex);
+            stmt->setUInt32(2, blockValue);
+            trans->Append(stmt);
+        }
+        ++blockIndex;
+    }));
+}
+
+void CollectionMgr::AddTransmogIllusion(uint32 transmogIllusionId)
+{
+    Player* owner = _owner->GetPlayer();
+    if (_transmogIllusions->size() <= transmogIllusionId)
+    {
+        std::size_t numBlocks = _transmogIllusions->num_blocks();
+        _transmogIllusions->resize(transmogIllusionId + 1);
+        numBlocks = _transmogIllusions->num_blocks() - numBlocks;
+        while (numBlocks--)
+            owner->AddIllusionBlock(0);
+    }
+
+    _transmogIllusions->set(transmogIllusionId);
+    uint32 blockIndex = transmogIllusionId / 32;
+    uint32 bitIndex = transmogIllusionId % 32;
+
+    owner->AddIllusionFlag(blockIndex, 1 << bitIndex);
+}
+
+bool CollectionMgr::HasTransmogIllusion(uint32 transmogIllusionId) const
+{
+    return transmogIllusionId < _transmogIllusions->size() && _transmogIllusions->test(transmogIllusionId);
 }

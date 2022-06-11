@@ -362,6 +362,13 @@ SessionAddDelay = 10000
 GridCleanUpDelay = 300000
 
 #
+#    MinWorldUpdateTime
+#        Description: Minimum time (milliseconds) between world update ticks (for mostly idle servers).
+#        Default:     1 - (0.001 second)
+
+MinWorldUpdateTime = 1
+
+#
 #    MapUpdateInterval
 #        Description: Time (milliseconds) for map update interval.
 #        Default:     10 - (0.01 second)
@@ -2040,8 +2047,23 @@ ChatFlood.MessageCount = 10
 ChatFlood.MessageDelay = 1
 
 #
+#    ChatFlood.AddonMessageCount
+#        Description: Chat flood protection, number of addon messages before player gets muted.
+#        Default:     100 - (Enabled)
+#                     0  - (Disabled)
+
+ChatFlood.AddonMessageCount = 100
+
+#
+#    ChatFlood.AddonMessageDelay
+#        Description: Time (in seconds) between addon messages to be counted into ChatFlood.AddonMessageCount.
+#        Default:     1
+
+ChatFlood.AddonMessageDelay = 1
+
+#
 #    ChatFlood.MuteTime
-#        Description: Time (in seconds) characters get muted for violating ChatFlood.MessageCount.
+#        Description: Time (in seconds) characters get muted for violating ChatFlood.MessageCount / ChatFlood.AddonMessageCount.
 #        Default:     10
 
 ChatFlood.MuteTime = 10
@@ -4280,7 +4302,7 @@ Metric.Enable = 0
 #        Default:     10 seconds
 #
 
-Metric.Interval = 10
+Metric.Interval = 1
 
 #
 #    Metric.ConnectionInfo

@@ -384,6 +384,31 @@ LOCK TABLES `battlenet_account_toys` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battlenet_account_transmog_illusions`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_transmog_illusions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_transmog_illusions` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `blobIndex` smallint unsigned NOT NULL,
+  `illusionMask` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`battlenetAccountId`,`blobIndex`),
+  CONSTRAINT `battlenet_account_transmog_illusions_ibfk_1` FOREIGN KEY (`battlenetAccountId`) REFERENCES `battlenet_accounts` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_transmog_illusions`
+--
+
+LOCK TABLES `battlenet_account_transmog_illusions` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_transmog_illusions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_transmog_illusions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battlenet_accounts`
 --
 
@@ -637,7 +662,9 @@ INSERT INTO `build_info` VALUES
 (43206,9,2,0,NULL,NULL,'DDE806532C7704FFB75F256DC5F1F3D9',NULL,NULL,NULL),
 (43340,9,2,0,NULL,NULL,'70E46D2D888E84DF9316EA849B068CF4',NULL,NULL,NULL),
 (43345,9,2,0,NULL,NULL,'D911ABFCDA030DEE8CAF4EE3F60DEE13',NULL,NULL,NULL),
-(43971,9,2,5,NULL,NULL,'681CF99E61FB0005A5C7D31D0AAD1ED9',NULL,NULL,NULL);
+(43971,9,2,5,NULL,NULL,'681CF99E61FB0005A5C7D31D0AAD1ED9',NULL,NULL,NULL),
+(44015,9,2,5,NULL,NULL,'FCF0BDA7C98BFEF92AE6D8C39A217ABD',NULL,NULL,NULL),
+(44061,9,2,5,NULL,NULL,'FD2B5C0B3293FE0E9CAA6EB0B7788119',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `build_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2243,7 +2270,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int unsigned NOT NULL DEFAULT '43971',
+  `gamebuild` int unsigned NOT NULL DEFAULT '44061',
   `Region` tinyint unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2258,7 +2285,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,43971,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,44061,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2567,7 +2594,11 @@ INSERT INTO `updates` VALUES
 ('2022_04_14_00_auth.sql','4D79D1C7282CA8F1626D957AF17E711BFF94334B','RELEASED','2022-04-14 04:39:49',0),
 ('2022_04_22_00_auth.sql','835EE2D6981AD7A7467490242D6A4B0E0B69E4F4','RELEASED','2022-04-22 20:04:53',0),
 ('2022_05_03_00_auth.sql','0874FBE9821F2659BA51B91E9D69B9E6CA6D2EC9','RELEASED','2022-05-03 11:07:21',0),
-('2022_06_01_00_auth.sql','DCFC7EC6C52993769B568EAF87CA2DAA10359AEB','RELEASED','2022-06-02 00:52:17',0);
+('2022_06_01_00_auth.sql','DCFC7EC6C52993769B568EAF87CA2DAA10359AEB','RELEASED','2022-06-02 00:52:17',0),
+('2022_06_06_00_auth.sql','68D73F068598D37FD6FBC84362F1BA7BA4EC2709','RELEASED','2022-06-06 21:35:16',0),
+('2022_06_07_00_auth.sql','76B4D21F13B0024445E5C0B48C630C1DF7E80966','RELEASED','2022-06-07 16:09:58',0),
+('2022_06_08_00_auth.sql','250081465C76AC9668E3F66D386CE2AAC05379E9','RELEASED','2022-06-08 10:45:01',0),
+('2022_06_09_00_auth.sql','29C2A4209FB977373440666F00B2E04F0E095247','RELEASED','2022-06-09 18:31:38',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
