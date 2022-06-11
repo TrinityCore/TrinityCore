@@ -10055,6 +10055,44 @@ struct QuestPackageItemMeta
     }
 };
 
+struct QuestPOIBlobMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static DB2MetaField const fields[9] =
+        {
+            { FT_INT, 1, false },
+            { FT_SHORT, 1, true },
+            { FT_INT, 1, true },
+            { FT_BYTE, 1, false },
+            { FT_INT, 1, false },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, false },
+            { FT_INT, 1, false },
+        };
+        static DB2Meta instance(1251882, 0, 9, 9, 0xBD552CA4, fields, 1);
+        return &instance;
+    }
+};
+
+struct QuestPOIPointMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static DB2MetaField const fields[5] =
+        {
+            { FT_INT, 1, false },
+            { FT_SHORT, 1, true },
+            { FT_SHORT, 1, true },
+            { FT_SHORT, 1, true },
+            { FT_INT, 1, true },
+        };
+        static DB2Meta instance(1251883, 0, 5, 4, 0xD291971B, fields, 4);
+        return &instance;
+    }
+};
+
 struct QuestSortMeta
 {
     static DB2Meta const* Instance()
