@@ -717,7 +717,7 @@ class spell_pal_judgement : public SpellScript
                 return;
 
             if (target && caster->GetExactDist2d(target) > 15.f)
-                caster->CastSpell(SPELL_PALADIN_LONG_ARM_OF_THE_LAW, true);
+                caster->CastSpell(nullptr, SPELL_PALADIN_LONG_ARM_OF_THE_LAW, true);
         }
     }
 
