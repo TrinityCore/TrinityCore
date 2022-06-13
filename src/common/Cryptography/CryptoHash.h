@@ -112,6 +112,7 @@ namespace Trinity::Impl
 
 namespace Trinity::Crypto
 {
+    using MD5 = Trinity::Impl::GenericHash<EVP_md5, Constants::MD5_DIGEST_LENGTH_BYTES>;
     using SHA1 = Trinity::Impl::GenericHash<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
     using SHA256 = Trinity::Impl::GenericHash<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
 }

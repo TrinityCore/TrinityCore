@@ -20,7 +20,7 @@
 #include "DBCStores.h"
 #include "Log.h"
 #include "Timer.h"
-#include <openssl/md5.h>
+#include "CryptoHash.h"
 
 namespace AddonMgr
 {
@@ -75,15 +75,18 @@ void LoadFromDB()
         {
             Field* fields = result->Fetch();
 
-            BannedAddon addon;
+            BannedAddon addon{};
             addon.Id = fields[0].GetUInt32() + dbcMaxBannedAddon;
             addon.Timestamp = uint32(fields[3].GetUInt64());
 
             std::string name = fields[1].GetString();
             std::string version = fields[2].GetString();
 
-            MD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), addon.NameMD5);
-            MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), addon.VersionMD5);
+            auto md5name = Trinity::Crypto::MD5::GetDigestOf(name);
+            std::copy(std::begin(md5name), std::end(md5name), std::begin(addon.NameMD5));
+
+            auto md5version = Trinity::Crypto::MD5::GetDigestOf(version);
+            std::copy(std::begin(md5version), std::end(md5version), std::begin(addon.VersionMD5));
 
             m_bannedAddons.push_back(addon);
 

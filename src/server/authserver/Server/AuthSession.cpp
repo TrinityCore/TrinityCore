@@ -32,7 +32,6 @@
 #include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
-#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 

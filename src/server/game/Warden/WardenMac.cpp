@@ -28,7 +28,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-#include <openssl/md5.h>
 #include <array>
 
 WardenMac::WardenMac() : Warden() { }
@@ -222,7 +221,7 @@ void WardenMac::HandleCheckResult(ByteBuffer &buff)
     sha1.UpdateData((uint8*)&magic, 4);
     sha1.Finalize();
 
-    std::array<uint8, Trinity::Crypto::SHA1::DIGEST_LENGTH> sha1Hash;
+    std::array<uint8, Trinity::Crypto::SHA1::DIGEST_LENGTH> sha1Hash{};
     buff.read(sha1Hash.data(), sha1Hash.size());
 
     if (sha1Hash != sha1.GetDigest())
@@ -231,13 +230,9 @@ void WardenMac::HandleCheckResult(ByteBuffer &buff)
         //found = true;
     }
 
-    MD5_CTX ctx;
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, str.c_str(), str.size());
-    std::array<uint8, 16> ourMD5Hash;
-    MD5_Final(ourMD5Hash.data(), &ctx);
+    auto ourMD5Hash = Trinity::Crypto::MD5::GetDigestOf(str);
 
-    std::array<uint8, 16> theirsMD5Hash;
+    std::array<uint8, Trinity::Crypto::MD5::DIGEST_LENGTH> theirsMD5Hash{};
     buff.read(theirsMD5Hash);
 
     if (ourMD5Hash != theirsMD5Hash)

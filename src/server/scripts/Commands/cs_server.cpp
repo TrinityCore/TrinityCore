@@ -46,9 +46,8 @@ EndScriptData */
 
 #include <numeric>
 
-#include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
-#include <openssl/opensslv.h>
+#include <boost/filesystem/operations.hpp>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -140,7 +139,7 @@ public:
         }
 
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
-        handler->PSendSysMessage("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+        handler->PSendSysMessage("Using SSL version: %s", OpenSSL_version(OPENSSL_VERSION));
         handler->PSendSysMessage("Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         handler->PSendSysMessage("Using MySQL version: %u", MySQL::GetLibraryVersion());
         handler->PSendSysMessage("Using CMake version: %s", GitRevision::GetCMakeVersion());

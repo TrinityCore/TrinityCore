@@ -18,21 +18,43 @@
 #include "ARC4.h"
 #include "Errors.h"
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif
+
 Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
 {
     EVP_CIPHER_CTX_init(_ctx);
-    int result = EVP_EncryptInit_ex(_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
+    const EVP_CIPHER *cipher;
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    _libctx = OSSL_LIB_CTX_new();
+    _legacy_provider = OSSL_PROVIDER_load(_libctx, "legacy");
+    _default_provider = OSSL_PROVIDER_load(_libctx, "default");
+
+    cipher = EVP_CIPHER_fetch(_libctx, "RC4", "");
+#else
+    cipher = EVP_rc4();
+#endif
+
+    int result = EVP_EncryptInit_ex(_ctx, cipher, nullptr, nullptr, nullptr);
     ASSERT(result == 1);
 }
 
 Trinity::Crypto::ARC4::~ARC4()
 {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (_legacy_provider) OSSL_PROVIDER_unload(_legacy_provider);
+    if (_default_provider) OSSL_PROVIDER_unload(_default_provider);
+    if (_libctx) OSSL_LIB_CTX_free(_libctx);
+#endif
+
     EVP_CIPHER_CTX_free(_ctx);
 }
 
 void Trinity::Crypto::ARC4::Init(uint8 const* seed, size_t len)
 {
-    int result1 = EVP_CIPHER_CTX_set_key_length(_ctx, len);
+    int result1 = EVP_CIPHER_CTX_set_key_length(_ctx, static_cast<int>(len));
     ASSERT(result1 == 1);
     int result2 = EVP_EncryptInit_ex(_ctx, nullptr, nullptr, seed, nullptr);
     ASSERT(result2 == 1);
@@ -41,7 +63,7 @@ void Trinity::Crypto::ARC4::Init(uint8 const* seed, size_t len)
 void Trinity::Crypto::ARC4::UpdateData(uint8* data, size_t len)
 {
     int outlen = 0;
-    int result1 = EVP_EncryptUpdate(_ctx, data, &outlen, data, len);
+    int result1 = EVP_EncryptUpdate(_ctx, data, &outlen, data, static_cast<int>(len));
     ASSERT(result1 == 1);
     int result2 = EVP_EncryptFinal_ex(_ctx, data, &outlen);
     ASSERT(result2 == 1);

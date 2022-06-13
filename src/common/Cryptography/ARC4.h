@@ -38,6 +38,11 @@ namespace Trinity::Crypto
             template <typename Container>
             void UpdateData(Container& c) { UpdateData(std::data(c), std::size(c)); }
         private:
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+            OSSL_LIB_CTX *_libctx;
+            OSSL_PROVIDER *_legacy_provider;
+            OSSL_PROVIDER *_default_provider;
+#endif
             EVP_CIPHER_CTX* _ctx;
     };
 }

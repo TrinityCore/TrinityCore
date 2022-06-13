@@ -18,42 +18,20 @@
 #ifndef TRINITY_HMAC_H
 #define TRINITY_HMAC_H
 
-#include "CryptoConstants.h"
+#include "CryptoHash.h"
 #include "Define.h"
 #include "Errors.h"
+
 #include <array>
 #include <string>
 #include <string_view>
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
 #include <openssl/hmac.h>
-
-class BigNumber;
+#endif
 
 namespace Trinity::Impl
 {
-    struct HMACImpl
-    {
-        typedef EVP_MD const* (*HashCreator)();
-
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
-        static HMAC_CTX* MakeCTX()
-        {
-            HMAC_CTX* ctx = new HMAC_CTX();
-            HMAC_CTX_init(ctx);
-            return ctx;
-        }
-
-        static void DestroyCTX(HMAC_CTX* ctx)
-        {
-            HMAC_CTX_cleanup(ctx);
-            delete ctx;
-        }
-#else
-        static HMAC_CTX* MakeCTX() { return HMAC_CTX_new(); }
-        static void DestroyCTX(HMAC_CTX* ctx) { HMAC_CTX_free(ctx); }
-#endif
-    };
-
-    template <HMACImpl::HashCreator HashCreator, size_t DigestLength>
+    template <GenericHashImpl::HashCreator HashCreator, size_t DigestLength>
     class GenericHMAC
     {
         public:
@@ -78,9 +56,14 @@ namespace Trinity::Impl
                 return hash.GetDigest();
             }
 
-            GenericHMAC(uint8 const* seed, size_t len) : _ctx(HMACImpl::MakeCTX())
+            GenericHMAC(uint8 const* seed, size_t len) : _ctx(GenericHashImpl::MakeCTX())
             {
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
                 int result = HMAC_Init_ex(_ctx, seed, len, HashCreator(), nullptr);
+#else
+                _key = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, nullptr, seed, static_cast<int>(len));
+                int result = EVP_DigestSignInit(_ctx, nullptr, HashCreator(), nullptr, _key);
+#endif
                 ASSERT(result == 1);
             }
             template <typename Container>
@@ -88,15 +71,24 @@ namespace Trinity::Impl
 
             ~GenericHMAC()
             {
-                if (!_ctx)
+                if (!_ctx) {
                     return;
-                HMACImpl::DestroyCTX(_ctx);
+                }
+
+#if !(defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L)
+                EVP_PKEY_free(_key);
+#endif
+                GenericHashImpl::DestroyCTX(_ctx);
                 _ctx = nullptr;
             }
 
             void UpdateData(uint8 const* data, size_t len)
             {
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
                 int result = HMAC_Update(_ctx, data, len);
+#else
+                int result = EVP_DigestSignUpdate(_ctx, data, len);
+#endif
                 ASSERT(result == 1);
             }
             void UpdateData(std::string_view str) { UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.size()); }
@@ -107,17 +99,36 @@ namespace Trinity::Impl
 
             void Finalize()
             {
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
                 uint32 length = 0;
                 int result = HMAC_Final(_ctx, _digest.data(), &length);
+#else
+                size_t length = DIGEST_LENGTH;
+                int result = EVP_DigestSignFinal(_ctx, _digest.data(), &length);
+#endif
                 ASSERT(result == 1);
                 ASSERT(length == DIGEST_LENGTH);
-                HMACImpl::DestroyCTX(_ctx);
+
+#if !(defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L)
+                EVP_PKEY_free(_key);
+#endif
+                GenericHashImpl::DestroyCTX(_ctx);
                 _ctx = nullptr;
             }
 
-            Digest const& GetDigest() const { return _digest; }
+            Digest const& GetDigest() const
+            {
+                return _digest;
+            }
+
         private:
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
             HMAC_CTX* _ctx;
+#else
+            EVP_MD_CTX* _ctx;
+            EVP_PKEY* _key = nullptr;
+#endif
+
             Digest _digest = { };
     };
 }

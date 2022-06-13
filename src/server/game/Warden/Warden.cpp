@@ -26,9 +26,7 @@
 #include "Util.h"
 #include "Warden.h"
 #include "AccountMgr.h"
-
-#include <openssl/sha.h>
-#include <openssl/md5.h>
+#include "CryptoHash.h"
 
 #include <charconv>
 
@@ -46,11 +44,7 @@ void Warden::MakeModuleForClient()
 {
     TC_LOG_DEBUG("warden", "Make module for client");
     InitializeModuleForClient(_module.emplace());
-
-    MD5_CTX ctx;
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, _module->CompressedData, _module->CompressedSize);
-    MD5_Final(_module->Id.data(), &ctx);
+    _module->Id = Trinity::Crypto::MD5::GetDigestOf(_module->CompressedData, _module->CompressedSize);
 }
 
 void Warden::SendModuleToClient()
@@ -178,7 +172,9 @@ struct keyData {
 uint32 Warden::BuildChecksum(uint8 const* data, uint32 length)
 {
     keyData hash;
-    SHA1(data, length, hash.bytes.bytes);
+    auto keyHash = Trinity::Crypto::SHA1::GetDigestOf(data, length);
+    std::copy(std::begin(keyHash), std::end(keyHash), std::begin(hash.bytes.bytes));
+
     uint32 checkSum = 0;
     for (uint8 i = 0; i < 5; ++i)
         checkSum = checkSum ^ hash.ints.ints[i];

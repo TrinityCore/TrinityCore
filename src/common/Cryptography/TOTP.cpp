@@ -17,12 +17,10 @@
 
 #include "TOTP.h"
 #include <cstring>
-#include <openssl/evp.h>
-#include <openssl/hmac.h>
+#include "HMAC.h"
 
 constexpr std::size_t Trinity::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH;
 static constexpr uint32 TOTP_INTERVAL = 30;
-static constexpr uint32 HMAC_RESULT_SIZE = 20;
 /*static*/ uint32 Trinity::Crypto::TOTP::GenerateToken(Secret const& secret, time_t timestamp)
 {
     timestamp /= TOTP_INTERVAL;
@@ -30,9 +28,7 @@ static constexpr uint32 HMAC_RESULT_SIZE = 20;
     for (int i = 8; i--; timestamp >>= 8)
         challenge[i] = timestamp;
 
-    unsigned char digest[HMAC_RESULT_SIZE];
-    uint32 digestSize = HMAC_RESULT_SIZE;
-    HMAC(EVP_sha1(), secret.data(), secret.size(), challenge, 8, digest, &digestSize);
+    auto digest = Trinity::Crypto::HMAC_SHA1::GetDigestOf(secret, challenge, 8);
 
     uint32 offset = digest[19] & 0xF;
     uint32 truncated = (digest[offset] << 24) | (digest[offset + 1] << 16) | (digest[offset + 2] << 8) | (digest[offset + 3]);

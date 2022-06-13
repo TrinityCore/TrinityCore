@@ -80,7 +80,7 @@ Set ``OPENSSL_MSVC_STATIC_RT`` set ``TRUE`` to choose the MT version of the lib.
 #]=======================================================================]
 
 set(OPENSSL_EXPECTED_VERSION "1.0")
-set(OPENSSL_MAX_VERSION "1.2")
+set(OPENSSL_MAX_VERSION "3.1")
 
 macro(_OpenSSL_test_and_find_dependencies ssl_library crypto_library)
   if((CMAKE_SYSTEM_NAME STREQUAL "Linux") AND
