@@ -367,6 +367,8 @@ i_scriptLock(false), _respawnCheckTimer(0)
 
     _poolData = sPoolMgr->InitPoolsForMap(this);
 
+    sTransportMgr->CreateTransportsForMap(this);
+
     MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), i_InstanceId);
 
     sScriptMgr->OnCreateMap(this);
@@ -512,13 +514,6 @@ void Map::DeleteFromWorld(Player* player)
     ObjectAccessor::RemoveObject(player);
     RemoveUpdateObject(player); /// @todo I do not know why we need this, it should be removed in ~Object anyway
     delete player;
-}
-
-template<>
-void Map::DeleteFromWorld(Transport* transport)
-{
-    ObjectAccessor::RemoveObject(transport);
-    delete transport;
 }
 
 void Map::EnsureGridCreated(GridCoord const& p)
@@ -765,15 +760,16 @@ bool Map::AddToMap(Transport* obj)
         return false; //Should delete object
     }
 
-    obj->AddToWorld();
     _transports.insert(obj);
 
-    // Broadcast creation to players
-    if (!GetPlayers().isEmpty())
+    if (obj->GetExpectedMapId() == GetId())
     {
+        obj->AddToWorld();
+
+        // Broadcast creation to players
         for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         {
-            if (itr->GetSource()->GetTransport() != obj)
+            if (itr->GetSource()->GetTransport() != obj && itr->GetSource()->IsInPhase(obj))
             {
                 UpdateData data(GetId());
                 obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
@@ -944,10 +940,6 @@ void Map::Update(uint32 t_diff)
     {
         WorldObject* obj = *_transportsUpdateIter;
         ++_transportsUpdateIter;
-
-        if (!obj->IsInWorld())
-            continue;
-
         obj->Update(t_diff);
     }
 
@@ -1131,18 +1123,21 @@ void Map::RemoveFromMap(T *obj, bool remove)
 template<>
 void Map::RemoveFromMap(Transport* obj, bool remove)
 {
-    obj->RemoveFromWorld();
-
-    Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (obj->IsInWorld())
     {
+        obj->RemoveFromWorld();
+
         UpdateData data(GetId());
-        obj->BuildOutOfRangeUpdateBlock(&data);
+        if (obj->IsDestroyedObject())
+            obj->BuildDestroyUpdateBlock(&data);
+        else
+            obj->BuildOutOfRangeUpdateBlock(&data);
+
         WorldPacket packet;
         data.BuildPacket(&packet);
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         {
-            if (itr->GetSource()->GetTransport() != obj)
+            if (itr->GetSource()->GetTransport() != obj && itr->GetSource()->m_visibleTransports.count(obj->GetGUID()))
             {
                 itr->GetSource()->SendDirectMessage(&packet);
                 itr->GetSource()->m_visibleTransports.erase(obj->GetGUID());
@@ -3049,10 +3044,10 @@ void Map::SendInitSelf(Player* player)
 void Map::SendInitTransports(Player* player)
 {
     // Hack to send out transports
-    UpdateData transData(player->GetMapId());
+    UpdateData transData(GetId());
     for (Transport* transport : _transports)
     {
-        if (transport != player->GetTransport() && player->IsInPhase(transport))
+        if (transport->IsInWorld() && transport != player->GetTransport() && player->IsInPhase(transport))
         {
             transport->BuildCreateUpdateBlockForPlayer(&transData, player);
             player->m_visibleTransports.insert(transport->GetGUID());
@@ -3070,7 +3065,7 @@ void Map::SendRemoveTransports(Player* player)
     UpdateData transData(player->GetMapId());
     for (Transport* transport : _transports)
     {
-        if (transport != player->GetTransport())
+        if (player->m_visibleTransports.count(transport->GetGUID()) && transport != player->GetTransport())
         {
             transport->BuildOutOfRangeUpdateBlock(&transData);
             player->m_visibleTransports.erase(transport->GetGUID());
@@ -3088,6 +3083,9 @@ void Map::SendUpdateTransportVisibility(Player* player)
     UpdateData transData(player->GetMapId());
     for (Transport* transport : _transports)
     {
+        if (!transport->IsInWorld())
+            continue;
+
         auto transportItr = player->m_visibleTransports.find(transport->GetGUID());
         if (player->IsInPhase(transport))
         {
@@ -3656,17 +3654,6 @@ void Map::DelayedUpdate(uint32 t_diff)
             (*callback)(this);
             delete callback;
         }
-    }
-
-    for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
-    {
-        Transport* transport = *_transportsUpdateIter;
-        ++_transportsUpdateIter;
-
-        if (!transport->IsInWorld())
-            continue;
-
-        transport->DelayedUpdate(t_diff);
     }
 
     RemoveAllObjectsInRemoveList();

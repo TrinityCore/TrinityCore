@@ -44,21 +44,17 @@ Optional<Position> TransportTemplate::ComputePosition(uint32 time, TransportMove
     time %= TotalPathTime;
 
     // find leg
-    auto legItr = PathLegs.begin();
-    while (legItr->StartTimestamp + legItr->Duration <= time)
-    {
-        ++legItr;
+    TransportPathLeg const* leg = GetLegForTime(time);
+    if (!leg)
+        return {};
 
-        if (legItr == PathLegs.end())
-            return {};
-    }
 
     // find segment
-    uint32 prevSegmentTime = legItr->StartTimestamp;
-    auto segmentItr = legItr->Segments.begin();
+    uint32 prevSegmentTime = leg->StartTimestamp;
+    auto segmentItr = leg->Segments.begin();
     double distanceMoved = 0.0;
     bool isOnPause = false;
-    for (; segmentItr != std::prev(legItr->Segments.end()); ++segmentItr)
+    for (; segmentItr != std::prev(leg->Segments.end()); ++segmentItr)
     {
         if (time < segmentItr->SegmentEndArrivalTimestamp)
             break;
@@ -77,24 +73,52 @@ Optional<Position> TransportTemplate::ComputePosition(uint32 time, TransportMove
         distanceMoved += CalculateDistanceMoved(
             double(time - prevSegmentTime) * 0.001,
             double(segmentItr->SegmentEndArrivalTimestamp - prevSegmentTime) * 0.001,
-            segmentItr == legItr->Segments.begin(),
-            segmentItr == std::prev(legItr->Segments.end()));
+            segmentItr == leg->Segments.begin(),
+            segmentItr == std::prev(leg->Segments.end()));
 
     Movement::SplineBase::index_type splineIndex;
     float splinePointProgress;
-    legItr->Spline->computeIndex(std::fmin(distanceMoved / legItr->Spline->length(), 1.0), splineIndex, splinePointProgress);
+    leg->Spline->computeIndex(std::fmin(distanceMoved / leg->Spline->length(), 1.0), splineIndex, splinePointProgress);
 
     G3D::Vector3 pos, dir;
-    legItr->Spline->evaluate_percent(splineIndex, splinePointProgress, pos);
-    legItr->Spline->evaluate_derivative(splineIndex, splinePointProgress, dir);
+    leg->Spline->evaluate_percent(splineIndex, splinePointProgress, pos);
+    leg->Spline->evaluate_derivative(splineIndex, splinePointProgress, dir);
 
     if (moveState)
         *moveState = isOnPause ? TransportMovementState::WaitingOnPauseWaypoint : TransportMovementState::Moving;
 
     if (legIndex)
-        *legIndex = std::distance(PathLegs.begin(), legItr);
+        *legIndex = std::distance(PathLegs.data(), leg);
 
     return Position(pos.x, pos.y, pos.z, std::atan2(dir.y, dir.x) + float(M_PI));
+}
+
+TransportPathLeg const* TransportTemplate::GetLegForTime(uint32 time) const
+{
+    auto legItr = PathLegs.begin();
+    while (legItr->StartTimestamp + legItr->Duration <= time)
+    {
+        ++legItr;
+
+        if (legItr == PathLegs.end())
+            return nullptr;
+    }
+
+    return &*legItr;
+}
+
+uint32 TransportTemplate::GetNextPauseWaypointTimestamp(uint32 time) const
+{
+    TransportPathLeg const* leg = GetLegForTime(time);
+    if (!leg)
+        return time;
+
+    auto segmentItr = leg->Segments.begin();
+    for (; segmentItr != std::prev(leg->Segments.end()); ++segmentItr)
+        if (time < segmentItr->SegmentEndArrivalTimestamp + segmentItr->Delay)
+            break;
+
+    return segmentItr->SegmentEndArrivalTimestamp + segmentItr->Delay;
 }
 
 double TransportTemplate::CalculateDistanceMoved(double timePassedInSegment, double segmentDuration, bool isFirstSegment, bool isLastSegment) const
@@ -151,25 +175,6 @@ double TransportTemplate::CalculateDistanceMoved(double timePassedInSegment, dou
     }
 }
 
-uint32 TransportTemplate::GetNextPauseWaypointTimestamp(uint32 time) const
-{
-    auto legItr = PathLegs.begin();
-    while (legItr->StartTimestamp + legItr->Duration <= time)
-    {
-        ++legItr;
-
-        if (legItr == PathLegs.end())
-            return time;
-    }
-
-    auto segmentItr = legItr->Segments.begin();
-    for (; segmentItr != std::prev(legItr->Segments.end()); ++segmentItr)
-        if (time < segmentItr->SegmentEndArrivalTimestamp + segmentItr->Delay)
-            break;
-
-    return segmentItr->SegmentEndArrivalTimestamp + segmentItr->Delay;
-}
-
 TransportMgr::TransportMgr() = default;
 
 TransportMgr::~TransportMgr() = default;
@@ -222,13 +227,7 @@ void TransportMgr::LoadTransportTemplates()
         // paths are generated per template, saves us from generating it again in case of instanced transports
         TransportTemplate& transport = _transportTemplates[entry];
 
-        std::set<uint32> mapsUsed;
-
-        GeneratePath(goInfo, &transport, &mapsUsed);
-
-        // transports in instance are only on one map
-        if (transport.InInstance)
-            _instanceTransports[*mapsUsed.begin()].insert(entry);
+        GeneratePath(goInfo, &transport);
 
         ++count;
     } while (result->NextRow());
@@ -266,7 +265,8 @@ void TransportMgr::LoadTransportSpawns()
             uint32 phaseId = fields[3].GetUInt32();
             uint32 phaseGroupId = fields[4].GetUInt32();
 
-            if (!GetTransportTemplate(entry))
+            TransportTemplate const* transportTemplate = GetTransportTemplate(entry);
+            if (!transportTemplate)
             {
                 TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown gameobject `entry` set, skipped.", guid, entry);
                 continue;
@@ -315,6 +315,9 @@ void TransportMgr::LoadTransportSpawns()
             spawn.PhaseUseFlags = phaseUseFlags;
             spawn.PhaseId = phaseId;
             spawn.PhaseGroup = phaseGroupId;
+
+            for (uint32 mapId : transportTemplate->MapIds)
+                _transportsByMap[mapId].insert(&spawn);
 
         } while (result->NextRow());
     }
@@ -484,7 +487,7 @@ static void InitializeLeg(TransportPathLeg* leg, std::vector<TransportPathEvent>
         leg->Segments.resize(pauseItr + 1);
 }
 
-void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport, std::set<uint32>* mapsUsed)
+void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
 {
     uint32 pathId = goInfo->moTransport.taxiPathID;
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
@@ -522,21 +525,21 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (node->ArrivalEventID || node->DepartureEventID)
             events.push_back(node);
 
-        mapsUsed->insert(node->ContinentID);
+        transport->MapIds.insert(node->ContinentID);
     }
 
     if (!leg->Spline)
         InitializeLeg(leg, &transport->Events, pathPoints, pauses, events, goInfo, totalTime);
 
-    if (mapsUsed->size() > 1)
+    if (transport->MapIds.size() > 1)
     {
-        for (uint32 mapId : *mapsUsed)
+        for (uint32 mapId : transport->MapIds)
             ASSERT(!sMapStore.LookupEntry(mapId)->Instanceable());
 
         transport->InInstance = false;
     }
     else
-        transport->InInstance = sMapStore.LookupEntry(*mapsUsed->begin())->Instanceable();
+        transport->InInstance = sMapStore.LookupEntry(*transport->MapIds.begin())->Instanceable();
 
     transport->TotalPathTime = totalTime;
 }
@@ -559,19 +562,15 @@ void TransportMgr::AddPathRotationToTransport(uint32 transportEntry, uint32 time
         animNode.TotalTime = timeSeg;
 }
 
-Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/)
+Transport* TransportMgr::CreateTransport(uint32 entry, Map* map, ObjectGuid::LowType guid /*= 0*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/)
 {
-    // instance case, execute GetGameObjectEntry hook
-    if (map)
-    {
-        // SetZoneScript() is called after adding to map, so fetch the script using map
-        if (map->IsDungeon())
-            if (InstanceScript* instance = static_cast<InstanceMap*>(map)->GetInstanceScript())
-                entry = instance->GetGameObjectEntry(0, entry);
+    // SetZoneScript() is called after adding to map, so fetch the script using map
+    if (InstanceMap* instanceMap = map->ToInstanceMap())
+        if (InstanceScript* instance = instanceMap->GetInstanceScript())
+            entry = instance->GetGameObjectEntry(0, entry);
 
-        if (!entry)
-            return nullptr;
-    }
+    if (!entry)
+        return nullptr;
 
     TransportTemplate const* tInfo = GetTransportTemplate(entry);
     if (!tInfo)
@@ -598,8 +597,8 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
     float o = startingPosition->GetOrientation();
 
     // initialize the gameobject base
-    ObjectGuid::LowType guidLow = guid ? guid : ASSERT_NOTNULL(map)->GenerateLowGuid<HighGuid::Transport>();
-    if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
+    ObjectGuid::LowType guidLow = guid ? guid : map->GenerateLowGuid<HighGuid::Transport>();
+    if (!trans->Create(guidLow, entry, x, y, z, o))
     {
         delete trans;
         return nullptr;
@@ -618,40 +617,26 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
     }
 
     // use preset map for instances (need to know which instance)
-    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, nullptr));
-    if (map && map->IsDungeon())
-        trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
+    trans->SetMap(map);
+    if (InstanceMap* instanceMap = map->ToInstanceMap())
+        trans->m_zoneScript = instanceMap->GetInstanceScript();
 
     // Passengers will be loaded once a player is near
-    HashMapHolder<Transport>::Insert(trans);
-    trans->GetMap()->AddToMap<Transport>(trans);
+    map->AddToMap<Transport>(trans);
     return trans;
 }
 
-void TransportMgr::SpawnContinentTransports()
+void TransportMgr::CreateTransportsForMap(Map* map)
 {
-    uint32 oldMSTime = getMSTime();
-    uint32 count = 0;
-
-    for (auto itr = _transportSpawns.begin(); itr != _transportSpawns.end(); ++itr)
-        if (!ASSERT_NOTNULL(GetTransportTemplate(itr->second.TransportGameObjectId))->InInstance)
-            if (CreateTransport(itr->second.TransportGameObjectId, itr->second.SpawnId, nullptr, itr->second.PhaseUseFlags, itr->second.PhaseId, itr->second.PhaseGroup))
-                ++count;
-
-    TC_LOG_INFO("server.loading", ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void TransportMgr::CreateInstanceTransports(Map* map)
-{
-    auto mapTransports = _instanceTransports.find(map->GetId());
+    auto mapTransports = _transportsByMap.find(map->GetId());
 
     // no transports here
-    if (mapTransports == _instanceTransports.end())
+    if (mapTransports == _transportsByMap.end())
         return;
 
     // create transports
-    for (uint32 transportGameObjectId : mapTransports->second)
-        CreateTransport(transportGameObjectId, UI64LIT(0), map);
+    for (TransportSpawn const* transport : mapTransports->second)
+        CreateTransport(transport->TransportGameObjectId, map, transport->SpawnId, transport->PhaseUseFlags, transport->PhaseId, transport->PhaseGroup);
 }
 
 TransportTemplate const* TransportMgr::GetTransportTemplate(uint32 entry) const

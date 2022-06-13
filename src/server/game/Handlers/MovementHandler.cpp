@@ -79,6 +79,10 @@ void WorldSession::HandleMoveWorldportAck()
         sMapMgr->FindMap(loc.GetMapId(), *GetPlayer()->GetTeleportDestInstanceId()) :
         sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
 
+    MovementInfo::TransportInfo transportInfo = player->m_movementInfo.transport;
+    if (TransportBase* transport = player->GetTransport())
+        transport->RemovePassenger(player);
+
     if (player->IsInWorld())
     {
         TC_LOG_ERROR("network", "%s %s is still in world when teleported from map %s (%u) to new map %s (%u)", player->GetGUID().ToString().c_str(), player->GetName().c_str(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
@@ -109,6 +113,13 @@ void WorldSession::HandleMoveWorldportAck()
 
     if (!seamlessTeleport)
         player->SendInitialPacketsBeforeAddToMap();
+
+    // move player between transport copies on each map
+    if (Transport* newTransport = newMap->GetTransport(transportInfo.guid))
+    {
+        player->m_movementInfo.transport = transportInfo;
+        newTransport->AddPassenger(player);
+    }
 
     if (!player->GetMap()->AddPlayerToMap(player, !seamlessTeleport))
     {
