@@ -48,7 +48,6 @@ Optional<Position> TransportTemplate::ComputePosition(uint32 time, TransportMove
     if (!leg)
         return {};
 
-
     // find segment
     uint32 prevSegmentTime = leg->StartTimestamp;
     auto segmentItr = leg->Segments.begin();
