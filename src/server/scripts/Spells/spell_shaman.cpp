@@ -1150,7 +1150,7 @@ class spell_sha_resurgence : public AuraScript
         }
 
 
-        int32 bp = baseAmount * modifier / aurEff->GetAmount();
+        int32 bp = baseAmount * modifier * (aurEff->GetAmount() / 100.f);
         GetTarget()->EnergizeBySpell(GetTarget(), SPELL_SHAMAN_RESURGENCE_ENERGIZE, bp, POWER_MANA);
     }
 
