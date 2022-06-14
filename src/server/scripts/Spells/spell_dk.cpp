@@ -991,7 +991,7 @@ class spell_dk_will_of_the_necropolis : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_DK_WILL_OF_THE_NECROPOLIS,
-                SPELL_DK_BLOOD_TAP
+                SPELL_DK_RUNE_TAP
             });
     }
 
@@ -1005,7 +1005,7 @@ class spell_dk_will_of_the_necropolis : public AuraScript
         Unit* target = GetTarget();
         int32 bp = aurEff->GetAmount();
         target->CastSpell(target, SPELL_DK_WILL_OF_THE_NECROPOLIS, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
-        target->GetSpellHistory()->ResetCooldown(SPELL_DK_BLOOD_TAP, true);
+        target->GetSpellHistory()->ResetCooldown(SPELL_DK_RUNE_TAP, true);
     }
 
     void Register() override
