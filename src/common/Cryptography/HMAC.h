@@ -118,7 +118,7 @@ namespace Trinity::Impl
 
             void Finalize()
             {
-                size_t length = 0;
+                size_t length = DIGEST_LENGTH;
                 int result = EVP_DigestSignFinal(_ctx, _digest.data(), &length);
                 ASSERT(result == 1);
                 ASSERT(length == DIGEST_LENGTH);
