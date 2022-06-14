@@ -23,7 +23,7 @@ Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     _cipher = EVP_CIPHER_fetch(nullptr, "RC4", nullptr);
 #else
-    _cipher = EVP_rc4();
+    EVP_CIPHER const* _cipher = EVP_rc4();
 #endif
 
     EVP_CIPHER_CTX_init(_ctx);
