@@ -3575,7 +3575,7 @@ void DoDelayedUpdate(TSWorldObject obj)
 
         for (sol::protected_function callback: obj->obj->m_delayedLuaCallbacks)
         {
-            callback(obj, TSMapManager());
+            TSLuaState::handle_error(callback(obj, TSMapManager()));
         }
         obj->obj->m_delayedCallbacks.clear();
         obj->obj->m_delayedLuaCallbacks.clear();
