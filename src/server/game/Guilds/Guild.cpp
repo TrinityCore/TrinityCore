@@ -3073,6 +3073,15 @@ bool Guild::ChangeMemberRank(CharacterDatabaseTransaction& trans, ObjectGuid gui
     return false;
 }
 
+uint64 Guild::GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const
+{
+    Member const* member = GetMember(guid);
+    if (!member)
+        return 0;
+
+    return std::min(m_bankMoney, static_cast<uint64>(_GetMemberRemainingMoney(member)));
+}
+
 bool Guild::IsMember(ObjectGuid guid) const
 {
     Members::const_iterator itr = m_members.find(guid.GetCounter());

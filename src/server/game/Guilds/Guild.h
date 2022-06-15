@@ -862,6 +862,7 @@ public:
     bool AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
     void DeleteMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
     bool ChangeMemberRank(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 newRank);
+    uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
     bool IsMember(ObjectGuid guid) const;
     uint32 GetMembersCount() { return m_members.size(); }
 
