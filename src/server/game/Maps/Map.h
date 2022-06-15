@@ -337,7 +337,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // @tswow-begin
         TSWorldEntity<TSMap> m_tsWorldEntity;
         TSEntity m_tsEntity;
-        std::vector < std::function<void(TSMap, TSMapManager)>> m_delayCallbacks;
+        std::vector < std::function<void(TSMap, TSMainThreadContext)>> m_delayCallbacks;
         std::vector < sol::protected_function> m_delayLuaCallbacks;
         std::set<ObjectGuid> m_delayedGuids;
         // @tswow-end

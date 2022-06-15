@@ -57,7 +57,7 @@
 #include "TSPlayer.h"
 #include "TSCreature.h"
 #include "TSGameObject.h"
-#include "TSMapManager.h"
+#include "TSMainThreadContext.h"
 // @tswow-end
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
@@ -3570,12 +3570,12 @@ void DoDelayedUpdate(TSWorldObject obj)
     {
         for (auto callback : obj->obj->m_delayedCallbacks)
         {
-            callback(obj, TSMapManager());
+            callback(obj, TSMainThreadContext());
         }
 
         for (sol::protected_function callback: obj->obj->m_delayedLuaCallbacks)
         {
-            TSLuaState::handle_error(callback(obj, TSMapManager()));
+            TSLuaState::handle_error(callback(obj, TSMainThreadContext()));
         }
         obj->obj->m_delayedCallbacks.clear();
         obj->obj->m_delayedLuaCallbacks.clear();
@@ -3590,16 +3590,16 @@ void Map::DelayedUpdate(uint32 t_diff)
         , Map,OnUpdateDelayed
         , TSMap(this)
         , t_diff
-        , TSMapManager()
+        , TSMainThreadContext()
     );
     for (auto const& callback : m_delayCallbacks)
     {
-        callback(TSMap(this), TSMapManager());
+        callback(TSMap(this), TSMainThreadContext());
     }
 
     for (sol::protected_function callback : m_delayLuaCallbacks)
     {
-        TSLuaState::handle_error(callback(TSMap(this), TSMapManager()));
+        TSLuaState::handle_error(callback(TSMap(this), TSMainThreadContext()));
     }
     m_delayCallbacks.clear();
 

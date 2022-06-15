@@ -39,7 +39,7 @@
 #include "TSWorldObject.h"
 #include "TSEntity.h"
 #include "TSWorldEntity.h"
-#include "TSMapManager.h"
+#include "TSMainThreadContext.h"
 // @tswow-end
 
 class Corpse;
@@ -300,7 +300,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::set<TSWorldObjectGroup*> m_tsGroups;
         void RemoveFromAllGroups();
         uint64_t m_phase_id = 0;
-        std::vector<std::function<void(TSWorldObject, TSMapManager)>> m_delayedCallbacks;
+        std::vector<std::function<void(TSWorldObject, TSMainThreadContext)>> m_delayedCallbacks;
         std::vector<sol::protected_function> m_delayedLuaCallbacks;
         // @tswow-end
 
