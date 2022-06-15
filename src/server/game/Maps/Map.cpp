@@ -3599,7 +3599,7 @@ void Map::DelayedUpdate(uint32 t_diff)
 
     for (sol::protected_function callback : m_delayLuaCallbacks)
     {
-        callback(TSMap(this), TSMapManager());
+        TSLuaState::handle_error(callback(TSMap(this), TSMapManager()));
     }
     m_delayCallbacks.clear();
 
