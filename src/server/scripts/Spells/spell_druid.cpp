@@ -77,6 +77,7 @@ enum DruidSpells
     SPELL_DRUID_LANGUISH                       = 71023,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE             = 64372,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL           = 33778,
+    SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE     = 155627,
     SPELL_DRUID_MANGLE                         = 33917,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_PROWL                          = 5215,
@@ -807,6 +808,33 @@ class spell_dru_lifebloom : public AuraScript
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterDispel += AuraDispelFn(spell_dru_lifebloom::HandleDispel);
+    }
+};
+
+// 155580 - Lunar Inspiration
+class spell_dru_lunar_inspiration : public AuraScript
+{
+    PrepareAuraScript(spell_dru_lunar_inspiration);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_lunar_inspiration::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lunar_inspiration::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1604,6 +1632,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
+    RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_prowl);
