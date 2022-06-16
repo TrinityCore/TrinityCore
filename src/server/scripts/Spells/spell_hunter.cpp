@@ -47,6 +47,8 @@ enum HunterSpells
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
+    SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
+    SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
@@ -383,6 +385,31 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScript
     }
 };
 
+// 781 - Disengage
+class spell_hun_posthaste : public SpellScript
+{
+    PrepareSpellScript(spell_hun_posthaste);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_POSTHASTE_TALENT, SPELL_HUNTER_POSTHASTE_INCREASE_SPEED });
+    }
+
+    void HandleAfterCast()
+    {
+        if (GetCaster()->HasAura(SPELL_HUNTER_POSTHASTE_TALENT))
+        {
+            GetCaster()->RemoveMovementImpairingAuras(true);
+            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_POSTHASTE_INCREASE_SPEED, GetSpell());
+        }
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_hun_posthaste::HandleAfterCast);
+    }
+};
+
 // 53480 - Roar of Sacrifice
 class spell_hun_roar_of_sacrifice : public AuraScript
 {
@@ -594,6 +621,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_multi_shot);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
+    RegisterSpellScript(spell_hun_posthaste);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_steady_shot);
