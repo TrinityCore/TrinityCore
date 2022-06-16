@@ -3575,7 +3575,7 @@ void DoDelayedUpdate(TSWorldObject obj)
 
         for (sol::protected_function callback: obj->obj->m_delayedLuaCallbacks)
         {
-            TSLuaState::handle_error(callback(obj, TSMainThreadContext()));
+            TSLua::handle_error(callback(obj, TSMainThreadContext()));
         }
         obj->obj->m_delayedCallbacks.clear();
         obj->obj->m_delayedLuaCallbacks.clear();
@@ -3599,7 +3599,7 @@ void Map::DelayedUpdate(uint32 t_diff)
 
     for (sol::protected_function callback : m_delayLuaCallbacks)
     {
-        TSLuaState::handle_error(callback(TSMap(this), TSMainThreadContext()));
+        TSLua::handle_error(callback(TSMap(this), TSMainThreadContext()));
     }
     m_delayCallbacks.clear();
 
