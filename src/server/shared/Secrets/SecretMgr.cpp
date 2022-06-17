@@ -175,7 +175,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
     {
         case SECRET_TOTP_MASTER_KEY:
         {
-            QueryResult result = LoginDatabase.Query("SELECT id, totp_secret FROM account");
+            QueryResult result = LoginDatabase.Query("SELECT id, totp_secret FROM users_user");
             if (result) do
             {
                 Field* fields = result->Fetch();

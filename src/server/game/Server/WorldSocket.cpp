@@ -238,7 +238,7 @@ struct AuthSession
     uint32 RegionID = 0;
     uint64 DosResponse = 0;
     Trinity::Crypto::SHA1::Digest Digest = {};
-    std::string Account;
+    std::string Users_user;
     ByteBuffer AddonInfo;
 };
 
@@ -426,7 +426,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Read the content of the packet
     recvPacket >> authSession->Build;
     recvPacket >> authSession->LoginServerID;
-    recvPacket >> authSession->Account;
+    recvPacket >> authSession->Users_user;
     recvPacket >> authSession->LoginServerType;
     recvPacket.read(authSession->LocalChallenge);
     recvPacket >> authSession->RegionID;
@@ -440,7 +440,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Get the account information from the auth database
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
     stmt->setInt32(0, int32(realm.Id.Realm));
-    stmt->setString(1, authSession->Account);
+    stmt->setString(1, authSession->Users_user);
 
     _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
 }
@@ -457,7 +457,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         return;
     }
 
-    AccountInfo account(result->Fetch());
+    AccountInfo users_user(result->Fetch());
 
     // For hook purposes, we get Remoteaddress at this point.
     std::string address = GetRemoteIpAddress().to_string();
@@ -469,13 +469,13 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
         stmt->setString(0, address);
-        stmt->setString(1, authSession->Account);
+        stmt->setString(1, authSession->Users_user);
         LoginDatabase.Execute(stmt);
         // This also allows to check for possible "hack" attempts on account
     }
 
     // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
-    _authCrypt.Init(account.SessionKey);
+    _authCrypt.Init(users_user.SessionKey);
 
     // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
     if (sWorld->IsClosed())
@@ -497,10 +497,10 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     // Must be done before WorldSession is created
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
-    if (wardenActive && account.OS != "Win" && account.OS != "OSX")
+    if (wardenActive && users_user.OS != "Win" && users_user.OS != "OSX")
     {
         SendAuthResponseError(AUTH_REJECT);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), account.OS.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), users_user.OS.c_str());
         DelayedCloseSocket();
         return;
     }
@@ -509,17 +509,17 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     uint8 t[4] = { 0x00,0x00,0x00,0x00 };
 
     Trinity::Crypto::SHA1 sha;
-    sha.UpdateData(authSession->Account);
+    sha.UpdateData(authSession->Users_user);
     sha.UpdateData(t);
     sha.UpdateData(authSession->LocalChallenge);
     sha.UpdateData(_authSeed);
-    sha.UpdateData(account.SessionKey);
+    sha.UpdateData(users_user.SessionKey);
     sha.Finalize();
 
     if (sha.GetDigest() != authSession->Digest)
     {
         SendAuthResponseError(AUTH_FAILED);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", account.Id, authSession->Account.c_str(), address.c_str());
+        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", users_user.Id, authSession->Users_user.c_str(), address.c_str());
         DelayedCloseSocket();
         return;
     }
@@ -528,32 +528,32 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         _ipCountry = location->CountryCode;
 
     ///- Re-check ip locking (same check as in auth).
-    if (account.IsLockedToIP)
+    if (users_user.IsLockedToIP)
     {
-        if (account.LastIP != address)
+        if (users_user.LastIP != address)
         {
             SendAuthResponseError(AUTH_FAILED);
-            TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", account.LastIP.c_str(), address.c_str());
+            TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", users_user.LastIP.c_str(), address.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
-            sScriptMgr->OnFailedAccountLogin(account.Id);
+            sScriptMgr->OnFailedAccountLogin(users_user.Id);
             DelayedCloseSocket();
             return;
         }
     }
-    else if (!account.LockCountry.empty() && account.LockCountry != "00" && !_ipCountry.empty())
+    else if (!users_user.LockCountry.empty() && users_user.LockCountry != "00" && !_ipCountry.empty())
     {
-        if (account.LockCountry != _ipCountry)
+        if (users_user.LockCountry != _ipCountry)
         {
             SendAuthResponseError(AUTH_FAILED);
-            TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account country differs. Original country: %s, new country: %s).", account.LockCountry.c_str(), _ipCountry.c_str());
+            TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account country differs. Original country: %s, new country: %s).", users_user.LockCountry.c_str(), _ipCountry.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
-            sScriptMgr->OnFailedAccountLogin(account.Id);
+            sScriptMgr->OnFailedAccountLogin(users_user.Id);
             DelayedCloseSocket();
             return;
         }
     }
 
-    int64 mutetime = account.MuteTime;
+    int64 mutetime = users_user.MuteTime;
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
@@ -561,32 +561,32 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);
-        stmt->setUInt32(1, account.Id);
+        stmt->setUInt32(1, users_user.Id);
         LoginDatabase.Execute(stmt);
     }
 
-    if (account.IsBanned)
+    if (users_user.IsBanned)
     {
         SendAuthResponseError(AUTH_BANNED);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
-        sScriptMgr->OnFailedAccountLogin(account.Id);
+        sScriptMgr->OnFailedAccountLogin(users_user.Id);
         DelayedCloseSocket();
         return;
     }
 
     // Check locked state for server
     AccountTypes allowedAccountType = sWorld->GetPlayerSecurityLimit();
-    TC_LOG_DEBUG("network", "Allowed Level: %u Player Level %u", allowedAccountType, account.Security);
-    if (allowedAccountType > SEC_PLAYER && account.Security < allowedAccountType)
+    TC_LOG_DEBUG("network", "Allowed Level: %u Player Level %u", allowedAccountType, users_user.Security);
+    if (allowedAccountType > SEC_PLAYER && users_user.Security < allowedAccountType)
     {
         SendAuthResponseError(AUTH_UNAVAILABLE);
         TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
-        sScriptMgr->OnFailedAccountLogin(account.Id);
+        sScriptMgr->OnFailedAccountLogin(users_user.Id);
         DelayedCloseSocket();
         return;
     }
 
-    TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.", authSession->Account.c_str(), address.c_str());
+    TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.", authSession->Users_user.c_str(), address.c_str());
 
     if (sWorld->getBoolConfig(CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE))
     {
@@ -594,22 +594,22 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
         stmt->setString(0, address);
-        stmt->setString(1, authSession->Account);
+        stmt->setString(1, authSession->Users_user);
 
         LoginDatabase.Execute(stmt);
     }
 
     // At this point, we can safely hook a successful login
-    sScriptMgr->OnAccountLogin(account.Id);
+    sScriptMgr->OnAccountLogin(users_user.Id);
 
     _authed = true;
-    _worldSession = new WorldSession(account.Id, std::move(authSession->Account), shared_from_this(), account.Security,
-        account.Expansion, mutetime, account.Locale, account.Recruiter, account.IsRectuiter);
+    _worldSession = new WorldSession(users_user.Id, std::move(authSession->Users_user), shared_from_this(), users_user.Security,
+        users_user.Expansion, mutetime, users_user.Locale, users_user.Recruiter, users_user.IsRectuiter);
     _worldSession->ReadAddonsInfo(authSession->AddonInfo);
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
-        _worldSession->InitWarden(account.SessionKey, account.OS);
+        _worldSession->InitWarden(users_user.SessionKey, users_user.OS);
 
     _queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
     AsyncRead();

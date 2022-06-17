@@ -147,7 +147,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     {
         m_Address = sock->GetRemoteIpAddress().to_string();
         ResetTimeOutTime(false);
-        LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
+        LoginDatabase.PExecute("UPDATE users_user SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
 }
@@ -175,7 +175,7 @@ WorldSession::~WorldSession()
     while (_recvQueue.next(packet))
         delete packet;
 
-    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
+    LoginDatabase.PExecute("UPDATE users_user SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
 }
 
 std::string const & WorldSession::GetPlayerName() const

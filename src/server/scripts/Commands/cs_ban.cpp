@@ -437,7 +437,7 @@ public:
                 Field* fields = result->Fetch();
                 uint32 accountid = fields[0].GetUInt32();
 
-                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='%u' AND account_banned.id = account.id", accountid);
+                QueryResult banResult = LoginDatabase.PQuery("SELECT users_user.username FROM users_user, account_banned WHERE account_banned.id='%u' AND account_banned.id = users_user.id", accountid);
                 if (banResult)
                 {
                     Field* fields2 = banResult->Fetch();
