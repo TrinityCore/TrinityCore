@@ -1,7 +1,7 @@
 
 
-#ifndef _MEMORY_H
-#define _MEMORY_H
+#ifndef TRINITY_DETOUR_MEMORY_FUNCTIONS_H
+#define TRINITY_DETOUR_MEMORY_FUNCTIONS_H
 
 #include "DetourAlloc.h"
 
@@ -16,4 +16,4 @@ inline void dtCustomFree(void* ptr)
     delete [] (unsigned char*)ptr;
 }
 
-#endif
+#endif // TRINITY_DETOUR_MEMORY_FUNCTIONS_H
