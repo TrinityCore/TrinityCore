@@ -47,12 +47,6 @@ enum GossipMenuOptions
     GOSSIP_MENU_OPTION_FORTUNE_TELLER_POI   = 5
 };
 
-enum Miscellanea
-{
-    DATA_ID_SELINA_TALK                     = 1,
-    DATA_VALUE_SELINA_TEXT_WELCOME          = 1
-};
-
 enum PointsOfInterest
 {
     POI_WHACK_A_GNOLL                       = 2716,
@@ -123,24 +117,19 @@ struct npc_selina_dourman : public ScriptedAI
         return false;
     }
 
-    void SetData(uint32 id, uint32 value) override
+    void DoWelcomeTalk(ObjectGuid talkTargetGuid)
     {
-        if (!_talkTargetGuid.IsEmpty() && id == DATA_ID_SELINA_TALK && value == DATA_VALUE_SELINA_TEXT_WELCOME)
+        if (!talkTargetGuid.IsEmpty())
         {
             if (_events.GetTimeUntilEvent(EVENT_SELINA_TALK_COOLDOWN) == Milliseconds::max())
             {
-                if (Unit* talkTarget = ObjectAccessor::GetUnit(*me, _talkTargetGuid))
+                if (Unit* talkTarget = ObjectAccessor::GetUnit(*me, talkTargetGuid))
                 {
                     _events.ScheduleEvent(EVENT_SELINA_TALK_COOLDOWN, 30s);
                     Talk(SAY_WELCOME, talkTarget);
                 }
             }
         }
-    }
-
-    void SetTalkTarget(ObjectGuid talkTargetGuid)
-    {
-        _talkTargetGuid = talkTargetGuid;
     }
 
     void UpdateAI(uint32 diff) override
@@ -150,8 +139,6 @@ struct npc_selina_dourman : public ScriptedAI
         switch (_events.ExecuteEvent())
         {
             case EVENT_SELINA_TALK_COOLDOWN:
-                _talkTargetGuid = ObjectGuid::Empty;
-                break;
             default:
                 break;
         }
@@ -159,7 +146,6 @@ struct npc_selina_dourman : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _talkTargetGuid;
 };
 
 // 7016 - Darkmoon Faire Entrance
@@ -171,13 +157,8 @@ public:
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (Creature* selinaDourman = player->FindNearestCreature(NPC_SELINA_DOURMAN, 50.f))
-        {
             if (npc_selina_dourman* selinaDourmanAI = CAST_AI(npc_selina_dourman, selinaDourman->GetAI()))
-            {
-                selinaDourmanAI->SetTalkTarget(player->GetGUID());
-                selinaDourman->AI()->SetData(DATA_ID_SELINA_TALK, DATA_VALUE_SELINA_TEXT_WELCOME);
-            }
-        }
+                selinaDourmanAI->DoWelcomeTalk(player->GetGUID());
 
         return true;
     }
