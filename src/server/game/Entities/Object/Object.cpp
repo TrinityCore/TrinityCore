@@ -659,15 +659,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
     if (flags & UPDATEFLAG_TRANSPORT)
     {
-        if (GameObject const* go = ToGameObject())
-        {
-            if (MapTransport const* transport = go->ToMapTransport())
-                *data << uint32(transport->GetTimer());
-            else if (Transport const* transport = go->ToTransport())
-                *data << uint32(transport->IsDynamicTransport() ? transport->GetTimer() : getMSTime());
-            else
-                *data << uint32(getMSTime());
-        }
+        GameObject const* go = ToGameObject();
+        /** @TODO Use IsTransport() to also handle type 11 (TRANSPORT)
+            Currently grid objects are not updated if there are no nearby players,
+            this causes clients to receive different PathProgress
+            resulting in players seeing the object in a different position
+        */
+        if (go && go->ToTransport())
+            *data << uint32(go->GetGOValue()->Transport.PathProgress);
+        else
+            *data << uint32(GameTime::GetGameTimeMS());
     }
 }
 
@@ -2094,20 +2095,6 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonCreatur
         return nullptr;
     }
 
-    // Add summon to transport if summoner is on a transport as well
-    if (summon->GetTransGUID().IsEmpty() && summonArgs.Summoner)
-    {
-        if (Transport* transport = summonArgs.Summoner->GetTransport())
-        {
-            float x, y, z, o;
-            pos.GetPosition(x, y, z, o);
-            transport->CalculatePassengerOffset(x, y, z, &o);
-            summon->m_movementInfo.transport.pos.Relocate(x, y, z, o);
-
-            transport->AddPassenger(summon);
-        }
-    }
-
     // Inherit summoner's Phaseshift
     if (summonArgs.Summoner)
         PhasingHandler::InheritPhaseShift(summon, summonArgs.Summoner);
@@ -2221,24 +2208,11 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     }
 
     Map* map = GetMap();
-    GameObject* go = nullptr;
-    if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+    GameObject* go = new GameObject();
+    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, pos, rot, 255, GO_STATE_READY))
     {
-        go = new Transport();
-        if (!go->Create(map->GenerateLowGuid<HighGuid::Transport>(), entry, map, pos, rot, 255, GO_STATE_READY))
-        {
-            delete go;
-            return nullptr;
-        }
-    }
-    else
-    {
-        go = new GameObject();
-        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, pos, rot, 255, GO_STATE_READY))
-        {
-            delete go;
-            return nullptr;
-        }
+        delete go;
+        return nullptr;
     }
 
     PhasingHandler::InheritPhaseShift(go, this);
@@ -2248,17 +2222,6 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
         ToUnit()->AddGameObject(go);
     else
         go->SetSpawnedByDefault(false);
-
-    Transport* transport = GetTransGUID().IsEmpty() ? GetTransport() : nullptr;
-    if (transport)
-    {
-        float x, y, z, o;
-        go->GetPosition(x, y, z, o);
-        transport->CalculatePassengerOffset(x, y, z, &o);
-        go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
-
-        transport->AddPassenger(go);
-    }
 
     map->AddToMap(go);
     return go;
@@ -2787,14 +2750,6 @@ ObjectGuid WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return ObjectGuid::Empty;
-}
-
-MapTransport* WorldObject::GetMapTransport() const
-{
-    if (GetTransport())
-        return GetTransport()->ToMapTransport();
-
-    return nullptr;
 }
 
 float WorldObject::GetFloorZ() const

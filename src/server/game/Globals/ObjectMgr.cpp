@@ -55,7 +55,6 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "Transport.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "Vehicle.h"
@@ -2279,11 +2278,7 @@ ObjectGuid::LowType ObjectMgr::AddGameObjectData(uint32 entry, uint32 mapId, Pos
     // We use spawn coords to spawn
     if (!map->Instanceable() && map->IsGridLoaded(data.spawnPoint))
     {
-        GameObject* go = nullptr;
-        if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
-            go = new Transport();
-        else
-            go = new GameObject();
+        GameObject* go = new GameObject;
 
         if (!go->LoadFromDB(spawnId, map, true))
         {
@@ -6909,7 +6904,7 @@ void ObjectMgr::SetHighestGuids()
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        GetGuidSequenceGenerator<HighGuid::Transport>().Set((*result)[0].GetUInt32() + 1);
+        GetGuidSequenceGenerator<HighGuid::Mo_Transport>().Set((*result)[0].GetUInt32() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
@@ -10210,14 +10205,6 @@ void ObjectMgr::LoadTaxiNodeLevelData()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u taxi node level definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-uint32 ObjectMgr::GetGameObjectTypeByEntry(uint32 entry) const
-{
-    if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry))
-        return goinfo->type;
-
-    return MAX_GAMEOBJECT_TYPE;
 }
 
 void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)

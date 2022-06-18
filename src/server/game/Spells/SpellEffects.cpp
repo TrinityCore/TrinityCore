@@ -2969,11 +2969,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     uint32 gameobject_id = m_spellInfo->Effects[effIndex].MiscValue;
 
-    GameObject* pGameObj = nullptr;
-    if (sObjectMgr->GetGameObjectTypeByEntry(gameobject_id) == GAMEOBJECT_TYPE_TRANSPORT)
-        pGameObj = new Transport();
-    else
-        pGameObj = new GameObject();
+    GameObject* pGameObj = new GameObject;
 
     WorldObject* target = focusObject;
     if (!target)
@@ -4032,11 +4028,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         m_caster->m_ObjectSlot[slot].Clear();
     }
 
-    GameObject* go = nullptr;
-    if (sObjectMgr->GetGameObjectTypeByEntry(go_id) == GAMEOBJECT_TYPE_TRANSPORT)
-        go = new Transport();
-    else
-        go = new GameObject();
+    GameObject* go = new GameObject();
 
     float x, y, z, o;
     // If dest location if present
@@ -4847,24 +4839,12 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(fo, 0.f, 0.f);
 
-    GameObject* pGameObj = nullptr;
-    if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+    GameObject* pGameObj = new GameObject;
+
+    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
     {
-        pGameObj = new Transport();
-        if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::Transport>(), name_id, cMap, Position(fx, fy, fz, fo), rot, 255, GO_STATE_READY))
-        {
-            delete pGameObj;
-            return;
-        }
-    }
-    else
-    {
-        pGameObj = new GameObject();
-        if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, Position(fx, fy, fz, fo), rot, 255, GO_STATE_READY))
-        {
-            delete pGameObj;
-            return;
-        }
+        delete pGameObj;
+        return;
     }
 
     PhasingHandler::InheritPhaseShift(pGameObj, m_caster);

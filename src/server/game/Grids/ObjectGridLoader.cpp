@@ -26,7 +26,6 @@
 #include "GameObject.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Transport.h"
 #include "World.h"
 #include "ScriptMgr.h"
 
@@ -126,33 +125,6 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
             continue;
 
         T* obj = new T;
-        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
-        if (!obj->LoadFromDB(guid, map, false, false))
-        {
-            delete obj;
-            continue;
-        }
-        AddObjectHelper(cell, m, count, map, obj);
-    }
-}
-
-template <>
-void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<GameObject>& m, uint32& count, Map* map)
-{
-    for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
-    {
-        // Don't spawn at all if there's a respawn timer
-        ObjectGuid::LowType guid = *i_guid;
-        if (!map->ShouldBeSpawnedOnGridLoad<GameObject>(guid))
-            continue;
-
-        GameObject* obj = nullptr;
-        GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
-        if (data && sObjectMgr->GetGameObjectTypeByEntry(data->id) == GAMEOBJECT_TYPE_TRANSPORT)
-            obj = new Transport();
-        else
-            obj = new GameObject();
-
         //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
         if (!obj->LoadFromDB(guid, map, false, false))
         {

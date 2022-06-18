@@ -25,7 +25,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Transport.h"
 #include "UpdateData.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
@@ -282,9 +281,10 @@ bool BattlegroundSA::ResetObjs()
     UpdateWorldState(BG_SA_YELLOW_GATEWS, 1);
     UpdateWorldState(BG_SA_ANCIENT_GATEWS, 1);
 
-    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            SendTransportInit(player);
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+                SendTransportInit(player);
 
     // set status manually so preparation is cast correctly in 2nd round too
     SetStatus(STATUS_WAIT_JOIN);
@@ -298,27 +298,23 @@ void BattlegroundSA::StartShips()
     if (ShipsStarted)
         return;
 
-    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
-        if (GameObject* obj = GetBGObject(i))
-            if (Transport* transport = obj->ToTransport())
-                transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
+    DoorOpen(BG_SA_BOAT_ONE);
+    DoorOpen(BG_SA_BOAT_TWO);
 
-    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
-        if (Player* p = ObjectAccessor::FindPlayer(itr->first))
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         {
-            UpdateData data(GetMapId());
-
-            for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
-                if (GameObject* obj = GetBGObject(i))
-                    obj->BuildValuesUpdateBlockForPlayer(&data, p);
-
-            WorldPacket pkt;
-            data.BuildPacket(&pkt);
-            p->SendDirectMessage(&pkt);
+            if (Player* p = ObjectAccessor::FindPlayer(itr->first))
+            {
+                UpdateData data(p->GetMapId());
+                WorldPacket pkt;
+                GetBGObject(i)->BuildValuesUpdateBlockForPlayer(&data, p);
+                data.BuildPacket(&pkt);
+                p->SendDirectMessage(&pkt);
+            }
         }
     }
-
     ShipsStarted = true;
 }
 

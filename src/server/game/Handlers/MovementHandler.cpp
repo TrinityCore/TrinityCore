@@ -93,12 +93,9 @@ void WorldSession::HandleMoveWorldportAck()
         return;
     }
 
-    float x = loc.GetPositionX();
-    float y = loc.GetPositionY();
-    float o = loc.GetOrientation();
     float z = loc.GetPositionZ() + GetPlayer()->GetHoverOffset();
 
-    GetPlayer()->Relocate(x, y, z, o);
+    GetPlayer()->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
     GetPlayer()->SetFallInformation(0, GetPlayer()->GetPositionZ());
 
     GetPlayer()->ResetMap();
@@ -113,16 +110,6 @@ void WorldSession::HandleMoveWorldportAck()
         GetPlayer()->SetMap(oldMap);
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
         return;
-    }
-
-    if (Transport* transport = _player->GetTeleportTransport())
-    {
-        transport->CalculatePassengerOffset(x, y, z, &o);
-        _player->m_movementInfo.transport.pos.Relocate(x, y, z, o);
-
-        transport->AddPassenger(_player);
-
-        _player->ResetTeleportTransport();
     }
 
     // battleground state prepare (in case join to BG), at relogin/tele player not invited
@@ -366,7 +353,11 @@ void WorldSession::HandleMovementOpcode(uint16 opcode, MovementInfo& movementInf
         }
 
         if (!mover->GetTransport() && !mover->GetVehicle())
-            movementInfo.transport.Reset();
+        {
+            GameObject* go = mover->GetMap()->GetGameObject(movementInfo.transport.guid);
+            if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
+                movementInfo.transport.guid.Clear();
+        }
     }
     else if (plrMover && plrMover->GetTransport())                // if we were on a transport, leave
         plrMover->m_transport->RemovePassenger(plrMover);

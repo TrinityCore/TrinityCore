@@ -363,7 +363,7 @@ void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg,
     animNode.Path[timeSeg] = node;
 }
 
-MapTransport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/)
+Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/)
 {
     // instance case, execute GetGameObjectEntry hook
     if (map)
@@ -385,7 +385,7 @@ MapTransport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType gu
     }
 
     // create transport...
-    MapTransport* trans = new MapTransport();
+    Transport* trans = new Transport();
 
     // ...at first waypoint
     TaxiPathNodeEntry const* startNode = tInfo->keyFrames.begin()->Node;
@@ -396,9 +396,9 @@ MapTransport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType gu
     float o = tInfo->keyFrames.begin()->InitialOrientation;
 
     // initialize the gameobject base
-    ObjectGuid::LowType guidLow = guid ? guid : ASSERT_NOTNULL(map)->GenerateLowGuid<HighGuid::Transport>();
+    ObjectGuid::LowType guidLow = guid ? guid : sObjectMgr->GetGenerator<HighGuid::Mo_Transport>().Generate();
 
-    if (!trans->CreateMapTransport(guidLow, entry, mapId, x, y, z, o, 255))
+    if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;
         return nullptr;
@@ -419,11 +419,11 @@ MapTransport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType gu
     // use preset map for instances (need to know which instance)
     trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, nullptr));
     if (map && map->IsDungeon())
-        trans->SetZoneScript();
+        trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
 
     // Passengers will be loaded once a player is near
-    HashMapHolder<MapTransport>::Insert(trans);
-    trans->GetMap()->AddToMap<MapTransport>(trans);
+    HashMapHolder<Transport>::Insert(trans);
+    trans->GetMap()->AddToMap<Transport>(trans);
     return trans;
 }
 
@@ -509,63 +509,20 @@ void TransportMgr::CreateInstanceTransports(Map* map)
         CreateTransport(*itr, 0, map);
 }
 
-bool TransportAnimation::GetAnimNode(uint32 time, TransportAnimationEntry const*& curr, TransportAnimationEntry const*& next, float& percPos) const
+TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
 {
-    if (Path.empty())
-        return false;
+    auto itr = Path.lower_bound(time);
+    if (itr != Path.end())
+        return itr->second;
 
-    for (TransportPathContainer::const_reverse_iterator itr = Path.rbegin(); itr != Path.rend(); ++itr)
-        if (time >= itr->first)
-        {
-            curr = itr->second;
-            //ASSERT(itr != Path.rbegin());
-
-            --itr;
-            next = itr->second;
-
-            percPos = float(time - curr->TimeIndex) / float(next->TimeIndex - curr->TimeIndex);
-
-            return true;
-        }
-
-    return false;
+    return nullptr;
 }
 
-void TransportAnimation::GetAnimRotation(uint32 time, QuaternionData& curr, QuaternionData& next, float& percRot) const
+TransportRotationEntry const* TransportAnimation::GetAnimRotation(uint32 time) const
 {
-    if (Rotations.empty())
-    {
-        curr = QuaternionData(0.0f, 0.0f, 0.0f, 1.0f);
-        next = QuaternionData(0.0f, 0.0f, 0.0f, 1.0f);
-        percRot = 0.0f;
-        return;
-    }
+    auto itr = Rotations.lower_bound(time);
+    if (itr != Rotations.end())
+        return itr->second;
 
-    for (TransportPathRotationContainer::const_reverse_iterator itr = Rotations.rbegin(); itr != Rotations.rend(); ++itr)
-        if (time >= itr->first)
-        {
-            uint32 currSeg = itr->second->TimeIndex;
-            uint32 nextSeg = 0;
-
-            curr = QuaternionData(itr->second->X, itr->second->Y, itr->second->Z, itr->second->W);
-            if (itr != Rotations.rbegin())
-            {
-                --itr;
-                next = QuaternionData(itr->second->X, itr->second->Y, itr->second->Z, itr->second->W);
-                nextSeg = itr->second->TimeIndex;
-            }
-            else
-            {
-                next = QuaternionData(Rotations.begin()->second->X, Rotations.begin()->second->Y, Rotations.begin()->second->Z, Rotations.begin()->second->W);
-                nextSeg = this->TotalTime;
-            }
-
-            percRot = float(time - currSeg) / float(nextSeg - currSeg);
-
-            return;
-        }
-
-    curr = QuaternionData(0.0f, 0.0f, 0.0f, 1.0f);
-    next = QuaternionData(0.0f, 0.0f, 0.0f, 1.0f);
-    percRot = 0.0f;
+    return nullptr;
 }

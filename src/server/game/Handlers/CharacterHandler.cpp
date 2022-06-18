@@ -54,7 +54,6 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SystemPackets.h"
-#include "Transport.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "boost/asio/ip/address.hpp"
@@ -930,26 +929,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     loginVerifyWorld.MapID = pCurrChar->GetMapId();
     loginVerifyWorld.Pos = pCurrChar->GetPosition();
     SendPacket(loginVerifyWorld.Write());
-
-    // check if player is on transport and not added earlier to transport
-    // e.g. in case of loading transport on grid load
-    if (pCurrChar->GetTransportSpawnID() && !pCurrChar->GetTransport())
-    {
-        Transport* transport = nullptr;
-
-        auto bounds = pCurrChar->GetMap()->GetGameObjectBySpawnIdStore().equal_range(pCurrChar->GetTransportSpawnID());
-        if (bounds.first != bounds.second)
-            transport = bounds.first->second->ToTransport();
-
-        if (transport)
-            transport->AddPassenger(pCurrChar);
-        else
-        {
-            pCurrChar->SetTransport(nullptr);
-            pCurrChar->m_movementInfo.transport.Reset();
-            pCurrChar->SetTransportSpawnID(0);
-        }
-    }
 
     pCurrChar->UpdatePositionData();
     pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);

@@ -123,7 +123,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 UpperSpireTeleporterActiveState = NOT_STARTED;
                 BloodPrinceIntro = 1;
                 SindragosaIntro = 1;
-                LadyDeathwhisperElevatorTimer = 3000;
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -436,8 +435,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
                         LadyDeathwisperElevatorGUID = go->GetGUID();
                         if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
-                            if (Transport* transport = go->ToTransport())
-                                transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                            go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
                         break;
                     case GO_THE_SKYBREAKER_H:
                     case GO_ORGRIMS_HAMMER_A:
@@ -896,7 +894,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, NOT_STARTED);
                     uint32 gunshipEntry = TeamInInstance == HORDE ? GO_ORGRIMS_HAMMER_H : GO_THE_SKYBREAKER_A;
-                    if (MapTransport* gunship = sTransportMgr->CreateTransport(gunshipEntry, 0, instance))
+                    if (Transport* gunship = sTransportMgr->CreateTransport(gunshipEntry, 0, instance))
                         GunshipGUID = gunship->GetGUID();
                 }
             }
@@ -1167,28 +1165,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
-                if (LadyDeathwhisperElevatorTimer <= diff)
-                {
-                    LadyDeathwhisperElevatorTimer = 3000;
-                    if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
-                    {
-                        if (Transport* elevator = instance->GetTransport(LadyDeathwisperElevatorGUID))
-                        {
-                            if (elevator->GetDestinationStopFrameTime() == elevator->GetCurrentTransportTime())
-                            {
-                                if (!elevator->GetCurrentTransportTime())
-                                    elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
-                                else
-                                    elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 0);
-
-                                LadyDeathwhisperElevatorTimer = 20000;
-                            }
-                        }
-                    }
-                }
-                else
-                    LadyDeathwhisperElevatorTimer -= diff;
-
                 if (GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != FAIL)
                     return;
 
@@ -1244,7 +1220,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case EVENT_PLAYERS_GUNSHIP_SPAWN:
                     case EVENT_PLAYERS_GUNSHIP_COMBAT:
                         if (GameObject* go = source->ToGameObject())
-                            if (MapTransport* transport = go->ToMapTransport())
+                            if (Transport* transport = go->ToTransport())
                                 transport->EnableMovement(false);
                         break;
                     case EVENT_PLAYERS_GUNSHIP_SAURFANG:
@@ -1252,7 +1228,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (Creature* captain = source->FindNearestCreature(TeamInInstance == HORDE ? NPC_IGB_HIGH_OVERLORD_SAURFANG : NPC_IGB_MURADIN_BRONZEBEARD, 100.0f))
                             captain->AI()->DoAction(ACTION_EXIT_SHIP);
                         if (GameObject* go = source->ToGameObject())
-                            if (MapTransport* transport = go->ToMapTransport())
+                            if (Transport* transport = go->ToTransport())
                                 transport->EnableMovement(false);
                         break;
                     }
@@ -1353,7 +1329,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             std::set<uint32> RimefangTrash;
             uint8 BloodPrinceIntro;
             uint8 SindragosaIntro;
-            uint32 LadyDeathwhisperElevatorTimer;
             bool IsBonedEligible;
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;

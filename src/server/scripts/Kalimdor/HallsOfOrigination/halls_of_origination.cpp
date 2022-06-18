@@ -31,7 +31,6 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "Transport.h"
 #include "halls_of_origination.h"
 
 enum SunTouchedServant
@@ -781,7 +780,7 @@ struct go_hoo_the_makers_lift_controller : public GameObjectAI
             return true;
 
         // Handle elevator: gossip item index => stopFrame (floor index).
-        Transport* elevator = ObjectAccessor::GetTransportOnMap(*me, instance->GetGuidData(DATA_LIFT_OF_THE_MAKERS));
+        GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
         if (!elevator)
             return true;
 

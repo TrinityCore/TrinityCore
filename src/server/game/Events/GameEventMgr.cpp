@@ -28,7 +28,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "Transport.h"
 #include "UnitAI.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -1302,11 +1301,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
                 // We use current coords to unspawn, not spawn coords since creature can have changed grid
                 if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
                 {
-                    GameObject* pGameobject = nullptr;
-                    if (sObjectMgr->GetGameObjectTypeByEntry(data->id) == GAMEOBJECT_TYPE_TRANSPORT)
-                        pGameobject = new Transport();
-                    else
-                        pGameobject = new GameObject();
+                    GameObject* pGameobject = new GameObject;
                     //TC_LOG_DEBUG("misc", "Spawning gameobject %u", *itr);
                     /// @todo find out when it is add to map
                     if (!pGameobject->LoadFromDB(*itr, map, false))
