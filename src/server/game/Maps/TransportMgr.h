@@ -19,11 +19,12 @@
 #define TRANSPORTMGR_H
 
 #include "ObjectGuid.h"
+#include "Optional.h"
+#include "Position.h"
 #include <map>
 #include <memory>
 #include <unordered_map>
 
-struct KeyFrame;
 struct GameObjectTemplate;
 struct TaxiPathNodeEntry;
 struct TransportAnimationEntry;
@@ -38,51 +39,69 @@ namespace Movement
 }
 
 using TransportSpline = Movement::Spline<double>;
-using KeyFrameVec = std::vector<KeyFrame>;
 
-struct KeyFrame
+enum class TransportMovementState : uint8
 {
-    explicit KeyFrame(TaxiPathNodeEntry const* node) : Index(0), Node(node), InitialOrientation(0.0f),
-        DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f),
-        Teleport(false), ArriveTime(0), DepartureTime(0), Spline(nullptr), NextDistFromPrev(0.0f), NextArriveTime(0)
-    {
-    }
+    Moving,
+    WaitingOnPauseWaypoint
+};
 
-    uint32 Index;
-    TaxiPathNodeEntry const* Node;
-    float InitialOrientation;
-    float DistSinceStop;
-    float DistUntilStop;
-    float DistFromPrev;
-    float TimeFrom;
-    float TimeTo;
-    bool Teleport;
-    uint32 ArriveTime;
-    uint32 DepartureTime;
-    std::shared_ptr<TransportSpline> Spline;
+// Represents a segment within path leg between stops
+struct TransportPathSegment
+{
+    uint32 SegmentEndArrivalTimestamp = 0;
+    uint32 Delay = 0;
+    double DistanceFromLegStartAtEnd = 0.0;
+};
 
-    // Data needed for next frame
-    float NextDistFromPrev;
-    uint32 NextArriveTime;
+struct TransportPathEvent
+{
+    uint32 Timestamp = 0;
+    uint32 EventId = 0;
+};
 
-    bool IsTeleportFrame() const{ return Teleport; }
-    bool IsStopFrame() const;
+// Represents a contignuous part of transport path (without map changes or teleports)
+struct TransportPathLeg
+{
+    TransportPathLeg();
+    ~TransportPathLeg();
+
+    TransportPathLeg(TransportPathLeg const&) = delete;
+    TransportPathLeg(TransportPathLeg&&) noexcept;
+    TransportPathLeg& operator=(TransportPathLeg const&) = delete;
+    TransportPathLeg& operator=(TransportPathLeg&&) noexcept;
+
+    uint32 MapId = 0;
+    std::unique_ptr<TransportSpline> Spline;
+    uint32 StartTimestamp = 0;
+    uint32 Duration = 0;
+    std::vector<TransportPathSegment> Segments;
 };
 
 struct TransportTemplate
 {
-    TransportTemplate() : inInstance(false), pathTime(0), accelTime(0.0f), accelDist(0.0f), entry(0)
-    {
-    }
+    TransportTemplate();
     ~TransportTemplate();
 
-    std::set<uint32> mapsUsed;
-    bool inInstance;
-    uint32 pathTime;
-    KeyFrameVec keyFrames;
-    float accelTime;
-    float accelDist;
-    uint32 entry;
+    TransportTemplate(TransportTemplate const&) = delete;
+    TransportTemplate(TransportTemplate&&) noexcept;
+    TransportTemplate& operator=(TransportTemplate const&) = delete;
+    TransportTemplate& operator=(TransportTemplate&&) noexcept;
+
+    uint32 TotalPathTime = 0;
+    double Speed = 0.0;
+    double AccelerationRate = 0.0;
+    double AccelerationTime = 0.0;
+    double AccelerationDistance = 0.0;
+    std::vector<TransportPathLeg> PathLegs;
+    std::vector<TransportPathEvent> Events;
+
+    Optional<Position> ComputePosition(uint32 time, TransportMovementState* moveState, size_t* legIndex) const;
+    uint32 GetNextPauseWaypointTimestamp(uint32 time) const;
+
+    double CalculateDistanceMoved(double timePassedInSegment, double segmentDuration, bool isFirstSegment, bool isLastSegment) const;
+
+    bool InInstance = false;
 };
 
 struct TC_GAME_API TransportAnimation
@@ -144,7 +163,7 @@ private:
     TransportMgr& operator=(TransportMgr const&) = delete;
 
     // Generates and precaches a path for transport to avoid generation each time transport instance is created
-    void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport);
+    void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport, std::set<uint32>* mapsUsed);
 
     void AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node);
 

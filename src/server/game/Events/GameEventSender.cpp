@@ -26,6 +26,8 @@
 
 void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* target)
 {
+    return;
+
     ASSERT(source || target, "At least one of [source] or [target] must be provided");
 
     WorldObject* refForMapAndZoneScript = source; // Coalesce<WorldObject>(source, target);
