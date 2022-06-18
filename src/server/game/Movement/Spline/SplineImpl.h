@@ -60,13 +60,13 @@ template<typename length_type> SplineBase::index_type Spline<length_type>::compu
     return i;
 }
 
-template<typename length_type> void Spline<length_type>::computeIndex(float t, index_type& index, float& u) const
+template<typename length_type> void Spline<length_type>::computeIndex(float t, index_type& out_idx, float& out_u) const
 {
     ASSERT(t >= 0.f && t <= 1.f);
     length_type length_ = t * length();
-    index = computeIndexInBounds(length_);
-    ASSERT(index < index_hi);
-    u = (length_ - length(index)) / (float)length(index, index+1);
+    out_idx = computeIndexInBounds(length_);
+    ASSERT(out_idx < index_hi);
+    out_u = (length_ - length(out_idx)) / (float)length(out_idx, out_idx + 1);
 }
 
 template<typename length_type> SplineBase::index_type Spline<length_type>::computeIndexInBounds( float t ) const
