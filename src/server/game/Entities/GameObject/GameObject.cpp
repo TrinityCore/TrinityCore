@@ -183,7 +183,7 @@ public:
                     GOState newState;
                     if (currentState == GO_STATE_TRANSPORT_ACTIVE)
                         newState = GO_STATE_TRANSPORT_STOPPED;
-                    else if (currentState - GO_STATE_TRANSPORT_ACTIVE == _stopFrames.size())
+                    else if (currentState - GO_STATE_TRANSPORT_ACTIVE == int32(_stopFrames.size()))
                         newState = GOState(currentState - 1);
                     else if (_owner.HasFlag(GAMEOBJECT_DYNAMIC, GO_DYNFLAG_LO_INVERTED_MOVEMENT))
                         newState = GOState(currentState - 1);
