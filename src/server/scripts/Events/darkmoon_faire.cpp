@@ -99,7 +99,7 @@ struct npc_selina_dourman : public ScriptedAI
                         poiId = POI_FORTUNE_TELLER;
                         break;
                     default:
-                        break; 
+                        break;
                 }
                 if (poiId)
                     player->PlayerTalkClass->SendPointOfInterest(poiId);
@@ -120,7 +120,7 @@ struct npc_selina_dourman : public ScriptedAI
     {
         if (!talkTarget || _talkCooldown)
             return;
-    
+
         _talkCooldown = true;
         _events.ScheduleEvent(EVENT_SELINA_TALK_COOLDOWN, 30s);
         Talk(SAY_WELCOME, talkTarget);
