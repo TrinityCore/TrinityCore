@@ -602,8 +602,8 @@ void Vehicle::RelocatePassengers()
         }
     }
 
-    for (auto const& pair : seatRelocation)
-        pair.first->UpdatePosition(pair.second);
+    for (auto const& [passenger, position] : seatRelocation)
+        UpdatePassengerPosition(_me->GetMap(), passenger, position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation(), false);
 }
 
 /**
