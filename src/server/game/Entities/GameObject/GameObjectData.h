@@ -583,6 +583,7 @@ struct GameObjectTemplate
         {
             case GAMEOBJECT_TYPE_GOOBER:        return goober.eventId;
             case GAMEOBJECT_TYPE_CHEST:         return chest.eventId;
+            case GAMEOBJECT_TYPE_CHAIR:         return chair.triggeredEvent;
             case GAMEOBJECT_TYPE_CAMERA:        return camera.eventID;
             default: return 0;
         }

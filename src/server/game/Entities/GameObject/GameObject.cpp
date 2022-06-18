@@ -1643,6 +1643,8 @@ void GameObject::Use(Unit* user)
                     itr->second = player->GetGUID(); //this slot in now used by player
                     player->TeleportTo(GetMapId(), x_lowest, y_lowest, GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
                     player->SetStandState(UNIT_STAND_STATE_SIT_LOW_CHAIR+info->chair.height);
+                    if (info->chair.triggeredEvent)
+                        GameEvents::Trigger(info->chair.triggeredEvent, player, this);
                     return;
                 }
             }
@@ -2055,6 +2057,9 @@ void GameObject::Use(Unit* user)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                     }
+
+                    if (info->flagdrop.eventID)
+                        GameEvents::Trigger(info->flagdrop.eventID, player, this);
                 }
                 //this cause to call return, all flags must be deleted here!!
                 spellId = 0;
@@ -2320,6 +2325,10 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/
         data << uint32(spellId);
         player->SendDirectMessage(&data);
     }
+
+    if (change < 0 && GetGOInfo()->building.damagedEvent)
+        GameEvents::Trigger(GetGOInfo()->building.damagedEvent, attackerOrHealer, this);
+
 
     GameObjectDestructibleState newState = GetDestructibleState();
 
