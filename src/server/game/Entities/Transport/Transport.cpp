@@ -650,8 +650,6 @@ void Transport::DelayedTeleportTransport()
     PassengerSet passengersToTeleport = _passengers;
     for (WorldObject* obj : passengersToTeleport)
     {
-        WorldObject* obj = (*_passengerTeleportItr++);
-
         float destX, destY, destZ, destO;
         obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
         TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);

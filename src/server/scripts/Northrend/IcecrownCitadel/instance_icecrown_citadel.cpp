@@ -750,7 +750,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (GameObject* teleporter = instance->GetGameObject(TeleporterRampartsGUID))
                                 SetTeleporterState(teleporter, true);
 
-                            if (Transport* elevator = instance->GetTransport(LadyDeathwisperElevatorGUID))
+                            if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
                             {
                                 elevator->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
                                 elevator->HandleCustomTypeCommand(GameObjectType::SetTransportAutoCycleBetweenStopFrames(true));

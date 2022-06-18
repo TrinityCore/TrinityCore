@@ -160,6 +160,8 @@ public:
         @param t - percent of spline's length, assumes that t in range [0, 1]. */
     void evaluate_derivative(float t, Vector3& hermite) const;
 
+    using SplineBase::evaluate_derivative;
+
     // Assumes that t in range [0, 1]
     index_type computeIndexInBounds(float t) const;
     void computeIndex(float t, index_type& out_idx, float& out_u) const;
