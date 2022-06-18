@@ -17,6 +17,7 @@
 
 #include "FlightPathMovementGenerator.h"
 #include "DBCStores.h"
+#include "GameEventSender.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "MoveSpline.h"
@@ -219,7 +220,7 @@ void FlightPathMovementGenerator::DoEventIfAny(Player* player, TaxiPathNodeEntry
     if (uint32 eventid = departure ? node->DepartureEventID : node->ArrivalEventID)
     {
         TC_LOG_DEBUG("maps.script", "Taxi %s event %u of node %u of path %u for player %s", departure ? "departure" : "arrival", eventid, node->NodeIndex, node->PathID, player->GetName().c_str());
-        player->GetMap()->ScriptsStart(sEventScripts, eventid, player, player);
+        GameEvents::Trigger(eventid, player, player);
     }
 }
 

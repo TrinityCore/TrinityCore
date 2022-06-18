@@ -2166,21 +2166,28 @@ void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= null
                 list->push_back(summon);
 }
 
-void WorldObject::SetZoneScript()
+ZoneScript* WorldObject::FindZoneScript() const
 {
     if (Map* map = FindMap())
     {
-        if (map->IsDungeon())
-            m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
+        if (InstanceMap* instanceMap = map->ToInstanceMap())
+            return reinterpret_cast<ZoneScript*>(instanceMap->GetInstanceScript());
         else if (!map->IsBattlegroundOrArena())
         {
             if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
-                m_zoneScript = bf;
+                return bf;
             else
-                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+                return sOutdoorPvPMgr->GetZoneScript(GetZoneId());
         }
     }
+    return nullptr;
 }
+
+void WorldObject::SetZoneScript()
+{
+    m_zoneScript = FindZoneScript();
+}
+
 
 void WorldObject::ClearZoneScript()
 {

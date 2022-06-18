@@ -22,6 +22,7 @@
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
 #include "GameObjectAI.h"
+#include "GameEventSender.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GossipDef.h"
@@ -1670,8 +1671,7 @@ void GameObject::Use(Unit* user)
                 if (info->goober.eventId)
                 {
                     TC_LOG_DEBUG("maps.script", "Goober ScriptStart id %u for GO entry %u (GUID %u).", info->goober.eventId, GetEntry(), GetSpawnId());
-                    GetMap()->ScriptsStart(sEventScripts, info->goober.eventId, player, this);
-                    EventInform(info->goober.eventId, user);
+                    GameEvents::Trigger(info->goober.eventId, player, this);
                 }
 
                 // possible quest objective for active quests
@@ -1728,10 +1728,7 @@ void GameObject::Use(Unit* user)
                 player->SendCinematicStart(info->camera.cinematicId);
 
             if (info->camera.eventID)
-            {
-                GetMap()->ScriptsStart(sEventScripts, info->camera.eventID, player, this);
-                EventInform(info->camera.eventID, user);
-            }
+                GameEvents::Trigger(info->camera.eventID, player, this);
 
             return;
         }
@@ -2210,22 +2207,6 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
         && dz < info->GeoBoxMax.Z + radius && dz > info->GeoBoxMin.Z - radius;
 }
 
-void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= nullptr*/)
-{
-    if (!eventId)
-        return;
-
-    if (AI())
-        AI()->EventInform(eventId);
-
-    if (GetZoneScript())
-        GetZoneScript()->ProcessEvent(this, eventId);
-
-    if (BattlegroundMap* bgMap = GetMap()->ToBattlegroundMap())
-        if (bgMap->GetBG())
-            bgMap->GetBG()->ProcessEvent(this, eventId, invoker);
-}
-
 uint32 GameObject::GetScriptId() const
 {
     if (GameObjectData const* gameObjectData = GetGameObjectData())
@@ -2375,7 +2356,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
-            EventInform(m_goInfo->building.damagedEvent, eventInvoker);
+            if (GetGOInfo()->building.damagedEvent)
+                GameEvents::Trigger(GetGOInfo()->building.damagedEvent, eventInvoker, this);
             AI()->Damaged(eventInvoker, m_goInfo->building.damageEvent);
 
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
@@ -2400,7 +2382,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         }
         case GO_DESTRUCTIBLE_DESTROYED:
         {
-            EventInform(m_goInfo->building.destroyedEvent, eventInvoker);
+            if (GetGOInfo()->building.destroyedEvent)
+                GameEvents::Trigger(GetGOInfo()->building.destroyedEvent, eventInvoker, this);
             AI()->Destroyed(eventInvoker, m_goInfo->building.destroyedEvent);
 
             if (eventInvoker)
@@ -2426,7 +2409,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         }
         case GO_DESTRUCTIBLE_REBUILDING:
         {
-            EventInform(m_goInfo->building.rebuildingEvent, eventInvoker);
+            if (GetGOInfo()->building.rebuildingEvent)
+                GameEvents::Trigger(GetGOInfo()->building.rebuildingEvent, eventInvoker, this);
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;

@@ -401,6 +401,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         void SetZoneScript();
         void ClearZoneScript();
+        ZoneScript* FindZoneScript() const;
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
         TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, uint32 vehId = 0, ObjectGuid privateObjectOwner = ObjectGuid::Empty);

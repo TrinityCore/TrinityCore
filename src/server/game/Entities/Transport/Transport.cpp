@@ -18,6 +18,7 @@
 #include "Transport.h"
 #include "CellImpl.h"
 #include "Common.h"
+#include "GameEventSender.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "Log.h"
@@ -748,8 +749,7 @@ void Transport::DoEventIfAny(KeyFrame const& node, bool departure)
     if (uint32 eventid = departure ? node.Node->DepartureEventID : node.Node->ArrivalEventID)
     {
         TC_LOG_DEBUG("maps.script", "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->NodeIndex, GetName().c_str());
-        GetMap()->ScriptsStart(sEventScripts, eventid, this, this);
-        EventInform(eventid);
+        GameEvents::Trigger(eventid, this, this);
     }
 }
 
