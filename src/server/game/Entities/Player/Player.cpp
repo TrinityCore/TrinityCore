@@ -1516,6 +1516,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
         // at client packet CMSG_MOVE_TELEPORT_ACK
+        SetSemaphoreTeleportNear(true);
         // near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
         {

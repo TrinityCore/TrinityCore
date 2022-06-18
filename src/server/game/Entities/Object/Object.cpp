@@ -363,7 +363,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(flags & UPDATEFLAG_SELF);
     data->WriteBit(flags & UPDATEFLAG_VEHICLE);
     data->WriteBit(flags & UPDATEFLAG_LIVING);
-    data->WriteBits(PauseTimes->size(), 24);
+    data->WriteBits(PauseTimes ? PauseTimes->size() : 0, 24);
     data->WriteBit(flags & UPDATEFLAG_NO_BIRTH_ANIM);
     data->WriteBit(flags & UPDATEFLAG_GO_TRANSPORT_POSITION);
     data->WriteBit(flags & UPDATEFLAG_STATIONARY_POSITION);
