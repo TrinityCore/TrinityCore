@@ -24,6 +24,7 @@
 #include "GridDefines.h"
 #include "Cell.h"
 
+class MapObject;
 class ObjectWorldLoader;
 
 class TC_GAME_API ObjectGridLoader
@@ -43,7 +44,7 @@ class TC_GAME_API ObjectGridLoader
 
         void LoadN(void);
 
-        template<class T> static void SetObjectCell(T* obj, CellCoord const& cellCoord);
+        static void SetObjectCell(MapObject* obj, CellCoord const& cellCoord);
 
     private:
         Cell i_cell;
