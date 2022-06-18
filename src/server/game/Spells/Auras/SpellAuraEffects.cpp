@@ -690,7 +690,7 @@ void AuraEffect::CalculateSpellMod()
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
 
-                m_spellmod->type = SpellModType(uint32(GetAuraType())); // SpellModType value == spell aura types
+                m_spellmod->type = GetAuraType() == SPELL_AURA_ADD_PCT_MODIFIER ? SPELLMOD_PCT : SPELLMOD_FLAT;
                 m_spellmod->spellId = GetId();
                 m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
             }

@@ -96,8 +96,9 @@ typedef std::deque<Mail*> PlayerMails;
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType : uint8
 {
-    SPELLMOD_FLAT = SPELL_AURA_ADD_FLAT_MODIFIER,
-    SPELLMOD_PCT  = SPELL_AURA_ADD_PCT_MODIFIER
+    SPELLMOD_FLAT         = 0,                            // SPELL_AURA_ADD_FLAT_MODIFIER
+    SPELLMOD_PCT          = 1,                            // SPELL_AURA_ADD_PCT_MODIFIER
+    SPELLMOD_END
 };
 
 // 2^n values, Player::m_isunderwater is a bitmask. These are Trinity internal values, they are never send to any client
@@ -2595,7 +2596,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
 
-        SpellModContainer m_spellMods[MAX_SPELLMOD];
+        SpellModContainer m_spellMods[MAX_SPELLMOD][SPELLMOD_END];
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
