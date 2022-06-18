@@ -282,7 +282,7 @@ public:
             zoneId, (zoneEntry ? zoneEntry->AreaName : unknown),
             areaId, (areaEntry ? areaEntry->AreaName : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
-        if (Transport* transport = object->GetTransport())
+        if (Transport* transport = dynamic_cast<Transport*>(object->GetTransport()))
         {
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
                 transport->GetGOInfo()->moTransport.mapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),

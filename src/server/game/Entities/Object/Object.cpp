@@ -350,10 +350,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool hasMovementAnimKit = false;
     bool hasMeleeAnimKit = false;
 
-    uint32 stopFrameCount = 0;
+    std::vector<uint32> const* PauseTimes = nullptr;
     if (GameObject const* go = ToGameObject())
-        if (go->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
-            stopFrameCount = go->GetGOValue()->Transport.StopFrames->size();
+        PauseTimes = go->GetPauseTimes();
 
     // Bit content
     data->WriteBit(flags & UPDATEFLAG_PLAY_HOVER_ANIM);
@@ -364,7 +363,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(flags & UPDATEFLAG_SELF);
     data->WriteBit(flags & UPDATEFLAG_VEHICLE);
     data->WriteBit(flags & UPDATEFLAG_LIVING);
-    data->WriteBits(stopFrameCount, 24);
+    data->WriteBits(PauseTimes->size(), 24);
     data->WriteBit(flags & UPDATEFLAG_NO_BIRTH_ANIM);
     data->WriteBit(flags & UPDATEFLAG_GO_TRANSPORT_POSITION);
     data->WriteBit(flags & UPDATEFLAG_STATIONARY_POSITION);
@@ -481,10 +480,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
     data->FlushBits();
 
-    // Data
-    if (GameObject const* go = ToGameObject())
-        for (uint32 i = 0; i < stopFrameCount; ++i)
-            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
+    if (PauseTimes && !PauseTimes->empty())
+        data->append(PauseTimes->data(), PauseTimes->size());
 
     if (flags & UPDATEFLAG_LIVING)
     {
@@ -658,18 +655,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     }
 
     if (flags & UPDATEFLAG_TRANSPORT)
-    {
-        GameObject const* go = ToGameObject();
-        /** @TODO Use IsTransport() to also handle type 11 (TRANSPORT)
-            Currently grid objects are not updated if there are no nearby players,
-            this causes clients to receive different PathProgress
-            resulting in players seeing the object in a different position
-        */
-        if (go && go->ToTransport())
-            *data << uint32(go->GetGOValue()->Transport.PathProgress);
-        else
-            *data << uint32(GameTime::GetGameTimeMS());
-    }
+        *data << uint32(GameTime::GetGameTimeMS());
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -1203,19 +1189,9 @@ void WorldObject::setActive(bool on)
         return;
 
     if (on)
-    {
-        if (GetTypeId() == TYPEID_UNIT)
-            map->AddToActive(this->ToCreature());
-        else if (GetTypeId() == TYPEID_DYNAMICOBJECT)
-            map->AddToActive((DynamicObject*)this);
-    }
+        map->AddToActive(this);
     else
-    {
-        if (GetTypeId() == TYPEID_UNIT)
-            map->RemoveFromActive(this->ToCreature());
-        else if (GetTypeId() == TYPEID_DYNAMICOBJECT)
-            map->RemoveFromActive((DynamicObject*)this);
-    }
+        map->RemoveFromActive(this);
 }
 
 void WorldObject::SetFarVisible(bool on)
@@ -1240,7 +1216,7 @@ void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
     if (IsInWorld())
         RemoveFromWorld();
 
-    if (Transport* transport = GetTransport())
+    if (TransportBase* transport = GetTransport())
         transport->RemovePassenger(this);
 }
 
@@ -1307,7 +1283,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     Position const* thisOrTransport = this;
     Position const* objOrObjTransport = obj;
 
-    if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID().GetCounter() == GetTransport()->GetGUID().GetCounter())
+    if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetTransportGUID() == GetTransport()->GetTransportGUID())
     {
         thisOrTransport = &m_movementInfo.transport.pos;
         objOrObjTransport = &obj->m_movementInfo.transport.pos;
@@ -2099,7 +2075,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonCreatur
     if (summonArgs.Summoner)
         PhasingHandler::InheritPhaseShift(summon, summonArgs.Summoner);
 
-    Transport* transport = summonArgs.Summoner ? summonArgs.Summoner->GetTransport() : nullptr;
+    TransportBase* transport = summonArgs.Summoner ? summonArgs.Summoner->GetTransport() : nullptr;
     if (transport)
     {
         float x, y, z, o;
@@ -2776,7 +2752,7 @@ void WorldObject::RemoveFromObjectUpdate()
 ObjectGuid WorldObject::GetTransGUID() const
 {
     if (GetTransport())
-        return GetTransport()->GetGUID();
+        return GetTransport()->GetTransportGUID();
     return ObjectGuid::Empty;
 }
 

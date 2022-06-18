@@ -114,9 +114,9 @@ void WaypointMovementGenerator<Creature>::ProcessWaypointArrival(Creature* creat
             creature->SetHomePosition(x, y, z, o);
         else
         {
-            if (Transport* trans = creature->GetTransport())
+            if (TransportBase* trans = creature->GetTransport())
             {
-                o -= trans->GetOrientation();
+                o -= trans->GetTransportOrientation();
                 creature->SetTransportHomePosition(x, y, z, o);
                 trans->CalculatePassengerPosition(x, y, z, &o);
                 creature->SetHomePosition(x, y, z, o);

@@ -88,13 +88,15 @@ struct TransportTemplate
 struct TC_GAME_API TransportAnimation
 {
     TransportAnimation() : TotalTime(0) { }
-
     std::map<uint32, TransportAnimationEntry const*> Path;
     std::map<uint32, TransportRotationEntry const*> Rotations;
     uint32 TotalTime;
 
-    TransportAnimationEntry const* GetAnimNode(uint32 time) const;
-    TransportRotationEntry const* GetAnimRotation(uint32 time) const;
+    TransportAnimationEntry const* GetPrevAnimNode(uint32 time) const;
+    TransportRotationEntry const* GetPrevAnimRotation(uint32 time) const;
+
+    TransportAnimationEntry const* GetNextAnimNode(uint32 time) const;
+    TransportRotationEntry const* GetNextAnimRotation(uint32 time) const;
 };
 
 
@@ -146,10 +148,7 @@ private:
 
     void AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node);
 
-    void AddPathRotationToTransport(uint32 transportEntry, uint32 timeSeg, TransportRotationEntry const* node)
-    {
-        _transportAnimations[transportEntry].Rotations[timeSeg] = node;
-    }
+    void AddPathRotationToTransport(uint32 transportEntry, uint32 timeSeg, TransportRotationEntry const* node);
 
     // Container storing transport templates
     std::unordered_map<uint32, TransportTemplate> _transportTemplates;

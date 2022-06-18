@@ -3779,12 +3779,12 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
         case GameObjectActions::GoTo8thFloor:
         case GameObjectActions::GoTo9thFloor:
         case GameObjectActions::GoTo10thFloor:
-        {
-            // Cast is kind of loose but it'll do
-            if (Transport* transportTarget = gameObjTarget->ToTransport())
-                transportTarget->SetTransportState(GO_STATE_TRANSPORT_STOPPED, uint32_t(action) - uint32(GameObjectActions::GoTo1stFloor));
+            static_assert(int32(GO_STATE_TRANSPORT_ACTIVE) == int32(GameObjectActions::GoTo1stFloor));
+            if (gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+                gameObjTarget->SetGoState(GOState(action));
+            else
+                TC_LOG_ERROR("spell", "Spell %d targeted non-transport gameobject for transport only action \"Go to Floor\" %d in effect %d", m_spellInfo->Id, int32(action), int32(effIndex));
             break;
-        }
         case GameObjectActions::None:
             TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", m_spellInfo->Id, int32(effIndex));
             break;

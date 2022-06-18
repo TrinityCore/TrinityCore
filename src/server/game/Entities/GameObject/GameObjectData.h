@@ -609,7 +609,6 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:        return true;
             case GAMEOBJECT_TYPE_TRAPDOOR:                  return true;
             case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:     return true;
-            case GAMEOBJECT_TYPE_TRANSPORT:                 return true;
             default: return false;
         }
     }
@@ -625,6 +624,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_TRAP:                  return trap.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_SPELL_FOCUS:           return spellFocus.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_GOOBER:                return goober.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_TRANSPORT:             return true;
             case GAMEOBJECT_TYPE_SPELLCASTER:           return spellcaster.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_CAPTURE_POINT:         return capturePoint.GiganticAOI != 0;
             default: return false;

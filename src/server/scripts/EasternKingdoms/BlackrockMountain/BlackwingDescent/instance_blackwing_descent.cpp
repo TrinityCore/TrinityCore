@@ -465,7 +465,7 @@ class instance_blackwing_descent : public InstanceMapScript
                         case EVENT_RAISE_ELEVATOR:
                             if (GameObject* gameobject = GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
                                 if (Transport* transport = gameobject->ToTransport())
-                                    transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
+                                    transport->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + 1));
                             break;
                         case EVENT_RESPAWN_LEFT_DWARVEN_GROUP:
                             instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_LEFT, true);

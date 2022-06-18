@@ -1569,7 +1569,7 @@ public:
 
     static bool HandleDebugTransportCommand(ChatHandler* handler, char const* args)
     {
-        Transport* transport = handler->GetSession()->GetPlayer()->GetTransport();
+        Transport* transport = dynamic_cast<Transport*>(handler->GetSession()->GetPlayer()->GetTransport());
         if (!transport)
             return false;
 

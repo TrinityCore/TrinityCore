@@ -423,7 +423,7 @@ struct boss_nefarians_end : public BossAI
         if (events.IsInPhase(PHASE_TWO) && !_elevatorLowered)
             instance->SetData(DATA_RESET_ELEVATOR, events.GetTimeUntilEvent(EVENT_ELEVATOR_LOWERED));
         else if (Transport* transport = GetElevator())
-            transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, TRANSPORT_STOP_FRAME_RAISED);
+            transport->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + TRANSPORT_STOP_FRAME_RAISED));
 
         if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
             if (onyxia->IsAlive())
@@ -753,7 +753,7 @@ struct boss_nefarians_end : public BossAI
                     break;
                 case EVENT_LOWER_ELEVATOR:
                     if (Transport* transport = GetElevator())
-                        transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                        transport->SetGoState(GO_STATE_TRANSPORT_STOPPED);
                     events.ScheduleEvent(EVENT_ELEVATOR_LOWERED, 9s, 0, PHASE_TWO);
                     break;
                 case EVENT_ELEVATOR_LOWERED:
@@ -881,7 +881,7 @@ private:
         events.ScheduleEvent(EVENT_SAY_PHASE_THREE, 14s + 700ms);
         events.ScheduleEvent(EVENT_PREPARE_LANDING, 15s + 500ms, 0, PHASE_THREE);
         if (Transport* elevator = GetElevator())
-            elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, TRANSPORT_STOP_FRAME_RAISED);
+            elevator->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + TRANSPORT_STOP_FRAME_RAISED));
 
         for (ObjectGuid guid : summons)
         {
@@ -1113,7 +1113,7 @@ struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
                 case EVENT_RAISE_ELEVATOR:
                     if (GameObject* elevator = _instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
                         if (Transport* transport = elevator->ToTransport())
-                            transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, TRANSPORT_STOP_FRAME_RAISED);
+                            transport->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + TRANSPORT_STOP_FRAME_RAISED));
                     break;
                 case EVENT_CAST_TRANSFORM_VISUAL:
                     if (Creature* stalker = me->FindNearestCreature(NPC_INVISIBLE_STALKER_CATACLYSM_BOSS, 1.0f))

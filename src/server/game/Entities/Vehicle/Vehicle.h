@@ -55,8 +55,8 @@ class TC_GAME_API Vehicle : public TransportBase
         VehicleSeatAddon const* GetSeatAddonForSeatOfPassenger(Unit const* passenger) const;
         uint8 GetAvailableSeatCount() const;
 
-        bool AddPassenger(Unit* passenger, int8 seatId = -1);
-        Vehicle* RemovePassenger(Unit* passenger);
+        bool AddVehiclePassenger(Unit* unit, int8 seatId = -1);
+        Vehicle* RemovePassenger(WorldObject* passenger) override;
         void RelocatePassengers();
         void RemoveAllPassengers();
         bool IsVehicleInUse() const;
@@ -86,6 +86,12 @@ class TC_GAME_API Vehicle : public TransportBase
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
 
+        ObjectGuid GetTransportGUID() const override { return GetBase()->GetGUID(); }
+
+        float GetTransportOrientation() const override { return GetBase()->GetOrientation(); }
+
+        void AddPassenger(WorldObject* /*passenger*/) override { ASSERT("Vehicle cannot directly gain passengers without auras"); }
+
         /// This method transforms supplied transport offsets into global coordinates
         void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= nullptr*/) const override
         {
@@ -101,6 +107,9 @@ class TC_GAME_API Vehicle : public TransportBase
                 GetBase()->GetPositionX(), GetBase()->GetPositionY(),
                 GetBase()->GetPositionZ(), GetBase()->GetOrientation());
         }
+
+        int32 GetMapIdForSpawning() const override { return GetBase()->GetMapId(); }
+
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);

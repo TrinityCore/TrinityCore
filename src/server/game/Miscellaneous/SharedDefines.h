@@ -1855,13 +1855,14 @@ enum GameObjectFlags
     GO_FLAG_DESTROYED       = 0x00000400
 };
 
-enum GameObjectDynamicLowFlags
+enum GameObjectDynamicLowFlags : uint16
 {
     GO_DYNFLAG_LO_ACTIVATE          = 0x01,                 // enables interaction with GO
     GO_DYNFLAG_LO_ANIMATE           = 0x02,                 // possibly more distinct animation of GO
     GO_DYNFLAG_LO_NO_INTERACT       = 0x04,                 // appears to disable interaction (not fully verified)
     GO_DYNFLAG_LO_SPARKLE           = 0x08,                 // makes GO sparkle
-    GO_DYNFLAG_LO_STOPPED           = 0x10                  // Transport is stopped
+    GO_DYNFLAG_LO_STOPPED           = 0x10,                 // Transport is stopped
+    GO_DYNFLAG_LO_INVERTED_MOVEMENT = 0x40,                 // GAMEOBJECT_TYPE_TRANSPORT only
 };
 
 // client side GO show states
