@@ -4735,6 +4735,44 @@ struct QuestPackageItemLoadInfo
     }
 };
 
+struct QuestPoiBlobLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_SHORT, "MapID" },
+            { true, FT_INT, "UiMapID" },
+            { false, FT_BYTE, "NumPoints" },
+            { false, FT_INT, "QuestID" },
+            { true, FT_INT, "ObjectiveIndex" },
+            { true, FT_INT, "ObjectiveID" },
+            { false, FT_INT, "PlayerConditionID" },
+            { false, FT_INT, "Unknown901" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestPOIBlobMeta::Instance(), HOTFIX_SEL_QUEST_POI_BLOB);
+        return &loadInfo;
+    }
+};
+
+struct QuestPoiPointLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_SHORT, "X" },
+            { true, FT_SHORT, "Y" },
+            { true, FT_SHORT, "Z" },
+            { false, FT_INT, "QuestPOIBlob" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestPOIPointMeta::Instance(), HOTFIX_SEL_QUEST_POI_POINT);
+        return &loadInfo;
+    }
+};
+
 struct QuestSortLoadInfo
 {
     static DB2LoadInfo const* Instance()

@@ -248,6 +248,8 @@ DB2Storage<QuestInfoEntry>                      sQuestInfoStore("QuestInfo.db2",
 DB2Storage<QuestLineXQuestEntry>                sQuestLineXQuestStore("QuestLineXQuest.db2", QuestLineXQuestLoadInfo::Instance());
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardLoadInfo::Instance());
 DB2Storage<QuestPackageItemEntry>               sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemLoadInfo::Instance());
+DB2Storage<QuestPOIBlobEntry>                   sQuestPOIBlobStore("QuestPOIBlob.db2", QuestPoiBlobLoadInfo::Instance());
+DB2Storage<QuestPOIPointEntry>                  sQuestPOIPointStore("QuestPOIPoint.db2", QuestPoiPointLoadInfo::Instance());
 DB2Storage<QuestSortEntry>                      sQuestSortStore("QuestSort.db2", QuestSortLoadInfo::Instance());
 DB2Storage<QuestV2Entry>                        sQuestV2Store("QuestV2.db2", QuestV2LoadInfo::Instance());
 DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", QuestXpLoadInfo::Instance());
@@ -383,6 +385,7 @@ typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES + 1> NameValidati
 typedef std::unordered_map<uint32, std::vector<uint32>> PhaseGroupContainer;
 typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
 typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
+typedef std::unordered_map<uint32 /*questLineID*/, std::vector<QuestLineXQuestEntry const*>> QuestLinesContainer;
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
 typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
 typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
@@ -434,6 +437,7 @@ namespace
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
     std::unordered_multimap<uint32, CurrencyContainerEntry const*> _currencyContainers;
     CurvePointsContainer _curvePoints;
+    QuestLinesContainer _questsOrderByQuestLine;
     EmotesTextSoundContainer _emoteTextSounds;
     std::unordered_map<std::pair<uint32 /*level*/, int32 /*expansion*/>, ExpectedStatEntry const*> _expectedStatsByLevel;
     std::unordered_map<uint32 /*contentTuningId*/, std::vector<ContentTuningXExpectedEntry const*>> _expectedStatModsByContentTuning;
@@ -822,6 +826,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sQuestLineXQuestStore);
     LOAD_DB2(sQuestMoneyRewardStore);
     LOAD_DB2(sQuestPackageItemStore);
+    LOAD_DB2(sQuestPOIBlobStore);
+    LOAD_DB2(sQuestPOIPointStore);
     LOAD_DB2(sQuestSortStore);
     LOAD_DB2(sQuestV2Store);
     LOAD_DB2(sQuestXPStore);
@@ -1325,7 +1331,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
+    {
         _questsByQuestLine[questLineQuest->QuestLineID].insert(questLineQuest);
+        _questsOrderByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+    }
+
+    for (auto itr = _questsOrderByQuestLine.begin(); itr != _questsOrderByQuestLine.end(); ++itr)
+        std::sort(itr->second.begin(), itr->second.end(), [](QuestLineXQuestEntry const* quest1, QuestLineXQuestEntry const* quest2) { return quest1->OrderIndex < quest2->OrderIndex; });
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
@@ -2835,6 +2847,15 @@ int32 DB2Manager::GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) cons
             ++slots;
 
     return slots;
+}
+
+std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsOrderForQuestLine(uint32 questLineId) const
+{
+    auto itr = _questsOrderByQuestLine.find(questLineId);
+    if (itr != _questsOrderByQuestLine.end())
+        return &itr->second;
+
+    return nullptr;
 }
 
 std::unordered_set<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsForQuestLine(uint32 questLineId) const

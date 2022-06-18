@@ -772,5 +772,21 @@ void ChoiceResponse::Read()
     _worldPacket >> ResponseIdentifier;
     IsReroll = _worldPacket.ReadBit();
 }
+
+WorldPacket const* UiMapQuestLinesResponse::Write()
+{
+    _worldPacket << int32(UiMapID);
+    _worldPacket << uint32(QuestLineXQuestIDs.size());
+
+    for (uint32 const& questID : QuestLineXQuestIDs)
+        _worldPacket << uint32(questID);
+
+    return &_worldPacket;
+}
+
+void UiMapQuestLinesRequest::Read()
+{
+    _worldPacket >> UiMapID;
+}
 }
 }

@@ -1244,6 +1244,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT MAX(ID) + 1 FROM quest_package_item", CONNECTION_SYNCH);
 
+    // QuestPoiBlob.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT ID, MapID, UiMapID, NumPoints, QuestID, ObjectiveIndex, ObjectiveID, PlayerConditionID, "
+        "Unknown901 FROM quest_poi_blob WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT MAX(ID) + 1 FROM quest_poi_blob", CONNECTION_SYNCH);
+
+    // QuestPoiPoint.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_POINT, "SELECT ID, X, Y, Z, QuestPOIBlob FROM quest_poi_point WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_POI_POINT, "SELECT MAX(ID) + 1 FROM quest_poi_point", CONNECTION_SYNCH);
+
     // QuestSort.db2
     PrepareStatement(HOTFIX_SEL_QUEST_SORT, "SELECT ID, SortName, UiOrderIndex FROM quest_sort WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_SORT, "SELECT MAX(ID) + 1 FROM quest_sort", CONNECTION_SYNCH);

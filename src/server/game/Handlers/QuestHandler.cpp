@@ -867,3 +867,31 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             _player->GetReputationMgr().ModifyReputation(sFactionStore.AssertEntry(faction.Id), faction.Quantity);
     }
 }
+
+void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& UiMap)
+{
+    UiMapEntry const* uiMap = sUiMapStore.LookupEntry(UiMap.UiMapID);
+    if (!uiMap)
+        return;
+
+    WorldPackets::Quest::UiMapQuestLinesResponse response;
+    response.UiMapID = uiMap->ID;
+
+    for (QuestPOIBlobEntry const* questPOIBlob : sQuestPOIBlobStore)
+        if (int32(uiMap->ID) == questPOIBlob->UiMapID)
+            if (_player->MeetPlayerCondition(questPOIBlob->PlayerConditionID))
+                for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
+                    if (questPOIBlob->QuestID == questLineXQuest->QuestID)
+                        if (std::vector<QuestLineXQuestEntry const*> const* questLines = sDB2Manager.GetQuestsOrderForQuestLine(questLineXQuest->QuestLineID))
+                            for (QuestLineXQuestEntry const* questLineQuest : *questLines)
+                                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
+                                    if (_player->CanTakeQuest(quest, false))
+                                        if(ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(quest->GetContentTuningId()))
+                                            if(_player->GetLevel() >= contentTuning->MinLevel)
+                                            {
+                                                response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
+                                                break;
+                                            }
+
+    SendPacket(response.Write());
+}
