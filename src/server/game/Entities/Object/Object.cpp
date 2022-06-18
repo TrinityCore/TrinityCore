@@ -2099,6 +2099,18 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonCreatur
     if (summonArgs.Summoner)
         PhasingHandler::InheritPhaseShift(summon, summonArgs.Summoner);
 
+    Transport* transport = summonArgs.Summoner ? summonArgs.Summoner->GetTransport() : nullptr;
+    if (transport)
+    {
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        summon->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        // This object must be added to transport before adding to map for the client to properly display it
+        transport->AddPassenger(summon);
+    }
+
     // Initialize tempsummon fields
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, summonArgs.SummonSpellId);
     summon->SetHomePosition(pos);
@@ -2116,7 +2128,16 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonCreatur
     if (summonArgs.CreatureLevel)
         summon->SetLevel(summonArgs.CreatureLevel);
 
-    AddToMap(summon->ToCreature());
+    if (!AddToMap(summon->ToCreature()))
+    {
+        // Returning false will cause the object to be deleted - remove from transport
+        if (transport)
+            transport->RemovePassenger(summon);
+
+        delete summon;
+        return nullptr;
+    }
+
     summon->InitSummon();
 
     // call MoveInLineOfSight for nearby creatures
