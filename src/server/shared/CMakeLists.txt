@@ -23,7 +23,6 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DTRINITY_API_EXPORT_SHARED)
 
 add_library(shared
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 
