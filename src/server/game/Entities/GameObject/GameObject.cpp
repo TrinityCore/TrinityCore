@@ -2892,7 +2892,10 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
 
             if (index == GAMEOBJECT_DYNAMIC)
             {
-                uint32 dynFlags = m_uint32Values[GAMEOBJECT_DYNAMIC];
+                uint32 dynamicFlags = m_uint32Values[GAMEOBJECT_DYNAMIC];
+
+                uint16 dynFlags = 0;
+                uint16 pathProgress = 0xFFFF;
                 switch (GetGoType())
                 {
                     case GAMEOBJECT_TYPE_QUESTGIVER:
@@ -2910,11 +2913,18 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         if (ActivateToQuest(target))
                             dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                         break;
+                    case GAMEOBJECT_TYPE_TRANSPORT:
+                    case GAMEOBJECT_TYPE_MO_TRANSPORT:
+                    {
+                        dynFlags = dynamicFlags & 0xFFFF;
+                        pathProgress = dynamicFlags >> 16;
+                        break;
+                    }
                     default:
                         break;
                 }
 
-                fieldBuffer << uint32(dynFlags);
+                fieldBuffer << ((uint32(pathProgress) << 16) | uint32(dynFlags));
             }
             else if (index == GAMEOBJECT_FLAGS)
             {
