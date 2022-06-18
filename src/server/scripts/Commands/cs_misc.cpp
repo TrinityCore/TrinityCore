@@ -23,6 +23,7 @@
 #include "ChaseMovementGenerator.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "FollowMovementGenerator.h"

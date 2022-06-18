@@ -39,6 +39,7 @@
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "DBCStores.h"
 #include "DisableMgr.h"
@@ -1793,6 +1794,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Transport animations and rotations...");
     sTransportMgr->LoadTransportAnimationAndRotation();
+
+    TC_LOG_INFO("server.loading", "Loading Transport spawns...");
+    sTransportMgr->LoadTransportSpawns();
 
     TC_LOG_INFO("server.loading", "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();

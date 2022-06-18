@@ -598,6 +598,12 @@ enum TaxiNodeFlags
     TAXI_NODE_FLAG_UNK                  = 0x4
 };
 
+enum TaxiPathNodeFlags
+{
+    TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
+    TAXI_PATH_NODE_FLAG_STOP        = 0x2
+};
+
 enum TotemCategoryType
 {
     TOTEM_CATEGORY_TYPE_KNIFE           = 1,
