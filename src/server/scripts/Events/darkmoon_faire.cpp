@@ -70,7 +70,7 @@ enum Texts
 // 10445 - Selina Dourman
 struct npc_selina_dourman : public ScriptedAI
 {
-    npc_selina_dourman(Creature* creature) : ScriptedAI(creature) { }
+    npc_selina_dourman(Creature* creature) : ScriptedAI(creature), _talkCooldown(false) { }
 
     bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
@@ -117,19 +117,14 @@ struct npc_selina_dourman : public ScriptedAI
         return false;
     }
 
-    void DoWelcomeTalk(ObjectGuid talkTargetGuid)
+    void DoWelcomeTalk(Unit* talkTarget)
     {
-        if (!talkTargetGuid.IsEmpty())
-        {
-            if (_events.GetTimeUntilEvent(EVENT_SELINA_TALK_COOLDOWN) == Milliseconds::max())
-            {
-                if (Unit* talkTarget = ObjectAccessor::GetUnit(*me, talkTargetGuid))
-                {
-                    _events.ScheduleEvent(EVENT_SELINA_TALK_COOLDOWN, 30s);
-                    Talk(SAY_WELCOME, talkTarget);
-                }
-            }
-        }
+        if (!talkTarget || _talkCooldown)
+            return;
+    
+        _talkCooldown = true;
+        _events.ScheduleEvent(EVENT_SELINA_TALK_COOLDOWN, 30s);
+        Talk(SAY_WELCOME, talkTarget);
     }
 
     void UpdateAI(uint32 diff) override
@@ -139,6 +134,8 @@ struct npc_selina_dourman : public ScriptedAI
         switch (_events.ExecuteEvent())
         {
             case EVENT_SELINA_TALK_COOLDOWN:
+                _talkCooldown = false;
+                break;
             default:
                 break;
         }
@@ -146,6 +143,7 @@ struct npc_selina_dourman : public ScriptedAI
 
 private:
     EventMap _events;
+    bool _talkCooldown;
 };
 
 // 7016 - Darkmoon Faire Entrance
@@ -158,7 +156,7 @@ public:
     {
         if (Creature* selinaDourman = player->FindNearestCreature(NPC_SELINA_DOURMAN, 50.f))
             if (npc_selina_dourman* selinaDourmanAI = CAST_AI(npc_selina_dourman, selinaDourman->GetAI()))
-                selinaDourmanAI->DoWelcomeTalk(player->GetGUID());
+                selinaDourmanAI->DoWelcomeTalk(player);
 
         return true;
     }
