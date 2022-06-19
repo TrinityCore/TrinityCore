@@ -59,6 +59,11 @@ class TC_GAME_API PathGenerator
         explicit PathGenerator(WorldObject const* owner);
         ~PathGenerator();
 
+        PathGenerator(PathGenerator const& right) = delete;
+        PathGenerator(PathGenerator&& right) = delete;
+        PathGenerator& operator=(PathGenerator const& right) = delete;
+        PathGenerator& operator=(PathGenerator&& right) = delete;
+
         // Calculate the path from owner to given destination
         // return: true if new path was calculated, false otherwise (no change needed)
         bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false);
