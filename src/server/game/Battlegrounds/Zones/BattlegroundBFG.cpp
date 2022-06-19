@@ -211,7 +211,7 @@ void BattlegroundBFG::StartingEventOpenDoors()
     DoorOpen(BG_BFG_OBJECT_GATE_H);
 
     // Achievement: Newbs to Plowshares
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, BG_EVENT_START_BATTLE);
+    TriggerGameEvent(BG_EVENT_START_BATTLE);
 }
 
 void BattlegroundBFG::AddPlayer(Player* player)

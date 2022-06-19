@@ -20,11 +20,15 @@
 
 #include "Define.h"
 
+class Map;
+class Player;
 class WorldObject;
 
 namespace GameEvents
 {
     TC_GAME_API void Trigger(uint32 gameEventId, WorldObject* source, WorldObject* target);
+    TC_GAME_API void TriggerForPlayer(uint32 gameEventId, Player* source);
+    TC_GAME_API void TriggerForMap(uint32 gameEventId, Map* map, WorldObject* source = nullptr, WorldObject* target = nullptr);
 }
 
 #endif // GameEventSender_h__

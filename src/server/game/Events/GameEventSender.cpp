@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "Util.h"
 
 void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* target)
@@ -40,15 +41,27 @@ void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* t
         zoneScript->ProcessEvent(target, gameEventId, source);
 
     Map* map = refForMapAndZoneScript->GetMap();
-    if (target)
-    {
-        if (GameObject* goTarget = target->ToGameObject())
-            if (GameObjectAI* goAI = goTarget->AI())
-                goAI->EventInform(gameEventId);
+    if (GameObject* goTarget = target->ToGameObject())
+        if (GameObjectAI* goAI = goTarget->AI())
+            goAI->EventInform(gameEventId);
 
-        if (BattlegroundMap* bgMap = map->ToBattlegroundMap())
-            bgMap->GetBG()->ProcessEvent(target, gameEventId, source);
-    }
+    if (Player* sourcePlayer = source->ToPlayer())
+        TriggerForPlayer(gameEventId, sourcePlayer);
+
+    TriggerForMap(gameEventId, map, source, target);
+}
+
+void GameEvents::TriggerForPlayer(uint32 gameEventId, Player* source)
+{
+    Map* map = source->GetMap();
+    if (map->Instanceable())
+        source->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, gameEventId);
+}
+
+void GameEvents::TriggerForMap(uint32 gameEventId, Map* map, WorldObject* source, WorldObject* target)
+{
+    if (BattlegroundMap* bgMap = map->ToBattlegroundMap())
+        bgMap->GetBG()->ProcessEvent(target, gameEventId, source);
 
     map->ScriptsStart(sEventScripts, gameEventId, source, target);
 }

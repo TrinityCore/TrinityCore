@@ -249,7 +249,7 @@ void BattlegroundTP::StartingEventOpenDoors()
     events.ScheduleEvent(TP_EVENT_UPDATE_BATTLEGROUND_TIMER, Minutes(1));
 
     // players joining later are not eligibles
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, TP_EVENT_START_BATTLE);
+    TriggerGameEvent(TP_EVENT_START_BATTLE);
 
     UpdateWorldState(BG_TP_STATE_TIMER_ACTIVE, 1);
     UpdateWorldState(BG_TP_STATE_TIMER, 25);
