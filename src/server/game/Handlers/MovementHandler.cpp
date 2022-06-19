@@ -77,6 +77,10 @@ void WorldSession::HandleMoveWorldportAck()
     Map* oldMap = GetPlayer()->GetMap();
     Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
 
+    MovementInfo::TransportInfo transportInfo = GetPlayer()->m_movementInfo.transport;
+    if (TransportBase* transport = GetPlayer()->GetTransport())
+        transport->RemovePassenger(GetPlayer());
+
     if (GetPlayer()->IsInWorld())
     {
         TC_LOG_ERROR("network", "%s %s is still in world when teleported from map %s (%u) to new map %s (%u)", GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str(), oldMap->GetMapName(), oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
@@ -102,6 +106,14 @@ void WorldSession::HandleMoveWorldportAck()
     GetPlayer()->SetMap(newMap);
 
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
+
+    // move player between transport copies on each map
+    if (Transport* newTransport = newMap->GetTransport(transportInfo.guid))
+    {
+        GetPlayer()->m_movementInfo.transport = transportInfo;
+        newTransport->AddPassenger(GetPlayer());
+    }
+
     if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
         TC_LOG_ERROR("network", "WORLD: failed to teleport player %s (%d) to map %d (%s) because of unknown reason!",

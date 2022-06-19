@@ -495,11 +495,10 @@ public:
     {
         _caster->CastSpell(_caster, _spellId, true);
 
-        if (Transport* go = HashMapHolder<Transport>::Find(_transport))
+        if (Transport* go = ObjectAccessor::GetTransport(*_caster, _transport))
             go->AddObjectToRemoveList();
 
-
-        if (Transport* go = HashMapHolder<Transport>::Find(_otherTransport))
+        if (Transport* go = ObjectAccessor::GetTransport(*_caster, _otherTransport))
             go->AddObjectToRemoveList();
 
         return true;
@@ -770,7 +769,7 @@ class npc_gunship : public CreatureScript
 
                 if (isVictory)
                 {
-                    if (Transport* otherTransport = HashMapHolder<Transport>::Find(instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
+                    if (Transport* otherTransport = ObjectAccessor::GetTransport(*me, instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                         otherTransport->EnableMovement(true);
 
                     if (Transport* transport = dynamic_cast<Transport*>(me->GetTransport()))
@@ -998,7 +997,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             Talk(SAY_SAURFANG_INTRO_2);
                             break;
                         case EVENT_INTRO_SUMMON_SKYBREAKER:
-                            sTransportMgr->CreateTransport(GO_THE_SKYBREAKER_H, 0, me->GetMap());
+                            sTransportMgr->CreateTransport(GO_THE_SKYBREAKER_H, me->GetMap());
                             break;
                         case EVENT_INTRO_H_3:
                             Talk(SAY_SAURFANG_INTRO_3);
@@ -1032,7 +1031,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             if (Transport* orgrimsHammer = dynamic_cast<Transport*>(me->GetTransport()))
                                 orgrimsHammer->SummonPassenger(NPC_TELEPORT_PORTAL, OrgrimsHammerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, nullptr, 21000);
 
-                            if (Transport* skybreaker = HashMapHolder<Transport>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
+                            if (Transport* skybreaker = ObjectAccessor::GetTransport(*me, _instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                                 skybreaker->SummonPassenger(NPC_TELEPORT_EXIT, SkybreakerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
                             _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6000);
@@ -1264,7 +1263,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             Talk(SAY_MURADIN_INTRO_2);
                             break;
                         case EVENT_INTRO_SUMMON_ORGRIMS_HAMMER:
-                            sTransportMgr->CreateTransport(GO_ORGRIMS_HAMMER_A, 0, me->GetMap());
+                            sTransportMgr->CreateTransport(GO_ORGRIMS_HAMMER_A, me->GetMap());
                             break;
                         case EVENT_INTRO_A_3:
                             Talk(SAY_MURADIN_INTRO_3);
@@ -1301,7 +1300,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             if (Transport* skybreaker = dynamic_cast<Transport*>(me->GetTransport()))
                                 skybreaker->SummonPassenger(NPC_TELEPORT_PORTAL, SkybreakerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, nullptr, 21000);
 
-                            if (Transport* orgrimsHammer = HashMapHolder<Transport>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
+                            if (Transport* orgrimsHammer = ObjectAccessor::GetTransport(*me, _instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                                 orgrimsHammer->SummonPassenger(NPC_TELEPORT_EXIT, OrgrimsHammerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
                             _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6000);
@@ -1447,7 +1446,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             if (!myTransport)
                 return;
 
-            if (Transport* destTransport = HashMapHolder<Transport>::Find(Instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
+            if (Transport* destTransport = ObjectAccessor::GetTransport(*me, Instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
                 destTransport->CalculatePassengerPosition(x, y, z, &o);
 
             float angle = frand(0, float(M_PI) * 2.0f);
@@ -2296,7 +2295,7 @@ class spell_igb_gunship_fall_teleport : public SpellScriptLoader
             void SelectTransport(WorldObject*& target)
             {
                 if (InstanceScript* instance = target->GetInstanceScript())
-                    target = HashMapHolder<Transport>::Find(instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE));
+                    target = ObjectAccessor::GetTransport(*GetCaster(), instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE));
             }
 
             void RelocateDest(SpellEffIndex /*effIndex*/)

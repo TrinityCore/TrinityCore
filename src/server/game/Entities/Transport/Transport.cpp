@@ -100,7 +100,7 @@ Transport::~Transport()
     UnloadStaticPassengers();
 }
 
-bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress)
+bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, float x, float y, float z, float ang)
 {
     Relocate(x, y, z, ang);
 
@@ -116,7 +116,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
+        TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, entry: %u", entry);
         return false;
     }
 
@@ -147,10 +147,17 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetDisplayId(goinfo->displayId);
     SetGoState(!goinfo->moTransport.canBeStopped ? GO_STATE_READY : GO_STATE_ACTIVE);
     SetGoType(GAMEOBJECT_TYPE_MO_TRANSPORT);
-    SetGoAnimProgress(animprogress);
+    SetGoAnimProgress(255);
     SetName(goinfo->name);
     SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
     SetParentRotation(QuaternionData());
+
+    size_t legIndex;
+    if (Optional<Position> position = _transportInfo->ComputePosition(_pathProgress, nullptr, &legIndex))
+    {
+        Relocate(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), position->GetOrientation());
+        _currentPathLeg = legIndex;
+    }
 
     m_model = CreateModel();
     return true;
@@ -204,7 +211,10 @@ void Transport::Update(uint32 diff)
     {
         while (eventToTriggerIndex < _transportInfo->Events.size() && _transportInfo->Events[eventToTriggerIndex].Timestamp < timer)
         {
-            GameEvents::Trigger(_transportInfo->Events[eventToTriggerIndex].EventId, this, this);
+            if (TransportPathLeg const* leg = _transportInfo->GetLegForTime(_transportInfo->Events[eventToTriggerIndex].Timestamp))
+                if (leg->MapId == GetMapId())
+                    GameEvents::Trigger(_transportInfo->Events[eventToTriggerIndex].EventId, this, this);
+
             _eventsToTrigger->set(eventToTriggerIndex, false);
             ++eventToTriggerIndex;
         }
@@ -228,13 +238,14 @@ void Transport::Update(uint32 diff)
 
         if (legIndex != _currentPathLeg)
         {
+            uint32 oldMapId = _transportInfo->PathLegs[_currentPathLeg].MapId;
             _currentPathLeg = legIndex;
-            TeleportTransport(_transportInfo->PathLegs[legIndex].MapId, newPosition->GetPositionX(), newPosition->GetPositionY(), newPosition->GetPositionZ(), newPosition->GetOrientation());
+            TeleportTransport(oldMapId, _transportInfo->PathLegs[legIndex].MapId, newPosition->GetPositionX(), newPosition->GetPositionY(), newPosition->GetPositionZ(), newPosition->GetOrientation());
             return;
         }
 
         // set position
-        if (_positionChangeTimer.Passed())
+        if (_positionChangeTimer.Passed() && GetExpectedMapId() == GetMapId())
         {
             _positionChangeTimer.Reset(positionUpdateDelay);
             if (_movementState == TransportMovementState::Moving || justStopped)
@@ -265,11 +276,6 @@ void Transport::Update(uint32 diff)
         if (m_model)
             GetMap()->InsertGameObjectModel(*m_model);
     }
-}
-
-void Transport::DelayedUpdate(uint32 /*diff*/)
-{
-    DelayedTeleportTransport();
 }
 
 void Transport::AddPassenger(WorldObject* passenger)
@@ -595,14 +601,12 @@ void Transport::EnableMovement(bool enabled)
     }
 }
 
-bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, float o)
+bool Transport::TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, float y, float z, float o)
 {
-    Map const* oldMap = GetMap();
-
-    if (oldMap->GetId() != newMapid)
+    if (oldMapId != newMapId)
     {
-        _delayedTeleport.emplace(newMapid, x, y, z, o);
         UnloadStaticPassengers();
+        TeleportPassengersAndHideTransport(newMapId, x, y, z, o);
         return true;
     }
     else
@@ -631,21 +635,43 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
     }
 }
 
-void Transport::DelayedTeleportTransport()
+void Transport::TeleportPassengersAndHideTransport(uint32 newMapid, float x, float y, float z, float o)
 {
-    if (!_delayedTeleport)
-        return;
+    if (newMapid == GetMapId())
+    {
+        AddToWorld();
 
-    Map* newMap = sMapMgr->CreateBaseMap(_delayedTeleport->GetMapId());
-    GetMap()->RemoveFromMap<Transport>(this, false);
-    SetMap(newMap);
+        for (MapReference const& ref : GetMap()->GetPlayers())
+        {
+            if (ref.GetSource()->GetTransport() != this && ref.GetSource()->IsInPhase(this))
+            {
+                UpdateData data(GetMap()->GetId());
+                BuildCreateUpdateBlockForPlayer(&data, ref.GetSource());
+                ref.GetSource()->m_visibleTransports.insert(GetGUID());
+                WorldPacket packet;
+                data.BuildPacket(&packet);
+                ref.GetSource()->SendDirectMessage(&packet);
+            }
+        }
+    }
+    else
+    {
+        UpdateData data(GetMap()->GetId());
+        BuildOutOfRangeUpdateBlock(&data);
 
-    float x = _delayedTeleport->GetPositionX(),
-        y = _delayedTeleport->GetPositionY(),
-        z = _delayedTeleport->GetPositionZ(),
-        o = _delayedTeleport->GetOrientation();
+        WorldPacket packet;
+        data.BuildPacket(&packet);
+        for (MapReference const& ref : GetMap()->GetPlayers())
+        {
+            if (ref.GetSource()->GetTransport() != this && ref.GetSource()->m_visibleTransports.count(GetGUID()))
+            {
+                ref.GetSource()->SendDirectMessage(&packet);
+                ref.GetSource()->m_visibleTransports.erase(GetGUID());
+            }
+        }
 
-    _delayedTeleport.reset();
+        RemoveFromWorld();
+    }
 
     PassengerSet passengersToTeleport = _passengers;
     for (WorldObject* obj : passengersToTeleport)
@@ -657,7 +683,7 @@ void Transport::DelayedTeleportTransport()
         switch (obj->GetTypeId())
         {
             case TYPEID_PLAYER:
-                if (!obj->ToPlayer()->TeleportTo(newMap->GetId(), destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
+                if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                     RemovePassenger(obj);
                 break;
             case TYPEID_DYNAMICOBJECT:
@@ -668,9 +694,6 @@ void Transport::DelayedTeleportTransport()
                 break;
         }
     }
-
-    Relocate(x, y, z, o);
-    GetMap()->AddToMap<Transport>(this);
 }
 
 void Transport::UpdatePassengerPositions(PassengerSet const& passengers)
@@ -695,4 +718,9 @@ void Transport::BuildUpdate(UpdateDataMapType& data_map)
             BuildFieldsUpdate(playerReference.GetSource(), data_map);
 
     ClearUpdateMask(true);
+}
+
+uint32 Transport::GetExpectedMapId() const
+{
+    return _transportInfo->PathLegs[_currentPathLeg].MapId;
 }
