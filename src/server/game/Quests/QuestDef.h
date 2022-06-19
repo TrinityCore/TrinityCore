@@ -257,6 +257,9 @@ class TC_GAME_API Quest
         uint32 GetCharTitleId() const { return _rewardTitleId; }
         uint32 GetPlayersSlain() const { return _requiredPlayerKills; }
         uint32 GetBonusTalents() const { return _rewardTalents; }
+        // @tswow-begin
+        uint32 GetBonusTalentsPerm() const { return _rewardTalentsPerm;  }
+        // @tswow-end
         int32  GetRewArenaPoints() const {return _rewardArenaPoints; }
         uint32 GetXPId() const { return _rewardXPDifficulty; }
         uint32 GetSrcItemId() const { return _startItem; }
@@ -369,6 +372,9 @@ class TC_GAME_API Quest
         uint32 _rewardTitleId = 0;
         uint32 _requiredPlayerKills = 0;
         uint32 _rewardTalents = 0;
+        // @tswow-begin
+        uint32 _rewardTalentsPerm = 0;
+        // @tswow-end
         int32 _rewardArenaPoints = 0;
         uint32 _rewardNextQuest = 0;
         uint32 _rewardXPDifficulty = 0;

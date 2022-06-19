@@ -1,0 +1,1 @@
+ALTER TABLE `quest_template` ADD COLUMN `RewardTalentsPermanent` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardTalents`;

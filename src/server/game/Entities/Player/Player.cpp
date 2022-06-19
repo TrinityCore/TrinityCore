@@ -211,6 +211,9 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_usedTalentCount = 0;
     m_questRewardTalentCount = 0;
+    // @tswow-begin
+    m_questRewardPermTalentCount = 0;
+    // @tswow-end
 
     m_regenTimer = 0;
     m_regenTimerCount = 0;
@@ -3412,7 +3415,6 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     // update used talent points count
     m_usedTalentCount += talentCost;
-
     // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
     if (uint32 freeProfs = GetFreePrimaryProfessionPoints())
     {
@@ -15512,11 +15514,23 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             SetTitle(titleEntry);
     }
 
+    // @tswow-begin add permanent talents and move init logic
     if (quest->GetBonusTalents())
     {
         m_questRewardTalentCount += quest->GetBonusTalents();
+    }
+
+    if (quest->GetBonusTalentsPerm())
+    {
+        m_questRewardPermTalentCount += quest->GetBonusTalentsPerm();
+    }
+
+    if (quest->GetBonusTalents() || quest->GetBonusTalentsPerm())
+    {
         InitTalentForLevel();
     }
+    // @tswow-end
+
 
     if (quest->GetRewArenaPoints())
         ModifyArenaPoints(quest->GetRewArenaPoints());
@@ -17119,7 +17133,9 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP) const
 
     data << uint32(quest->GetRewOrReqMoney(this));
     data << uint32(10 * quest->CalculateHonorGain(GetQuestLevel(quest)));
-    data << uint32(quest->GetBonusTalents());              // bonus talents
+    // @tswow-begin add permanent rewards to the displayed bonus talents
+    data << uint32(quest->GetBonusTalents() + (quest->GetBonusTalentsPerm() * sWorld->getRate(RATE_TALENT)));              // bonus talents
+    // @tswow-end
     data << uint32(quest->GetRewArenaPoints());
     SendDirectMessage(&data);
 }
@@ -18904,6 +18920,11 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
                 if (quest->GetBonusTalents())
                     m_questRewardTalentCount += quest->GetBonusTalents();
+
+                // @tswow-begin
+                if (quest->GetBonusTalentsPerm())
+                    m_questRewardPermTalentCount += quest->GetBonusTalentsPerm();
+                // @tswow-end
 
                 if (quest->CanIncreaseRewardedQuestCounters())
                     m_RewardedQuests.insert(quest_id);
@@ -25323,7 +25344,7 @@ uint32 Player::CalculateTalentsPoints() const
 
     if (GetClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
     {
-        out_talent = uint32(base_talent * sWorld->getRate(RATE_TALENT));
+        out_talent = uint32((base_talent + m_questRewardPermTalentCount) * sWorld->getRate(RATE_TALENT));
     }
     else
     {
@@ -25333,10 +25354,10 @@ uint32 Player::CalculateTalentsPoints() const
         if (talentPointsForLevel > base_talent)
             talentPointsForLevel = base_talent;
 
-        out_talent = uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+        out_talent = uint32((talentPointsForLevel + m_questRewardPermTalentCount) * sWorld->getRate(RATE_TALENT));
     }
     FIRE(
-          Player,OnCalculateTalentPoints
+          Player,OnCalcTalentPoints
         , TSPlayer(const_cast<Player*>(this))
         , TSMutable<uint32>(&out_talent)
     )

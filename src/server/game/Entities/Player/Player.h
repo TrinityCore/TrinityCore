@@ -2455,6 +2455,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;
         uint32 m_questRewardTalentCount;
+        // @tswow-begin
+        uint32 m_questRewardPermTalentCount;
+        // @tswow-end
 
         // Social
         PlayerSocial* m_social;

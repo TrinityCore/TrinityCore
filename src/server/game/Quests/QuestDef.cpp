@@ -54,6 +54,9 @@ Quest::Quest(Field* questRecord)
     _rewardTitleId = questRecord[23].GetUInt8();
     _requiredPlayerKills = questRecord[24].GetUInt8();
     _rewardTalents = questRecord[25].GetUInt8();
+    // @tswow-begin
+    _rewardTalentsPerm = questRecord[104].GetUInt32();
+    // @tswow-end
     _rewardArenaPoints = questRecord[26].GetUInt16();
 
     for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
@@ -271,7 +274,13 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     rewards.RewardDisplaySpell = GetRewSpell(); // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
     rewards.RewardSpell = GetRewSpellCast();
     rewards.RewardTitleId = GetCharTitleId();
-    rewards.RewardTalents = GetBonusTalents();
+    // @tswow-begin add permanent talents to the displayed bonus talents
+    rewards.RewardTalents = GetBonusTalents() + (_rewardTalentsPerm * sWorld->getRate(RATE_TALENT));
+    if (_rewardTalentsPerm)
+    {
+
+    }
+    // @tswow-end
     rewards.RewardArenaPoints = GetRewArenaPoints();
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
