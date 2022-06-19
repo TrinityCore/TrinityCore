@@ -2959,14 +2959,14 @@ std::vector<uint32> const* GameObject::GetPauseTimes() const
 
 void GameObject::SetPathProgressForClient(float progress)
 {
-    bool hasPendingUpdate = _changesMask.GetBit(GAMEOBJECT_DYNAMIC);
+    bool marked = _changesMask.GetBit(GAMEOBJECT_DYNAMIC);
 
     uint32 dynamicFlags = GetUInt32Value(GAMEOBJECT_DYNAMIC);
     dynamicFlags &= 0xFFFF; // remove high bits
     dynamicFlags |= uint32(progress * 65535.0f) << 16;
     UpdateUInt32Value(GAMEOBJECT_DYNAMIC, dynamicFlags);
 
-    if (!hasPendingUpdate)
+    if (!marked)
         _changesMask.UnsetBit(GAMEOBJECT_DYNAMIC);
 }
 

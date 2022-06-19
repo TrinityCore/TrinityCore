@@ -27,8 +27,6 @@
 
 void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* target)
 {
-    return;
-
     ASSERT(source || target, "At least one of [source] or [target] must be provided");
 
     WorldObject* refForMapAndZoneScript = Coalesce<WorldObject>(source, target);
@@ -41,12 +39,15 @@ void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* t
         zoneScript->ProcessEvent(target, gameEventId, source);
 
     Map* map = refForMapAndZoneScript->GetMap();
-    if (GameObject* goTarget = target->ToGameObject())
-        if (GameObjectAI* goAI = goTarget->AI())
-            goAI->EventInform(gameEventId);
 
-    if (Player* sourcePlayer = source->ToPlayer())
-        TriggerForPlayer(gameEventId, sourcePlayer);
+    if (target && target->IsGameObject())
+        if (GameObject* goTarget = target->ToGameObject())
+            if (GameObjectAI* goAI = goTarget->AI())
+                goAI->EventInform(gameEventId);
+
+    if (source && source->IsPlayer())
+        if (Player* sourcePlayer = source->ToPlayer())
+            TriggerForPlayer(gameEventId, sourcePlayer);
 
     TriggerForMap(gameEventId, map, source, target);
 }
