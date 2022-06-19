@@ -526,4 +526,16 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
+template<typename Ret, typename Only>
+Ret* Coalesce(Only* arg)
+{
+    return arg;
+}
+
+template<typename Ret, typename T1, typename... T>
+Ret* Coalesce(T1* first, T*... rest)
+{
+    return static_cast<Ret*>(first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
+}
+
 #endif
