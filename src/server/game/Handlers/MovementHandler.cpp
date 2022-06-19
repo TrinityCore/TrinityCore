@@ -22,6 +22,7 @@
 #include "Opcodes.h"
 #include "Log.h"
 #include "Corpse.h"
+#include "DBCStores.h"
 #include "Player.h"
 #include "MapManager.h"
 #include "MotionMaster.h"

@@ -123,7 +123,7 @@ struct TC_GAME_API TransportAnimation
 
 struct TransportSpawn
 {
-    ObjectGuid::LowType SpawnId = UI64LIT(0);
+    ObjectGuid::LowType SpawnId = 0;
     uint32 TransportGameObjectId = 0; // entry in respective _template table
     uint8 PhaseUseFlags = 0;
     uint32 PhaseId = 0;

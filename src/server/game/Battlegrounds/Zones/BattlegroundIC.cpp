@@ -17,6 +17,7 @@
 
 #include "BattlegroundIC.h"
 #include "Battleground.h"
+#include "DBCStores.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"

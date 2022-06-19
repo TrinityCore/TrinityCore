@@ -21,6 +21,7 @@
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "G3DPosition.hpp"
 #include "GameObjectAI.h"
 #include "GameEventSender.h"

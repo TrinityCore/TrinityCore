@@ -23,6 +23,7 @@
 #include "CinematicMgr.h"
 #include "Common.h"
 #include "Creature.h"
+#include "DBCStores.h"
 #include "DynamicTree.h"
 #include "G3DPosition.hpp"
 #include "GameTime.h"

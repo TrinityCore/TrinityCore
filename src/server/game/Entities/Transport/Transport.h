@@ -25,6 +25,7 @@
 #include <boost/dynamic_bitset_fwd.hpp>
 
 struct CreatureData;
+struct SummonPropertiesEntry;
 
 class TC_GAME_API Transport : public GameObject, public TransportBase
 {

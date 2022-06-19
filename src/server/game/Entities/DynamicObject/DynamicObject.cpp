@@ -17,6 +17,7 @@
 
 #include "DynamicObject.h"
 #include "Common.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "Map.h"

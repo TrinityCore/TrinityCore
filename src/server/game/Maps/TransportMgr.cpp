@@ -256,7 +256,7 @@ void TransportMgr::LoadTransportSpawns()
         do
         {
             Field* fields = result->Fetch();
-            ObjectGuid::LowType guid = fields[0].GetUInt64();
+            ObjectGuid::LowType guid = fields[0].GetUInt32();
             uint32 entry = fields[1].GetUInt32();
             uint8 phaseUseFlags = fields[2].GetUInt8();
             uint32 phaseId = fields[3].GetUInt32();
@@ -265,26 +265,26 @@ void TransportMgr::LoadTransportSpawns()
             TransportTemplate const* transportTemplate = GetTransportTemplate(entry);
             if (!transportTemplate)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown gameobject `entry` set, skipped.", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with unknown gameobject `entry` set, skipped.", guid, entry);
                 continue;
             }
 
             if (phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
                 phaseUseFlags &= PHASE_USE_FLAGS_ALL;
             }
 
             if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
                     " removing PHASE_USE_FLAGS_INVERSE.", guid, entry);
                 phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
             }
 
             if (phaseGroupId && phaseId)
             {
-                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
                 phaseGroupId = 0;
             }
 
@@ -292,7 +292,7 @@ void TransportMgr::LoadTransportSpawns()
             {
                 if (!sPhaseStore.LookupEntry(phaseId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
                     phaseId = 0;
                 }
             }
@@ -301,7 +301,7 @@ void TransportMgr::LoadTransportSpawns()
             {
                 if (!sDBCManager.GetPhasesForGroup(phaseGroupId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: %u Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
                     phaseGroupId = 0;
                 }
             }
