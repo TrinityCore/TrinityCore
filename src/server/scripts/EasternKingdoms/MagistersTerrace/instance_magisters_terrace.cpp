@@ -173,7 +173,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 if (eventId == EVENT_SPAWN_KALECGOS)
                     if (!GetCreature(DATA_KALECGOS) && _events.Empty())

@@ -508,7 +508,7 @@ class instance_uldaman : public InstanceMapScript
                 return ObjectGuid::Empty;
             } // end GetGuidData
 
-            void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 switch (eventId)
                 {

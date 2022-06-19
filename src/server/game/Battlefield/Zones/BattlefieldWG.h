@@ -382,7 +382,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
         void PromotePlayer(Player* killer);
 
         void UpdateTenacity();
-        void ProcessEvent(WorldObject* obj, uint32 eventId) override;
+        void ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker) override;
 
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 

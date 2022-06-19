@@ -909,7 +909,7 @@ class instance_violet_hold : public InstanceMapScript
                 });
             }
 
-            void ProcessEvent(WorldObject* /*go*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*go*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 if (eventId == EVENT_ACTIVATE_CRYSTAL)
                 {

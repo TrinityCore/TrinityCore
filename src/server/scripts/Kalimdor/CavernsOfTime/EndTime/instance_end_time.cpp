@@ -96,7 +96,7 @@ public:
             LoadObjectData(creatureData, gameobjectData);
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
         {
             if (_executedMapEvents.find(eventId) != _executedMapEvents.end())
                 return;

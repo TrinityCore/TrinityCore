@@ -1211,7 +1211,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* source, uint32 eventId) override
+            void ProcessEvent(WorldObject* source, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 switch (eventId)
                 {

@@ -161,7 +161,7 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*unit*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*unit*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 if (eventId != EVENT_CALL_DRAGON)
                     return;

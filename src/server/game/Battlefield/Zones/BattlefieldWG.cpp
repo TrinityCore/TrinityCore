@@ -1248,7 +1248,7 @@ void BattlefieldWG::UpdatedDestroyedTowerCount(TeamId team)
     }
 }
 
-void BattlefieldWG::ProcessEvent(WorldObject* obj, uint32 eventId)
+void BattlefieldWG::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* /*invoker*/)
 {
     if (!obj || !IsWarTime())
         return;

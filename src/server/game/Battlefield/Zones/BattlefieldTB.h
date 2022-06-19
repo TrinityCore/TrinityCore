@@ -468,7 +468,7 @@ class TC_GAME_API BattlefieldTB : public Battlefield
         void PromotePlayer(Player* killer);
         void RemoveAurasFromPlayer(Player* player);
 
-        void ProcessEvent(WorldObject* obj, uint32 eventId) override;
+        void ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker) override;
 
         void TowerDamaged(TBTowerId tbTowerId);
         void TowerDestroyed(TBTowerId tbTowerId);
