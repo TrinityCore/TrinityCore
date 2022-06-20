@@ -5,7 +5,7 @@ init:
 - ps: ''
 environment:
   BOOST_ROOT: C:\Libraries\boost_1_73_0
-  OPENSSL_ROOT_DIR: C:\OpenSSL-Win64
+  OPENSSL_ROOT_DIR: C:\OpenSSL-v111-Win64
 build_script:
 - cmd: >-
     git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"
@@ -20,9 +20,9 @@ build_script:
 
     copy "C:\Program Files\MySQL\MySQL Server 5.7\lib\libmysql.dll" libmysql.dll
 
-    copy "%OPENSSL_ROOT_DIR%\ssleay32.dll" ssleay32.dll
+    copy "%OPENSSL_ROOT_DIR%\libssl-1_1-x64.dll" libssl-1_1-x64.dll
 
-    copy "%OPENSSL_ROOT_DIR%\libeay32.dll" libeay32.dll
+    copy "%OPENSSL_ROOT_DIR%\libcrypto-1_1-x64.dll" libcrypto-1_1-x64.dll
 
     cd ..
 
