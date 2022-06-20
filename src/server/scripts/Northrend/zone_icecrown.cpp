@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "DB2Stores.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -844,6 +845,70 @@ class spell_icecrown_chum_the_water : public SpellScript
     }
 };
 
+/*######
+## Quest 13121: Through the Eye
+######*/
+
+enum ThroughTheEye
+{
+    SPELL_SUMMON_IMAGE_OF_VARDMADRA        = 57891,
+    SPELL_SUMMON_IMAGE_OF_SHADOW_CULTIST   = 57885,
+    SPELL_USING_THE_EYE_OF_THE_LK          = 57889,
+    TEXT_USING_THE_EYE_OF_THE_LK           = 31493
+};
+
+// 25732 - Through the Eye: Eye of the Lich King
+class spell_icecrown_through_the_eye_the_eye_of_the_lk : public AuraScript
+{
+    PrepareAuraScript(spell_icecrown_through_the_eye_the_eye_of_the_lk);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_IMAGE_OF_VARDMADRA, SPELL_SUMMON_IMAGE_OF_SHADOW_CULTIST }) &&
+            sBroadcastTextStore.LookupEntry(TEXT_USING_THE_EYE_OF_THE_LK);
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            target->Unit::Whisper(TEXT_USING_THE_EYE_OF_THE_LK, target, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_SUMMON_IMAGE_OF_VARDMADRA, true);
+        target->CastSpell(target, SPELL_SUMMON_IMAGE_OF_SHADOW_CULTIST, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_icecrown_through_the_eye_the_eye_of_the_lk::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_icecrown_through_the_eye_the_eye_of_the_lk::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 57884 - Through the Eye: Kill Credit to Master
+class spell_icecrown_through_the_eye_kill_credit_to_master : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_through_the_eye_kill_credit_to_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_USING_THE_EYE_OF_THE_LK });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_USING_THE_EYE_OF_THE_LK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_through_the_eye_kill_credit_to_master::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -855,4 +920,6 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_summon_tualiq_proxy);
     RegisterSpellScript(spell_icecrown_pound_drum);
     RegisterSpellScript(spell_icecrown_chum_the_water);
+    RegisterSpellScript(spell_icecrown_through_the_eye_the_eye_of_the_lk);
+    RegisterSpellScript(spell_icecrown_through_the_eye_kill_credit_to_master);
 }
