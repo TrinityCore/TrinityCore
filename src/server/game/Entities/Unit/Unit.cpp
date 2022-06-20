@@ -13581,3 +13581,87 @@ std::string Unit::GetDebugInfo() const
 
     return sstr.str();
 }
+
+void Unit::RemoveAllAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID, uint32 reqEffMask, AuraRemoveMode removeMode)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    {
+        Aura const* aura = iter->second->GetBase();
+        if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
+            && (!casterGUID || aura->GetCasterGUID() == casterGUID))
+        {
+            RemoveAura(iter, removeMode);
+            iter = m_appliedAuras.lower_bound(spellId);
+        }
+        else
+            ++iter;
+    }
+
+    // remove all auras triggered by this spell (don't search recursively)
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
+    {
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+        {
+            if (!spellEffectInfo.IsEffect())
+                continue;
+
+            bool remove = false;
+
+            switch (spellEffectInfo.Effect)
+            {
+                case SPELL_EFFECT_TRIGGER_SPELL:
+                case SPELL_EFFECT_TRIGGER_SPELL_2:
+                case SPELL_EFFECT_TRIGGER_MISSILE:
+                case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE:
+                    remove = true;
+                    break;
+                default:
+                    break;
+            }
+
+            if (remove)
+                RemoveAurasDueToSpell(spellEffectInfo.TriggerSpell, casterGUID, reqEffMask, removeMode);
+        }
+    }
+}
+
+void Unit::RemoveAllAurasDueToItemSpell(uint32 spellId, ObjectGuid castItemGuid)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    {
+        if (iter->second->GetBase()->GetCastItemGUID() == castItemGuid)
+        {
+            RemoveAura(iter);
+            iter = m_appliedAuras.lower_bound(spellId);
+        }
+        else
+            ++iter;
+    }
+
+    // remove all auras triggered by this spell (don't search recursively)
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
+    {
+        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+        {
+            if (!spellEffectInfo.IsEffect())
+                continue;
+
+            bool remove = false;
+
+            switch (spellEffectInfo.Effect)
+            {
+                case SPELL_EFFECT_TRIGGER_SPELL:
+                case SPELL_EFFECT_TRIGGER_SPELL_2:
+                case SPELL_EFFECT_TRIGGER_MISSILE:
+                case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE:
+                    remove = true;
+                    break;
+                default:
+                    break;
+            }
+
+            if (remove)
+                RemoveAurasDueToSpell(spellEffectInfo.TriggerSpell, GetGUID());
+        }
+    }
+}

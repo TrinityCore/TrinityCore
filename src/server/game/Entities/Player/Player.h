@@ -1356,6 +1356,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;
         Item* GetUseableItemByPos(uint8 bag, uint8 slot) const;
+        Item* GetFirstMatchingItemInInventoryOrEquipment(uint32 entry) const;
         Bag*  GetBagByPos(uint8 slot) const;
         std::vector<Item*> GetCraftingReagentItemsToDeposit();
         uint32 GetFreeInventorySpace() const;
@@ -1520,8 +1521,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveEnchantmentDurationsReferences(Item* item);
         void RemoveArenaEnchantments(EnchantmentSlot slot);
         void AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 duration);
-        void ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur = true, bool ignore_condition = false);
-        void ApplyEnchantment(Item* item, bool apply);
+        void ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur = true, bool ignore_condition = false, bool forced = false);
+        void ApplyEnchantment(Item* item, bool apply, bool forced = false);
         void UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value);
         void SendEnchantmentDurations();
         void AddItemDurations(Item* item);
@@ -2321,17 +2322,17 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _ApplyAllLevelScaleItemMods(bool apply);
         void ApplyAllAzeriteItemMods(bool apply);
         void ApplyAllAzeriteEmpoweredItemMods(bool apply);
-        void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
+        void _ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool force = false);
         void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const;
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
         void InitDataForForm(bool reapplyMods = false);
 
-        void ApplyItemEquipSpell(Item* item, bool apply, bool formChange = false);
+        void ApplyItemEquipSpell(Item* item, bool apply, bool formChange = false, bool forced = false);
         void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool formChange = false);
         void UpdateEquipSpellsAtFormChange();
-        void UpdateItemSetAuras(bool formChange = false);
+        void UpdateItemSetAuras(bool formChange = false, bool forced = false, bool apply = false);
         void ApplyArtifactPowers(Item* item, bool apply);
         void ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const* artifactPowerRank, bool apply);
         void ApplyAzeritePowers(Item* item, bool apply);

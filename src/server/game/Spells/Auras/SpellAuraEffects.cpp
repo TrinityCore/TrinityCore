@@ -156,7 +156,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         // 87 SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN implemented in Unit::MeleeDamageBonus and Unit::SpellDamageBonus
     &AuraEffect::HandleNoImmediateEffect,                         // 88 SPELL_AURA_MOD_HEALTH_REGEN_PERCENT implemented in Player::RegenerateHealth
     &AuraEffect::HandleNoImmediateEffect,                         // 89 SPELL_AURA_PERIODIC_DAMAGE_PERCENT
-    &AuraEffect::HandleUnused,                                    // 90 unused (4.3.4) old SPELL_AURA_MOD_RESIST_CHANCE
+    &AuraEffect::HandleCancelEquipmentStats,                      // 90 SPELL_AURA_CANCEL_EQUIPMENT_STATS
     &AuraEffect::HandleNoImmediateEffect,                         // 91 SPELL_AURA_MOD_DETECT_RANGE implemented in Creature::GetAttackDistance
     &AuraEffect::HandlePreventFleeing,                            // 92 SPELL_AURA_PREVENTS_FLEEING
     &AuraEffect::HandleModUnattackable,                           // 93 SPELL_AURA_MOD_UNATTACKABLE
@@ -6146,6 +6146,30 @@ void AuraEffect::HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode,
         return;
 
     playerTarget->UpdatePositionData();
+}
+
+void AuraEffect::HandleCancelEquipmentStats(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* playerTarget = aurApp->GetTarget()->ToPlayer();
+    if (!playerTarget)
+        return;
+
+    // apply / remove equiment stats & effects
+    for (uint8 slot = EQUIPMENT_SLOT_START; slot <= EQUIPMENT_SLOT_END; ++slot)
+    {
+        if (Item* item = playerTarget->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+        {
+            playerTarget->_ApplyItemBonuses(item, slot, !apply, true);
+            playerTarget->ApplyEnchantment(item, !apply, true);
+            playerTarget->ApplyItemEquipSpell(item, !apply, false, true);
+        }
+    }
+
+    // apply / remove equiment set bonuses aswell
+    playerTarget->UpdateItemSetAuras(false, true, !apply);
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;

@@ -7571,11 +7571,23 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: completed");
 }
 
-void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
+void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool forced /*= false*/)
 {
     ItemTemplate const* proto = item->GetTemplate();
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
+
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
+    {
+        WeaponAttackType attType = BASE_ATTACK;
+        if (slot == EQUIPMENT_SLOT_MAINHAND && (proto->GetInventoryType() == INVTYPE_RANGED || proto->GetInventoryType() == INVTYPE_RANGEDRIGHT))
+            attType = RANGED_ATTACK;
+        else if (slot == EQUIPMENT_SLOT_OFFHAND)
+            attType = OFF_ATTACK;
+        if (attType != MAX_ATTACK)
+            _ApplyWeaponDamage(slot, item, apply);
+        return;
+    }
 
     uint32 itemLevel = item->GetItemLevel(this);
     float combatRatingMultiplier = 1.0f;
@@ -7822,7 +7834,12 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
     if (attType != MAX_ATTACK)
-        _ApplyWeaponDamage(slot, item, apply);
+    {
+        if (forced)
+            UpdateDamagePhysical(attType);
+        else
+            _ApplyWeaponDamage(slot, item, apply);
+    }
 }
 
 void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
@@ -8002,9 +8019,12 @@ bool Player::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEf
     return true;
 }
 
-void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/)
+void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/, bool forced /*= false*/)
 {
     if (!item || item->GetTemplate()->HasFlag(ITEM_FLAG_LEGACY))
+        return;
+
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
         return;
 
     for (ItemEffectEntry const* effectData : item->GetEffects())
@@ -8056,9 +8076,9 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
         }
 
         if (item)
-            RemoveAurasDueToItemSpell(spellInfo->Id, item->GetGUID());  // un-apply all spells, not only at-equipped
+            RemoveAllAurasDueToItemSpell(spellInfo->Id, item->GetGUID());  // un-apply all spells, not only at-equipped
         else
-            RemoveAurasDueToSpell(spellInfo->Id);           // un-apply spell (item set case)
+            RemoveAllAurasDueToSpell(spellInfo->Id);           // un-apply spell (item set case)
     }
 }
 
@@ -8076,8 +8096,14 @@ void Player::UpdateEquipSpellsAtFormChange()
     UpdateItemSetAuras(true);
 }
 
-void Player::UpdateItemSetAuras(bool formChange /*= false*/)
+void Player::UpdateItemSetAuras(bool formChange /*= false*/, bool forced /*= false*/, bool apply /* = false*/)
 {
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
+        return;
+
+    // item set auras should always be applicable (if player fits conditions), except if SPELL_AURA_CANCEL_EQUIPMENT_STATS is applied
+    bool canBenefitFromSetBonuses = forced ? apply : true;
+
     // item set bonuses not dependent from item broken state
     for (size_t setindex = 0; setindex < ItemSetEff.size(); ++setindex)
     {
@@ -8093,8 +8119,9 @@ void Player::UpdateItemSetAuras(bool formChange /*= false*/)
                 ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
             else
             {
+                // add / remove auras fitting current item equipped & shapeshift form
                 ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
-                ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
+                ApplyEquipSpell(spellInfo, nullptr, canBenefitFromSetBonuses, formChange);  // add spells that fit form but not active
             }
         }
     }
@@ -14135,13 +14162,13 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
     }
 }
 
-void Player::ApplyEnchantment(Item* item, bool apply)
+void Player::ApplyEnchantment(Item* item, bool apply, bool forced /* = false */)
 {
     for (uint32 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
-        ApplyEnchantment(item, EnchantmentSlot(slot), apply);
+        ApplyEnchantment(item, EnchantmentSlot(slot), apply, true, false, forced);
 }
 
-void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
+void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition, bool forced /*= false*/)
 {
     if (!item || !item->IsEquipped())
         return;
@@ -14164,6 +14191,9 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         return;
 
     if (pEnchant->RequiredSkillID > 0 && pEnchant->RequiredSkillRank > GetSkillValue(pEnchant->RequiredSkillID))
+        return;
+
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
         return;
 
     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
@@ -29427,4 +29457,24 @@ void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusR
     }
 
     SendDirectMessage(displayToast.Write());
+}
+
+Item* Player::GetFirstMatchingItemInInventoryOrEquipment(uint32 entry) const
+{
+    // inventory items
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (item->GetEntry() == entry)
+                return item;
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Bag* bag = GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < bag->GetBagSize(); j++)
+                if (Item* item = bag->GetItemByPos(j))
+                    if (item->GetEntry() == entry)
+                        return item;
+        }
+
+    return nullptr;
 }

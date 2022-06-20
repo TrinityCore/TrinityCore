@@ -145,7 +145,7 @@ void AddItemsSetItem(Player* player, Item const* item)
             eff->SetBonuses.insert(itemSetSpell);
             // spell cast only if fit form requirement, in other case will cast at form change
             if (!itemSetSpell->ChrSpecID || itemSetSpell->ChrSpecID == player->GetPrimarySpecialization())
-                player->ApplyEquipSpell(spellInfo, nullptr, true);
+                player->ApplyEquipSpell(spellInfo, nullptr, !player->HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS)); // item set auras should always be applicable (if player fits conditions), except if SPELL_AURA_CANCEL_EQUIPMENT_STATS is applied
         }
     }
 }
