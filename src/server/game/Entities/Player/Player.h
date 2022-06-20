@@ -20,6 +20,7 @@
 
 // @tswow-begin
 #include "TSCustomPacket.h"
+#include "TSDBJson.h"
 // @tswow-end
 #include "GridObject.h"
 #include "Unit.h"
@@ -913,6 +914,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     public:
         // @tswow-begin
         TSServerBuffer m_msg_buffer;
+        TSDBJson m_db_json;
         void ApplyAutolearnSpells(uint32 fromLevel);
         // @tswow-end
         explicit Player(WorldSession* session);

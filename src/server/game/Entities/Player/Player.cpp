@@ -188,6 +188,7 @@ uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::
 Player::Player(WorldSession* session): Unit(true)
 // @tswow-begin
 , m_msg_buffer(TSPlayer(this))
+, m_db_json(DBJsonEntityType::PLAYER,0)
 // @tswow-end
 {
     m_objectType |= TYPEMASK_PLAYER;
@@ -477,6 +478,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     /// @todo need more checks against packet modifications
 
     Object::_Create(guidlow, 0, HighGuid::Player);
+    // @tswow-begin
+    m_db_json = TSDBJson(DBJsonEntityType::PLAYER, GetGUID().GetRawValue());
+    // @tswow-end
 
     m_name = createInfo->Name;
 
@@ -4463,6 +4467,13 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                 CharacterDatabase.CommitTransaction(trans);
             return;
     }
+
+    // @tswow-begin
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_JSON_DATA);
+    stmt->setUInt32(0, DBJsonEntityType::PLAYER);
+    stmt->setUInt32(1, guid);
+    trans->Append(stmt);
+    // @tswow-end
 
     CharacterDatabase.CommitTransaction(trans);
 
@@ -18206,6 +18217,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     _LoadEquipmentSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
+    // @tswow-begin
+    m_db_json = TSDBJson(DBJsonEntityType::PLAYER, guid);
+    m_db_json.Load();
+    // @tswow-end
+
     return true;
 }
 
@@ -19924,6 +19940,9 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create /* = false
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
     _SaveGlyphs(trans);
     _SaveInstanceTimeRestrictions(trans);
+    // @tswow-begin TODO: fix transaction
+    m_db_json.Save();
+    // @tswow-end
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction

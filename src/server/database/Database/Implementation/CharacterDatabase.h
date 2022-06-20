@@ -514,6 +514,7 @@ enum CharacterDatabaseStatements : uint32
     CHAR_UPD_CUSTOM_ITEM,
     CHAR_UPD_JSON_DATA,
     CHAR_SEL_JSON_DATA,
+    CHAR_DEL_JSON_DATA,
     // @tswow-end
 
     MAX_CHARACTERDATABASE_STATEMENTS
