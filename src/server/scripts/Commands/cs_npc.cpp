@@ -163,6 +163,10 @@ public:
             return false;
         }
 
+        // @tswow-begin
+        handler->SendSysMessage("Warning: Created NPCs will be removed next datascript rebuild, use a datascript if you want persistent results.");
+        // @tswow-end
+
         sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
         return true;
     }
@@ -319,6 +323,9 @@ public:
         if (Creature::DeleteFromDB(spawnId))
         {
             handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
+            // @tswow-begin
+            handler->SendSysMessage("Warning: Removed NPCs will be restored next datascript rebuild, use a datascript if you want persistent results.");
+            // @tswow-end
             return true;
         }
         else

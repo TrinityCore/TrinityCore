@@ -160,6 +160,9 @@ public:
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGameObjectData(guidLow));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        // @tswow-begin
+        handler->SendSysMessage("Warning: Created GameObjects will be removed next datascript rebuild, use a datascript if you want persistent results.");
+        // @tswow-end
         return true;
     }
 
@@ -318,6 +321,9 @@ public:
         if (GameObject::DeleteFromDB(spawnId))
         {
             handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, spawnId);
+            // @tswow-begin
+            handler->SendSysMessage("Warning: Deleted GameObjects will be restored next datascript rebuild, use a datascript if you want persistent results.");
+            // @tswow-end
             return true;
         }
         else
