@@ -168,6 +168,12 @@ else ()
     )
 endif ()
 
+if(HOMEBREW_PREFIX)
+  list(APPEND _OPENSSL_ROOT_HINTS
+    "${HOMEBREW_PREFIX}/opt/openssl@1.1"
+    "${HOMEBREW_PREFIX}/opt/openssl@3")
+endif()
+
 set(_OPENSSL_ROOT_HINTS_AND_PATHS
     HINTS ${_OPENSSL_ROOT_HINTS}
     PATHS ${_OPENSSL_ROOT_PATHS}

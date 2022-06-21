@@ -28,7 +28,7 @@ struct SummonPropertiesEntry;
 
 class TC_GAME_API Transport : public GameObject, public TransportBase
 {
-        friend Transport* TransportMgr::CreateTransport(uint32, ObjectGuid::LowType, Map*, uint8, uint32, uint32);
+        friend Transport* TransportMgr::CreateTransport(uint32, Map*, ObjectGuid::LowType, uint8, uint32, uint32);
 
         Transport();
     public:
@@ -36,11 +36,10 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         ~Transport();
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress);
+        bool Create(ObjectGuid::LowType guidlow, uint32 entry, float x, float y, float z, float ang);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         void Update(uint32 diff) override;
-        void DelayedUpdate(uint32 diff);
 
         void BuildUpdate(UpdateDataMapType& data_map) override;
 
@@ -105,9 +104,12 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         std::string GetDebugInfo() const override;
 
+        //! Returns id of the map that transport is expected to be on, according to current path progress
+        uint32 GetExpectedMapId() const;
+
     private:
-        bool TeleportTransport(uint32 newMapid, float x, float y, float z, float o);
-        void DelayedTeleportTransport();
+        bool TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, float y, float z, float o);
+        void TeleportPassengersAndHideTransport(uint32 newMapid, float x, float y, float z, float o);
         void UpdatePassengerPositions(PassengerSet const& passengers);
 
         TransportTemplate const* _transportInfo;
@@ -122,7 +124,6 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         PassengerSet _staticPassengers;
 
         bool _delayedAddModel;
-        Optional<WorldLocation> _delayedTeleport;
 };
 
 #endif

@@ -1036,7 +1036,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, NOT_STARTED);
                     uint32 gunshipEntry = TeamInInstance == HORDE ? GO_ORGRIMS_HAMMER_H : GO_THE_SKYBREAKER_A;
-                    if (Transport* gunship = sTransportMgr->CreateTransport(gunshipEntry, UI64LIT(0), instance))
+                    if (Transport* gunship = sTransportMgr->CreateTransport(gunshipEntry, instance))
                         GunshipGUID = gunship->GetGUID();
                 }
             }
