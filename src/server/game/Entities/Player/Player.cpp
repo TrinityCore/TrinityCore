@@ -1321,9 +1321,10 @@ void Player::Update(uint32 p_time)
                 ++itr;
         }
     }
-
-    if (GetClass() == CLASS_DEATH_KNIGHT)
+    //@tswow-begin
+    if (HasRunes())
     {
+    //@tswow-end
         // Update rune timers
         for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
@@ -2025,10 +2026,15 @@ void Player::RegenerateAll()
     Regenerate(POWER_MANA);
 
     // Runes act as cooldowns, and they don't need to send any data
-    if (GetClass() == CLASS_DEATH_KNIGHT)
+    //@tswow-begin
+    if (HasRunes())
+    {
+    //@tswow-end
         for (uint8 i = 0; i < MAX_RUNES; ++i)
             if (uint32 cd = GetRuneCooldown(i))
                 SetRuneCooldown(i, (cd > m_regenTimer) ? cd - m_regenTimer : 0);
+
+    }
 
     if (m_regenTimerCount >= 2000)
     {
@@ -2041,7 +2047,8 @@ void Player::RegenerateAll()
         }
 
         Regenerate(POWER_RAGE);
-        if (GetClass() == CLASS_DEATH_KNIGHT)
+        //@tswow-begin
+        if (HasRunes())
             Regenerate(POWER_RUNIC_POWER);
 
         m_regenTimerCount -= 2000;
@@ -3944,7 +3951,7 @@ bool Player::ResetTalents(bool no_cost)
         if ((GetClassMask() & talentTabInfo->ClassMask) == 0)
             continue;
 
-        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
         {
             // skip non-existing talent ranks
             if (talentInfo->SpellRank[rank] == 0)
@@ -24765,7 +24772,8 @@ void Player::AtExitCombat()
     Unit::AtExitCombat();
     UpdatePotionCooldown();
 
-    if (GetClass() == CLASS_DEATH_KNIGHT)
+    //@tswow-begin
+    if (HasRunes())
         for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
             SetRuneTimer(i, 0xFFFFFFFF);
@@ -25165,8 +25173,10 @@ void Player::ConvertRune(uint8 index, RuneType newType)
 
 void Player::ResyncRunes() const
 {
-    if (GetClass() != CLASS_DEATH_KNIGHT)
+    //@tswow-begin
+    if (!HasRunes())
         return;
+    //@tswow-end
 
     WorldPackets::Spells::ResyncRunes packet;
     packet.Count = MAX_RUNES;
@@ -25199,8 +25209,10 @@ static RuneType runeSlotTypes[MAX_RUNES] =
 
 void Player::InitRunes()
 {
-    if (GetClass() != CLASS_DEATH_KNIGHT)
+    //@tswow-begin
+    if (!HasRunes())
         return;
+    //@tswow-end
 
     m_runes = new Runes;
 
@@ -25257,7 +25269,6 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
         SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
     }
 }
-
 void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 {
     NotNormalLootItem* qitem = nullptr;
@@ -25358,7 +25369,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 // @tswow-begin change layout to attach event
 uint32 Player::CalculateTalentsPoints() const
 {
-    uint32 base_talent = GetLevel() < 10 ? 0 : GetLevel()-9;
+    uint32 base_talent = GetLevel() < 10 ? 0 : GetLevel() - 9;
     uint32 out_talent;
 
     if (GetClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
@@ -25380,7 +25391,7 @@ uint32 Player::CalculateTalentsPoints() const
         , TSPlayer(const_cast<Player*>(this))
         , TSMutable<uint32>(&out_talent)
     )
-    return out_talent;
+        return out_talent;
 }
 // @tswow-end
 

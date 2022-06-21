@@ -1696,8 +1696,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         break;
-                    if (target->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
+                    //@tswow-begin
+                    if (!target->ToPlayer()->HasRunes())
                         break;
+                    //@tswow-end
 
                      // aura removed - remove death runes
                     target->ToPlayer()->RemoveRunesByAuraEffect(GetEffect(0));

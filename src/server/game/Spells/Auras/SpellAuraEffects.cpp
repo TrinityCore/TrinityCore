@@ -4855,8 +4855,10 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
     if (!player)
         return;
 
-    if (player->GetClass() != CLASS_DEATH_KNIGHT)
+    //@tswow-begin
+    if (!player->HasRunes())
         return;
+    //@tswow-end
 
     uint32 runes = GetAmount();
     // convert number of runes specified in aura amount of rune type in miscvalue to runetype in miscvalueb

@@ -10207,6 +10207,41 @@ void ObjectMgr::LoadCreatureDefaultTrainers()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " default trainers in %u ms", _creatureDefaultTrainers.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+// @tswow-begin
+void ObjectMgr::LoadRaceClassRuneCombos()
+{
+    if (QueryResult result = WorldDatabase.Query("SELECT classID, raceID FROM class_has_runes"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 classID = fields[0].GetUInt32();
+            uint32 raceID = fields[1].GetUInt32();
+
+            bool classError = classID > MAX_CLASSES;
+            bool raceError = raceID > MAX_RACES;
+
+            if (classError)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `class_has_runes` references non-existing class id %u, ignoring", classID);
+            }
+
+            if (raceError)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `class_has_runes` references non-existing race id %u, ignoring", raceID);
+            }
+
+            if (classError || raceError)
+            {
+                continue;
+            }
+
+            _classHasRunes[classID - 1] |= (1 << (raceID - 1));
+        } while (result->NextRow());
+    }
+}
+// @tswow-end
+
 uint32 ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* skip_vendors)
 {
     // find all items from the reference vendor
