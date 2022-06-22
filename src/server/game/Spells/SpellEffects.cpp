@@ -650,7 +650,7 @@ void Spell::EffectTriggerSpell()
         args.OriginalCastId = originalCastId;
         args.OriginalCastItemLevel = itemLevel;
         if (!castItemGuid.IsEmpty() && sSpellMgr->AssertSpellInfo(spellEffectInfo->TriggerSpell, caster->GetMap()->GetDifficultyID())->HasAttribute(SPELL_ATTR2_RETAIN_ITEM_CAST))
-            if (Player const* triggeringAuraCaster = Object::ToPlayer(args.TriggeringAura->GetCaster()))
+            if (Player const* triggeringAuraCaster = Object::ToPlayer(caster))
                 args.CastItem = triggeringAuraCaster->GetItemByGuid(castItemGuid);
 
         // set basepoints for trigger with value effect
