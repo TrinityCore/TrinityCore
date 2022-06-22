@@ -27,6 +27,7 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
 
@@ -69,7 +70,7 @@ enum FathomlordKarathress
     //Caribdis Spells
     SPELL_WATER_BOLT_VOLLEY         = 38335,
     SPELL_TIDAL_SURGE               = 38358,
-    SPELL_TIDAL_SURGE_FREEZE        = 38357,
+    SPELL_TIDAL_SURGE_EFFECT        = 38353,
     SPELL_HEAL                      = 38330,
     SPELL_SUMMON_CYCLONE            = 38337,
     SPELL_CYCLONE_CYCLONE           = 29538,
@@ -648,10 +649,7 @@ public:
             //TidalSurge_Timer
             if (TidalSurge_Timer <= diff)
             {
-                DoCastVictim(SPELL_TIDAL_SURGE);
-                // Hacky way to do it - won't trigger elseways
-                if (me->GetVictim())
-                    me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
+                DoCastSelf(SPELL_TIDAL_SURGE);
                 TidalSurge_Timer = 15000 + rand32() % 5000;
             } else TidalSurge_Timer -= diff;
 
@@ -714,10 +712,32 @@ public:
     };
 };
 
+// 38358 - Tidal Surge
+class spell_fathomlord_karathress_tidal_surge : public SpellScript
+{
+    PrepareSpellScript(spell_fathomlord_karathress_tidal_surge);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TIDAL_SURGE_EFFECT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TIDAL_SURGE_EFFECT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fathomlord_karathress_tidal_surge::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_fathomlord_karathress()
 {
     new boss_fathomlord_karathress();
     new boss_fathomguard_sharkkis();
     new boss_fathomguard_tidalvess();
     new boss_fathomguard_caribdis();
+    RegisterSpellScript(spell_fathomlord_karathress_tidal_surge);
 }

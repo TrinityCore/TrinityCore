@@ -1314,6 +1314,32 @@ class spell_item_heartpierce : public SpellScriptLoader
         }
 };
 
+enum HourglassSand
+{
+    SPELL_BROOD_AFFLICTION_BRONZE    = 23170
+};
+
+// 23645 - Hourglass Sand
+class spell_item_hourglass_sand : public SpellScript
+{
+    PrepareSpellScript(spell_item_hourglass_sand);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BROOD_AFFLICTION_BRONZE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_BROOD_AFFLICTION_BRONZE);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_hourglass_sand::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 40971 - Bonus Healing (Crystal Spire of Karabor)
 class spell_item_crystal_spire_of_karabor : public AuraScript
 {
@@ -3016,6 +3042,35 @@ class spell_item_impale_leviroth : public SpellScript
     }
 };
 
+enum LifegivingGem
+{
+    SPELL_GIFT_OF_LIFE_1    = 23782,
+    SPELL_GIFT_OF_LIFE_2    = 23783
+};
+
+// 23725 - Gift of Life
+class spell_item_lifegiving_gem : public SpellScript
+{
+    PrepareSpellScript(spell_item_lifegiving_gem);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GIFT_OF_LIFE_1, SPELL_GIFT_OF_LIFE_2 });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_GIFT_OF_LIFE_1, true);
+        caster->CastSpell(caster, SPELL_GIFT_OF_LIFE_2, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_lifegiving_gem::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 enum NitroBoosts
 {
     SPELL_NITRO_BOOSTS_SUCCESS       = 54861,
@@ -4419,6 +4474,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_harm_prevention_belt);
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
+    RegisterSpellScript(spell_item_hourglass_sand);
     RegisterSpellScript(spell_item_crystal_spire_of_karabor);
     RegisterSpellScript(spell_item_make_a_wish);
     RegisterSpellScript(spell_item_mark_of_conquest);
@@ -4463,6 +4519,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_demon_broiled_surprise);
     RegisterSpellScript(spell_item_complete_raptor_capture);
     RegisterSpellScript(spell_item_impale_leviroth);
+    RegisterSpellScript(spell_item_lifegiving_gem);
     RegisterSpellScript(spell_item_nitro_boosts);
     RegisterSpellScript(spell_item_nitro_boosts_backfire);
     RegisterSpellScript(spell_item_rocket_boots);
