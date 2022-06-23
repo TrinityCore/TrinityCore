@@ -882,7 +882,7 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
         if (int32(uiMap->ID) != questPOIBlob->UiMapID)
             continue;
 
-        if (_player->MeetPlayerCondition(questPOIBlob->PlayerConditionID))
+        if (!_player->MeetPlayerCondition(questPOIBlob->PlayerConditionID))
             continue;
 
         for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
@@ -907,7 +907,7 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
                 if (!contentTuning)
                     continue;
 
-                if (_player->GetLevel() >= contentTuning->MinLevel)
+                if (_player->GetLevel() < contentTuning->MinLevel)
                     continue;
 
                 response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
