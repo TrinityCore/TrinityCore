@@ -878,20 +878,43 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
     response.UiMapID = uiMap->ID;
 
     for (QuestPOIBlobEntry const* questPOIBlob : sQuestPOIBlobStore)
-        if (int32(uiMap->ID) == questPOIBlob->UiMapID)
-            if (_player->MeetPlayerCondition(questPOIBlob->PlayerConditionID))
-                for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
-                    if (questPOIBlob->QuestID == questLineXQuest->QuestID)
-                        if (std::vector<QuestLineXQuestEntry const*> const* questLines = sDB2Manager.GetQuestsOrderForQuestLine(questLineXQuest->QuestLineID))
-                            for (QuestLineXQuestEntry const* questLineQuest : *questLines)
-                                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID))
-                                    if (_player->CanTakeQuest(quest, false))
-                                        if(ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(quest->GetContentTuningId()))
-                                            if(_player->GetLevel() >= contentTuning->MinLevel)
-                                            {
-                                                response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
-                                                break;
-                                            }
+    {
+        if (int32(uiMap->ID) != questPOIBlob->UiMapID)
+            continue;
+
+        if (_player->MeetPlayerCondition(questPOIBlob->PlayerConditionID))
+            continue;
+
+        for (QuestLineXQuestEntry const* questLineXQuest : sQuestLineXQuestStore)
+        {
+            if (questPOIBlob->QuestID != questLineXQuest->QuestID)
+                continue;
+
+            std::vector<QuestLineXQuestEntry const*> const* questLines = sDB2Manager.GetQuestsOrderForQuestLine(questLineXQuest->QuestLineID);
+            if (!questLines)
+                continue;
+
+            for (QuestLineXQuestEntry const* questLineQuest : *questLines)
+            {
+                Quest const* quest = sObjectMgr->GetQuestTemplate(questLineQuest->QuestID);
+                if (!quest)
+                    continue;
+
+                if (!_player->CanTakeQuest(quest, false))
+                    continue;
+
+                ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(quest->GetContentTuningId());
+                if (!contentTuning)
+                    continue;
+
+                if (_player->GetLevel() >= contentTuning->MinLevel)
+                    continue;
+
+                response.QuestLineXQuestIDs.push_back(questLineQuest->ID);
+                break;
+            }
+        }
+    }
 
     SendPacket(response.Write());
 }
