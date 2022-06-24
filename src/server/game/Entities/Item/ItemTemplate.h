@@ -720,10 +720,10 @@ struct TC_GAME_API ItemTemplate
 
     bool IsRangedWeapon() const
     {
-        return GetClass() == ITEM_CLASS_WEAPON ||
-            GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
+        return GetClass() == ITEM_CLASS_WEAPON &&
+            (GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
             GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
-            GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW;
+            GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW);
     }
 
     char const* GetDefaultLocaleName() const;
