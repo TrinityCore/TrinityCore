@@ -829,41 +829,37 @@ class spell_pri_shadow_word_death : public SpellScript
             });
     }
 
-    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    void HandleDamageEffects(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
             return;
 
-        int32 damage = GetEffectValue();
-        if (Unit* target = GetHitUnit())
+        Unit* target = GetHitUnit();
+        int32 damage = GetHitDamage();
+
+        // Shadow Word: Death deals three times the damage when hitting a target below 25% health
+        if (target->GetHealthPct() < 25.f)
         {
-            // Shadow Word: Death deals three times the damage when hitting a target below 25% health
-            if (target->GetHealthPct() < 25.f)
-            {
-                damage *= 3;
+            damage *= 3;
 
-                // Mind Melt talent bonus
-                if (AuraEffect const* effect = target->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_MIND_MELT, EFFECT_0))
-                    AddPct(damage, effect->GetAmount());
-            }
-
-            _launchHealthPct = target->GetHealthPct();
+            // Mind Melt talent bonus
+            if (AuraEffect const* effect = target->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_MIND_MELT, EFFECT_0))
+                AddPct(damage, effect->GetAmount());
         }
 
-        SetEffectValue(damage);
-    }
+        SetHitDamage(damage);
+        _launchHealthPct = target->GetHealthPct();
 
-    void HandleSelfDamagingEffect(SpellEffIndex /*effIndex*/)
-    {
-        int32 damage = GetHitDamage();
-        Unit* caster = GetCaster();
+        // If the target does not die from the damage, the caster suffers the damage dealt to the target.
+        if (target->GetHealth() > uint32(damage))
+        {
+            // Pain and Suffering reduces damage taken of the self-damaging effect
+            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
+                AddPct(damage, aurEff->GetAmount());
 
-        // Pain and Suffering reduces damage
-        if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
-            AddPct(damage, aurEff->GetAmount());
-
-        caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH, CastSpellExtraArgs(true).AddSpellBP0(damage));
+            caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH, CastSpellExtraArgs(true).AddSpellBP0(damage));
+        }
     }
 
     void HandleGlyphEffect()
@@ -886,8 +882,7 @@ class spell_pri_shadow_word_death : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget.Register(&spell_pri_shadow_word_death::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnEffectHitTarget.Register(&spell_pri_shadow_word_death::HandleSelfDamagingEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget.Register(&spell_pri_shadow_word_death::HandleDamageEffects, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         AfterHit.Register(&spell_pri_shadow_word_death::HandleGlyphEffect);
 
     }
