@@ -56,13 +56,13 @@ TC_COMMON_API bool coin_flip(float chance);
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)
 {
-    return coin_flip(chance);
+    return chance > rand_chance();
 }
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_i(int chance)
 {
-    return coin_flip(static_cast<float>(chance));
+    return chance > irand(0, 99);
 }
 
 /*
