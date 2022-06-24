@@ -422,8 +422,8 @@ struct boss_nefarians_end : public BossAI
 
         if (events.IsInPhase(PHASE_TWO) && !_elevatorLowered)
             instance->SetData(DATA_RESET_ELEVATOR, events.GetTimeUntilEvent(EVENT_ELEVATOR_LOWERED));
-        else if (Transport* transport = GetElevator())
-            transport->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + TRANSPORT_STOP_FRAME_RAISED));
+        else if (GameObject* transport = GetElevator())
+            transport->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + TRANSPORT_STOP_FRAME_RAISED));
 
         if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
             if (onyxia->IsAlive())
@@ -651,8 +651,14 @@ struct boss_nefarians_end : public BossAI
                     break;
                 }
                 case EVENT_LAND_PHASE_ONE:
-                    if (Transport* transport = GetElevator())
-                        transport->AddPassenger(me);
+                    if (GameObject* elevator = GetElevator())
+                    {
+                        if (TransportBase* transport = elevator->ToTransportBase())
+                        {
+                            transport->AddPassenger(me);
+                            transport->UpdatePassengerPosition(me->GetMap(), me, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
+                        }
+                    }
 
                     me->GetMotionMaster()->MoveLand(POINT_LAND, NefarianElevatorLandPhaseOnePosition);
                     break;
@@ -752,8 +758,8 @@ struct boss_nefarians_end : public BossAI
                     }
                     break;
                 case EVENT_LOWER_ELEVATOR:
-                    if (Transport* transport = GetElevator())
-                        transport->SetGoState(GO_STATE_TRANSPORT_STOPPED);
+                    if (GameObject* transport = GetElevator())
+                        transport->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
                     events.ScheduleEvent(EVENT_ELEVATOR_LOWERED, 9s, 0, PHASE_TWO);
                     break;
                 case EVENT_ELEVATOR_LOWERED:
@@ -827,47 +833,51 @@ private:
         if (!elevator)
             return;
 
-        Transport* transport = elevator->ToTransport();
+        TransportBase* transport = elevator->ToTransportBase();
         if (!transport)
             return;
 
-        std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(me->GetEntry(), SUMMONER_TYPE_CREATURE, summonGroupId);
-        if (!data)
+        std::vector<TempSummonData> const* summonGroupData = sObjectMgr->GetSummonGroup(me->GetEntry(), SUMMONER_TYPE_CREATURE, summonGroupId);
+        if (!summonGroupData)
             return;
 
         Map* map = me->GetMap();
-        for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); itr++)
+        for (TempSummonData const& data : *summonGroupData)
         {
-
             TempSummon* summon = new TempSummon(nullptr, me, false);
-            if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, itr->entry, itr->pos, nullptr, 0, true))
+            if (!summon->Create(map->GenerateLowGuid<HighGuid::Unit>(), map, data.entry, data.pos, nullptr, 0, true))
             {
                 delete summon;
                 continue;
             }
 
-            Position pos = itr->pos;
             float x, y, z, o;
-            pos.GetPosition(x, y, z, o);
+            data.pos.GetPosition(x, y, z, o);
 
             // Keeping the current transport position in mind for example if we spawn the units after a reset above the lava
             if (summonGroupId == SUMMON_GROUP_ELEVATOR)
-            {
-                z += std::abs(transport->GetPositionZ() - transport->GetGameObjectData()->spawnPoint.GetPositionZ());
-                pos.m_positionZ = z;
-            }
+                z += std::abs(elevator->GetPositionZ() - elevator->GetStationaryZ());
 
             transport->CalculatePassengerOffset(x, y, z, &o);
-
+            summon->m_movementInfo.transport.pos.Relocate(x, y, z, o);
             transport->AddPassenger(summon);
-            summon->m_movementInfo.transport.pos.Relocate({ x, y, z, o });
-            summon->Relocate(pos);
-            summon->SetHomePosition(pos);
+
+            summon->Relocate(data.pos);
+            summon->SetHomePosition(data.pos);
             summon->SetTransportHomePosition({ x, y, z, o });
 
             PhasingHandler::InheritPhaseShift(summon, me);
 
-            map->AddToMap(summon->ToCreature());
+            if (!map->AddToMap<Creature>(summon))
+            {
+                // Returning false will cause the object to be deleted - remove from transport
+                if (transport)
+                    transport->RemovePassenger(summon);
+
+                delete summon;
+                continue;
+            }
+
             summon->InitSummon();
         }
     }
@@ -880,8 +890,8 @@ private:
         events.SetPhase(PHASE_THREE);
         events.ScheduleEvent(EVENT_SAY_PHASE_THREE, 14s + 700ms);
         events.ScheduleEvent(EVENT_PREPARE_LANDING, 15s + 500ms, 0, PHASE_THREE);
-        if (Transport* elevator = GetElevator())
-            elevator->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + TRANSPORT_STOP_FRAME_RAISED));
+        if (GameObject* elevator = GetElevator())
+            elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + TRANSPORT_STOP_FRAME_RAISED));
 
         for (ObjectGuid guid : summons)
         {
@@ -891,13 +901,9 @@ private:
         }
     }
 
-    Transport* GetElevator()
+    GameObject* GetElevator()
     {
-        GameObject* elevator = instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA);
-        if (!elevator || !elevator->ToTransport())
-            return nullptr;
-
-        return elevator->ToTransport();
+        return instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA);
     }
 
     bool _elevatorLowered;
@@ -1112,8 +1118,7 @@ struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
                     break;
                 case EVENT_RAISE_ELEVATOR:
                     if (GameObject* elevator = _instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
-                        if (Transport* transport = elevator->ToTransport())
-                            transport->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + TRANSPORT_STOP_FRAME_RAISED));
+                        elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + TRANSPORT_STOP_FRAME_RAISED));
                     break;
                 case EVENT_CAST_TRANSFORM_VISUAL:
                     if (Creature* stalker = me->FindNearestCreature(NPC_INVISIBLE_STALKER_CATACLYSM_BOSS, 1.0f))
@@ -1148,8 +1153,13 @@ struct npc_nefarians_end_animated_bone_warrior : public ScriptedAI
         DoCastSelf(SPELL_ANIMATE_BONES);
 
         if (GameObject* elevator = _instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
-            if (Transport* transport = elevator->ToTransport())
+        {
+            if (TransportBase* transport = elevator->ToTransportBase())
+            {
                 transport->AddPassenger(me);
+                transport->UpdatePassengerPosition(me->GetMap(), me, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
+            }
+        }
 
         me->UpdatePositionData();
 
@@ -1236,9 +1246,10 @@ struct npc_nefarians_end_chromatic_prototype : public PassiveAI
                 case EVENT_JUMP_DOWN_TO_PLATFORM:
                     if (GameObject* elevator = _instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
                     {
-                        if (Transport* transport = elevator->ToTransport())
+                        if (TransportBase* transport = elevator->ToTransportBase())
                         {
                             transport->AddPassenger(me);
+                            transport->UpdatePassengerPosition(me->GetMap(), me, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
                             DoCastAOE(SPELL_JUMP_DOWN_TO_PLATFORM);
                         }
                     }
@@ -1624,10 +1635,12 @@ class spell_nefarians_end_jump_down_to_platform : public SpellScript
             return;
 
         GameObject* elevator = instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA);
-        if (!elevator || !elevator->ToTransport())
+        if (!elevator)
             return;
 
-        Transport* transport = elevator->ToTransport();
+        TransportBase* transport = elevator->ToTransportBase();
+        if (!transport)
+            return;
 
         // Transform sniffed transport destinations into map coordinates so we can use them for real time transport position based offsets
         for (uint8 i = 0; i < MaxChromaticPrototypes; i++)

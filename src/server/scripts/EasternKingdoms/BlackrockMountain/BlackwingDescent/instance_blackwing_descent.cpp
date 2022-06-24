@@ -463,9 +463,8 @@ class instance_blackwing_descent : public InstanceMapScript
                             instance->SummonCreature(BOSS_NEFARIAN, NefarianRespawnPosition);
                             break;
                         case EVENT_RAISE_ELEVATOR:
-                            if (GameObject* gameobject = GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
-                                if (Transport* transport = gameobject->ToTransport())
-                                    transport->SetGoState(GOState(GO_STATE_TRANSPORT_STOPPED + 1));
+                            if (GameObject* elevator = GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
+                                elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + 1));
                             break;
                         case EVENT_RESPAWN_LEFT_DWARVEN_GROUP:
                             instance->SpawnGroupSpawn(SPAWN_GROUP_DWARVEN_SPIRITS_LEFT, true);
