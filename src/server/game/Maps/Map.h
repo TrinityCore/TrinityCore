@@ -876,6 +876,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         }
 
         void SetSpawnGroupActive(uint32 groupId, bool state);
+        void UpdateSpawnGroupConditions();
         std::unordered_set<uint32> _toggledSpawnGroupIds;
 
         uint32 _respawnCheckTimer;

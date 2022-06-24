@@ -2885,7 +2885,10 @@ void ObjectMgr::LoadSpawnGroups()
         {
             SpawnGroupTemplateData& groupTemplate = it->second;
             if (groupTemplate.mapId == SPAWNGROUP_MAP_UNSET)
+            {
                 groupTemplate.mapId = data->mapId;
+                _spawnGroupsByMap[data->mapId].push_back(groupId);
+            }
             else if (groupTemplate.mapId != data->mapId && !(groupTemplate.flags & SPAWNGROUP_FLAG_SYSTEM))
             {
                 TC_LOG_ERROR("sql.sql", "Spawn group %u has map ID %u, but spawn (%u," UI64FMTD ") has map id %u - spawn NOT added to group!", groupId, groupTemplate.mapId, uint32(spawnType), spawnId, data->mapId);
