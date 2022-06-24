@@ -641,10 +641,15 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, P
         return false;
     }
 
-    if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
-        m_updateFlag |= UPDATEFLAG_TRANSPORT;
+    HighGuid guidHigh = HighGuid::GameObject;
 
-    Object::_Create(guidlow, goinfo->entry, HighGuid::GameObject);
+    if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+    {
+        m_updateFlag |= UPDATEFLAG_TRANSPORT;
+        guidHigh = HighGuid::Mo_Transport;
+    }
+
+    Object::_Create(guidlow, goinfo->entry, guidHigh);
 
     m_goInfo = goinfo;
     m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(name_id);

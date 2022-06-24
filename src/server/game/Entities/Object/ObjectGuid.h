@@ -63,7 +63,7 @@ enum class HighGuid
     Container      = 0x400,                       // blizz 4000
     Player         = 0x000,                       // blizz 0000
     GameObject     = 0xF11,                       // blizz F110
-    Transport      = 0xF12,                       // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
+    Transport      = 0xF12,                       // blizz F120 // unused according to sniffs GAMEOBJECT_TYPE_TRANSPORT uses Mo_Transport as well
     Unit           = 0xF13,                       // blizz F130
     Pet            = 0xF14,                       // blizz F140
     Vehicle        = 0xF15,                       // blizz F550
@@ -71,7 +71,7 @@ enum class HighGuid
     Corpse         = 0xF101,                      // blizz F100
     AreaTrigger    = 0xF102,
     BattleGround   = 0x1F1,
-    Mo_Transport   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    Mo_Transport   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT and GAMEOBJECT_TYPE_TRANSPORT)
     Instance       = 0x1F4,                       // blizz 1F40
     Group          = 0x1F5,
     Guild          = 0x1FF
