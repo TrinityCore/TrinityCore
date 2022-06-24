@@ -2117,9 +2117,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 return false;
             }
 
-            if (cond->ConditionValue2 > EFFECT_2)
+            if (cond->ConditionValue2 >= MAX_SPELL_EFFECTS)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing effect index (%u) (must be 0..2), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has non existing effect index (%u) (must be 0..%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2, MAX_SPELL_EFFECTS - 1);
                 return false;
             }
             break;
