@@ -42,7 +42,7 @@ void WorldStateMgr::LoadFromDB()
         uint32 defaultValue = fields[1].GetInt32();
         Optional<uint32> mapId;
         if (!fields[2].IsNull())
-            fields[2].GetUInt32();
+            mapId = fields[2].GetUInt32();
 
         if (mapId.has_value())
             _mapWorldStates[*mapId][id] = defaultValue;
