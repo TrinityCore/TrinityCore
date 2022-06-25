@@ -100,7 +100,7 @@ struct npc_baros_alexston : public ScriptedAI
         uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
         if (action == GOSSIP_ACTION_INFO_DEF)
         {
-            CloseGossipMenuFor(player); 
+            CloseGossipMenuFor(player);
             player->CastSpell(player, SPELL_QUEST_34586_KILLCREDIT, true);
             player->m_Events.AddEventAtOffset(new DelayedCastEvent(player, SPELL_CREATE_GARRISON_SHADOWMOON_VALLEY_ALLIANCE), 1s);
             player->m_Events.AddEventAtOffset(new DelayedCastEvent(player, SPELL_DESPAWN_ALL_SUMMONS_GARRISON_INTRO_ONLY), 2s);
