@@ -35,6 +35,7 @@
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "Timer.h"
+#include "WorldStateDefines.h"
 #include <boost/heap/fibonacci_heap.hpp>
 #include <bitset>
 #include <list>
@@ -918,6 +919,17 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
     private:
         MultiPersonalPhaseTracker _multiPersonalPhaseTracker;
+
+        /*********************************************************/
+        /***                   WorldStates                     ***/
+        /*********************************************************/
+    public:
+        int32 GetWorldStateValue(int32 worldStateId) const;
+        void SetWorldStateValue(int32 worldStateId, int32 value);
+        WorldStateValueContainer const& GetWorldStateValues() const { return _worldStateValues; }
+
+    private:
+        WorldStateValueContainer _worldStateValues;
 };
 
 enum InstanceResetMethod

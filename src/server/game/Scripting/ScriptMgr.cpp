@@ -133,6 +133,10 @@ template<>
 struct is_script_database_bound<QuestScript>
     : std::true_type { };
 
+template<>
+struct is_script_database_bound<WorldStateScript>
+    : std::true_type { };
+
 enum Spells
 {
     SPELL_HOTSWAP_VISUAL_SPELL_EFFECT = 40162 // 59084
@@ -2322,6 +2326,7 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
 }
 
+// Quest
 void ScriptMgr::OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus)
 {
     ASSERT(player);
@@ -2347,6 +2352,15 @@ void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, Quest
 
     GET_SCRIPT(QuestScript, quest->GetScriptId(), tmpscript);
     tmpscript->OnQuestObjectiveChange(player, quest, objective, oldAmount, newAmount);
+}
+
+// WorldState
+void ScriptMgr::OnWorldStateValueChange(WorldStateTemplate const* worldStateTemplate, int32 oldValue, int32 newValue, Map const* map)
+{
+    ASSERT(worldStateTemplate);
+
+    GET_SCRIPT(WorldStateScript, worldStateTemplate->ScriptId, tmpscript);
+    tmpscript->OnValueChange(worldStateTemplate->Id, oldValue, newValue, map);
 }
 
 SpellScriptLoader::SpellScriptLoader(char const* name)
@@ -2638,6 +2652,14 @@ QuestScript::QuestScript(char const* name)
 
 QuestScript::~QuestScript() = default;
 
+WorldStateScript::WorldStateScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<WorldStateScript>::Instance()->AddScript(this);
+}
+
+WorldStateScript::~WorldStateScript() = default;
+
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;
 template class TC_GAME_API ScriptRegistry<ServerScript>;
@@ -2671,3 +2693,4 @@ template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
 template class TC_GAME_API ScriptRegistry<ConversationScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
 template class TC_GAME_API ScriptRegistry<QuestScript>;
+template class TC_GAME_API ScriptRegistry<WorldStateScript>;

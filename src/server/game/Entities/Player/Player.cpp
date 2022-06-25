@@ -124,6 +124,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 #include <sstream>
@@ -9213,6 +9214,8 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     packet.MapID = mapId;
     packet.AreaID = zoneId;
     packet.SubareaID = areaId;
+
+    sWorldStateMgr->FillInitialWorldStates(packet, GetMap());
 
     packet.Worldstates.emplace_back(2264, 0); // SCOURGE_EVENT_WORLDSTATE_EASTERN_PLAGUELANDS
     packet.Worldstates.emplace_back(2263, 0); // SCOURGE_EVENT_WORLDSTATE_TANARIS
