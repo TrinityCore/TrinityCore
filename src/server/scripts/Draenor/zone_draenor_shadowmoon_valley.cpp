@@ -67,7 +67,6 @@ public:
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
         _player->NearTeleportTo(garrisonPlayerPosition);
-        PhasingHandler::AddVisibleMapId(_player, MAP_SMV_ALLIANCE_GARRISON_LEVEL_1);
         return true;
     }
 
