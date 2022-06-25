@@ -43,7 +43,6 @@ enum BarosAlexstonMisc
 
 Position const garrisonPlayerPosition = {1904.58f, 312.906f, 88.9542f, 4.303615f};
 
-
 class DelayedCastEvent : public BasicEvent
 {
 public:
