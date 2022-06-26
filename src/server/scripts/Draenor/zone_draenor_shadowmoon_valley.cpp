@@ -35,10 +35,7 @@ enum BarosAlexstonMisc
     // Spells
     SPELL_QUEST_34586_KILLCREDIT                     = 161033,
     SPELL_CREATE_GARRISON_SHADOWMOON_VALLEY_ALLIANCE = 156020,
-    SPELL_DESPAWN_ALL_SUMMONS_GARRISON_INTRO_ONLY    = 160938,
-
-    // Map
-    MAP_SMV_ALLIANCE_GARRISON_LEVEL_1                = 1158
+    SPELL_DESPAWN_ALL_SUMMONS_GARRISON_INTRO_ONLY    = 160938
 };
 
 Position const garrisonPlayerPosition = {1904.58f, 312.906f, 88.9542f, 4.303615f};
@@ -110,7 +107,25 @@ struct npc_baros_alexston : public ScriptedAI
     }
 };
 
+// 160938 - Despawn All Summons (Garrison Intro Only)
+class spell_despawn_all_summons_garrison_intro_only : public SpellScript
+{
+    PrepareSpellScript(spell_despawn_all_summons_garrison_intro_only);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitCreature())
+            GetHitCreature()->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_despawn_all_summons_garrison_intro_only::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_draenor_shadowmoon_valley()
 {
     RegisterCreatureAI(npc_baros_alexston);
+    RegisterSpellScript(spell_despawn_all_summons_garrison_intro_only);
 };
