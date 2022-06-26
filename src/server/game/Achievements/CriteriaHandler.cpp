@@ -2226,7 +2226,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::PlayersRealmWorldState: // 108
-            if (sWorld->getWorldState(reqValue) != secondaryAsset)
+            if (sWorldStateMgr->GetValue(reqValue, referencePlayer->GetMap()) != int32(secondaryAsset))
                 return false;
             break;
         case ModifierTreeType::TimeBetween: // 109

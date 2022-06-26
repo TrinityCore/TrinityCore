@@ -39,8 +39,8 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
-#include "Player.h"
 #include "Pet.h"
+#include "Player.h"
 #include "RaceMask.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
@@ -51,6 +51,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include <random>
 #include <sstream>
 
@@ -218,7 +219,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
         case CONDITION_WORLD_STATE:
         {
-            condMeets = ConditionValue2 == sWorld->getWorldState(ConditionValue1);
+            condMeets = sWorldStateMgr->GetValue(ConditionValue1, map) == int32(ConditionValue2);
             break;
         }
         case CONDITION_REALM_ACHIEVEMENT:
@@ -2562,7 +2563,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_WORLD_STATE:
         {
-            if (!sWorld->getWorldState(cond->ConditionValue1))
+            if (!sWorldStateMgr->GetWorldStateTemplate(cond->ConditionValue1))
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing world state in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
@@ -3600,7 +3601,7 @@ int32 EvalSingleValue(ByteBuffer& buffer, Player const* player)
         case WorldStateExpressionValueType::WorldState:
         {
             uint32 worldStateId = buffer.read<uint32>();
-            value = sWorld->getWorldState(worldStateId);
+            value = sWorldStateMgr->GetValue(worldStateId, player->GetMap());
             break;
         }
         case WorldStateExpressionValueType::Function:
