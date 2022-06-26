@@ -36,6 +36,7 @@
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "World.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 
 BattlefieldTB::~BattlefieldTB() { }
@@ -442,6 +443,8 @@ void BattlefieldTB::OnBattleEnd(bool endByTimer)
     warnedFiveMinutes = false;
     warnedTwoMinutes = false;
     warnedOneMinute = false;
+
+    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, GameTime::GetGameTime() + m_NoWarBattleTime / IN_MILLISECONDS, m_Map);
 };
 
 void BattlefieldTB::UpdateNPCsAndGameObjects()

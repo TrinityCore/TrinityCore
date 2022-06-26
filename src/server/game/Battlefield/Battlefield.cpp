@@ -349,11 +349,10 @@ void Battlefield::EndBattle(bool endByTimer)
     if (!endByTimer)
         SetDefenderTeam(GetAttackerTeam());
 
-    OnBattleEnd(endByTimer);
-
     // Reset battlefield timer
     m_Timer = m_NoWarBattleTime;
-    SendInitWorldStatesToAll();
+
+    OnBattleEnd(endByTimer);
 }
 
 void Battlefield::DoPlaySoundToAll(uint32 soundID)
