@@ -39,8 +39,8 @@ void WorldStateMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1             2       3
-    QueryResult result = WorldDatabase.Query("SELECT ID, DefaultValue, MapIDs, ScriptName FROM world_state");
+    //                                               0   1             2       3        4
+    QueryResult result = WorldDatabase.Query("SELECT ID, DefaultValue, MapIDs, AreaIDs, ScriptName FROM world_state");
     if (!result)
         return;
 
@@ -81,7 +81,51 @@ void WorldStateMgr::LoadFromDB()
             continue;
         }
 
-        worldState.ScriptId = sObjectMgr->GetScriptId(fields[3].GetString());
+        std::string_view areaIds = fields[3].GetStringView();
+        if (!worldState.MapIds.empty())
+        {
+            for (std::string_view areaIdToken : Trinity::Tokenize(areaIds, ',', false))
+            {
+                Optional<uint32> areaId = Trinity::StringTo<uint32>(areaIdToken);
+                if (!areaId)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with non-integer AreaID (" STRING_VIEW_FMT "), area ignored",
+                        id, STRING_VIEW_FMT_ARG(areaIdToken));
+                    continue;
+                }
+
+                AreaTableEntry const* areaTableEntry = sAreaTableStore.LookupEntry(*areaId);
+                if (!areaTableEntry)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with invalid AreaID (%u), area ignored",
+                        id, *areaId);
+                    continue;
+                }
+
+                if (worldState.MapIds.find(areaTableEntry->ContinentID) == worldState.MapIds.end())
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with AreaID (%u) not on any of required maps, area ignored",
+                        id, *areaId);
+                    continue;
+                }
+
+                worldState.AreaIds.insert(*areaId);
+            }
+
+            if (!areaIds.empty() && worldState.AreaIds.empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with nonempty AreaIDs (" STRING_VIEW_FMT ") but no valid area id was found, ignored",
+                    id, STRING_VIEW_FMT_ARG(areaIds));
+                continue;
+            }
+        }
+        else if (!areaIds.empty())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with nonempty AreaIDs (" STRING_VIEW_FMT ") but is a realm wide world state, area requirement ignored",
+                id, STRING_VIEW_FMT_ARG(areaIds));
+        }
+
+        worldState.ScriptId = sObjectMgr->GetScriptId(fields[4].GetString());
 
         if (!worldState.MapIds.empty())
         {
@@ -153,13 +197,25 @@ WorldStateValueContainer WorldStateMgr::GetInitialWorldStatesForMap(Map const* m
     return initialValues;
 }
 
-void WorldStateMgr::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& initWorldStates, Map const* map) const
+void WorldStateMgr::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& initWorldStates, Map const* map, uint32 playerAreaId) const
 {
     for (auto const& [worldStateId, value] : _realmWorldStateValues)
         initWorldStates.Worldstates.emplace_back(worldStateId, value);
 
     for (auto const& [worldStateId, value] : map->GetWorldStateValues())
+    {
+        WorldStateTemplate const* worldStateTemplate = GetWorldStateTemplate(worldStateId);
+        if (worldStateTemplate && !worldStateTemplate->AreaIds.empty())
+        {
+            bool isInAllowedArea = std::any_of(worldStateTemplate->AreaIds.begin(), worldStateTemplate->AreaIds.end(),
+                [=](uint32 requiredAreaId) { return DB2Manager::IsInArea(playerAreaId, requiredAreaId); });
+            if (!isInAllowedArea)
+                continue;
+        }
+
+
         initWorldStates.Worldstates.emplace_back(worldStateId, value);
+    }
 }
 
 WorldStateMgr* WorldStateMgr::instance()

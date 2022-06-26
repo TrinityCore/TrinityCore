@@ -702,14 +702,28 @@ void Map::SetWorldStateValue(int32 worldStateId, int32 value)
     int32 oldValue = itr->second;
     itr->second = value;
 
-    if (WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId))
+    WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId);
+    if (worldStateTemplate)
         sScriptMgr->OnWorldStateValueChange(worldStateTemplate, oldValue, value, this);
 
     // Broadcast update to all players on the map
     WorldPackets::WorldState::UpdateWorldState updateWorldState;
     updateWorldState.VariableID = worldStateId;
     updateWorldState.Value = value;
-    SendToPlayers(updateWorldState.Write());
+    updateWorldState.Write();
+
+    for (MapReference const& mapReference : m_mapRefManager)
+    {
+        if (worldStateTemplate && !worldStateTemplate->AreaIds.empty())
+        {
+            bool isInAllowedArea = std::any_of(worldStateTemplate->AreaIds.begin(), worldStateTemplate->AreaIds.end(),
+                [playerAreaId = mapReference.GetSource()->GetAreaId()](uint32 requiredAreaId) { return DB2Manager::IsInArea(playerAreaId, requiredAreaId); });
+            if (!isInAllowedArea)
+                continue;
+        }
+
+        mapReference.GetSource()->SendDirectMessage(updateWorldState.GetRawPacket());
+    }
 }
 
 template<class T>

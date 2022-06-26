@@ -42,7 +42,7 @@ public:
 
     WorldStateValueContainer GetInitialWorldStatesForMap(Map const* map) const;
 
-    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& initWorldStates, Map const* map) const;
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& initWorldStates, Map const* map, uint32 playerAreaId) const;
 };
 
 #define sWorldStateMgr WorldStateMgr::instance()
