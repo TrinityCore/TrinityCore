@@ -18,10 +18,13 @@
 #include "WorldStateMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "StringConvert.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldStatePackets.h"
 
@@ -36,8 +39,8 @@ void WorldStateMgr::LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1             2      3
-    QueryResult result = WorldDatabase.Query("SELECT ID, DefaultValue, MapID, ScriptName FROM world_state");
+    //                                               0   1             2       3
+    QueryResult result = WorldDatabase.Query("SELECT ID, DefaultValue, MapIDs, ScriptName FROM world_state");
     if (!result)
         return;
 
@@ -49,13 +52,42 @@ void WorldStateMgr::LoadFromDB()
         WorldStateTemplate& worldState = _worldStateTemplates[id];
         worldState.Id = id;
         worldState.DefaultValue = fields[1].GetInt32();
-        if (!fields[2].IsNull())
-            worldState.MapId = fields[2].GetUInt32();
+
+        std::string_view mapIds = fields[2].GetStringView();
+        for (std::string_view mapIdToken : Trinity::Tokenize(mapIds, ',', false))
+        {
+            Optional<uint32> mapId = Trinity::StringTo<uint32>(mapIdToken);
+            if (!mapId)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with non-integer MapID (" STRING_VIEW_FMT "), map ignored",
+                    id, STRING_VIEW_FMT_ARG(mapIdToken));
+                continue;
+            }
+
+            if (!sMapStore.LookupEntry(*mapId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with invalid MapID (%u), map ignored",
+                    id, *mapId);
+                continue;
+            }
+
+            worldState.MapIds.insert(*mapId);
+        }
+
+        if (!mapIds.empty() && worldState.MapIds.empty())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %u with nonempty MapIDs (" STRING_VIEW_FMT ") but no valid map id was found, ignored",
+                id, STRING_VIEW_FMT_ARG(mapIds));
+            continue;
+        }
 
         worldState.ScriptId = sObjectMgr->GetScriptId(fields[3].GetString());
 
-        if (worldState.MapId)
-            _worldStatesByMap[*worldState.MapId][id] = worldState.DefaultValue;
+        if (!worldState.MapIds.empty())
+        {
+            for (uint32 mapId : worldState.MapIds)
+                _worldStatesByMap[mapId][id] = worldState.DefaultValue;
+        }
         else
             _realmWorldStateValues[id] = worldState.DefaultValue;
 
@@ -72,7 +104,7 @@ WorldStateTemplate const* WorldStateMgr::GetWorldStateTemplate(int32 worldStateI
 int32 WorldStateMgr::GetValue(int32 worldStateId, Map const* map) const
 {
     WorldStateTemplate const* worldStateTemplate = GetWorldStateTemplate(worldStateId);
-    if (!worldStateTemplate || !worldStateTemplate->MapId)
+    if (!worldStateTemplate || worldStateTemplate->MapIds.empty())
     {
         if (int32 const* value = Trinity::Containers::MapGetValuePtr(_realmWorldStateValues, worldStateId))
             return *value;
@@ -80,7 +112,7 @@ int32 WorldStateMgr::GetValue(int32 worldStateId, Map const* map) const
         return 0;
     }
 
-    if (map->GetId() != worldStateTemplate->MapId)
+    if (worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
         return 0;
 
     return map->GetWorldStateValue(worldStateId);
@@ -89,7 +121,7 @@ int32 WorldStateMgr::GetValue(int32 worldStateId, Map const* map) const
 void WorldStateMgr::SetValue(int32 worldStateId, int32 value, Map* map)
 {
     WorldStateTemplate const* worldStateTemplate = GetWorldStateTemplate(worldStateId);
-    if (!worldStateTemplate || !worldStateTemplate->MapId)
+    if (!worldStateTemplate || worldStateTemplate->MapIds.empty())
     {
         auto itr = _realmWorldStateValues.try_emplace(worldStateId, 0).first;
         int32 oldValue = itr->second;
@@ -106,7 +138,7 @@ void WorldStateMgr::SetValue(int32 worldStateId, int32 value, Map* map)
         return;
     }
 
-    if (map->GetId() != worldStateTemplate->MapId)
+    if (worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
         return;
 
     map->SetWorldStateValue(worldStateId, value);
