@@ -33,6 +33,9 @@ enum BarosAlexstonMisc
     OPTION_GOSSIP_0                                  = 0,
     GOSSIP_START_GARRISON                            = 16871,
 
+    // Text
+    SAY_START_CONSTRUCTION                           = 0,
+
     // Spells
     SPELL_QUEST_34586_KILLCREDIT                     = 161033,
     SPELL_CREATE_GARRISON_SHADOWMOON_VALLEY_ALLIANCE = 156020,
@@ -105,6 +108,12 @@ struct npc_baros_alexston : public ScriptedAI
         }
 
         return true;
+    }
+
+    void OnQuestAccept(Player* /*player*/ , Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_ESTABLISH_YOUR_GARRISON)
+            Talk(SAY_START_CONSTRUCTION);
     }
 };
 
