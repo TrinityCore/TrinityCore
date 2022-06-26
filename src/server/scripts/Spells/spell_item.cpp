@@ -966,6 +966,49 @@ class spell_item_party_time : public AuraScript
     }
 };
 
+enum DireBrew
+{
+    MODEL_CLASS_CLOTH_MALE         = 25229,
+    MODEL_CLASS_CLOTH_FEMALE       = 25233,
+    MODEL_CLASS_LEATHER_MALE       = 25230,
+    MODEL_CLASS_LEATHER_FEMALE     = 25234,
+    MODEL_CLASS_MAIL_MALE          = 25231,
+    MODEL_CLASS_MAIL_FEMALE        = 25235,
+    MODEL_CLASS_PLATE_MALE         = 25232,
+    MODEL_CLASS_PLATE_FEMALE       = 25236
+};
+
+// 51010 - Dire Brew
+class spell_item_dire_brew : public AuraScript
+{
+    PrepareAuraScript(spell_item_dire_brew);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        uint32 model = 0;
+        uint8 gender = target->GetGender();
+        ChrClassesEntry const* chrClass = sChrClassesStore.AssertEntry(target->GetClass());
+        if (chrClass->ArmorTypeMask & (1 << ITEM_SUBCLASS_ARMOR_PLATE))
+            model = gender == GENDER_MALE ? MODEL_CLASS_PLATE_MALE : MODEL_CLASS_PLATE_FEMALE;
+        else if (chrClass->ArmorTypeMask & (1 << ITEM_SUBCLASS_ARMOR_MAIL))
+            model = gender == GENDER_MALE ? MODEL_CLASS_MAIL_MALE : MODEL_CLASS_MAIL_FEMALE;
+        else if (chrClass->ArmorTypeMask & (1 << ITEM_SUBCLASS_ARMOR_LEATHER))
+            model = gender == GENDER_MALE ? MODEL_CLASS_LEATHER_MALE : MODEL_CLASS_LEATHER_FEMALE;
+        else if (chrClass->ArmorTypeMask & (1 << ITEM_SUBCLASS_ARMOR_CLOTH))
+            model = gender == GENDER_MALE ? MODEL_CLASS_CLOTH_MALE : MODEL_CLASS_CLOTH_FEMALE;
+
+        if (model)
+            target->SetDisplayId(model);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_item_dire_brew::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum DiscerningEyeBeastMisc
 {
     SPELL_DISCERNING_EYE_BEAST = 59914
@@ -4464,6 +4507,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_desperate_defense);
     RegisterSpellScript(spell_item_deviate_fish);
     RegisterSpellScript(spell_item_party_time);
+    RegisterSpellScript(spell_item_dire_brew);
     RegisterSpellScript(spell_item_discerning_eye_beast_dummy);
     RegisterSpellScript(spell_item_echoes_of_light);
     RegisterSpellScript(spell_item_extract_gas);
