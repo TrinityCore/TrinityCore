@@ -23,4 +23,4 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (160938, 'spe
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 79243;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(79243, 0, 0, 'Let me know when you are ready to start construction, commander.', 12, 0, 100, 1, 0, 0, 81887, 0, 'Baros Alexston to Player - On Quest Accept 34586');
+(79243, 0, 0, 'Let me know when you are ready to start construction, commander.', 12, 0, 100, 1, 0, 0, 81887, 5, 'Baros Alexston to Player - On Quest Accept 34586');
