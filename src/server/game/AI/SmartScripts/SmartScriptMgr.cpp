@@ -774,6 +774,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1400,6 +1401,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_JUST_CREATED:
             case SMART_EVENT_FOLLOW_COMPLETED:
             case SMART_EVENT_ON_SPELLCLICK:
+            case SMART_EVENT_ON_DESPAWN:
                 break;
             // Unused
             case SMART_EVENT_TARGET_HEALTH_PCT:

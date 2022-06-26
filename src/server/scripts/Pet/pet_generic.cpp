@@ -123,7 +123,7 @@ struct npc_pet_gen_soul_trader : public ScriptedAI
 {
     npc_pet_gen_soul_trader(Creature* creature) : ScriptedAI(creature) { }
 
-    void LeavingWorld() override
+    void OnDespawn() override
     {
         if (Unit* owner = me->GetOwner())
             DoCast(owner, SPELL_ETHEREAL_PET_REMOVE_AURA);
@@ -149,7 +149,7 @@ struct npc_pet_lich : public ScriptedAI
 {
     npc_pet_lich(Creature* creature) : ScriptedAI(creature) { }
 
-    void LeavingWorld() override
+    void OnDespawn() override
     {
         if (Unit* owner = me->GetOwner())
             DoCast(owner, SPELL_LICH_REMOVE_AURA);
