@@ -110,10 +110,10 @@ struct npc_baros_alexston : public ScriptedAI
         return true;
     }
 
-    void OnQuestAccept(Player* /*player*/ , Quest const* quest) override
+    void OnQuestAccept(Player* player , Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_ESTABLISH_YOUR_GARRISON)
-            Talk(SAY_START_CONSTRUCTION);
+            Talk(SAY_START_CONSTRUCTION, player);
     }
 };
 
