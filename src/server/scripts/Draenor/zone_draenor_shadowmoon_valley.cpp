@@ -115,7 +115,7 @@ class spell_despawn_all_summons_garrison_intro_only : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (GetHitCreature())
+        if (GetHitCreature() && GetHitCreature()->GetOwner() == GetCaster())
             GetHitCreature()->DespawnOrUnsummon();
     }
 
