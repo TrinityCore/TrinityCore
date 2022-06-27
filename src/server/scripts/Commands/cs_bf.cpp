@@ -127,7 +127,6 @@ public:
             return false;
 
         bf->SetTimer(time * IN_MILLISECONDS);
-        bf->SendInitWorldStatesToAll();
         if (battleId == 1)
             handler->SendGlobalGMSysMessage("Wintergrasp (Command timer used)");
 

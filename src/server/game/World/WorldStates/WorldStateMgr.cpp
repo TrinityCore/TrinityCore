@@ -213,7 +213,6 @@ void WorldStateMgr::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
                 continue;
         }
 
-
         initWorldStates.Worldstates.emplace_back(worldStateId, value);
     }
 }

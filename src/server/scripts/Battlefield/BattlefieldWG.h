@@ -325,11 +325,6 @@ class BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
-        // TODO: delete
-        void SendInitWorldStatesToAll() override { }
-        // TODO: delete
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) override { }
-
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
         void HandlePromotion(Player* killer, Unit* killed);
