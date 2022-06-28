@@ -157,6 +157,7 @@ enum Spells
 
     // Haunting Wave
     SPELL_HAUNTING_WAVE                                 = 352271,
+    SPELL_HAUNTING_WAVE_DAMAGE                          = 351870,
 
     SPELL_CALL_EARTH_DEBRIS                             = 355491,
 
@@ -176,7 +177,7 @@ enum Spells
     SPELL_INVIGORATING_FIELD_JUMP                       = 353642,
 
     // Platform Change
-    SPELL_SWITCH_PLATFORM_STOMP                         = 354141, // 27887 areatrigger forces MovementForce on Players for 150ms
+    SPELL_SWITCH_PLATFORM_STOMP                         = 354141, // 27887 areatrigger forces MovementForce 1 with Magnitude -14 on players for 150ms
 
     // Banshee's Bane
     SPELL_BANSHEES_BANE                                 = 353929,
@@ -568,7 +569,7 @@ Position const SylvanasPhase3PrePos = { -258.991f, -1265.996f,  5667.114f,  0.31
 
 Position const SylvanasPhase3Pos =    { -280.646f, -1245.48f,   5672.13f,   2.3046f   };
 
-// Middle is 0, top right is 1, bottom left is 2
+// NOTE: middle is 0, top right is 1, bottom left is 2.
 Position const CovenantPlatformPos[4][3] =
 {
     // Maldraxxi
@@ -598,6 +599,18 @@ Position const CovenantPlatformPos[4][3] =
         { -192.2238f, -1254.8327f, 5671.6704f },
         { -229.1900f, -1217.7504f, 5671.6704f }
     }
+};
+
+Position const InvigoratingFieldPos[8] =
+{
+    { -268.229f, -1236.99f, 5671.67f, 0.0f     },
+    { -289.297f, -1258.25f, 5671.67f, 4.71239f },
+    { -289.569f, -1294.9f,  5671.67f, 1.5708f  },
+    { -268.229f, -1316.38f, 5671.67f, 0.0f     },
+    { -231.528f, -1315.5f,  5671.67f, 3.14159f },
+    { -210.512f, -1294.48f, 5671.67f, 1.5708f  },
+    { -210.795f, -1257.88f, 5671.67f, 4.71239f },
+    { -231.528f, -1236.39f, 5671.67f, 3.14159f }
 };
 
 static Position GetRandomPointInCovenantPlatform(Position const& a, Position const& b, float c)
@@ -1273,6 +1286,18 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
+    void JustRegisteredAreaTrigger(AreaTrigger* areaTrigger) override
+    {
+        switch (areaTrigger->GetSpellId())
+        {
+            case SPELL_INVIGORATING_FIELD_ACTIVATE:
+                _invigoratingFieldGUID.push_back(areaTrigger->GetGUID());
+                break;
+            default:
+                break;
+        }
+    }
+
     void KilledUnit(Unit* victim) override
     {
         if (!victim->IsPlayer())
@@ -1304,12 +1329,20 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        Talk(SAY_AGGRO);
-
         events.SetPhase(PHASE_ONE);
-        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s, 1, PHASE_ONE);
+
+        scheduler.Schedule(2s, [this](TaskContext task)
+        {
+            DoCastSelf(SPELL_HAUNTING_WAVE, false);
+
+            task.Repeat(8s);
+        });
 
         /*
+        DoAction(ACTION_PREPARE_PHASE_THREE);
+
+        Talk(SAY_AGGRO);
+
         events.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 22s, 1, PHASE_ONE);
@@ -1323,9 +1356,8 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
-        */
 
-        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
+        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));*/
     }
 
     void DoAction(int32 action) override
@@ -2911,6 +2943,7 @@ struct boss_sylvanas_windrunner : public BossAI
 private:
     EventMap _specialEvents;
     std::vector<ObjectGuid> _shadowCopyGUID;
+    std::vector<ObjectGuid> _invigoratingFieldGUID;
     bool _rangerShotOnCD;
     bool _maldraxxiDesecrated;
     bool _nightfaeDesecrated;
@@ -5276,6 +5309,9 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     {
                         if (sylvanas->IsAIEnabled())
                             sylvanas->AI()->DoAction(ACTION_START_PHASE_THREE);
+
+                        for (uint8 i = 0; i < 8; i++)
+                            sylvanas->CastSpell(InvigoratingFieldPos[i], SPELL_INVIGORATING_FIELD_ACTIVATE, true);
                     }
 
                     for (Player* player : playerList)
@@ -5737,9 +5773,9 @@ class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
     }
 
 private:
-    /// NOTE: Sylvanas regenerates 10 energy points every 3s roughly.
     static constexpr std::array<int32, 3> _sylvanasPowerRegenCycle =
     {
+        /// NOTE: Sylvanas regenerates 10 energy points every 3s roughly.
         3, 3, 4
     };
 };
@@ -5787,42 +5823,6 @@ class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
     void Register() override
     {
         BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_activate_finish_boss::OnCast);
-    }
-};
-
-Position const InvigoratingFieldPos[8] =
-{
-    { -268.229f, -1236.99f, 5671.67f, 0.0f     },
-    { -289.297f, -1258.25f, 5671.67f, 4.71239f },
-    { -289.569f, -1294.9f,  5671.67f, 1.5708f  },
-    { -268.229f, -1316.38f, 5671.67f, 0.0f     },
-    { -231.528f, -1315.5f,  5671.67f, 3.14159f },
-    { -210.512f, -1294.48f, 5671.67f, 1.5708f  },
-    { -210.795f, -1257.88f, 5671.67f, 4.71239f },
-    { -231.528f, -1236.39f, 5671.67f, 3.14159f }
-};
-
-// Activate Invigorating Fields - 353660 (NYI)
-class spell_sylvanas_windrunner_activate_invigorating_fields : public SpellScript
-{
-    PrepareSpellScript(spell_sylvanas_windrunner_activate_invigorating_fields);
-
-    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-        {
-            // HACKFIX: the caster is an AIGroup, we don't know much about these, so we set Sylvanas as caster.
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                for (uint8 i = 0; i < 8; i++)
-                    AreaTrigger::CreateAreaTrigger(40001, sylvanas, nullptr, GetSpellInfo(), InvigoratingFieldPos[i], -1, GetSpell()->m_SpellVisual, ObjectGuid::Empty);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_activate_invigorating_fields::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -6002,19 +6002,46 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
         if (!_instance || !unit->IsPlayer())
             return;
 
-        // NOTE: the spell is wrong, look for the exact ID.
-        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            sylvanas->CastSpell(unit, SPELL_RIVE_DAMAGE, true);
+        switch (at->GetMap()->GetDifficultyID())
+        {
+            case DIFFICULTY_LFR_NEW:
+                _movementForceMagnitude = 4.0f;
+                break;
+            case DIFFICULTY_NORMAL_RAID:
+                _movementForceMagnitude = 5.0f;
+                break;
+            case DIFFICULTY_HEROIC_RAID:
+                _movementForceMagnitude = 6.0f;
+                break;
+            case DIFFICULTY_MYTHIC_RAID:
+                _movementForceMagnitude = 8.0f;
+                break;
+            default:
+                break;
+        }
+
+        unit->ApplyMovementForce(at->GetGUID(), at->GetCaster()->GetPosition(), _movementForceMagnitude, MovementForceType::SingleDirectional);
+
+        at->GetCaster()->CastSpell(unit, SPELL_HAUNTING_WAVE_DAMAGE, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        if (!_instance || !unit->IsPlayer())
+            return;
+
+        unit->RemoveMovementForce(at->GetGUID());
     }
 
 private:
     InstanceScript* _instance;
+    float _movementForceMagnitude = 0.0f;
 };
 
-// Blasphemy (Pre-Phase 3) - 23506
-struct at_sylvanas_windrunner_blasphemy_pre : AreaTriggerAI
+// Blasphemy - 23506
+struct at_sylvanas_windrunner_blasphemy : AreaTriggerAI
 {
-    at_sylvanas_windrunner_blasphemy_pre(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+    at_sylvanas_windrunner_blasphemy(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
         _instance(at->GetInstanceScript()) { }
 
     void OnUnitEnter(Unit* unit) override
@@ -6022,7 +6049,11 @@ struct at_sylvanas_windrunner_blasphemy_pre : AreaTriggerAI
         if (!_instance)
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_BLASPHEMY_STUN, true);
+        if (unit->IsPlayer())
+            at->GetCaster()->CastSpell(unit, SPELL_BLASPHEMY_STUN, true);
+
+        if (unit->GetEntry() == NPC_BOLVAR_FORDRAGON_PINNACLE || unit->GetEntry() == NPC_JAINA_PROUDMOORE_PINNACLE || unit->GetEntry() == NPC_THRALL_PINNACLE)
+            at->GetCaster()->CastSpell(unit, SPELL_BLASPHEMY_STUN, true);
     }
 
 private:
@@ -6145,7 +6176,6 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_energize_power_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_finish_boss);
-    RegisterSpellScript(spell_sylvanas_windrunner_activate_invigorating_fields);
 
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_bolvar);
     RegisterSpellScript(spell_sylvanas_windrunner_runic_mark_triggered);
@@ -6172,7 +6202,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAreaTriggerAI(at_sylvanas_windrunner_calamity);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_rive);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_bridges);
-    RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy_pre);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_banshee_bane);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_raze);
 }

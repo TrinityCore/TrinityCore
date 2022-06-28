@@ -4644,6 +4644,20 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
+    // Activate Invigorating Fields
+    ApplySpellFix({ 353660 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(550); // -1s
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_CREATE_AREATRIGGER;
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+            spellEffectInfo->MiscValue = 40001;
+        });
+    });
+
     // END OF SANCTUM OF DOMINATION
 
     // Summon Master Li Fei
