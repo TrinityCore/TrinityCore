@@ -605,6 +605,14 @@ struct CreatureModelInfo
     bool is_trigger;
 };
 
+struct CreaturePersonalInfo
+{
+    uint32 Entry;
+    uint32 EntryForSummoner;
+    uint32 GroundMountDisplayID;
+    uint32 FlightMountDisplayID;
+};
+
 enum InhabitTypeValues
 {
     INHABIT_GROUND = 1,

@@ -37,7 +37,7 @@ namespace UF
 {
 void ObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
 {
-    data << int32(EntryID);
+    data << int32(ViewerDependentValue<EntryIDTag>::GetValue(this, owner, receiver));
     data << uint32(ViewerDependentValue<DynamicFlagsTag>::GetValue(this, owner, receiver));
     data << float(Scale);
 }
@@ -56,7 +56,7 @@ void ObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
     {
         if (changesMask[1])
         {
-            data << int32(EntryID);
+            data << int32(ViewerDependentValue<EntryIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[2])
         {
