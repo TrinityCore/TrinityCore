@@ -1,0 +1,3 @@
+[submodule "src/server/scripts/Custom/Solocraft"]
+	path = src/server/scripts/Custom/Solocraft
+	url = https://github.com/DavidMacalaster/Solocraft.git
