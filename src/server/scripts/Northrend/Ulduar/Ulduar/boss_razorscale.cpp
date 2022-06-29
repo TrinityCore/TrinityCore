@@ -532,7 +532,7 @@ struct boss_razorscale : public BossAI
 
     void HandleMusic(bool active)
     {
-        uint32 enabled = active ? 1 : 0;
+        int32 enabled = active ? 1 : 0;
         instance->DoUpdateWorldState(WORLD_STATE_RAZORSCALE_MUSIC, enabled);
     }
 

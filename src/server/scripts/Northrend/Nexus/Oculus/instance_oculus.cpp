@@ -26,7 +26,6 @@
 #include "ScriptMgr.h"
 #include "PhasingHandler.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 
 DoorData const doorData[] =
 {
@@ -149,20 +148,6 @@ class instance_oculus : public InstanceMapScript
                      if (!CentrifugueConstructCounter)
                         if (Creature* varos = instance->GetCreature(VarosGUID))
                             varos->RemoveAllAuras();
-                }
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                if (GetBossState(DATA_DRAKOS) == DONE && GetBossState(DATA_VAROS) != DONE)
-                {
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
-                }
-                else
-                {
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, 0);
                 }
             }
 

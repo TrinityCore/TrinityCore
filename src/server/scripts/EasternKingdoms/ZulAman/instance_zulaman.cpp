@@ -21,7 +21,6 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptedCreature.h"
-#include "WorldStatePackets.h"
 #include "zulaman.h"
 #include <sstream>
 
@@ -37,15 +36,9 @@ class instance_zulaman : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
 
-                SpeedRunTimer           = 16;
+                SpeedRunTimer           = 15;
                 ZulAmanState            = NOT_STARTED;
                 ZulAmanBossCount        = 0;
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ZULAMAN_TIMER_ENABLED), int32(ZulAmanState ? 1 : 0));
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ZULAMAN_TIMER), int32(SpeedRunTimer));
             }
 
             void OnCreatureCreate(Creature* creature) override

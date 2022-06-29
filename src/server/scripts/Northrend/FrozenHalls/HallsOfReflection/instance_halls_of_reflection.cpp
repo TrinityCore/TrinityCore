@@ -24,7 +24,6 @@
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
-#include "WorldStatePackets.h"
 #include <sstream>
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
@@ -292,12 +291,6 @@ class instance_halls_of_reflection : public InstanceMapScript
                     default:
                         break;
                 }
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVES_ENABLED, (_introState == DONE && GetBossState(DATA_MARWYN) != DONE) ? 1 : 0);
-                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

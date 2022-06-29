@@ -29,7 +29,6 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
-#include "WorldStatePackets.h"
 #include <sstream>
 #include <unordered_set>
 
@@ -175,15 +174,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     go->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     go->SetGoState(GO_STATE_READY);
                 }
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_TIMER, BloodQuickeningState == IN_PROGRESS ? 1 : 0);
-                packet.Worldstates.emplace_back(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
-                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_ATTEMPTS, instance->IsHeroic() ? 1 : 0);
-                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_MAX, MaxHeroicAttempts);
             }
 
             void OnPlayerEnter(Player* player) override

@@ -117,22 +117,15 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 ResilienceWillFixItTimer = 0;
                 SnoboldCount = 0;
                 MistressOfPainCount = 0;
-                TributeToImmortalityEligible = true;
+                PlayerDeathCount = 0;
                 NeedSave = false;
                 CrusadersSpecialState = false;
                 TributeToDedicatedInsanity = false; // NYI, set to true when implement it
+                DoUpdateWorldState(UPDATE_STATE_UI_SHOW, instance->IsHeroic() ? 1 : 0);
             }
 
             void OnPlayerEnter(Player* player) override
             {
-                if (instance->IsHeroic())
-                {
-                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 1);
-                    player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
-                }
-                else
-                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
-
                 if (Team == TEAM_OTHER)
                     Team = player->GetTeam();
 
@@ -167,8 +160,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             void OnUnitDeath(Unit* unit) override
             {
                 if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
-                    TributeToImmortalityEligible = false;
-
+                {
+                    ++PlayerDeathCount;
+                    DoUpdateWorldState(WORLD_STATE_PLAYER_DEATHS, PlayerDeathCount);
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -305,10 +300,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         {
                             --TrialCounter;
                             // decrease attempt counter at wipe
-                            Map::PlayerList const& PlayerList = instance->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                                if (Player* player = itr->GetSource())
-                                    player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
+                            DoUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
 
                             // if theres no more attemps allowed
                             if (!TrialCounter)
@@ -581,7 +573,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     saveStream << GetBossState(i) << ' ';
 
                 saveStream << TrialCounter << ' '
-                    << uint32(TributeToImmortalityEligible ? 1 : 0) << ' '
+                    << PlayerDeathCount << ' '
                     << uint32(TributeToDedicatedInsanity ? 1 : 0);
                 SaveDataBuffer = saveStream.str();
 
@@ -617,8 +609,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
 
                 loadStream >> TrialCounter;
-                loadStream >> tmpState;
-                TributeToImmortalityEligible = tmpState != 0;
+                loadStream >> PlayerDeathCount;
                 loadStream >> tmpState;
                 TributeToDedicatedInsanity = tmpState != 0;
                 EventStage = 0;
@@ -641,19 +632,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case THREE_SIXTY_PAIN_SPIKE_25_PLAYER:
                     case THREE_SIXTY_PAIN_SPIKE_25_PLAYER_HEROIC:
                         return MistressOfPainCount >= 2;
-                    case A_TRIBUTE_TO_SKILL_10_PLAYER:
-                    case A_TRIBUTE_TO_SKILL_25_PLAYER:
-                        return TrialCounter >= 25;
-                    case A_TRIBUTE_TO_MAD_SKILL_10_PLAYER:
-                    case A_TRIBUTE_TO_MAD_SKILL_25_PLAYER:
-                        return TrialCounter >= 45;
-                    case A_TRIBUTE_TO_INSANITY_10_PLAYER:
-                    case A_TRIBUTE_TO_INSANITY_25_PLAYER:
-                    case REALM_FIRST_GRAND_CRUSADER:
-                        return TrialCounter == 50;
-                    case A_TRIBUTE_TO_IMMORTALITY_HORDE:
-                    case A_TRIBUTE_TO_IMMORTALITY_ALLIANCE:
-                        return TrialCounter == 50 && TributeToImmortalityEligible;
                     case A_TRIBUTE_TO_DEDICATED_INSANITY:
                         return false/*TrialCounter == 50 && TributeToDedicatedInsanity*/;
                     default:
@@ -680,7 +658,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint8 SnoboldCount;
                 uint8 MistressOfPainCount;
                 uint8 NorthrendBeastsCount;
-                bool TributeToImmortalityEligible;
+                int32 PlayerDeathCount;
                 bool TributeToDedicatedInsanity;
         };
 

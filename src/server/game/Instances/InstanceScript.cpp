@@ -37,6 +37,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include <sstream>
 #include <cstdarg>
 
@@ -608,12 +609,9 @@ void InstanceScript::DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn 
         TC_LOG_DEBUG("scripts", "InstanceScript: DoRespawnGameObject failed");
 }
 
-void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
+void InstanceScript::DoUpdateWorldState(int32 worldStateId, int32 value)
 {
-    instance->DoOnPlayers([uiStateId, uiStateData](Player const* player)
-    {
-        player->SendUpdateWorldState(uiStateId, uiStateData);
-    });
+    sWorldStateMgr->SetValue(worldStateId, value, instance);
 }
 
 // Send Notify to all players in instance

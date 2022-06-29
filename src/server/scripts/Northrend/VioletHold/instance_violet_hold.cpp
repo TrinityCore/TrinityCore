@@ -26,7 +26,6 @@
 #include "TaskScheduler.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 #include <sstream>
 
 /*
@@ -291,13 +290,6 @@ class instance_violet_hold : public InstanceMapScript
                     default:
                         break;
                 }
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(WORLD_STATE_VH_SHOW, EventState == IN_PROGRESS ? 1 : 0);
-                packet.Worldstates.emplace_back(WORLD_STATE_VH_PRISON_STATE, DoorIntegrity);
-                packet.Worldstates.emplace_back(WORLD_STATE_VH_WAVE_COUNT, WaveCount);
             }
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override

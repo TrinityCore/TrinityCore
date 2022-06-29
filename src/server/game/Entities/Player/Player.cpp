@@ -9205,7 +9205,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     uint32 mapId = GetMapId();
     Battleground* battleground = GetBattleground();
     OutdoorPvP* outdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneId);
-    InstanceScript* instance = GetInstanceScript();
 
     TC_LOG_DEBUG("network", "Player::SendInitWorldStates: Sending SMSG_INIT_WORLD_STATES for Map: %u, Zone: %u", mapId, zoneId);
 
@@ -9685,86 +9684,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
                 packet.Worldstates.emplace_back(4294, 1);   // BG_IC_WORKSHOP_UNCONTROLLED
                 packet.Worldstates.emplace_back(4243, 1);   // unk
                 packet.Worldstates.emplace_back(4345, 1);   // unk
-            }
-            break;
-        case 4987: // The Ruby Sanctum
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(5049, 50); // WORLDSTATE_CORPOREALITY_MATERIAL
-                packet.Worldstates.emplace_back(5050, 50); // WORLDSTATE_CORPOREALITY_TWILIGHT
-                packet.Worldstates.emplace_back(5051, 0);  // WORLDSTATE_CORPOREALITY_TOGGLE
-            }
-            break;
-        case 4812: // Icecrown Citadel
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(4903, 0);  // WORLDSTATE_SHOW_TIMER (Blood Quickening weekly)
-                packet.Worldstates.emplace_back(4904, 30); // WORLDSTATE_EXECUTION_TIME
-                packet.Worldstates.emplace_back(4940, 0);  // WORLDSTATE_SHOW_ATTEMPTS
-                packet.Worldstates.emplace_back(4941, 50); // WORLDSTATE_ATTEMPTS_REMAINING
-                packet.Worldstates.emplace_back(4942, 50); // WORLDSTATE_ATTEMPTS_MAX
-            }
-            break;
-        case 4100: // The Culling of Stratholme
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(3479, 0);  // WORLDSTATE_SHOW_CRATES
-                packet.Worldstates.emplace_back(3480, 0);  // WORLDSTATE_CRATES_REVEALED
-                packet.Worldstates.emplace_back(3504, 0);  // WORLDSTATE_WAVE_COUNT
-                packet.Worldstates.emplace_back(3931, 25); // WORLDSTATE_TIME_GUARDIAN
-                packet.Worldstates.emplace_back(3932, 0);  // WORLDSTATE_TIME_GUARDIAN_SHOW
-            }
-            break;
-        case 4228: // The Oculus
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(3524, 0); // WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW
-                packet.Worldstates.emplace_back(3486, 0); // WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT
-            }
-            break;
-        case 4273: // Ulduar
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(4132, 0); // WORLDSTATE_ALGALON_TIMER_ENABLED
-                packet.Worldstates.emplace_back(4131, 0); // WORLDSTATE_ALGALON_DESPAWN_TIMER
-            }
-            break;
-        case 4415: // Violet Hold
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-               packet.Worldstates.emplace_back(3816, 0);   // WORLD_STATE_VH_SHOW
-               packet.Worldstates.emplace_back(3815, 100); // WORLD_STATE_VH_PRISON_STATE
-               packet.Worldstates.emplace_back(3810, 0);   // WORLD_STATE_VH_WAVE_COUNT
-            }
-            break;
-        case 4820: // Halls of Refection
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(4884, 0); // WORLD_STATE_HOR_WAVES_ENABLED
-                packet.Worldstates.emplace_back(4882, 0); // WORLD_STATE_HOR_WAVE_COUNT
-            }
-            break;
-        case 3805: // Zul Aman
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(3104, 0); // WORLD_STATE_ZULAMAN_TIMER_ENABLED
-                packet.Worldstates.emplace_back(3106, 0); // WORLD_STATE_ZULAMAN_TIMER
             }
             break;
         case 5031: // Twin Peaks
