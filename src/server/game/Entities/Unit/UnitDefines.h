@@ -172,7 +172,7 @@ DEFINE_ENUM_FLAG(UnitFlags);
 // EnumUtils: DESCRIBE THIS
 enum UnitFlags2 : uint32
 {
-    UNIT_FLAG2_FEIGN_DEATH                                      = 0x00000001,
+    UNIT_FLAG2_FEIGN_DEATH                                      = 0x00000001,   // TITLE Feign Death DESCRIPTION Plays unit dead/laying on the ground animation
     UNIT_FLAG2_HIDE_BODY                                        = 0x00000002,   // TITLE Hide Body DESCRIPTION Hide unit model (show only player equip)
     UNIT_FLAG2_IGNORE_REPUTATION                                = 0x00000004,
     UNIT_FLAG2_COMPREHEND_LANG                                  = 0x00000008,
@@ -224,10 +224,23 @@ DEFINE_ENUM_FLAG(UnitFlags2);
 // EnumUtils: DESCRIBE THIS
 enum UnitFlags3 : uint32
 {
-    UNIT_FLAG3_UNK1                         = 0x00000001,
+    UNIT_FLAG3_UNK1                                             = 0x00000001,
+    UNIT_FLAG3_UNK2                                             = 0x00000002,
+    UNIT_FLAG3_UNK3                                             = 0x00000004,
+    UNIT_FLAG3_UNK4                                             = 0x00000008,
+    UNIT_FLAG3_UNK5                                             = 0x00000010,
+    UNIT_FLAG3_UNK6                                             = 0x00000020,
+    UNIT_FLAG3_UNK7                                             = 0x00000040,
+    UNIT_FLAG3_UNK8                                             = 0x00000080,
+    UNIT_FLAG3_UNK9                                             = 0x00000100,
+    UNIT_FLAG3_UNK10                                            = 0x00000200,
+    UNIT_FLAG3_UNK11                                            = 0x00000400,
+    UNIT_FLAG3_UNK12                                            = 0x00000800,
+    UNIT_FLAG3_UNK13                                            = 0x00001000,
+    UNIT_FLAG3_SHOW_AS_CORPSE                                   = 0x00002000, // TITLE Show as corpse DESCRIPTION Show unit dead animation and shows dead text instead of actual health
 
-    UNIT_FLAG3_DISALLOWED                   = 0xFFFFFFFF, // SKIP
-    UNIT_FLAG3_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
+    UNIT_FLAG3_DISALLOWED                                       = 0xFFFFFFFF, // SKIP
+    UNIT_FLAG3_ALLOWED                                          = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
 };
 
 DEFINE_ENUM_FLAG(UnitFlags3);
