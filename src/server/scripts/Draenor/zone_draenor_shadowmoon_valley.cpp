@@ -67,7 +67,7 @@ public:
 
     bool Execute(uint64 /*time*/, uint32 /*diff*/) override
     {
-        _player->NearTeleportTo(garrisonPlayerPosition);
+        _player->NearTeleportTo(GarrisonLevelOneCreationPlayerPosition);
         return true;
     }
 
