@@ -1679,12 +1679,13 @@ class spell_steal_essence_visual : public AuraScript
 };
 
 /*
-There are only 3 possible flags Feign Death auras can apply: UNIT_DYNFLAG_DEAD, UNIT_FLAG2_FEIGN_DEATH
-and UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT. Some auras can apply only 2 flags
+There are only 4 possible flags Feign Death auras can apply: UNIT_DYNFLAG_DEAD, UNIT_FLAG2_FEIGN_DEATH,
+UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT and UNIT_FLAG3_FEIGN_DEATH_WITH_DEAD_HPBAR. Some auras can apply only 2 flags
 
-spell_gen_feign_death_all_flags applies all 3 flags
+spell_gen_feign_death_all_flags applies UNIT_DYNFLAG_DEAD, UNIT_FLAG2_FEIGN_DEATH, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT
 spell_gen_feign_death_no_dyn_flag applies no UNIT_DYNFLAG_DEAD (does not make the creature appear dead)
 spell_gen_feign_death_no_prevent_emotes applies no UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT
+spell_gen_feign_death_unitflag3_no_dyn_flag applies UNIT_FLAG3_FEIGN_DEATH_WITH_DEAD_HPBAR and no UNIT_DYNFLAG_DEAD
 
 REACT_PASSIVE should be handled directly in scripts since not all creatures should be passive. Otherwise
 creature will be not able to aggro or execute MoveInLineOfSight events. Removing may cause more issues
@@ -1786,6 +1787,40 @@ class spell_gen_feign_death_no_prevent_emotes : public AuraScript
     {
         OnEffectApply += AuraEffectApplyFn(spell_gen_feign_death_no_prevent_emotes::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectRemove += AuraEffectRemoveFn(spell_gen_feign_death_no_prevent_emotes::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 159474 - Permanent Feign Death (NO Stun, Untrackable, Immune)
+class spell_gen_feign_death_unitflag3_no_dyn_flag : public AuraScript
+{
+    PrepareAuraScript(spell_gen_feign_death_unitflag3_no_dyn_flag);
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetUnitFlag3(UNIT_FLAG3_SHOW_AS_CORPSE);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+
+        if (Creature* creature = target->ToCreature())
+            creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveUnitFlag3(UNIT_FLAG3_SHOW_AS_CORPSE);
+        target->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+
+        if (Creature* creature = target->ToCreature())
+            creature->InitializeReactState();
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_feign_death_unitflag3_no_dyn_flag::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_gen_feign_death_unitflag3_no_dyn_flag::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5033,6 +5068,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_feign_death_all_flags);
     RegisterSpellScript(spell_gen_feign_death_no_dyn_flag);
     RegisterSpellScript(spell_gen_feign_death_no_prevent_emotes);
+    RegisterSpellScript(spell_gen_feign_death_unitflag3_no_dyn_flag);
     RegisterSpellScript(spell_gen_furious_rage);
     RegisterSpellScript(spell_gen_5000_gold);
     RegisterSpellScript(spell_gen_fishing);
