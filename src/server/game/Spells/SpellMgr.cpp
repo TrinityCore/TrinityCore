@@ -3398,15 +3398,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellEffectInfo->ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
             });
         });
-
-        // Lich Pet
-        ApplySpellFix({ 70050 }, [](SpellInfo* spellInfo)
-        {
-            ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
-            {
-                spellEffectInfo->TriggerSpell = 70049;
-            });
-        });
     }
 
     // Allows those to crit
