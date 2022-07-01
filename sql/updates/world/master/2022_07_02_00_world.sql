@@ -15,10 +15,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `creature_text` WHERE `CreatureID`=10445;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
-(10445, 0, 0, 'Welcome to the Darkmoon Faire, $c!', 12, 0, 100, 70, 0, 0, 0, 53804, 0, 'Selina Dourman - Random text'),
-(10445, 0, 1, 'Welcome to the Darkmoon Faire!', 12, 0, 100, 70, 0, 0, 0, 53805, 0, 'Selina Dourman - Random text'),
-(10445, 0, 2, 'Welcome!', 12, 0, 100, 70, 0, 0, 0, 53806, 0, 'Selina Dourman - Random text'),
-(10445, 0, 3, 'Greetings!', 12, 0, 100, 70, 0, 0, 0, 53808, 0, 'Selina Dourman - Random text');
+(10445, 0, 0, 'Welcome to the Darkmoon Faire, $c!', 12, 0, 100, 70, 0, 0, 0, 53804, 0, 'Selina Dourman - Welcome Random text'),
+(10445, 0, 1, 'Welcome to the Darkmoon Faire!', 12, 0, 100, 70, 0, 0, 0, 53805, 0, 'Selina Dourman - Welcome Random text'),
+(10445, 0, 2, 'Welcome!', 12, 0, 100, 70, 0, 0, 0, 53806, 0, 'Selina Dourman - Welcome Random text'),
+(10445, 0, 3, 'Greetings!', 12, 0, 100, 70, 0, 0, 0, 53808, 0, 'Selina Dourman - Welcome Random text');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=10445;
 
