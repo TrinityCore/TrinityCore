@@ -7833,6 +7833,9 @@ enum WorldState : uint32
     WS_BATTLEFIELD_TB_EAST_INTACT_NEUTRAL    = 5451,
     WS_BATTLEFIELD_TB_EAST_DAMAGED_NEUTRAL   = 5452,
 
+    WS_WAR_MODE_HORDE_BUFF_VALUE    = 17042,
+    WS_WAR_MODE_ALLIANCE_BUFF_VALUE = 17043,
+
     WS_CURRENCY_RESET_TIME      = 20001,                     // Next arena distribution time
     WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time

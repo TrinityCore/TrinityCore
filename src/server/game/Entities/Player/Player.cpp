@@ -9240,12 +9240,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
         packet.Worldstates.emplace_back(2491, 15); // NA_UI_GUARDS_LEFT
     }
 
-    // Horde War Mode bonus
-    packet.Worldstates.emplace_back(17042, 10 + (sWorld->GetWarModeDominantFaction() == TEAM_ALLIANCE ? sWorld->GetWarModeOutnumberedFactionReward() : 0));
-
-    // Alliance War Mode bonus
-    packet.Worldstates.emplace_back(17043, 10 + (sWorld->GetWarModeDominantFaction() == TEAM_HORDE ? sWorld->GetWarModeOutnumberedFactionReward() : 0));
-
     switch (zoneId)
     {
         case 1: // Dun Morogh
