@@ -1,0 +1,15 @@
+[*]
+charset = utf-8
+indent_size = 4
+tab_width = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+<<<<<<< HEAD
+max_line_length = 160
+=======
+max_line_length = 80
+>>>>>>> 5221f56d8cb5f43c91e0f5d4ecb5bc5b98e3227d
+
+[*.{c,h,cpp,hpp,inl}]
+charset = latin1

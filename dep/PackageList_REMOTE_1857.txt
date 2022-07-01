@@ -1,0 +1,74 @@
+TrinityCore uses (parts of or in whole) the following opensource software:
+
+Boost (external)
+  http://www.boost.org
+  Version: 1.55
+
+Boost Process (Proposed for boost, but its not an official part of it yet. Used to start child processes.)
+  http://www.highscore.de/boost/process0.5/
+  Version: 0.5
+
+bzip2 (a freely available, patent free, high-quality data compressor)
+  http://www.bzip.org/
+  Version: 1.0.6
+
+cotire (CMake module to speed up builds)
+  https://github.com/sakra/cotire
+  Version: 1.7.10 516d78476f6dda336181fc5514f72774e1e0a8e2
+
+efws (Entropia File System Watcher - crossplatform file system watcher)
+  https://bitbucket.org/SpartanJ/efsw
+  Version: 1.0.0 e6afbec564e249771046c714b0c7f2154e4c7fef
+
+fmt (a small, safe and fast formatting library)
+  https://github.com/fmtlib/fmt
+  Version: 7.1.3 https://github.com/fmtlib/fmt/releases/tag/7.1.3
+
+G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
+  http://g3d.sourceforge.net/
+  Version: 9.0-Release r4036
+
+jemalloc (a general-purpose scalable concurrent malloc-implementation)
+  http://www.canonware.com/jemalloc/
+  Version: 5.2.1
+
+libMPQ (a library for reading MPQ files)
+  https://github.com/mbroemme/libmpq/
+  Version: d59b4cf1d107b5f6a0f67d6bc545c6c6ebef3d74
+
+libreadline (command line editing library)
+  https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+  Version: external
+
+OpenSSL (general-purpose cryptography library)
+  https://www.openssl.org/
+  Version: external
+
+SFMT (SIMD-oriented Fast Mersenne Twister)
+  https://github.com/MersenneTwister-Lab/SFMT
+  Version: 73bcba2e483640b8d50c1275514326dd4c1b0ca4
+
+utf8-cpp (UTF-8 with C++ in a Portable Way)
+  http://utfcpp.sourceforge.net/
+  Version: 2.3.4
+
+zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
+  http://www.zlib.net/
+  Version: 1.2.12
+
+gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
+  http://gsoap2.sourceforge.net/
+  Version: 2.8.117
+
+recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
+  https://github.com/recastnavigation/recastnavigation
+  Version: 54bb0943e5174a71eeeca11919920f685760a4f0
+  Custom changes: https://github.com/TrinityCore/recastnavigation/tree/3.3.5
+  
+argon2
+  https://github.com/P-H-C/phc-winner-argon2
+  Version: 62358ba
+
+catch2
+  https://github.com/catchorg/Catch2
+  Version: v2.13.0

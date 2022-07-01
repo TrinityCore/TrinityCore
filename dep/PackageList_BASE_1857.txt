@@ -1,0 +1,41 @@
+TrinityCore uses (parts of or in whole) the following opensource software :
+
+Boost
+  http://www.boost.org
+  Version: 1.55
+
+bzip2 (a freely available, patent free, high-quality data compressor)
+  http://www.bzip.org/
+  Version: 1.0.6
+
+G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
+  http://g3d.sourceforge.net/
+  Version: 9.0-Release r4036
+
+jemalloc (a general-purpose scalable concurrent malloc-implementation)
+  http://www.canonware.com/jemalloc/
+  Version: 3.6.0
+  
+libMPQ (a library for reading MPQ files)
+  https://libmpq.org/
+  Version: 1.0.4
+
+SFMT (SIMD-oriented Fast Mersenne Twister)
+  Based on http://agner.org/random/
+  Version: 2010-Aug-03
+
+utf8-cpp (UTF-8 with C++ in a Portable Way)
+  http://utfcpp.sourceforge.net/
+  Version: 2.3.4
+
+zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
+  http://www.zlib.net/
+  Version: 1.2.7
+
+gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
+  http://gsoap2.sourceforge.net/
+  Version: 2.8.17r
+
+recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
+  https://github.com/memononen/recastnavigation
+  Version: 42b96b7306d39bb7680ddb0f89d480a8296c83ff
