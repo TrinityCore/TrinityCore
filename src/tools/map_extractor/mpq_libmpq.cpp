@@ -21,6 +21,7 @@
 #include <deque>
 #include <cstdio>
 #include <fstream>
+#include <algorithm>
 
 ArchiveSet gOpenArchives;
 
