@@ -547,6 +547,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackA
     if (_player->m_unitMovedByMe->GetGUID() != movementAck.Ack.Status.guid)
         return;
 
+    movementAck.Ack.Status.time = AdjustClientMovementTime(movementAck.Ack.Status.time);
     _player->m_movementInfo = movementAck.Ack.Status;
 
     WorldPackets::Movement::MoveUpdateKnockBack updateKnockBack;
