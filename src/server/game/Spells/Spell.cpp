@@ -2743,7 +2743,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (missInfo != SPELL_MISS_EVADE && spellHitTarget && !m_caster->IsFriendlyTo(unit) && (!IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
         if (Unit* unitCaster = m_caster->ToUnit())
-            unitCaster->AtTargetAttacked(unit, m_spellInfo->CausesInitialThreat() && !unitCaster->IsIgnoringCombat());
+            if (!unitCaster->IsCreature() || !unitCaster->ToCreature()->IsTrigger())
+               unitCaster->AtTargetAttacked(unit, m_spellInfo->CausesInitialThreat() && !unitCaster->IsIgnoringCombat());
 
         if (!unit->IsStandState())
             unit->SetStandState(UNIT_STAND_STATE_STAND);
@@ -7831,11 +7832,23 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         return;
 
     // This will only cause combat - the target will engage once the projectile hits (in DoAllEffectOnTarget)
-    if (m_originalCaster  && targetInfo.missCondition != SPELL_MISS_EVADE
-        && !m_originalCaster->IsFriendlyTo(unit)
-        && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
-        && (m_spellInfo->CausesInitialThreat() || m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST) || unit->IsEngaged())
-        && !m_originalCaster->IsIgnoringCombat())
+    bool triggerCombat = [&]()
+    {
+        // Basic checks
+        if (!m_originalCaster || targetInfo.missCondition != SPELL_MISS_EVADE
+            || m_originalCaster->IsFriendlyTo(unit) // caster must not be friendly with the target
+            || m_originalCaster->IsIgnoringCombat() // the caster must not be ignoring combat
+            || (m_originalCaster->IsCreature() && m_originalCaster->ToCreature()->IsTrigger())) // the caster must not be a trigger npc. They have aggro spells and AI for that.
+            return false;
+
+        // SpellInfo checks
+        if (m_spellInfo->IsPositive() && !m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
+            return false;
+
+        return (m_spellInfo->CausesInitialThreat() || m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST) || unit->IsEngaged());
+    }();
+
+    if (triggerCombat)
         m_originalCaster->SetInCombatWith(unit);
 
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
