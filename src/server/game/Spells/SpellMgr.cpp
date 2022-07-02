@@ -3081,12 +3081,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellInfo->_GetEffect(EFFECT_1).TriggerSpell = 46737;
         });
-
-        // Lich Pet
-        ApplySpellFix({ 70050 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->_GetEffect(EFFECT_0).TriggerSpell = 70049;
-        });
     }
 
     // Allows those to crit
@@ -3383,7 +3377,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         38762, // Force of Neltharaku
         51122, // Fierce Lightning Stike
         71848, // Toxic Wasteling Find Target
-        36146  // Chains of Naberius
+        36146, // Chains of Naberius
+        33711, // Murmur's Touch
+        38794  // Murmur's Touch
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
@@ -3498,13 +3494,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_1).ApplyAuraName = SPELL_AURA_DUMMY;
         spellInfo->_GetEffect(EFFECT_1).MiscValue = 127;
         spellInfo->_GetEffect(EFFECT_1).TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ALLY);
-    });
-
-    // Murmur's Touch
-    ApplySpellFix({ 33711, 38794 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 1;
-        spellInfo->_GetEffect(EFFECT_0).TriggerSpell = 33760;
     });
 
     // Fingers of Frost

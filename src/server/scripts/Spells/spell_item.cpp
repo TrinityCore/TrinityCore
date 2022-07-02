@@ -901,6 +901,64 @@ class spell_item_party_time : public AuraScript
     }
 };
 
+enum DireBrew
+{
+    MODEL_CLASS_CLOTH_MALE         = 25229,
+    MODEL_CLASS_CLOTH_FEMALE       = 25233,
+    MODEL_CLASS_LEATHER_MALE       = 25230,
+    MODEL_CLASS_LEATHER_FEMALE     = 25234,
+    MODEL_CLASS_MAIL_MALE          = 25231,
+    MODEL_CLASS_MAIL_FEMALE        = 25235,
+    MODEL_CLASS_PLATE_MALE         = 25232,
+    MODEL_CLASS_PLATE_FEMALE       = 25236
+};
+
+// 51010 - Dire Brew
+class spell_item_dire_brew : public AuraScript
+{
+    PrepareAuraScript(spell_item_dire_brew);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        uint32 model = 0;
+        uint8 gender = target->GetGender();
+
+        switch (target->GetClass())
+        {
+            case CLASS_PRIEST:
+            case CLASS_MAGE:
+            case CLASS_WARLOCK:
+                model = gender == GENDER_MALE ? MODEL_CLASS_CLOTH_MALE : MODEL_CLASS_CLOTH_FEMALE;
+                break;
+            case CLASS_ROGUE:
+            case CLASS_DRUID:
+                model = gender == GENDER_MALE ? MODEL_CLASS_LEATHER_MALE : MODEL_CLASS_LEATHER_FEMALE;
+                break;
+            case CLASS_HUNTER:
+            case CLASS_SHAMAN:
+                model = gender == GENDER_MALE ? MODEL_CLASS_MAIL_MALE : MODEL_CLASS_MAIL_FEMALE;
+                break;
+            case CLASS_WARRIOR:
+            case CLASS_PALADIN:
+            case CLASS_DEATH_KNIGHT:
+                model = gender == GENDER_MALE ? MODEL_CLASS_PLATE_MALE : MODEL_CLASS_PLATE_FEMALE;
+                break;
+            default:
+                break;
+        }
+
+        if (model)
+            target->SetDisplayId(model);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_item_dire_brew::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum DiscerningEyeBeastMisc
 {
     SPELL_DISCERNING_EYE_BEAST = 59914
@@ -1269,6 +1327,32 @@ class spell_item_heartpierce : public SpellScriptLoader
         {
             return new spell_item_heartpierce_AuraScript<EnergySpellId, ManaSpellId, RageSpellId, RPSpellId>();
         }
+};
+
+enum HourglassSand
+{
+    SPELL_BROOD_AFFLICTION_BRONZE    = 23170
+};
+
+// 23645 - Hourglass Sand
+class spell_item_hourglass_sand : public SpellScript
+{
+    PrepareSpellScript(spell_item_hourglass_sand);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BROOD_AFFLICTION_BRONZE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_BROOD_AFFLICTION_BRONZE);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_hourglass_sand::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 40971 - Bonus Healing (Crystal Spire of Karabor)
@@ -2937,6 +3021,35 @@ class spell_item_impale_leviroth : public SpellScript
     }
 };
 
+enum LifegivingGem
+{
+    SPELL_GIFT_OF_LIFE_1    = 23782,
+    SPELL_GIFT_OF_LIFE_2    = 23783
+};
+
+// 23725 - Gift of Life
+class spell_item_lifegiving_gem : public SpellScript
+{
+    PrepareSpellScript(spell_item_lifegiving_gem);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GIFT_OF_LIFE_1, SPELL_GIFT_OF_LIFE_2 });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_GIFT_OF_LIFE_1, true);
+        caster->CastSpell(caster, SPELL_GIFT_OF_LIFE_2, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_lifegiving_gem::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 enum NitroBoosts
 {
     SPELL_NITRO_BOOSTS_SUCCESS       = 54861,
@@ -4167,6 +4280,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_desperate_defense);
     RegisterSpellScript(spell_item_deviate_fish);
     RegisterSpellScript(spell_item_party_time);
+    RegisterSpellScript(spell_item_dire_brew);
     RegisterSpellScript(spell_item_discerning_eye_beast_dummy);
     RegisterSpellScript(spell_item_echoes_of_light);
     RegisterSpellScript(spell_item_extract_gas);
@@ -4178,6 +4292,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_healing_touch_refund);
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
+    RegisterSpellScript(spell_item_hourglass_sand);
     RegisterSpellScript(spell_item_crystal_spire_of_karabor);
     RegisterSpellScript(spell_item_make_a_wish);
     RegisterSpellScript(spell_item_mark_of_conquest);
@@ -4222,6 +4337,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_demon_broiled_surprise);
     RegisterSpellScript(spell_item_complete_raptor_capture);
     RegisterSpellScript(spell_item_impale_leviroth);
+    RegisterSpellScript(spell_item_lifegiving_gem);
     RegisterSpellScript(spell_item_nitro_boosts);
     RegisterSpellScript(spell_item_nitro_boosts_backfire);
     RegisterSpellScript(spell_item_rocket_boots);

@@ -9721,7 +9721,7 @@ void Unit::RemoveFromWorld()
     {
         m_duringRemoveFromWorld = true;
         if (UnitAI* ai = GetAI())
-            ai->LeavingWorld();
+            ai->OnDespawn();
 
         if (IsVehicle())
             RemoveVehicleKit();
