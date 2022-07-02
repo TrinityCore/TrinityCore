@@ -555,7 +555,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //486
     &AuraEffect::HandleCosmeticMounted,                           //487 SPELL_AURA_COSMETIC_MOUNTED
     &AuraEffect::HandleNULL,                                      //488
-    &AuraEffect::HandleNULL,                                      //489 SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE
+    &AuraEffect::HandleModAlternativeDefaultLanguage,             //489 SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE
     &AuraEffect::HandleNULL,                                      //490
     &AuraEffect::HandleNULL,                                      //491
     &AuraEffect::HandleNULL,                                      //492
@@ -4934,6 +4934,24 @@ void AuraEffect::HandleComprehendLanguage(AuraApplication const* aurApp, uint8 m
             return;
 
         target->RemoveUnitFlag2(UNIT_FLAG2_COMPREHEND_LANG);
+    }
+}
+
+void AuraEffect::HandleModAlternativeDefaultLanguage(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (apply)
+        target->SetUnitFlag3(UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE);
+    else
+    {
+        if (target->HasAuraType(GetAuraType()))
+            return;
+
+        target->RemoveUnitFlag3(UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE);
     }
 }
 

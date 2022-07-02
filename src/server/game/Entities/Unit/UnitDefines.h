@@ -224,10 +224,48 @@ DEFINE_ENUM_FLAG(UnitFlags2);
 // EnumUtils: DESCRIBE THIS
 enum UnitFlags3 : uint32
 {
-    UNIT_FLAG3_UNK1                         = 0x00000001,
+    UNIT_FLAG3_UNK0                                         = 0x00000001,
+    UNIT_FLAG3_UNCONSCIOUS_ON_DEATH                         = 0x00000002,   // TITLE Unconscious on Death DESCRIPTION Shows "Unconscious" in unit tooltip instead of "Dead"
+    UNIT_FLAG3_ALLOW_MOUNTED_COMBAT                         = 0x00000004,   // TITLE Allow mounted combat
+    UNIT_FLAG3_GARRISON_PET                                 = 0x00000008,   // TITLE Garrison pet DESCRIPTION Special garrison pet creatures that display one of favorite player battle pets - this flag allows querying name and turns off default battle pet behavior
+    UNIT_FLAG3_UI_CAN_GET_POSITION                          = 0x00000010,   // TITLE UI Can Get Position DESCRIPTION Allows lua functions like UnitPosition to always get the position even for npcs or non-grouped players
+    UNIT_FLAG3_AI_OBSTACLE                                  = 0x00000020,
+    UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE                 = 0x00000040,
+    UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK                    = 0x00000080,   // TITLE Suppress all NPC feedback DESCRIPTION Skips playing sounds on left clicking npc for all npcs as long as npc with this flag is visible
+    UNIT_FLAG3_IGNORE_COMBAT                                = 0x00000100,   // TITLE Ignore Combat DESCRIPTION Same as SPELL_AURA_IGNORE_COMBAT
+    UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK                        = 0x00000200,   // TITLE Suppress NPC feedback DESCRIPTION Skips playing sounds on left clicking npc
+    UNIT_FLAG3_UNK10                                        = 0x00000400,
+    UNIT_FLAG3_UNK11                                        = 0x00000800,
+    UNIT_FLAG3_UNK12                                        = 0x00001000,
+    UNIT_FLAG3_FAKE_DEAD                                    = 0x00002000,   // TITLE Show as dead
+    UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE  = 0x00004000,   // Causes the creature to both not change facing on interaction and speeds up smooth facing changes while attacking (clientside)
+    UNIT_FLAG3_UNTARGETABLE_FROM_UI                         = 0x00008000,   // TITLE Untargetable from UI DESCRIPTION Cannot be targeted from lua functions StartAttack, TargetUnit, PetAttack
+    UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD        = 0x00010000,   // Prevents facing changes while interacting if creature has flag UNIT_FLAG3_FAKE_DEAD
+    UNIT_FLAG3_ALREADY_SKINNED                              = 0x00020000,
+    UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS                      = 0x00040000,   // TITLE Suppress all NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction for all npcs as long as npc with this flag is visible
+    UNIT_FLAG3_SUPPRESS_NPC_SOUNDS                          = 0x00080000,   // TITLE Suppress NPC sounds DESCRIPTION Skips playing sounds on beginning and end of npc interaction
+    UNIT_FLAG3_UNK20                                        = 0x00100000,
+    UNIT_FLAG3_UNK21                                        = 0x00200000,
+    UNIT_FLAG3_DONT_FADE_OUT                                = 0x00400000,
+    UNIT_FLAG3_UNK23                                        = 0x00800000,
+    UNIT_FLAG3_UNK24                                        = 0x01000000,
+    UNIT_FLAG3_UNK25                                        = 0x02000000,
+    UNIT_FLAG3_UNK26                                        = 0x04000000,
+    UNIT_FLAG3_UNK27                                        = 0x08000000,
+    UNIT_FLAG3_UNK28                                        = 0x10000000,
+    UNIT_FLAG3_UNK29                                        = 0x20000000,
+    UNIT_FLAG3_UNK30                                        = 0x40000000,
+    UNIT_FLAG3_UNK31                                        = 0x80000000,
 
-    UNIT_FLAG3_DISALLOWED                   = 0xFFFFFFFF, // SKIP
-    UNIT_FLAG3_ALLOWED                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
+    UNIT_FLAG3_DISALLOWED                                   = (UNIT_FLAG3_UNK0 | /* UNIT_FLAG3_UNCONSCIOUS_ON_DEATH | */ /* UNIT_FLAG3_ALLOW_MOUNTED_COMBAT | */ UNIT_FLAG3_GARRISON_PET |
+                                                               /* UNIT_FLAG3_UI_CAN_GET_POSITION | */ /* UNIT_FLAG3_AI_OBSTACLE | */ UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK | */
+                                                               UNIT_FLAG3_IGNORE_COMBAT | UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK | UNIT_FLAG3_UNK10 | UNIT_FLAG3_UNK11 |
+                                                               UNIT_FLAG3_UNK12 | /* UNIT_FLAG3_FAKE_DEAD | */ /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
+                                                               /* UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD | */ UNIT_FLAG3_ALREADY_SKINNED | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS | */ /* UNIT_FLAG3_SUPPRESS_NPC_SOUNDS | */
+                                                               UNIT_FLAG3_UNK20 | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
+                                                               UNIT_FLAG3_UNK24 | UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
+                                                               UNIT_FLAG3_UNK28 | UNIT_FLAG3_UNK29 | UNIT_FLAG3_UNK30 | UNIT_FLAG3_UNK31), // SKIP
+    UNIT_FLAG3_ALLOWED                                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
 };
 
 DEFINE_ENUM_FLAG(UnitFlags3);
@@ -276,18 +314,19 @@ DEFINE_ENUM_FLAG(NPCFlags);
 // EnumUtils: DESCRIBE THIS
 enum NPCFlags2 : uint32
 {
-    UNIT_NPC_FLAG_2_NONE                    = 0x0000,
-    UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER     = 0x0001,     // TITLE is item upgrade
-    UNIT_NPC_FLAG_2_GARRISON_ARCHITECT      = 0x0002,     // TITLE is garrison architect DESCRIPTION garrison building placement UI
-    UNIT_NPC_FLAG_2_STEERING                = 0x0004,     // TITLE is avoiding obstacles DESCRIPTION clientside pathfinding
-    UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER        = 0x0010,     // TITLE is shipment crafter DESCRIPTION garrison work orders
-    UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC    = 0x0020,     // TITLE is garrison mission
-    UNIT_NPC_FLAG_2_TRADESKILL_NPC          = 0x0040,     // TITLE is tradeskill DESCRIPTION crafting at npc
-    UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW       = 0x0080,     // TITLE is black market view DESCRIPTION only allows viewing black market auctions, no bidding
-    UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC     = 0x0200,     // TITLE is garrrison talent
-    UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR  = 0x0400,     // TITLE is contribution collector
-    UNIT_NPC_FLAG_2_AZERITE_RESPEC          = 0x4000,     // TITLE is azerite respec
-    UNIT_NPC_FLAG_2_ISLANDS_QUEUE           = 0x8000,     // TITLE is islands queue
+    UNIT_NPC_FLAG_2_NONE                    = 0x00000000,
+    UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER     = 0x00000001,   // TITLE is item upgrade
+    UNIT_NPC_FLAG_2_GARRISON_ARCHITECT      = 0x00000002,   // TITLE is garrison architect DESCRIPTION garrison building placement UI
+    UNIT_NPC_FLAG_2_STEERING                = 0x00000004,   // TITLE is avoiding obstacles DESCRIPTION clientside pathfinding
+    UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER        = 0x00000010,   // TITLE is shipment crafter DESCRIPTION garrison work orders
+    UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC    = 0x00000020,   // TITLE is garrison mission
+    UNIT_NPC_FLAG_2_TRADESKILL_NPC          = 0x00000040,   // TITLE is tradeskill DESCRIPTION crafting at npc
+    UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW       = 0x00000080,   // TITLE is black market view DESCRIPTION only allows viewing black market auctions, no bidding
+    UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC     = 0x00000200,   // TITLE is garrrison talent
+    UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR  = 0x00000400,   // TITLE is contribution collector
+    UNIT_NPC_FLAG_2_AZERITE_RESPEC          = 0x00004000,   // TITLE is azerite respec
+    UNIT_NPC_FLAG_2_ISLANDS_QUEUE           = 0x00008000,   // TITLE is islands queue
+    UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION   = 0x00010000,
 };
 
 DEFINE_ENUM_FLAG(NPCFlags2);

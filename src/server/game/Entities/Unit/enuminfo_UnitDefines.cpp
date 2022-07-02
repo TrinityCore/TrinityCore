@@ -289,20 +289,82 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags3>::ToString(UnitFlags3 value)
 {
     switch (value)
     {
-        case UNIT_FLAG3_UNK1: return { "UNIT_FLAG3_UNK1", "UNIT_FLAG3_UNK1", "" };
+        case UNIT_FLAG3_UNK0: return { "UNIT_FLAG3_UNK0", "UNIT_FLAG3_UNK0", "" };
+        case UNIT_FLAG3_UNCONSCIOUS_ON_DEATH: return { "UNIT_FLAG3_UNCONSCIOUS_ON_DEATH", "Unconscious on Death", "Shows \042Unconscious\042 in unit tooltip instead of \042Dead\042" };
+        case UNIT_FLAG3_ALLOW_MOUNTED_COMBAT: return { "UNIT_FLAG3_ALLOW_MOUNTED_COMBAT", "Allow mounted combat", "" };
+        case UNIT_FLAG3_GARRISON_PET: return { "UNIT_FLAG3_GARRISON_PET", "Garrison pet", "Special garrison pet creatures that display one of favorite player battle pets - this flag allows querying name and turns off default battle pet behavior" };
+        case UNIT_FLAG3_UI_CAN_GET_POSITION: return { "UNIT_FLAG3_UI_CAN_GET_POSITION", "UI Can Get Position", "Allows lua functions like UnitPosition to always get the position even for npcs or non-grouped players" };
+        case UNIT_FLAG3_AI_OBSTACLE: return { "UNIT_FLAG3_AI_OBSTACLE", "UNIT_FLAG3_AI_OBSTACLE", "" };
+        case UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE: return { "UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE", "UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE", "" };
+        case UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK: return { "UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK", "Suppress all NPC feedback", "Skips playing sounds on left clicking npc for all npcs as long as npc with this flag is visible" };
+        case UNIT_FLAG3_IGNORE_COMBAT: return { "UNIT_FLAG3_IGNORE_COMBAT", "Ignore Combat", "Same as SPELL_AURA_IGNORE_COMBAT" };
+        case UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK: return { "UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK", "Suppress NPC feedback", "Skips playing sounds on left clicking npc" };
+        case UNIT_FLAG3_UNK10: return { "UNIT_FLAG3_UNK10", "UNIT_FLAG3_UNK10", "" };
+        case UNIT_FLAG3_UNK11: return { "UNIT_FLAG3_UNK11", "UNIT_FLAG3_UNK11", "" };
+        case UNIT_FLAG3_UNK12: return { "UNIT_FLAG3_UNK12", "UNIT_FLAG3_UNK12", "" };
+        case UNIT_FLAG3_FAKE_DEAD: return { "UNIT_FLAG3_FAKE_DEAD", "Show as dead", "" };
+        case UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE: return { "UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE", "UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE", "Causes the creature to both not change facing on interaction and speeds up smooth facing changes while attacking (clientside)" };
+        case UNIT_FLAG3_UNTARGETABLE_FROM_UI: return { "UNIT_FLAG3_UNTARGETABLE_FROM_UI", "Untargetable from UI", "Cannot be targeted from lua functions StartAttack, TargetUnit, PetAttack" };
+        case UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD: return { "UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD", "UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD", "Prevents facing changes while interacting if creature has flag UNIT_FLAG3_FAKE_DEAD" };
+        case UNIT_FLAG3_ALREADY_SKINNED: return { "UNIT_FLAG3_ALREADY_SKINNED", "UNIT_FLAG3_ALREADY_SKINNED", "" };
+        case UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS: return { "UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS", "Suppress all NPC sounds", "Skips playing sounds on beginning and end of npc interaction for all npcs as long as npc with this flag is visible" };
+        case UNIT_FLAG3_SUPPRESS_NPC_SOUNDS: return { "UNIT_FLAG3_SUPPRESS_NPC_SOUNDS", "Suppress NPC sounds", "Skips playing sounds on beginning and end of npc interaction" };
+        case UNIT_FLAG3_UNK20: return { "UNIT_FLAG3_UNK20", "UNIT_FLAG3_UNK20", "" };
+        case UNIT_FLAG3_UNK21: return { "UNIT_FLAG3_UNK21", "UNIT_FLAG3_UNK21", "" };
+        case UNIT_FLAG3_DONT_FADE_OUT: return { "UNIT_FLAG3_DONT_FADE_OUT", "UNIT_FLAG3_DONT_FADE_OUT", "" };
+        case UNIT_FLAG3_UNK23: return { "UNIT_FLAG3_UNK23", "UNIT_FLAG3_UNK23", "" };
+        case UNIT_FLAG3_UNK24: return { "UNIT_FLAG3_UNK24", "UNIT_FLAG3_UNK24", "" };
+        case UNIT_FLAG3_UNK25: return { "UNIT_FLAG3_UNK25", "UNIT_FLAG3_UNK25", "" };
+        case UNIT_FLAG3_UNK26: return { "UNIT_FLAG3_UNK26", "UNIT_FLAG3_UNK26", "" };
+        case UNIT_FLAG3_UNK27: return { "UNIT_FLAG3_UNK27", "UNIT_FLAG3_UNK27", "" };
+        case UNIT_FLAG3_UNK28: return { "UNIT_FLAG3_UNK28", "UNIT_FLAG3_UNK28", "" };
+        case UNIT_FLAG3_UNK29: return { "UNIT_FLAG3_UNK29", "UNIT_FLAG3_UNK29", "" };
+        case UNIT_FLAG3_UNK30: return { "UNIT_FLAG3_UNK30", "UNIT_FLAG3_UNK30", "" };
+        case UNIT_FLAG3_UNK31: return { "UNIT_FLAG3_UNK31", "UNIT_FLAG3_UNK31", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<UnitFlags3>::Count() { return 1; }
+TC_API_EXPORT size_t EnumUtils<UnitFlags3>::Count() { return 32; }
 
 template <>
 TC_API_EXPORT UnitFlags3 EnumUtils<UnitFlags3>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return UNIT_FLAG3_UNK1;
+        case 0: return UNIT_FLAG3_UNK0;
+        case 1: return UNIT_FLAG3_UNCONSCIOUS_ON_DEATH;
+        case 2: return UNIT_FLAG3_ALLOW_MOUNTED_COMBAT;
+        case 3: return UNIT_FLAG3_GARRISON_PET;
+        case 4: return UNIT_FLAG3_UI_CAN_GET_POSITION;
+        case 5: return UNIT_FLAG3_AI_OBSTACLE;
+        case 6: return UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE;
+        case 7: return UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK;
+        case 8: return UNIT_FLAG3_IGNORE_COMBAT;
+        case 9: return UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK;
+        case 10: return UNIT_FLAG3_UNK10;
+        case 11: return UNIT_FLAG3_UNK11;
+        case 12: return UNIT_FLAG3_UNK12;
+        case 13: return UNIT_FLAG3_FAKE_DEAD;
+        case 14: return UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE;
+        case 15: return UNIT_FLAG3_UNTARGETABLE_FROM_UI;
+        case 16: return UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD;
+        case 17: return UNIT_FLAG3_ALREADY_SKINNED;
+        case 18: return UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS;
+        case 19: return UNIT_FLAG3_SUPPRESS_NPC_SOUNDS;
+        case 20: return UNIT_FLAG3_UNK20;
+        case 21: return UNIT_FLAG3_UNK21;
+        case 22: return UNIT_FLAG3_DONT_FADE_OUT;
+        case 23: return UNIT_FLAG3_UNK23;
+        case 24: return UNIT_FLAG3_UNK24;
+        case 25: return UNIT_FLAG3_UNK25;
+        case 26: return UNIT_FLAG3_UNK26;
+        case 27: return UNIT_FLAG3_UNK27;
+        case 28: return UNIT_FLAG3_UNK28;
+        case 29: return UNIT_FLAG3_UNK29;
+        case 30: return UNIT_FLAG3_UNK30;
+        case 31: return UNIT_FLAG3_UNK31;
         default: throw std::out_of_range("index");
     }
 }
@@ -312,7 +374,38 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags3>::ToIndex(UnitFlags3 value)
 {
     switch (value)
     {
-        case UNIT_FLAG3_UNK1: return 0;
+        case UNIT_FLAG3_UNK0: return 0;
+        case UNIT_FLAG3_UNCONSCIOUS_ON_DEATH: return 1;
+        case UNIT_FLAG3_ALLOW_MOUNTED_COMBAT: return 2;
+        case UNIT_FLAG3_GARRISON_PET: return 3;
+        case UNIT_FLAG3_UI_CAN_GET_POSITION: return 4;
+        case UNIT_FLAG3_AI_OBSTACLE: return 5;
+        case UNIT_FLAG3_ALTERNATIVE_DEFAULT_LANGUAGE: return 6;
+        case UNIT_FLAG3_SUPPRESS_ALL_NPC_FEEDBACK: return 7;
+        case UNIT_FLAG3_IGNORE_COMBAT: return 8;
+        case UNIT_FLAG3_SUPPRESS_NPC_FEEDBACK: return 9;
+        case UNIT_FLAG3_UNK10: return 10;
+        case UNIT_FLAG3_UNK11: return 11;
+        case UNIT_FLAG3_UNK12: return 12;
+        case UNIT_FLAG3_FAKE_DEAD: return 13;
+        case UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE: return 14;
+        case UNIT_FLAG3_UNTARGETABLE_FROM_UI: return 15;
+        case UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD: return 16;
+        case UNIT_FLAG3_ALREADY_SKINNED: return 17;
+        case UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS: return 18;
+        case UNIT_FLAG3_SUPPRESS_NPC_SOUNDS: return 19;
+        case UNIT_FLAG3_UNK20: return 20;
+        case UNIT_FLAG3_UNK21: return 21;
+        case UNIT_FLAG3_DONT_FADE_OUT: return 22;
+        case UNIT_FLAG3_UNK23: return 23;
+        case UNIT_FLAG3_UNK24: return 24;
+        case UNIT_FLAG3_UNK25: return 25;
+        case UNIT_FLAG3_UNK26: return 26;
+        case UNIT_FLAG3_UNK27: return 27;
+        case UNIT_FLAG3_UNK28: return 28;
+        case UNIT_FLAG3_UNK29: return 29;
+        case UNIT_FLAG3_UNK30: return 30;
+        case UNIT_FLAG3_UNK31: return 31;
         default: throw std::out_of_range("value");
     }
 }
@@ -469,12 +562,13 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags2>::ToString(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR: return { "UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR", "is contribution collector", "" };
         case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return { "UNIT_NPC_FLAG_2_AZERITE_RESPEC", "is azerite respec", "" };
         case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return { "UNIT_NPC_FLAG_2_ISLANDS_QUEUE", "is islands queue", "" };
+        case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return { "UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION", "UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 12; }
+TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 13; }
 
 template <>
 TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
@@ -493,6 +587,7 @@ TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
         case 9: return UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR;
         case 10: return UNIT_NPC_FLAG_2_AZERITE_RESPEC;
         case 11: return UNIT_NPC_FLAG_2_ISLANDS_QUEUE;
+        case 12: return UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION;
         default: throw std::out_of_range("index");
     }
 }
@@ -514,6 +609,7 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags2>::ToIndex(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR: return 9;
         case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return 10;
         case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return 11;
+        case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return 12;
         default: throw std::out_of_range("value");
     }
 }
