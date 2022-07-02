@@ -27,7 +27,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 #include <array>
 #include <sstream>
 #include <unordered_map>
@@ -273,14 +272,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 LoadDoorData(doorData);
 
                 _currentWorldStates[WORLDSTATE_SHOW_CRATES] = _currentWorldStates[WORLDSTATE_CRATES_REVEALED] = _currentWorldStates[WORLDSTATE_WAVE_COUNT] = _currentWorldStates[WORLDSTATE_TIME_GUARDIAN_SHOW] = _currentWorldStates[WORLDSTATE_TIME_GUARDIAN] = 0;
-                _sentWorldStates = _currentWorldStates;
                 _plagueCrates.reserve(NUM_PLAGUE_CRATES);
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                for (WorldStateMap::const_iterator itr = _sentWorldStates.begin(); itr != _sentWorldStates.end(); ++itr)
-                    packet.Worldstates.emplace_back(itr->first, itr->second);
             }
 
             void WriteSaveDataMore(std::ostringstream& data) override
@@ -330,7 +322,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         break;
                     case DATA_CRATE_REVEALED:
                         if (uint32 missingCrates = MissingPlagueCrates())
-                            SetWorldState(WORLDSTATE_CRATES_REVEALED, NUM_PLAGUE_CRATES - missingCrates);
+                            DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, NUM_PLAGUE_CRATES - missingCrates);
                         else
                             SetInstanceProgress(CRATES_DONE, false);
                         break;
@@ -390,8 +382,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
                 // clear existing world markers
                 for (uint32 marker = WAVE_MARKER_MIN; marker <= WAVE_MARKER_MAX; ++marker)
-                    SetWorldState(COSWorldStates(marker), 0, false);
-                PropagateWorldStateUpdate();
+                    DoUpdateWorldState(COSWorldStates(marker), 0);
 
                 // schedule next wave if applicable
                 if (_waveCount < NUM_SCOURGE_WAVES)
@@ -459,8 +450,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 if (type == DATA_INFINITE_CORRUPTOR && state == DONE)
                 {
                     events.CancelEvent(EVENT_GUARDIAN_TICK);
-                    SetWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0, false);
-                    SetWorldState(WORLDSTATE_TIME_GUARDIAN, 0);
+                    DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                    DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, 0);
                 }
 
                 if (!InstanceScript::SetBossState(type, state))
@@ -485,8 +476,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                             if (secondsToGuardianDeath <= 0)
                             {
                                 _infiniteGuardianTimeout = 0;
-                                SetWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0, false);
-                                SetWorldState(WORLDSTATE_TIME_GUARDIAN, 0);
+                                DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
+                                DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, 0);
 
                                 if (Creature* corruptor = instance->GetCreature(_corruptorGUID))
                                 {
@@ -513,8 +504,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                         chromie->AI()->Talk(CHROMIE_WHISPER_GUARDIAN_3);
 
                                 // update the timer state
-                                SetWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1, false);
-                                SetWorldState(WORLDSTATE_TIME_GUARDIAN, minutes + 1);
+                                DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN_SHOW, 1);
+                                DoUpdateWorldState(WORLDSTATE_TIME_GUARDIAN, minutes + 1);
                                 if (minutes == 4 && seconds > 30)
                                     events.Repeat(Seconds(seconds - 30));
                                 else
@@ -538,7 +529,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 break;
 
                             ++_waveCount;
-                            SetWorldState(WORLDSTATE_WAVE_COUNT, _waveCount);
+                            DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, _waveCount);
 
                             uint8 spawnLoc = urand(WAVE_LOC_MIN, WAVE_LOC_MAX);
                             while (spawnLoc == _currentSpawnLoc) // don't allow repeats
@@ -573,8 +564,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                             }
 
                             for (uint32 marker = WAVE_MARKER_MIN; marker <= WAVE_MARKER_MAX; ++marker)
-                                SetWorldState(COSWorldStates(marker), 0, false);
-                            SetWorldState(spawnLocation.WorldState, 1);
+                                DoUpdateWorldState(COSWorldStates(marker), 0);
+                            DoUpdateWorldState(spawnLocation.WorldState, 1);
 
                             events.RescheduleEvent(EVENT_CRIER_ANNOUNCE_WAVE, 2s);
                             _currentSpawnLoc = spawnLoc;
@@ -689,26 +680,24 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 // Plague crates
                 if (state == CRATES_IN_PROGRESS)
                 {
-                    SetWorldState(WORLDSTATE_SHOW_CRATES, 1, false);
-                    SetWorldState(WORLDSTATE_CRATES_REVEALED, 0, false);
+                    DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 1);
+                    DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, 0);
                 }
                 else if (state == CRATES_DONE)
                 {
-                    SetWorldState(WORLDSTATE_SHOW_CRATES, 1, false);
-                    SetWorldState(WORLDSTATE_CRATES_REVEALED, NUM_PLAGUE_CRATES, false);
+                    DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 1);
+                    DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, NUM_PLAGUE_CRATES);
                 }
                 else
                 {
-                    SetWorldState(WORLDSTATE_SHOW_CRATES, 0, false);
-                    SetWorldState(WORLDSTATE_CRATES_REVEALED, state == JUST_STARTED ? 0 : NUM_PLAGUE_CRATES, false);
+                    DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 0);
+                    DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, state == JUST_STARTED ? 0 : NUM_PLAGUE_CRATES);
                 }
                 // Scourge wave counter
                 if (state == WAVES_DONE)
-                    SetWorldState(WORLDSTATE_WAVE_COUNT, NUM_SCOURGE_WAVES, false);
+                    DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, NUM_SCOURGE_WAVES);
                 else
-                    SetWorldState(WORLDSTATE_WAVE_COUNT, 0, false);
-
-                PropagateWorldStateUpdate();
+                    DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, 0);
 
                 // Hidden Passage status handling
                 if (GameObject* passage = instance->GetGameObject(_passageGUID))
@@ -768,7 +757,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
             }
 
         private:
-            typedef std::unordered_map<uint32, uint32> WorldStateMap;
 
             uint32 MissingPlagueCrates() const
             {
@@ -792,29 +780,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
-            void SetWorldState(COSWorldStates state, uint32 value, bool immediate = true)
-            {
-                TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::SetWorldState: %u %u", uint32(state), value);
-                _currentWorldStates[state] = value;
-                if (immediate)
-                    PropagateWorldStateUpdate();
-            }
-
-            void PropagateWorldStateUpdate()
-            {
-                TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::PropagateWorldStateUpdate: Propagate world states");
-                for (WorldStateMap::const_iterator it = _currentWorldStates.begin(); it != _currentWorldStates.end(); ++it)
-                {
-                    uint32& sent = _sentWorldStates[it->first];
-                    if (sent != it->second)
-                    {
-                        TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::PropagateWorldStateUpdate: Sending world state %u (%u)", it->first, it->second);
-                        DoUpdateWorldState(it->first, it->second);
-                        sent = it->second;
-                    }
-                }
-            }
-
             void SetSpawnGroupState(COSInstanceEntries group, bool state, bool force)
             {
                 if (state)
@@ -827,8 +792,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
             EventMap events;
             COSProgressStates _currentState;
-            WorldStateMap _sentWorldStates;
-            WorldStateMap _currentWorldStates;
+            std::unordered_map<uint32, uint32> _currentWorldStates;
             time_t _infiniteGuardianTimeout;
 
             // Generic

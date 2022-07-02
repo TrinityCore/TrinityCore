@@ -143,7 +143,6 @@ enum Vehicles
 enum Misc
 {
     DATA_SHUTOUT               = 29112912, // 2911, 2912 are achievement IDs
-    DATA_ORBIT_ACHIEVEMENTS    = 1,
     VEHICLE_SPAWNS             = 5,
     FREYA_SPAWNS               = 4
 
@@ -351,10 +350,6 @@ class boss_flame_leviathan : public CreatureScript
                         return Shutout ? 1 : 0;
                     case DATA_UNBROKEN:
                         return Unbroken ? 1 : 0;
-                    case DATA_ORBIT_ACHIEVEMENTS:
-                        if (ActiveTowers) // Only on HardMode
-                            return ActiveTowersCount;
-                        break;
                     default:
                         break;
                 }
@@ -522,6 +517,7 @@ class boss_flame_leviathan : public CreatureScript
                         {
                             towerOfStorms = false;
                             --ActiveTowersCount;
+                            instance->DoUpdateWorldState(WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS, 4 - ActiveTowersCount);
                         }
                         break;
                     case ACTION_TOWER_OF_FROST_DESTROYED:
@@ -529,6 +525,7 @@ class boss_flame_leviathan : public CreatureScript
                         {
                             towerOfFrost = false;
                             --ActiveTowersCount;
+                            instance->DoUpdateWorldState(WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS, 4 - ActiveTowersCount);
                         }
                         break;
                     case ACTION_TOWER_OF_FLAMES_DESTROYED:
@@ -536,6 +533,7 @@ class boss_flame_leviathan : public CreatureScript
                         {
                             towerOfFlames = false;
                             --ActiveTowersCount;
+                            instance->DoUpdateWorldState(WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS, 4 - ActiveTowersCount);
                         }
                         break;
                     case ACTION_TOWER_OF_LIFE_DESTROYED:
@@ -543,9 +541,11 @@ class boss_flame_leviathan : public CreatureScript
                         {
                             towerOfLife = false;
                             --ActiveTowersCount;
+                            instance->DoUpdateWorldState(WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS, 4 - ActiveTowersCount);
                         }
                         break;
                     case ACTION_START_HARD_MODE:  // Activate hard-mode enable all towers, apply buffs on leviathan
+                        instance->DoUpdateWorldState(WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS, 0);
                         ActiveTowers = true;
                         towerOfStorms = true;
                         towerOfLife = true;
@@ -1422,78 +1422,6 @@ class achievement_unbroken : public AchievementCriteriaScript
         }
 };
 
-class achievement_orbital_bombardment : public AchievementCriteriaScript
-{
-    public:
-        achievement_orbital_bombardment() : AchievementCriteriaScript("achievement_orbital_bombardment") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Leviathan = target->ToCreature())
-                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) >= 1)
-                    return true;
-
-            return false;
-        }
-};
-
-class achievement_orbital_devastation : public AchievementCriteriaScript
-{
-    public:
-        achievement_orbital_devastation() : AchievementCriteriaScript("achievement_orbital_devastation") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Leviathan = target->ToCreature())
-                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) >= 2)
-                    return true;
-
-            return false;
-        }
-};
-
-class achievement_nuked_from_orbit : public AchievementCriteriaScript
-{
-    public:
-        achievement_nuked_from_orbit() : AchievementCriteriaScript("achievement_nuked_from_orbit") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Leviathan = target->ToCreature())
-                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) >= 3)
-                    return true;
-
-            return false;
-        }
-};
-
-class achievement_orbit_uary : public AchievementCriteriaScript
-{
-    public:
-        achievement_orbit_uary() : AchievementCriteriaScript("achievement_orbit_uary") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (Creature* Leviathan = target->ToCreature())
-                if (Leviathan->AI()->GetData(DATA_ORBIT_ACHIEVEMENTS) == 4)
-                    return true;
-
-            return false;
-        }
-};
-
 // 62399 - Overload Circuit
 class spell_overload_circuit : public AuraScript
 {
@@ -1878,10 +1806,6 @@ void AddSC_boss_flame_leviathan()
     new achievement_three_car_garage_siege();
     new achievement_shutout();
     new achievement_unbroken();
-    new achievement_orbital_bombardment();
-    new achievement_orbital_devastation();
-    new achievement_nuked_from_orbit();
-    new achievement_orbit_uary();
 
     RegisterSpellScript(spell_overload_circuit);
     RegisterSpellScript(spell_tar_blaze);

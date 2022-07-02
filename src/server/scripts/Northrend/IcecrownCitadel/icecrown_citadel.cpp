@@ -1335,9 +1335,9 @@ class spell_icc_stoneform : public AuraScript
 };
 
 // 70536, 70545, 70546, 70547 - Spirit Alarm
-class spell_icc_sprit_alarm : public SpellScript
+class spell_icc_spirit_alarm : public SpellScript
 {
-    PrepareSpellScript(spell_icc_sprit_alarm);
+    PrepareSpellScript(spell_icc_spirit_alarm);
 
     void HandleEvent(SpellEffIndex effIndex)
     {
@@ -1382,7 +1382,7 @@ class spell_icc_sprit_alarm : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+        OnEffectHit += SpellEffectFn(spell_icc_spirit_alarm::HandleEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
     }
 };
 
@@ -1619,7 +1619,7 @@ void AddSC_icecrown_citadel()
     RegisterSpellScript(spell_darkfallen_blood_mirror);
     RegisterSpellScript(spell_generic_remove_empowered_blood);
     RegisterSpellScript(spell_icc_stoneform);
-    RegisterSpellScript(spell_icc_sprit_alarm);
+    RegisterSpellScript(spell_icc_spirit_alarm);
     RegisterSpellScript(spell_frost_giant_death_plague);
     RegisterSpellScript(spell_icc_harvest_blight_specimen);
     RegisterSpellScript(spell_icc_soul_missile);

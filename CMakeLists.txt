@@ -73,7 +73,6 @@ include(GroupSources)
 include(AutoCollect)
 
 find_package(PCHSupport)
-find_package(MySQL)
 
 if(NOT WITHOUT_GIT)
   find_package(Git 1.7)

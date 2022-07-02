@@ -15,20 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MEMORY_H
-#define _MEMORY_H
+#ifndef WorldStateDefines_h__
+#define WorldStateDefines_h__
 
-#include "DetourAlloc.h"
+#include "Define.h"
+#include <unordered_map>
+#include <unordered_set>
 
-//  memory management
-inline void* dtCustomAlloc(size_t size, dtAllocHint /*hint*/)
+struct WorldStateTemplate
 {
-    return (void*)new unsigned char[size];
-}
+    int32 Id = 0;
+    int32 DefaultValue = 0;
+    uint32 ScriptId = 0;
 
-inline void dtCustomFree(void* ptr)
-{
-    delete [] (unsigned char*)ptr;
-}
+    std::unordered_set<uint32> MapIds;
+    std::unordered_set<uint32> AreaIds;
+};
 
-#endif
+using WorldStateValueContainer = std::unordered_map<int32 /*worldStateId*/, int32 /*value*/>;
+
+#endif // WorldStateDefines_h__

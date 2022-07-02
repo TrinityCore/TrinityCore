@@ -77,6 +77,7 @@ struct MapEntry;
 struct Position;
 struct QuestObjective;
 struct SceneTemplate;
+struct WorldStateTemplate;
 
 namespace Trinity::ChatCommands { struct ChatCommandBuilder; }
 
@@ -987,6 +988,20 @@ class TC_GAME_API QuestScript : public ScriptObject
         virtual void OnQuestObjectiveChange(Player* /*player*/, Quest const* /*quest*/, QuestObjective const& /*objective*/, int32 /*oldAmount*/, int32 /*newAmount*/) { }
 };
 
+class TC_GAME_API WorldStateScript : public ScriptObject
+{
+    protected:
+
+        WorldStateScript(char const* name);
+
+    public:
+
+        ~WorldStateScript();
+
+        // Called when worldstate changes value, map is optional
+        virtual void OnValueChange([[maybe_unused]] int32 worldStateId, [[maybe_unused]] int32 oldValue, [[maybe_unused]] int32 newValue, [[maybe_unused]] Map const* map) { }
+};
+
 // Manages registration, loading, and execution of scripts.
 class TC_GAME_API ScriptMgr
 {
@@ -1288,6 +1303,10 @@ class TC_GAME_API ScriptMgr
         void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus);
         void OnQuestAcknowledgeAutoAccept(Player* player, Quest const* quest);
         void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount);
+
+    public: /* WorldStateScript */
+
+        void OnWorldStateValueChange(WorldStateTemplate const* worldStateTemplate, int32 oldValue, int32 newValue, Map const* map);
 
     private:
         uint32 _scriptCount;

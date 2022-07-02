@@ -47,6 +47,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DetourMemoryFunctions.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "GameObjectModel.h"
@@ -67,7 +68,6 @@
 #include "LootMgr.h"
 #include "M2Stores.h"
 #include "MapManager.h"
-#include "Memory.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
@@ -100,6 +100,7 @@
 #include "WhoListStorage.h"
 #include "WorldSession.h"
 #include "WorldSocket.h"
+#include "WorldStateMgr.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -159,9 +160,6 @@ World::World()
     _guidAlert = false;
     _warnDiff = 0;
     _warnShutdownTime = GameTime::GetGameTime();
-
-    _warModeDominantFaction = TEAM_NEUTRAL;
-    _warModeOutnumberedFactionReward = 0;
 }
 
 /// World destructor
@@ -2241,8 +2239,15 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature Formations...");
     sFormationMgr->LoadCreatureFormations();
 
+    TC_LOG_INFO("server.loading", "Loading World State templates...");
+    sWorldStateMgr->LoadFromDB();
+
     TC_LOG_INFO("server.loading", "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();
+
+    // TODO: this is temporary until custom world states are purged from old world state saved values
+    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, getWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE), nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, getWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE), nullptr);
 
     sObjectMgr->LoadPhases();
 
@@ -2420,9 +2425,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Starting Battlefield System");
     sBattlefieldMgr->InitBattlefield();
 
-    TC_LOG_INFO("server.loading", "Loading Transports...");
-    sTransportMgr->SpawnContinentTransports();
-
     ///- Initialize Warden
     TC_LOG_INFO("server.loading", "Loading Warden Checks...");
     sWardenCheckMgr->LoadWardenChecks();
@@ -2493,8 +2495,12 @@ void World::SetInitialWorldSettings()
 
 void World::SetForcedWarModeFactionBalanceState(TeamId team, int32 reward)
 {
-    _warModeDominantFaction = team;
-    _warModeOutnumberedFactionReward = reward;
+    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (team == TEAM_ALLIANCE ? reward : 0), nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (team == TEAM_HORDE ? reward : 0), nullptr);
+
+    // save to db
+    setWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, nullptr));
+    setWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, nullptr));
 }
 
 void World::DisableForcedWarModeFactionBalanceState()
@@ -3918,33 +3924,35 @@ void World::UpdateWarModeRewardValues()
         } while (result->NextRow());
     }
 
-    _warModeDominantFaction = TEAM_NEUTRAL;
-    _warModeOutnumberedFactionReward = 0;
-
-    if (std::all_of(warModeEnabledFaction.begin(), warModeEnabledFaction.end(), [](int64 val) { return val == 0; }))
-        return;
-
-    int64 dominantFactionCount = warModeEnabledFaction[TEAM_ALLIANCE];
     TeamId dominantFaction = TEAM_ALLIANCE;
-    if (warModeEnabledFaction[TEAM_ALLIANCE] < warModeEnabledFaction[TEAM_HORDE])
+    int32 outnumberedFactionReward = 0;
+
+    if (std::any_of(warModeEnabledFaction.begin(), warModeEnabledFaction.end(), [](int64 val) { return val != 0; }))
     {
-        dominantFactionCount = warModeEnabledFaction[TEAM_HORDE];
-        dominantFaction = TEAM_HORDE;
+        int64 dominantFactionCount = warModeEnabledFaction[TEAM_ALLIANCE];
+        if (warModeEnabledFaction[TEAM_ALLIANCE] < warModeEnabledFaction[TEAM_HORDE])
+        {
+            dominantFactionCount = warModeEnabledFaction[TEAM_HORDE];
+            dominantFaction = TEAM_HORDE;
+        }
+
+        double total = warModeEnabledFaction[TEAM_ALLIANCE] + warModeEnabledFaction[TEAM_HORDE];
+        double pct = dominantFactionCount / total;
+
+        if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_20_PCT))
+            outnumberedFactionReward = 20;
+        else if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_10_PCT))
+            outnumberedFactionReward = 10;
+        else if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_5_PCT))
+            outnumberedFactionReward = 5;
     }
 
-    double total = warModeEnabledFaction[TEAM_ALLIANCE] + warModeEnabledFaction[TEAM_HORDE];
-    double pct = dominantFactionCount / total;
+    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (dominantFaction == TEAM_ALLIANCE ? outnumberedFactionReward : 0), nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (dominantFaction == TEAM_HORDE ? outnumberedFactionReward : 0), nullptr);
 
-    if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_20_PCT))
-        _warModeOutnumberedFactionReward = 20;
-    else if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_10_PCT))
-        _warModeOutnumberedFactionReward = 10;
-    else if (pct >= sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_5_PCT))
-        _warModeOutnumberedFactionReward = 5;
-    else
-        return;
-
-    _warModeDominantFaction = dominantFaction;
+    // save to db
+    setWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, nullptr));
+    setWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, nullptr));
 }
 
 Realm realm;

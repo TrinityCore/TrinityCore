@@ -31,9 +31,8 @@
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {
-    static_assert(std::is_same<Player, T>::value
-        || std::is_same<Transport, T>::value,
-        "Only Player and Transport can be registered in global HashMapHolder");
+    static_assert(std::is_same<Player, T>::value,
+        "Only Player can be registered in global HashMapHolder");
 
     std::unique_lock<std::shared_mutex> lock(*GetLock());
 
@@ -72,7 +71,6 @@ std::shared_mutex* HashMapHolder<T>::GetLock()
 }
 
 template class TC_GAME_API HashMapHolder<Player>;
-template class TC_GAME_API HashMapHolder<Transport>;
 
 namespace PlayerNameMapHolder
 {
@@ -180,14 +178,9 @@ GameObject* ObjectAccessor::GetGameObject(WorldObject const& u, ObjectGuid const
     return u.GetMap()->GetGameObject(guid);
 }
 
-Transport* ObjectAccessor::GetTransportOnMap(WorldObject const& u, ObjectGuid const& guid)
+Transport* ObjectAccessor::GetTransport(WorldObject const& u, ObjectGuid const& guid)
 {
     return u.GetMap()->GetTransport(guid);
-}
-
-Transport* ObjectAccessor::GetTransport(ObjectGuid const& guid)
-{
-    return HashMapHolder<Transport>::Find(guid);
 }
 
 DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid const& guid)

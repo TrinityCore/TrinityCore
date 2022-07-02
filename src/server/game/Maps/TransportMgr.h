@@ -97,10 +97,12 @@ struct TransportTemplate
     std::vector<TransportPathEvent> Events;
 
     Optional<Position> ComputePosition(uint32 time, TransportMovementState* moveState, size_t* legIndex) const;
+    TransportPathLeg const* GetLegForTime(uint32 time) const;
     uint32 GetNextPauseWaypointTimestamp(uint32 time) const;
 
     double CalculateDistanceMoved(double timePassedInSegment, double segmentDuration, bool isFirstSegment, bool isLastSegment) const;
 
+    std::set<uint32> MapIds;
     bool InInstance = false;
 };
 
@@ -142,13 +144,10 @@ class TC_GAME_API TransportMgr
         void LoadTransportSpawns();
 
         // Creates a transport using given GameObject template entry
-        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0);
+        Transport* CreateTransport(uint32 entry, Map* map, ObjectGuid::LowType guid = 0, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0);
 
-        // Spawns all continent transports, used at core startup
-        void SpawnContinentTransports();
-
-        // creates all transports for instance
-        void CreateInstanceTransports(Map* map);
+        // creates all transports for map
+        void CreateTransportsForMap(Map* map);
 
         TransportTemplate const* GetTransportTemplate(uint32 entry) const;
 
@@ -160,10 +159,12 @@ class TC_GAME_API TransportMgr
         TransportMgr();
         ~TransportMgr();
         TransportMgr(TransportMgr const&) = delete;
+        TransportMgr(TransportMgr&&) = delete;
         TransportMgr& operator=(TransportMgr const&) = delete;
+        TransportMgr& operator=(TransportMgr&&) = delete;
 
         // Generates and precaches a path for transport to avoid generation each time transport instance is created
-        void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport, std::set<uint32>* mapsUsed);
+        void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport);
 
         void AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node);
 
@@ -173,7 +174,7 @@ class TC_GAME_API TransportMgr
         std::unordered_map<uint32, TransportTemplate> _transportTemplates;
 
         // Container storing transport entries to create for instanced maps
-        std::unordered_map<uint32, std::set<uint32>> _instanceTransports;
+        std::unordered_map<uint32, std::set<TransportSpawn*>> _transportsByMap;
 
         std::map<uint32, TransportAnimation> _transportAnimations;
 

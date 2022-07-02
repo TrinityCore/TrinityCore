@@ -42,13 +42,6 @@ struct InstanceSpawnGroupInfo;
 enum class CriteriaType : uint8;
 enum class CriteriaStartEvent : uint8;
 enum EncounterCreditType : uint8;
-namespace WorldPackets
-{
-    namespace WorldState
-    {
-        class InitWorldStates;
-    }
-}
 
 enum EncounterFrameType
 {
@@ -216,7 +209,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn = 1min);
 
         // Sends world state update to all players in instance
-        void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
+        void DoUpdateWorldState(int32 worldStateId, int32 value);
 
         // Send Notify to all players in instance
         void DoSendNotifyToInstance(char const* format, ...);
@@ -256,8 +249,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
-
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         uint32 GetEncounterCount() const { return uint32(bosses.size()); }
 

@@ -21,6 +21,7 @@
 #include "Define.h"
 #include <openssl/evp.h>
 #include <array>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -34,16 +35,33 @@ public:
     class TC_COMMON_API DigestGenerator
     {
     public:
+        struct EVP_MD_Deleter
+        {
+            void operator()(EVP_MD* md) const;
+        };
+
         virtual ~DigestGenerator() = default;
-        virtual EVP_MD const* GetGenerator() const = 0;
+        virtual std::unique_ptr<EVP_MD, EVP_MD_Deleter> GetGenerator() const = 0;
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        virtual OSSL_LIB_CTX* GetLib() const = 0;
+        virtual std::unique_ptr<OSSL_PARAM[]> GetParams() const = 0;
+#else
         virtual void PostInitCustomizeContext(EVP_MD_CTX* ctx) = 0;
+#endif
     };
 
     class TC_COMMON_API SHA256 : public DigestGenerator
     {
     public:
-        EVP_MD const* GetGenerator() const override;
+        std::unique_ptr<EVP_MD, EVP_MD_Deleter> GetGenerator() const override;
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        OSSL_LIB_CTX* GetLib() const override;
+        std::unique_ptr<OSSL_PARAM[]> GetParams() const override;
+#else
         void PostInitCustomizeContext(EVP_MD_CTX* ctx) override;
+#endif
     };
 
     class TC_COMMON_API HMAC_SHA256 : public DigestGenerator
@@ -51,8 +69,14 @@ public:
     public:
         explicit HMAC_SHA256(uint8 const* key, size_t keyLength) : _key(key), _keyLength(keyLength) { }
 
-        EVP_MD const* GetGenerator() const override;
+        std::unique_ptr<EVP_MD, EVP_MD_Deleter> GetGenerator() const override;
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        OSSL_LIB_CTX* GetLib() const override;
+        std::unique_ptr<OSSL_PARAM[]> GetParams() const override;
+#else
         void PostInitCustomizeContext(EVP_MD_CTX* ctx) override;
+#endif
 
     private:
         uint8 const* _key;

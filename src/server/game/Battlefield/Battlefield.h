@@ -99,8 +99,6 @@ class TC_GAME_API BfCapturePoint
 
         virtual ~BfCapturePoint() { }
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
-
         // Send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
 
@@ -224,11 +222,6 @@ class TC_GAME_API Battlefield : public ZoneScript
         /// Call this to init the Battlefield
         virtual bool SetupBattlefield() { return true; }
 
-        void SendInitWorldStatesTo(Player* player);
-
-        /// Update data of a worldstate to all players present in zone
-        void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
-
         /**
          * \brief Called every time for update bf data and time
          * - Update timer for start/end battle
@@ -250,6 +243,8 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
+        uint32 GetMapId() const { return m_MapId; }
+        Map* GetMap() const { return m_Map; }
         uint64 GetQueueId() const;
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
@@ -343,10 +338,6 @@ class TC_GAME_API Battlefield : public ZoneScript
         void PlayerAskToLeave(Player* player);
 
         virtual void DoCompleteOrIncrementAchievement(uint32 /*achievement*/, Player* /*player*/, uint8 /*incrementNumber = 1*/) { }
-
-        /// Send all worldstate data to all player in zone.
-        virtual void SendInitWorldStatesToAll() = 0;
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) = 0;
 
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }

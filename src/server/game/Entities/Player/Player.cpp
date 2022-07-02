@@ -124,6 +124,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 #include <sstream>
@@ -443,7 +444,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     if (position.TransportGuid)
     {
-        if (Transport* transport = HashMapHolder<Transport>::Find(ObjectGuid::Create<HighGuid::Transport>(*position.TransportGuid)))
+        if (Transport* transport = ObjectAccessor::GetTransport(*this, ObjectGuid::Create<HighGuid::Transport>(*position.TransportGuid)))
         {
             transport->AddPassenger(this);
             m_movementInfo.transport.pos.Relocate(position.Loc);
@@ -7337,7 +7338,7 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
     {
         if (area)
         {
-            if (InBattleground() || area->Flags[0] & AREA_FLAG_COMBAT || (area->PvpCombatWorldStateID != -1 && sWorld->getWorldState(area->PvpCombatWorldStateID) != 0))
+            if (InBattleground() || area->Flags[0] & AREA_FLAG_COMBAT || (area->PvpCombatWorldStateID != -1 && sWorldStateMgr->GetValue(area->PvpCombatWorldStateID, GetMap()) != 0))
                 pvpInfo.IsInHostileArea = true;
             else if (IsWarModeLocalActive() || (area->Flags[0] & AREA_FLAG_UNK3))
             {
@@ -9204,8 +9205,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     uint32 mapId = GetMapId();
     Battleground* battleground = GetBattleground();
     OutdoorPvP* outdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneId);
-    InstanceScript* instance = GetInstanceScript();
-    Battlefield* battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(zoneId);
 
     TC_LOG_DEBUG("network", "Player::SendInitWorldStates: Sending SMSG_INIT_WORLD_STATES for Map: %u, Zone: %u", mapId, zoneId);
 
@@ -9213,6 +9212,8 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     packet.MapID = mapId;
     packet.AreaID = zoneId;
     packet.SubareaID = areaId;
+
+    sWorldStateMgr->FillInitialWorldStates(packet, GetMap(), areaId);
 
     packet.Worldstates.emplace_back(2264, 0); // SCOURGE_EVENT_WORLDSTATE_EASTERN_PLAGUELANDS
     packet.Worldstates.emplace_back(2263, 0); // SCOURGE_EVENT_WORLDSTATE_TANARIS
@@ -9238,12 +9239,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
         packet.Worldstates.emplace_back(2493, 15); // NA_UI_GUARDS_MAX
         packet.Worldstates.emplace_back(2491, 15); // NA_UI_GUARDS_LEFT
     }
-
-    // Horde War Mode bonus
-    packet.Worldstates.emplace_back(17042, 10 + (sWorld->GetWarModeDominantFaction() == TEAM_ALLIANCE ? sWorld->GetWarModeOutnumberedFactionReward() : 0));
-
-    // Alliance War Mode bonus
-    packet.Worldstates.emplace_back(17043, 10 + (sWorld->GetWarModeDominantFaction() == TEAM_HORDE ? sWorld->GetWarModeOutnumberedFactionReward() : 0));
 
     switch (zoneId)
     {
@@ -9685,90 +9680,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
                 packet.Worldstates.emplace_back(4345, 1);   // unk
             }
             break;
-        case 4987: // The Ruby Sanctum
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(5049, 50); // WORLDSTATE_CORPOREALITY_MATERIAL
-                packet.Worldstates.emplace_back(5050, 50); // WORLDSTATE_CORPOREALITY_TWILIGHT
-                packet.Worldstates.emplace_back(5051, 0);  // WORLDSTATE_CORPOREALITY_TOGGLE
-            }
-            break;
-        case 4812: // Icecrown Citadel
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(4903, 0);  // WORLDSTATE_SHOW_TIMER (Blood Quickening weekly)
-                packet.Worldstates.emplace_back(4904, 30); // WORLDSTATE_EXECUTION_TIME
-                packet.Worldstates.emplace_back(4940, 0);  // WORLDSTATE_SHOW_ATTEMPTS
-                packet.Worldstates.emplace_back(4941, 50); // WORLDSTATE_ATTEMPTS_REMAINING
-                packet.Worldstates.emplace_back(4942, 50); // WORLDSTATE_ATTEMPTS_MAX
-            }
-            break;
-        case 4100: // The Culling of Stratholme
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(3479, 0);  // WORLDSTATE_SHOW_CRATES
-                packet.Worldstates.emplace_back(3480, 0);  // WORLDSTATE_CRATES_REVEALED
-                packet.Worldstates.emplace_back(3504, 0);  // WORLDSTATE_WAVE_COUNT
-                packet.Worldstates.emplace_back(3931, 25); // WORLDSTATE_TIME_GUARDIAN
-                packet.Worldstates.emplace_back(3932, 0);  // WORLDSTATE_TIME_GUARDIAN_SHOW
-            }
-            break;
-        case 4228: // The Oculus
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(3524, 0); // WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW
-                packet.Worldstates.emplace_back(3486, 0); // WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT
-            }
-            break;
-        case 4273: // Ulduar
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(4132, 0); // WORLDSTATE_ALGALON_TIMER_ENABLED
-                packet.Worldstates.emplace_back(4131, 0); // WORLDSTATE_ALGALON_DESPAWN_TIMER
-            }
-            break;
-        case 4415: // Violet Hold
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-               packet.Worldstates.emplace_back(3816, 0);   // WORLD_STATE_VH_SHOW
-               packet.Worldstates.emplace_back(3815, 100); // WORLD_STATE_VH_PRISON_STATE
-               packet.Worldstates.emplace_back(3810, 0);   // WORLD_STATE_VH_WAVE_COUNT
-            }
-            break;
-        case 4820: // Halls of Refection
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(4884, 0); // WORLD_STATE_HOR_WAVES_ENABLED
-                packet.Worldstates.emplace_back(4882, 0); // WORLD_STATE_HOR_WAVE_COUNT
-            }
-            break;
-        case AREA_WINTERGRASP: // Wintergrasp
-            if (battlefield && battlefield->GetTypeId() == BATTLEFIELD_WG)
-                battlefield->FillInitialWorldStates(packet);
-            break;
-        case 3805: // Zul Aman
-            if (instance)
-                instance->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(3104, 0); // WORLD_STATE_ZULAMAN_TIMER_ENABLED
-                packet.Worldstates.emplace_back(3106, 0); // WORLD_STATE_ZULAMAN_TIMER
-            }
-            break;
         case 5031: // Twin Peaks
             if (battleground && battleground->GetTypeID(true) == BATTLEGROUND_TP)
                 battleground->FillInitialWorldStates(packet);
@@ -9788,27 +9699,12 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             if (battleground && battleground->GetTypeID(true) == BATTLEGROUND_BFG)
                 battleground->FillInitialWorldStates(packet);
             break;
-        case 5389: // Tol Barad Peninsula
-            if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
-            {
-                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW));
-                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW));
-                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW));
-                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW));
-                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW));
-            }
-            break;
-        case 5095: // Tol Barad
-            if (battlefield && battlefield->GetTypeId() == BATTLEFIELD_TB)
-                battlefield->FillInitialWorldStates(packet);
-            break;
         default:
             break;
     }
 
     SendDirectMessage(packet.Write());
     SendBGWeekendWorldStates();
-    SendBattlefieldWorldStates();
 }
 
 void Player::SendBGWeekendWorldStates() const
@@ -9822,31 +9718,6 @@ void Player::SendBGWeekendWorldStates() const
                 SendUpdateWorldState(bl->HolidayWorldState, 1);
             else
                 SendUpdateWorldState(bl->HolidayWorldState, 0);
-        }
-    }
-}
-
-void Player::SendBattlefieldWorldStates() const
-{
-    /// Send misc stuff that needs to be sent on every login, like the battle timers.
-    if (sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE))
-    {
-        if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
-        {
-            SendUpdateWorldState(WS_BATTLEFIELD_WG_ACTIVE, wg->IsWarTime() ? 0 : 1);
-            uint32 timer = wg->IsWarTime() ? 0 : (wg->GetTimer() / 1000); // 0 - Time to next battle
-            SendUpdateWorldState(WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE, uint32(GameTime::GetGameTime() + timer));
-        }
-    }
-
-    if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
-    {
-        if (Battlefield* tb = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_TB))
-        {
-            SendUpdateWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, uint32(tb->GetDefenderTeam() + 1));
-            uint32 timer = tb->GetTimer() / 1000;
-            SendUpdateWorldState(WS_BATTLEFIELD_TB_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
-            SendUpdateWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
         }
     }
 }
@@ -10232,7 +10103,11 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, slot);
     else
         item = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+
     if (!item || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON)
+        return nullptr;
+
+    if ((attackType == RANGED_ATTACK) != item->GetTemplate()->IsRangedWeapon())
         return nullptr;
 
     if (!useable)
@@ -18224,8 +18099,22 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         ObjectGuid transGUID = ObjectGuid::Create<HighGuid::Transport>(fields.transguid);
 
         Transport* transport = nullptr;
-        if (Transport* go = HashMapHolder<Transport>::Find(transGUID))
-            transport = go;
+        if (Map* transportMap = sMapMgr->CreateMap(mapId, this, instanceId))
+        {
+            if (Transport* transportOnMap = transportMap->GetTransport(transGUID))
+            {
+                if (transportOnMap->GetExpectedMapId() != mapId)
+                {
+                    mapId = transportOnMap->GetExpectedMapId();
+                    instanceId = 0;
+                    transportMap = sMapMgr->CreateMap(mapId, this, instanceId);
+                    if (transportMap)
+                        transport = transportMap->GetTransport(transGUID);
+                }
+                else
+                    transport = transportOnMap;
+            }
+        }
 
         if (transport)
         {
@@ -20373,22 +20262,14 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     if (!ok && HasAtLoginFlag(AT_LOGIN_FIRST))
     {
         PlayerInfo::CreatePosition const& createPosition = m_createMode == PlayerCreateMode::NPE && info->createPositionNPE ? *info->createPositionNPE : info->createPosition;
-
-        m_homebind.WorldRelocate(createPosition.Loc);
-        if (createPosition.TransportGuid)
+        if (!createPosition.TransportGuid)
         {
-            if (Transport* transport = HashMapHolder<Transport>::Find(ObjectGuid::Create<HighGuid::Transport>(*createPosition.TransportGuid)))
-            {
-                float orientation = m_homebind.GetOrientation();
-                transport->CalculatePassengerPosition(m_homebind.m_positionX, m_homebind.m_positionY, m_homebind.m_positionZ, &orientation);
-                m_homebind.SetOrientation(orientation);
-            }
+            m_homebind.WorldRelocate(createPosition.Loc);
+            m_homebindAreaId = sMapMgr->GetAreaId(PhasingHandler::GetEmptyPhaseShift(), m_homebind);
+
+            saveHomebindToDb();
+            ok = true;
         }
-
-        m_homebindAreaId = sMapMgr->GetAreaId(PhasingHandler::GetEmptyPhaseShift(), m_homebind);
-
-        saveHomebindToDb();
-        ok = true;
     }
 
     if (!ok)
@@ -24467,9 +24348,15 @@ bool Player::ModifyMoney(int64 amount, bool sendError /*= true*/)
 
 void Player::SetMoney(uint64 value)
 {
-    MoneyChanged(value);
+    bool loading = GetSession()->PlayerLoading();
+
+    if (!loading)
+        MoneyChanged(value);
+
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), value);
-    UpdateCriteria(CriteriaType::MostMoneyOwned);
+
+    if (!loading)
+        UpdateCriteria(CriteriaType::MostMoneyOwned);
 }
 
 bool Player::IsQuestRewarded(uint32 quest_id) const
