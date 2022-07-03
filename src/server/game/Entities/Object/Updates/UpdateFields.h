@@ -47,6 +47,7 @@ namespace UF
 struct ObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<4>
 {
     UpdateField<int32, 0, 1> EntryID;
+    struct EntryIDTag : ViewerDependentValueTag<int32> {};
     UpdateField<uint32, 0, 2> DynamicFlags;
     struct DynamicFlagsTag : ViewerDependentValueTag<uint32> {};
     UpdateField<float, 0, 3> Scale;
