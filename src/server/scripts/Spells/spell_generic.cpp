@@ -5180,4 +5180,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);
     RegisterSpellScript(spell_summon_battle_pet);
     RegisterSpellScript(spell_gen_anchor_here);
+    RegisterSpellScript(spell_gen_mount_check_aura);
 }
