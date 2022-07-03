@@ -38,6 +38,25 @@ class ViewerDependentValue
 };
 
 template<>
+class ViewerDependentValue<UF::ObjectData::EntryIDTag>
+{
+public:
+    using value_type = UF::ObjectData::EntryIDTag::value_type;
+
+    static value_type GetValue(UF::ObjectData const* objectData, Object const* object, Player const* receiver)
+    {
+        value_type entryId = objectData->EntryID;
+
+        if (Unit const* unit = object->ToUnit())
+            if (TempSummon const* summon = unit->ToTempSummon())
+                if (summon->GetSummonerGUID() == receiver->GetGUID() && summon->GetCreatureIdVisibleToSummoner())
+                    entryId = *summon->GetCreatureIdVisibleToSummoner();
+
+        return entryId;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::ObjectData::DynamicFlagsTag>
 {
 public:
@@ -122,6 +141,18 @@ public:
         {
             CreatureTemplate const* cinfo = unit->ToCreature()->GetCreatureTemplate();
 
+            if (TempSummon const* summon = unit->ToTempSummon())
+            {
+                if (summon->GetSummonerGUID() == receiver->GetGUID())
+                {
+                    if (summon->GetCreatureIdVisibleToSummoner())
+                        cinfo = sObjectMgr->GetCreatureTemplate(*summon->GetCreatureIdVisibleToSummoner());
+
+                    if (summon->GetDisplayIdVisibleToSummoner())
+                        displayId = *summon->GetDisplayIdVisibleToSummoner();
+                }
+            }
+
             // this also applies for transform auras
             if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->GetTransformSpell(), unit->GetMap()->GetDifficultyID()))
             {
@@ -138,50 +169,12 @@ public:
                 }
             }
 
-            if (TempSummon const* summon = unit->ToTempSummon())
-            {
-                if (receiver == summon->GetSummoner())
-                {
-                    if (CreaturePersonalInfo const* personalInfo = sObjectMgr->GetCreaturePersonalInfo(summon->GetEntry()))
-                    {
-                        if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(personalInfo->EntryForSummoner))
-                            displayId = transformInfo->GetFirstVisibleModel()->CreatureDisplayID;
-                    }
-                }
-            }
-
             if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                 if (receiver->IsGameMaster())
                     displayId = cinfo->GetFirstVisibleModel()->CreatureDisplayID;
         }
 
         return displayId;
-    }
-};
-
-template<>
-class ViewerDependentValue<UF::ObjectData::EntryIDTag>
-{
-public:
-    using value_type = UF::ObjectData::EntryIDTag::value_type;
-
-    static value_type GetValue(UF::ObjectData const* objectData, Object const* object, Player const* receiver)
-    {
-        value_type entryID = objectData->EntryID;
-
-        if (Unit const* unit = object->ToUnit())
-        {
-            if (TempSummon const* summon = unit->ToTempSummon())
-            {
-                if (receiver == summon->GetSummoner())
-                {
-                    if (CreaturePersonalInfo const* personalInfo = sObjectMgr->GetCreaturePersonalInfo(summon->GetEntry()))
-                        entryID = personalInfo->EntryForSummoner;
-                }
-            }
-        }
-
-        return entryID;
     }
 };
 

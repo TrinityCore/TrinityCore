@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
 #include "SmoothPhasing.h"
@@ -193,6 +194,19 @@ void TempSummon::InitStats(uint32 duration)
     if (owner && IsTrigger() && m_spells[0])
         if (owner->GetTypeId() == TYPEID_PLAYER)
             m_ControlledByPlayer = true;
+
+    if (owner && owner->IsPlayer())
+    {
+        if (CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(GetEntry()))
+        {
+            m_creatureIdVisibleToSummoner = summonedData->CreatureIDVisibleToSummoner;
+            if (summonedData->CreatureIDVisibleToSummoner)
+            {
+                CreatureTemplate const* creatureTemplateVisibleToSummoner = ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(*summonedData->CreatureIDVisibleToSummoner));
+                m_displayIdVisibleToSummoner = ObjectMgr::ChooseDisplayId(creatureTemplateVisibleToSummoner, nullptr)->CreatureDisplayID;
+            }
+        }
+    }
 
     if (!m_Properties)
         return;

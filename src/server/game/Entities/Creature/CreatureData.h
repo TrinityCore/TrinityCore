@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
+#include "Optional.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "UnitDefines.h"
@@ -605,12 +606,11 @@ struct CreatureModelInfo
     bool is_trigger;
 };
 
-struct CreaturePersonalInfo
+struct CreatureSummonedData
 {
-    uint32 Entry;
-    uint32 EntryForSummoner;
-    uint32 GroundMountDisplayID;
-    uint32 FlightMountDisplayID;
+    Optional<uint32> CreatureIDVisibleToSummoner;
+    Optional<uint32> GroundMountDisplayID;
+    Optional<uint32> FlyingMountDisplayID;
 };
 
 enum InhabitTypeValues
