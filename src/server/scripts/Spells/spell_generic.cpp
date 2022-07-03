@@ -4993,6 +4993,39 @@ class spell_gen_anchor_here : public SpellScript
     }
 };
 
+// 147066 - (Serverside/Non-DB2) Generic - Mount Check Aura
+class spell_gen_mount_check_aura : public AuraScript
+{
+    PrepareAuraScript(spell_gen_mount_check_aura);
+
+    void HandleMount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        if (TempSummon* tempSummon = target->ToTempSummon())
+        {
+            if (WorldObject* summoner = tempSummon->GetSummoner())
+            {
+                if (summoner->IsPlayer() && !summoner->ToUnit()->IsInCombat())
+                {
+                    if (CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(tempSummon->GetEntry()))
+                    {
+                        if (summoner->ToPlayer()->IsFlying() && summonedData->FlyingMountDisplayID)
+                            target->SetMountDisplayId(*summonedData->FlyingMountDisplayID);
+                        else if (summonedData->GroundMountDisplayID)
+                            target->SetMountDisplayId(*summonedData->GroundMountDisplayID);
+                    }
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_mount_check_aura::HandleMount, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
