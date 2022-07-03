@@ -3716,17 +3716,18 @@ void World::ResetCurrencyWeekCap()
     sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint32(m_NextCurrencyReset));
 }
 
-void World::ResetEventSeasonalQuests(uint16 event_id)
+void World::ResetEventSeasonalQuests(uint16 event_id, time_t eventStartTime)
 {
     TC_LOG_INFO("misc", "Seasonal quests reset for all characters.");
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
     stmt->setUInt16(0, event_id);
+    stmt->setInt64(1, eventStartTime);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
-            itr->second->GetPlayer()->ResetSeasonalQuestStatus(event_id);
+            itr->second->GetPlayer()->ResetSeasonalQuestStatus(event_id, eventStartTime);
 }
 
 void World::ResetRandomBG()

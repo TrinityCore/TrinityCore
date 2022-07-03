@@ -1612,7 +1612,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DailyReset();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
-        void ResetSeasonalQuestStatus(uint16 event_id);
+        void ResetSeasonalQuestStatus(uint16 event_id, time_t eventStartTime);
 
         uint16 FindQuestSlot(uint32 quest_id) const;
         uint32 GetQuestSlotQuestId(uint16 slot) const;
@@ -2866,12 +2866,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
         typedef std::set<uint32> QuestSet;
-        typedef std::set<uint32> SeasonalQuestSet;
-        typedef std::unordered_map<uint32, SeasonalQuestSet> SeasonalEventQuestMap;
+        typedef std::unordered_map<uint32, time_t> SeasonalQuestMapByQuest;
+        typedef std::unordered_map<uint32, SeasonalQuestMapByQuest> SeasonalQuestMapByEvent;
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;
         QuestSet m_monthlyquests;
-        SeasonalEventQuestMap m_seasonalquests;
+        SeasonalQuestMapByEvent m_seasonalquests;
 
         ObjectGuid m_playerSharingQuest;
         uint32 m_sharedQuestId;

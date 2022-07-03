@@ -139,6 +139,7 @@ class TC_GAME_API GameEventMgr
         bool hasCreatureActiveEventExcept(ObjectGuid::LowType creature_guid, uint16 event_id);
         bool hasGameObjectActiveEventExcept(ObjectGuid::LowType go_guid, uint16 event_id);
         void SetHolidayEventTime(GameEventData& event);
+        time_t GetLastStartTime(uint16 event_id) const;
 
         typedef std::list<ObjectGuid::LowType> GuidList;
         typedef std::list<uint32> IdList;
