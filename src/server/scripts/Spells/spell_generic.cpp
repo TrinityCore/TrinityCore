@@ -353,52 +353,6 @@ class spell_gen_aura_of_fear : public AuraScript
     }
 };
 
-enum ServiceUniform
-{
-    // Spells
-    SPELL_SERVICE_UNIFORM       = 71450,
-
-    // Models
-    MODEL_GOBLIN_MALE           = 31002,
-    MODEL_GOBLIN_FEMALE         = 31003
-};
-
-class spell_gen_aura_service_uniform : public AuraScript
-{
-    PrepareAuraScript(spell_gen_aura_service_uniform);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SERVICE_UNIFORM });
-    }
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        // Apply model goblin
-        Unit* target = GetTarget();
-        if (target->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (target->GetNativeGender() == GENDER_MALE)
-                target->SetDisplayId(MODEL_GOBLIN_MALE);
-            else
-                target->SetDisplayId(MODEL_GOBLIN_FEMALE);
-        }
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-        if (target->GetTypeId() == TYPEID_PLAYER)
-            target->RestoreDisplayId();
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectRemoveFn(spell_gen_aura_service_uniform::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_aura_service_uniform::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 class spell_gen_av_drekthar_presence : public AuraScript
 {
     PrepareAuraScript(spell_gen_av_drekthar_presence);
@@ -5007,7 +4961,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_spawn_blood_pool);
     RegisterSpellScript(spell_gen_arena_drink);
     RegisterSpellScript(spell_gen_aura_of_fear);
-    RegisterSpellScript(spell_gen_aura_service_uniform);
     RegisterSpellScript(spell_gen_av_drekthar_presence);
     RegisterSpellScript(spell_gen_bandage);
     RegisterSpellScript(spell_gen_battleground_mercenary_shapeshift);
