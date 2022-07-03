@@ -876,6 +876,7 @@ class spell_zuldrak_scourge_disguise_expiring : public AuraScript
     }
 };
 
+// 52335 - Drop Scourge Disguise
 // 54089 - Drop Disguise
 class spell_zuldrak_drop_disguise : public SpellScript
 {
@@ -946,6 +947,52 @@ class spell_zuldrak_cocooned_on_quest : public SpellScript
     }
 };
 
+/*######
+## Quest 12676: Sabotage
+######*/
+
+enum Sabotage
+{
+    SPELL_EXPLODE_SCOURGEWAGON_ROLLER    = 52325,
+    SPELL_EXPLODE_SCOURGEWAGON_FRAME     = 52329,
+    SPELL_EXPLODE_SCOURGEWAGON_GRILL     = 52330,
+    SPELL_EXPLODE_SCOURGEWAGON_WHEEL     = 52332
+};
+
+// 52324 - Scourgewagon Explosion
+class spell_zuldrak_scourgewagon_explosion : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_scourgewagon_explosion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_EXPLODE_SCOURGEWAGON_ROLLER,
+            SPELL_EXPLODE_SCOURGEWAGON_FRAME,
+            SPELL_EXPLODE_SCOURGEWAGON_GRILL,
+            SPELL_EXPLODE_SCOURGEWAGON_WHEEL
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_EXPLODE_SCOURGEWAGON_ROLLER);
+        caster->CastSpell(caster, SPELL_EXPLODE_SCOURGEWAGON_FRAME);
+        caster->CastSpell(caster, SPELL_EXPLODE_SCOURGEWAGON_GRILL);
+        caster->CastSpell(caster, SPELL_EXPLODE_SCOURGEWAGON_WHEEL);
+        caster->CastSpell(caster, SPELL_EXPLODE_SCOURGEWAGON_WHEEL);
+        caster->CastSpell(caster, SPELL_EXPLODE_SCOURGEWAGON_WHEEL);
+        caster->CastSpell(caster, SPELL_EXPLODE_SCOURGEWAGON_WHEEL);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_zuldrak_scourgewagon_explosion::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_drakuru_shackles);
@@ -965,4 +1012,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_drop_disguise);
     RegisterSpellScript(spell_zuldrak_cocooned_not_on_quest);
     RegisterSpellScript(spell_zuldrak_cocooned_on_quest);
+    RegisterSpellScript(spell_zuldrak_scourgewagon_explosion);
 }
