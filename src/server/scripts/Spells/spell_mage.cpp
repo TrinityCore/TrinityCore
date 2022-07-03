@@ -1221,6 +1221,27 @@ class spell_mage_ring_of_frost_freeze_AuraScript : public AuraScript
     }
 };
 
+// 157980 - Supernova
+class spell_mage_supernova : public SpellScript
+{
+    PrepareSpellScript(spell_mage_supernova);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (GetExplTargetUnit() == GetHitUnit())
+        {
+            uint32 damage = GetHitDamage();
+            AddPct(damage, GetEffectInfo(EFFECT_0).CalcValue());
+            SetHitDamage(damage);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_supernova::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 80353 - Time Warp
 class spell_mage_time_warp : public SpellScript
 {
@@ -1361,6 +1382,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_prismatic_barrier);
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
+    RegisterSpellScript(spell_mage_supernova);
     RegisterSpellScript(spell_mage_time_warp);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
