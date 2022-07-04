@@ -1,7 +1,3 @@
 DELETE FROM `spell_script_names` WHERE `spell_id` = 205021;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (205021, 'spell_mage_ray_of_frost');
-
-DELETE FROM `spell_misc` WHERE `ID`=342365 AND `VerifiedBuild`=42423;
-INSERT INTO `spell_misc` (`ID`, `Attributes1`, `Attributes2`, `Attributes3`, `Attributes4`, `Attributes5`, `Attributes6`, `Attributes7`, `Attributes8`, `Attributes9`, `Attributes10`, `Attributes11`, `Attributes12`, `Attributes13`, `Attributes14`, `Attributes15`, `DifficultyID`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `Speed`, `LaunchDelay`, `MinDuration`, `SpellIconFileDataID`, `ActiveIconFileDataID`, `ContentTuningID`, `ShowFutureSpellPlayerConditionID`, `SpellVisualScript`, `ActiveSpellVisualScript`, `SpellID`, `VerifiedBuild`) VALUES
-(342365, 0x80, 0x20000000, 0x0, 0x0, 0x0, 0x2000, 0x0, 0x0, 0x21000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0, 1, 28, 1, 0x10, 0, 0, 0, 1698700, 0, 0, 0, 0, 0, 269748, 42423); -- Spell 269748 should not has SPELL_ATTR1_IS_CHANNELLED
