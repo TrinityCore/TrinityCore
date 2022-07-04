@@ -536,7 +536,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
             _bothFlagsKept = false;
 
             //check if HORDE flag is in capture zone, if so, capture it
-            if (Player* player = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_HORDE)))
+            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), GetFlagPickerGUID(TEAM_HORDE)))
             {
                 if (player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(3646))) {
                     EventPlayerCapturedFlag(player);
@@ -577,7 +577,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
             _bothFlagsKept = false;
 
             //check if ALLIANCE flag is in capture zone, if so, capture it
-            if (Player* player = ObjectAccessor::FindPlayer(GetFlagPickerGUID(TEAM_ALLIANCE)))
+            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), GetFlagPickerGUID(TEAM_ALLIANCE)))
             {
               if (player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(3647))) {
                     EventPlayerCapturedFlag(player);
