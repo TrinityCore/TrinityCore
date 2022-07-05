@@ -1122,7 +1122,7 @@ class spell_mage_ray_of_frost : public SpellScript
         return ValidateSpellInfo ({ SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST });
     }
 
-    void HandleFingersOfFrost()
+    void HandleOnHit()
     {
         if (Unit* caster = GetCaster())
             caster->CastSpell(caster, SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -1130,7 +1130,7 @@ class spell_mage_ray_of_frost : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_mage_ray_of_frost::HandleFingersOfFrost);
+        OnHit += SpellHitFn(spell_mage_ray_of_frost::HandleOnHit);
     }
 };
 
