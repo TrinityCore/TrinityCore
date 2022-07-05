@@ -44,6 +44,7 @@ class BasicEvent;
 class ByteBuffer;
 class Corpse;
 class DynamicObject;
+class DynObjAura;
 class GameObject;
 class Item;
 class Object;
@@ -54,6 +55,7 @@ class SpellImplicitTargetInfo;
 class SpellInfo;
 class SpellScript;
 class Unit;
+class UnitAura;
 class WorldObject;
 class WorldPacket;
 struct SummonPropertiesEntry;
@@ -357,7 +359,6 @@ class TC_GAME_API Spell
         void EffectMilling(SpellEffIndex effIndex);
         void EffectRenamePet(SpellEffIndex effIndex);
         void EffectSendTaxi(SpellEffIndex effIndex);
-        void EffectSummonCritter(SpellEffIndex effIndex);
         void EffectKnockBack(SpellEffIndex effIndex);
         void EffectPullTowards(SpellEffIndex effIndex);
         void EffectPullTowardsDest(SpellEffIndex effIndex);
@@ -636,7 +637,8 @@ class TC_GAME_API Spell
         SpellMissInfo targetMissInfo;
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
-        Aura* m_spellAura;
+        UnitAura* _spellAura;
+        DynObjAura* _dynObjAura;
 
         // -------------------------------------------
         GameObject* focusObject;

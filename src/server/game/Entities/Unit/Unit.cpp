@@ -3231,29 +3231,29 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
 {
-    ASSERT(casterGUID || caster);
+    ASSERT(createInfo.CasterGUID || createInfo.Caster);
 
     // Check if these can stack anyway
-    if (!casterGUID && !newAura->IsStackableOnOneSlotWithDifferentCasters())
-        casterGUID = caster->GetGUID();
+    if (!createInfo.CasterGUID && !createInfo.GetSpellInfo()->IsStackableOnOneSlotWithDifferentCasters())
+        createInfo.CasterGUID = createInfo.Caster->GetGUID();
 
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
-    if (!newAura->IsMultiSlotAura())
+    if (!createInfo.GetSpellInfo()->IsMultiSlotAura())
     {
         // check if cast item changed
         ObjectGuid castItemGUID;
-        if (castItem)
-            castItemGUID = castItem->GetGUID();
+        if (createInfo.CastItem)
+            castItemGUID = createInfo.CastItem->GetGUID();
 
         // find current aura from spell and change it's stackamount, or refresh it's duration
-        if (Aura* foundAura = GetOwnedAura(newAura->Id, casterGUID, newAura->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC) ? castItemGUID : ObjectGuid::Empty, 0))
+        if (Aura* foundAura = GetOwnedAura(createInfo.GetSpellInfo()->Id, createInfo.CasterGUID, createInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC) ? castItemGUID : ObjectGuid::Empty))
         {
             // effect masks do not match
             // extremely rare case
             // let's just recreate aura
-            if (effMask != foundAura->GetEffectMask())
+            if (createInfo.GetAuraEffectMask() != foundAura->GetEffectMask())
                 return nullptr;
 
             // update basepoints with new values - effect amount will be recalculated in ModStackAmount
@@ -3262,11 +3262,9 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8
                 if (!foundAura->HasEffect(i))
                     continue;
 
-                int bp;
-                if (baseAmount)
-                    bp = *(baseAmount + i);
-                else
-                    bp = foundAura->GetSpellInfo()->Effects[i].BasePoints;
+                int32 bp = foundAura->GetSpellInfo()->Effects[i].BasePoints;
+                if (createInfo.BaseAmount)
+                    bp = *(createInfo.BaseAmount + i);
 
                 int32* oldBP = const_cast<int32*>(&(foundAura->GetEffect(i)->m_baseAmount));
                 *oldBP = bp;
@@ -3291,7 +3289,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8
 void Unit::_AddAura(UnitAura* aura, Unit* caster)
 {
     ASSERT(!m_cleanupDone);
-    m_ownedAuras.insert(AuraMap::value_type(aura->GetId(), aura));
+    m_ownedAuras.emplace(aura->GetId(), aura);
 
     _RemoveNoStackAurasDueToAura(aura);
 
@@ -3342,7 +3340,7 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
 
 // creates aura application instance and registers it in lists
 // aura application effects are handled separately to prevent aura list corruption
-AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint8 effMask)
+AuraApplication* Unit::_CreateAuraApplication(Aura* aura, uint8 effMask)
 {
     // can't apply aura on unit which is going to be deleted - to not create a memory leak
     ASSERT(!m_cleanupDone);
@@ -3392,7 +3390,7 @@ void Unit::_ApplyAuraEffect(Aura* aura, uint8 effIndex)
 
 // handles effects of aura application
 // should be done after registering aura in lists
-void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask)
+void Unit::_ApplyAura(AuraApplication* aurApp, uint8 effMask)
 {
     Aura* aura = aurApp->GetBase();
 
@@ -3432,7 +3430,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask)
 }
 
 // removes aura application from lists and unapplies effects
-void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveFlags removeMode)
+void Unit::_UnapplyAura(AuraApplicationMap::iterator& i, AuraRemoveFlags removeMode)
 {
     AuraApplication * aurApp = i->second;
     ASSERT(aurApp);
@@ -3512,7 +3510,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveFlags removeM
     i = m_appliedAuras.begin();
 }
 
-void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveFlags removeMode)
+void Unit::_UnapplyAura(AuraApplication* aurApp, AuraRemoveFlags removeMode)
 {
     // aura can be removed from unit only if it's applied on it, shouldn't happen
     ASSERT(aurApp->GetBase()->GetApplicationOfTarget(GetGUID()) == aurApp);
@@ -3574,8 +3572,8 @@ void Unit::_RegisterAuraEffect(AuraEffect* aurEff, bool apply)
         m_modAuras[aurEff->GetAuraType()].remove(aurEff);
 }
 
-// All aura base removes should go threw this function!
-void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveFlags removeMode)
+// All aura base removes should go through this function!
+void Unit::RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveFlags removeMode)
 {
     Aura* aura = i->second;
     ASSERT(!aura->IsRemoved());
@@ -3901,7 +3899,12 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, U
                 if (aura->IsLimitedTarget())
                     aura->UnregisterLimitedTarget();
 
-                if (Aura* newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellInfo(), effMask, stealer, nullptr, &baseDamage[0], nullptr, aura->GetCasterGUID()))
+                AuraCreateInfo createInfo(aura->GetSpellInfo(), effMask, stealer);
+                createInfo
+                    .SetCasterGUID(aura->GetCasterGUID())
+                    .SetBaseAmount(baseDamage);
+
+                if (Aura* newAura = Aura::TryRefreshStackOrCreate(createInfo))
                 {
                     // created aura must not be limited target aura, so stealer won't loose it on recast
                     if (newAura->IsLimitedTarget())
@@ -12707,11 +12710,18 @@ Aura* Unit::AddAura(SpellInfo const* spellInfo, uint8 effMask, Unit* target)
     {
         if (!(effMask & (1 << i)))
             continue;
+
         if (target->IsImmunedToSpellEffect(spellInfo, i, this))
             effMask &= ~(1 << i);
     }
 
-    if (Aura* aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this))
+    if (!effMask)
+        return nullptr;
+
+    AuraCreateInfo createInfo(spellInfo, effMask, target);
+    createInfo.SetCaster(this);
+
+    if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo))
     {
         aura->ApplyForTargets();
         return aura;
@@ -13466,12 +13476,19 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             }
             else    // This can happen during Player::_LoadAuras
             {
-                int32 bp0[MAX_SPELL_EFFECTS] = { };
+                int32 bp[MAX_SPELL_EFFECTS] = { };
                 for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                    bp0[j] = spellEntry->Effects[j].BasePoints;
+                    bp[j] = spellEntry->Effects[j].BasePoints;
 
-                bp0[i] = seatId;
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, bp0, nullptr, origCasterGUID);
+                bp[i] = seatId;
+
+                AuraCreateInfo createInfo(spellEntry, MAX_EFFECT_MASK, this);
+                createInfo
+                    .SetCaster(clicker)
+                    .SetBaseAmount(bp)
+                    .SetCasterGUID(origCasterGUID);
+
+                Aura::TryRefreshStackOrCreate(createInfo);
             }
         }
         else
@@ -13479,7 +13496,14 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             if (IsInMap(caster))
                 caster->CastSpell(target, spellEntry->Id, CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
             else
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, nullptr, nullptr, origCasterGUID);
+            {
+                AuraCreateInfo createInfo(spellEntry, MAX_EFFECT_MASK, this);
+                createInfo
+                    .SetCaster(clicker)
+                    .SetCasterGUID(origCasterGUID);
+
+                Aura::TryRefreshStackOrCreate(createInfo);
+            }
         }
 
         result = true;

@@ -18,7 +18,13 @@
 #define TRINITY_SPELLAURADEFINES_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include "EnumFlag.h"
+
+class Item;
+class SpellInfo;
+class Unit;
+class WorldObject;
 
 #define MAX_AURAS 64                                        // client support up to 255, but it will cause problems with group auras updating
 
@@ -489,6 +495,39 @@ enum ShapeshiftForm
     FORM_STEALTH            = 0x1E,
     FORM_MOONKIN            = 0x1F,
     FORM_SPIRITOFREDEMPTION = 0x20
+};
+
+struct TC_GAME_API AuraCreateInfo
+{
+    friend class Aura;
+    friend class UnitAura;
+    friend class DynObjAura;
+
+    AuraCreateInfo(SpellInfo const* spellInfo, uint8 auraEffMask, WorldObject* owner);
+
+    AuraCreateInfo& SetCasterGUID(ObjectGuid const& guid) { CasterGUID = guid; return *this; }
+    AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
+    AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
+    AuraCreateInfo& SetCastItem(Item* item) { CastItem = item; return *this; }
+    AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
+    AuraCreateInfo& SetOwnerEffectMask(uint8 effMask) { _targetEffectMask = effMask; return *this; }
+
+    SpellInfo const* GetSpellInfo() const { return _spellInfo; }
+    uint8 GetAuraEffectMask() const { return _auraEffectMask; }
+
+    ObjectGuid CasterGUID;
+    Unit* Caster = nullptr;
+    int32 const* BaseAmount = nullptr;
+    Item* CastItem = nullptr;
+    bool* IsRefresh = nullptr;
+    bool ResetPeriodicTimer = true;
+
+    private:
+        SpellInfo const* _spellInfo = nullptr;
+        uint8 _auraEffectMask = 0;
+        WorldObject* _owner = nullptr;
+
+        uint8 _targetEffectMask = 0;
 };
 
 #endif

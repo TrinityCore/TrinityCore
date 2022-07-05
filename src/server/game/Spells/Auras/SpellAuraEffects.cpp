@@ -22,6 +22,7 @@
 #include "CellImpl.h"
 #include "Common.h"
 #include "DBCStores.h"
+#include "EventProcessor.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Log.h"
@@ -438,7 +439,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SET_FAIR_FAR_CLIP
 };
 
-AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster):
+AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 const* baseAmount, Unit* caster):
 m_base(base), m_spellInfo(base->GetSpellInfo()),
 m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[effIndex].BasePoints),
 m_spellmod(nullptr), m_periodicTimer(0), m_tickNumber(0),

@@ -821,7 +821,7 @@ class TC_GAME_API Unit : public WorldObject
 
         typedef std::list<AuraEffect*> AuraEffectList;
         typedef std::list<Aura*> AuraList;
-        typedef std::list<AuraApplication *> AuraApplicationList;
+        typedef std::list<AuraApplication*> AuraApplicationList;
 
         typedef std::vector<std::pair<uint8 /*procEffectMask*/, AuraApplication*>> AuraApplicationProcContainer;
         typedef std::vector<ObjectGuid> FormationFollowerGUIDContainer;
@@ -1337,13 +1337,13 @@ class TC_GAME_API Unit : public WorldObject
         bool InitTamedPet(Pet* pet, uint8 level, uint32 spell_id);
 
         // aura apply/remove helpers - you should better not use these
-        Aura* _TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount = nullptr, Item* castItem = nullptr, ObjectGuid casterGUID = ObjectGuid::Empty);
+        Aura* _TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo);
         void _AddAura(UnitAura* aura, Unit* caster);
-        AuraApplication * _CreateAuraApplication(Aura* aura, uint8 effMask);
+        AuraApplication* _CreateAuraApplication(Aura* aura, uint8 effMask);
         void _ApplyAuraEffect(Aura* aura, uint8 effIndex);
-        void _ApplyAura(AuraApplication * aurApp, uint8 effMask);
-        void _UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveFlags removeMode);
-        void _UnapplyAura(AuraApplication * aurApp, AuraRemoveFlags removeMode);
+        void _ApplyAura(AuraApplication* aurApp, uint8 effMask);
+        void _UnapplyAura(AuraApplicationMap::iterator& i, AuraRemoveFlags removeMode);
+        void _UnapplyAura(AuraApplication* aurApp, AuraRemoveFlags removeMode);
         void _RemoveNoStackAurasDueToAura(Aura* aura);
         void _RegisterAuraEffect(AuraEffect* aurEff, bool apply);
 
@@ -1351,7 +1351,7 @@ class TC_GAME_API Unit : public WorldObject
         AuraMap      & GetOwnedAuras()       { return m_ownedAuras; }
         AuraMap const& GetOwnedAuras() const { return m_ownedAuras; }
 
-        void RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
+        void RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
         void RemoveOwnedAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, uint8 reqEffMask = 0, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
         void RemoveOwnedAura(Aura* aura, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
 
