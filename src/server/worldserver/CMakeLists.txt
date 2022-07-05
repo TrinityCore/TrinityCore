@@ -77,10 +77,6 @@ target_include_directories(worldserver
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-# tswow-begin tracy
-add_tracy_categories(worldserver)
-# tswow-end
-
 set_target_properties(worldserver
     PROPERTIES
       FOLDER

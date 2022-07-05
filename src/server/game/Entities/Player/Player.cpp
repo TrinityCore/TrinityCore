@@ -1028,7 +1028,6 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
 
 void Player::Update(uint32 p_time)
 {
-    TC_ZONE_SCOPED(ENTITY_PROFILE) // @tswow-line tracy
     if (!IsInWorld())
         return;
 

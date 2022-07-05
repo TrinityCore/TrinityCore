@@ -90,18 +90,6 @@ if(TRACY_TIMER_FALLBACK)
   target_compile_definitions(TracyClient PRIVATE TRACY_TIMER_FALLBACK=1)
 endif()
 
-function(add_tracy_categories tgt)
-  if(TRACY_CATEGORIES)
-    foreach(category ${TRACY_CATEGORIES})
-      target_compile_definitions(${tgt}
-        PRIVATE
-        "PROFILE_${category}=1"
-      )
-    endforeach()
-  endif()
-endfunction()
-add_tracy_categories(TracyClient)
-
 #
 # tswow
 #

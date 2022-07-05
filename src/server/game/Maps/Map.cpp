@@ -775,7 +775,7 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
 // @tswow-begin tracy
 void Map::Update(uint32 t_diff)
 {
-    TC_ZONE_SCOPED(MAP_PROFILE)
+    ZoneScopedC(MAP_UPDATE_COLOR)
     // @tswow-begin tswow-events
     m_tsWorldEntity.tick(TSMap(this));
     FIRE_ID(
@@ -788,7 +788,7 @@ void Map::Update(uint32 t_diff)
     _dynamicTree.update(t_diff);
 
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE,"UpdateWorldSessions")
+        ZoneScopedNC("UpdateWorldSessions", MAP_UPDATE_COLOR)
         /// update worldsessions for existing players
         for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
         {
@@ -806,7 +806,7 @@ void Map::Update(uint32 t_diff)
     /// process any due respawns
     if (_respawnCheckTimer <= t_diff)
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE,"ProcessRespawns")
+        ZoneScopedNC("ProcessRespawns", MAP_UPDATE_COLOR)
         ProcessRespawns();
         _respawnCheckTimer = sWorld->getIntConfig(CONFIG_RESPAWN_MINCHECKINTERVALMS);
     }
@@ -823,9 +823,9 @@ void Map::Update(uint32 t_diff)
     TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
 
     {
-            TC_ZONE_SCOPED_N(MAP_PROFILE, "EntityUpdates");
+            ZoneScopedNC("EntityUpdates", MAP_UPDATE_COLOR);
         {
-            TC_ZONE_SCOPED_N(MAP_PROFILE, "EntityUpdates(Source:Players)");
+            ZoneScopedNC("EntityUpdates(Source:Players)", MAP_UPDATE_COLOR);
             // the player iterator is stored in the map object
             // to make sure calls to Map::Remove don't invalidate it
             for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
@@ -885,7 +885,7 @@ void Map::Update(uint32 t_diff)
         }
 
         {
-            TC_ZONE_SCOPED_N(MAP_PROFILE, "EntityUpdates(Source:Active Objects)");
+            ZoneScopedNC("EntityUpdates(Source:Active Objects)", MAP_UPDATE_COLOR);
             // non-player active objects, increasing iterator in the loop in case of object removal
             for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end();)
             {
@@ -901,7 +901,7 @@ void Map::Update(uint32 t_diff)
     }
 
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE, "TransportUpdates")
+        ZoneScopedNC("TransportUpdates", MAP_UPDATE_COLOR)
         for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
         {
             WorldObject* obj = *_transportsUpdateIter;
@@ -915,14 +915,14 @@ void Map::Update(uint32 t_diff)
     }
 
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE, "Map::SendObjectUpdates")
+        ZoneScopedNC("Map::SendObjectUpdates", MAP_UPDATE_COLOR)
         SendObjectUpdates();
     }
 
     ///- Process necessary scripts
     if (!m_scriptSchedule.empty())
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE, "Map::ScriptsProcess")
+        ZoneScopedNC("Map::ScriptsProcess", MAP_UPDATE_COLOR)
         i_scriptLock = true;
         ScriptsProcess();
         i_scriptLock = false;
@@ -931,7 +931,7 @@ void Map::Update(uint32 t_diff)
     _weatherUpdateTimer.Update(t_diff);
     if (_weatherUpdateTimer.Passed())
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE, "Update Weather")
+        ZoneScopedNC("Update Weather", MAP_UPDATE_COLOR)
         for (auto&& zoneInfo : _zoneDynamicInfo)
             if (zoneInfo.second.DefaultWeather && !zoneInfo.second.DefaultWeather->Update(_weatherUpdateTimer.GetInterval()))
                 zoneInfo.second.DefaultWeather.reset();
@@ -940,19 +940,19 @@ void Map::Update(uint32 t_diff)
     }
 
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE, "MoveWorldObjects")
+        ZoneScopedNC("MoveWorldObjects", MAP_UPDATE_COLOR)
         MoveAllCreaturesInMoveList();
         MoveAllGameObjectsInMoveList();
     }
 
     if (!m_mapRefManager.isEmpty() || !m_activeNonPlayers.empty())
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE, "Map::ProcessRelocationNotifies")
+        ZoneScopedNC("Map::ProcessRelocationNotifies", MAP_UPDATE_COLOR)
         ProcessRelocationNotifies(t_diff);
     }
 
     {
-        TC_ZONE_SCOPED_N(MAP_PROFILE, "ScriptMgr::OnMapUpdate")
+        ZoneScopedNC("ScriptMgr::OnMapUpdate", MAP_UPDATE_COLOR)
         sScriptMgr->OnMapUpdate(this, t_diff);
     }
 

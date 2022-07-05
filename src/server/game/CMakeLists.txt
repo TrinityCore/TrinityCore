@@ -83,7 +83,6 @@ target_compile_definitions(game PUBLIC CUSTOM_PACKET_API=TC_GAME_API)
 target_compile_definitions(game PUBLIC TRINITY=1)
 
 #tswow-begin
-add_tracy_categories(game)
 source_group("tswow-messages" FILES ${TSWOW_MESSAGES})
 source_group("tswow-public" FILES ${TSWOW_PUBLIC})
 source_group("tswow-private" FILES ${TSWOW_PRIVATE})

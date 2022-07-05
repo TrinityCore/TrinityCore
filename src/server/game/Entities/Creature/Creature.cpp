@@ -752,7 +752,6 @@ void Creature::SetPhaseMask(uint32 newPhaseMask, bool update, uint64 newPhaseId)
 
 void Creature::Update(uint32 diff)
 {
-    TC_ZONE_SCOPED(ENTITY_PROFILE)
     if (m_outfit && !_changesMask.GetBit(UNIT_FIELD_DISPLAYID) && Unit::GetDisplayId() == CreatureOutfit::invisible_model)
     {
         // has outfit, displayid is invisible and displayid update already sent to clients
