@@ -665,7 +665,7 @@ class spell_dru_lifebloom : public AuraScript
                 if (Unit* caster = GetCaster())
                 {
                     healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
-                    healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
+                    healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL);
                     target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(GetCasterGUID()).AddSpellBP0(healAmount));
 
                     // restore mana

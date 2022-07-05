@@ -7631,6 +7631,18 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
             // increase healing by 20%
             TakenTotalMod *= 1.2f;
     }
+    // Unused in Cataclysm (15595)
+    if (damagetype == DOT)
+    {
+        // Healing over time taken percent
+        float minval_hot = float(GetMaxNegativeAuraModifier(SPELL_AURA_259));
+        if (minval_hot)
+            AddPct(TakenTotalMod, minval_hot);
+
+        float maxval_hot = float(GetMaxPositiveAuraModifier(SPELL_AURA_259));
+        if (maxval_hot)
+            AddPct(TakenTotalMod, maxval_hot);
+    }
 
     if (caster)
     {
