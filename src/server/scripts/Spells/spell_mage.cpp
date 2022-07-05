@@ -1147,7 +1147,7 @@ class spell_mage_ray_of_frost_aura : public AuraScript
     {
         if (Unit* caster = GetCaster())
         {
-            if (aurEff->GetTickNumber() > 1) // First tick should deals base damage
+            if (aurEff->GetTickNumber() > 1) // First tick should deal base damage
                caster->CastSpell(caster, SPELL_MAGE_RAY_OF_FROST_BONUS, true);
         }
     }
