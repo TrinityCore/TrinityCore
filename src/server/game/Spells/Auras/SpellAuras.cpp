@@ -2477,7 +2477,7 @@ void DynObjAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* 
         if (m_spellInfo->Effects[effIndex].TargetB.GetReferenceType() == TARGET_REFERENCE_TYPE_DEST)
             selectionType = m_spellInfo->Effects[effIndex].TargetB.GetCheckType();
 
-        std::deque<Unit*> units;
+        std::vector<Unit*> units;
         ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
 
         Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, m_spellInfo, selectionType, condList);
