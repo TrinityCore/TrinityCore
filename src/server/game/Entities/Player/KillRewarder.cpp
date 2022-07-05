@@ -18,7 +18,6 @@
 #include "KillRewarder.h"
 #include "SpellAuraEffects.h"
 #include "Creature.h"
-#include "EventProcessor.h"
 #include "Formulas.h"
 #include "Group.h"
 #include "Guild.h"
