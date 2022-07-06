@@ -155,7 +155,6 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
             }
         }
 
-
         if (_bothFlagsKept)
         {
             _flagSpellForceTimer += diff;
