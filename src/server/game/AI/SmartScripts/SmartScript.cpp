@@ -1921,7 +1921,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     else
                         player->PlayerTalkClass->ClearMenus();
 
-                    int gossipNpcTextId = e.action.sendGossipMenu.gossipNpcTextId;
+                    uint32 gossipNpcTextId = e.action.sendGossipMenu.gossipNpcTextId;
                     if (!gossipNpcTextId)
                         gossipNpcTextId = player->GetGossipTextId(e.action.sendGossipMenu.gossipMenuId, GetBaseObject());
 
