@@ -26,6 +26,7 @@ void AddSC_event_lunar_festival();
 void AddSC_event_midsummer();
 void AddSC_event_operation_gnomeregan();
 void AddSC_event_pilgrims_bounty();
+void AddSC_event_weekly_bonus();
 void AddSC_event_winter_veil();
 void AddSC_event_zalazane_fall();
 
@@ -43,6 +44,7 @@ void AddEventsScripts()
     AddSC_event_midsummer();
     AddSC_event_operation_gnomeregan();
     AddSC_event_pilgrims_bounty();
+    AddSC_event_weekly_bonus();
     AddSC_event_winter_veil();
     AddSC_event_zalazane_fall();
 }
