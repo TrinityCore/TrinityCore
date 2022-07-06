@@ -52,7 +52,7 @@ class boss_magmus : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_ONE);
                 _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
@@ -106,7 +106,7 @@ class boss_magmus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_magmusAI(creature);
+            return GetBlackrockDepthsAI<boss_magmusAI>(creature);
         }
 };
 

@@ -34,7 +34,7 @@ public:
     void LoadFromDB(PreparedQueryResult objectiveResult, PreparedQueryResult criteriaResult);
     void SaveToDB(CharacterDatabaseTransaction& trans);
 
-    void ResetCriteria(CriteriaCondition condition, int32 failAsset, bool evenIfCriteriaComplete = false);
+    void ResetCriteria(CriteriaFailEvent failEvent, int32 failAsset, bool evenIfCriteriaComplete = false);
     void ResetCriteriaTree(uint32 criteriaTreeId);
 
     void SendAllData(Player const* receiver) const override;
@@ -43,7 +43,7 @@ public:
     bool HasCompletedObjective(QuestObjective const* questObjective) const;
 
 protected:
-    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
 
     void SendCriteriaProgressRemoved(uint32 criteriaId) override;
 

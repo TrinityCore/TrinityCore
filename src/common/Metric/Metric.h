@@ -79,10 +79,10 @@ private:
     void ScheduleOverallStatusLog();
 
     static std::string FormatInfluxDBValue(bool value);
-    template<class T>
+    template <class T>
     static std::string FormatInfluxDBValue(T value);
     static std::string FormatInfluxDBValue(std::string const& value);
-    static std::string FormatInfluxDBValue(const char* value);
+    static std::string FormatInfluxDBValue(char const* value);
     static std::string FormatInfluxDBValue(double value);
     static std::string FormatInfluxDBValue(float value);
 
@@ -115,13 +115,16 @@ public:
 
     void LogEvent(std::string const& category, std::string const& title, std::string const& description);
 
-    void ForceSend();
+    void Unload();
     bool IsEnabled() const { return _enabled; }
 };
 
 #define sMetric Metric::instance()
 
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#ifdef PERFORMANCE_PROFILING
+#define TC_METRIC_EVENT(category, title, description) ((void)0)
+#define TC_METRIC_VALUE(category, value) ((void)0)
+#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #define TC_METRIC_EVENT(category, title, description)                    \
         do {                                                            \
             if (sMetric->IsEnabled())                              \

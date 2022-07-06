@@ -19,7 +19,6 @@
 #define __GAMETIME_H
 
 #include "Define.h"
-
 #include <chrono>
 
 namespace GameTime
@@ -38,6 +37,10 @@ namespace GameTime
 
     /// Current chrono steady_clock time point
     TC_GAME_API std::chrono::steady_clock::time_point GetGameTimeSteadyPoint();
+
+    /// Current chrono Clock time point
+    template<typename Clock>
+    typename Clock::time_point GetGameTimePoint();
 
     /// Uptime (in secs)
     TC_GAME_API uint32 GetUptime();

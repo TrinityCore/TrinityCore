@@ -328,12 +328,13 @@ public:
 
         if (QuestPOIData const* poiData = sObjectMgr->GetQuestPOIData(questID))
         {
-            auto data = poiData->QuestPOIBlobDataStats.front();
+            QuestPOIBlobData const& data = poiData->Blobs.front();
 
             mapId = data.MapID;
 
-            x = data.QuestPOIBlobPointStats.front().X;
-            y = data.QuestPOIBlobPointStats.front().Y;
+            x = data.Points.front().X;
+            y = data.Points.front().Y;
+            z = data.Points.front().Z;
         }
         else
         {
@@ -503,6 +504,9 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+
+        x /= 100.0f;
+        y /= 100.0f;
 
         sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y);
 

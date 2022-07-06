@@ -175,7 +175,7 @@ public:
                 }
             }
         }
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -221,7 +221,7 @@ public:
             if (!beam)
             {
                 SummonBeams();
-                beam=true;
+                beam = true;
             }
             //Return since we have no target
             if (!UpdateVictim())

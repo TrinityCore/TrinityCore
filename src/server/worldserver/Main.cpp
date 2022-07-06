@@ -58,6 +58,8 @@
 #include <iostream>
 #include <csignal>
 
+#include "Hacks/boost_program_options_with_filesystem_path.h"
+
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -243,7 +245,7 @@ extern int main(int argc, char** argv)
     std::shared_ptr<void> sMetricHandle(nullptr, [](void*)
     {
         TC_METRIC_EVENT("events", "Worldserver shutdown", "");
-        sMetric->ForceSend();
+        sMetric->Unload();
     });
 
     sScriptMgr->SetScriptLoader(AddScripts);
@@ -338,9 +340,9 @@ extern int main(int argc, char** argv)
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
-
     sScriptMgr->OnStartup();
+
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     WorldUpdateLoop();
 

@@ -19,7 +19,6 @@
 #include "boss_horAI.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -73,7 +72,7 @@ class boss_falric : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();

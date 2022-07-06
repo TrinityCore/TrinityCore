@@ -26,6 +26,7 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
+#include "LanguageMgr.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -43,6 +44,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <random>
+#include <sstream>
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -522,7 +524,15 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 if (!obj)
                     break;
 
-                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
+                Quest const* quest = sObjectMgr->GetQuestTemplate(obj->QuestID);
+                if (!quest)
+                    break;
+
+                uint16 slot = player->FindQuestSlot(obj->QuestID);
+                if (slot >= MAX_QUEST_LOG_SIZE)
+                    break;
+
+                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(slot, quest, *obj));
             }
             break;
         }
@@ -1083,7 +1093,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
         return;
     }
 
@@ -1125,7 +1135,7 @@ void ConditionMgr::LoadConditions(bool isReload)
             }
             cond->ReferenceId = uint32(abs(iConditionTypeOrReference));
 
-            const char* rowType = "reference template";
+            char const* rowType = "reference template";
             if (iSourceTypeOrReferenceId >= 0)
                 rowType = "reference";
             //check for useless data
@@ -1749,6 +1759,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
                     case TARGET_SELECT_CATEGORY_TRAJ:
+                    case TARGET_SELECT_CATEGORY_LINE:
                         continue;
                     default:
                         break;
@@ -1760,6 +1771,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
                     case TARGET_SELECT_CATEGORY_TRAJ:
+                    case TARGET_SELECT_CATEGORY_LINE:
                         continue;
                     default:
                         break;
@@ -2546,11 +2558,30 @@ uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerCond
 
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
-    if (condition->MinLevel && player->getLevel() < condition->MinLevel)
-        return false;
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+    {
+        uint8 minLevel = condition->Flags & 0x800 ? levels->MinLevelWithDelta : levels->MinLevel;
+        uint8 maxLevel = 0;
+        if (!(condition->Flags & 0x20))
+            maxLevel = condition->Flags & 0x800 ? levels->MaxLevelWithDelta : levels->MaxLevel;
 
-    if (condition->MaxLevel && player->getLevel() > condition->MaxLevel)
-        return false;
+        if (condition->Flags & 0x80)
+        {
+            if (minLevel && player->getLevel() >= minLevel && (!maxLevel || player->getLevel() <= maxLevel))
+                return false;
+
+            if (maxLevel && player->getLevel() <= maxLevel && (!minLevel || player->getLevel() >= minLevel))
+                return false;
+        }
+        else
+        {
+            if (minLevel && player->getLevel() < minLevel)
+                return false;
+
+            if (maxLevel && player->getLevel() > maxLevel)
+                return false;
+        }
+    }
 
     if (condition->RaceMask && !condition->RaceMask.HasRace(player->getRace()))
         return false;
@@ -2561,7 +2592,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->Gender >= 0 && player->getGender() != condition->Gender)
         return false;
 
-    if (condition->NativeGender >= 0 && player->m_playerData->NativeSex != condition->NativeGender)
+    if (condition->NativeGender >= 0 && player->GetNativeSex() != condition->NativeGender)
         return false;
 
     if (condition->PowerType != -1 && condition->PowerTypeComp)
@@ -2604,18 +2635,20 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LanguageID)
     {
-        if (LanguageDesc const* lang = GetLanguageDescByID(condition->LanguageID))
+        int32 languageSkill = 0;
+        if (player->HasAuraTypeWithMiscvalue(SPELL_AURA_COMPREHEND_LANGUAGE, condition->LanguageID))
+            languageSkill = 300;
+        else
         {
-            int32 languageSkill = player->GetSkillValue(lang->skill_id);
-            if (!languageSkill && player->HasAuraTypeWithMiscvalue(SPELL_AURA_COMPREHEND_LANGUAGE, condition->LanguageID))
-                languageSkill = 300;
-
-            if (condition->MinLanguage && languageSkill < condition->MinLanguage)
-                return false;
-
-            if (condition->MaxLanguage && languageSkill > condition->MaxLanguage)
-                return false;
+            for (std::pair<uint32 const, LanguageDesc> const& languageDesc : sLanguageMgr->GetLanguageDescById(Language(condition->LanguageID)))
+                languageSkill = std::max<int32>(languageSkill, player->GetSkillValue(languageDesc.second.SkillId));
         }
+
+        if (condition->MinLanguage && languageSkill < condition->MinLanguage)
+            return false;
+
+        if (condition->MaxLanguage && languageSkill > condition->MaxLanguage)
+            return false;
     }
 
     if (condition->MinFactionID[0] && condition->MinFactionID[1] && condition->MinFactionID[2] && condition->MaxFactionID)
@@ -2824,7 +2857,19 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             return false;
     }
 
-    // TODO: time condition
+    if (condition->Time[0])
+    {
+        ByteBuffer unpacker;
+        unpacker << condition->Time[0];
+        time_t from = unpacker.ReadPackedTime();
+        unpacker.rpos(0);
+        unpacker.wpos(0);
+        unpacker << condition->Time[1];
+        time_t to = unpacker.ReadPackedTime();
+
+        if (GameTime::GetGameTime() < from || GameTime::GetGameTime() > to)
+            return false;
+    }
 
     if (condition->WorldStateExpressionID)
     {
@@ -2836,7 +2881,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             return false;
     }
 
-    // TODO: weather condition
+    if (condition->WeatherID)
+        if (player->GetMap()->GetZoneWeather(player->GetZoneId()) != WeatherState(condition->WeatherID))
+            return false;
 
     if (condition->Achievement[0])
     {
@@ -2906,7 +2953,8 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->QuestKillID)
     {
         Quest const* quest = sObjectMgr->GetQuestTemplate(condition->QuestKillID);
-        if (quest && player->GetQuestStatus(condition->QuestKillID) != QUEST_STATUS_COMPLETE)
+        uint16 questSlot = player->FindQuestSlot(condition->QuestKillID);
+        if (quest && player->GetQuestStatus(condition->QuestKillID) != QUEST_STATUS_COMPLETE && questSlot < MAX_QUEST_LOG_SIZE)
         {
             using QuestKillCount = std::extent<decltype(condition->QuestKillMonster)>;
 
@@ -2921,7 +2969,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
                         return objective.Type == QUEST_OBJECTIVE_MONSTER && uint32(objective.ObjectID) == condition->QuestKillMonster[i];
                     });
                     if (objectiveItr != quest->GetObjectives().end())
-                        results[i] = player->GetQuestObjectiveData(quest, objectiveItr->StorageIndex) >= objectiveItr->Amount;
+                        results[i] = player->GetQuestSlotObjectiveData(questSlot, *objectiveItr) >= objectiveItr->Amount;
                 }
             }
 
@@ -2943,6 +2991,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         return false;
 
     if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
+        return false;
+
+    if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
         return false;
 
     return true;

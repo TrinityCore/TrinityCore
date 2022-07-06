@@ -28,7 +28,6 @@
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "ulduar.h"
@@ -204,7 +203,7 @@ class boss_xt002 : public CreatureScript
 
                 Initialize();
 
-                instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
+                instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -213,10 +212,10 @@ class boss_xt002 : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
                 events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
@@ -224,7 +223,7 @@ class boss_xt002 : public CreatureScript
                 //Tantrum is cast a bit slower the first time.
                 events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX) * 2);
 
-                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
+                instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
             void DoAction(int32 action) override
@@ -696,7 +695,7 @@ class npc_boombot : public CreatureScript
                     instakill.SpellID = SPELL_BOOM;
                     me->SendMessageToSet(instakill.Write(), false);
 
-                    me->DealDamage(me, me->GetHealth(), nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    me->KillSelf();
 
                     damage = 0;
 
@@ -750,7 +749,7 @@ class npc_life_spark : public CreatureScript
                 _scheduler.CancelAll();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastSelf(SPELL_STATIC_CHARGED);
                 _scheduler.Schedule(Seconds(12), [this](TaskContext spellShock)
@@ -940,13 +939,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ENERGY_ORB,
-                    SPELL_RECHARGE_BOOMBOT,
-                    SPELL_RECHARGE_PUMMELER,
-                    SPELL_RECHARGE_SCRAPBOT
-                });
+                return ValidateSpellInfo({ SPELL_ENERGY_ORB, SPELL_RECHARGE_BOOMBOT, SPELL_RECHARGE_PUMMELER, SPELL_RECHARGE_SCRAPBOT });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -968,7 +961,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, nullptr, nullptr, instance->GetGuidData(BOSS_XT002));
+                                toyPile->CastSpell(toyPile, spellId, instance->GetGuidData(BOSS_XT002));
                             }
                         }
                     }
@@ -1078,7 +1071,7 @@ class spell_xt002_321_boombot_aura : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 InstanceScript* instance = eventInfo.GetActor()->GetInstanceScript();
                 if (!instance)

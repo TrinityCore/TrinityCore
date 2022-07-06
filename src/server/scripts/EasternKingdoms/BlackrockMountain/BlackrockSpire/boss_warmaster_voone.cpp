@@ -53,9 +53,9 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_SNAP_KICK, 8 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_CLEAVE,   14 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_UPPERCUT, 20 * IN_MILLISECONDS);

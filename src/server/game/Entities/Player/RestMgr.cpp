@@ -16,6 +16,7 @@
  */
 
 #include "RestMgr.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Player.h"
 #include "Random.h"
@@ -100,7 +101,7 @@ void RestMgr::SetRestFlag(RestFlag restFlag, uint32 triggerID)
 
     if (!oldRestMask && _restFlagMask) // only set flag/time on the first rest state
     {
-        _restTime = time(nullptr);
+        _restTime = GameTime::GetGameTime();
         _player->AddPlayerFlag(PLAYER_FLAGS_RESTING);
     }
 
@@ -127,7 +128,11 @@ uint32 RestMgr::GetRestBonusFor(RestTypes restType, uint32 xp)
     if (rested_bonus > xp) // max rested_bonus == xp or (r+x) = 200% xp
         rested_bonus = xp;
 
-    SetRestBonus(restType, GetRestBonus(restType) - rested_bonus);
+    uint32 rested_loss = rested_bonus;
+    if (restType == REST_TYPE_XP)
+        AddPct(rested_loss, _player->GetTotalAuraModifier(SPELL_AURA_MOD_RESTED_XP_CONSUMPTION));
+
+    SetRestBonus(restType, GetRestBonus(restType) - rested_loss);
 
     TC_LOG_DEBUG("entities.player", "RestMgr::GetRestBonus: Player '%s' (%s) gain %u xp (+%u Rested Bonus). Rested points=%f", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), xp + rested_bonus, rested_bonus, GetRestBonus(restType));
     return rested_bonus;

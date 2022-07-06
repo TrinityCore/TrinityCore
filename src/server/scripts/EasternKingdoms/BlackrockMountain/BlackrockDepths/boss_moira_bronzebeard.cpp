@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -50,7 +51,7 @@ class boss_moira_bronzebeard : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 //_events.ScheduleEvent(EVENT_HEAL, 12000); // not used atm // These times are probably wrong
                 _events.ScheduleEvent(EVENT_MINDBLAST, 16000);
@@ -93,7 +94,7 @@ class boss_moira_bronzebeard : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_moira_bronzebeardAI(creature);
+            return GetBlackrockDepthsAI<boss_moira_bronzebeardAI>(creature);
         }
 };
 

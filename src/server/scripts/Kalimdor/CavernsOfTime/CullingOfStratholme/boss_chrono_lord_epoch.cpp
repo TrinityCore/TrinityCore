@@ -61,10 +61,10 @@ class boss_epoch : public CreatureScript
         {
             boss_epochAI(Creature* creature) : BossAI(creature, DATA_EPOCH) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CURSE_OF_EXERTION, 9300);
                 events.ScheduleEvent(EVENT_TIME_WARP, 25300);

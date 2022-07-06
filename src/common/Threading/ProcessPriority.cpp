@@ -87,7 +87,9 @@ void SetProcessPriority(std::string const& logChannel, uint32 affinity, bool hig
         else
             TC_LOG_INFO(logChannel, "Process priority class set to %i", getpriority(PRIO_PROCESS, 0));
     }
+
 #else
+    // Suppresses unused argument warning for all other platforms
     (void)logChannel;
     (void)affinity;
     (void)highPriority;

@@ -31,6 +31,7 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "trial_of_the_champion.h"
+#include <sstream>
 
 #define MAX_ENCOUNTER  4
 
@@ -94,7 +95,7 @@ public:
 
         void OnCreatureCreate(Creature* creature) override
         {
-            Map::PlayerList const &players = instance->GetPlayers();
+            Map::PlayerList const& players = instance->GetPlayers();
             uint32 TeamInInstance = 0;
 
             if (!players.isEmpty())
@@ -292,7 +293,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

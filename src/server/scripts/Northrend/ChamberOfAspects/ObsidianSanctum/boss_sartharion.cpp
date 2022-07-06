@@ -20,8 +20,8 @@
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "obsidian_sanctum.h"
 #include "ObjectAccessor.h"
+#include "obsidian_sanctum.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
@@ -163,10 +163,10 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_SARTHARION_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
             DoZoneInCombat();
 
             FetchDragons();
@@ -321,7 +321,7 @@ public:
 
             if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
-                if (fetchVesp && fetchVesp->IsAlive() && !fetchVesp->GetVictim())
+                if (fetchVesp->IsAlive() && !fetchVesp->GetVictim())
                 {
                     _canUseWill = true;
                     if (!fetchVesp->IsInCombat())

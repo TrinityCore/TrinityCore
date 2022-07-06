@@ -19,8 +19,8 @@
 #define TRINITY_MAIL_H
 
 #include "Common.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
-#include "Transaction.h"
 #include <map>
 
 struct CalendarEvent;

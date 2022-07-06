@@ -35,12 +35,15 @@ class Player;
 struct Position;
 struct SceneTemplate;
 
-typedef std::map<uint32, SceneTemplate const*> SceneTemplateByInstance;
+using SceneTemplateByInstance = std::map<uint32, std::unique_ptr<SceneTemplate>>;
 
 class TC_GAME_API SceneMgr
 {
 public:
     SceneMgr(Player* player);
+
+    SceneMgr(SceneMgr const&) = delete;
+    SceneMgr(SceneMgr&&) = delete;
 
     Player* GetPlayer() const { return _player; }
 

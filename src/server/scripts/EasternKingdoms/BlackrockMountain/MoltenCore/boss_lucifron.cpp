@@ -22,10 +22,10 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -52,9 +52,9 @@ class boss_lucifron : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_IMPENDING_DOOM, 10000);
                 events.ScheduleEvent(EVENT_LUCIFRON_CURSE, 20000);
                 events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6000);

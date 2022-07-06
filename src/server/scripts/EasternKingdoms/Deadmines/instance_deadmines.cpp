@@ -196,15 +196,15 @@ class instance_deadmines : public InstanceMapScript
             {
                 switch (type)
                 {
-                case EVENT_STATE:
-                    if (!DefiasCannonGUID.IsEmpty() && !IronCladDoorGUID.IsEmpty())
-                        State = data;
-                    break;
-                case EVENT_RHAHKZOR:
-                    if (data == DONE)
-                        if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
-                            go->SetGoState(GO_STATE_ACTIVE);
-                    break;
+                    case EVENT_STATE:
+                        if (!DefiasCannonGUID.IsEmpty() && !IronCladDoorGUID.IsEmpty())
+                            State = data;
+                        break;
+                    case EVENT_RHAHKZOR:
+                        if (data == DONE)
+                            if (GameObject* go = instance->GetGameObject(FactoryDoorGUID))
+                                go->SetGoState(GO_STATE_ACTIVE);
+                        break;
                 }
             }
 

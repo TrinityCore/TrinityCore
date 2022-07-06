@@ -121,6 +121,8 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         }
     }
 
+    user->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
+
     SpellCastTargets targets(user, packet.Cast);
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
@@ -305,18 +307,20 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     // Check possible spell cast overrides
     spellInfo = caster->GetCastSpellInfo(spellInfo);
 
-    // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
-    // Skip it to prevent "interrupt" message
-    if (spellInfo->IsAutoRepeatRangedSpell() && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
-        && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
-        return;
-
     // can't use our own spells when we're in possession of another unit,
     if (_player->isPossessing())
         return;
 
     // client provided targets
     SpellCastTargets targets(caster, cast.Cast);
+
+    // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
+    // Skip it to prevent "interrupt" message
+    // Also check targets! target may have changed and we need to interrupt current spell
+    if (spellInfo->IsAutoRepeatRangedSpell())
+        if (Spell* spell = caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+            if (spell->m_spellInfo == spellInfo && spell->m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
+                return;
 
     // auto-selection buff level base at target level (in spellInfo)
     if (targets.GetUnitTarget())
@@ -331,7 +335,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     if (cast.Cast.MoveUpdate)
         HandleMovementOpcode(CMSG_MOVE_STOP, *cast.Cast.MoveUpdate);
 
-    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
 
     WorldPackets::Spells::SpellPrepare spellPrepare;
     spellPrepare.ClientCastID = cast.Cast.CastID;
@@ -341,7 +345,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     spell->m_fromClient = true;
     spell->m_misc.Raw.Data[0] = cast.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = cast.Cast.Misc[1];
-    spell->prepare(&targets);
+    spell->prepare(targets);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& packet)
@@ -478,7 +482,7 @@ void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& tot
     if (!_player->m_SummonSlot[slotId])
         return;
 
-    Creature* totem = ObjectAccessor::GetCreature(*GetPlayer(), _player->m_SummonSlot[slotId]);
+    Creature* totem = ObjectAccessor::GetCreature(*_player, _player->m_SummonSlot[slotId]);
     if (totem && totem->IsTotem() && totem->GetGUID() == totemDestroyed.TotemGUID)
         totem->ToTotem()->UnSummon();
 }
@@ -488,14 +492,10 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)
     if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
-    auto const& selfResSpells = _player->m_activePlayerData->SelfResSpells;
-    if (std::find(selfResSpells.begin(), selfResSpells.end(), selfRes.SpellID) == selfResSpells.end())
+    if (_player->m_activePlayerData->SelfResSpells.FindIndex(selfRes.SpellID) < 0)
         return;
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(selfRes.SpellID, _player->GetMap()->GetDifficultyID());
-    if (spellInfo)
-        _player->CastSpell(_player, spellInfo, false, nullptr);
-
+    _player->CastSpell(_player, selfRes.SpellID, _player->GetMap()->GetDifficultyID());
     _player->RemoveSelfResSpell(selfRes.SpellID);
 }
 
@@ -533,17 +533,10 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
             mirrorImageComponentedData.DisplayID = outfit.GetDisplayId();
             mirrorImageComponentedData.RaceID = outfit.GetRace();
             mirrorImageComponentedData.Gender = outfit.GetGender();
-            mirrorImageComponentedData.ClassID = outfit.Class;
+            mirrorImageComponentedData.ClassID = outfit.GetClass();
+            mirrorImageComponentedData.SpellVisualKitID = outfit.SpellVisualKitID;
+            mirrorImageComponentedData.Customizations = outfit.GetCustomizations();
 
-            mirrorImageComponentedData.SkinColor = outfit.skin;
-            mirrorImageComponentedData.FaceVariation = outfit.face;
-            mirrorImageComponentedData.HairVariation = outfit.hair;
-            mirrorImageComponentedData.HairColor = outfit.haircolor;
-            mirrorImageComponentedData.BeardVariation = outfit.facialhair;
-
-            static_assert(CreatureOutfit::max_custom_displays == PLAYER_CUSTOM_DISPLAY_SIZE, "Amount of custom displays for player has changed - change it for dressnpcs as well");
-            for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-                mirrorImageComponentedData.CustomDisplay[i] = outfit.customdisplay[i];
             mirrorImageComponentedData.GuildGUID = ObjectGuid::Empty;
             if (outfit.guild)
             {
@@ -577,15 +570,11 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         mirrorImageComponentedData.Gender = creator->getGender();
         mirrorImageComponentedData.ClassID = creator->getClass();
 
-        Guild* guild = player->GetGuild();
 
-        mirrorImageComponentedData.SkinColor = player->m_playerData->SkinID;
-        mirrorImageComponentedData.FaceVariation = player->m_playerData->FaceID;
-        mirrorImageComponentedData.HairVariation = player->m_playerData->HairStyleID;
-        mirrorImageComponentedData.HairColor = player->m_playerData->HairColorID;
-        mirrorImageComponentedData.BeardVariation = player->m_playerData->FacialHairStyleID;
-        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-            mirrorImageComponentedData.CustomDisplay[i] = player->m_playerData->CustomDisplayOption[i];
+        for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
+            mirrorImageComponentedData.Customizations.push_back(customization);
+
+        Guild* guild = player->GetGuild();
         mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
         mirrorImageComponentedData.ItemDisplayID.reserve(11);

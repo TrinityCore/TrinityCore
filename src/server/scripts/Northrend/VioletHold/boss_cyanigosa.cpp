@@ -52,9 +52,9 @@ class boss_cyanigosa : public CreatureScript
         {
             boss_cyanigosaAI(Creature* creature) : BossAI(creature, DATA_CYANIGOSA) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -64,10 +64,10 @@ class boss_cyanigosa : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }

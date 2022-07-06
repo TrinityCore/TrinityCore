@@ -57,12 +57,12 @@ private:
 
 TC_COMMON_API void stripLineInvisibleChars(std::string &src);
 
-TC_COMMON_API int64 MoneyStringToMoney(const std::string& moneyString);
+TC_COMMON_API int64 MoneyStringToMoney(std::string const& moneyString);
 
-TC_COMMON_API struct tm* localtime_r(const time_t* time, struct tm *result);
+TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
 
 TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
-TC_COMMON_API uint32 TimeStringToSecs(const std::string& timestring);
+TC_COMMON_API uint32 TimeStringToSecs(std::string const& timestring);
 TC_COMMON_API std::string TimeToTimestampStr(time_t t);
 
 // Percentage calculation
@@ -70,6 +70,13 @@ template <class T, class U>
 inline T CalculatePct(T base, U pct)
 {
     return T(base * static_cast<float>(pct) / 100.0f);
+}
+
+template <class T>
+inline float GetPctOf(T value, T max)
+{
+    ASSERT(max);
+    return float(static_cast<float>(value) / static_cast<float>(max) * 100.0f);
 }
 
 template <class T, class U>
@@ -284,6 +291,24 @@ inline wchar_t wcharToLower(wchar_t wchar)
     return wchar;
 }
 
+inline bool isLower(wchar_t wchar)
+{
+    if (wchar >= L'a' && wchar <= L'z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+        return true;
+    if (wchar >= 0x00E0 && wchar <= 0x00FF)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER Y WITH DIAERESIS
+        return true;
+    if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
+        return true;
+    if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
+        return true;
+    return false;
+}
+
+inline bool isUpper(wchar_t wchar)
+{
+    return !isLower(wchar);
+}
+
 TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring const& wstr, LocaleConstant locale);
 
 TC_COMMON_API void wstrToUpper(std::wstring& str);
@@ -401,7 +426,7 @@ public:
         part[3] = p4;
     }
 
-    inline bool operator <(const flag128 &right) const
+    inline bool operator<(flag128 const& right) const
     {
         for (uint8 i = 4; i > 0; --i)
         {
@@ -413,7 +438,7 @@ public:
         return false;
     }
 
-    inline bool operator ==(const flag128 &right) const
+    inline bool operator==(flag128 const& right) const
     {
         return
             (
@@ -424,18 +449,17 @@ public:
             );
     }
 
-    inline bool operator !=(const flag128 &right) const
+    inline bool operator!=(flag128 const& right) const
     {
-        return !this->operator ==(right);
+        return !(*this == right);
     }
 
-    inline flag128 operator &(const flag128 &right) const
+    inline flag128 operator&(flag128 const& right) const
     {
-        return flag128(part[0] & right.part[0], part[1] & right.part[1],
-            part[2] & right.part[2], part[3] & right.part[3]);
+        return flag128(part[0] & right.part[0], part[1] & right.part[1], part[2] & right.part[2], part[3] & right.part[3]);
     }
 
-    inline flag128 & operator &=(const flag128 &right)
+    inline flag128& operator&=(flag128 const& right)
     {
         part[0] &= right.part[0];
         part[1] &= right.part[1];
@@ -444,13 +468,12 @@ public:
         return *this;
     }
 
-    inline flag128 operator |(const flag128 &right) const
+    inline flag128 operator|(flag128 const& right) const
     {
-        return flag128(part[0] | right.part[0], part[1] | right.part[1],
-            part[2] | right.part[2], part[3] | right.part[3]);
+        return flag128(part[0] | right.part[0], part[1] | right.part[1], part[2] | right.part[2], part[3] | right.part[3]);
     }
 
-    inline flag128 & operator |=(const flag128 &right)
+    inline flag128& operator |=(flag128 const& right)
     {
         part[0] |= right.part[0];
         part[1] |= right.part[1];
@@ -459,18 +482,17 @@ public:
         return *this;
     }
 
-    inline flag128 operator ~() const
+    inline flag128 operator~() const
     {
         return flag128(~part[0], ~part[1], ~part[2], ~part[3]);
     }
 
-    inline flag128 operator ^(const flag128 &right) const
+    inline flag128 operator^(flag128 const& right) const
     {
-        return flag128(part[0] ^ right.part[0], part[1] ^ right.part[1],
-            part[2] ^ right.part[2], part[3] ^ right.part[3]);
+        return flag128(part[0] ^ right.part[0], part[1] ^ right.part[1], part[2] ^ right.part[2], part[3] ^ right.part[3]);
     }
 
-    inline flag128 & operator ^=(const flag128 &right)
+    inline flag128& operator^=(flag128 const& right)
     {
         part[0] ^= right.part[0];
         part[1] ^= right.part[1];
@@ -486,15 +508,15 @@ public:
 
     inline bool operator !() const
     {
-        return !this->operator bool();
+        return !(bool(*this));
     }
 
-    inline uint32 & operator [](uint8 el)
+    inline uint32& operator[](uint8 el)
     {
         return part[el];
     }
 
-    inline const uint32 & operator [](uint8 el) const
+    inline uint32 const& operator [](uint8 el) const
     {
         return part[el];
     }

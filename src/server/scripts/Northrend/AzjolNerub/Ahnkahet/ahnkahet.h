@@ -37,13 +37,7 @@ enum AKDataTypes
     // Additional Data
     DATA_SPHERE_1                   = 5,
     DATA_SPHERE_2                   = 6,
-    DATA_PRINCE_TALDARAM_PLATFORM   = 7,
-    DATA_PL_JEDOGA_TARGET           = 8,
-    DATA_ADD_JEDOGA_OPFER           = 9,
-    DATA_ADD_JEDOGA_INITIAND        = 10,
-    DATA_JEDOGA_TRIGGER_SWITCH      = 11,
-    DATA_JEDOGA_RESET_INITIANDS     = 12,
-    DATA_ALL_INITIAND_DEAD          = 13
+    DATA_PRINCE_TALDARAM_PLATFORM   = 7
 };
 
 enum AKCreatureIds
@@ -59,7 +53,9 @@ enum AKCreatureIds
     NPC_AHNKAHAR_SWARMER            = 30178,
 
     // Jedoga Shadowseeker
-    NPC_INITIAND                    = 30114,
+    NPC_TWILIGHT_INITIATE           = 30114,
+    NPC_TWILIGHT_VOLUNTEER          = 30385,
+    NPC_TWILIGHT_WORSHIPPER         = 30111,
     NPC_JEDOGA_CONTROLLER           = 30181,
 
     // Amanitar
@@ -82,10 +78,12 @@ enum AKGameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetAhnKahetAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, AhnKahetScriptName);
 }
+
+#define RegisterAhnKahetCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAhnKahetAI)
 
 #endif // AHNKAHET_H_

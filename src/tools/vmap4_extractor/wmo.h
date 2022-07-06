@@ -64,7 +64,7 @@ namespace WMO
 }
 
 /* for whatever reason a certain company just can't stick to one coordinate system... */
-static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
+static inline Vec3D fixCoords(Vec3D const& v){ return Vec3D(v.z, v.x, v.y); }
 
 struct WMODoodadData
 {
@@ -125,8 +125,7 @@ public:
     // MOGP
 
     char* MOPY;
-    uint16* MOVI;
-    uint16* MoviEx;
+    std::unique_ptr<uint32[]> MOVX;
     float* MOVT;
     uint16* MOBA;
     int* MobaEx;

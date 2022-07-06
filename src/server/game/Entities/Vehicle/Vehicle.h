@@ -71,6 +71,8 @@ class TC_GAME_API Vehicle : public TransportBase
 
         void RemovePendingEventsForPassenger(Unit* passenger);
 
+        Milliseconds GetDespawnDelay();
+
     protected:
         friend class VehicleJoinEvent;
         uint32 UsableSeatNum;                               ///< Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags

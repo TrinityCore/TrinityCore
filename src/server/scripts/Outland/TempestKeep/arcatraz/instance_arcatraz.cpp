@@ -20,6 +20,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {
@@ -48,6 +49,8 @@ class instance_arcatraz : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_DALLIAH:
@@ -59,6 +62,9 @@ class instance_arcatraz : public InstanceMapScript
                     case NPC_MELLICHAR:
                         MellicharGUID = creature->GetGUID();
                         break;
+                    case NPC_MILLHOUSE:
+                        MillhouseGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -66,12 +72,10 @@ class instance_arcatraz : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA:
-                        AddDoor(go, true);
-                        break;
                     case GO_STASIS_POD_ALPHA:
                         StasisPodGUIDs[0] = go->GetGUID();
                         break;
@@ -89,19 +93,6 @@ class instance_arcatraz : public InstanceMapScript
                         break;
                     case GO_WARDENS_SHIELD:
                         WardensShieldGUID = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;
@@ -181,6 +172,15 @@ class instance_arcatraz : public InstanceMapScript
                             SetData(DATA_WARDEN_4, NOT_STARTED);
                             SetData(DATA_WARDEN_5, NOT_STARTED);
                         }
+                        else if (state == DONE)
+                        {
+                            if (!instance->IsHeroic())
+                                break;
+
+                            if (Creature* millhouse = instance->GetCreature(MillhouseGUID))
+                                if (millhouse->IsAlive())
+                                    DoCastSpellOnPlayers(SPELL_QID_10886);
+                        }
                         break;
                     default:
                         break;
@@ -194,6 +194,7 @@ class instance_arcatraz : public InstanceMapScript
             ObjectGuid StasisPodGUIDs[5];
             ObjectGuid MellicharGUID;
             ObjectGuid WardensShieldGUID;
+            ObjectGuid MillhouseGUID;
 
             uint8 ConversationState;
             uint8 StasisPodStates[5];

@@ -75,12 +75,12 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
                 events.ScheduleEvent(EVENT_SURGE, 4000);
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void MoveInLineOfSight(Unit* who) override

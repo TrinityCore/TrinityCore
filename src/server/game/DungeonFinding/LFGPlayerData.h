@@ -42,7 +42,7 @@ class TC_GAME_API LfgPlayerData
 
         // Queue
         void SetRoles(uint8 roles);
-        void SetSelectedDungeons(const LfgDungeonSet& dungeons);
+        void SetSelectedDungeons(LfgDungeonSet const& dungeons);
 
         // General
         WorldPackets::LFG::RideTicket const& GetTicket() const;

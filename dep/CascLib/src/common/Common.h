@@ -124,6 +124,7 @@ typedef CASC_CKEY_ENTRY *PCASC_CKEY_ENTRY;
 
 extern unsigned char AsciiToLowerTable_Slash[256];
 extern unsigned char AsciiToUpperTable_BkSlash[256];
+extern unsigned char AsciiToHexTable[0x80];
 extern unsigned char IntToHexChar[];
 
 //-----------------------------------------------------------------------------
@@ -327,9 +328,8 @@ wchar_t * CascNewStr(const wchar_t * szString, size_t nCharsToReserve = 0);
 LPSTR  CascNewStrT2A(LPCTSTR szString, size_t nCharsToReserve = 0);
 LPTSTR CascNewStrA2T(LPCSTR szString, size_t nCharsToReserve = 0);
 
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, char chSeparator, va_list argList);
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, char chSeparator, ...);
-LPTSTR CombinePath(LPCTSTR szPath, LPCTSTR szSubDir);
+size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, va_list argList);
+size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, ...);
 LPTSTR GetLastPathPart(LPTSTR szWorkPath);
 bool CutLastPathPart(LPTSTR szWorkPath);
 
@@ -339,15 +339,82 @@ size_t NormalizeFileName_LowerSlash(char * szNormName, const char * szFileName, 
 ULONGLONG CalcNormNameHash(const char * szNormName, size_t nLength);
 ULONGLONG CalcFileNameHash(const char * szFileName);
 
-DWORD ConvertDigitToInt32(LPCTSTR szString, PDWORD PtrValue);
-DWORD ConvertStringToInt08(LPCSTR szString, PDWORD PtrValue);
-DWORD ConvertStringToInt32(LPCTSTR szString, size_t nMaxDigits, PDWORD PtrValue);
-DWORD ConvertStringToBinary(LPCSTR szString, size_t nMaxDigits, LPBYTE pbBinary);
-
 //-----------------------------------------------------------------------------
-// Conversion from binary array to string. The caller must ensure that
-// the buffer has at least ((cbBinary * 2) + 1) characters
+// String conversion functions
 
+template <typename xchar, typename INTXX>
+DWORD ConvertStringToInt(const xchar * szString, size_t nMaxDigits, INTXX & RefValue, const xchar ** PtrStringEnd = NULL)
+{
+    INTXX MaxValueMask = (INTXX)0x0F << ((sizeof(INTXX) * 8) - 4);
+    INTXX Accumulator = 0;
+    BYTE DigitOne;
+
+    // Set default value
+    if(nMaxDigits == 0)
+        nMaxDigits = sizeof(INTXX) * 2;
+
+    // Convert the string up to the number of digits
+    for(size_t i = 0; i < nMaxDigits; i++, szString++)
+    {
+        // Check for the end of the string
+        if(szString[0] > sizeof(AsciiToHexTable))
+            return ERROR_BAD_FORMAT;
+        if(szString[0] <= 0x20)
+            break;
+
+        // Extract the next digit
+        DigitOne = AsciiToHexTable[szString[0]];
+        if(DigitOne == 0xFF)
+            return ERROR_BAD_FORMAT;
+
+        // Check overflow. If OK, shift the value by 4 to the left
+        if(Accumulator & MaxValueMask)
+            return ERROR_ARITHMETIC_OVERFLOW;
+        Accumulator = (Accumulator << 4) | DigitOne;
+    }
+
+    // Give the results
+    if(PtrStringEnd != NULL)
+        PtrStringEnd[0] = szString;
+    RefValue = Accumulator;
+    return ERROR_SUCCESS;
+}
+
+// Converts string blob to binary blob
+template <typename xchar>
+DWORD BinaryFromString(const xchar * szString, size_t nMaxDigits, LPBYTE pbBinary)
+{
+    const xchar * szStringEnd = szString + nMaxDigits;
+    DWORD dwCounter = 0;
+    BYTE DigitValue;
+    BYTE ByteValue = 0;
+
+    // Convert the string
+    while(szString < szStringEnd)
+    {
+        // Retrieve the digit converted to hexa
+        DigitValue = (BYTE)(AsciiToUpperTable_BkSlash[szString[0]] - '0');
+        if(DigitValue > 9)
+            DigitValue -= 'A' - '9' - 1;
+        if(DigitValue > 0x0F)
+            return ERROR_BAD_FORMAT;
+
+        // Insert the digit to the binary buffer
+        ByteValue = (ByteValue << 0x04) | DigitValue;
+        dwCounter++;
+
+        // If we reached the second digit, it means that we need
+        // to flush the byte value and move on
+        if((dwCounter & 0x01) == 0)
+            *pbBinary++ = ByteValue;
+        szString++;
+    }
+
+    return ERROR_SUCCESS;
+}
+
+// Converts binary array to string.
+// The caller must ensure that the buffer has at least ((cbBinary * 2) + 1) characters
 template <typename xchar>
 xchar * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, xchar * szBuffer)
 {
@@ -370,7 +437,7 @@ xchar * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, xchar * szBuffer)
 }
 
 //-----------------------------------------------------------------------------
-// Structure query key
+// Structures for data blobs
 
 struct QUERY_KEY
 {
@@ -384,6 +451,16 @@ struct QUERY_KEY
     {
         CASC_FREE(pbData);
         cbData = 0;
+    }
+
+    DWORD SetData(const void * pv, size_t cb)
+    {
+        if((pbData = CASC_ALLOC<BYTE>(cb)) == NULL)
+            return ERROR_NOT_ENOUGH_MEMORY;
+
+        memcpy(pbData, pv, cb);
+        cbData = cb;
+        return ERROR_SUCCESS;
     }
 
     LPBYTE pbData;

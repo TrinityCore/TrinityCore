@@ -21,29 +21,59 @@
 #include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "ReputationPackets.h"
 #include "ScriptMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 
-const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
+std::set<int32> const ReputationMgr::ReputationRankThresholds =
+{
+    -42000,
+    // Hated
+    -6000,
+    // Hostile
+    -3000,
+    // Unfriendly
+    0,
+    // Neutral
+    3000,
+    // Friendly
+    9000,
+    // Honored
+    21000,
+    // Revered
+    42000
+    // Exalted
+};
 
-const int32 ReputationMgr::Reputation_Cap = 42999;
+const int32 ReputationMgr::Reputation_Cap = 42000;
 const int32 ReputationMgr::Reputation_Bottom = -42000;
 
-ReputationRank ReputationMgr::ReputationToRank(int32 standing)
+template<typename T, typename F, typename... Rest>
+static int32 ReputationToRankHelper(std::set<T, Rest...> const& thresholds, int32 standing, F thresholdExtractor)
 {
-    int32 limit = Reputation_Cap + 1;
-    for (int i = MAX_REPUTATION_RANK-1; i >= MIN_REPUTATION_RANK; --i)
+    auto itr = thresholds.begin();
+    auto end = thresholds.end();
+    int32 rank = -1;
+    while (itr != end && standing >= thresholdExtractor(*itr))
     {
-        limit -= PointsInRank[i];
-        if (standing >= limit)
-            return ReputationRank(i);
+        ++rank;
+        ++itr;
     }
-    return MIN_REPUTATION_RANK;
+
+    return rank;
+}
+
+ReputationRank ReputationMgr::ReputationToRank(FactionEntry const* factionEntry, int32 standing)
+{
+    int32 rank = MIN_REPUTATION_RANK;
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+        rank = ReputationToRankHelper(*friendshipReactions, standing, [](FriendshipRepReactionEntry const* frr) { return frr->ReactionThreshold; });
+    else
+        rank = ReputationToRankHelper(ReputationRankThresholds, standing, [](int32 threshold) { return threshold; });
+
+    return ReputationRank(rank);
 }
 
 FactionState const* ReputationMgr::GetState(FactionEntry const* factionEntry) const
@@ -70,7 +100,7 @@ bool ReputationMgr::IsAtWar(FactionEntry const* factionEntry) const
         return false;
 
     if (FactionState const* factionState = GetState(factionEntry))
-        return (factionState->Flags & FACTION_FLAG_AT_WAR) != 0;
+        return factionState->Flags.HasFlag(ReputationFlags::AtWar);
     return false;
 }
 
@@ -89,24 +119,50 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
 
 int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
 {
-    if (!factionEntry)
+    int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
+    if (dataIndex < 0)
         return 0;
 
-    uint8 race = _player->getRace();
-    uint32 classMask = _player->getClassMask();
-    for (int i=0; i < 4; i++)
-    {
-        if ((factionEntry->ReputationRaceMask[i].HasRace(race) ||
-            (!factionEntry->ReputationRaceMask[i] &&
-             factionEntry->ReputationClassMask[i] != 0)) &&
-            (factionEntry->ReputationClassMask[i] & classMask ||
-             factionEntry->ReputationClassMask[i] == 0))
+    return factionEntry->ReputationBase[dataIndex];
+}
 
-            return factionEntry->ReputationBase[i];
+int32 ReputationMgr::GetMinReputation(FactionEntry const* factionEntry) const
+{
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+        return (*friendshipReactions->begin())->ReactionThreshold;
+
+    return *ReputationRankThresholds.begin();
+}
+
+int32 ReputationMgr::GetMaxReputation(FactionEntry const* factionEntry) const
+{
+    if (ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ID))
+    {
+        // has reward quest, cap is just before threshold for another quest reward
+        // for example: if current reputation is 12345 and questa are given every 10000 and player has unclaimed reward
+        // then cap will be 19999
+
+        // otherwise cap is one theshold level larger
+        // if current reputation is 12345 and questa are given every 10000 and player does NOT have unclaimed reward
+        // then cap will be 29999
+
+        int32 reputation = GetReputation(factionEntry);
+        int32 cap = reputation + paragonReputation->LevelThreshold - reputation % paragonReputation->LevelThreshold - 1;
+
+        if (_player->GetQuestStatus(paragonReputation->QuestID) == QUEST_STATUS_NONE)
+            cap += paragonReputation->LevelThreshold;
+
+        return cap;
     }
 
-    // in faction.dbc exist factions with (RepListId >=0, listed in character reputation list) with all BaseRepRaceMask[i] == 0
-    return 0;
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+        return (*friendshipReactions->rbegin())->ReactionThreshold;
+
+    int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
+    if (dataIndex >= 0)
+        return factionEntry->ReputationMax[dataIndex];
+
+    return *ReputationRankThresholds.rbegin();
 }
 
 int32 ReputationMgr::GetReputation(FactionEntry const* factionEntry) const
@@ -124,18 +180,50 @@ int32 ReputationMgr::GetReputation(FactionEntry const* factionEntry) const
 ReputationRank ReputationMgr::GetRank(FactionEntry const* factionEntry) const
 {
     int32 reputation = GetReputation(factionEntry);
-    return ReputationToRank(reputation);
+    return ReputationToRank(factionEntry, reputation);
 }
 
 ReputationRank ReputationMgr::GetBaseRank(FactionEntry const* factionEntry) const
 {
     int32 reputation = GetBaseReputation(factionEntry);
-    return ReputationToRank(reputation);
+    return ReputationToRank(factionEntry, reputation);
+}
+
+std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntry) const
+{
+    ReputationRank rank = GetRank(factionEntry);
+    if (!factionEntry->FriendshipRepID)
+        return sObjectMgr->GetTrinityString(ReputationRankStrIndex[GetRank(factionEntry)], _player->GetSession()->GetSessionDbcLocale());
+
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    {
+        auto itr = friendshipReactions->begin();
+        std::advance(itr, uint32(rank));
+        return (*itr)->Reaction[_player->GetSession()->GetSessionDbcLocale()];
+    }
+
+    return "";
 }
 
 ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
 {
     return GetForcedRankIfAny(factionTemplateEntry->Faction);
+}
+
+int32 ReputationMgr::GetParagonLevel(uint32 paragonFactionId) const
+{
+    return GetParagonLevel(sFactionStore.LookupEntry(paragonFactionId));
+}
+
+int32 ReputationMgr::GetParagonLevel(FactionEntry const* paragonFactionEntry) const
+{
+    if (!paragonFactionEntry)
+        return 0;
+
+    if (ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(paragonFactionEntry->ID))
+        return GetReputation(paragonFactionEntry) / paragonReputation->LevelThreshold;
+
+    return 0;
 }
 
 void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply)
@@ -146,24 +234,21 @@ void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, b
         _forcedReactions.erase(faction_id);
 }
 
-uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) const
+ReputationFlags ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) const
 {
-    if (!factionEntry)
-        return 0;
-
-    uint8 race = _player->getRace();
-    uint32 classMask = _player->getClassMask();
-    for (int i=0; i < 4; i++)
+    ReputationFlags flags = [&]()
     {
-        if ((factionEntry->ReputationRaceMask[i].HasRace(race) ||
-            (!factionEntry->ReputationRaceMask[i] &&
-             factionEntry->ReputationClassMask[i] != 0)) &&
-            (factionEntry->ReputationClassMask[i] & classMask ||
-             factionEntry->ReputationClassMask[i] == 0))
+        int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
+        if (dataIndex < 0)
+            return ReputationFlags::None;
 
-            return factionEntry->ReputationFlags[i];
-    }
-    return 0;
+        return static_cast<ReputationFlags>(factionEntry->ReputationFlags[dataIndex]);
+    }();
+
+    if (sDB2Manager.GetParagonReputation(factionEntry->ID))
+        flags |= ReputationFlags::ShowPropagated;
+
+    return flags;
 }
 
 void ReputationMgr::SendForceReactions()
@@ -213,7 +298,7 @@ void ReputationMgr::SendInitialReputations()
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
-        initFactions.FactionFlags[itr->first] = itr->second.Flags;
+        initFactions.FactionFlags[itr->first] = itr->second.Flags.AsUnderlyingType();
         initFactions.FactionStandings[itr->first] = itr->second.Standing;
         /// @todo faction bonus
         itr->second.needSend = false;
@@ -254,10 +339,11 @@ void ReputationMgr::Initialize()
             newFaction.needSend = true;
             newFaction.needSave = true;
 
-            if (newFaction.Flags & FACTION_FLAG_VISIBLE)
+            if (newFaction.Flags.HasFlag(ReputationFlags::Visible))
                 ++_visibleFactionCount;
 
-            UpdateRankCounters(REP_HOSTILE, GetBaseRank(factionEntry));
+            if (!factionEntry->FriendshipRepID)
+                UpdateRankCounters(REP_HOSTILE, GetBaseRank(factionEntry));
 
             _factions[newFaction.ReputationListID] = newFaction;
         }
@@ -271,7 +357,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     if (!noSpillover)
     {
         // if spillover definition exists in DB, override DBC
-        if (const RepSpilloverTemplate* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
+        if (RepSpilloverTemplate const* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
         {
             for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
             {
@@ -299,7 +385,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                 {
                     FactionStateList::iterator parentState = _factions.find(parent->ReputationIndex);
                     // some team factions have own reputation standing, in this case do not spill to other sub-factions
-                    if (parentState != _factions.end() && (parentState->second.Flags & FACTION_FLAG_SPECIAL))
+                    if (parentState != _factions.end() && parentState->second.Flags.HasFlag(ReputationFlags::HeaderShowsBar))
                     {
                         SetOneFactionReputation(parent, int32(spillOverRepOut), incremental);
                     }
@@ -331,12 +417,22 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     FactionStateList::iterator faction = _factions.find(factionEntry->ReputationIndex);
     if (faction != _factions.end())
     {
-        // if we update spillover only, do not update main reputation (rank exceeds creature reward rate)
-        if (!spillOverOnly)
-            res = SetOneFactionReputation(factionEntry, standing, incremental);
+        FactionEntry const* primaryFactionToModify = factionEntry;
+        if (incremental && standing > 0 && CanGainParagonReputationForFaction(factionEntry))
+        {
+            primaryFactionToModify = sFactionStore.AssertEntry(factionEntry->ParagonFactionID);
+            faction = _factions.find(primaryFactionToModify->ReputationIndex);
+        }
 
-        // only this faction gets reported to client, even if it has no own visible standing
-        SendState(&faction->second);
+        if (faction != _factions.end())
+        {
+            // if we update spillover only, do not update main reputation (rank exceeds creature reward rate)
+            if (!spillOverOnly)
+                res = SetOneFactionReputation(primaryFactionToModify, standing, incremental);
+
+            // only this faction gets reported to client, even if it has no own visible standing
+            SendState(&faction->second);
+        }
     }
     return res;
 }
@@ -355,15 +451,20 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
             standing += itr->second.Standing + BaseRep;
         }
 
-        if (standing > Reputation_Cap)
-            standing = Reputation_Cap;
-        else if (standing < Reputation_Bottom)
-            standing = Reputation_Bottom;
+        if (standing > GetMaxReputation(factionEntry))
+            standing = GetMaxReputation(factionEntry);
+        else if (standing < GetMinReputation(factionEntry))
+            standing = GetMinReputation(factionEntry);
 
-        ReputationRank old_rank = ReputationToRank(itr->second.Standing + BaseRep);
-        ReputationRank new_rank = ReputationToRank(standing);
+        ReputationRank old_rank = ReputationToRank(factionEntry, itr->second.Standing + BaseRep);
+        ReputationRank new_rank = ReputationToRank(factionEntry, standing);
 
-        itr->second.Standing = standing - BaseRep;
+        int32 oldStanding = itr->second.Standing + BaseRep;
+        int32 newStanding = standing - BaseRep;
+
+        _player->ReputationChanged(factionEntry, newStanding - itr->second.Standing);
+
+        itr->second.Standing = newStanding;
         itr->second.needSend = true;
         itr->second.needSave = true;
 
@@ -375,9 +476,19 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (new_rank > old_rank)
             _sendFactionIncreased = true;
 
-        UpdateRankCounters(old_rank, new_rank);
+        ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ID);
+        if (paragonReputation)
+        {
+            int32 oldParagonLevel = oldStanding / paragonReputation->LevelThreshold;
+            int32 newParagonLevel = standing / paragonReputation->LevelThreshold;
+            if (oldParagonLevel != newParagonLevel)
+                if (Quest const* paragonRewardQuest = sObjectMgr->GetQuestTemplate(paragonReputation->QuestID))
+                    _player->AddQuestAndCheckCompletion(paragonRewardQuest, nullptr);
+        }
 
-        _player->ReputationChanged(factionEntry);
+        if (!factionEntry->FriendshipRepID && !paragonReputation)
+            UpdateRankCounters(old_rank, new_rank);
+
         _player->UpdateCriteria(CRITERIA_TYPE_KNOWN_FACTIONS,          factionEntry->ID);
         _player->UpdateCriteria(CRITERIA_TYPE_GAIN_REPUTATION,         factionEntry->ID);
         _player->UpdateCriteria(CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);
@@ -415,15 +526,20 @@ void ReputationMgr::SetVisible(FactionEntry const* factionEntry)
 void ReputationMgr::SetVisible(FactionState* faction)
 {
     // always invisible or hidden faction can't be make visible
-    // except if faction has FACTION_FLAG_SPECIAL
-    if (faction->Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN) && !(faction->Flags & FACTION_FLAG_SPECIAL))
+    if (faction->Flags.HasFlag(ReputationFlags::Hidden))
+        return;
+
+    if (faction->Flags.HasFlag(ReputationFlags::Header) && !faction->Flags.HasFlag(ReputationFlags::HeaderShowsBar))
+        return;
+
+    if (sDB2Manager.GetParagonReputation(faction->ID))
         return;
 
     // already set
-    if (faction->Flags & FACTION_FLAG_VISIBLE)
+    if (faction->Flags.HasFlag(ReputationFlags::Visible))
         return;
 
-    faction->Flags |= FACTION_FLAG_VISIBLE;
+    faction->Flags |= ReputationFlags::Visible;
     faction->needSend = true;
     faction->needSave = true;
 
@@ -439,7 +555,7 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
         return;
 
     // always invisible or hidden faction can't change war state
-    if (itr->second.Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN))
+    if (itr->second.Flags.HasFlag(ReputationFlags::Hidden | ReputationFlags::Header))
         return;
 
     SetAtWar(&itr->second, on);
@@ -447,18 +563,18 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
 
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
-    // not allow declare war to own faction
-    if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED))
+    // Do not allow to declare war to our own faction. But allow for rival factions (eg Aldor vs Scryer).
+    if (atWar && faction->Flags.HasFlag(ReputationFlags::Peaceful))
         return;
 
     // already set
-    if (((faction->Flags & FACTION_FLAG_AT_WAR) != 0) == atWar)
+    if (faction->Flags.HasFlag(ReputationFlags::AtWar) == atWar)
         return;
 
     if (atWar)
-        faction->Flags |= FACTION_FLAG_AT_WAR;
+        faction->Flags |= ReputationFlags::AtWar;
     else
-        faction->Flags &= ~FACTION_FLAG_AT_WAR;
+        faction->Flags &= ~ReputationFlags::AtWar;
 
     faction->needSend = true;
     faction->needSave = true;
@@ -476,17 +592,17 @@ void ReputationMgr::SetInactive(RepListID repListID, bool on)
 void ReputationMgr::SetInactive(FactionState* faction, bool inactive) const
 {
     // always invisible or hidden faction can't be inactive
-    if (inactive && ((faction->Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN)) || !(faction->Flags & FACTION_FLAG_VISIBLE)))
+    if (faction->Flags.HasFlag(ReputationFlags::Hidden | ReputationFlags::Header) || !faction->Flags.HasFlag(ReputationFlags::Visible))
         return;
 
     // already set
-    if (((faction->Flags & FACTION_FLAG_INACTIVE) != 0) == inactive)
+    if (faction->Flags.HasFlag(ReputationFlags::Inactive) == inactive)
         return;
 
     if (inactive)
-        faction->Flags |= FACTION_FLAG_INACTIVE;
+        faction->Flags |= ReputationFlags::Inactive;
     else
-        faction->Flags &= ~FACTION_FLAG_INACTIVE;
+        faction->Flags &= ~ReputationFlags::Inactive;
 
     faction->needSend = true;
     faction->needSave = true;
@@ -514,26 +630,29 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                 faction->Standing = fields[1].GetInt32();
 
                 // update counters
-                int32 BaseRep = GetBaseReputation(factionEntry);
-                ReputationRank old_rank = ReputationToRank(BaseRep);
-                ReputationRank new_rank = ReputationToRank(BaseRep + faction->Standing);
-                UpdateRankCounters(old_rank, new_rank);
+                if (!factionEntry->FriendshipRepID)
+                {
+                    int32 BaseRep = GetBaseReputation(factionEntry);
+                    ReputationRank old_rank = ReputationToRank(factionEntry, BaseRep);
+                    ReputationRank new_rank = ReputationToRank(factionEntry, BaseRep + faction->Standing);
+                    UpdateRankCounters(old_rank, new_rank);
+                }
 
-                uint32 dbFactionFlags = fields[2].GetUInt16();
+                EnumFlag<ReputationFlags> dbFactionFlags = static_cast<ReputationFlags>(fields[2].GetUInt16());
 
-                if (dbFactionFlags & FACTION_FLAG_VISIBLE)
-                    SetVisible(faction);                    // have internal checks for forced invisibility
+                if (dbFactionFlags.HasFlag(ReputationFlags::Visible))
+                    SetVisible(faction);                                    // have internal checks for forced invisibility
 
-                if (dbFactionFlags & FACTION_FLAG_INACTIVE)
-                    SetInactive(faction, true);              // have internal checks for visibility requirement
+                if (dbFactionFlags.HasFlag(ReputationFlags::Inactive))
+                    SetInactive(faction, true);                             // have internal checks for visibility requirement
 
-                if (dbFactionFlags & FACTION_FLAG_AT_WAR)  // DB at war
-                    SetAtWar(faction, true);                 // have internal checks for FACTION_FLAG_PEACE_FORCED
-                else                                        // DB not at war
+                if (dbFactionFlags.HasFlag(ReputationFlags::AtWar))    // DB at war
+                    SetAtWar(faction, true);                                // have internal checks for ReputationFlags::Peaceful
+                else                                                        // DB not at war
                 {
                     // allow remove if visible (and then not FACTION_FLAG_INVISIBLE_FORCED or FACTION_FLAG_HIDDEN)
-                    if (faction->Flags & FACTION_FLAG_VISIBLE)
-                        SetAtWar(faction, false);            // have internal checks for FACTION_FLAG_PEACE_FORCED
+                    if (faction->Flags.HasFlag(ReputationFlags::Visible))
+                        SetAtWar(faction, false);                           // have internal checks for ReputationFlags::Peaceful
                 }
 
                 // set atWar for hostile
@@ -567,7 +686,7 @@ void ReputationMgr::SaveToDB(CharacterDatabaseTransaction& trans)
             stmt->setUInt64(0, _player->GetGUID().GetCounter());
             stmt->setUInt16(1, uint16(itr->second.ID));
             stmt->setInt32(2, itr->second.Standing);
-            stmt->setUInt16(3, uint16(itr->second.Flags));
+            stmt->setUInt16(3, itr->second.Flags.AsUnderlyingType());
             trans->Append(stmt);
 
             itr->second.needSave = false;
@@ -590,4 +709,41 @@ void ReputationMgr::UpdateRankCounters(ReputationRank old_rank, ReputationRank n
         ++_reveredFactionCount;
     if (new_rank >= REP_HONORED)
         ++_honoredFactionCount;
+}
+
+int32 ReputationMgr::GetFactionDataIndexForRaceAndClass(FactionEntry const* factionEntry) const
+{
+    if (!factionEntry)
+        return -1;
+
+    uint8 race = _player->getRace();
+    uint32 classMask = _player->getClassMask();
+    for (int32 i = 0; i < 4; i++)
+    {
+        if ((factionEntry->ReputationRaceMask[i].HasRace(race) || (!factionEntry->ReputationRaceMask[i] && factionEntry->ReputationClassMask[i] != 0))
+            && (factionEntry->ReputationClassMask[i] & classMask || factionEntry->ReputationClassMask[i] == 0))
+
+            return i;
+    }
+
+    return -1;
+}
+
+bool ReputationMgr::CanGainParagonReputationForFaction(FactionEntry const* factionEntry) const
+{
+    if (!sFactionStore.LookupEntry(factionEntry->ParagonFactionID))
+        return false;
+
+    if (GetRank(factionEntry) != REP_EXALTED)
+        return false;
+
+    ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ParagonFactionID);
+    if (!paragonReputation)
+        return false;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(paragonReputation->QuestID);
+    if (!quest)
+        return false;
+
+    return _player->getLevel() >= _player->GetQuestMinLevel(quest);
 }

@@ -82,7 +82,7 @@ enum BFActionIds
     ACTION_PREPARE_BROGGOK      = 3
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetBloodFurnaceAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BFScriptName);

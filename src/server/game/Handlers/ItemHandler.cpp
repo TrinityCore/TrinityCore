@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
+#include "WorldSession.h"
 #include "BattlePetMgr.h"
 #include "Common.h"
 #include "Creature.h"
@@ -31,7 +31,6 @@
 #include "Player.h"
 #include "SpellMgr.h"
 #include "World.h"
-#include "WorldSession.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -461,6 +460,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 }
 
                 _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+                _player->UpdateCriteria(CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR, 1);
 
                 if (packet.Amount < pItem->GetCount())               // need split items
                 {
@@ -909,7 +909,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
     {
         // after save it will be impossible to remove the item from the queue
         RemoveItemFromUpdateQueueOf(item, _player);
-        item->SaveToDB(trans); // item gave inventory record unchanged and can be save standalone
+        item->SaveToDB(trans);                                   // item gave inventory record unchanged and can be save standalone
     }
     CharacterDatabase.CommitTransaction(trans);
 
@@ -1217,21 +1217,21 @@ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
 {
     // TODO: Implement sorting
     // Placeholder to prevent completely locking out bags clientside
-    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
 void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
 {
     // TODO: Implement sorting
     // Placeholder to prevent completely locking out bags clientside
-    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
 void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& /*sortReagentBankBags*/)
 {
     // TODO: Implement sorting
     // Placeholder to prevent completely locking out bags clientside
-    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
 void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem)

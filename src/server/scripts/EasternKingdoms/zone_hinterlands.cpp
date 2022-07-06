@@ -28,9 +28,8 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## npc_oox09hl
@@ -59,7 +58,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (who->GetEntry() == NPC_MARAUDING_OWL || who->GetEntry() == NPC_VILE_AMBUSHER)
                 return;

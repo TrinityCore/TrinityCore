@@ -50,8 +50,8 @@ void WorldSession::HandleGarrisonRequestBlueprintAndSpecializationData(WorldPack
         garrison->SendBlueprintAndSpecializationData();
 }
 
-void WorldSession::HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& /*garrisonGetBuildingLandmarks*/)
+void WorldSession::HandleGarrisonGetMapData(WorldPackets::Garrison::GarrisonGetMapData& /*garrisonGetMapData*/)
 {
     if (Garrison* garrison = _player->GetGarrison())
-        garrison->SendBuildingLandmarks(_player);
+        garrison->SendMapData(_player);
 }

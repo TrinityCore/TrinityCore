@@ -64,8 +64,8 @@ WorldPacket const* WorldPackets::Social::ContactList::Write()
     _worldPacket.WriteBits(Contacts.size(), 8);
     _worldPacket.FlushBits();
 
-    for (size_t i = 0; i < Contacts.size(); ++i)
-        _worldPacket << Contacts[i];
+    for (ContactInfo const& contact : Contacts)
+        _worldPacket << contact;
 
     return &_worldPacket;
 }

@@ -16,12 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "karazhan.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 #include "SpellInfo.h"
 
 enum TerestianSays
@@ -88,9 +86,9 @@ public:
             events.ScheduleEvent(EVENT_ENRAGE, Minutes(10));
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
         }
 

@@ -30,13 +30,13 @@
     #include <Windows.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
     #include <cerrno>
 #endif
 
 namespace MMAP
 {
-    inline bool matchWildcardFilter(const char* filter, const char* str)
+    inline bool matchWildcardFilter(char const* filter, char const* str)
     {
         if (!filter || !str)
             return false;

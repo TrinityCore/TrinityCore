@@ -50,7 +50,7 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type, uint32 spellXSpellVisualId);
+        bool CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type, SpellCastVisual spellVisual);
         void Update(uint32 p_time) override;
         void Remove();
         void SetDuration(int32 newDuration);
@@ -63,7 +63,7 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         Unit* GetCaster() const { return _caster; }
         void BindToCaster();
         void UnbindFromCaster();
-        uint32 GetSpellId() const {  return m_dynamicObjectData->SpellID; }
+        uint32 GetSpellId() const { return m_dynamicObjectData->SpellID; }
         SpellInfo const* GetSpellInfo() const;
         ObjectGuid GetCasterGUID() const { return m_dynamicObjectData->Caster; }
         float GetRadius() const { return m_dynamicObjectData->Radius; }

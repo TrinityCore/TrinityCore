@@ -46,8 +46,8 @@ enum ItemModType
     ITEM_MOD_CRIT_SPELL_RATING        = 21,
     ITEM_MOD_CORRUPTION               = 22,
     ITEM_MOD_CORRUPTION_RESISTANCE    = 23,
-    ITEM_MOD_HIT_TAKEN_SPELL_RATING   = 24,
-    ITEM_MOD_CRIT_TAKEN_MELEE_RATING  = 25,
+    ITEM_MOD_MODIFIED_CRAFTING_STAT_1 = 24,
+    ITEM_MOD_MODIFIED_CRAFTING_STAT_2 = 25,
     ITEM_MOD_CRIT_TAKEN_RANGED_RATING = 26,
     ITEM_MOD_CRIT_TAKEN_SPELL_RATING  = 27,
     ITEM_MOD_HASTE_MELEE_RATING       = 28,
@@ -757,10 +757,11 @@ struct TC_GAME_API ItemTemplate
     uint32 GetRequiredReputationRank() const { return ExtendedData->MinReputation; }
     uint32 GetMaxCount() const { return ExtendedData->MaxCount; }
     uint32 GetContainerSlots() const { return ExtendedData->ContainerSlots; }
-    int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatModifierBonusStat[index]; }
-    int32 GetItemStatAllocation(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentEditor[index]; }
-    float GetItemStatSocketCostMultiplier(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
-    uint32 GetScalingStatDistribution() const { return ExtendedData->ScalingStatDistributionID; }
+    int32 GetStatModifierBonusStat(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatModifierBonusStat[index]; }
+    int32 GetStatPercentEditor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentEditor[index]; }
+    float GetStatPercentageOfSocket(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
+    uint32 GetScalingStatContentTuning() const { return ExtendedData->ContentTuningID; }
+    uint32 GetPlayerLevelToItemLevelCurveId() const { return ExtendedData->PlayerLevelToItemLevelCurveID; }
     uint32 GetDamageType() const { return ExtendedData->DamageDamageType; }
     uint32 GetDelay() const { return ExtendedData->ItemDelay; }
     float GetRangedModRange() const { return ExtendedData->ItemRange; }
@@ -816,9 +817,11 @@ struct TC_GAME_API ItemTemplate
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_USED_IN_A_TRADESKILL) != 0; }
 
+    bool IsWeapon() const { return GetClass() == ITEM_CLASS_WEAPON; }
+
     bool IsRangedWeapon() const
     {
-        return GetClass() == ITEM_CLASS_WEAPON ||
+        return IsWeapon() ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW;
@@ -826,6 +829,7 @@ struct TC_GAME_API ItemTemplate
 
     char const* GetDefaultLocaleName() const;
     uint32 GetArmor(uint32 itemLevel) const;
+    float GetDPS(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
     bool IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);

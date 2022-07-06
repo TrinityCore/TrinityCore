@@ -15,23 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "Creature.h"
 #include "EventMap.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "gundrak.h"
-#include "InstanceScript.h"
 #include "Map.h"
+#include "ScriptMgr.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
     { GO_GAL_DARAH_DOOR_1,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
     { GO_GAL_DARAH_DOOR_2,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
-    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM },
+    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM    },
     { GO_ECK_THE_FEROCIOUS_DOOR,        DATA_MOORABI,           DOOR_TYPE_PASSAGE },
     { GO_ECK_THE_FEROCIOUS_DOOR_BEHIND, DATA_ECK_THE_FEROCIOUS, DOOR_TYPE_PASSAGE },
-    { 0,                                0,                      DOOR_TYPE_ROOM } // END
+    { 0,                                0,                      DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const creatureData[] =

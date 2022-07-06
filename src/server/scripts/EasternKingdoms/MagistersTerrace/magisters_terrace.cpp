@@ -154,7 +154,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_kalecgosAI(creature);
+        return GetMagistersTerraceAI<npc_kalecgosAI>(creature);
     }
 };
 

@@ -30,6 +30,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include <sstream>
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -279,7 +280,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

@@ -117,6 +117,7 @@ namespace WorldPackets
             Optional<int32> WeeklyQuantity;
             Optional<int32> TrackedQuantity;
             Optional<int32> MaxQuantity;
+            Optional<int32> Unused901;
             Optional<int32> QuantityChange;
             Optional<int32> QuantityGainSource;
             Optional<int32> QuantityLostSource;
@@ -144,6 +145,7 @@ namespace WorldPackets
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
                 Optional<int32> MaxQuantity;
+                Optional<int32> Unused901;
                 uint8 Flags = 0;                      // 0 = none,
             };
 
@@ -205,22 +207,22 @@ namespace WorldPackets
             uint32 MovieID = 0;
         };
 
-        class UITimeRequest final : public ClientPacket
+        class ServerTimeOffsetRequest final : public ClientPacket
         {
         public:
-            UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_UI_TIME_REQUEST, std::move(packet)) { }
+            ServerTimeOffsetRequest(WorldPacket&& packet) : ClientPacket(CMSG_SERVER_TIME_OFFSET_REQUEST, std::move(packet)) { }
 
             void Read() override { }
         };
 
-        class UITime final : public ServerPacket
+        class ServerTimeOffset final : public ServerPacket
         {
         public:
-            UITime() : ServerPacket(SMSG_UI_TIME, 4) { }
+            ServerTimeOffset() : ServerPacket(SMSG_SERVER_TIME_OFFSET, 4) { }
 
             WorldPacket const* Write() override;
 
-            uint32 Time = 0; ///< UnixTime
+            Timestamp<> Time;
         };
 
         class TutorialFlags : public ServerPacket
@@ -260,7 +262,7 @@ namespace WorldPackets
             bool BlockExitingLoadingScreen = false;     // when set to true, sending SMSG_UPDATE_OBJECT with CreateObject Self bit = true will not hide loading screen
                                                         // instead it will be done after this packet is sent again with false in this bit and SMSG_UPDATE_OBJECT Values for player
             Optional<uint32> RestrictedAccountMaxLevel;
-            Optional<uint32> RestrictedAccountMaxMoney;
+            Optional<uint64> RestrictedAccountMaxMoney;
             Optional<uint32> InstanceGroupSize;
         };
 
@@ -631,18 +633,21 @@ namespace WorldPackets
             ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
             TaggedPosition<::Position::XYZ> Position;
+            int32 BroadcastTextID = 0;
         };
 
         class TC_GAME_API PlaySound final : public ServerPacket
         {
         public:
             PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 20) { }
-            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 20), SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID) { }
+            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID, int32 broadcastTextId) : ServerPacket(SMSG_PLAY_SOUND, 20),
+                SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID), BroadcastTextID(broadcastTextId) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid SourceObjectGuid;
             int32 SoundKitID = 0;
+            int32 BroadcastTextID = 0;
         };
 
         class TC_GAME_API PlaySpeakerbotSound final : public ServerPacket
@@ -690,16 +695,6 @@ namespace WorldPackets
             void Read() override;
 
             bool Enable = false;
-        };
-
-        class Dismount final : public ServerPacket
-        {
-        public:
-            Dismount() : ServerPacket(SMSG_DISMOUNT, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
         };
 
         class SaveCUFProfiles final : public ClientPacket
@@ -820,7 +815,9 @@ namespace WorldPackets
         public:
             MountSpecial(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SPECIAL_ANIM, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            Array<int32, 2> SpellVisualKitIDs;
         };
 
         class SpecialMountAnim final : public ServerPacket
@@ -831,6 +828,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UnitGUID;
+            std::vector<int32> SpellVisualKitIDs;
         };
 
         class CrossedInebriationThreshold final : public ServerPacket
@@ -921,8 +919,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 Type = 0;
-            int32 TimeLeft = 0;
-            int32 TotalTime = 0;
+            Duration<Seconds> TimeLeft;
+            Duration<Seconds> TotalTime;
         };
     }
 }

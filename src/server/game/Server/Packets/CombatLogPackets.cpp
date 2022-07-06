@@ -24,7 +24,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << CasterGUID;
     *this << CastID;
     *this << int32(SpellID);
-    *this << int32(SpellXSpellVisualID);
+    *this << Visual;
     *this << int32(Damage);
     *this << int32(OriginalDamage);
     *this << int32(Overkill);
@@ -345,14 +345,14 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << uint8(ContentTuning.Type);
     attackRoundInfo << uint8(ContentTuning.TargetLevel);
     attackRoundInfo << uint8(ContentTuning.Expansion);
-    attackRoundInfo << uint8(ContentTuning.TargetMinScalingLevel);
-    attackRoundInfo << uint8(ContentTuning.TargetMaxScalingLevel);
     attackRoundInfo << int16(ContentTuning.PlayerLevelDelta);
     attackRoundInfo << int8(ContentTuning.TargetScalingLevelDelta);
-    attackRoundInfo << uint16(ContentTuning.PlayerItemLevel);
-    attackRoundInfo << uint16(ContentTuning.TargetItemLevel);
+    attackRoundInfo << float(ContentTuning.PlayerItemLevel);
+    attackRoundInfo << float(ContentTuning.TargetItemLevel);
     attackRoundInfo << uint16(ContentTuning.ScalingHealthItemLevelCurveID);
-    attackRoundInfo << uint8(ContentTuning.ScalesWithItemLevel ? 1 : 0);
+    attackRoundInfo << uint32(ContentTuning.Flags);
+    attackRoundInfo << int32(ContentTuning.PlayerContentTuningID);
+    attackRoundInfo << int32(ContentTuning.TargetContentTuningID);
 
     WriteLogDataBit();
     FlushBits();
@@ -392,6 +392,23 @@ WorldPacket const* WorldPackets::CombatLog::SpellDispellLog::Write()
     _worldPacket << uint32(DispellData.size());
     for (SpellDispellData const& data : DispellData)
         _worldPacket << data;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellAbsorbLog::Write()
+{
+    *this << Attacker;
+    *this << Victim;
+    *this << int32(AbsorbedSpellID);
+    *this << int32(AbsorbSpellID);
+    *this << Caster;
+    *this << int32(Absorbed);
+    *this << int32(OriginalDamage);
+    WriteBit(Unk);
+    WriteLogDataBit();
+    FlushBits();
+    WriteLogData();
 
     return &_worldPacket;
 }

@@ -69,6 +69,7 @@ public:
         void Reset() override
         {
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetVisible(false);
             me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
@@ -131,10 +132,11 @@ public:
                         break;
                 }
                 ++phase;
-            } else FlyBackTimer-=diff;
+            }
+            else
+                FlyBackTimer -= diff;
         }
     };
-
 };
 
 void AddSC_the_scarlet_enclave()

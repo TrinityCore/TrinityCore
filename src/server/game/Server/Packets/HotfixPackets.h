@@ -47,27 +47,26 @@ namespace WorldPackets
         class DBReply final : public ServerPacket
         {
         public:
-            DBReply() : ServerPacket(SMSG_DB_REPLY, 12) { }
+            DBReply() : ServerPacket(SMSG_DB_REPLY, 4 + 4 + 4 + 1 + 4) { }
 
             WorldPacket const* Write() override;
 
             uint32 TableHash = 0;
             uint32 Timestamp = 0;
             uint32 RecordID = 0;
-            bool Allow = false;
+            DB2Manager::HotfixRecord::Status Status = DB2Manager::HotfixRecord::Status::Invalid;
             ByteBuffer Data;
         };
 
         class AvailableHotfixes final : public ServerPacket
         {
         public:
-            AvailableHotfixes(int32 virtualRealmAddress, uint32 hotfixCount, DB2Manager::HotfixContainer const& hotfixes)
-                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), VirtualRealmAddress(virtualRealmAddress), HotfixCount(hotfixCount), Hotfixes(hotfixes) { }
+            AvailableHotfixes(int32 virtualRealmAddress, DB2Manager::HotfixContainer const& hotfixes)
+                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), VirtualRealmAddress(virtualRealmAddress), Hotfixes(hotfixes) { }
 
             WorldPacket const* Write() override;
 
             int32 VirtualRealmAddress;
-            uint32 HotfixCount;
             DB2Manager::HotfixContainer const& Hotfixes;
         };
 
@@ -80,19 +79,19 @@ namespace WorldPackets
 
             uint32 ClientBuild = 0;
             uint32 DataBuild = 0;
-            std::vector<DB2Manager::HotfixRecord> Hotfixes;
+            std::vector<int32> Hotfixes;
         };
 
-        class HotfixResponse final : public ServerPacket
+        class HotfixConnect final : public ServerPacket
         {
         public:
             struct HotfixData
             {
                 DB2Manager::HotfixRecord Record;
-                Optional<uint32> Size;
+                uint32 Size = 0;
             };
 
-            HotfixResponse() : ServerPacket(SMSG_HOTFIX_RESPONSE) { }
+            HotfixConnect() : ServerPacket(SMSG_HOTFIX_CONNECT) { }
 
             WorldPacket const* Write() override;
 

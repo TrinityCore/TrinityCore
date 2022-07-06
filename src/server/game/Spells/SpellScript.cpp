@@ -44,6 +44,7 @@ bool _SpellScript::_ValidateSpellInfo(uint32 const* begin, uint32 const* end)
             TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", *begin);
             allValid = false;
         }
+
         ++begin;
     }
     return allValid;
@@ -243,6 +244,16 @@ void SpellScript::HitHandler::Call(SpellScript* spellScript)
     (spellScript->*pHitHandlerScript)();
 }
 
+SpellScript::OnCalcCritChanceHandler::OnCalcCritChanceHandler(SpellOnCalcCritChanceFnType onCalcCritChanceHandlerScript)
+{
+    _onCalcCritChanceHandlerScript = onCalcCritChanceHandlerScript;
+}
+
+void SpellScript::OnCalcCritChanceHandler::Call(SpellScript* spellScript, Unit const* victim, float& critChance) const
+{
+    (spellScript->*_onCalcCritChanceHandlerScript)(victim, critChance);
+}
+
 SpellScript::TargetHook::TargetHook(uint8 _effectIndex, uint16 _targetType, bool _area, bool _dest)
     : _SpellScript::EffectHook(_effectIndex), targetType(_targetType), area(_area), dest(_dest) { }
 
@@ -275,6 +286,7 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
             return true;
         case TARGET_SELECT_CATEGORY_CONE: // AREA
         case TARGET_SELECT_CATEGORY_AREA: // AREA
+        case TARGET_SELECT_CATEGORY_LINE: // AREA
             return area;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetInfo.GetObjectType())
@@ -402,6 +414,15 @@ bool SpellScript::IsInCheckCastHook() const
 {
     return m_currentScriptState == SPELL_SCRIPT_HOOK_CHECK_CAST;
 }
+
+bool SpellScript::IsAfterTargetSelectionPhase() const
+{
+    return IsInHitPhase()
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_ON_CAST
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_AFTER_CAST
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE;
+}
+
 bool SpellScript::IsInTargetHook() const
 {
     switch (m_currentScriptState)
@@ -416,6 +437,22 @@ bool SpellScript::IsInTargetHook() const
     }
     return false;
 }
+
+bool SpellScript::IsInModifiableHook() const
+{
+    // after hit hook executed after damage/healing is already done
+    // modifying it at this point has no effect
+    switch (m_currentScriptState)
+    {
+        case SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET:
+        case SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET:
+        case SPELL_SCRIPT_HOOK_BEFORE_HIT:
+        case SPELL_SCRIPT_HOOK_HIT:
+            return true;
+    }
+    return false;
+}
+
 bool SpellScript::IsInHitPhase() const
 {
     return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END);
@@ -472,6 +509,39 @@ GameObject* SpellScript::GetExplTargetGObj() const
 Item* SpellScript::GetExplTargetItem() const
 {
     return m_spell->m_targets.GetItemTarget();
+}
+
+int64 SpellScript::GetUnitTargetCountForEffect(SpellEffIndex effect) const
+{
+    if (!IsAfterTargetSelectionPhase())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetUnitTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
+            m_scriptName->c_str(), m_scriptSpellId);
+        return 0;
+    }
+    return m_spell->GetUnitTargetCountForEffect(effect);
+}
+
+int64 SpellScript::GetGameObjectTargetCountForEffect(SpellEffIndex effect) const
+{
+    if (!IsAfterTargetSelectionPhase())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetGameObjectTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
+            m_scriptName->c_str(), m_scriptSpellId);
+        return 0;
+    }
+    return m_spell->GetGameObjectTargetCountForEffect(effect);
+}
+
+int64 SpellScript::GetItemTargetCountForEffect(SpellEffIndex effect) const
+{
+    if (!IsAfterTargetSelectionPhase())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetItemTargetCountForEffect was called, but function has no effect in current hook! (spell has not selected targets yet)",
+            m_scriptName->c_str(), m_scriptSpellId);
+        return 0;
+    }
+    return m_spell->GetItemTargetCountForEffect(effect);
 }
 
 Unit* SpellScript::GetHitUnit() const
@@ -550,7 +620,7 @@ int32 SpellScript::GetHitDamage() const
 
 void SpellScript::SetHitDamage(int32 damage)
 {
-    if (!IsInTargetHook())
+    if (!IsInModifiableHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetHitDamage was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
@@ -570,7 +640,7 @@ int32 SpellScript::GetHitHeal() const
 
 void SpellScript::SetHitHeal(int32 heal)
 {
-    if (!IsInTargetHook())
+    if (!IsInModifiableHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetHitHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
@@ -750,6 +820,10 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!itr->GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcSpellMod` of AuraScript won't be executed", entry->Id, itr->ToString().c_str(), m_scriptName->c_str());
 
+    for (auto itr = DoEffectCalcCritChance.begin(); itr != DoEffectCalcCritChance.end(); ++itr)
+        if (!itr->GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcCritChance` of AuraScript won't be executed", entry->Id, itr->ToString().c_str(), m_scriptName->c_str());
+
     for (auto itr = OnEffectAbsorb.begin(); itr != OnEffectAbsorb.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectAbsorb` of AuraScript won't be executed", entry->Id, itr->ToString().c_str(), m_scriptName->c_str());
@@ -889,6 +963,17 @@ void AuraScript::EffectCalcSpellModHandler::Call(AuraScript* auraScript, AuraEff
     (auraScript->*pEffectHandlerScript)(aurEff, spellMod);
 }
 
+AuraScript::EffectCalcCritChanceHandler::EffectCalcCritChanceHandler(AuraEffectCalcCritChanceFnType effectHandlerScript, uint8 effIndex, uint16 effName)
+    : AuraScript::EffectBase(effIndex, effName)
+{
+    _effectHandlerScript = effectHandlerScript;
+}
+
+void AuraScript::EffectCalcCritChanceHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit const* victim, float& critChance) const
+{
+    (auraScript->*_effectHandlerScript)(aurEff, victim, critChance);
+}
+
 AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode)
     : AuraScript::EffectBase(_effIndex, _effName)
 {
@@ -902,8 +987,8 @@ void AuraScript::EffectApplyHandler::Call(AuraScript* auraScript, AuraEffect con
         (auraScript->*pEffectHandlerScript)(_aurEff, _mode);
 }
 
-AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex)
-    : AuraScript::EffectBase(_effIndex, SPELL_AURA_SCHOOL_ABSORB)
+AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex, bool overKill)
+    : AuraScript::EffectBase(_effIndex, overKill ? SPELL_AURA_SCHOOL_ABSORB_OVERKILL : SPELL_AURA_SCHOOL_ABSORB)
 {
     pEffectHandlerScript = _pEffectHandlerScript;
 }
@@ -972,9 +1057,19 @@ AuraScript::EffectProcHandler::EffectProcHandler(AuraEffectProcFnType effectHand
     _EffectHandlerScript = effectHandlerScript;
 }
 
-void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo)
 {
     (auraScript->*_EffectHandlerScript)(aurEff, eventInfo);
+}
+
+AuraScript::EnterLeaveCombatHandler::EnterLeaveCombatHandler(AuraEnterLeaveCombatFnType handlerScript)
+{
+    _handlerScript = handlerScript;
+}
+
+void AuraScript::EnterLeaveCombatHandler::Call(AuraScript* auraScript, bool isNowInCombat) const
+{
+    (auraScript->*_handlerScript)(isNowInCombat);
 }
 
 bool AuraScript::_Load(Aura* aura)
@@ -1223,6 +1318,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_AFTER_PROC:
         case AURA_SCRIPT_HOOK_EFFECT_PROC:
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC:
+        case AURA_SCRIPT_HOOK_ENTER_LEAVE_COMBAT:
             return m_auraApplication->GetTarget();
         default:
             TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);

@@ -65,9 +65,9 @@ class boss_eck : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_BITE, 5 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SPIT, 10 * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SPRING, 8 * IN_MILLISECONDS);

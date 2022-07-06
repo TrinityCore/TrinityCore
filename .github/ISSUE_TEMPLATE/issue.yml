@@ -1,0 +1,68 @@
+name: Generic issue
+description: Report an issue or a suggestion.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this form! Please make sure to fill all fields, including the Title above.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        Description of the problem or issue here.
+        If this is a crash, post the crashlog (upload to https://gist.github.com/).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: |
+        Tell us what should happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce the problem
+      description: |
+        1. Step 1 include entries of affected creatures / items / quests with a link to the relevant wowhead or https://tcubuntu.northeurope.cloudapp.azure.com/aowow/ page.  
+        2. Step 2
+        3. Step 3
+    validations:
+      required: true
+  - type: dropdown
+    id: branch
+    attributes:
+      label: Branch
+      options:
+        - 3.3.5
+        - master
+    validations:
+      required: true
+  - type: textarea
+    id: commit
+    attributes:
+      label: TC rev. hash/commit
+      description: |
+        Copy the result of server debug command (if you need to run it from client get prat addon)
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: |
+        Operating System, i.e. Windows 10 x64, Debian 10 x64, etc
+    validations:
+      required: true
+  - type: textarea
+    id: custom
+    attributes:
+      label: Custom changes
+      description: |
+        List which custom changes you have applied, i.e. transmog patch, etc.
+        Write "None" if you don't have any changes applied.
+    validations:
+      required: true

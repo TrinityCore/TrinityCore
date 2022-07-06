@@ -68,7 +68,7 @@ enum SPGameObjectIds
     GO_ICE_STONE                         = 187882
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetSlavePensAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SPScriptName);

@@ -47,24 +47,12 @@ namespace G3D
 
 namespace VMAP
 {
+    class ManagedModel;
     class StaticMapTree;
     class WorldModel;
 
-    class TC_COMMON_API ManagedModel
-    {
-        public:
-            ManagedModel() : iModel(nullptr), iRefCount(0) { }
-            void setModel(WorldModel* model) { iModel = model; }
-            WorldModel* getModel() { return iModel; }
-            void incRefCount() { ++iRefCount; }
-            int decRefCount() { return --iRefCount; }
-        protected:
-            WorldModel* iModel;
-            int iRefCount;
-    };
-
     typedef std::unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
-    typedef std::unordered_map<std::string, ManagedModel> ModelFileMap;
+    typedef std::unordered_map<std::string, ManagedModel*> ModelFileMap;
 
     enum DisableTypes
     {
@@ -101,8 +89,8 @@ namespace VMAP
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
 
-            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
-            bool loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
+            int loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
+            LoadResult loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
 
             void unloadMap(unsigned int mapId, int x, int y) override;
             void unloadSingleMap(uint32 mapId, int x, int y);
@@ -131,7 +119,7 @@ namespace VMAP
             {
                 return getMapFileName(mapId);
             }
-            virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
+            virtual LoadResult existsMap(char const* basePath, unsigned int mapId, int x, int y) override;
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 

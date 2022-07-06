@@ -27,8 +27,8 @@ npc_ruul_snowhoof
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "SpellInfo.h"
@@ -44,8 +44,12 @@ enum RuulSnowhoof
     NPC_THISTLEFUR_TOTEMIC      = 3922,
     NPC_THISTLEFUR_PATHFINDER   = 3926,
     QUEST_FREEDOM_TO_RUUL       = 6482,
-    GO_CAGE                     = 178147
+    GO_CAGE                     = 178147,
+    RUUL_SHAPECHANGE            = 20514,
+    SAY_FINISH                  = 0
 };
+
+
 
 Position const RuulSnowhoofSummonsCoord[6] =
 {
@@ -72,7 +76,7 @@ public:
                 Cage->SetGoState(GO_STATE_READY);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustSummoned(Creature* summoned) override
         {
@@ -111,7 +115,10 @@ public:
                     me->SummonCreature(NPC_THISTLEFUR_URSA, RuulSnowhoofSummonsCoord[4], TEMPSUMMON_DEAD_DESPAWN, 60000);
                     me->SummonCreature(NPC_THISTLEFUR_PATHFINDER, RuulSnowhoofSummonsCoord[5], TEMPSUMMON_DEAD_DESPAWN, 60000);
                     break;
-                case 21:
+                case 27:
+                    me->SetFaction(me->GetCreatureTemplate()->faction);
+                    me->RemoveAurasDueToSpell(RUUL_SHAPECHANGE);
+                    Talk(SAY_FINISH, player);
                     player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
                     break;
             }
@@ -120,6 +127,13 @@ public:
         void UpdateAI(uint32 diff) override
         {
             EscortAI::UpdateAI(diff);
+        }
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            if (!me->HasAura(RUUL_SHAPECHANGE))
+                me->AddAura(RUUL_SHAPECHANGE, me);
+            ScriptedAI::EnterEvadeMode(why);
         }
     };
 
@@ -198,7 +212,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (Player* player = GetPlayerForEscort())
                 if (HasEscortState(STATE_ESCORT_PAUSED))

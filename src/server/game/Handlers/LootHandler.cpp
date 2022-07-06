@@ -137,7 +137,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             player->SendNewItem(resultValue.item, resultValue.count, false, false, true);
             player->UpdateCriteria(CRITERIA_TYPE_LOOT_ITEM, resultValue.item->GetEntry(), resultValue.count);
             player->UpdateCriteria(CRITERIA_TYPE_LOOT_TYPE, resultValue.item->GetEntry(), resultValue.count, resultValue.lootType);
-            player->UpdateCriteria(CRITERIA_TYPE_LOOT_EPIC_ITEM, resultValue.item->GetEntry(), resultValue.count);
+            player->UpdateCriteria(CRITERIA_TYPE_LOOT_ANY_ITEM, resultValue.item->GetEntry(), resultValue.count);
         }
     }
 }
@@ -295,6 +295,8 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     // interrupt cast
     if (GetPlayer()->IsNonMeleeSpellCast(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
+
+    GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Looting);
 }
 
 void WorldSession::HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet)
@@ -312,7 +314,9 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
     if (player->GetLootGUID() == lguid)
         player->SetLootGUID(ObjectGuid::Empty);
+
     player->SendLootRelease(lguid);
+    player->RemoveAELootedWorldObject(lguid);
 
     player->RemoveUnitFlag(UNIT_FLAG_LOOTING);
 
@@ -382,7 +386,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         ItemTemplate const* proto = pItem->GetTemplate();
 
         // destroy only 5 items from stack in case prospecting and milling
-        if (proto->GetFlags() & (ITEM_FLAG_IS_PROSPECTABLE | ITEM_FLAG_IS_MILLABLE))
+        if (pItem->loot.loot_type == LOOT_PROSPECTING || pItem->loot.loot_type == LOOT_MILLING)
         {
             pItem->m_lootGenerated = false;
             pItem->loot.clear();
@@ -439,7 +443,6 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
     //Player is not looking at loot list, he doesn't need to see updates on the loot list
     loot->RemoveLooter(player->GetGUID());
-    player->RemoveAELootedObject(loot->GetGUID());
 }
 
 void WorldSession::DoLootReleaseAll()
@@ -545,7 +548,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
         target->SendNewItem(resultValue.item, resultValue.count, false, false, true);
         target->UpdateCriteria(CRITERIA_TYPE_LOOT_ITEM, resultValue.item->GetEntry(), resultValue.count);
         target->UpdateCriteria(CRITERIA_TYPE_LOOT_TYPE, resultValue.item->GetEntry(), resultValue.count, resultValue.lootType);
-        target->UpdateCriteria(CRITERIA_TYPE_LOOT_EPIC_ITEM, resultValue.item->GetEntry(), resultValue.count);
+        target->UpdateCriteria(CRITERIA_TYPE_LOOT_ANY_ITEM, resultValue.item->GetEntry(), resultValue.count);
     }
 }
 

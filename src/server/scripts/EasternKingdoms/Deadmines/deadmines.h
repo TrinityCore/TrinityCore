@@ -52,10 +52,10 @@ enum DMGameObjects
     GO_MR_SMITE_CHEST                                      = 144111
 };
 
-template<typename AI>
-inline AI* GetDeadminesAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetDeadminesAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, DMScriptName);
+    return GetInstanceAI<AI>(obj, DMScriptName);
 }
 
 #endif

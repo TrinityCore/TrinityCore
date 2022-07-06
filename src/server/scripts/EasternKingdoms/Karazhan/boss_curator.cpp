@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "karazhan.h"
 #include "ScriptedCreature.h"
-#include "karazhan.h"
 
 enum CuratorSays
 {
@@ -78,9 +77,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_HATEFUL_BOLT, Seconds(12));

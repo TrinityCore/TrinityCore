@@ -53,10 +53,10 @@ class boss_meathook : public CreatureScript
                 Talk(SAY_SPAWN);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_CHAIN, urand(12000, 17000));
                 events.ScheduleEvent(EVENT_DISEASE, urand(2000, 4000));
                 events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));

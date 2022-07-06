@@ -19,6 +19,7 @@
 #define Trinity_game_Position_h__
 
 #include "Define.h"
+#include "Optional.h"
 #include <string>
 #include <cmath>
 
@@ -35,18 +36,18 @@ struct TC_GAME_API Position
     struct XYZO;
     struct PackedXYZ;
 
-    template<class Tag>
+    template <class Tag>
     struct ConstStreamer
     {
         explicit ConstStreamer(Position const& pos) : Pos(&pos) { }
         Position const* Pos;
     };
 
-    template<class Tag>
+    template <class Tag>
     struct Streamer
     {
         explicit Streamer(Position& pos) : Pos(&pos) { }
-        operator ConstStreamer<Tag>() { return ConstStreamer<Tag>(*Pos); }
+        operator ConstStreamer<Tag>() const { return ConstStreamer<Tag>(*Pos); }
         Position* Pos;
     };
 
@@ -58,9 +59,9 @@ private:
     float m_orientation;
 
 public:
-    bool operator==(Position const &a) const;
+    bool operator==(Position const& a) const;
 
-    inline bool operator!=(Position const &a) const
+    inline bool operator!=(Position const& a) const
     {
         return !(operator==(a));
     }
@@ -80,7 +81,7 @@ public:
         m_positionX = x; m_positionY = y; m_positionZ = z; SetOrientation(orientation);
     }
 
-    void Relocate(Position const &pos)
+    void Relocate(Position const& pos)
     {
         m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos.m_orientation);
     }
@@ -90,7 +91,7 @@ public:
         m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation);
     }
 
-    void RelocateOffset(Position const &offset);
+    void RelocateOffset(Position const& offset);
 
     void SetOrientation(float orientation)
     {
@@ -209,14 +210,14 @@ public:
     bool IsInDist(Position const& pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
     bool IsInDist(Position const* pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
 
-    bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
+    bool IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const;
 
     /*
     search using this relation: dist2d < radius && abs(dz) < height
     */
     bool IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const;
-    bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
-    bool HasInLine(Position const* pos, float objSize, float width) const;
+    bool HasInArc(float arcangle, Position const* pos, float border = 2.0f, Optional<float> orientation = Optional<float>()) const;
+    bool HasInLine(Position const* pos, float objSize, float width, Optional<float> orientation = Optional<float>()) const;
     std::string ToString() const;
 
     // modulos a radian orientation to the range of 0..2PI

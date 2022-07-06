@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -87,9 +86,9 @@ class boss_saviana_ragefire : public CreatureScript
                 me->SetDisableGravity(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.ScheduleEvent(EVENT_ENRAGE, Seconds(20), EVENT_GROUP_LAND_PHASE);
@@ -232,10 +231,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_BEACON, DIFFICULTY_NONE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_CONFLAGRATION_2, DIFFICULTY_NONE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLAME_BEACON, SPELL_CONFLAGRATION_2 });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

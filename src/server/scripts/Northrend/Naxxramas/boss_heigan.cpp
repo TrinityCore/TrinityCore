@@ -113,9 +113,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
             _safeSection = 0;
@@ -233,7 +233,7 @@ class spell_heigan_eruption : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster || !GetHitPlayer())
+                if (!caster || !GetHitUnit())
                     return;
 
                 if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))

@@ -72,7 +72,6 @@ namespace WorldPackets
             bool HasJournalLock = true;
             std::vector<std::reference_wrapper<BattlePetSlot>> Slots;
             std::vector<std::reference_wrapper<BattlePet>> Pets;
-            int32 MaxPets = 1000;
         };
 
         class BattlePetJournalLockAcquired final : public ServerPacket

@@ -56,9 +56,9 @@ class boss_karsh_steelbender : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(YELL_AGGRO);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000);
             }

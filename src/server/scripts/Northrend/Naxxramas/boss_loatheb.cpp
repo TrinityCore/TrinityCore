@@ -72,9 +72,9 @@ class boss_loatheb : public CreatureScript
                 _sporeLoser = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_NECROTIC_AURA, Seconds(17));
                 events.ScheduleEvent(EVENT_DEATHBLOOM, Seconds(5));
                 events.ScheduleEvent(EVENT_SPORE, Seconds(18));
@@ -181,7 +181,7 @@ class spell_loatheb_deathbloom : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                GetTarget()->CastSpell(nullptr, SPELL_DEATHBLOOM_FINAL_DAMAGE, true, nullptr, eff, GetCasterGUID());
+                GetTarget()->CastSpell(nullptr, SPELL_DEATHBLOOM_FINAL_DAMAGE, CastSpellExtraArgs(eff).SetOriginalCaster(GetCasterGUID()));
             }
 
             void Register() override

@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SkillDiscovery.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
-#include "World.h"
-#include "Util.h"
-#include "SkillDiscovery.h"
-#include "SpellMgr.h"
 #include "Player.h"
 #include "Random.h"
+#include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Util.h"
+#include "World.h"
 #include <map>
 #include <sstream>
 
@@ -57,7 +57,7 @@ void LoadSkillDiscoveryTable()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         return;
     }
 

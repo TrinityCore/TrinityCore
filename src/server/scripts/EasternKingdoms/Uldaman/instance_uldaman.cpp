@@ -32,6 +32,7 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "uldaman.h"
+#include <sstream>
 
 enum Spells
 {
@@ -259,6 +260,8 @@ class instance_uldaman : public InstanceMapScript
                 {
                     archaedas->RemoveAura(SPELL_FREEZE_ANIM);
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
+                    archaedas->SetFaction(FACTION_TITAN);
+                    archaedas->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     whoWokeuiArchaedasGUID = target;
                 }
             }
@@ -418,7 +421,7 @@ class instance_uldaman : public InstanceMapScript
                 return str_data;
             }
 
-            void Load(const char* in) override
+            void Load(char const* in) override
             {
                 if (!in)
                 {

@@ -71,8 +71,6 @@ enum Spells
     SPELL_POWER_FEEDBACK          = 44233                 // Stuns him, making him take 50% more damage for 10 seconds. Cast after Gravity Lapse
 };
 
-
-
 enum Creatures
 {
     CREATURE_PHOENIX              = 24674,
@@ -178,7 +176,7 @@ public:
                 RemoveGravityLapse(); // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SetBossState(DATA_KAELTHAS, IN_PROGRESS);
         }
@@ -200,30 +198,21 @@ public:
             if (!summonedUnit)
                 return;
 
-            ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
+                Unit* unit = ref->GetVictim();
                 if (unit && unit->IsAlive())
-                {
-                    float threat = me->GetThreatManager().getThreat(unit);
-                    AddThreat(unit, threat, summonedUnit);
-                }
+                    AddThreat(unit, ref->GetThreat(), summonedUnit);
             }
         }
 
         void TeleportPlayersToSelf()
         {
-            float x = KaelLocations[0][0];
-            float y = KaelLocations[0][1];
-            me->UpdatePosition(x, y, LOCATION_Z, 0.0f);
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            me->UpdatePosition(KaelLocations[0][0], KaelLocations[0][1], LOCATION_Z, 0.0f);
+            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
             {
-                Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = pair.second->GetOther(me);
+                if (unit->GetTypeId() == TYPEID_PLAYER)
                     unit->CastSpell(unit, SPELL_TELEPORT_CENTER, true);
             }
             DoCast(me, SPELL_TELEPORT_CENTER, true);
@@ -231,28 +220,31 @@ public:
 
         void CastGravityLapseKnockUp()
         {
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
             {
-                Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
-                    // Knockback into the air
-                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, nullptr, nullptr, me->GetGUID());
+                Unit* unit = pair.second->GetOther(me);
+                if (unit->GetTypeId() == TYPEID_PLAYER)
+                {
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.OriginalCaster = me->GetGUID();
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, args);
+                }
             }
         }
 
         void CastGravityLapseFly()                              // Use Fly Packet hack for now as players can't cast "fly" spells unless in map 530. Has to be done a while after they get knocked into the air...
         {
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
             {
-                Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = pair.second->GetOther(me);
+                if (unit->GetTypeId() == TYPEID_PLAYER)
                 {
                     // Also needs an exception in spell system.
-                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, nullptr, nullptr, me->GetGUID());
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.OriginalCaster = me->GetGUID();
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, args);
                     unit->SetCanFly(true);
                 }
             }
@@ -260,12 +252,10 @@ public:
 
         void RemoveGravityLapse()
         {
-            ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
-            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
-            for (i = threatlist.begin(); i != threatlist.end(); ++i)
+            for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
             {
-                Unit* unit = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid());
-                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = pair.second->GetOther(me);
+                if (unit->GetTypeId() == TYPEID_PLAYER)
                 {
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
@@ -393,8 +383,7 @@ public:
 
                                 for (uint8 i = 0; i < 3; ++i)
                                 {
-                                    Unit* target = nullptr;
-                                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                                     Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                     if (Orb && target)
@@ -459,7 +448,7 @@ public:
             DoCast(me, SPELL_FLAMESTRIKE2, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
@@ -513,7 +502,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit* /*killer*/, uint32 &damage) override
         {
@@ -537,8 +526,10 @@ public:
                 me->SetHealth(0);
                 me->StopMoving();
                 me->RemoveAllAurasOnDeath();
-                me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
-                me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUNDED_20_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUNDED_25_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUNDED_35_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUND_HEALTH_20_80, false);
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();
                 me->SetTarget(ObjectGuid::Empty);
@@ -564,15 +555,12 @@ public:
                     Rebirth = true;
                 }
 
-                if (Rebirth)
+                if (Death_Timer <= diff)
                 {
-                    if (Death_Timer <= diff)
-                    {
-                        me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
-                        me->DisappearAndDie();
-                        Rebirth = false;
-                    } else Death_Timer -= diff;
-                }
+                    me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                    me->DisappearAndDie();
+                    Rebirth = false;
+                } else Death_Timer -= diff;
             }
 
             if (!UpdateVictim())
@@ -582,7 +570,7 @@ public:
             {
                 //spell Burn should possible do this, but it doesn't, so do this for now.
                 uint16 dmg = urand(1650, 2050);
-                me->DealDamage(me, dmg, nullptr, DOT, SPELL_SCHOOL_MASK_FIRE, nullptr, false);
+                Unit::DealDamage(me, me, dmg, nullptr, DOT, SPELL_SCHOOL_MASK_FIRE, nullptr, false);
                 BurnTimer += 2000;
             } BurnTimer -= diff;
 
@@ -620,7 +608,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
@@ -663,7 +651,7 @@ public:
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -680,8 +668,8 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    AddThreat(target, 1.0f);
-                    me->TauntApply(target);
+                    ResetThreatList();
+                    AddThreat(target, 1000000.0f);
                     AttackStart(target);
                 }
 

@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "molten_core.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 

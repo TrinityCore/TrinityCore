@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "DB2Stores.h"
 #include "Language.h"
+#include "LanguageMgr.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
@@ -288,9 +289,13 @@ public:
 
     static bool HandleLearnAllLangCommand(ChatHandler* handler, char const* /*args*/)
     {
-        // skipping UNIVERSAL language (0)
-        for (uint8 i = 1; i < LANGUAGES_COUNT; ++i)
-            handler->GetSession()->GetPlayer()->LearnSpell(lang_description[i].spell_id, false);
+        sLanguageMgr->ForEachLanguage([handler](uint32 /*lang*/, LanguageDesc const& languageDesc)
+        {
+            if (languageDesc.SpellId)
+                handler->GetSession()->GetPlayer()->LearnSpell(languageDesc.SpellId, false);
+
+            return true;
+        });
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_LANG);
         return true;

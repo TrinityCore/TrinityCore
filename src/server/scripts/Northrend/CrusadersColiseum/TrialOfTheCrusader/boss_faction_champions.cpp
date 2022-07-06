@@ -23,15 +23,10 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
-
-enum Yells
-{
-    SAY_KILL_PLAYER     = 6
-};
 
 enum AIs
 {
@@ -209,7 +204,7 @@ enum Events
     EVENT_REGROWTH                  = 3,
     EVENT_REJUVENATION              = 4,
     EVENT_TRANQUILITY               = 5,
-    EVENT_HEAL_BARKSKIN                  = 6,
+    EVENT_HEAL_BARKSKIN             = 6,
     EVENT_THORNS                    = 7,
     EVENT_NATURE_GRASP              = 8,
 
@@ -343,7 +338,7 @@ enum Events
     EVENT_SPELL_LOCK                = 2
 };
 
-const Position FactionChampionLoc[] =
+Position const FactionChampionLoc[] =
 {
     { 514.231f, 105.569f, 418.234f, 0 },               //  0 - Horde Initial Pos 0
     { 508.334f, 115.377f, 418.234f, 0 },               //  1 - Horde Initial Pos 1
@@ -374,12 +369,11 @@ class boss_toc_champion_controller : public CreatureScript
     public:
         boss_toc_champion_controller() : CreatureScript("boss_toc_champion_controller") { }
 
-        struct boss_toc_champion_controllerAI : public ScriptedAI
+        struct boss_toc_champion_controllerAI : public BossAI
         {
-            boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), _summons(me)
+            boss_toc_champion_controllerAI(Creature* creature) : BossAI(creature, DATA_FACTION_CRUSADERS)
             {
                 Initialize();
-                _instance = creature->GetInstanceScript();
             }
 
             void Initialize()
@@ -394,6 +388,8 @@ class boss_toc_champion_controller : public CreatureScript
             {
                 Initialize();
             }
+
+            void JustSummoned(Creature* /*summon*/) override { }
 
             std::vector<uint32> SelectChampions(Team playerTeam)
             {
@@ -485,7 +481,7 @@ class boss_toc_champion_controller : public CreatureScript
                     uint8 pos = urand(0, vChampionJumpTarget.size()-1);
                     if (Creature* champion = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        _summons.Summon(champion);
+                        summons.Summon(champion);
                         champion->SetReactState(REACT_PASSIVE);
                         champion->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         champion->SetImmuneToPC(false);
@@ -514,7 +510,7 @@ class boss_toc_champion_controller : public CreatureScript
                         SummonChampions((Team)uiData);
                         break;
                     case 1:
-                        for (SummonList::iterator i = _summons.begin(); i != _summons.end(); ++i)
+                        for (SummonList::iterator i = summons.begin(); i != summons.end(); ++i)
                         {
                             if (Creature* summon = ObjectAccessor::GetCreature(*me, *i))
                             {
@@ -529,10 +525,10 @@ class boss_toc_champion_controller : public CreatureScript
                         {
                             case FAIL:
                                 _championsFailed++;
-                                if (_championsFailed + _championsKilled >= _summons.size())
+                                if (_championsFailed + _championsKilled >= summons.size())
                                 {
-                                    _instance->SetBossState(BOSS_CRUSADERS, FAIL);
-                                    _summons.DespawnAll();
+                                    instance->SetBossState(DATA_FACTION_CRUSADERS, FAIL);
+                                    summons.DespawnAll();
                                     me->DespawnOrUnsummon();
                                 }
                                 break;
@@ -543,21 +539,21 @@ class boss_toc_champion_controller : public CreatureScript
                                     _championsFailed = 0;
                                     _championsKilled = 0;
                                     _inProgress = true;
-                                    _summons.DoZoneInCombat();
-                                    _instance->SetBossState(BOSS_CRUSADERS, IN_PROGRESS);
+                                    summons.DoZoneInCombat();
+                                    instance->SetBossState(DATA_FACTION_CRUSADERS, IN_PROGRESS);
                                 }
                                 break;
                             case DONE:
+                            {
                                 _championsKilled++;
-                                if (_championsKilled == 1)
-                                    _instance->SetBossState(BOSS_CRUSADERS, SPECIAL);
-                                else if (_championsKilled >= _summons.size())
+                                if (_championsKilled >= summons.size())
                                 {
-                                    _instance->SetBossState(BOSS_CRUSADERS, DONE);
-                                    _summons.DespawnAll();
+                                    instance->SetBossState(DATA_FACTION_CRUSADERS, DONE);
+                                    summons.DespawnAll();
                                     me->DespawnOrUnsummon();
                                 }
                                 break;
+                            }
                             default:
                                 break;
                         }
@@ -567,8 +563,6 @@ class boss_toc_champion_controller : public CreatureScript
                 }
             }
             private:
-                InstanceScript* _instance;
-                SummonList _summons;
                 uint32 _championsNotStarted;
                 uint32 _championsFailed;
                 uint32 _championsKilled;
@@ -583,13 +577,15 @@ class boss_toc_champion_controller : public CreatureScript
 
 struct boss_faction_championsAI : public BossAI
 {
-    boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, BOSS_CRUSADERS)
+    boss_faction_championsAI(Creature* creature, uint32 aitype) : BossAI(creature, DATA_FACTION_CHAMPIONS), _teamInstance(0)
     {
         _aiType = aitype;
+        SetBoundary(instance->GetBossBoundary(DATA_FACTION_CRUSADERS));
     }
 
     void Reset() override
     {
+        _teamInstance = instance->GetData(DATA_TEAM);
         _events.ScheduleEvent(EVENT_THREAT, 5*IN_MILLISECONDS);
         if (IsHeroic() && (_aiType != AI_PET))
             _events.ScheduleEvent(EVENT_REMOVE_CC, 5*IN_MILLISECONDS);
@@ -597,7 +593,7 @@ struct boss_faction_championsAI : public BossAI
 
     void JustReachedHome() override
     {
-        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
+        if (Creature* pChampionController = instance->GetCreature(DATA_FACTION_CRUSADERS))
             pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -636,15 +632,17 @@ struct boss_faction_championsAI : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         if (_aiType != AI_PET)
-            if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = instance->GetCreature(DATA_FACTION_CRUSADERS))
                 pChampionController->AI()->SetData(2, DONE);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCast(me, SPELL_ANTI_AOE, true);
-        _EnterCombat();
-        if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
+        me->SetCombatPulseDelay(5);
+        me->setActive(true);
+        DoZoneInCombat();
+        if (Creature* pChampionController = instance->GetCreature(DATA_FACTION_CRUSADERS))
             pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -652,22 +650,13 @@ struct boss_faction_championsAI : public BossAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
-            uint32 TeamInInstance = 0;
-
-            if (!players.isEmpty())
-                if (Player* player = players.begin()->GetSource())
-                    TeamInInstance = player->GetTeam();
-
-            if (TeamInInstance == ALLIANCE)
+            if (_teamInstance == ALLIANCE)
             {
-                if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VARIAN)))
-                    varian->AI()->Talk(SAY_KILL_PLAYER);
+                if (Creature* varian = instance->GetCreature(DATA_VARIAN))
+                    varian->AI()->DoAction(ACTION_SAY_KILLED_PLAYER);
             }
-            else
-                if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GARROSH)))
-                    garrosh->AI()->Talk(SAY_KILL_PLAYER);
-
+            else if (Creature* garrosh = instance->GetCreature(DATA_GARROSH))
+                garrosh->AI()->DoAction(ACTION_SAY_KILLED_PLAYER);
         }
     }
 
@@ -683,14 +672,10 @@ struct boss_faction_championsAI : public BossAI
 
     Unit* SelectEnemyCaster(bool /*casting*/)
     {
-        std::list<HostileReference*> const& tList = me->GetThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator iter;
-        for (iter = tList.begin(); iter!=tList.end(); ++iter)
-        {
-            Unit* target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
-            if (target && target->GetPowerType() == POWER_MANA)
-                return target;
-        }
+        for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+            if (Player* player = pair.second->GetOther(me)->ToPlayer())
+                if (player->GetPowerType() == POWER_MANA)
+                    return player;
         return nullptr;
     }
 
@@ -753,6 +738,7 @@ struct boss_faction_championsAI : public BossAI
 
     private:
         uint32 _aiType;
+        uint32 _teamInstance;
         // make sure that every bosses separate events dont mix with these _events
         EventMap _events;
 };
@@ -1255,9 +1241,9 @@ class npc_toc_warlock : public CreatureScript
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                boss_faction_championsAI::EnterCombat(who);
+                boss_faction_championsAI::JustEngagedWith(who);
                 DoCast(SPELL_SUMMON_FELHUNTER);
             }
 
@@ -1441,9 +1427,9 @@ class npc_toc_hunter : public CreatureScript
                 SetEquipmentSlots(false, 47156, EQUIP_NO_CHANGE, 48711);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                boss_faction_championsAI::EnterCombat(who);
+                boss_faction_championsAI::JustEngagedWith(who);
                 DoCast(SPELL_CALL_PET);
             }
 
@@ -2074,9 +2060,9 @@ class npc_toc_retro_paladin : public CreatureScript
                 SetEquipmentSlots(false, 47519, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                boss_faction_championsAI::EnterCombat(who);
+                boss_faction_championsAI::JustEngagedWith(who);
                 DoCast(SPELL_SEAL_OF_COMMAND);
             }
 
@@ -2274,7 +2260,7 @@ class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_UNSTABLE_AFFLICTION_DISPEL, true, nullptr, GetEffect(EFFECT_0));
+                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_UNSTABLE_AFFLICTION_DISPEL, GetEffect(EFFECT_0));
             }
 
             void Register() override

@@ -13,8 +13,8 @@
 #define __CASCPORT_H__
 
 #ifndef __cplusplus
-  #define bool char
-  #define true 1
+  #define bool  char
+  #define true  1
   #define false 0
 #endif
 
@@ -24,14 +24,8 @@
 #if !defined(PLATFORM_DEFINED) && (defined(_WIN32) || defined(_WIN64))
 
   // In MSVC 8.0, there are some functions declared as deprecated.
-  #if _MSC_VER >= 1400
-    #ifndef _CRT_SECURE_NO_DEPRECATE
-      #define _CRT_SECURE_NO_DEPRECATE
-    #endif
-    #ifndef _CRT_NON_CONFORMING_SWPRINTFS
-      #define _CRT_NON_CONFORMING_SWPRINTFS
-    #endif
-  #endif
+  #define _CRT_SECURE_NO_DEPRECATE
+  #define _CRT_NON_CONFORMING_SWPRINTFS
 
   #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
@@ -49,29 +43,20 @@
   #include <direct.h>
   #include <malloc.h>
   #include <windows.h>
-  #include <wininet.h>
+  #include <ws2tcpip.h>
   #include <strsafe.h>
-  #include <sys/types.h>
+
   #define PLATFORM_LITTLE_ENDIAN
 
-  #ifdef _WIN64
-    #define PLATFORM_64BIT
-  #else
-    #define PLATFORM_32BIT
-  #endif
+  #pragma intrinsic(memset, memcmp, memcpy)     // Make these functions intrinsic (inline)
 
   #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '\\'
   #define PATH_SEP_STRING           "\\"
 
   #define PLATFORM_WINDOWS
-  #define PLATFORM_DEFINED                  // The platform is known now
+  #define PLATFORM_DEFINED                      // The platform is known now
 
-#endif
-
-#if _MSC_VER >= 1500
-  #include <intrin.h>       // Support for intrinsic functions
-  #pragma intrinsic(memcmp, memcpy)
 #endif
 
 #ifndef FIELD_OFFSET
@@ -86,6 +71,7 @@
   // Macintosh
   #include <sys/types.h>
   #include <sys/stat.h>
+  #include <sys/socket.h>
   #include <sys/mman.h>
   #include <fcntl.h>
   #include <dirent.h>
@@ -101,6 +87,7 @@
   #include <cassert>
   #include <errno.h>
   #include <pthread.h>
+  #include <netdb.h>
 
   // Support for PowerPC on Max OS X
   #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
@@ -120,6 +107,8 @@
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
 
+  typedef int SOCKET;
+
   #define PLATFORM_MAC
   #define PLATFORM_DEFINED                  // The platform is known now
 
@@ -131,6 +120,7 @@
 #if !defined(PLATFORM_DEFINED)
   #include <sys/types.h>
   #include <sys/stat.h>
+  #include <sys/socket.h>
   #include <sys/mman.h>
   #include <fcntl.h>
   #include <dirent.h>
@@ -146,10 +136,13 @@
   #include <assert.h>
   #include <errno.h>
   #include <pthread.h>
+  #include <netdb.h>
 
   #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
+
+  typedef int SOCKET;
 
   #define PLATFORM_LITTLE_ENDIAN
   #define PLATFORM_LINUX
@@ -161,11 +154,6 @@
 // Definition of Windows-specific types for non-Windows platforms
 
 #ifndef PLATFORM_WINDOWS
-  #if __LP64__
-    #define PLATFORM_64BIT
-  #else
-    #define PLATFORM_32BIT
-  #endif
 
   // Typedefs for ANSI C
   typedef unsigned char  BYTE;
@@ -188,7 +176,7 @@
   typedef TCHAR        * LPTSTR;
   typedef const TCHAR  * LPCTSTR;
 
-  #ifdef PLATFORM_32BIT
+  #ifndef __LP64__
     #define _LZMA_UINT32_IS_ULONG
   #endif
 
@@ -223,6 +211,8 @@
   #define _tcsicmp  strcasecmp
   #define _tcsnicmp strncasecmp
 
+  #define closesocket close
+
 #endif // !PLATFORM_WINDOWS
 
 // 64-bit calls are supplied by "normal" calls on Mac
@@ -254,6 +244,9 @@
   #define ERROR_CAN_NOT_COMPLETE         1003       // No such error code under Linux
   #define ERROR_FILE_CORRUPT             1004       // No such error code under Linux
   #define ERROR_FILE_ENCRYPTED           1005       // Returned by encrypted stream when can't find file key
+  #define ERROR_FILE_TOO_LARGE           1006       // No such error code under Linux
+  #define ERROR_ARITHMETIC_OVERFLOW      1007       // The string value is too large to fit in the given type
+  #define ERROR_NETWORK_NOT_AVAILABLE    1008       // Cannot connect to the internet
 #endif
 
 #ifndef ERROR_FILE_INCOMPLETE

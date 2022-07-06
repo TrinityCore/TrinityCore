@@ -23,7 +23,7 @@ namespace GameTime
 {
     time_t const StartTime = time(nullptr);
 
-    time_t GameTime = 0;
+    time_t GameTime = time(nullptr);
     uint32 GameMSTime = 0;
 
     std::chrono::system_clock::time_point GameTimeSystemPoint = std::chrono::system_clock::time_point::min();
@@ -54,6 +54,24 @@ namespace GameTime
     std::chrono::steady_clock::time_point GetGameTimeSteadyPoint()
     {
         return GameTimeSteadyPoint;
+    }
+
+    template<typename Clock>
+    typename Clock::time_point GetGameTimePoint()
+    {
+        static_assert(!std::is_same<Clock, Clock>::value, "Missing specialization for GetGameTimePoint");
+    }
+
+    template<>
+    TC_GAME_API std::chrono::system_clock::time_point GetGameTimePoint<std::chrono::system_clock>()
+    {
+        return GetGameTimeSystemPoint();
+    }
+
+    template<>
+    TC_GAME_API std::chrono::steady_clock::time_point GetGameTimePoint<std::chrono::steady_clock>()
+    {
+        return GetGameTimeSteadyPoint();
     }
 
     uint32 GetUptime()

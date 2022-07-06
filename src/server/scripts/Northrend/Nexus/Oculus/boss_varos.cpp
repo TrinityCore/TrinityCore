@@ -92,9 +92,9 @@ class boss_varos : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(SAY_AGGRO);
             }
@@ -236,7 +236,7 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 switch (action)
                 {
-                   case ACTION_CALL_DRAGON_EVENT:
+                    case ACTION_CALL_DRAGON_EVENT:
                         if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROS)))
                         {
                             if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))

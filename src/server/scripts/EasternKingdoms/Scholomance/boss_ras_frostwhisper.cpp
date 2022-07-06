@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "scholomance.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -54,7 +54,7 @@ public:
             DoCast(me, SPELL_ICE_ARMOR);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ICE_ARMOR, 2000);
             events.ScheduleEvent(EVENT_FROSTBOLT, 8000);

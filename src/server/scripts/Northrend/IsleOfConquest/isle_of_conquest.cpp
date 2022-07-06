@@ -119,8 +119,8 @@ class npc_ioc_gunship_captain : public CreatureScript
                             DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
                             break;
                         case EVENT_DESPAWN:
-                            if (me->GetMap()->ToBattlegroundMap())
-                                if (Battleground* bgIoC = me->GetMap()->ToBattlegroundMap()->GetBG())
+                            if (BattlegroundMap* iocMap = me->GetMap()->ToBattlegroundMap())
+                                if (Battleground* bgIoC = iocMap->GetBG())
                                     bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
                             break;
                         default:

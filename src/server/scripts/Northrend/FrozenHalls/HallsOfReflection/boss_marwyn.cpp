@@ -19,7 +19,6 @@
 #include "boss_horAI.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
@@ -63,7 +62,7 @@ class boss_marwyn : public CreatureScript
                 boss_horAI::Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
@@ -150,9 +149,13 @@ class spell_marwyn_shared_suffering : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    int32 remainingDamage = aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
+                    int32 remainingDamage = aurEff->GetAmount() * aurEff->GetRemainingTicks();
                     if (remainingDamage > 0)
-                        caster->CastCustomSpell(SPELL_SHARED_SUFFERING_DISPEL, SPELLVALUE_BASE_POINT1, remainingDamage, GetTarget(), TRIGGERED_FULL_MASK);
+                    {
+                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT1, remainingDamage);
+                        caster->CastSpell(GetTarget(), SPELL_SHARED_SUFFERING_DISPEL, args);
+                    }
                 }
             }
 

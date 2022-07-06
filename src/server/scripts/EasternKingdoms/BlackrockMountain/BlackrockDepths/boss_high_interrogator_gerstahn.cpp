@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -48,7 +49,7 @@ class boss_high_interrogator_gerstahn : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 4000);
                 _events.ScheduleEvent(EVENT_MANABURN, 14000);
@@ -99,7 +100,7 @@ class boss_high_interrogator_gerstahn : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_high_interrogator_gerstahnAI(creature);
+            return GetBlackrockDepthsAI<boss_high_interrogator_gerstahnAI>(creature);
         }
 };
 

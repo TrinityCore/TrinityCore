@@ -58,8 +58,8 @@ class TC_GAME_API AuraApplication
         Aura* const _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
         uint8 _slot;                                   // Aura slot on unit
-        uint8 _flags;                                  // Aura info flag
-        uint32 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
+        uint16 _flags;                                 // Aura info flag
+        uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
         uint32 _effectMask;
 
@@ -74,7 +74,7 @@ class TC_GAME_API AuraApplication
         Aura* GetBase() const { return _base; }
 
         uint8 GetSlot() const { return _slot; }
-        uint8 GetFlags() const { return _flags; }
+        uint16 GetFlags() const { return _flags; }
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return (_effectMask & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
@@ -90,7 +90,6 @@ class TC_GAME_API AuraApplication
         void ClientUpdate(bool remove = false);
 };
 
-#pragma pack(push, 1)
 // Structure representing database aura primary key fields
 struct AuraKey
 {
@@ -101,7 +100,9 @@ struct AuraKey
 
     bool operator<(AuraKey const& right) const
     {
-        return memcmp(this, &right, sizeof(*this)) < 0;
+        auto comparisonTuple = [](AuraKey const& k) { return std::tie(k.Caster, k.Item, k.SpellId, k.EffectMask); };
+
+        return comparisonTuple(*this) < comparisonTuple(right);
     }
 };
 
@@ -110,7 +111,6 @@ struct AuraLoadEffectInfo
     std::array<int32, MAX_SPELL_EFFECTS> Amounts;
     std::array<int32, MAX_SPELL_EFFECTS> BaseAmounts;
 };
-#pragma pack(pop)
 
 class TC_GAME_API Aura
 {
@@ -135,7 +135,7 @@ class TC_GAME_API Aura
         ObjectGuid GetCastItemGUID() const { return m_castItemGuid; }
         uint32 GetCastItemId() const { return m_castItemId; }
         int32 GetCastItemLevel() const { return m_castItemLevel; }
-        uint32 GetSpellXSpellVisualId() const { return m_spellXSpellVisualId; }
+        SpellCastVisual GetSpellVisual() const { return m_spellVisual; }
         Unit* GetCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
@@ -182,6 +182,8 @@ class TC_GAME_API Aura
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
+        uint32 CalcMaxStackAmount() const;
+        bool IsUsingStacks() const;
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
@@ -219,9 +221,9 @@ class TC_GAME_API Aura
         AuraKey GenerateKey(uint32& recalculateMask) const;
         void SetLoadedState(int32 maxDuration, int32 duration, int32 charges, uint8 stackAmount, uint32 recalculateMask, int32* amount);
 
-        // helpers for aura effects
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
+        static bool EffectTypeNeedsSendingAmount(AuraType type);
         AuraEffect* GetEffect(uint32 index) const;
         uint32 GetEffectMask() const;
         void RecalculateAmountOfEffects();
@@ -230,13 +232,12 @@ class TC_GAME_API Aura
         // Helpers for targets
         ApplicationMap const& GetApplicationMap() { return m_applications; }
         void GetApplicationList(Unit::AuraApplicationList& applicationList) const;
-        const AuraApplication* GetApplicationOfTarget(ObjectGuid guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return nullptr; }
+        AuraApplication const* GetApplicationOfTarget(ObjectGuid guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return nullptr; }
         AuraApplication* GetApplicationOfTarget(ObjectGuid guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return nullptr; }
         bool IsAppliedOnTarget(ObjectGuid guid) const { return m_applications.find(guid) != m_applications.end(); }
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);
-        void HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster);
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
@@ -267,21 +268,23 @@ class TC_GAME_API Aura
         void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude);
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier* & spellMod);
+        void CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit const* victim, float& critChance);
         void CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
         void CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
         void CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
         void CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
         void CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & splitAmount);
+        void CallScriptEnterLeaveCombatHandlers(AuraApplication const* aurApp, bool isNowInCombat);
         // Spell Proc Hooks
         bool CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
-        bool CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
-        void CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        bool CallScriptEffectProcHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        void CallScriptAfterEffectProcHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
 
-        template<class Script>
+        template <class Script>
         Script* GetScript(std::string const& scriptName) const
         {
             return dynamic_cast<Script*>(GetScriptByName(scriptName));
@@ -303,7 +306,7 @@ class TC_GAME_API Aura
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         uint32 m_castItemId;
         int32 m_castItemLevel;
-        uint32 const m_spellXSpellVisualId;
+        SpellCastVisual const m_spellVisual;
         time_t const m_applyTime;
         WorldObject* const m_owner;
 

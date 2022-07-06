@@ -38,6 +38,7 @@ class TC_GAME_API ChannelMgr
     public:
         static ChannelMgr* ForTeam(uint32 team);
         static Channel* GetChannelForPlayerByNamePart(std::string const& namePart, Player* playerSearcher);
+        static Channel* GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player* playerSearcher);
 
         Channel* GetJoinChannel(uint32 channelId, std::string const& name, AreaTableEntry const* zoneEntry = nullptr);
         Channel* GetChannel(uint32 channelId, std::string const& name, Player* player, bool notify = true, AreaTableEntry const* zoneEntry = nullptr) const;

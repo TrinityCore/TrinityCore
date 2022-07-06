@@ -1,10 +1,9 @@
 on:
-  schedule:
-    - cron: '*/5 * * * *'
+  pull_request_target:
+    types: [opened]
 
 jobs:
   pr_labeler:
-    if: github.repository == 'TrinityCore/TrinityCore'
     runs-on: ubuntu-latest
     name: Pull Request Labeler
     steps:

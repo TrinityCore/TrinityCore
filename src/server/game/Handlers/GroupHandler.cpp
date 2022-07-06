@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -29,7 +30,6 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 class Aura;
 
@@ -132,7 +132,7 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
             // tell the player that they were invited but it failed as they were already in a group
             WorldPackets::Party::PartyInvite partyInvite;
             partyInvite.Initialize(invitingPlayer, packet.ProposedRoles, false);
-            invitedPlayer->GetSession()->SendPacket(partyInvite.Write());
+            invitedPlayer->SendDirectMessage(partyInvite.Write());
         }
 
         return;
@@ -185,7 +185,7 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
 
     WorldPackets::Party::PartyInvite partyInvite;
     partyInvite.Initialize(invitingPlayer, packet.ProposedRoles, true);
-    invitedPlayer->GetSession()->SendPacket(partyInvite.Write());
+    invitedPlayer->SendDirectMessage(partyInvite.Write());
 
     SendPartyResult(PARTY_OP_INVITE, invitedPlayer->GetName(), ERR_PARTY_RESULT_OK);
 }
@@ -253,7 +253,7 @@ void WorldSession::HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInv
 
         // report
         WorldPackets::Party::GroupDecline decline(GetPlayer()->GetName());
-        leader->GetSession()->SendPacket(decline.Write());
+        leader->SendDirectMessage(decline.Write());
     }
 }
 
@@ -593,7 +593,7 @@ void WorldSession::HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyChec
 
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet)
 {
-    WorldPackets::Party::PartyMemberState partyMemberStats;
+    WorldPackets::Party::PartyMemberFullState partyMemberStats;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
     if (!player)

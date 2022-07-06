@@ -20,6 +20,7 @@
 
 #include "UnitAI.h"
 
+class Creature;
 class Spell;
 
 class TC_GAME_API PlayerAI : public UnitAI
@@ -30,6 +31,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         void OnCharmed(bool /*apply*/) override { } // charm AI application for players is handled by Unit::SetCharmedBy / Unit::RemoveCharmedBy
 
         Creature* GetCharmer() const;
+
         // helper functions to determine player info
         uint16 GetSpec(Player const* who = nullptr) const;
         static bool IsPlayerHealer(Player const* who);

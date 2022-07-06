@@ -83,7 +83,7 @@ namespace MMAP
                 bool debugOutput         = false,
                 bool bigBaseUnit         = false,
                 int mapid                = -1,
-                const char* offMeshFilePath = nullptr);
+                char const* offMeshFilePath = nullptr);
 
             ~MapBuilder();
 
@@ -133,7 +133,7 @@ namespace MMAP
 
             bool m_debugOutput;
 
-            const char* m_offMeshFilePath;
+            char const* m_offMeshFilePath;
             bool m_skipContinents;
             bool m_skipJunkMaps;
             bool m_skipBattlegrounds;

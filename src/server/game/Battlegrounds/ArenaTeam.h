@@ -127,7 +127,7 @@ class TC_GAME_API ArenaTeam
         static uint8 GetTypeBySlot(uint8 slot);
         ObjectGuid GetCaptain() const { return CaptainGuid; }
         std::string const& GetName() const { return TeamName; }
-        const ArenaTeamStats& GetStats() const { return Stats; }
+        ArenaTeamStats const& GetStats() const { return Stats; }
 
         uint32 GetRating() const          { return Stats.Rating; }
         uint32 GetAverageMMR(Group* group) const;

@@ -105,7 +105,8 @@ enum BTCreatureIds
     NPC_ILLIDARI_ELITE              = 23226,
     NPC_GLAIVE_TARGET               = 23448,
     NPC_GLAIVE_WORLD_TRIGGER        = 22515,
-    NPC_DEMON_FIRE                  = 23069
+    NPC_DEMON_FIRE                  = 23069,
+    NPC_PARASITIC_SHADOWFIEND       = 23498
 };
 
 enum BTGameObjectIds
@@ -137,10 +138,12 @@ enum BlackTempleMisc
     ACTION_OPEN_DOOR                = 4
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetBlackTempleAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BTScriptName);
 }
+
+#define RegisterBlackTempleCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackTempleAI)
 
 #endif // BLACK_TEMPLE_H_

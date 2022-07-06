@@ -355,7 +355,7 @@ class TC_GAME_API Guild
 
                 void ChangeRank(CharacterDatabaseTransaction& trans, uint8 newRank);
 
-                inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
+                inline void UpdateLogoutTime();
                 inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
                 inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
                 inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
@@ -401,19 +401,19 @@ class TC_GAME_API Guild
         class LogEntry
         {
             public:
-                LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(nullptr)) { }
+                LogEntry(ObjectGuid::LowType guildId, uint32 guid);
                 LogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
                 virtual ~LogEntry() { }
 
                 uint32 GetGUID() const { return m_guid; }
-                uint64 GetTimestamp() const { return m_timestamp; }
+                time_t GetTimestamp() const { return m_timestamp; }
 
                 virtual void SaveToDB(CharacterDatabaseTransaction& trans) const = 0;
 
             protected:
                 ObjectGuid::LowType m_guildId;
                 uint32 m_guid;
-                uint64 m_timestamp;
+                time_t m_timestamp;
         };
 
         // Event log entry
@@ -633,7 +633,7 @@ class TC_GAME_API Guild
                 // Defines if player has rights to withdraw item from container
                 virtual bool HasWithdrawRights(MoveItemData* /*pOther*/) const { return true; }
                 // Checks if container can store specified item
-                bool CanStore(Item* pItem, bool swap, bool sendError);
+                InventoryResult CanStore(Item* pItem, bool swap, bool sendError);
                 // Clones stored item
                 bool CloneItem(uint32 count);
                 // Remove item from container (if splited update items fields)
@@ -646,6 +646,8 @@ class TC_GAME_API Guild
                 virtual void LogAction(MoveItemData* pFrom) const;
                 // Copy slots id from position vector
                 void CopySlots(SlotIds& ids) const;
+                // Sends equip error to player
+                void SendEquipError(InventoryResult result, Item const* item);
 
                 Item* GetItem(bool isCloned = false) const { return isCloned ? m_pClonedItem : m_pItem; }
                 uint8 GetContainer() const { return m_container; }
@@ -738,7 +740,7 @@ class TC_GAME_API Guild
         void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const;
         void HandleSetMOTD(WorldSession* session, std::string const& motd);
         void HandleSetInfo(WorldSession* session, std::string const& info);
-        void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
+        void HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo);
         void HandleSetNewGuildMaster(WorldSession* session, std::string const& name, bool isSelfPromote);
         void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
         void HandleSetMemberNote(WorldSession* session, std::string const& note, ObjectGuid guid, bool isPublic);
@@ -932,7 +934,7 @@ class TC_GAME_API Guild
         Item* _GetItem(uint8 tabId, uint8 slotId) const;
         void _RemoveItem(CharacterDatabaseTransaction& trans, uint8 tabId, uint8 slotId);
         void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount) const;
-        static bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
+        static InventoryResult _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
 
         void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
         void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;

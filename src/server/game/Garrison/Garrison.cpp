@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "GarrisonMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -65,7 +66,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             fields = buildings->Fetch();
             uint32 plotInstanceId = fields[0].GetUInt32();
             uint32 buildingId = fields[1].GetUInt32();
-            time_t timeBuilt = time_t(fields[2].GetUInt64());
+            time_t timeBuilt = fields[2].GetInt64();
             bool active = fields[3].GetBool();
 
 
@@ -168,7 +169,7 @@ void Garrison::SaveToDB(CharacterDatabaseTransaction trans)
             stmt->setUInt64(0, _owner->GetGUID().GetCounter());
             stmt->setUInt32(1, plot.BuildingInfo.PacketInfo->GarrPlotInstanceID);
             stmt->setUInt32(2, plot.BuildingInfo.PacketInfo->GarrBuildingID);
-            stmt->setUInt64(3, plot.BuildingInfo.PacketInfo->TimeBuilt);
+            stmt->setInt64(3, plot.BuildingInfo.PacketInfo->TimeBuilt);
             stmt->setBool(4, plot.BuildingInfo.PacketInfo->Active);
             trans->Append(stmt);
         }
@@ -386,7 +387,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
     {
         placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
         placeBuildingResult.BuildingInfo.GarrBuildingID = garrBuildingId;
-        placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
+        placeBuildingResult.BuildingInfo.TimeBuilt = GameTime::GetGameTime();
 
         Plot* plot = GetPlot(garrPlotInstanceId);
         uint32 oldBuildingId = 0;
@@ -461,7 +462,7 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
             placeBuildingResult.Result = GARRISON_SUCCESS;
             placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
             placeBuildingResult.BuildingInfo.GarrBuildingID = restored;
-            placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
+            placeBuildingResult.BuildingInfo.TimeBuilt = GameTime::GetGameTime();
             placeBuildingResult.BuildingInfo.Active = true;
 
             plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
@@ -493,6 +494,8 @@ void Garrison::ActivateBuilding(uint32 garrPlotInstanceId)
             WorldPackets::Garrison::GarrisonBuildingActivated buildingActivated;
             buildingActivated.GarrPlotInstanceID = garrPlotInstanceId;
             _owner->SendDirectMessage(buildingActivated.Write());
+
+            _owner->UpdateCriteria(CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING, plot->BuildingInfo.PacketInfo->GarrBuildingID);
         }
     }
 }
@@ -590,20 +593,20 @@ void Garrison::SendBlueprintAndSpecializationData()
     _owner->SendDirectMessage(data.Write());
 }
 
-void Garrison::SendBuildingLandmarks(Player* receiver) const
+void Garrison::SendMapData(Player* receiver) const
 {
-    WorldPackets::Garrison::GarrisonBuildingLandmarks buildingLandmarks;
-    buildingLandmarks.Landmarks.reserve(_plots.size());
+    WorldPackets::Garrison::GarrisonMapDataResponse mapData;
+    mapData.Buildings.reserve(_plots.size());
 
     for (auto const& p : _plots)
     {
         Plot const& plot = p.second;
         if (plot.BuildingInfo.PacketInfo)
             if (uint32 garrBuildingPlotInstId = sGarrisonMgr.GetGarrBuildingPlotInst(plot.BuildingInfo.PacketInfo->GarrBuildingID, plot.GarrSiteLevelPlotInstId))
-                buildingLandmarks.Landmarks.emplace_back(garrBuildingPlotInstId, plot.PacketInfo.PlotPos.Pos);
+                mapData.Buildings.emplace_back(garrBuildingPlotInstId, plot.PacketInfo.PlotPos.Pos);
     }
 
-    receiver->SendDirectMessage(buildingLandmarks.Write());
+    receiver->SendDirectMessage(mapData.Write());
 }
 
 Map* Garrison::FindMap() const
@@ -832,7 +835,7 @@ bool Garrison::Building::CanActivate() const
     if (PacketInfo)
     {
         GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(PacketInfo->GarrBuildingID);
-        if (PacketInfo->TimeBuilt + building->BuildSeconds <= time(nullptr))
+        if (PacketInfo->TimeBuilt + building->BuildSeconds <= GameTime::GetGameTime())
             return true;
     }
 

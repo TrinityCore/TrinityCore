@@ -25,7 +25,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "Language.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"

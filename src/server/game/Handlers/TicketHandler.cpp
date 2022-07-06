@@ -15,16 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "SupportMgr.h"
 #include "TicketPackets.h"
 #include "Util.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 
 void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& /*packet*/)
 {
@@ -42,30 +40,32 @@ void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPackets::Ticket::GMTick
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleSupportTicketSubmitBug(WorldPackets::Ticket::SupportTicketSubmitBug& packet)
+void WorldSession::HandleSubmitUserFeedback(WorldPackets::Ticket::SubmitUserFeedback& userFeedback)
 {
-    if (!sSupportMgr->GetBugSystemStatus())
-        return;
+    if (userFeedback.IsSuggestion)
+    {
+        if (!sSupportMgr->GetSuggestionSystemStatus())
+            return;
 
-    BugTicket* ticket = new BugTicket(GetPlayer());
-    ticket->SetPosition(packet.Header.MapID, packet.Header.Position);
-    ticket->SetFacing(packet.Header.Facing);
-    ticket->SetNote(packet.Note);
+        SuggestionTicket* ticket = new SuggestionTicket(GetPlayer());
+        ticket->SetPosition(userFeedback.Header.MapID, userFeedback.Header.Position);
+        ticket->SetFacing(userFeedback.Header.Facing);
+        ticket->SetNote(userFeedback.Note);
 
-    sSupportMgr->AddTicket(ticket);
-}
+        sSupportMgr->AddTicket(ticket);
+    }
+    else
+    {
+        if (!sSupportMgr->GetBugSystemStatus())
+            return;
 
-void WorldSession::HandleSupportTicketSubmitSuggestion(WorldPackets::Ticket::SupportTicketSubmitSuggestion& packet)
-{
-    if (!sSupportMgr->GetSuggestionSystemStatus())
-        return;
+        BugTicket* ticket = new BugTicket(GetPlayer());
+        ticket->SetPosition(userFeedback.Header.MapID, userFeedback.Header.Position);
+        ticket->SetFacing(userFeedback.Header.Facing);
+        ticket->SetNote(userFeedback.Note);
 
-    SuggestionTicket* ticket = new SuggestionTicket(GetPlayer());
-    ticket->SetPosition(packet.Header.MapID, packet.Header.Position);
-    ticket->SetFacing(packet.Header.Facing);
-    ticket->SetNote(packet.Note);
-
-    sSupportMgr->AddTicket(ticket);
+        sSupportMgr->AddTicket(ticket);
+    }
 }
 
 void WorldSession::HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::SupportTicketSubmitComplaint& packet)

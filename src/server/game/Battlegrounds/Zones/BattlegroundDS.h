@@ -109,4 +109,5 @@ class BattlegroundDS : public Arena
         uint32 _pipeKnockBackTimer;
         uint8 _pipeKnockBackCount;
 };
+
 #endif

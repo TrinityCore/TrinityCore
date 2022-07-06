@@ -123,16 +123,16 @@ public:
         {
             BossAI::Reset();
             me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
+            instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOTTA_GO_START_EVENT);
             _nextSubmerge = 75;
             _petCount = 0;
         }
 
         bool CanAIAttack(Unit const* /*who*/) const override { return true; } // do not check boundary here
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             if (GameObject* door = instance->GetGameObject(DATA_ANUBARAK_WALL))
                 door->SetGoState(GO_STATE_ACTIVE); // open door for now
@@ -140,7 +140,7 @@ public:
                 door2->SetGoState(GO_STATE_ACTIVE);
 
             Talk(SAY_AGGRO);
-            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
+            instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOTTA_GO_START_EVENT);
 
             events.SetPhase(PHASE_EMERGE);
             events.ScheduleEvent(EVENT_CLOSE_DOOR, Seconds(5));
@@ -301,9 +301,9 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            switch (type)
+            switch (id)
             {
                 case GUID_TYPE_PET:
                 {

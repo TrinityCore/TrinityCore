@@ -36,8 +36,7 @@ void OutdoorPvPMgr::Die()
 
     m_OutdoorPvPSet.clear();
 
-    for (uint32 i = 0; i < MAX_OUTDOORPVP_TYPES; ++i)
-        m_OutdoorPvPDatas[i] = 0;
+    m_OutdoorPvPDatas.fill(0);
 
     m_OutdoorPvPMap.clear();
 }
@@ -56,7 +55,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
         return;
     }
 

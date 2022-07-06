@@ -60,13 +60,11 @@ int ScanIndexDirectory(
 #ifdef PLATFORM_WINDOWS
 
     WIN32_FIND_DATA wf;
-    LPTSTR szSearchMask;
     HANDLE hFind;
+    TCHAR szSearchMask[MAX_PATH];
 
     // Prepare the search mask
-    szSearchMask = CombinePath(szIndexPath, _T("*"));
-    if(szSearchMask == NULL)
-        return ERROR_NOT_ENOUGH_MEMORY;
+    CombinePath(szSearchMask, _countof(szSearchMask), szIndexPath, _T("*"), NULL);
 
     // Prepare directory search
     hFind = FindFirstFile(szSearchMask, &wf);
@@ -86,8 +84,6 @@ int ScanIndexDirectory(
         // Close the search handle
         FindClose(hFind);
     }
-
-    CASC_FREE(szSearchMask);
 
 #else // PLATFORM_WINDOWS
 

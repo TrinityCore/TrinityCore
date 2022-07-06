@@ -32,12 +32,12 @@ using std::pair;
 
 template<> struct BoundsTrait<VMAP::ModelSpawn*>
 {
-    static void getBounds(const VMAP::ModelSpawn* const &obj, G3D::AABox& out) { out = obj->getBounds(); }
+    static void getBounds(VMAP::ModelSpawn const* const& obj, G3D::AABox& out) { out = obj->getBounds(); }
 };
 
 namespace VMAP
 {
-    Vector3 ModelPosition::transform(const Vector3& pIn) const
+    Vector3 ModelPosition::transform(Vector3 const& pIn) const
     {
         Vector3 out = pIn * iScale;
         out = iRotation * out;
@@ -76,7 +76,7 @@ namespace VMAP
             printf("Calculating model bounds for map %u...\n", data.MapId);
             for (auto entry = data.UniqueEntries.begin(); entry != data.UniqueEntries.end(); ++entry)
             {
-                // M2 models don't have a bound set in WDT/ADT placement data, i still think they're not used for LoS at all on retail
+                // M2 models don't have a bound set in WDT/ADT placement data, they're not used for LoS but are needed for pathfinding
                 if (entry->second.flags & MOD_M2)
                     if (!calculateTransformedBound(entry->second))
                         continue;
@@ -133,7 +133,6 @@ namespace VMAP
             for (uint32 i = 0; i < mapSpawnsSize; ++i)
             {
                 if (success && fwrite(&mapSpawns[i]->ID, sizeof(uint32), 1, mapfile) != 1) success = false;
-                if (success && fwrite(&i, sizeof(uint32), 1, mapfile) != 1) success = false;
             }
 
             fclose(mapfile);
@@ -292,7 +291,7 @@ namespace VMAP
             for (uint32 g = 0; g < groups; ++g)
             {
                 GroupModel_Raw& raw_group = raw_model.groupsArray[g];
-                groupsArray.push_back(GroupModel(raw_group.mogpflags, raw_group.GroupWMOID, raw_group.bounds ));
+                groupsArray.push_back(GroupModel(raw_group.mogpflags, raw_group.GroupWMOID, raw_group.bounds));
                 groupsArray.back().setMeshData(raw_group.vertexArray, raw_group.triangles);
                 groupsArray.back().setLiquidData(raw_group.liquid);
             }
@@ -353,21 +352,9 @@ namespace VMAP
 
             spawnedModelFiles.insert(model_name);
             AABox bounds;
-            bool boundEmpty = true;
-            for (uint32 g = 0; g < raw_model.groupsArray.size(); ++g)
-            {
-                std::vector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
-
-                uint32 nvectors = vertices.size();
-                for (uint32 i = 0; i < nvectors; ++i)
-                {
-                    Vector3& v = vertices[i];
-                    if (boundEmpty)
-                        bounds = AABox(v, v), boundEmpty = false;
-                    else
-                        bounds.merge(v);
-                }
-            }
+            for (GroupModel_Raw const& groupModel : raw_model.groupsArray)
+                for (G3D::Vector3 const& vertice : groupModel.vertexArray)
+                    bounds.merge(vertice);
 
             if (bounds.isEmpty())
             {
@@ -440,8 +427,8 @@ namespace VMAP
         READ_OR_RETURN(&nindexes, sizeof(uint32));
         if (nindexes >0)
         {
-            uint16 *indexarray = new uint16[nindexes];
-            READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint16));
+            uint32 *indexarray = new uint32[nindexes];
+            READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint32));
             triangles.reserve(nindexes / 3);
             for (uint32 i=0; i<nindexes; i+=3)
                 triangles.push_back(MeshTriangle(indexarray[i], indexarray[i+1], indexarray[i+2]));

@@ -26,41 +26,16 @@
 namespace
 {
     std::unordered_map<uint32, ConversationTemplate>       _conversationTemplateStore;
-    std::unordered_map<uint32, ConversationActorTemplate>  _conversationActorTemplateStore;
     std::unordered_map<uint32, ConversationLineTemplate>   _conversationLineTemplateStore;
 }
 
 void ConversationDataStore::LoadConversationTemplates()
 {
-    _conversationActorTemplateStore.clear();
     _conversationLineTemplateStore.clear();
     _conversationTemplateStore.clear();
 
-    std::unordered_map<uint32, std::vector<ConversationActorTemplate const*>> actorsByConversation;
+    std::unordered_map<uint32, std::vector<ConversationActor>> actorsByConversation;
     std::unordered_map<uint32, std::vector<ObjectGuid::LowType>> actorGuidsByConversation;
-
-    if (QueryResult actorTemplates = WorldDatabase.Query("SELECT Id, CreatureId, CreatureModelId FROM conversation_actor_template"))
-    {
-        uint32 oldMSTime = getMSTime();
-
-        do
-        {
-            Field* fields = actorTemplates->Fetch();
-
-            uint32 id = fields[0].GetUInt32();
-            ConversationActorTemplate& conversationActor = _conversationActorTemplateStore[id];
-            conversationActor.Id = id;
-            conversationActor.CreatureId = fields[1].GetUInt32();
-            conversationActor.CreatureModelId = fields[2].GetUInt32();
-        }
-        while (actorTemplates->NextRow());
-
-        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Conversation actor templates in %u ms", _conversationActorTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
-    }
-    else
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation actor templates. DB table `conversation_actor_template` is empty.");
-    }
 
     if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, StartTime, UiCameraID, ActorIdx, Flags FROM conversation_line_template"))
     {
@@ -94,7 +69,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation line templates. DB table `conversation_line_template` is empty.");
     }
 
-    if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx FROM conversation_actors"))
+    if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx, CreatureId, CreatureDisplayInfoId FROM conversation_actors"))
     {
         uint32 oldMSTime = getMSTime();
         uint32 count = 0;
@@ -107,25 +82,32 @@ void ConversationDataStore::LoadConversationTemplates()
             uint32 actorId                = fields[1].GetUInt32();
             ObjectGuid::LowType actorGuid = fields[2].GetUInt64();
             uint16 idx                    = fields[3].GetUInt16();
+            uint32 creatureId             = fields[4].GetUInt32();
+            uint32 creatureDisplayInfoId  = fields[5].GetUInt32();
 
-            if (actorId != 0 && actorGuid != 0)
+            if (creatureId != 0 && actorGuid != 0)
             {
                 TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references both actor (ID: %u) and actorGuid (GUID: " UI64FMTD ") for Conversation %u, skipped.", actorId, actorGuid, conversationId);
                 continue;
             }
 
-            if (actorId != 0)
+            if (creatureId != 0)
             {
-                if (ConversationActorTemplate const* conversationActorTemplate = Trinity::Containers::MapGetValuePtr(_conversationActorTemplateStore, actorId))
+                if (creatureDisplayInfoId != 0)
                 {
-                    std::vector<ConversationActorTemplate const*>& actors = actorsByConversation[conversationId];
+                    ConversationActor conversationActor;
+                    conversationActor.ActorId = actorId;
+                    conversationActor.CreatureId = creatureId;
+                    conversationActor.CreatureDisplayInfoId = creatureDisplayInfoId;
+
+                    std::vector<ConversationActor>& actors = actorsByConversation[conversationId];
                     if (actors.size() <= idx)
                         actors.resize(idx + 1);
-                    actors[idx] = conversationActorTemplate;
+                    actors[idx] = conversationActor;
                     ++count;
                 }
                 else
-                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
+                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an actor (CreatureId: %u) without CreatureDisplayInfoId for Conversation %u, skipped", creatureId, conversationId);
             }
             else if (actorGuid != 0)
             {

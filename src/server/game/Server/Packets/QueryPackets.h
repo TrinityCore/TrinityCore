@@ -83,7 +83,7 @@ namespace WorldPackets
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
             int32 Class = 0;
-            float FadeRegionRadius = 0.0f;
+            int32 CreatureDifficultyID = 0;
             int32 WidgetSetID = 0;
             int32 WidgetSetUnitConditionID = 0;
             std::array<uint32, 2> Flags;
@@ -228,7 +228,7 @@ namespace WorldPackets
             uint32 Data[MAX_GAMEOBJECT_DATA];
             float Size = 0.0f;
             std::vector<int32> QuestItems;
-            uint32 RequiredLevel = 0;
+            uint32 ContentTuningId = 0;
         };
 
         class QueryGameObjectResponse final : public ServerPacket
@@ -307,7 +307,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            time_t CurrentTime = time_t(0);
+            Timestamp<> CurrentTime;
         };
 
         class QuestPOIQuery final : public ClientPacket
@@ -379,7 +379,7 @@ namespace WorldPackets
 
             bool HasDeclined = false;
             DeclinedName DeclinedNames;
-            uint32 Timestamp = 0;
+            WorldPackets::Timestamp<> Timestamp;
             std::string Name;
         };
 

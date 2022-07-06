@@ -167,7 +167,7 @@ bool DatabaseWorkerPool<T>::PrepareStatements()
 }
 
 template <class T>
-QueryResult DatabaseWorkerPool<T>::Query(const char* sql, T* connection /*= nullptr*/)
+QueryResult DatabaseWorkerPool<T>::Query(char const* sql, T* connection /*= nullptr*/)
 {
     if (!connection)
         connection = GetFreeConnection();
@@ -203,7 +203,7 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-QueryCallback DatabaseWorkerPool<T>::AsyncQuery(const char* sql)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(char const* sql)
 {
     BasicStatementTask* task = new BasicStatementTask(sql, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -302,6 +302,7 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction<T>& transacti
     /// @todo More elegant way
     if (errorCode == ER_LOCK_DEADLOCK)
     {
+        //todo: handle multiple sync threads deadlocking in a similar way as async threads
         uint8 loopBreaker = 5;
         for (uint8 i = 0; i < loopBreaker; ++i)
         {
@@ -395,7 +396,7 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
 }
 
 template <class T>
-unsigned long DatabaseWorkerPool<T>::EscapeString(char *to, const char *from, unsigned long length)
+unsigned long DatabaseWorkerPool<T>::EscapeString(char* to, char const* from, unsigned long length)
 {
     if (!to || !from || !length)
         return 0;
@@ -434,7 +435,7 @@ char const* DatabaseWorkerPool<T>::GetDatabaseName() const
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::Execute(const char* sql)
+void DatabaseWorkerPool<T>::Execute(char const* sql)
 {
     if (Trinity::IsFormatEmptyOrNull(sql))
         return;
@@ -451,7 +452,7 @@ void DatabaseWorkerPool<T>::Execute(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::DirectExecute(const char* sql)
+void DatabaseWorkerPool<T>::DirectExecute(char const* sql)
 {
     if (Trinity::IsFormatEmptyOrNull(sql))
         return;
@@ -473,7 +474,7 @@ void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, const char* sql)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, char const* sql)
 {
     if (!trans)
         Execute(sql);

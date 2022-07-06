@@ -127,7 +127,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->AvailableClasses->size());
         _worldPacket << uint32(SuccessInfo->Templates.size());
         _worldPacket << uint32(SuccessInfo->CurrencyID);
-        _worldPacket << int32(SuccessInfo->Time);
+        _worldPacket << SuccessInfo->Time;
 
         for (RaceClassAvailability const& raceClassAvailability : *SuccessInfo->AvailableClasses)
         {
@@ -150,13 +150,13 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.FlushBits();
 
         {
-            _worldPacket << uint32(SuccessInfo->Billing.BillingPlan);
-            _worldPacket << uint32(SuccessInfo->Billing.TimeRemain);
-            _worldPacket << uint32(SuccessInfo->Billing.Unknown735);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.BillingPlan);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.TimeRemain);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.Unknown735);
             // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
-            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
-            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
-            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // not used anywhere in the client
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // not used anywhere in the client
             _worldPacket.FlushBits();
         }
 
@@ -306,7 +306,7 @@ void WorldPackets::Auth::ConnectToFailed::Read()
 
 uint8 constexpr EnableEncryptionSeed[16] = { 0x90, 0x9C, 0xD0, 0x50, 0x5A, 0x2C, 0x14, 0xDD, 0x5C, 0x2C, 0xC0, 0x64, 0x14, 0xF3, 0xFE, 0xC9 };
 
-WorldPacket const* WorldPackets::Auth::EnableEncryption::Write()
+WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
 {
     Trinity::Crypto::HMAC_SHA256 hash(EncryptionKey, 16);
     hash.UpdateData(reinterpret_cast<uint8 const*>(&Enabled), 1);

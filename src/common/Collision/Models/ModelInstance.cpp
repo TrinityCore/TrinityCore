@@ -24,13 +24,13 @@ using G3D::Ray;
 
 namespace VMAP
 {
-    ModelInstance::ModelInstance(const ModelSpawn &spawn, WorldModel* model): ModelSpawn(spawn), iModel(model)
+    ModelInstance::ModelInstance(ModelSpawn const& spawn, WorldModel* model) : ModelMinimalData(spawn), iModel(model)
     {
-        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iRot.y/180.f, G3D::pif()*iRot.x/180.f, G3D::pif()*iRot.z/180.f).inverse();
-        iInvScale = 1.f/iScale;
+        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif() * spawn.iRot.y / 180.f, G3D::pif() * spawn.iRot.x / 180.f, G3D::pif() * spawn.iRot.z / 180.f).inverse();
+        iInvScale = 1.f / iScale;
     }
 
-    bool ModelInstance::intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const
+    bool ModelInstance::intersectRay(G3D::Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const
     {
         if (!iModel)
         {
@@ -63,7 +63,7 @@ namespace VMAP
         return hit;
     }
 
-    void ModelInstance::intersectPoint(const G3D::Vector3& p, AreaInfo &info) const
+    void ModelInstance::intersectPoint(const G3D::Vector3& p, AreaInfo& info) const
     {
         if (!iModel)
         {
@@ -97,7 +97,7 @@ namespace VMAP
         }
     }
 
-    bool ModelInstance::GetLocationInfo(const G3D::Vector3& p, LocationInfo &info) const
+    bool ModelInstance::GetLocationInfo(const G3D::Vector3& p, LocationInfo& info) const
     {
         if (!iModel)
         {
@@ -133,7 +133,7 @@ namespace VMAP
         return false;
     }
 
-    bool ModelInstance::GetLiquidLevel(const G3D::Vector3& p, LocationInfo &info, float &liqHeight) const
+    bool ModelInstance::GetLiquidLevel(const G3D::Vector3& p, LocationInfo& info, float& liqHeight) const
     {
         // child bounds are defined in object space:
         Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
@@ -149,10 +149,10 @@ namespace VMAP
         return false;
     }
 
-    bool ModelSpawn::readFromFile(FILE* rf, ModelSpawn &spawn)
+    bool ModelSpawn::readFromFile(FILE* rf, ModelSpawn& spawn)
     {
         uint32 check = 0, nameLen;
-        check += fread(&spawn.flags, sizeof(uint32), 1, rf);
+        check += fread(&spawn.flags, sizeof(uint8), 1, rf);
         // EoF?
         if (!check)
         {
@@ -160,7 +160,7 @@ namespace VMAP
                 std::cout << "Error reading ModelSpawn!\n";
             return false;
         }
-        check += fread(&spawn.adtId, sizeof(uint16), 1, rf);
+        check += fread(&spawn.adtId, sizeof(uint8), 1, rf);
         check += fread(&spawn.ID, sizeof(uint32), 1, rf);
         check += fread(&spawn.iPos, sizeof(float), 3, rf);
         check += fread(&spawn.iRot, sizeof(float), 3, rf);
@@ -195,11 +195,11 @@ namespace VMAP
         return true;
     }
 
-    bool ModelSpawn::writeToFile(FILE* wf, const ModelSpawn &spawn)
+    bool ModelSpawn::writeToFile(FILE* wf, ModelSpawn const& spawn)
     {
-        uint32 check=0;
-        check += fwrite(&spawn.flags, sizeof(uint32), 1, wf);
-        check += fwrite(&spawn.adtId, sizeof(uint16), 1, wf);
+        uint32 check = 0;
+        check += fwrite(&spawn.flags, sizeof(uint8), 1, wf);
+        check += fwrite(&spawn.adtId, sizeof(uint8), 1, wf);
         check += fwrite(&spawn.ID, sizeof(uint32), 1, wf);
         check += fwrite(&spawn.iPos, sizeof(float), 3, wf);
         check += fwrite(&spawn.iRot, sizeof(float), 3, wf);

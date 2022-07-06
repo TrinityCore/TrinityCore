@@ -93,17 +93,17 @@ class instance_nexus : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
-                    case GO_ANOMALUS_CONTAINMET_SPHERE:
+                    case GO_ANOMALUS_CONTAINMENT_SPHERE:
                         AnomalusContainmentSphere = go->GetGUID();
                         if (GetBossState(DATA_ANOMALUS) == DONE)
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
-                    case GO_ORMOROKS_CONTAINMET_SPHERE:
+                    case GO_ORMOROKS_CONTAINMENT_SPHERE:
                         OrmoroksContainmentSphere = go->GetGUID();
                         if (GetBossState(DATA_ORMOROK) == DONE)
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
-                    case GO_TELESTRAS_CONTAINMET_SPHERE:
+                    case GO_TELESTRAS_CONTAINMENT_SPHERE:
                         TelestrasContainmentSphere = go->GetGUID();
                         if (GetBossState(DATA_MAGUS_TELESTRA) == DONE)
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -156,11 +156,11 @@ class instance_nexus : public InstanceMapScript
                         return AnomalusGUID;
                     case DATA_KERISTRASZA:
                         return KeristraszaGUID;
-                    case ANOMALUS_CONTAINMET_SPHERE:
+                    case ANOMALUS_CONTAINMENT_SPHERE:
                         return AnomalusContainmentSphere;
-                    case ORMOROKS_CONTAINMET_SPHERE:
+                    case ORMOROKS_CONTAINMENT_SPHERE:
                         return OrmoroksContainmentSphere;
-                    case TELESTRAS_CONTAINMET_SPHERE:
+                    case TELESTRAS_CONTAINMENT_SPHERE:
                         return TelestrasContainmentSphere;
                     default:
                         break;

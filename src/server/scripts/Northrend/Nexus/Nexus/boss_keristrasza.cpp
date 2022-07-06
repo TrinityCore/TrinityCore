@@ -17,12 +17,12 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "nexus.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -91,11 +91,11 @@ class boss_keristrasza : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoCastAOE(SPELL_INTENSE_COLD);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
                 events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, DUNGEON_MODE(30000, 11000));
@@ -116,7 +116,7 @@ class boss_keristrasza : public CreatureScript
 
             bool CheckContainmentSpheres(bool removePrison = false)
             {
-                for (uint32 i = ANOMALUS_CONTAINMET_SPHERE; i < (ANOMALUS_CONTAINMET_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
+                for (uint32 i = ANOMALUS_CONTAINMENT_SPHERE; i < (ANOMALUS_CONTAINMENT_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
                 {
                     GameObject* containmentSpheres = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(i));
                     if (!containmentSpheres || containmentSpheres->GetGoState() != GO_STATE_ACTIVE)
@@ -144,7 +144,7 @@ class boss_keristrasza : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
                 if (id == DATA_INTENSE_COLD)
                     _intenseColdList.push_back(guid);

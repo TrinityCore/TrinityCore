@@ -1,50 +1,123 @@
-#ifndef _MAPDEFINES_H
-#define _MAPDEFINES_H
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef MapDefines_h__
+#define MapDefines_h__
 
 #include "Define.h"
-#include "DetourNavMesh.h"
+#include "EnumFlag.h"
+#include <array>
 
-const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 9
+/// Represents a map magic value of 4 bytes (used in versions)
+using u_map_magic = std::array<char, 4>;
 
-struct MmapTileHeader
+TC_COMMON_API extern u_map_magic const MapMagic;
+TC_COMMON_API extern u_map_magic const MapVersionMagic;
+TC_COMMON_API extern u_map_magic const MapAreaMagic;
+TC_COMMON_API extern u_map_magic const MapHeightMagic;
+TC_COMMON_API extern u_map_magic const MapLiquidMagic;
+
+// ******************************************
+// Map file format defines
+// ******************************************
+struct map_fileheader
 {
-    uint32 mmapMagic;
-    uint32 dtVersion;
-    uint32 mmapVersion;
-    uint32 size;
-    char usesLiquids;
-    char padding[3];
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true), padding() { }
+    u_map_magic mapMagic;
+    u_map_magic versionMagic;
+    uint32 buildMagic;
+    uint32 areaMapOffset;
+    uint32 areaMapSize;
+    uint32 heightMapOffset;
+    uint32 heightMapSize;
+    uint32 liquidMapOffset;
+    uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
-// All padding fields must be handled and initialized to ensure mmaps_generator will produce binary-identical *.mmtile files
-static_assert(sizeof(MmapTileHeader) == 20, "MmapTileHeader size is not correct, adjust the padding field size");
-static_assert(sizeof(MmapTileHeader) == (sizeof(MmapTileHeader::mmapMagic) +
-                                         sizeof(MmapTileHeader::dtVersion) +
-                                         sizeof(MmapTileHeader::mmapVersion) +
-                                         sizeof(MmapTileHeader::size) +
-                                         sizeof(MmapTileHeader::usesLiquids) +
-                                         sizeof(MmapTileHeader::padding)), "MmapTileHeader has uninitialized padding fields");
-
-enum NavArea
+enum class map_areaHeaderFlags : uint16
 {
-    NAV_AREA_EMPTY          = 0,
-    // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
-    // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable)
-    NAV_AREA_GROUND         = 63,
-    NAV_AREA_WATER          = 62,
-    NAV_AREA_MAGMA_SLIME    = 61 // don't need to differentiate between them
+    None    = 0x0000,
+    NoArea  = 0x0001
 };
 
-enum NavTerrainFlag
+DEFINE_ENUM_FLAG(map_areaHeaderFlags);
+
+struct map_areaHeader
 {
-    NAV_EMPTY       = 0x00,
-    NAV_GROUND      = 1 << (63 - NAV_AREA_GROUND),
-    NAV_WATER       = 1 << (63 - NAV_AREA_WATER),
-    NAV_MAGMA_SLIME = 1 << (63 - NAV_AREA_MAGMA_SLIME)
+    u_map_magic areaMagic;
+    EnumFlag<map_areaHeaderFlags> flags = map_areaHeaderFlags::None;
+    uint16 gridArea;
 };
 
-#endif /* _MAPDEFINES_H */
+enum class map_heightHeaderFlags : uint32
+{
+    None            = 0x0000,
+    NoHeight        = 0x0001,
+    HeightAsInt16   = 0x0002,
+    HeightAsInt8    = 0x0004,
+    HasFlightBounds = 0x0008
+};
+
+DEFINE_ENUM_FLAG(map_heightHeaderFlags);
+
+struct map_heightHeader
+{
+    u_map_magic heightMagic;
+    EnumFlag<map_heightHeaderFlags> flags = map_heightHeaderFlags::None;
+    float  gridHeight;
+    float  gridMaxHeight;
+};
+
+enum class map_liquidHeaderFlags : uint8
+{
+    None        = 0x0000,
+    NoType      = 0x0001,
+    NoHeight    = 0x0002
+};
+
+DEFINE_ENUM_FLAG(map_liquidHeaderFlags);
+
+enum class map_liquidHeaderTypeFlags : uint8
+{
+    NoWater     = 0x00,
+    Water       = 0x01,
+    Ocean       = 0x02,
+    Magma       = 0x04,
+    Slime       = 0x08,
+
+    DarkWater   = 0x10,
+
+    AllLiquids  = Water | Ocean | Magma | Slime
+};
+
+DEFINE_ENUM_FLAG(map_liquidHeaderTypeFlags);
+
+struct map_liquidHeader
+{
+    u_map_magic liquidMagic;
+    EnumFlag<map_liquidHeaderFlags> flags = map_liquidHeaderFlags::None;
+    EnumFlag<map_liquidHeaderTypeFlags> liquidFlags = map_liquidHeaderTypeFlags::NoWater;
+    uint16 liquidType;
+    uint8  offsetX;
+    uint8  offsetY;
+    uint8  width;
+    uint8  height;
+    float  liquidLevel;
+};
+
+#endif // MapDefines_h__

@@ -533,8 +533,8 @@ enum ICAreaIds
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
     public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId);
         spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags);
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId);
         SpellScript* GetSpellScript() const override;
 
     private:
@@ -542,7 +542,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         TriggerCastFlags _triggerFlags;
 };
 
-template<typename AI, typename T>
+template <class AI, class T>
 inline AI* GetIcecrownCitadelAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ICCScriptName);

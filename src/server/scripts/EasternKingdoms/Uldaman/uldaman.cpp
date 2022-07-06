@@ -30,10 +30,10 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "uldaman.h"
 
 /*######
@@ -73,7 +73,7 @@ class npc_jadespine_basilisk : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
@@ -102,7 +102,7 @@ class npc_jadespine_basilisk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_jadespine_basiliskAI(creature);
+            return GetUldamanAI<npc_jadespine_basiliskAI>(creature);
         }
 };
 

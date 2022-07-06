@@ -221,10 +221,10 @@ class GameObjectDeleteDelayEvent : public BasicEvent
         ObjectGuid _gameObjectGUID;
 };
 
-template<typename AI>
-inline AI* GetHallsOfReflectionAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfReflectionAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoRScriptName);
+    return GetInstanceAI<AI>(obj, HoRScriptName);
 }
 
 #endif // HALLS_OF_REFLECTION_H_

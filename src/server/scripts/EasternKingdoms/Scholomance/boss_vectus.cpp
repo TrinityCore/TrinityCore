@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "scholomance.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
 enum Emotes
@@ -53,7 +53,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_FIRE_SHIELD, 2000);
             events.ScheduleEvent(EVENT_BLAST_WAVE, 14000);

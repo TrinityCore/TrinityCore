@@ -17,17 +17,15 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
-#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "PassiveAI.h"
-#include "GameObjectAI.h"
 
 enum Yells
 {
@@ -222,10 +220,13 @@ class boss_magtheridon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!events.IsInPhase(PHASE_BANISH) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -239,11 +240,11 @@ class boss_magtheridon : public CreatureScript
                             events.Repeat(Seconds(10));
                             break;
                         case EVENT_BLAZE:
-                            me->CastCustomSpell(SPELL_BLAZE_TARGET, SPELLVALUE_MAX_TARGETS, 1);
+                            DoCastAOE(SPELL_BLAZE_TARGET, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.Repeat(Seconds(20));
                             break;
                         case EVENT_QUAKE:
-                            me->CastCustomSpell(SPELL_QUAKE, SPELLVALUE_MAX_TARGETS, 5);
+                            DoCastAOE(SPELL_QUAKE, { SPELLVALUE_MAX_TARGETS, 5 });
                             events.Repeat(Seconds(60));
                             break;
                         case EVENT_START_FIGHT:
@@ -252,7 +253,7 @@ class boss_magtheridon : public CreatureScript
                         case EVENT_RELEASED:
                             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
                             events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(60));
@@ -296,9 +297,6 @@ class boss_magtheridon : public CreatureScript
                         return;
                 }
 
-                if (!UpdateVictim())
-                    return;
-
                 DoMeleeAttackIfReady();
             }
 
@@ -332,7 +330,7 @@ class npc_hellfire_channeler : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
 
@@ -356,7 +354,7 @@ class npc_hellfire_channeler : public CreatureScript
                 if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
                     magtheridon->AI()->JustSummoned(summon);
 
-                summon->SetInCombatWithZone();
+                DoZoneInCombat(summon);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -460,7 +458,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_magtheridon_roomAI(creature);
+        return GetMagtheridonsLairAI<npc_magtheridon_roomAI>(creature);
     }
 };
 
@@ -488,7 +486,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new go_manticron_cubeAI(go);
+        return GetMagtheridonsLairAI<go_manticron_cubeAI>(go);
     }
 };
 
@@ -571,7 +569,11 @@ class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_SHADOW_CAGE, SPELL_SHADOW_GRASP_VISUAL });
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHADOW_CAGE,
+                    SPELL_SHADOW_GRASP_VISUAL
+                });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

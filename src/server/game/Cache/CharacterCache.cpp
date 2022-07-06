@@ -141,6 +141,15 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     _characterCacheByNameStore[name] = &itr->second;
 }
 
+void CharacterCache::UpdateCharacterGender(ObjectGuid const& guid, uint8 gender)
+{
+    auto itr = _characterCacheStore.find(guid);
+    if (itr == _characterCacheStore.end())
+        return;
+
+    itr->second.Sex = gender;
+}
+
 void CharacterCache::UpdateCharacterLevel(ObjectGuid const& guid, uint8 level)
 {
     auto itr = _characterCacheStore.find(guid);

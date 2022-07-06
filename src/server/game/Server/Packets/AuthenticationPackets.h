@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "Define.h"
 #include "Optional.h"
+#include "PacketUtilities.h"
 #include <array>
 #include <unordered_map>
 
@@ -118,6 +119,7 @@ namespace WorldPackets
 
         struct VirtualRealmInfo
         {
+            VirtualRealmInfo() : RealmAddress(0) { }
             VirtualRealmInfo(uint32 realmAddress, bool isHomeRealm, bool isInternalRealm, std::string const& realmNameActual, std::string const& realmNameNormalized) :
                 RealmAddress(realmAddress), RealmNameInfo(isHomeRealm, isInternalRealm, realmNameActual, realmNameNormalized) { }
 
@@ -130,7 +132,7 @@ namespace WorldPackets
         public:
             struct AuthSuccessInfo
             {
-                struct BillingInfo
+                struct GameTime
                 {
                     uint32 BillingPlan = 0;
                     uint32 TimeRemain = 0;
@@ -145,9 +147,9 @@ namespace WorldPackets
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
-                int32 Time = 0;
+                Timestamp<> Time;
 
-                BillingInfo Billing;
+                GameTime GameTimeInfo;
 
                 std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
                 std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
@@ -279,10 +281,10 @@ namespace WorldPackets
             void Read() override;
         };
 
-        class EnableEncryption final : public ServerPacket
+        class EnterEncryptedMode final : public ServerPacket
         {
         public:
-            EnableEncryption(uint8 const* encryptionKey, bool enabled) : ServerPacket(SMSG_ENABLE_ENCRYPTION, 256 + 1),
+            EnterEncryptedMode(uint8 const* encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
                 EncryptionKey(encryptionKey), Enabled(enabled)
             {
             }
@@ -295,6 +297,7 @@ namespace WorldPackets
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& realmInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& realmInfo);
 
 #endif // AuthenticationPacketsWorld_h__

@@ -76,6 +76,7 @@ protected:
     int32 _reporterLevel;
     int32 _reporterSpec;
     int32 _context;
+    int32 _useEnchantId;
     std::vector<int32> _bonusListIDs;
     std::vector<std::pair<uint32, int32>> _modifiers;
     std::vector<int32> _gemBonusListIDs[3];

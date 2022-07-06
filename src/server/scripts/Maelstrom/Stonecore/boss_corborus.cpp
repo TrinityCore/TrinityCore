@@ -267,13 +267,13 @@ class npc_rock_borer : public CreatureScript
             {
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
-                events.ScheduleEvent(EVENT_EMERGED, 1200);
-                events.ScheduleEvent(EVENT_ROCK_BORE, urand(15000, 20000)); // Need sniffs for this timer
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
-                me->SetInCombatState(false, summoner);
+                events.ScheduleEvent(EVENT_EMERGED, 1200);
+                events.ScheduleEvent(EVENT_ROCK_BORE, urand(15000, 20000)); // Need sniffs for this timer
+                DoZoneInCombat();
                 DoCast(me, SPELL_ROCK_BORER_EMERGE);
             }
 

@@ -22,6 +22,7 @@ Comment: All character related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
@@ -30,10 +31,9 @@ EndScriptData */
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "PlayerDump.h"
 #include "Player.h"
+#include "PlayerDump.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
@@ -144,7 +144,7 @@ public:
 
                 // account name will be empty for nonexisting account
                 AccountMgr::GetName(info.accountId, info.accountName);
-                info.deleteDate = time_t(fields[3].GetUInt32());
+                info.deleteDate = fields[3].GetInt64();
                 foundList.push_back(info);
             }
             while (result->NextRow());
@@ -648,8 +648,7 @@ public:
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
             char const* factionName = factionEntry ? factionEntry->Name[loc] : "#Not found#";
-            ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
-            std::string rankName = handler->GetTrinityString(ReputationRankStrIndex[rank]);
+            std::string rankName = target->GetReputationMgr().GetReputationRankName(factionEntry);
             std::ostringstream ss;
             if (handler->GetSession())
                 ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName << ' ' << localeNames[loc] << "]|h|r";
@@ -658,17 +657,17 @@ public:
 
             ss << ' ' << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
-            if (faction.Flags & FACTION_FLAG_VISIBLE)
+            if (faction.Flags.HasFlag(ReputationFlags::Visible))
                 ss << handler->GetTrinityString(LANG_FACTION_VISIBLE);
-            if (faction.Flags & FACTION_FLAG_AT_WAR)
+            if (faction.Flags.HasFlag(ReputationFlags::AtWar))
                 ss << handler->GetTrinityString(LANG_FACTION_ATWAR);
-            if (faction.Flags & FACTION_FLAG_PEACE_FORCED)
+            if (faction.Flags.HasFlag(ReputationFlags::Peaceful))
                 ss << handler->GetTrinityString(LANG_FACTION_PEACE_FORCED);
-            if (faction.Flags & FACTION_FLAG_HIDDEN)
+            if (faction.Flags.HasFlag(ReputationFlags::Hidden))
                 ss << handler->GetTrinityString(LANG_FACTION_HIDDEN);
-            if (faction.Flags & FACTION_FLAG_INVISIBLE_FORCED)
+            if (faction.Flags.HasFlag(ReputationFlags::Header))
                 ss << handler->GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-            if (faction.Flags & FACTION_FLAG_INACTIVE)
+            if (faction.Flags.HasFlag(ReputationFlags::Inactive))
                 ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
 
             handler->SendSysMessage(ss.str().c_str());

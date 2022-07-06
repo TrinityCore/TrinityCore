@@ -93,7 +93,7 @@ enum GDInstanceMisc
     TIMER_STATUE_ACTIVATION          = 3500
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetGundrakAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, GundrakScriptName);

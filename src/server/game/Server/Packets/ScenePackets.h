@@ -33,12 +33,12 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 SceneID = 0;
-            int32 PlaybackFlags = 0;
-            int32 SceneInstanceID = 0;
+            uint32 PlaybackFlags = 0;
+            uint32 SceneInstanceID = 0;
             int32 SceneScriptPackageID = 0;
             ObjectGuid TransportGUID;
             Position Location;
-            bool PerformTactCallbacks = false;
+            bool Encrypted = false;
         };
 
         class TC_GAME_API CancelScene final : public ServerPacket

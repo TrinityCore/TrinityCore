@@ -22,6 +22,8 @@
 #include "FollowerReference.h"
 #include "Timer.h"
 
+#define MOVE_FOLLOW_REPOSITIONING_DISTANCE 1.5f
+
 class TargetedMovementGeneratorBase
 {
     public:
@@ -55,6 +57,7 @@ class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public
         virtual void ReachTarget(T*) { }
         virtual bool EnableWalking() const { return false; }
         virtual void MovementInform(T*) { }
+        virtual float GetMaxDistanceBeforeRepositioning(T*) { return 0.0f; }
 
         bool IsReachable() const;
         void SetTargetLocation(T* owner, bool updateDestination);
@@ -87,6 +90,7 @@ class ChaseMovementGenerator : public TargetedMovementGenerator<T, ChaseMovement
         bool HasLostTarget(T*) const override;
         void ReachTarget(T*) override;
         void MovementInform(T*) override;
+        float GetMaxDistanceBeforeRepositioning(T*) override;
 };
 
 template<class T>
@@ -107,6 +111,7 @@ class FollowMovementGenerator : public TargetedMovementGenerator<T, FollowMoveme
         void ReachTarget(T*) override;
         bool EnableWalking() const override;
         void MovementInform(T*) override;
+        float GetMaxDistanceBeforeRepositioning(T*) override;
     private:
         void UpdateSpeed(T* owner);
 };

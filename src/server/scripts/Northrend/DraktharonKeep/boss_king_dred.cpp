@@ -76,9 +76,9 @@ class boss_king_dred : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_BELLOWING_ROAR, 33000);
                 events.ScheduleEvent(EVENT_GRIEVOUS_BITE, 20000);

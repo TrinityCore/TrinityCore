@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "scarlet_monastery.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
-#include "scarlet_monastery.h"
 #include "ScriptedCreature.h"
 
 enum Says
@@ -63,10 +63,10 @@ class boss_interrogator_vishas : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5000);
             }
 

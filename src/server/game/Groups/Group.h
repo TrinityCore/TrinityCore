@@ -252,7 +252,7 @@ class TC_GAME_API Group
         void   RemoveAllInvites();
         bool   AddLeaderInvite(Player* player);
         bool   AddMember(Player* player);
-        bool   RemoveMember(ObjectGuid guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
+        bool   RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
         void   ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
  static void   ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
         void   SetLootMethod(LootMethod method);
@@ -270,7 +270,7 @@ class TC_GAME_API Group
         void   UpdateReadyCheck(uint32 diff);
 
         // Ready check
-        void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration = READYCHECK_DURATION);
+        void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration = Milliseconds(READYCHECK_DURATION));
         void EndReadyCheck();
 
         bool IsReadyCheckStarted(void) const { return m_readyCheckStarted; }
@@ -454,7 +454,7 @@ class TC_GAME_API Group
 
         // Ready Check
         bool                m_readyCheckStarted;
-        int32               m_readyCheckTimer;
+        Milliseconds        m_readyCheckTimer;
 
         // Raid markers
         std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;

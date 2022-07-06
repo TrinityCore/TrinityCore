@@ -26,8 +26,7 @@ target_link_libraries(mmaps_generator
     extractor_common
     Recast
     Detour
-    zlib
-    bzip2)
+    zlib)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}

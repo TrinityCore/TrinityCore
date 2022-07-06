@@ -16,8 +16,16 @@
  */
 
 #include "CascHandles.h"
+#include "IoContext.h"
+#include "Resolver.h"
 #include <CascLib.h>
+#include <boost/asio/streambuf.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/read_until.hpp>
+#include <boost/asio/write.hpp>
+#include <boost/asio/ssl/stream.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <string>
 
 char const* CASC::HumanReadableCASCError(uint32 error)
 {
@@ -43,8 +51,111 @@ char const* CASC::HumanReadableCASCError(uint32 error)
     }
 }
 
+namespace
+{
+    Optional<std::string> DownloadFile(std::string const& serverName, int16 port, std::string const& getCommand)
+    {
+        boost::system::error_code error;
+        Trinity::Asio::IoContext ioContext;
+        boost::asio::ssl::context sslContext(boost::asio::ssl::context::sslv23);
+        sslContext.set_options(boost::asio::ssl::context::no_sslv2, error);
+        sslContext.set_options(boost::asio::ssl::context::no_sslv3, error);
+        sslContext.set_options(boost::asio::ssl::context::no_tlsv1, error);
+        sslContext.set_options(boost::asio::ssl::context::no_tlsv1_1, error);
+        sslContext.set_default_verify_paths(error);
+
+        Trinity::Asio::Resolver resolver(ioContext);
+
+        Optional<boost::asio::ip::tcp::endpoint> endpoint = resolver.Resolve(boost::asio::ip::tcp::v4(), serverName, std::to_string(port));
+        if (!endpoint)
+            return {};
+
+        boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket(ioContext, sslContext);
+        socket.set_verify_mode(boost::asio::ssl::verify_none, error);
+        if (error)
+            return {};
+
+        socket.lowest_layer().connect(*endpoint, error);
+        if (error)
+            return {};
+
+        if (!SSL_set_tlsext_host_name(socket.native_handle(), serverName.c_str()))
+            return {};
+
+        socket.handshake(boost::asio::ssl::stream_base::client, error);
+        if (error)
+            return {};
+
+        boost::asio::streambuf request;
+        std::ostream request_stream(&request);
+
+        request_stream << "GET " << getCommand << " HTTP/1.0\r\n";
+        request_stream << "Host: " << serverName << "\r\n";
+        request_stream << "Connection: close\r\n\r\n";
+
+        // Send the request.
+        boost::asio::write(socket, request);
+
+        // Read the response status line.
+        boost::asio::streambuf response;
+        boost::asio::read_until(socket, response, "\r\n");
+
+        // Check that response is OK.
+        std::string http_version;
+        uint32 status_code;
+        std::string status_message;
+        std::istream response_stream(&response);
+
+        response_stream >> http_version;
+        response_stream >> status_code;
+        std::getline(response_stream, status_message);
+
+        if (status_code != 200)
+        {
+            printf("Downloading tact key list failed with server response %u %s", status_code, status_message.c_str());
+            return {};
+        }
+
+        // Read the response headers, which are terminated by a blank line.
+        boost::asio::read_until(socket, response, "\r\n\r\n");
+
+        // Process the response headers.
+        std::string header;
+        while (std::getline(response_stream, header) && header != "\r")
+        {
+        }
+
+        std::stringstream rawBody;
+
+        // Write whatever content we already have to output.
+        if (response.size() > 0)
+            rawBody << &response;
+
+        // Read until EOF, writing data to output as we go.
+        while (boost::asio::read(socket, response, boost::asio::transfer_at_least(1), error))
+            rawBody << &response;
+
+        return rawBody.str();
+    }
+
+    template<typename T>
+    bool GetStorageInfo(HANDLE storage, CASC_STORAGE_INFO_CLASS storageInfoClass, T* value)
+    {
+        size_t infoDataSizeNeeded = 0;
+        return ::CascGetStorageInfo(storage, storageInfoClass, value, sizeof(T), &infoDataSizeNeeded);
+    }
+}
+
 CASC::Storage::Storage(HANDLE handle) : _handle(handle)
 {
+}
+
+bool CASC::Storage::LoadOnlineTactKeys()
+{
+    // attempt to download only once, not every storage opening
+    static Optional<std::string> const tactKeys = DownloadFile("wow.tools", 443, "/api.php?type=tactkeys");
+
+    return tactKeys && CascImportKeysFromString(_handle, tactKeys->c_str());
 }
 
 CASC::Storage::~Storage()
@@ -63,25 +174,20 @@ CASC::Storage* CASC::Storage::Open(boost::filesystem::path const& path, uint32 l
     HANDLE handle = nullptr;
     if (!::CascOpenStorageEx(nullptr, &args, false, &handle))
     {
-        DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
+        DWORD lastError = GetCascError(); // support checking error set by *Open* call, not the next *Close*
         printf("Error opening casc storage '%s': %s\n", path.string().c_str(), HumanReadableCASCError(lastError));
         CascCloseStorage(handle);
-        SetLastError(lastError);
+        SetCascError(lastError);
         return nullptr;
     }
 
     printf("Opened casc storage '%s'\n", path.string().c_str());
-    return new Storage(handle);
-}
+    Storage* storage = new Storage(handle);
 
-namespace CASC
-{
-    template<typename T>
-    static bool GetStorageInfo(HANDLE storage, CASC_STORAGE_INFO_CLASS storageInfoClass, T* value)
-    {
-        size_t infoDataSizeNeeded = 0;
-        return ::CascGetStorageInfo(storage, storageInfoClass, value, sizeof(T), &infoDataSizeNeeded);
-    }
+    if (!storage->LoadOnlineTactKeys())
+        printf("Failed to load additional encryption keys from wow.tools, some files might not be extracted.\n");
+
+    return storage;
 }
 
 uint32 CASC::Storage::GetBuildNumber() const
@@ -116,12 +222,12 @@ CASC::File* CASC::Storage::OpenFile(char const* fileName, uint32 localeMask, boo
     HANDLE handle = nullptr;
     if (!::CascOpenFile(_handle, fileName, localeMask, openFlags, &handle))
     {
-        DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
+        DWORD lastError = GetCascError(); // support checking error set by *Open* call, not the next *Close*
         if (printErrors)
             fprintf(stderr, "Failed to open '%s' in CASC storage: %s\n", fileName, HumanReadableCASCError(lastError));
 
         CascCloseFile(handle);
-        SetLastError(lastError);
+        SetCascError(lastError);
         return nullptr;
     }
 
@@ -137,12 +243,12 @@ CASC::File* CASC::Storage::OpenFile(uint32 fileDataId, uint32 localeMask, bool p
     HANDLE handle = nullptr;
     if (!::CascOpenFile(_handle, CASC_FILE_DATA_ID(fileDataId), localeMask, openFlags, &handle))
     {
-        DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
+        DWORD lastError = GetCascError(); // support checking error set by *Open* call, not the next *Close*
         if (printErrors)
             fprintf(stderr, "Failed to open 'FileDataId %u' in CASC storage: %s\n", fileDataId, HumanReadableCASCError(lastError));
 
         CascCloseFile(handle);
-        SetLastError(lastError);
+        SetCascError(lastError);
         return nullptr;
     }
 

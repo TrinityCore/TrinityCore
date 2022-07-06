@@ -27,7 +27,6 @@ EndScriptData */
 #include "molten_core.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -70,9 +69,9 @@ class boss_golemagg : public CreatureScript
                 DoCast(me, SPELL_MAGMASPLASH, true);
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_PYROBLAST, 7000);
             }
 

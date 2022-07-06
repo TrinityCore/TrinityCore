@@ -66,10 +66,10 @@ enum ANInstanceActions
     ACTION_GATEWATCHER_GREET        = 1
 };
 
-template<typename AI>
-inline AI* GetAzjolNerubAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetAzjolNerubAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, AzjolNerubScriptName);
+    return GetInstanceAI<AI>(obj, AzjolNerubScriptName);
 }
 
 #endif // AZJOL_NERUB_H_

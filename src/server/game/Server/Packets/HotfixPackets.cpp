@@ -17,6 +17,7 @@
 
 #include "HotfixPackets.h"
 #include "PacketUtilities.h"
+#include "Util.h"
 
 namespace WorldPackets
 {
@@ -54,7 +55,7 @@ WorldPacket const* DBReply::Write()
     _worldPacket << uint32(TableHash);
     _worldPacket << uint32(RecordID);
     _worldPacket << uint32(Timestamp);
-    _worldPacket.WriteBit(Allow);
+    _worldPacket.WriteBits(AsUnderlyingType(Status), 3);
     _worldPacket << uint32(Data.size());
     _worldPacket.append(Data);
 
@@ -64,9 +65,9 @@ WorldPacket const* DBReply::Write()
 WorldPacket const* AvailableHotfixes::Write()
 {
     _worldPacket << int32(VirtualRealmAddress);
-    _worldPacket << uint32(HotfixCount);
-    for (DB2Manager::HotfixRecord const& hotfixRecord : Hotfixes)
-        _worldPacket << hotfixRecord;
+    _worldPacket << uint32(Hotfixes.size());
+    for (DB2Manager::HotfixContainer::value_type const& hotfixRecord : Hotfixes)
+        _worldPacket << int32(hotfixRecord.first);
 
     return &_worldPacket;
 }
@@ -81,29 +82,21 @@ void HotfixRequest::Read()
         throw PacketArrayMaxCapacityException(hotfixCount, sDB2Manager.GetHotfixCount());
 
     Hotfixes.resize(hotfixCount);
-    for (DB2Manager::HotfixRecord& hotfixRecord : Hotfixes)
-        _worldPacket >> hotfixRecord;
+    for (int32& hotfixId : Hotfixes)
+        _worldPacket >> hotfixId;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, HotfixResponse::HotfixData const& hotfixData)
+ByteBuffer& operator<<(ByteBuffer& data, HotfixConnect::HotfixData const& hotfixData)
 {
     data << hotfixData.Record;
-    if (hotfixData.Size)
-    {
-        data << uint32(*hotfixData.Size);
-        data.WriteBit(true);
-    }
-    else
-    {
-        data << uint32(0);
-        data.WriteBit(false);
-    }
+    data << uint32(hotfixData.Size);
+    data.WriteBits(AsUnderlyingType(hotfixData.Record.HotfixStatus), 3);
     data.FlushBits();
 
     return data;
 }
 
-WorldPacket const* HotfixResponse::Write()
+WorldPacket const* HotfixConnect::Write()
 {
     _worldPacket << uint32(Hotfixes.size());
     for (HotfixData const& hotfix : Hotfixes)

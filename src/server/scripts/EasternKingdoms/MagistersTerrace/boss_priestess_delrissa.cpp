@@ -23,8 +23,8 @@ SDCategory: Magister's Terrace
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "magisters_terrace.h"
+#include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -163,7 +163,7 @@ public:
             instance->SetBossState(DATA_DELRISSA, FAIL);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
 
@@ -352,7 +352,6 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
     {
         Initialize();
         instance = creature->GetInstanceScript();
-        AcquireGUIDs();
     }
 
     void Initialize()
@@ -376,6 +375,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
     void Reset() override
     {
         Initialize();
+        AcquireGUIDs();
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
         if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
@@ -385,7 +385,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         if (!who)
             return;
@@ -621,7 +621,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_SUMMON_IMP);
         }
@@ -850,17 +850,12 @@ public:
             if (Blink_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const& t_list = me->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (pair.second->GetOther(me)->IsWithinMeleeRange(me))
                     {
-                        //if in melee range
-                        if (target->IsWithinDistInMap(me, 5))
-                        {
-                            InMeleeRange = true;
-                            break;
-                        }
+                        InMeleeRange = true;
+                        break;
                     }
                 }
 
@@ -929,7 +924,7 @@ public:
             boss_priestess_lackey_commonAI::Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_BATTLE_SHOUT);
         }
@@ -944,17 +939,12 @@ public:
             if (Intercept_Stun_Timer <= diff)
             {
                 bool InMeleeRange = false;
-                ThreatContainer::StorageType const& t_list = me->GetThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (pair.second->GetOther(me)->IsWithinMeleeRange(me))
                     {
-                        //if in melee range
-                        if (target->IsWithinDistInMap(me, ATTACK_DISTANCE))
-                        {
-                            InMeleeRange = true;
-                            break;
-                        }
+                        InMeleeRange = true;
+                        break;
                     }
                 }
 
@@ -1328,7 +1318,7 @@ public:
 
     //CreatureAI* GetAI(Creature* creature) const override
     //{
-    //    return new npc_high_explosive_sheepAI(creature);
+    //    return GetMagistersTerraceAI<npc_high_explosive_sheepAI>(creature);
     //};
 };
 */

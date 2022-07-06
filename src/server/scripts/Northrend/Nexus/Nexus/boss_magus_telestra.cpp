@@ -23,7 +23,6 @@
 #include "nexus.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
-#include "World.h"
 
 enum Spells
 {
@@ -143,7 +142,7 @@ public:
                 me->AddAura(SPELL_WEAR_CHRISTMAS_HAT, me);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -153,7 +152,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-
+            me->SetVisible(true);
             instance->SetBossState(DATA_MAGUS_TELESTRA, DONE);
         }
 

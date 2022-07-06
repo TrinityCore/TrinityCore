@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameTime.h"
 #include "ScriptMgr.h"
-#include "Player.h"
+#include "GameTime.h"
 #include "Pet.h"
+#include "Player.h"
 #include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -98,13 +98,13 @@ class DuelResetScript : public PlayerScript
                 int32 totalCooldown = spellInfo->RecoveryTime;
                 int32 categoryCooldown = spellInfo->CategoryRecoveryTime;
 
-                player->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, totalCooldown, nullptr);
+                player->ApplySpellMod(spellInfo, SpellModOp::Cooldown, totalCooldown, nullptr);
 
                 if (int32 cooldownMod = player->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
                     totalCooldown += cooldownMod * IN_MILLISECONDS;
 
                 if (!spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
-                    player->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, nullptr);
+                    player->ApplySpellMod(spellInfo, SpellModOp::Cooldown, categoryCooldown, nullptr);
 
                 return remainingCooldown > 0
                     && !itr->second.OnHold

@@ -56,7 +56,7 @@ enum DataKind                                              // Stolen from CVCONS
     DataIsConstant
 };
 
-const char* const rgBaseType[] =
+char const* const rgBaseType[] =
 {
     "<user defined>",                                     // btNoType = 0,
     "void",                                               // btVoid = 1,
@@ -100,7 +100,7 @@ struct SymbolPair
         _offset = offset;
     }
 
-    bool operator<(const SymbolPair& other) const
+    bool operator<(SymbolPair const& other) const
     {
         return _offset < other._offset ||
               (_offset == other._offset && _type < other._type);
@@ -176,7 +176,7 @@ class WheatyExceptionReport
 
         static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *);
 
-        static void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, const char*, char*, bool, bool);
+        static void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, char const*, char*, bool, bool);
 
         static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
 

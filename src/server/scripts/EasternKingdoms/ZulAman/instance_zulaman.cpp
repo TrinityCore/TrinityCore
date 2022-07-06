@@ -23,11 +23,12 @@
 #include "ScriptedCreature.h"
 #include "WorldStatePackets.h"
 #include "zulaman.h"
+#include <sstream>
 
 class instance_zulaman : public InstanceMapScript
 {
     public:
-        instance_zulaman() : InstanceMapScript(ZulAmanScriptName, 568) { }
+        instance_zulaman() : InstanceMapScript(ZulamanScriptName, 568) { }
 
         struct instance_zulaman_InstanceScript : public InstanceScript
         {

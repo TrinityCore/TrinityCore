@@ -204,7 +204,7 @@ public:
 
         void AggroAllPlayers(Creature* temp)
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
                 if (Player* player = i->GetSource())
@@ -275,10 +275,10 @@ public:
                     switch (uiValue)
                     {
                         case 1:
-                            instance->SetData(TYPE_EVENT, IN_PROGRESS);
+                            instance->SetBossState(DATA_BLASTMASTER_EVENT, IN_PROGRESS);
                             break;
                         case 2:
-                            instance->SetData(TYPE_EVENT, DONE);
+                            instance->SetBossState(DATA_BLASTMASTER_EVENT, DONE);
                             NextStep(5000, false, 22);
                             break;
                     }

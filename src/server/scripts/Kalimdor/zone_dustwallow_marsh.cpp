@@ -29,7 +29,7 @@ EndContentData */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "QuestDef.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -126,8 +126,9 @@ public:
             {
                 Damage = 0;
 
-                if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
+                if (pDoneBy)
+                    if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
+                        player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
 
                 Talk(EMOTE_SURRENDER);
                 EnterEvadeMode();

@@ -70,8 +70,8 @@ enum BFDGameObjectIds
     GO_ALTAR_OF_THE_DEEPS                                  = 103016
 };
 
-template<class AI, class T>
-AI* GetBlackfathomDeepsAI(T* obj)
+template <class AI, class T>
+inline AI* GetBlackfathomDeepsAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BFDScriptName);
 }

@@ -70,7 +70,7 @@ void Appender::write(LogMessage* message)
     _write(message);
 }
 
-const char* Appender::getLogLevelString(LogLevel level)
+char const* Appender::getLogLevelString(LogLevel level)
 {
     switch (level)
     {

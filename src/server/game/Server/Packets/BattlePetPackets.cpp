@@ -65,7 +65,6 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     _worldPacket << uint16(Trap);
     _worldPacket << uint32(Slots.size());
     _worldPacket << uint32(Pets.size());
-    _worldPacket << int32(MaxPets);
     _worldPacket.WriteBit(HasJournalLock);
     _worldPacket.FlushBits();
 
@@ -84,7 +83,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetUpdates::Write()
     _worldPacket.WriteBit(PetAdded);
     _worldPacket.FlushBits();
 
-    for (auto const& pet : Pets)
+    for (BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;

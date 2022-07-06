@@ -67,10 +67,10 @@ class boss_hydromancer_thespia : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15000);
                 events.ScheduleEvent(EVENT_LUNG_BURST, 7000);
@@ -138,7 +138,7 @@ class npc_coilfang_waterelemental : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.ScheduleEvent(EVENT_WATER_BOLT_VOLLEY, urand(3000, 6000));
             }

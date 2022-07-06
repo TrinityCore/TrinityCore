@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
-#include "Player.h"
-#include "PathGenerator.h"
-#include "MoveSplineInit.h"
-#include "MoveSpline.h"
-#include "Random.h"
 #include "ConfusedMovementGenerator.h"
+#include "Creature.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "PathGenerator.h"
+#include "Player.h"
+#include "Random.h"
 
 template<class T>
 ConfusedMovementGenerator<T>::~ConfusedMovementGenerator()
