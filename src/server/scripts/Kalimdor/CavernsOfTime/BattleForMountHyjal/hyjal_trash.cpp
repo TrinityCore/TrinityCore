@@ -942,7 +942,7 @@ public:
         void JustDied(Unit* killer) override
         {
             hyjal_trashAI::JustDied(killer);
-            me->AI()->Talk(TRASH_SAY_DEATH);
+            me->Talk(TRASH_SAY_DEATH);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
