@@ -3602,6 +3602,7 @@ void Map::DelayedUpdate(uint32 t_diff)
         TSLua::handle_error(callback(TSMap(this), TSMainThreadContext()));
     }
     m_delayCallbacks.clear();
+    m_delayLuaCallbacks.clear();
 
     for (ObjectGuid guid : m_delayedGuids)
     {
