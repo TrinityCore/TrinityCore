@@ -2889,7 +2889,11 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
     {
         target->ApplySpellImmune(Id, IMMUNITY_STATE, auraType, apply);
         if (apply && HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-            target->RemoveAurasByType(auraType);
+            target->RemoveAurasByType(auraType, [](AuraApplication const* aurApp) -> bool
+            {
+                // if the aura has SPELL_ATTR6_IGNORE_CASTER_AURAS, then it cannot be removed by immunity
+                return !aurApp->GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR6_IGNORE_CASTER_AURAS);
+            });
     }
 
     for (SpellEffects effectType : immuneInfo.SpellEffectImmune)
