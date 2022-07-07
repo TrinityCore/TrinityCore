@@ -21,12 +21,14 @@
 #include "GameObject.h"
 #include "TransportMgr.h"
 #include "VehicleDefines.h"
+#include <boost/dynamic_bitset_fwd.hpp>
 
 struct CreatureData;
+struct SummonPropertiesEntry;
 
 class TC_GAME_API Transport : public GameObject, public TransportBase
 {
-        friend Transport* TransportMgr::CreateTransport(uint32, ObjectGuid::LowType, Map*, uint8, uint32, uint32);
+        friend Transport* TransportMgr::CreateTransport(uint32, Map*, ObjectGuid::LowType, uint8, uint32, uint32);
 
         Transport();
     public:
@@ -34,16 +36,15 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         ~Transport();
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress);
+        bool Create(ObjectGuid::LowType guidlow, uint32 entry, float x, float y, float z, float ang);
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         void Update(uint32 diff) override;
-        void DelayedUpdate(uint32 diff);
 
         void BuildUpdate(UpdateDataMapType& data_map) override;
 
-        void AddPassenger(WorldObject* passenger);
-        void RemovePassenger(WorldObject* passenger);
+        void AddPassenger(WorldObject* passenger) override;
+        Transport* RemovePassenger(WorldObject* passenger) override;
         PassengerSet const& GetPassengers() const { return _passengers; }
 
         Creature* CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data);
@@ -67,23 +68,27 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         */
         TempSummon* SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0);
 
+        ObjectGuid GetTransportGUID() const override { return GetGUID(); }
+
+        float GetTransportOrientation() const override { return GetOrientation(); }
+
         /// This method transforms supplied transport offsets into global coordinates
         void CalculatePassengerPosition(float& x, float& y, float& z, float* o = nullptr) const override
         {
-            TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
         }
 
         /// This method transforms supplied global coordinates into local offsets
         void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const override
         {
-            TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
         }
 
-        uint32 GetTransportPeriod() const override { return m_gameObjectData->Level; }
-        void SetPeriod(uint32 period) { SetLevel(period); }
-        uint32 GetTimer() const { return GetGOValue()->Transport.PathProgress; }
+        int32 GetMapIdForSpawning() const override;
 
-        KeyFrameVec const& GetKeyFrames() const { return _transportInfo->keyFrames; }
+        uint32 GetTransportPeriod() const { return m_gameObjectData->Level; }
+        void SetPeriod(uint32 period) { SetLevel(period); }
+        uint32 GetTimer() const { return _pathProgress; }
 
         void UpdatePosition(float x, float y, float z, float o);
 
@@ -97,38 +102,28 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         void SetDelayedAddModelToMap() { _delayedAddModel = true; }
 
-        TransportTemplate const* GetTransportTemplate() const { return _transportInfo; }
+        std::string GetDebugInfo() const override;
+
+        //! Returns id of the map that transport is expected to be on, according to current path progress
+        uint32 GetExpectedMapId() const;
 
     private:
-        void MoveToNextWaypoint();
-        float CalculateSegmentPos(float perc);
-        bool TeleportTransport(uint32 newMapid, float x, float y, float z, float o);
-        void DelayedTeleportTransport();
-        void UpdatePassengerPositions(PassengerSet& passengers);
-        void DoEventIfAny(KeyFrame const& node, bool departure);
-
-        //! Helpers to know if stop frame was reached
-        bool IsMoving() const { return _isMoving; }
-        void SetMoving(bool val) { _isMoving = val; }
+        bool TeleportTransport(uint32 oldMapId, uint32 newMapId, float x, float y, float z, float o);
+        void TeleportPassengersAndHideTransport(uint32 newMapid, float x, float y, float z, float o);
+        void UpdatePassengerPositions(PassengerSet const& passengers);
 
         TransportTemplate const* _transportInfo;
-
-        KeyFrameVec::const_iterator _currentFrame;
-        KeyFrameVec::const_iterator _nextFrame;
-        TimeTrackerSmall _positionChangeTimer;
-        bool _isMoving;
-        bool _pendingStop;
-
-        //! These are needed to properly control events triggering only once for each frame
-        bool _triggeredArrivalEvent;
-        bool _triggeredDepartureEvent;
+        TransportMovementState _movementState;
+        std::unique_ptr<boost::dynamic_bitset<uint8>> _eventsToTrigger;
+        size_t _currentPathLeg;
+        Optional<uint32> _requestStopTimestamp;
+        uint32 _pathProgress;
+        TimeTracker _positionChangeTimer;
 
         PassengerSet _passengers;
-        PassengerSet::iterator _passengerTeleportItr;
         PassengerSet _staticPassengers;
 
         bool _delayedAddModel;
-        bool _delayedTeleport;
 };
 
 #endif

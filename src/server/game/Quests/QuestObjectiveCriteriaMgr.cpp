@@ -37,8 +37,8 @@ QuestObjectiveCriteriaMgr::~QuestObjectiveCriteriaMgr()
 void QuestObjectiveCriteriaMgr::CheckAllQuestObjectiveCriteria(Player* referencePlayer)
 {
     // suppress sending packets
-    for (uint32 i = 0; i < CRITERIA_TYPE_TOTAL; ++i)
-        UpdateCriteria(CriteriaTypes(i), 0, 0, 0, nullptr, referencePlayer);
+    for (uint32 i = 0; i < uint32(CriteriaType::Count); ++i)
+        UpdateCriteria(CriteriaType(i), 0, 0, 0, nullptr, referencePlayer);
 }
 
 void QuestObjectiveCriteriaMgr::Reset()
@@ -120,7 +120,7 @@ void QuestObjectiveCriteriaMgr::LoadFromDB(PreparedQueryResult objectiveResult, 
     }
 }
 
-void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
@@ -335,7 +335,7 @@ std::string QuestObjectiveCriteriaMgr::GetOwnerInfo() const
     return Trinity::StringFormat("%s %s", _owner->GetGUID().ToString().c_str(), _owner->GetName().c_str());
 }
 
-CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaTypes type, uint32 /*asset*/) const
+CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaType type, uint32 /*asset*/) const
 {
     return sCriteriaMgr->GetQuestObjectiveCriteriaByType(type);
 }

@@ -23,7 +23,7 @@
 #include <set>
 
 class AreaTriggerTemplate;
-class AreaTriggerMiscTemplate;
+class AreaTriggerCreateProperties;
 struct AreaTriggerId;
 struct AreaTriggerSpawn;
 
@@ -36,7 +36,7 @@ public:
     std::set<ObjectGuid::LowType> const* GetAreaTriggersForMapAndCell(uint32 mapId, uint32 cellId) const;
     AreaTriggerSpawn const* GetAreaTriggerSpawn(ObjectGuid::LowType spawnId) const;
     AreaTriggerTemplate const* GetAreaTriggerTemplate(AreaTriggerId const& areaTriggerId) const;
-    AreaTriggerMiscTemplate const* GetAreaTriggerMiscTemplate(uint32 spellMiscValue) const;
+    AreaTriggerCreateProperties const* GetAreaTriggerCreateProperties(uint32 areaTriggerCreatePropertiesId) const;
 
     static AreaTriggerDataStore* Instance();
 };

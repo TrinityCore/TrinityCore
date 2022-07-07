@@ -8,12 +8,12 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if(WIN32)
+if(WIN32 AND MSVC)
   set(sources_windows
     ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h
   )
-endif(WIN32)
+endif()
 
 add_subdirectory(genrev)
 add_subdirectory(common)

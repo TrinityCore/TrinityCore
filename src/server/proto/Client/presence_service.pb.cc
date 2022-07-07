@@ -30,9 +30,6 @@ namespace {
 const ::google::protobuf::Descriptor* SubscribeRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   SubscribeRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* SubscribeNotificationRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  SubscribeNotificationRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* UnsubscribeRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   UnsubscribeRequest_reflection_ = NULL;
@@ -45,9 +42,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* QueryResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   QueryResponse_reflection_ = NULL;
-const ::google::protobuf::Descriptor* OwnershipRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  OwnershipRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* BatchSubscribeRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   BatchSubscribeRequest_reflection_ = NULL;
@@ -63,7 +57,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::ServiceDescriptor* PresenceService_descriptor_ = NULL;
 
 }  // namespace
-
 
 void protobuf_AssignDesc_presence_5fservice_2eproto() {
   protobuf_AddDesc_presence_5fservice_2eproto();
@@ -90,22 +83,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SubscribeRequest));
-  SubscribeNotificationRequest_descriptor_ = file->message_type(1);
-  static const int SubscribeNotificationRequest_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeNotificationRequest, entity_id_),
-  };
-  SubscribeNotificationRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      SubscribeNotificationRequest_descriptor_,
-      SubscribeNotificationRequest::default_instance_,
-      SubscribeNotificationRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeNotificationRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeNotificationRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(SubscribeNotificationRequest));
-  UnsubscribeRequest_descriptor_ = file->message_type(2);
+  UnsubscribeRequest_descriptor_ = file->message_type(1);
   static const int UnsubscribeRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeRequest, entity_id_),
@@ -122,7 +100,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UnsubscribeRequest));
-  UpdateRequest_descriptor_ = file->message_type(3);
+  UpdateRequest_descriptor_ = file->message_type(2);
   static const int UpdateRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateRequest, entity_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateRequest, field_operation_),
@@ -140,7 +118,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateRequest));
-  QueryRequest_descriptor_ = file->message_type(4);
+  QueryRequest_descriptor_ = file->message_type(3);
   static const int QueryRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QueryRequest, entity_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QueryRequest, key_),
@@ -157,7 +135,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(QueryRequest));
-  QueryResponse_descriptor_ = file->message_type(5);
+  QueryResponse_descriptor_ = file->message_type(4);
   static const int QueryResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QueryResponse, field_),
   };
@@ -172,23 +150,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(QueryResponse));
-  OwnershipRequest_descriptor_ = file->message_type(6);
-  static const int OwnershipRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OwnershipRequest, entity_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OwnershipRequest, release_ownership_),
-  };
-  OwnershipRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      OwnershipRequest_descriptor_,
-      OwnershipRequest::default_instance_,
-      OwnershipRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OwnershipRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(OwnershipRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(OwnershipRequest));
-  BatchSubscribeRequest_descriptor_ = file->message_type(7);
+  BatchSubscribeRequest_descriptor_ = file->message_type(5);
   static const int BatchSubscribeRequest_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BatchSubscribeRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BatchSubscribeRequest, entity_id_),
@@ -207,7 +169,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BatchSubscribeRequest));
-  SubscribeResult_descriptor_ = file->message_type(8);
+  SubscribeResult_descriptor_ = file->message_type(6);
   static const int SubscribeResult_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeResult, entity_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeResult, result_),
@@ -223,7 +185,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SubscribeResult));
-  BatchSubscribeResponse_descriptor_ = file->message_type(9);
+  BatchSubscribeResponse_descriptor_ = file->message_type(7);
   static const int BatchSubscribeResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BatchSubscribeResponse, subscribe_failed_),
   };
@@ -238,7 +200,7 @@ void protobuf_AssignDesc_presence_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BatchSubscribeResponse));
-  BatchUnsubscribeRequest_descriptor_ = file->message_type(10);
+  BatchUnsubscribeRequest_descriptor_ = file->message_type(8);
   static const int BatchUnsubscribeRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BatchUnsubscribeRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BatchUnsubscribeRequest, entity_id_),
@@ -271,8 +233,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     SubscribeRequest_descriptor_, &SubscribeRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    SubscribeNotificationRequest_descriptor_, &SubscribeNotificationRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     UnsubscribeRequest_descriptor_, &UnsubscribeRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     UpdateRequest_descriptor_, &UpdateRequest::default_instance());
@@ -280,8 +240,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
     QueryRequest_descriptor_, &QueryRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     QueryResponse_descriptor_, &QueryResponse::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    OwnershipRequest_descriptor_, &OwnershipRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     BatchSubscribeRequest_descriptor_, &BatchSubscribeRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -297,8 +255,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_presence_5fservice_2eproto() {
   delete SubscribeRequest::default_instance_;
   delete SubscribeRequest_reflection_;
-  delete SubscribeNotificationRequest::default_instance_;
-  delete SubscribeNotificationRequest_reflection_;
   delete UnsubscribeRequest::default_instance_;
   delete UnsubscribeRequest_reflection_;
   delete UpdateRequest::default_instance_;
@@ -307,8 +263,6 @@ void protobuf_ShutdownFile_presence_5fservice_2eproto() {
   delete QueryRequest_reflection_;
   delete QueryResponse::default_instance_;
   delete QueryResponse_reflection_;
-  delete OwnershipRequest::default_instance_;
-  delete OwnershipRequest_reflection_;
   delete BatchSubscribeRequest::default_instance_;
   delete BatchSubscribeRequest_reflection_;
   delete SubscribeResult::default_instance_;
@@ -331,86 +285,75 @@ void protobuf_AddDesc_presence_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\026presence_service.proto\022\030bgs.protocol.p"
     "resence.v1\032\022entity_types.proto\032\024presence"
-    "_types.proto\032\017rpc_types.proto\"\331\001\n\020Subscr"
-    "ibeRequest\022(\n\010agent_id\030\001 \001(\0132\026.bgs.proto"
-    "col.EntityId\022)\n\tentity_id\030\002 \002(\0132\026.bgs.pr"
-    "otocol.EntityId\022\021\n\tobject_id\030\003 \002(\004\022\035\n\007pr"
-    "ogram\030\004 \003(\007B\014\212\371+\010*\006\n\004\010\001\020d\022>\n\003key\030\006 \003(\0132\""
-    ".bgs.protocol.presence.v1.FieldKeyB\r\212\371+\t"
-    "*\007\n\005\010\001\020\364\003\"I\n\034SubscribeNotificationReques"
-    "t\022)\n\tentity_id\030\001 \002(\0132\026.bgs.protocol.Enti"
-    "tyId\"|\n\022UnsubscribeRequest\022(\n\010agent_id\030\001"
-    " \001(\0132\026.bgs.protocol.EntityId\022)\n\tentity_i"
-    "d\030\002 \002(\0132\026.bgs.protocol.EntityId\022\021\n\tobjec"
-    "t_id\030\003 \001(\004\"\272\001\n\rUpdateRequest\022)\n\tentity_i"
-    "d\030\001 \002(\0132\026.bgs.protocol.EntityId\022A\n\017field"
-    "_operation\030\002 \003(\0132(.bgs.protocol.presence"
-    ".v1.FieldOperation\022\021\n\tno_create\030\003 \001(\010\022(\n"
-    "\010agent_id\030\004 \001(\0132\026.bgs.protocol.EntityId\""
-    "\224\001\n\014QueryRequest\022)\n\tentity_id\030\001 \002(\0132\026.bg"
-    "s.protocol.EntityId\022/\n\003key\030\002 \003(\0132\".bgs.p"
-    "rotocol.presence.v1.FieldKey\022(\n\010agent_id"
-    "\030\003 \001(\0132\026.bgs.protocol.EntityId\"\?\n\rQueryR"
-    "esponse\022.\n\005field\030\002 \003(\0132\037.bgs.protocol.pr"
-    "esence.v1.Field\"X\n\020OwnershipRequest\022)\n\te"
-    "ntity_id\030\001 \002(\0132\026.bgs.protocol.EntityId\022\031"
-    "\n\021release_ownership\030\002 \001(\010\"\355\001\n\025BatchSubsc"
-    "ribeRequest\022(\n\010agent_id\030\001 \001(\0132\026.bgs.prot"
-    "ocol.EntityId\0228\n\tentity_id\030\002 \003(\0132\026.bgs.p"
-    "rotocol.EntityIdB\r\212\371+\t*\007\n\005\010\001\020\372\001\022\035\n\007progr"
-    "am\030\003 \003(\007B\014\212\371+\010*\006\n\004\010\001\020d\022>\n\003key\030\004 \003(\0132\".bg"
-    "s.protocol.presence.v1.FieldKeyB\r\212\371+\t*\007\n"
-    "\005\010\001\020\364\003\022\021\n\tobject_id\030\005 \001(\004\"L\n\017SubscribeRe"
-    "sult\022)\n\tentity_id\030\001 \001(\0132\026.bgs.protocol.E"
-    "ntityId\022\016\n\006result\030\002 \001(\r\"]\n\026BatchSubscrib"
-    "eResponse\022C\n\020subscribe_failed\030\001 \003(\0132).bg"
-    "s.protocol.presence.v1.SubscribeResult\"\220"
-    "\001\n\027BatchUnsubscribeRequest\022(\n\010agent_id\030\001"
-    " \001(\0132\026.bgs.protocol.EntityId\0228\n\tentity_i"
-    "d\030\002 \003(\0132\026.bgs.protocol.EntityIdB\r\212\371+\t*\007\n"
-    "\005\010\001\020\372\001\022\021\n\tobject_id\030\003 \001(\0042\334\006\n\017PresenceSe"
-    "rvice\022U\n\tSubscribe\022*.bgs.protocol.presen"
-    "ce.v1.SubscribeRequest\032\024.bgs.protocol.No"
-    "Data\"\006\202\371+\002\010\001\022Y\n\013Unsubscribe\022,.bgs.protoc"
-    "ol.presence.v1.UnsubscribeRequest\032\024.bgs."
-    "protocol.NoData\"\006\202\371+\002\010\002\022O\n\006Update\022\'.bgs."
-    "protocol.presence.v1.UpdateRequest\032\024.bgs"
-    ".protocol.NoData\"\006\202\371+\002\010\003\022`\n\005Query\022&.bgs."
-    "protocol.presence.v1.QueryRequest\032\'.bgs."
-    "protocol.presence.v1.QueryResponse\"\006\202\371+\002"
-    "\010\004\022U\n\tOwnership\022*.bgs.protocol.presence."
-    "v1.OwnershipRequest\032\024.bgs.protocol.NoDat"
-    "a\"\006\202\371+\002\010\005\022m\n\025SubscribeNotification\0226.bgs"
-    ".protocol.presence.v1.SubscribeNotificat"
-    "ionRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\007"
-    "\022{\n\016BatchSubscribe\022/.bgs.protocol.presen"
-    "ce.v1.BatchSubscribeRequest\0320.bgs.protoc"
-    "ol.presence.v1.BatchSubscribeResponse\"\006\202"
-    "\371+\002\010\010\022c\n\020BatchUnsubscribe\0221.bgs.protocol"
-    ".presence.v1.BatchUnsubscribeRequest\032\024.b"
-    "gs.protocol.NoData\"\006\202\371+\002\010\t\032<\202\371+2\n&bnet.p"
-    "rotocol.presence.PresenceService*\010presen"
-    "ce\212\371+\002\020\001B\005H\001\200\001\000", 2455);
+    "_types.proto\032\017rpc_types.proto\"\341\001\n\020Subscr"
+    "ibeRequest\0220\n\010agent_id\030\001 \001(\0132\026.bgs.proto"
+    "col.EntityIdB\006\202\371+\002 \001\022)\n\tentity_id\030\002 \002(\0132"
+    "\026.bgs.protocol.EntityId\022\021\n\tobject_id\030\003 \002"
+    "(\004\022\035\n\007program\030\004 \003(\007B\014\212\371+\010*\006\n\004\010\000\020d\022>\n\003key"
+    "\030\006 \003(\0132\".bgs.protocol.presence.v1.FieldK"
+    "eyB\r\212\371+\t*\007\n\005\010\000\020\364\003\"\204\001\n\022UnsubscribeRequest"
+    "\0220\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.Entity"
+    "IdB\006\202\371+\002 \001\022)\n\tentity_id\030\002 \002(\0132\026.bgs.prot"
+    "ocol.EntityId\022\021\n\tobject_id\030\003 \001(\004\"\302\001\n\rUpd"
+    "ateRequest\022)\n\tentity_id\030\001 \002(\0132\026.bgs.prot"
+    "ocol.EntityId\022A\n\017field_operation\030\002 \003(\0132("
+    ".bgs.protocol.presence.v1.FieldOperation"
+    "\022\021\n\tno_create\030\003 \001(\010\0220\n\010agent_id\030\004 \001(\0132\026."
+    "bgs.protocol.EntityIdB\006\202\371+\002 \001\"\252\001\n\014QueryR"
+    "equest\022)\n\tentity_id\030\001 \002(\0132\026.bgs.protocol"
+    ".EntityId\022=\n\003key\030\002 \003(\0132\".bgs.protocol.pr"
+    "esence.v1.FieldKeyB\014\212\371+\010*\006\n\004\010\000\020d\0220\n\010agen"
+    "t_id\030\003 \001(\0132\026.bgs.protocol.EntityIdB\006\202\371+\002"
+    " \001\"\?\n\rQueryResponse\022.\n\005field\030\002 \003(\0132\037.bgs"
+    ".protocol.presence.v1.Field\"\365\001\n\025BatchSub"
+    "scribeRequest\0220\n\010agent_id\030\001 \001(\0132\026.bgs.pr"
+    "otocol.EntityIdB\006\202\371+\002 \001\0228\n\tentity_id\030\002 \003"
+    "(\0132\026.bgs.protocol.EntityIdB\r\212\371+\t*\007\n\005\010\001\020\372"
+    "\001\022\035\n\007program\030\003 \003(\007B\014\212\371+\010*\006\n\004\010\000\020d\022>\n\003key\030"
+    "\004 \003(\0132\".bgs.protocol.presence.v1.FieldKe"
+    "yB\r\212\371+\t*\007\n\005\010\000\020\364\003\022\021\n\tobject_id\030\005 \001(\004\"L\n\017S"
+    "ubscribeResult\022)\n\tentity_id\030\001 \001(\0132\026.bgs."
+    "protocol.EntityId\022\016\n\006result\030\002 \001(\r\"]\n\026Bat"
+    "chSubscribeResponse\022C\n\020subscribe_failed\030"
+    "\001 \003(\0132).bgs.protocol.presence.v1.Subscri"
+    "beResult\"\230\001\n\027BatchUnsubscribeRequest\0220\n\010"
+    "agent_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB\006"
+    "\202\371+\002 \001\0228\n\tentity_id\030\002 \003(\0132\026.bgs.protocol"
+    ".EntityIdB\r\212\371+\t*\007\n\005\010\001\020\372\001\022\021\n\tobject_id\030\003 "
+    "\001(\0042\257\005\n\017PresenceService\022W\n\tSubscribe\022*.b"
+    "gs.protocol.presence.v1.SubscribeRequest"
+    "\032\024.bgs.protocol.NoData\"\010\202\371+\004\010\001\020\003\022[\n\013Unsu"
+    "bscribe\022,.bgs.protocol.presence.v1.Unsub"
+    "scribeRequest\032\024.bgs.protocol.NoData\"\010\202\371+"
+    "\004\010\002\020\003\022Q\n\006Update\022\'.bgs.protocol.presence."
+    "v1.UpdateRequest\032\024.bgs.protocol.NoData\"\010"
+    "\202\371+\004\010\003\020\003\022b\n\005Query\022&.bgs.protocol.presenc"
+    "e.v1.QueryRequest\032\'.bgs.protocol.presenc"
+    "e.v1.QueryResponse\"\010\202\371+\004\010\004\020\003\022}\n\016BatchSub"
+    "scribe\022/.bgs.protocol.presence.v1.BatchS"
+    "ubscribeRequest\0320.bgs.protocol.presence."
+    "v1.BatchSubscribeResponse\"\010\202\371+\004\010\010\020\003\022e\n\020B"
+    "atchUnsubscribe\0221.bgs.protocol.presence."
+    "v1.BatchUnsubscribeRequest\032\024.bgs.protoco"
+    "l.NoData\"\010\202\371+\004\010\t\020\003\032I\202\371+\?\n&bnet.protocol."
+    "presence.PresenceService*\023presence_aggre"
+    "gator0\001\212\371+\002\020\001B\005H\001\200\001\000", 2180);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
-  SubscribeNotificationRequest::default_instance_ = new SubscribeNotificationRequest();
   UnsubscribeRequest::default_instance_ = new UnsubscribeRequest();
   UpdateRequest::default_instance_ = new UpdateRequest();
   QueryRequest::default_instance_ = new QueryRequest();
   QueryResponse::default_instance_ = new QueryResponse();
-  OwnershipRequest::default_instance_ = new OwnershipRequest();
   BatchSubscribeRequest::default_instance_ = new BatchSubscribeRequest();
   SubscribeResult::default_instance_ = new SubscribeResult();
   BatchSubscribeResponse::default_instance_ = new BatchSubscribeResponse();
   BatchUnsubscribeRequest::default_instance_ = new BatchUnsubscribeRequest();
   SubscribeRequest::default_instance_->InitAsDefaultInstance();
-  SubscribeNotificationRequest::default_instance_->InitAsDefaultInstance();
   UnsubscribeRequest::default_instance_->InitAsDefaultInstance();
   UpdateRequest::default_instance_->InitAsDefaultInstance();
   QueryRequest::default_instance_->InitAsDefaultInstance();
   QueryResponse::default_instance_->InitAsDefaultInstance();
-  OwnershipRequest::default_instance_->InitAsDefaultInstance();
   BatchSubscribeRequest::default_instance_->InitAsDefaultInstance();
   SubscribeResult::default_instance_->InitAsDefaultInstance();
   BatchSubscribeResponse::default_instance_->InitAsDefaultInstance();
@@ -424,7 +367,6 @@ struct StaticDescriptorInitializer_presence_5fservice_2eproto {
     protobuf_AddDesc_presence_5fservice_2eproto();
   }
 } static_descriptor_initializer_presence_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -793,7 +735,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 
 bool SubscribeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000006) != 0x00000006) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -824,238 +765,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int SubscribeNotificationRequest::kEntityIdFieldNumber;
-#endif  // !_MSC_VER
-
-SubscribeNotificationRequest::SubscribeNotificationRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-}
-
-void SubscribeNotificationRequest::InitAsDefaultInstance() {
-  entity_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-}
-
-SubscribeNotificationRequest::SubscribeNotificationRequest(const SubscribeNotificationRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-}
-
-void SubscribeNotificationRequest::SharedCtor() {
-  _cached_size_ = 0;
-  entity_id_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-SubscribeNotificationRequest::~SubscribeNotificationRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-  SharedDtor();
-}
-
-void SubscribeNotificationRequest::SharedDtor() {
-  if (this != default_instance_) {
-    delete entity_id_;
-  }
-}
-
-void SubscribeNotificationRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* SubscribeNotificationRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return SubscribeNotificationRequest_descriptor_;
-}
-
-const SubscribeNotificationRequest& SubscribeNotificationRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_presence_5fservice_2eproto();
-  return *default_instance_;
-}
-
-SubscribeNotificationRequest* SubscribeNotificationRequest::default_instance_ = NULL;
-
-SubscribeNotificationRequest* SubscribeNotificationRequest::New() const {
-  return new SubscribeNotificationRequest;
-}
-
-void SubscribeNotificationRequest::Clear() {
-  if (has_entity_id()) {
-    if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeNotificationRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.EntityId entity_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-  return false;
-#undef DO_
-}
-
-void SubscribeNotificationRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->entity_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-}
-
-::google::protobuf::uint8* SubscribeNotificationRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->entity_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.SubscribeNotificationRequest)
-  return target;
-}
-
-int SubscribeNotificationRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.EntityId entity_id = 1;
-    if (has_entity_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->entity_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeNotificationRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeNotificationRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeNotificationRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeNotificationRequest::MergeFrom(const SubscribeNotificationRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_entity_id()) {
-      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeNotificationRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeNotificationRequest::CopyFrom(const SubscribeNotificationRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeNotificationRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
-  if (has_entity_id()) {
-    if (!this->entity_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
-void SubscribeNotificationRequest::Swap(SubscribeNotificationRequest* other) {
-  if (other != this) {
-    std::swap(entity_id_, other->entity_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata SubscribeNotificationRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = SubscribeNotificationRequest_descriptor_;
-  metadata.reflection = SubscribeNotificationRequest_reflection_;
-  return metadata;
-}
-
 
 // ===================================================================
 
@@ -1346,7 +1055,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 
 bool UnsubscribeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1374,7 +1082,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1701,7 +1408,6 @@ void UpdateRequest::CopyFrom(const UpdateRequest& from) {
 
 bool UpdateRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -1731,7 +1437,6 @@ void UpdateRequest::Swap(UpdateRequest* other) {
   metadata.reflection = UpdateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2022,7 +1727,6 @@ void QueryRequest::CopyFrom(const QueryRequest& from) {
 
 bool QueryRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -2051,7 +1755,6 @@ void QueryRequest::Swap(QueryRequest* other) {
   metadata.reflection = QueryRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2250,7 +1953,6 @@ void QueryResponse::CopyFrom(const QueryResponse& from) {
 }
 
 bool QueryResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->field())) return false;
   return true;
 }
@@ -2271,277 +1973,6 @@ void QueryResponse::Swap(QueryResponse* other) {
   metadata.reflection = QueryResponse_reflection_;
   return metadata;
 }
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int OwnershipRequest::kEntityIdFieldNumber;
-const int OwnershipRequest::kReleaseOwnershipFieldNumber;
-#endif  // !_MSC_VER
-
-OwnershipRequest::OwnershipRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.presence.v1.OwnershipRequest)
-}
-
-void OwnershipRequest::InitAsDefaultInstance() {
-  entity_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-}
-
-OwnershipRequest::OwnershipRequest(const OwnershipRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.presence.v1.OwnershipRequest)
-}
-
-void OwnershipRequest::SharedCtor() {
-  _cached_size_ = 0;
-  entity_id_ = NULL;
-  release_ownership_ = false;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-OwnershipRequest::~OwnershipRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.presence.v1.OwnershipRequest)
-  SharedDtor();
-}
-
-void OwnershipRequest::SharedDtor() {
-  if (this != default_instance_) {
-    delete entity_id_;
-  }
-}
-
-void OwnershipRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* OwnershipRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return OwnershipRequest_descriptor_;
-}
-
-const OwnershipRequest& OwnershipRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_presence_5fservice_2eproto();
-  return *default_instance_;
-}
-
-OwnershipRequest* OwnershipRequest::default_instance_ = NULL;
-
-OwnershipRequest* OwnershipRequest::New() const {
-  return new OwnershipRequest;
-}
-
-void OwnershipRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_entity_id()) {
-      if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
-    }
-    release_ownership_ = false;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool OwnershipRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.OwnershipRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.EntityId entity_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_release_ownership;
-        break;
-      }
-
-      // optional bool release_ownership = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_release_ownership:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &release_ownership_)));
-          set_has_release_ownership();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.OwnershipRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.OwnershipRequest)
-  return false;
-#undef DO_
-}
-
-void OwnershipRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.OwnershipRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->entity_id(), output);
-  }
-
-  // optional bool release_ownership = 2;
-  if (has_release_ownership()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->release_ownership(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.OwnershipRequest)
-}
-
-::google::protobuf::uint8* OwnershipRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.OwnershipRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->entity_id(), target);
-  }
-
-  // optional bool release_ownership = 2;
-  if (has_release_ownership()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->release_ownership(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.OwnershipRequest)
-  return target;
-}
-
-int OwnershipRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.EntityId entity_id = 1;
-    if (has_entity_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->entity_id());
-    }
-
-    // optional bool release_ownership = 2;
-    if (has_release_ownership()) {
-      total_size += 1 + 1;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void OwnershipRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const OwnershipRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const OwnershipRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void OwnershipRequest::MergeFrom(const OwnershipRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_entity_id()) {
-      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
-    }
-    if (from.has_release_ownership()) {
-      set_release_ownership(from.release_ownership());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void OwnershipRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void OwnershipRequest::CopyFrom(const OwnershipRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool OwnershipRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
-  if (has_entity_id()) {
-    if (!this->entity_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
-void OwnershipRequest::Swap(OwnershipRequest* other) {
-  if (other != this) {
-    std::swap(entity_id_, other->entity_id_);
-    std::swap(release_ownership_, other->release_ownership_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata OwnershipRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = OwnershipRequest_descriptor_;
-  metadata.reflection = OwnershipRequest_reflection_;
-  return metadata;
-}
-
 
 // ===================================================================
 
@@ -2905,7 +2336,6 @@ void BatchSubscribeRequest::CopyFrom(const BatchSubscribeRequest& from) {
 }
 
 bool BatchSubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2934,7 +2364,6 @@ void BatchSubscribeRequest::Swap(BatchSubscribeRequest* other) {
   metadata.reflection = BatchSubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3181,7 +2610,6 @@ void SubscribeResult::CopyFrom(const SubscribeResult& from) {
 }
 
 bool SubscribeResult::IsInitialized() const {
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -3205,7 +2633,6 @@ void SubscribeResult::Swap(SubscribeResult* other) {
   metadata.reflection = SubscribeResult_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3404,7 +2831,6 @@ void BatchSubscribeResponse::CopyFrom(const BatchSubscribeResponse& from) {
 }
 
 bool BatchSubscribeResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->subscribe_failed())) return false;
   return true;
 }
@@ -3425,7 +2851,6 @@ void BatchSubscribeResponse::Swap(BatchSubscribeResponse* other) {
   metadata.reflection = BatchSubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3710,7 +3135,6 @@ void BatchUnsubscribeRequest::CopyFrom(const BatchUnsubscribeRequest& from) {
 }
 
 bool BatchUnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3736,7 +3160,6 @@ void BatchUnsubscribeRequest::Swap(BatchUnsubscribeRequest* other) {
   metadata.reflection = BatchUnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3857,58 +3280,6 @@ void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
         continuation(this, status, &response);
       break;
     }
-    case 5: {
-      ::bgs::protocol::presence::v1::OwnershipRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Ownership server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Ownership(bgs.protocol.presence.v1.OwnershipRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Ownership() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleOwnership(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
-      break;
-    }
-    case 7: {
-      ::bgs::protocol::presence::v1::SubscribeNotificationRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.SubscribeNotification server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.SubscribeNotification(bgs.protocol.presence.v1.SubscribeNotificationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.SubscribeNotification() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleSubscribeNotification(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
-      break;
-    }
     case 8: {
       ::bgs::protocol::presence::v1::BatchSubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
@@ -3992,18 +3363,6 @@ uint32 PresenceService::HandleQuery(::bgs::protocol::presence::v1::QueryRequest 
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 PresenceService::HandleOwnership(::bgs::protocol::presence::v1::OwnershipRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Ownership({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 PresenceService::HandleSubscribeNotification(::bgs::protocol::presence::v1::SubscribeNotificationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.SubscribeNotification({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
 uint32 PresenceService::HandleBatchSubscribe(::bgs::protocol::presence::v1::BatchSubscribeRequest const* request, ::bgs::protocol::presence::v1::BatchSubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.BatchSubscribe({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
@@ -4015,7 +3374,6 @@ uint32 PresenceService::HandleBatchUnsubscribe(::bgs::protocol::presence::v1::Ba
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

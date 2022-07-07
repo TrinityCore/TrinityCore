@@ -22,6 +22,8 @@
 #include "MoveSplineInitArgs.h"
 #include <G3D/Vector3.h>
 
+enum class AnimTier : uint8;
+
 namespace WorldPackets
 {
     namespace Movement
@@ -80,6 +82,7 @@ namespace Movement
         int32           effect_start_time;
         int32           point_Idx;
         int32           point_Idx_offset;
+        float           velocity;
         Optional<SpellEffectExtraData> spell_effect_extra;
         Optional<AnimTierTransition> anim_tier;
 
@@ -95,12 +98,13 @@ namespace Movement
         int32 next_timestamp() const { return spline.length(point_Idx + 1); }
         int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
         int32 timeElapsed() const { return Duration() - time_passed; }
-        int32 timePassed() const { return time_passed; }
 
     public:
+        int32 timePassed() const { return time_passed; }
         int32 Duration() const { return spline.length(); }
         MySpline const& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
+        float Velocity() const { return velocity; }
         void _Finalize();
         void _Interrupt() { splineflags.done = true; }
 
@@ -137,9 +141,15 @@ namespace Movement
         Vector3 const& CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3::zero(); }
         int32 currentPathIdx() const;
 
+        Optional<AnimTier> GetAnimation() const { return anim_tier ? anim_tier->AnimTier : Optional<AnimTier>{}; }
+
         bool onTransport;
         bool splineIsFacingOnly;
         std::string ToString() const;
+        bool HasStarted() const
+        {
+            return time_passed > 0;
+        }
     };
 }
 #endif // TRINITYSERVER_MOVEPLINE_H

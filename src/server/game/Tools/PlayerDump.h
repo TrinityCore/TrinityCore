@@ -20,7 +20,7 @@
 
 #include "ObjectGuid.h"
 #include <string>
-#include <map>
+#include <iosfwd>
 #include <set>
 
 enum DumpTableType
@@ -91,7 +91,8 @@ class TC_GAME_API PlayerDumpWriter : public PlayerDump
         PlayerDumpWriter() { }
 
         bool GetDump(ObjectGuid::LowType guid, std::string& dump);
-        DumpReturn WriteDump(std::string const& file, ObjectGuid::LowType guid);
+        DumpReturn WriteDumpToFile(std::string const& file, ObjectGuid::LowType guid);
+        DumpReturn WriteDumpToString(std::string& dump, ObjectGuid::LowType guid);
 
     private:
         bool AppendTable(StringTransaction& trans, ObjectGuid::LowType guid, TableStruct const& tableStruct, DumpTable const& dumpTable);
@@ -109,7 +110,11 @@ class TC_GAME_API PlayerDumpReader : public PlayerDump
     public:
         PlayerDumpReader() { }
 
-        DumpReturn LoadDump(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid);
+        DumpReturn LoadDumpFromFile(std::string const& file, uint32 account, std::string name, ObjectGuid::LowType guid);
+        DumpReturn LoadDumpFromString(std::string const& dump, uint32 account, std::string name, ObjectGuid::LowType guid);
+
+    private:
+        DumpReturn LoadDump(std::istream& input, uint32 account, std::string name, ObjectGuid::LowType guid);
 };
 
 #endif

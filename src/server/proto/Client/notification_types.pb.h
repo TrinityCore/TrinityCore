@@ -42,6 +42,7 @@ void protobuf_AssignDesc_notification_5ftypes_2eproto();
 void protobuf_ShutdownFile_notification_5ftypes_2eproto();
 
 class Target;
+class TargetIdentity;
 class Subscription;
 class Notification;
 
@@ -100,14 +101,14 @@ class TC_PROTO_API Target : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .bgs.protocol.account.v1.Identity identity = 1;
+  // optional .bgs.protocol.notification.v1.TargetIdentity identity = 1;
   inline bool has_identity() const;
   inline void clear_identity();
   static const int kIdentityFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::Identity& identity() const;
-  inline ::bgs::protocol::account::v1::Identity* mutable_identity();
-  inline ::bgs::protocol::account::v1::Identity* release_identity();
-  inline void set_allocated_identity(::bgs::protocol::account::v1::Identity* identity);
+  inline const ::bgs::protocol::notification::v1::TargetIdentity& identity() const;
+  inline ::bgs::protocol::notification::v1::TargetIdentity* mutable_identity();
+  inline ::bgs::protocol::notification::v1::TargetIdentity* release_identity();
+  inline void set_allocated_identity(::bgs::protocol::notification::v1::TargetIdentity* identity);
 
   // optional string type = 2;
   inline bool has_type() const;
@@ -132,7 +133,7 @@ class TC_PROTO_API Target : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::bgs::protocol::account::v1::Identity* identity_;
+  ::bgs::protocol::notification::v1::TargetIdentity* identity_;
   ::std::string* type_;
   friend void TC_PROTO_API protobuf_AddDesc_notification_5ftypes_2eproto();
   friend void protobuf_AssignDesc_notification_5ftypes_2eproto();
@@ -140,6 +141,99 @@ class TC_PROTO_API Target : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static Target* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API TargetIdentity : public ::google::protobuf::Message {
+ public:
+  TargetIdentity();
+  virtual ~TargetIdentity();
+
+  TargetIdentity(const TargetIdentity& from);
+
+  inline TargetIdentity& operator=(const TargetIdentity& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const TargetIdentity& default_instance();
+
+  void Swap(TargetIdentity* other);
+
+  // implements Message ----------------------------------------------
+
+  TargetIdentity* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const TargetIdentity& from);
+  void MergeFrom(const TargetIdentity& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.account.v1.AccountId account = 1;
+  inline bool has_account() const;
+  inline void clear_account();
+  static const int kAccountFieldNumber = 1;
+  inline const ::bgs::protocol::account::v1::AccountId& account() const;
+  inline ::bgs::protocol::account::v1::AccountId* mutable_account();
+  inline ::bgs::protocol::account::v1::AccountId* release_account();
+  inline void set_allocated_account(::bgs::protocol::account::v1::AccountId* account);
+
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+  inline bool has_game_account() const;
+  inline void clear_game_account();
+  static const int kGameAccountFieldNumber = 2;
+  inline const ::bgs::protocol::account::v1::GameAccountHandle& game_account() const;
+  inline ::bgs::protocol::account::v1::GameAccountHandle* mutable_game_account();
+  inline ::bgs::protocol::account::v1::GameAccountHandle* release_game_account();
+  inline void set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.notification.v1.TargetIdentity)
+ private:
+  inline void set_has_account();
+  inline void clear_has_account();
+  inline void set_has_game_account();
+  inline void clear_has_game_account();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::account::v1::AccountId* account_;
+  ::bgs::protocol::account::v1::GameAccountHandle* game_account_;
+  friend void TC_PROTO_API protobuf_AddDesc_notification_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_notification_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_notification_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static TargetIdentity* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -217,12 +311,12 @@ class TC_PROTO_API Subscription : public ::google::protobuf::Message {
   inline ::bgs::protocol::account::v1::Identity* release_subscriber();
   inline void set_allocated_subscriber(::bgs::protocol::account::v1::Identity* subscriber);
 
-  // optional bool delivery_required = 3 [default = false];
-  inline bool has_delivery_required() const;
-  inline void clear_delivery_required();
+  // optional bool delivery_required = 3 [deprecated = true];
+  inline bool has_delivery_required() const PROTOBUF_DEPRECATED;
+  inline void clear_delivery_required() PROTOBUF_DEPRECATED;
   static const int kDeliveryRequiredFieldNumber = 3;
-  inline bool delivery_required() const;
-  inline void set_delivery_required(bool value);
+  inline bool delivery_required() const PROTOBUF_DEPRECATED;
+  inline void set_delivery_required(bool value) PROTOBUF_DEPRECATED;
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.notification.v1.Subscription)
  private:
@@ -384,15 +478,6 @@ class TC_PROTO_API Notification : public ::google::protobuf::Message {
   inline ::std::string* release_target_battle_tag();
   inline void set_allocated_target_battle_tag(::std::string* target_battle_tag);
 
-  // optional .bgs.protocol.ProcessId peer = 9;
-  inline bool has_peer() const;
-  inline void clear_peer();
-  static const int kPeerFieldNumber = 9;
-  inline const ::bgs::protocol::ProcessId& peer() const;
-  inline ::bgs::protocol::ProcessId* mutable_peer();
-  inline ::bgs::protocol::ProcessId* release_peer();
-  inline void set_allocated_peer(::bgs::protocol::ProcessId* peer);
-
   // optional .bgs.protocol.account.v1.Identity forwarding_identity = 10;
   inline bool has_forwarding_identity() const;
   inline void clear_forwarding_identity();
@@ -418,8 +503,6 @@ class TC_PROTO_API Notification : public ::google::protobuf::Message {
   inline void clear_has_sender_battle_tag();
   inline void set_has_target_battle_tag();
   inline void clear_has_target_battle_tag();
-  inline void set_has_peer();
-  inline void clear_has_peer();
   inline void set_has_forwarding_identity();
   inline void clear_has_forwarding_identity();
 
@@ -435,7 +518,6 @@ class TC_PROTO_API Notification : public ::google::protobuf::Message {
   ::bgs::protocol::EntityId* target_account_id_;
   ::std::string* sender_battle_tag_;
   ::std::string* target_battle_tag_;
-  ::bgs::protocol::ProcessId* peer_;
   ::bgs::protocol::account::v1::Identity* forwarding_identity_;
   friend void TC_PROTO_API protobuf_AddDesc_notification_5ftypes_2eproto();
   friend void protobuf_AssignDesc_notification_5ftypes_2eproto();
@@ -446,15 +528,13 @@ class TC_PROTO_API Notification : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
 // Target
 
-// optional .bgs.protocol.account.v1.Identity identity = 1;
+// optional .bgs.protocol.notification.v1.TargetIdentity identity = 1;
 inline bool Target::has_identity() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -465,26 +545,26 @@ inline void Target::clear_has_identity() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Target::clear_identity() {
-  if (identity_ != NULL) identity_->::bgs::protocol::account::v1::Identity::Clear();
+  if (identity_ != NULL) identity_->::bgs::protocol::notification::v1::TargetIdentity::Clear();
   clear_has_identity();
 }
-inline const ::bgs::protocol::account::v1::Identity& Target::identity() const {
+inline const ::bgs::protocol::notification::v1::TargetIdentity& Target::identity() const {
   // @@protoc_insertion_point(field_get:bgs.protocol.notification.v1.Target.identity)
   return identity_ != NULL ? *identity_ : *default_instance_->identity_;
 }
-inline ::bgs::protocol::account::v1::Identity* Target::mutable_identity() {
+inline ::bgs::protocol::notification::v1::TargetIdentity* Target::mutable_identity() {
   set_has_identity();
-  if (identity_ == NULL) identity_ = new ::bgs::protocol::account::v1::Identity;
+  if (identity_ == NULL) identity_ = new ::bgs::protocol::notification::v1::TargetIdentity;
   // @@protoc_insertion_point(field_mutable:bgs.protocol.notification.v1.Target.identity)
   return identity_;
 }
-inline ::bgs::protocol::account::v1::Identity* Target::release_identity() {
+inline ::bgs::protocol::notification::v1::TargetIdentity* Target::release_identity() {
   clear_has_identity();
-  ::bgs::protocol::account::v1::Identity* temp = identity_;
+  ::bgs::protocol::notification::v1::TargetIdentity* temp = identity_;
   identity_ = NULL;
   return temp;
 }
-inline void Target::set_allocated_identity(::bgs::protocol::account::v1::Identity* identity) {
+inline void Target::set_allocated_identity(::bgs::protocol::notification::v1::TargetIdentity* identity) {
   delete identity_;
   identity_ = identity;
   if (identity) {
@@ -573,6 +653,92 @@ inline void Target::set_allocated_type(::std::string* type) {
 
 // -------------------------------------------------------------------
 
+// TargetIdentity
+
+// optional .bgs.protocol.account.v1.AccountId account = 1;
+inline bool TargetIdentity::has_account() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void TargetIdentity::set_has_account() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void TargetIdentity::clear_has_account() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void TargetIdentity::clear_account() {
+  if (account_ != NULL) account_->::bgs::protocol::account::v1::AccountId::Clear();
+  clear_has_account();
+}
+inline const ::bgs::protocol::account::v1::AccountId& TargetIdentity::account() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.notification.v1.TargetIdentity.account)
+  return account_ != NULL ? *account_ : *default_instance_->account_;
+}
+inline ::bgs::protocol::account::v1::AccountId* TargetIdentity::mutable_account() {
+  set_has_account();
+  if (account_ == NULL) account_ = new ::bgs::protocol::account::v1::AccountId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.notification.v1.TargetIdentity.account)
+  return account_;
+}
+inline ::bgs::protocol::account::v1::AccountId* TargetIdentity::release_account() {
+  clear_has_account();
+  ::bgs::protocol::account::v1::AccountId* temp = account_;
+  account_ = NULL;
+  return temp;
+}
+inline void TargetIdentity::set_allocated_account(::bgs::protocol::account::v1::AccountId* account) {
+  delete account_;
+  account_ = account;
+  if (account) {
+    set_has_account();
+  } else {
+    clear_has_account();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.notification.v1.TargetIdentity.account)
+}
+
+// optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+inline bool TargetIdentity::has_game_account() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void TargetIdentity::set_has_game_account() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void TargetIdentity::clear_has_game_account() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void TargetIdentity::clear_game_account() {
+  if (game_account_ != NULL) game_account_->::bgs::protocol::account::v1::GameAccountHandle::Clear();
+  clear_has_game_account();
+}
+inline const ::bgs::protocol::account::v1::GameAccountHandle& TargetIdentity::game_account() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.notification.v1.TargetIdentity.game_account)
+  return game_account_ != NULL ? *game_account_ : *default_instance_->game_account_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* TargetIdentity::mutable_game_account() {
+  set_has_game_account();
+  if (game_account_ == NULL) game_account_ = new ::bgs::protocol::account::v1::GameAccountHandle;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.notification.v1.TargetIdentity.game_account)
+  return game_account_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* TargetIdentity::release_game_account() {
+  clear_has_game_account();
+  ::bgs::protocol::account::v1::GameAccountHandle* temp = game_account_;
+  game_account_ = NULL;
+  return temp;
+}
+inline void TargetIdentity::set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account) {
+  delete game_account_;
+  game_account_ = game_account;
+  if (game_account) {
+    set_has_game_account();
+  } else {
+    clear_has_game_account();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.notification.v1.TargetIdentity.game_account)
+}
+
+// -------------------------------------------------------------------
+
 // Subscription
 
 // repeated .bgs.protocol.notification.v1.Target target = 1;
@@ -646,7 +812,7 @@ inline void Subscription::set_allocated_subscriber(::bgs::protocol::account::v1:
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.notification.v1.Subscription.subscriber)
 }
 
-// optional bool delivery_required = 3 [default = false];
+// optional bool delivery_required = 3 [deprecated = true];
 inline bool Subscription::has_delivery_required() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -1096,56 +1262,15 @@ inline void Notification::set_allocated_target_battle_tag(::std::string* target_
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.notification.v1.Notification.target_battle_tag)
 }
 
-// optional .bgs.protocol.ProcessId peer = 9;
-inline bool Notification::has_peer() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
-}
-inline void Notification::set_has_peer() {
-  _has_bits_[0] |= 0x00000100u;
-}
-inline void Notification::clear_has_peer() {
-  _has_bits_[0] &= ~0x00000100u;
-}
-inline void Notification::clear_peer() {
-  if (peer_ != NULL) peer_->::bgs::protocol::ProcessId::Clear();
-  clear_has_peer();
-}
-inline const ::bgs::protocol::ProcessId& Notification::peer() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.notification.v1.Notification.peer)
-  return peer_ != NULL ? *peer_ : *default_instance_->peer_;
-}
-inline ::bgs::protocol::ProcessId* Notification::mutable_peer() {
-  set_has_peer();
-  if (peer_ == NULL) peer_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.notification.v1.Notification.peer)
-  return peer_;
-}
-inline ::bgs::protocol::ProcessId* Notification::release_peer() {
-  clear_has_peer();
-  ::bgs::protocol::ProcessId* temp = peer_;
-  peer_ = NULL;
-  return temp;
-}
-inline void Notification::set_allocated_peer(::bgs::protocol::ProcessId* peer) {
-  delete peer_;
-  peer_ = peer;
-  if (peer) {
-    set_has_peer();
-  } else {
-    clear_has_peer();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.notification.v1.Notification.peer)
-}
-
 // optional .bgs.protocol.account.v1.Identity forwarding_identity = 10;
 inline bool Notification::has_forwarding_identity() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void Notification::set_has_forwarding_identity() {
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void Notification::clear_has_forwarding_identity() {
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void Notification::clear_forwarding_identity() {
   if (forwarding_identity_ != NULL) forwarding_identity_->::bgs::protocol::account::v1::Identity::Clear();
@@ -1178,7 +1303,6 @@ inline void Notification::set_allocated_forwarding_identity(::bgs::protocol::acc
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.notification.v1.Notification.forwarding_identity)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -1189,8 +1313,6 @@ inline void Notification::set_allocated_forwarding_identity(::bgs::protocol::acc
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

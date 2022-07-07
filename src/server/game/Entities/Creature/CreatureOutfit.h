@@ -40,6 +40,8 @@ public:
     uint32 npcsoundsid = 0;
     uint64 guild = 0;
     int32 SpellVisualKitID = 0;
+    uint8 Class = 1;
+    std::vector<UF::ChrCustomizationChoice> Customizations;
 
     uint32 GetId() const { return id; }
     uint8 GetGender() const { return gender; }
@@ -59,10 +61,8 @@ private:
     CreatureOutfit() {};
     uint32 id = 0;
     uint8 race;
-    uint8 Class = 1;
     uint8 gender;
     uint32 displayId;
-    std::vector<UF::ChrCustomizationChoice> Customizations;
 };
 
 #endif

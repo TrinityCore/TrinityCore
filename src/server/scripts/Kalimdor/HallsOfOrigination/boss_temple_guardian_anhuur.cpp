@@ -19,7 +19,6 @@
 #include "GridNotifiers.h"
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -111,11 +110,11 @@ public:
             _Reset();
             CleanStalkers();
             me->RemoveAurasDueToSpell(SPELL_SHIELD_OF_LIGHT);
-            events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
-            events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
+            events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 12s);
+            events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if ((me->HealthBelowPctDamaged(66, damage) && _phase == PHASE_FIRST_SHIELD) ||
                 (me->HealthBelowPctDamaged(33, damage) && _phase == PHASE_SECOND_SHIELD))
@@ -131,7 +130,6 @@ public:
                 DoCast(me, SPELL_TELEPORT);
 
                 DoCast(me, SPELL_SHIELD_OF_LIGHT);
-                me->AddUnitFlag(UNIT_FLAG_UNK_31);
 
                 DoCastAOE(SPELL_ACTIVATE_BEACONS);
 
@@ -178,11 +176,11 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -221,16 +219,16 @@ public:
                 {
                     case EVENT_DIVINE_RECKONING:
                         DoCastVictim(SPELL_DIVINE_RECKONING);
-                        events.ScheduleEvent(EVENT_DIVINE_RECKONING, urand(10000, 12000));
+                        events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 12s);
                         break;
                     case EVENT_BURNING_LIGHT:
                     {
-                        Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
+                        Unit* unit = SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(me));
                         if (!unit)
-                            unit = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            unit = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
                         DoCast(unit, SPELL_BURNING_LIGHT);
-                        events.ScheduleEvent(EVENT_SEAR, 2000);
-                        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12000);
+                        events.ScheduleEvent(EVENT_SEAR, 2s);
+                        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s);
                         break;
                     }
                     case EVENT_SEAR:
@@ -345,33 +343,6 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
         }
 };
 
-class spell_anhuur_activate_beacons : public SpellScriptLoader
-{
-    public:
-        spell_anhuur_activate_beacons() : SpellScriptLoader("spell_anhuur_activate_beacons") { }
-
-        class spell_anhuur_activate_beacons_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_anhuur_activate_beacons_SpellScript);
-
-            void Activate(SpellEffIndex index)
-            {
-                PreventHitDefaultEffect(index);
-                GetHitGObj()->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_anhuur_activate_beacons_SpellScript::Activate, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_anhuur_activate_beacons_SpellScript();
-        }
-};
-
 class spell_anhuur_divine_reckoning : public SpellScriptLoader
 {
 public:
@@ -387,7 +358,7 @@ public:
             {
                 CastSpellExtraArgs args;
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
-                caster->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo()->TriggerSpell, args);
+                caster->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, args);
             }
         }
 
@@ -408,6 +379,5 @@ void AddSC_boss_temple_guardian_anhuur()
     new boss_temple_guardian_anhuur();
     new spell_anhuur_shield_of_light();
     new spell_anhuur_disable_beacon_beams();
-    new spell_anhuur_activate_beacons();
     new spell_anhuur_divine_reckoning();
 }

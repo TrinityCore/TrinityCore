@@ -171,12 +171,12 @@ namespace VMAP
         exportGameobjectModels();
         // export objects
         std::cout << "\nConverting Model Files" << std::endl;
-        for (std::set<std::string>::iterator mfile = spawnedModelFiles.begin(); mfile != spawnedModelFiles.end(); ++mfile)
+        for (std::string const& spawnedModelFile : spawnedModelFiles)
         {
-            std::cout << "Converting " << *mfile << std::endl;
-            if (!convertRawFile(*mfile))
+            std::cout << "Converting " << spawnedModelFile << std::endl;
+            if (!convertRawFile(spawnedModelFile))
             {
-                std::cout << "error converting " << *mfile << std::endl;
+                std::cout << "error converting " << spawnedModelFile << std::endl;
                 success = false;
                 break;
             }
@@ -247,12 +247,11 @@ namespace VMAP
         if (groups != 1)
             printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.c_str());
 
-        AABox modelBound;
+        AABox rotated_bounds;
+        for (int i = 0; i < 8; ++i)
+            rotated_bounds.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.corner(i)));
 
-        modelBound.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.low()));
-        modelBound.merge(modelPosition.transform(raw_model.groupsArray[0].bounds.high()));
-
-        spawn.iBound = modelBound + spawn.iPos;
+        spawn.iBound = rotated_bounds + spawn.iPos;
         spawn.flags |= MOD_HAS_BOUND;
         return true;
     }
@@ -396,7 +395,6 @@ namespace VMAP
 
         READ_OR_RETURN(&mogpflags, sizeof(uint32));
         READ_OR_RETURN(&GroupWMOID, sizeof(uint32));
-
 
         Vector3 vec1, vec2;
         READ_OR_RETURN(&vec1, sizeof(Vector3));

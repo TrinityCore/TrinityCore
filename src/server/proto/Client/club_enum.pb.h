@@ -36,7 +36,6 @@ void TC_PROTO_API protobuf_AddDesc_club_5fenum_2eproto();
 void protobuf_AssignDesc_club_5fenum_2eproto();
 void protobuf_ShutdownFile_club_5fenum_2eproto();
 
-
 enum PrivacyLevel {
   PRIVACY_LEVEL_CLOSED = 0,
   PRIVACY_LEVEL_OPEN_INVITATION = 1,
@@ -202,16 +201,11 @@ inline bool StreamNotificationFilter_Parse(
 }
 // ===================================================================
 
+// ===================================================================
 
 // ===================================================================
 
-
 // ===================================================================
-
-
-// ===================================================================
-
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -222,7 +216,6 @@ inline bool StreamNotificationFilter_Parse(
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::club::v1::PrivacyLevel> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::club::v1::PrivacyLevel>() {
@@ -263,7 +256,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::club::v1::StreamNotificationFilter>() {
   return ::bgs::protocol::club::v1::StreamNotificationFilter_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

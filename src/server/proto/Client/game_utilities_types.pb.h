@@ -26,6 +26,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
+#include "rpc_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -242,9 +243,7 @@ class TC_PROTO_API ClientInfo : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -449,7 +448,6 @@ inline void ClientInfo::set_privileged_network(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.game_utilities.v1.ClientInfo.privileged_network)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -460,8 +458,6 @@ inline void ClientInfo::set_privileged_network(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

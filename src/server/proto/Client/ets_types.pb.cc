@@ -29,7 +29,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_ets_5ftypes_2eproto() {
   protobuf_AddDesc_ets_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -98,7 +97,6 @@ struct StaticDescriptorInitializer_ets_5ftypes_2eproto {
     protobuf_AddDesc_ets_5ftypes_2eproto();
   }
 } static_descriptor_initializer_ets_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -350,7 +348,6 @@ void TimeSeriesId::CopyFrom(const TimeSeriesId& from) {
 }
 
 bool TimeSeriesId::IsInitialized() const {
-
   return true;
 }
 
@@ -371,7 +368,6 @@ void TimeSeriesId::Swap(TimeSeriesId* other) {
   metadata.reflection = TimeSeriesId_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

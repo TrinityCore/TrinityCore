@@ -128,8 +128,9 @@ extern Position const AnubarakLoc[];
 
 enum TCRWorldStateIds
 {
-    UPDATE_STATE_UI_SHOW  = 4390,
-    UPDATE_STATE_UI_COUNT = 4389
+    UPDATE_STATE_UI_SHOW        = 4390,
+    UPDATE_STATE_UI_COUNT       = 4389,
+    WORLD_STATE_PLAYER_DEATHS   = 4408
 };
 
 enum NorthrendBeasts
@@ -143,16 +144,6 @@ enum NorthrendBeasts
     SNAKES_DONE          = 2004,
     ICEHOWL_IN_PROGRESS  = 3000,
     ICEHOWL_DONE         = 3001
-};
-
-enum AnnouncerMessages
-{
-    MSG_BEASTS    = 724001,
-    MSG_JARAXXUS  = 724002,
-    MSG_CRUSADERS = 724003,
-    MSG_VALKIRIES = 724004,
-    MSG_LICH_KING = 724005,
-    MSG_ANUBARAK  = 724006
 };
 
 enum TCRCreatureIds

@@ -1,4 +1,4 @@
-# DressNPCs [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=dressnpcs_master)](https://travis-ci.org/Rochet2/TrinityCore)
+# DressNPCs
 
 ## About
 This patch allows you to dress up armor on NPCs as well as choose their facial features.
@@ -11,6 +11,7 @@ Known bugs:
 - Portraits of the NPCs may not work properly at times - a client side visual bug, cannot fix.
 - Some skins are not available. These are usually skins that are not available for players for a specific race. This is a client side limitation, cannot fix.
 - Normally NPCs have no sound replies when you talk to them. This is a client side limitation and can be fixed with a client patch. Additionally a **workaround has been included** which sends interaction sounds from the core unless disabled in CMake.
+- Upright orcs do not appear to work properly. Upright orcs are not working on live servers either, so it is likely a client side bug.
 
 ## Installation
 
@@ -38,7 +39,7 @@ Before compiling:
 
 After compiling:
 - Make sure you have already created and updated your databases to match your TC version. You can usually do this by running the worldserver once.
-- Run SQL files from `src/server/scripts/Custom/DressNPCs/new_install` to their respective databases.
+- Run SQL files from `src/server/scripts/Custom/DressNPCs/sql` to their respective databases.
 
 ## Usage
 - Remember to check server startup errors, they tell when you do things wrong.
@@ -53,6 +54,8 @@ To make an outfit create a row to `creature_template_outfits` table with your de
 - Appearances are usually between 0 and 10 and they define the look of the item. Different appearances are usually used by mythic and heroic versions of an item. The appearance column takes effect only when using an item entry (a positive value) for the equipped item definition.
 - `guildid` refers to an actual guild from characters table and it is used to define the tabard looks of the creature if one is equipped. So you must make a guild and set a tabard for it and use it's ID in the column for the outfit.
 - `npcsoundsid` refers to `NPCSounds.dbc/db2`. In this column you can define what gossip replies to use for the NPC with the core side workaround for missing sounds for gossip. To create completely new sound combinations you can use hotfixes database `npc_sounds` table or edit the DBC file.
+- The character face, skin and other features are set through customizations. The customizations is a string of (optionid choiceid) pairs separated by space.
+- A `CopyPlayer.sql` is provided in `src/server/scripts/Custom/DressNPCs` to help copy an actual player character's features and equipment to an outfit.
 
 You can use the outfit entry as modelid in creature template, smart scripts and elsewhere in the DB and core for setting a modelid/displayid, like `creature->SetDisplayId(outfitid)`.
 
@@ -67,7 +70,6 @@ You can create an outfit in C++, here is an example:
 // Create outfit
 std::shared_ptr<CreatureOutfit> outfit(new CreatureOutfit(RACE_NIGHTELF, GENDER_MALE));
 outfit->SetItemDisplay(EQUIPMENT_SLOT_SHOULDERS, 43617);
-outfit->skin = 2;
 
 // set it for a creature
 creature->SetOutfit(outfit);

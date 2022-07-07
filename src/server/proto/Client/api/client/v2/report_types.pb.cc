@@ -37,12 +37,14 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* ClubOptions_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ClubOptions_reflection_ = NULL;
+const ::google::protobuf::Descriptor* EntityOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  EntityOptions_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* IssueType_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* UserSource_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* ClubSource_descriptor_ = NULL;
 
 }  // namespace
-
 
 void protobuf_AssignDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
   protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto();
@@ -105,6 +107,23 @@ void protobuf_AssignDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubOptions));
+  EntityOptions_descriptor_ = file->message_type(3);
+  static const int EntityOptions_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityOptions, entity_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityOptions, entity_type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityOptions, attribute_),
+  };
+  EntityOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      EntityOptions_descriptor_,
+      EntityOptions::default_instance_,
+      EntityOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EntityOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(EntityOptions));
   IssueType_descriptor_ = file->enum_type(0);
   UserSource_descriptor_ = file->enum_type(1);
   ClubSource_descriptor_ = file->enum_type(2);
@@ -126,6 +145,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     UserOptions_descriptor_, &UserOptions::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ClubOptions_descriptor_, &ClubOptions::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    EntityOptions_descriptor_, &EntityOptions::default_instance());
 }
 
 }  // namespace
@@ -138,6 +159,8 @@ void protobuf_ShutdownFile_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
   delete UserOptions_reflection_;
   delete ClubOptions::default_instance_;
   delete ClubOptions_reflection_;
+  delete EntityOptions::default_instance_;
+  delete EntityOptions_reflection_;
 }
 
 void protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
@@ -146,46 +169,54 @@ void protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
   ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_message_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n api/client/v2/report_types.proto\022\026bgs."
-    "protocol.report.v2\032\023account_types.proto\032"
-    "\017rpc_types.proto\032\023message_types.proto\"C\n"
-    "\nReportItem\022-\n\nmessage_id\030\001 \001(\0132\027.bgs.pr"
-    "otocol.MessageIdH\000B\006\n\004type\"\333\001\n\013UserOptio"
-    "ns\0225\n\ttarget_id\030\001 \001(\0132\".bgs.protocol.acc"
-    "ount.v1.AccountId\022/\n\004type\030\002 \001(\0162!.bgs.pr"
-    "otocol.report.v2.IssueType\0222\n\006source\030\003 \001"
-    "(\0162\".bgs.protocol.report.v2.UserSource\0220"
-    "\n\004item\030\004 \001(\0132\".bgs.protocol.report.v2.Re"
-    "portItem\"\310\001\n\013ClubOptions\022\017\n\007club_id\030\001 \001("
-    "\004\022\021\n\tstream_id\030\002 \001(\004\022/\n\004type\030\003 \001(\0162!.bgs"
-    ".protocol.report.v2.IssueType\0222\n\006source\030"
-    "\004 \001(\0162\".bgs.protocol.report.v2.ClubSourc"
-    "e\0220\n\004item\030\005 \001(\0132\".bgs.protocol.report.v2"
-    ".ReportItem*\215\001\n\tIssueType\022\023\n\017ISSUE_TYPE_"
-    "SPAM\020\000\022\031\n\025ISSUE_TYPE_HARASSMENT\020\001\022 \n\034ISS"
-    "UE_TYPE_OFFENSIVE_CONTENT\020\003\022\026\n\022ISSUE_TYP"
-    "E_HACKING\020\004\022\026\n\022ISSUE_TYPE_BOTTING\020\005*\301\001\n\n"
-    "UserSource\022\025\n\021USER_SOURCE_OTHER\020\000\022\027\n\023USE"
-    "R_SOURCE_WHISPER\020\001\022\027\n\023USER_SOURCE_PROFIL"
-    "E\020\002\022\032\n\026USER_SOURCE_BATTLE_TAG\020\003\022\024\n\020USER_"
-    "SOURCE_CHAT\020\004\022!\n\035USER_SOURCE_FRIEND_INVI"
-    "TATION\020\005\022\025\n\021USER_SOURCE_VOICE\020\006*t\n\nClubS"
-    "ource\022\025\n\021CLUB_SOURCE_OTHER\020\000\022\027\n\023CLUB_SOU"
-    "RCE_MESSAGE\020\001\022\031\n\025CLUB_SOURCE_CLUB_NAME\020\002"
-    "\022\033\n\027CLUB_SOURCE_STREAM_NAME\020\003B\005H\001\200\001\000", 1076);
+    "protocol.report.v2\032#api/client/v2/attrib"
+    "ute_types.proto\032\023account_types.proto\032\017rp"
+    "c_types.proto\032\023message_types.proto\"C\n\nRe"
+    "portItem\022-\n\nmessage_id\030\001 \001(\0132\027.bgs.proto"
+    "col.MessageIdH\000B\006\n\004type\"\333\001\n\013UserOptions\022"
+    "5\n\ttarget_id\030\001 \001(\0132\".bgs.protocol.accoun"
+    "t.v1.AccountId\022/\n\004type\030\002 \001(\0162!.bgs.proto"
+    "col.report.v2.IssueType\0222\n\006source\030\003 \001(\0162"
+    "\".bgs.protocol.report.v2.UserSource\0220\n\004i"
+    "tem\030\004 \001(\0132\".bgs.protocol.report.v2.Repor"
+    "tItem\"\310\001\n\013ClubOptions\022\017\n\007club_id\030\001 \001(\004\022\021"
+    "\n\tstream_id\030\002 \001(\004\022/\n\004type\030\003 \001(\0162!.bgs.pr"
+    "otocol.report.v2.IssueType\0222\n\006source\030\004 \001"
+    "(\0162\".bgs.protocol.report.v2.ClubSource\0220"
+    "\n\004item\030\005 \001(\0132\".bgs.protocol.report.v2.Re"
+    "portItem\"\203\001\n\rEntityOptions\022 \n\tentity_id\030"
+    "\001 \001(\tB\r\212\371+\t\"\007\n\005\010\001\020\310\001\022!\n\013entity_type\030\002 \001("
+    "\tB\014\212\371+\010\"\006\n\004\010\001\020d\022-\n\tattribute\030\005 \003(\0132\032.bgs"
+    ".protocol.v2.Attribute*\215\001\n\tIssueType\022\023\n\017"
+    "ISSUE_TYPE_SPAM\020\000\022\031\n\025ISSUE_TYPE_HARASSME"
+    "NT\020\001\022 \n\034ISSUE_TYPE_OFFENSIVE_CONTENT\020\003\022\026"
+    "\n\022ISSUE_TYPE_HACKING\020\004\022\026\n\022ISSUE_TYPE_BOT"
+    "TING\020\005*\301\001\n\nUserSource\022\025\n\021USER_SOURCE_OTH"
+    "ER\020\000\022\027\n\023USER_SOURCE_WHISPER\020\001\022\027\n\023USER_SO"
+    "URCE_PROFILE\020\002\022\032\n\026USER_SOURCE_BATTLE_TAG"
+    "\020\003\022\024\n\020USER_SOURCE_CHAT\020\004\022!\n\035USER_SOURCE_"
+    "FRIEND_INVITATION\020\005\022\025\n\021USER_SOURCE_VOICE"
+    "\020\006*t\n\nClubSource\022\025\n\021CLUB_SOURCE_OTHER\020\000\022"
+    "\027\n\023CLUB_SOURCE_MESSAGE\020\001\022\031\n\025CLUB_SOURCE_"
+    "CLUB_NAME\020\002\022\033\n\027CLUB_SOURCE_STREAM_NAME\020\003"
+    "B\005H\001\200\001\000", 1247);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v2/report_types.proto", &protobuf_RegisterTypes);
   ReportItem::default_instance_ = new ReportItem();
   ReportItem_default_oneof_instance_ = new ReportItemOneofInstance;
   UserOptions::default_instance_ = new UserOptions();
   ClubOptions::default_instance_ = new ClubOptions();
+  EntityOptions::default_instance_ = new EntityOptions();
   ReportItem::default_instance_->InitAsDefaultInstance();
   UserOptions::default_instance_->InitAsDefaultInstance();
   ClubOptions::default_instance_->InitAsDefaultInstance();
+  EntityOptions::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_api_2fclient_2fv2_2freport_5ftypes_2eproto);
 }
 
@@ -246,7 +277,6 @@ bool ClubSource_IsValid(int value) {
       return false;
   }
 }
-
 
 // ===================================================================
 
@@ -323,7 +353,6 @@ void ReportItem::clear_type() {
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void ReportItem::Clear() {
   clear_type();
@@ -474,7 +503,6 @@ void ReportItem::CopyFrom(const ReportItem& from) {
 }
 
 bool ReportItem::IsInitialized() const {
-
   return true;
 }
 
@@ -495,7 +523,6 @@ void ReportItem::Swap(ReportItem* other) {
   metadata.reflection = ReportItem_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -848,7 +875,6 @@ void UserOptions::CopyFrom(const UserOptions& from) {
 }
 
 bool UserOptions::IsInitialized() const {
-
   if (has_target_id()) {
     if (!this->target_id().IsInitialized()) return false;
   }
@@ -874,7 +900,6 @@ void UserOptions::Swap(UserOptions* other) {
   metadata.reflection = UserOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1258,7 +1283,6 @@ void ClubOptions::CopyFrom(const ClubOptions& from) {
 }
 
 bool ClubOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -1283,6 +1307,346 @@ void ClubOptions::Swap(ClubOptions* other) {
   return metadata;
 }
 
+// ===================================================================
+
+#ifndef _MSC_VER
+const int EntityOptions::kEntityIdFieldNumber;
+const int EntityOptions::kEntityTypeFieldNumber;
+const int EntityOptions::kAttributeFieldNumber;
+#endif  // !_MSC_VER
+
+EntityOptions::EntityOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.report.v2.EntityOptions)
+}
+
+void EntityOptions::InitAsDefaultInstance() {
+}
+
+EntityOptions::EntityOptions(const EntityOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.report.v2.EntityOptions)
+}
+
+void EntityOptions::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  entity_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  entity_type_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+EntityOptions::~EntityOptions() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.report.v2.EntityOptions)
+  SharedDtor();
+}
+
+void EntityOptions::SharedDtor() {
+  if (entity_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete entity_id_;
+  }
+  if (entity_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete entity_type_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void EntityOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* EntityOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EntityOptions_descriptor_;
+}
+
+const EntityOptions& EntityOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+EntityOptions* EntityOptions::default_instance_ = NULL;
+
+EntityOptions* EntityOptions::New() const {
+  return new EntityOptions;
+}
+
+void EntityOptions::Clear() {
+  if (_has_bits_[0 / 32] & 3) {
+    if (has_entity_id()) {
+      if (entity_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        entity_id_->clear();
+      }
+    }
+    if (has_entity_type()) {
+      if (entity_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        entity_type_->clear();
+      }
+    }
+  }
+  attribute_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool EntityOptions::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.report.v2.EntityOptions)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string entity_id = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_entity_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->entity_id().data(), this->entity_id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "entity_id");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_entity_type;
+        break;
+      }
+
+      // optional string entity_type = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_entity_type:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_entity_type()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->entity_type().data(), this->entity_type().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "entity_type");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_attribute;
+        break;
+      }
+
+      // repeated .bgs.protocol.v2.Attribute attribute = 5;
+      case 5: {
+        if (tag == 42) {
+         parse_attribute:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_attribute()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_attribute;
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.report.v2.EntityOptions)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.report.v2.EntityOptions)
+  return false;
+#undef DO_
+}
+
+void EntityOptions::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.report.v2.EntityOptions)
+  // optional string entity_id = 1;
+  if (has_entity_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->entity_id().data(), this->entity_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "entity_id");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->entity_id(), output);
+  }
+
+  // optional string entity_type = 2;
+  if (has_entity_type()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->entity_type().data(), this->entity_type().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "entity_type");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->entity_type(), output);
+  }
+
+  // repeated .bgs.protocol.v2.Attribute attribute = 5;
+  for (int i = 0; i < this->attribute_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, this->attribute(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.report.v2.EntityOptions)
+}
+
+::google::protobuf::uint8* EntityOptions::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.report.v2.EntityOptions)
+  // optional string entity_id = 1;
+  if (has_entity_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->entity_id().data(), this->entity_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "entity_id");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->entity_id(), target);
+  }
+
+  // optional string entity_type = 2;
+  if (has_entity_type()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->entity_type().data(), this->entity_type().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "entity_type");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->entity_type(), target);
+  }
+
+  // repeated .bgs.protocol.v2.Attribute attribute = 5;
+  for (int i = 0; i < this->attribute_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        5, this->attribute(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.report.v2.EntityOptions)
+  return target;
+}
+
+int EntityOptions::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string entity_id = 1;
+    if (has_entity_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->entity_id());
+    }
+
+    // optional string entity_type = 2;
+    if (has_entity_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->entity_type());
+    }
+
+  }
+  // repeated .bgs.protocol.v2.Attribute attribute = 5;
+  total_size += 1 * this->attribute_size();
+  for (int i = 0; i < this->attribute_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->attribute(i));
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void EntityOptions::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const EntityOptions* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const EntityOptions*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void EntityOptions::MergeFrom(const EntityOptions& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  attribute_.MergeFrom(from.attribute_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_entity_id()) {
+      set_entity_id(from.entity_id());
+    }
+    if (from.has_entity_type()) {
+      set_entity_type(from.entity_type());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void EntityOptions::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void EntityOptions::CopyFrom(const EntityOptions& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool EntityOptions::IsInitialized() const {
+  return true;
+}
+
+void EntityOptions::Swap(EntityOptions* other) {
+  if (other != this) {
+    std::swap(entity_id_, other->entity_id_);
+    std::swap(entity_type_, other->entity_type_);
+    attribute_.Swap(&other->attribute_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata EntityOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = EntityOptions_descriptor_;
+  metadata.reflection = EntityOptions_reflection_;
+  return metadata;
+}
 
 // @@protoc_insertion_point(namespace_scope)
 

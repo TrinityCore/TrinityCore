@@ -73,7 +73,7 @@ public:
 
         void SummonAdds(Unit* victim)
         {
-            if (Creature* Add = DoSpawnCreature(13456, float(irand(-7, 7)), float(irand(-7, 7)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000))
+            if (Creature* Add = DoSpawnCreature(13456, float(irand(-7, 7)), float(irand(-7, 7)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90s))
                 Add->AI()->AttackStart(victim);
         }
 
@@ -83,7 +83,7 @@ public:
             {
                 //Become visible again
                 me->SetFaction(FACTION_MONSTER);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 //Noxxion model
                 me->SetDisplayId(11172);
                 Invisible = false;
@@ -123,7 +123,7 @@ public:
                 //me->m_canMove = true;
                 me->InterruptNonMeleeSpells(false);
                 me->SetFaction(FACTION_FRIENDLY);
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 // Invisible Model
                 me->SetDisplayId(11686);
                 SummonAdds(me->GetVictim());

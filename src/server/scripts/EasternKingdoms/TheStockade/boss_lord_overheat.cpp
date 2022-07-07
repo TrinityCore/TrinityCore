@@ -71,7 +71,7 @@ struct boss_lord_overheat : public BossAI
                 events.Repeat(2s);
                 break;
             case EVENT_OVERHEAT:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     DoCast(target, SPELL_OVERHEAT);
                 events.Repeat(9s, 10s);
                 break;

@@ -37,7 +37,6 @@ const ::google::protobuf::ServiceDescriptor* PresenceListener_descriptor_ = NULL
 
 }  // namespace
 
-
 void protobuf_AssignDesc_presence_5flistener_2eproto() {
   protobuf_AddDesc_presence_5flistener_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -123,15 +122,15 @@ void protobuf_AddDesc_presence_5flistener_2eproto() {
     "resenceState\"\215\001\n\030StateChangedNotificatio"
     "n\0229\n\rsubscriber_id\030\001 \001(\0132\".bgs.protocol."
     "account.v1.AccountId\0226\n\005state\030\002 \003(\0132\'.bg"
-    "s.protocol.presence.v1.PresenceState2\226\002\n"
-    "\020PresenceListener\022a\n\013OnSubscribe\022/.bgs.p"
+    "s.protocol.presence.v1.PresenceState2\232\002\n"
+    "\020PresenceListener\022c\n\013OnSubscribe\022/.bgs.p"
     "rotocol.presence.v1.SubscribeNotificatio"
-    "n\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\001\022g\n\016"
-    "OnStateChanged\0222.bgs.protocol.presence.v"
-    "1.StateChangedNotification\032\031.bgs.protoco"
-    "l.NO_RESPONSE\"\006\202\371+\002\010\002\0326\202\371+,\n*bnet.protoc"
-    "ol.presence.v1.PresenceListener\212\371+\002\010\001B\002H"
-    "\001", 681);
+    "n\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\0018\001\022i"
+    "\n\016OnStateChanged\0222.bgs.protocol.presence"
+    ".v1.StateChangedNotification\032\031.bgs.proto"
+    "col.NO_RESPONSE\"\010\202\371+\004\010\0028\001\0326\202\371+,\n*bnet.pr"
+    "otocol.presence.v1.PresenceListener\212\371+\002\010"
+    "\001B\002H\001", 685);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_listener.proto", &protobuf_RegisterTypes);
   SubscribeNotification::default_instance_ = new SubscribeNotification();
@@ -147,7 +146,6 @@ struct StaticDescriptorInitializer_presence_5flistener_2eproto {
     protobuf_AddDesc_presence_5flistener_2eproto();
   }
 } static_descriptor_initializer_presence_5flistener_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -391,7 +389,6 @@ void SubscribeNotification::CopyFrom(const SubscribeNotification& from) {
 }
 
 bool SubscribeNotification::IsInitialized() const {
-
   if (has_subscriber_id()) {
     if (!this->subscriber_id().IsInitialized()) return false;
   }
@@ -416,7 +413,6 @@ void SubscribeNotification::Swap(SubscribeNotification* other) {
   metadata.reflection = SubscribeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -661,7 +657,6 @@ void StateChangedNotification::CopyFrom(const StateChangedNotification& from) {
 }
 
 bool StateChangedNotification::IsInitialized() const {
-
   if (has_subscriber_id()) {
     if (!this->subscriber_id().IsInitialized()) return false;
   }
@@ -686,7 +681,6 @@ void StateChangedNotification::Swap(StateChangedNotification* other) {
   metadata.reflection = StateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -717,7 +711,6 @@ void PresenceListener::CallServerMethod(uint32 token, uint32 methodId, MessageBu
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

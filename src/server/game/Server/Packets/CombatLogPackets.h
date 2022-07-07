@@ -68,25 +68,13 @@ namespace WorldPackets
         class SpellExecuteLog final : public CombatLogServerPacket
         {
         public:
-            struct SpellLogEffect
-            {
-                int32 Effect = 0;
-
-                std::vector<SpellLogEffectPowerDrainParams> PowerDrainTargets;
-                std::vector<SpellLogEffectExtraAttacksParams> ExtraAttacksTargets;
-                std::vector<SpellLogEffectDurabilityDamageParams> DurabilityDamageTargets;
-                std::vector<SpellLogEffectGenericVictimParams> GenericVictimTargets;
-                std::vector<SpellLogEffectTradeSkillItemParams> TradeSkillTargets;
-                std::vector<SpellLogEffectFeedPetParams> FeedPetTargets;
-            };
-
             SpellExecuteLog() : CombatLogServerPacket(SMSG_SPELL_EXECUTE_LOG, 16 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid Caster;
             int32 SpellID = 0;
-            std::vector<SpellLogEffect> Effects;
+            std::vector<SpellLogEffect> const* Effects = nullptr;
         };
 
         class SpellHealLog final : public CombatLogServerPacket

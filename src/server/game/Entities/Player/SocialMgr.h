@@ -106,7 +106,7 @@ class TC_GAME_API PlayerSocial
 
     public:
         // adding/removing
-        bool AddToSocialList(ObjectGuid const& guid, SocialFlag flag);
+        bool AddToSocialList(ObjectGuid const& guid, ObjectGuid const& accountGuid, SocialFlag flag);
         void RemoveFromSocialList(ObjectGuid const& guid, SocialFlag flag);
         void SetFriendNote(ObjectGuid const& guid, std::string const& note);
 
@@ -115,7 +115,7 @@ class TC_GAME_API PlayerSocial
 
         // Misc
         bool HasFriend(ObjectGuid const& friendGuid);
-        bool HasIgnore(ObjectGuid const& ignoreGuid);
+        bool HasIgnore(ObjectGuid const& ignoreGuid, ObjectGuid const& ignoreAccountGuid);
 
         ObjectGuid const& GetPlayerGUID() const { return _playerGUID; }
         void SetPlayerGUID(ObjectGuid const& guid) { _playerGUID = guid; }
@@ -127,6 +127,7 @@ class TC_GAME_API PlayerSocial
 
         typedef std::map<ObjectGuid, FriendInfo> PlayerSocialMap;
         PlayerSocialMap _playerSocialMap;
+        GuidUnorderedSet _ignoredAccounts;
 
         ObjectGuid _playerGUID;
 };
@@ -143,7 +144,7 @@ class SocialMgr
         // Misc
         void RemovePlayerSocial(ObjectGuid const& guid) { _socialMap.erase(guid); }
 
-        void GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo& friendInfo);
+        static void GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo& friendInfo);
 
         // Packet send's
         void SendFriendStatus(Player* player, FriendsResult result, ObjectGuid const& friendGuid, bool broadcast = false);

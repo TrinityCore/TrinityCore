@@ -24,13 +24,19 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "ReputationMgr.h"
 #include "World.h"
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class quest_commandscript : public CommandScript
 {
@@ -73,7 +79,7 @@ public:
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
-        if (!quest)
+        if (!quest || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -93,6 +99,9 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+
+        if (player->IsActiveQuest(entry))
+            return false;
 
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
@@ -161,7 +170,7 @@ public:
         }
         else
         {
-            handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -188,7 +197,8 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -247,6 +257,12 @@ public:
                     player->ModifyMoney(obj.Amount);
                     break;
                 }
+                case QUEST_OBJECTIVE_PLAYERKILLS:
+                {
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        player->KilledPlayerCredit(ObjectGuid::Empty);
+                    break;
+                }
             }
         }
 
@@ -286,7 +302,8 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE)
+        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);

@@ -19,6 +19,7 @@
 #include "CharacterPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -26,6 +27,12 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+
+uint32 const ReputationRankStrIndex[MAX_REPUTATION_RANK] =
+{
+    LANG_REP_HATED,    LANG_REP_HOSTILE, LANG_REP_UNFRIENDLY, LANG_REP_NEUTRAL,
+    LANG_REP_FRIENDLY, LANG_REP_HONORED, LANG_REP_REVERED,    LANG_REP_EXALTED
+};
 
 std::set<int32> const ReputationMgr::ReputationRankThresholds =
 {
@@ -489,11 +496,11 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (!factionEntry->FriendshipRepID && !paragonReputation)
             UpdateRankCounters(old_rank, new_rank);
 
-        _player->UpdateCriteria(CRITERIA_TYPE_KNOWN_FACTIONS,          factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_REPUTATION,         factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
-        _player->UpdateCriteria(CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalFactionsEncountered, factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::ReputationGained,         factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalExaltedFactions,     factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalReveredFactions,     factionEntry->ID);
+        _player->UpdateCriteria(CriteriaType::TotalHonoredFactions,     factionEntry->ID);
 
         return true;
     }
@@ -507,7 +514,7 @@ void ReputationMgr::SetVisible(FactionTemplateEntry const* factionTemplateEntry)
 
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->Faction))
         // Never show factions of the opposing team
-        if (!(factionEntry->ReputationRaceMask[1].HasRace(_player->getRace()) && factionEntry->ReputationBase[1] == Reputation_Bottom))
+        if (!(factionEntry->ReputationRaceMask[1].HasRace(_player->GetRace()) && factionEntry->ReputationBase[1] == Reputation_Bottom))
             SetVisible(factionEntry);
 }
 
@@ -564,7 +571,7 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
     // Do not allow to declare war to our own faction. But allow for rival factions (eg Aldor vs Scryer).
-    if (atWar && faction->Flags.HasFlag(ReputationFlags::Peaceful))
+    if (atWar && faction->Flags.HasFlag(ReputationFlags::Peaceful) && GetRank(sFactionStore.AssertEntry(faction->ID)) > REP_HATED)
         return;
 
     // already set
@@ -671,7 +678,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
     }
 }
 
-void ReputationMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void ReputationMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
@@ -716,11 +723,11 @@ int32 ReputationMgr::GetFactionDataIndexForRaceAndClass(FactionEntry const* fact
     if (!factionEntry)
         return -1;
 
-    uint8 race = _player->getRace();
-    uint32 classMask = _player->getClassMask();
+    uint8 race = _player->GetRace();
+    uint32 classMask = _player->GetClassMask();
     for (int32 i = 0; i < 4; i++)
     {
-        if ((factionEntry->ReputationRaceMask[i].HasRace(race) || (!factionEntry->ReputationRaceMask[i] && factionEntry->ReputationClassMask[i] != 0))
+        if ((factionEntry->ReputationRaceMask[i].HasRace(race) || (factionEntry->ReputationRaceMask[i].IsEmpty() && factionEntry->ReputationClassMask[i] != 0))
             && (factionEntry->ReputationClassMask[i] & classMask || factionEntry->ReputationClassMask[i] == 0))
 
             return i;
@@ -745,5 +752,5 @@ bool ReputationMgr::CanGainParagonReputationForFaction(FactionEntry const* facti
     if (!quest)
         return false;
 
-    return _player->getLevel() >= _player->GetQuestMinLevel(quest);
+    return _player->GetLevel() >= _player->GetQuestMinLevel(quest);
 }

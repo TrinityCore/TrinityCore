@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Gruul
-SD%Complete: 60
-SDComment: Ground Slam need further development (knock back effect must be added to the core)
-SDCategory: Gruul's Lair
-EndScriptData */
+/*
+TO-DO:
+Slighly(400ms) after spell cast 33965 creatures 19198 are spawned. I guess he forces all enemies including pets(9 summoned units
+and 9 units in his threatlist) to cast 39186(19198 were created by that spell(sniff)). Summoned by that spell creature 19198 casts 33496
+on self after being summoned. Then probably they casts 33497(Pull Towards: (150)) on their creators and that's how that knockback is handled.
+If you look closely, players are knocked to random destinations with random angles, means there is no only one spell which handles knockback.
+19198 despawns after 800ms after being summoned.
+*/
 
 #include "ScriptMgr.h"
 #include "gruuls_lair.h"
@@ -104,9 +106,9 @@ class boss_gruul : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -122,29 +124,31 @@ class boss_gruul : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* pSpell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
                 //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
                 //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
-                if (pSpell->Id == SPELL_GROUND_SLAM)
+                if (spellInfo->Id == SPELL_GROUND_SLAM)
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
                         switch (urand(0, 1))
                         {
                             case 0:
-                                target->CastSpell(target, SPELL_MAGNETIC_PULL, me->GetGUID());
+                                target->CastSpell(target, SPELL_MAGNETIC_PULL, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(me->GetGUID()));
                                 break;
 
                             case 1:
-                                target->CastSpell(target, SPELL_KNOCK_BACK, me->GetGUID());
+                                target->CastSpell(target, SPELL_KNOCK_BACK, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                                    .SetOriginalCaster(me->GetGUID()));
                                 break;
                         }
                     }
                 }
 
                 //this part should be in the core
-                if (pSpell->Id == SPELL_SHATTER)
+                if (spellInfo->Id == SPELL_SHATTER)
                 {
                     /// @todo use eventmap to kill this stuff
                     //clear this, if we are still performing
@@ -205,7 +209,7 @@ class boss_gruul : public CreatureScript
                     // Hurtful Strike
                     if (m_uiHurtfulStrike_Timer <= diff)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 1);
+                        Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 1);
 
                         if (target && me->IsWithinMeleeRange(me->GetVictim()))
                             DoCast(target, SPELL_HURTFUL_STRIKE);
@@ -229,7 +233,7 @@ class boss_gruul : public CreatureScript
                     // Cave In
                     if (m_uiCaveIn_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_CAVE_IN);
 
                         if (m_uiCaveIn_StaticTimer >= 4000)
@@ -309,12 +313,17 @@ class spell_gruul_shatter_effect : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gruul_shatter_effect_SpellScript);
 
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return !spellInfo->GetEffects().empty();
+            }
+
             void CalculateDamage()
             {
                 if (!GetHitUnit())
                     return;
 
-                float radius = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(GetCaster());
+                float radius = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
                 if (!radius)
                     return;
 

@@ -16,13 +16,13 @@
  */
 
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "UpdateData.h"
-#include "Transport.h"
-#include "ObjectAccessor.h"
 #include "CellImpl.h"
+#include "CreatureAI.h"
+#include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
+#include "Transport.h"
+#include "UpdateData.h"
+#include "WorldPacket.h"
 
 using namespace Trinity;
 
@@ -30,7 +30,7 @@ void VisibleNotifier::SendToSelf()
 {
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
     // but exist one case when this possible and object not out of range: transports
-    if (Transport* transport = i_player.GetTransport())
+    if (Transport* transport = dynamic_cast<Transport*>(i_player.GetTransport()))
     {
         for (Transport::PassengerSet::const_iterator itr = transport->GetPassengers().begin(); itr != transport->GetPassengers().end(); ++itr)
         {
@@ -53,6 +53,9 @@ void VisibleNotifier::SendToSelf()
                         break;
                     case TYPEID_DYNAMICOBJECT:
                         i_player.UpdateVisibilityOf((*itr)->ToDynObject(), i_data, i_visibleNow);
+                        break;
+                    case TYPEID_AREATRIGGER:
+                        i_player.UpdateVisibilityOf((*itr)->ToAreaTrigger(), i_data, i_visibleNow);
                         break;
                     default:
                         break;
@@ -89,31 +92,22 @@ void VisibleChangesNotifier::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (iter->GetSource() == &i_object)
-            continue;
+        iter->GetSource()->UpdateVisibilityOf(i_objects);
 
-        iter->GetSource()->UpdateVisibilityOf(&i_object);
-
-        if (iter->GetSource()->HasSharedVision())
-        {
-            for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
-                i != iter->GetSource()->GetSharedVisionList().end(); ++i)
-            {
+        for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
+            i != iter->GetSource()->GetSharedVisionList().end(); ++i)
                 if ((*i)->m_seer == iter->GetSource())
-                    (*i)->UpdateVisibilityOf(&i_object);
-            }
-        }
+                    (*i)->UpdateVisibilityOf(i_objects);
     }
 }
 
 void VisibleChangesNotifier::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->GetSource()->HasSharedVision())
-            for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
-                i != iter->GetSource()->GetSharedVisionList().end(); ++i)
-                if ((*i)->m_seer == iter->GetSource())
-                    (*i)->UpdateVisibilityOf(&i_object);
+        for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
+            i != iter->GetSource()->GetSharedVisionList().end(); ++i)
+            if ((*i)->m_seer == iter->GetSource())
+                (*i)->UpdateVisibilityOf(i_objects);
 }
 
 void VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
@@ -122,7 +116,7 @@ void VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
         if (Unit* caster = iter->GetSource()->GetCaster())
             if (Player* player = caster->ToPlayer())
                 if (player->m_seer == iter->GetSource())
-                    player->UpdateVisibilityOf(&i_object);
+                    player->UpdateVisibilityOf(i_objects);
 }
 
 inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
@@ -132,10 +126,10 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
 
     if (!c->HasUnitState(UNIT_STATE_SIGHTLESS))
     {
-        if (c->IsAIEnabled && c->CanSeeOrDetect(u, false, true))
+        if (c->IsAIEnabled() && c->CanSeeOrDetect(u, false, true))
             c->AI()->MoveInLineOfSight_Safe(u);
         else
-            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled && c->CanSeeOrDetect(u, false, true, true))
+            if (u->GetTypeId() == TYPEID_PLAYER && u->HasStealthAura() && c->IsAIEnabled() && c->CanSeeOrDetect(u, false, true, true))
                 c->AI()->TriggerAlert(u);
     }
 }
@@ -286,21 +280,22 @@ bool AnyDeadUnitObjectInRangeCheck::operator()(Creature* u)
 
 bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Player* u)
 {
-    return AnyDeadUnitObjectInRangeCheck::operator()(u) && i_check(u);
+    return AnyDeadUnitObjectInRangeCheck::operator()(u) && WorldObjectSpellTargetCheck::operator()(u);
 }
 
 bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Corpse* u)
 {
-    return AnyDeadUnitObjectInRangeCheck::operator()(u) && i_check(u);
+    return AnyDeadUnitObjectInRangeCheck::operator()(u) && WorldObjectSpellTargetCheck::operator()(u);
 }
 
 bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Creature* u)
 {
-    return AnyDeadUnitObjectInRangeCheck::operator()(u) && i_check(u);
+    return AnyDeadUnitObjectInRangeCheck::operator()(u) && WorldObjectSpellTargetCheck::operator()(u);
 }
 
 template void ObjectUpdater::Visit<Creature>(CreatureMapType&);
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType&);
 template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType&);
 template void ObjectUpdater::Visit<AreaTrigger>(AreaTriggerMapType &);
+template void ObjectUpdater::Visit<SceneObject>(SceneObjectMapType &);
 template void ObjectUpdater::Visit<Conversation>(ConversationMapType &);

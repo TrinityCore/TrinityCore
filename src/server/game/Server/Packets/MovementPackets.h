@@ -168,6 +168,17 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Pos;
         };
 
+        class FlightSplineSync final : public ServerPacket
+        {
+        public:
+            FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            float SplineDist = 0.0f;
+        };
+
         class MoveSplineSetSpeed : public ServerPacket
         {
         public:
@@ -223,14 +234,14 @@ namespace WorldPackets
             uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
         };
 
+        struct ShipTransferPending
+        {
+            uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
+            int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
+        };
+
         class TransferPending final : public ServerPacket
         {
-            struct ShipTransferPending
-            {
-                uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
-                int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
-            };
-
         public:
             TransferPending() : ServerPacket(SMSG_TRANSFER_PENDING, 16) { }
 
@@ -546,6 +557,17 @@ namespace WorldPackets
             uint32 TimeSkipped = 0;
         };
 
+        class MoveSkipTime final : public ServerPacket
+        {
+        public:
+            MoveSkipTime() : ServerPacket(SMSG_MOVE_SKIP_TIME, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 TimeSkipped = 0;
+        };
+
         class SummonResponse final : public ClientPacket
         {
         public:
@@ -660,6 +682,8 @@ namespace WorldPackets
                 Optional<CollisionHeightInfo> CollisionHeight;
                 Optional<MovementForce> MovementForce_;
                 Optional<ObjectGuid> MovementForceGUID;
+                Optional<ObjectGuid> MovementInertiaGUID;
+                Optional<uint32> MovementInertiaLifetimeMs;
             };
 
             MoveSetCompoundState() : ServerPacket(SMSG_MOVE_SET_COMPOUND_STATE, 4 + 1) { }
@@ -668,6 +692,16 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             std::vector<MoveStateChange> StateChanges;
+        };
+
+        class MoveInitActiveMoverComplete final : public ClientPacket
+        {
+        public:
+            MoveInitActiveMoverComplete(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Ticks = 0;
         };
     }
 

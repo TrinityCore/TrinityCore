@@ -112,12 +112,12 @@ class npc_sc_millhouse_manastorm : public CreatureScript
 
             void ScheduleEvents()
             {
-                events.ScheduleEvent(EVENT_SHADOWFURY, 3000);
-                events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 5000);
-                events.ScheduleEvent(EVENT_FEAR, 8000);
+                events.ScheduleEvent(EVENT_SHADOWFURY, 3s);
+                events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 5s);
+                events.ScheduleEvent(EVENT_FEAR, 8s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
@@ -160,7 +160,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                         break;
                 }
 
-                me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -173,32 +173,32 @@ class npc_sc_millhouse_manastorm : public CreatureScript
 
                 me->RemoveAllAuras();
                 me->CombatStop(true);
-                me->GetThreatManager().ClearAllThreat();
+                EngagementOver();
 
                 switch (pointId)
                 {
                     case POINT_MILLHOUSE_GROUP_2:
-                        me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                        me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 200.0f))
                             me->SetFacingToObject(worldtrigger);
                         DoCast(me, SPELL_ANCHOR_HERE);
                         DoCast(me, SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND);
-                        events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10000);
+                        events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10s);
                         break;
                     case POINT_MILLHOUSE_GROUP_3:
-                        me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                        me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetFacingTo(5.931499f);
                         DoCast(me, SPELL_ANCHOR_HERE);
                         DoCast(me, SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND);
-                        events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10000);
+                        events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10s);
                         break;
                     case POINT_MILLHOUSE_GROUP_4:
                         me->SetFacingTo(3.455752f);
                         DoCast(me, SPELL_ANCHOR_HERE);
                         Talk(SAY_MILLHOUSE_EVENT_2);
-                        events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 1000);
+                        events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 1s);
                         break;
                     default:
                         break;
@@ -223,17 +223,17 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                     {
                         case EVENT_FROSTBOLT_VOLLEY:
                             DoCastAOE(SPELL_FROSTBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 7000);
+                            events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 7s);
                             break;
                         case EVENT_SHADOWFURY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_SHADOWFURY);
-                            events.ScheduleEvent(EVENT_SHADOWFURY, 7000);
+                            events.ScheduleEvent(EVENT_SHADOWFURY, 7s);
                             break;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_FEAR);
-                            events.ScheduleEvent(EVENT_FEAR, 18000);
+                            events.ScheduleEvent(EVENT_FEAR, 18s);
                             break;
                         case EVENT_READY_FOR_COMBAT:
                             me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
@@ -243,13 +243,13 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                         case EVENT_CAST_IMPENDING_DOOM:
                             DoCast(me, SPELL_IMPENDING_DOOM);
                             DoCast(me, SPELL_IMPENDING_DOOM_CHANNEL);
-                            events.ScheduleEvent(EVENT_INTERRUPT_IMPENDING_DOOM, urand(15000,20000));
+                            events.ScheduleEvent(EVENT_INTERRUPT_IMPENDING_DOOM, 15s, 20s);
                             break;
                         case EVENT_INTERRUPT_IMPENDING_DOOM:
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAllAuras();
                             me->HandleEmoteCommand(EMOTE_ONESHOT_KNOCKDOWN);
-                            events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 3000);
+                            events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 3s);
                             break;
                         default:
                             break;
@@ -297,34 +297,6 @@ class spell_force_of_earth : public SpellScriptLoader
         }
 };
 
-// 45313 - Anchor Here
-class spell_sc_anchor_here : public SpellScriptLoader
-{
-public:
-    spell_sc_anchor_here() : SpellScriptLoader("spell_sc_anchor_here") { }
-
-    class spell_sc_anchor_here_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sc_anchor_here_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            if (Creature* creature = GetHitUnit()->ToCreature())
-                creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_sc_anchor_here_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sc_anchor_here_SpellScript();
-    }
-};
-
 // 93167 - Twilight Documents
 class spell_sc_twilight_documents : public SpellScriptLoader
 {
@@ -345,7 +317,7 @@ class spell_sc_twilight_documents : public SpellScriptLoader
             void SpawnGameObject(SpellEffIndex /*effIndex*/)
             {
                 if (WorldLocation* loc = GetHitDest())
-                    GetCaster()->SummonGameObject(GAMEOBJECT_TWILIGHT_DOCUMENTS, *loc, QuaternionData::fromEulerAnglesZYX(loc->GetOrientation(), 0.0f, 0.0f), 7200);
+                    GetCaster()->SummonGameObject(GAMEOBJECT_TWILIGHT_DOCUMENTS, *loc, QuaternionData::fromEulerAnglesZYX(loc->GetOrientation(), 0.0f, 0.0f), 2h);
             }
 
             void Register() override
@@ -402,7 +374,7 @@ class at_sc_corborus_intro : public AreaTriggerScript
 public:
     at_sc_corborus_intro() : AreaTriggerScript("at_sc_corborus_intro") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* corborus = instance->GetCreature(DATA_CORBORUS))
@@ -416,7 +388,7 @@ class at_sc_slabhide_intro : public AreaTriggerScript
 public:
     at_sc_slabhide_intro() : AreaTriggerScript("at_sc_slabhide_intro") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* slabhide = instance->GetCreature(DATA_SLABHIDE))
@@ -429,7 +401,6 @@ void AddSC_stonecore()
 {
     new npc_sc_millhouse_manastorm();
     new spell_force_of_earth();
-    new spell_sc_anchor_here();
     new spell_sc_twilight_documents();
     new spell_sc_quake();
     new at_sc_corborus_intro();

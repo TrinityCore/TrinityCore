@@ -76,6 +76,7 @@ ObjectData const creatureData[] =
     { NPC_BLOOD_ELF_COUNCIL_VOICE,      DATA_BLOOD_ELF_COUNCIL_VOICE    },
     { NPC_BLACK_TEMPLE_TRIGGER,         DATA_BLACK_TEMPLE_TRIGGER       },
     { NPC_MAIEV_SHADOWSONG,             DATA_MAIEV                      },
+    { NPC_RELIQUARY_COMBAT_TRIGGER,     DATA_RELIQUARY_COMBAT_TRIGGER   },
     { 0,                                0                               } // END
 };
 
@@ -102,7 +103,6 @@ class instance_black_temple : public InstanceMapScript
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
                 AkamaState = AKAMA_INTRO;
-                TeronGorefiendIntro = 1;
                 AkamaIllidanIntro = 1;
             }
 
@@ -143,8 +143,6 @@ class instance_black_temple : public InstanceMapScript
                 {
                     case DATA_AKAMA:
                         return AkamaState;
-                    case DATA_TERON_GOREFIEND_INTRO:
-                        return TeronGorefiendIntro;
                     case DATA_AKAMA_ILLIDAN_INTRO:
                         return AkamaIllidanIntro;
                     default:
@@ -163,11 +161,9 @@ class instance_black_temple : public InstanceMapScript
                         if (GameObject* illidanGate = GetGameObject(DATA_GO_ILLIDAN_GATE))
                             HandleGameObject(ObjectGuid::Empty, true, illidanGate);
                         break;
-                    case DATA_TERON_GOREFIEND_INTRO:
-                        TeronGorefiendIntro = data;
-                        break;
                     case DATA_AKAMA_ILLIDAN_INTRO:
                         AkamaIllidanIntro = data;
+                        break;
                     default:
                         break;
                 }
@@ -190,7 +186,7 @@ class instance_black_temple : public InstanceMapScript
                             for (ObjectGuid ashtongueGuid : AshtongueGUIDs)
                                 if (Creature* ashtongue = instance->GetCreature(ashtongueGuid))
                                     ashtongue->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
-                        // no break
+                        [[fallthrough]];
                     case DATA_TERON_GOREFIEND:
                     case DATA_GURTOGG_BLOODBOIL:
                     case DATA_RELIQUARY_OF_SOULS:
@@ -226,7 +222,6 @@ class instance_black_temple : public InstanceMapScript
         protected:
             GuidVector AshtongueGUIDs;
             uint8 AkamaState;
-            uint8 TeronGorefiendIntro;
             uint8 AkamaIllidanIntro;
         };
 

@@ -25,6 +25,7 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "google/protobuf/descriptor.pb.h"
+#include "global_extensions/routing.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -100,16 +101,86 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 id() const;
   inline void set_id(::google::protobuf::uint32 value);
 
+  // optional .bgs.protocol.ClientIdentityRoutingType client_identity_routing = 2;
+  inline bool has_client_identity_routing() const;
+  inline void clear_client_identity_routing();
+  static const int kClientIdentityRoutingFieldNumber = 2;
+  inline ::bgs::protocol::ClientIdentityRoutingType client_identity_routing() const;
+  inline void set_client_identity_routing(::bgs::protocol::ClientIdentityRoutingType value);
+
+  // optional bool enable_fanout = 3;
+  inline bool has_enable_fanout() const;
+  inline void clear_enable_fanout();
+  static const int kEnableFanoutFieldNumber = 3;
+  inline bool enable_fanout() const;
+  inline void set_enable_fanout(bool value);
+
+  // optional string legacy_fanout_replacement = 4;
+  inline bool has_legacy_fanout_replacement() const;
+  inline void clear_legacy_fanout_replacement();
+  static const int kLegacyFanoutReplacementFieldNumber = 4;
+  inline const ::std::string& legacy_fanout_replacement() const;
+  inline void set_legacy_fanout_replacement(const ::std::string& value);
+  inline void set_legacy_fanout_replacement(const char* value);
+  inline void set_legacy_fanout_replacement(const char* value, size_t size);
+  inline ::std::string* mutable_legacy_fanout_replacement();
+  inline ::std::string* release_legacy_fanout_replacement();
+  inline void set_allocated_legacy_fanout_replacement(::std::string* legacy_fanout_replacement);
+
+  // optional string forward_key = 5;
+  inline bool has_forward_key() const;
+  inline void clear_forward_key();
+  static const int kForwardKeyFieldNumber = 5;
+  inline const ::std::string& forward_key() const;
+  inline void set_forward_key(const ::std::string& value);
+  inline void set_forward_key(const char* value);
+  inline void set_forward_key(const char* value, size_t size);
+  inline ::std::string* mutable_forward_key();
+  inline ::std::string* release_forward_key();
+  inline void set_allocated_forward_key(::std::string* forward_key);
+
+  // optional bool idempotent = 6;
+  inline bool has_idempotent() const;
+  inline void clear_idempotent();
+  static const int kIdempotentFieldNumber = 6;
+  inline bool idempotent() const;
+  inline void set_idempotent(bool value);
+
+  // optional bool handle_destination_unreachable = 7;
+  inline bool has_handle_destination_unreachable() const;
+  inline void clear_handle_destination_unreachable();
+  static const int kHandleDestinationUnreachableFieldNumber = 7;
+  inline bool handle_destination_unreachable() const;
+  inline void set_handle_destination_unreachable(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSMethodOptions)
  private:
   inline void set_has_id();
   inline void clear_has_id();
+  inline void set_has_client_identity_routing();
+  inline void clear_has_client_identity_routing();
+  inline void set_has_enable_fanout();
+  inline void clear_has_enable_fanout();
+  inline void set_has_legacy_fanout_replacement();
+  inline void clear_has_legacy_fanout_replacement();
+  inline void set_has_forward_key();
+  inline void clear_has_forward_key();
+  inline void set_has_idempotent();
+  inline void clear_has_idempotent();
+  inline void set_has_handle_destination_unreachable();
+  inline void clear_has_handle_destination_unreachable();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::uint32 id_;
+  int client_identity_routing_;
+  ::std::string* legacy_fanout_replacement_;
+  ::std::string* forward_key_;
+  bool enable_fanout_;
+  bool idempotent_;
+  bool handle_destination_unreachable_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2fmethod_5foptions_2eproto();
@@ -118,7 +189,6 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   static BGSMethodOptions* default_instance_;
 };
 // ===================================================================
-
 
 // ===================================================================
 
@@ -155,6 +225,254 @@ inline void BGSMethodOptions::set_id(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.id)
 }
 
+// optional .bgs.protocol.ClientIdentityRoutingType client_identity_routing = 2;
+inline bool BGSMethodOptions::has_client_identity_routing() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void BGSMethodOptions::set_has_client_identity_routing() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void BGSMethodOptions::clear_has_client_identity_routing() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void BGSMethodOptions::clear_client_identity_routing() {
+  client_identity_routing_ = 0;
+  clear_has_client_identity_routing();
+}
+inline ::bgs::protocol::ClientIdentityRoutingType BGSMethodOptions::client_identity_routing() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.client_identity_routing)
+  return static_cast< ::bgs::protocol::ClientIdentityRoutingType >(client_identity_routing_);
+}
+inline void BGSMethodOptions::set_client_identity_routing(::bgs::protocol::ClientIdentityRoutingType value) {
+  assert(::bgs::protocol::ClientIdentityRoutingType_IsValid(value));
+  set_has_client_identity_routing();
+  client_identity_routing_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.client_identity_routing)
+}
+
+// optional bool enable_fanout = 3;
+inline bool BGSMethodOptions::has_enable_fanout() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void BGSMethodOptions::set_has_enable_fanout() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void BGSMethodOptions::clear_has_enable_fanout() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void BGSMethodOptions::clear_enable_fanout() {
+  enable_fanout_ = false;
+  clear_has_enable_fanout();
+}
+inline bool BGSMethodOptions::enable_fanout() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.enable_fanout)
+  return enable_fanout_;
+}
+inline void BGSMethodOptions::set_enable_fanout(bool value) {
+  set_has_enable_fanout();
+  enable_fanout_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.enable_fanout)
+}
+
+// optional string legacy_fanout_replacement = 4;
+inline bool BGSMethodOptions::has_legacy_fanout_replacement() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void BGSMethodOptions::set_has_legacy_fanout_replacement() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void BGSMethodOptions::clear_has_legacy_fanout_replacement() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void BGSMethodOptions::clear_legacy_fanout_replacement() {
+  if (legacy_fanout_replacement_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    legacy_fanout_replacement_->clear();
+  }
+  clear_has_legacy_fanout_replacement();
+}
+inline const ::std::string& BGSMethodOptions::legacy_fanout_replacement() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.legacy_fanout_replacement)
+  return *legacy_fanout_replacement_;
+}
+inline void BGSMethodOptions::set_legacy_fanout_replacement(const ::std::string& value) {
+  set_has_legacy_fanout_replacement();
+  if (legacy_fanout_replacement_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    legacy_fanout_replacement_ = new ::std::string;
+  }
+  legacy_fanout_replacement_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.legacy_fanout_replacement)
+}
+inline void BGSMethodOptions::set_legacy_fanout_replacement(const char* value) {
+  set_has_legacy_fanout_replacement();
+  if (legacy_fanout_replacement_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    legacy_fanout_replacement_ = new ::std::string;
+  }
+  legacy_fanout_replacement_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSMethodOptions.legacy_fanout_replacement)
+}
+inline void BGSMethodOptions::set_legacy_fanout_replacement(const char* value, size_t size) {
+  set_has_legacy_fanout_replacement();
+  if (legacy_fanout_replacement_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    legacy_fanout_replacement_ = new ::std::string;
+  }
+  legacy_fanout_replacement_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSMethodOptions.legacy_fanout_replacement)
+}
+inline ::std::string* BGSMethodOptions::mutable_legacy_fanout_replacement() {
+  set_has_legacy_fanout_replacement();
+  if (legacy_fanout_replacement_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    legacy_fanout_replacement_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSMethodOptions.legacy_fanout_replacement)
+  return legacy_fanout_replacement_;
+}
+inline ::std::string* BGSMethodOptions::release_legacy_fanout_replacement() {
+  clear_has_legacy_fanout_replacement();
+  if (legacy_fanout_replacement_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = legacy_fanout_replacement_;
+    legacy_fanout_replacement_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSMethodOptions::set_allocated_legacy_fanout_replacement(::std::string* legacy_fanout_replacement) {
+  if (legacy_fanout_replacement_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete legacy_fanout_replacement_;
+  }
+  if (legacy_fanout_replacement) {
+    set_has_legacy_fanout_replacement();
+    legacy_fanout_replacement_ = legacy_fanout_replacement;
+  } else {
+    clear_has_legacy_fanout_replacement();
+    legacy_fanout_replacement_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSMethodOptions.legacy_fanout_replacement)
+}
+
+// optional string forward_key = 5;
+inline bool BGSMethodOptions::has_forward_key() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void BGSMethodOptions::set_has_forward_key() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void BGSMethodOptions::clear_has_forward_key() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void BGSMethodOptions::clear_forward_key() {
+  if (forward_key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_->clear();
+  }
+  clear_has_forward_key();
+}
+inline const ::std::string& BGSMethodOptions::forward_key() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.forward_key)
+  return *forward_key_;
+}
+inline void BGSMethodOptions::set_forward_key(const ::std::string& value) {
+  set_has_forward_key();
+  if (forward_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_ = new ::std::string;
+  }
+  forward_key_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.forward_key)
+}
+inline void BGSMethodOptions::set_forward_key(const char* value) {
+  set_has_forward_key();
+  if (forward_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_ = new ::std::string;
+  }
+  forward_key_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSMethodOptions.forward_key)
+}
+inline void BGSMethodOptions::set_forward_key(const char* value, size_t size) {
+  set_has_forward_key();
+  if (forward_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_ = new ::std::string;
+  }
+  forward_key_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSMethodOptions.forward_key)
+}
+inline ::std::string* BGSMethodOptions::mutable_forward_key() {
+  set_has_forward_key();
+  if (forward_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSMethodOptions.forward_key)
+  return forward_key_;
+}
+inline ::std::string* BGSMethodOptions::release_forward_key() {
+  clear_has_forward_key();
+  if (forward_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = forward_key_;
+    forward_key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSMethodOptions::set_allocated_forward_key(::std::string* forward_key) {
+  if (forward_key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete forward_key_;
+  }
+  if (forward_key) {
+    set_has_forward_key();
+    forward_key_ = forward_key;
+  } else {
+    clear_has_forward_key();
+    forward_key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSMethodOptions.forward_key)
+}
+
+// optional bool idempotent = 6;
+inline bool BGSMethodOptions::has_idempotent() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void BGSMethodOptions::set_has_idempotent() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void BGSMethodOptions::clear_has_idempotent() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void BGSMethodOptions::clear_idempotent() {
+  idempotent_ = false;
+  clear_has_idempotent();
+}
+inline bool BGSMethodOptions::idempotent() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.idempotent)
+  return idempotent_;
+}
+inline void BGSMethodOptions::set_idempotent(bool value) {
+  set_has_idempotent();
+  idempotent_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.idempotent)
+}
+
+// optional bool handle_destination_unreachable = 7;
+inline bool BGSMethodOptions::has_handle_destination_unreachable() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void BGSMethodOptions::set_has_handle_destination_unreachable() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void BGSMethodOptions::clear_has_handle_destination_unreachable() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void BGSMethodOptions::clear_handle_destination_unreachable() {
+  handle_destination_unreachable_ = false;
+  clear_has_handle_destination_unreachable();
+}
+inline bool BGSMethodOptions::handle_destination_unreachable() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.handle_destination_unreachable)
+  return handle_destination_unreachable_;
+}
+inline void BGSMethodOptions::set_handle_destination_unreachable(bool value) {
+  set_has_handle_destination_unreachable();
+  handle_destination_unreachable_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.handle_destination_unreachable)
+}
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -164,8 +482,6 @@ inline void BGSMethodOptions::set_id(::google::protobuf::uint32 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

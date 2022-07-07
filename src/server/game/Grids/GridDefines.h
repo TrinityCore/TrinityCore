@@ -30,6 +30,7 @@ class GameObject;
 class Pet;
 class Player;
 class AreaTrigger;
+class SceneObject;
 class Conversation;
 
 #define MAX_NUMBER_OF_CELLS     8
@@ -42,7 +43,7 @@ class Conversation;
 #define CENTER_GRID_OFFSET      (SIZE_OF_GRIDS/2)
 
 #define MIN_GRID_DELAY          (MINUTE*IN_MILLISECONDS)
-#define MIN_MAP_UPDATE_DELAY    50
+#define MIN_MAP_UPDATE_DELAY    1
 
 #define SIZE_OF_GRID_CELL       (SIZE_OF_GRIDS/MAX_NUMBER_OF_CELLS)
 
@@ -58,8 +59,8 @@ class Conversation;
 
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
 typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/) AllWorldObjectTypes;
-typedef TYPELIST_6(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, Conversation) AllGridObjectTypes;
-typedef TYPELIST_7(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, Conversation) AllMapStoredObjectTypes;
+typedef TYPELIST_7(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, SceneObject, Conversation) AllGridObjectTypes;
+typedef TYPELIST_8(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, SceneObject, Conversation) AllMapStoredObjectTypes;
 
 typedef GridRefManager<Corpse>          CorpseMapType;
 typedef GridRefManager<Creature>        CreatureMapType;
@@ -67,6 +68,7 @@ typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
 typedef GridRefManager<AreaTrigger>     AreaTriggerMapType;
+typedef GridRefManager<SceneObject>     SceneObjectMapType;
 typedef GridRefManager<Conversation>    ConversationMapType;
 
 enum GridMapTypeMask
@@ -77,8 +79,9 @@ enum GridMapTypeMask
     GRID_MAP_TYPE_MASK_GAMEOBJECT       = 0x08,
     GRID_MAP_TYPE_MASK_PLAYER           = 0x10,
     GRID_MAP_TYPE_MASK_AREATRIGGER      = 0x20,
-    GRID_MAP_TYPE_MASK_CONVERSATION     = 0x40,
-    GRID_MAP_TYPE_MASK_ALL              = 0x7F
+    GRID_MAP_TYPE_MASK_SCENEOBJECT      = 0x40,
+    GRID_MAP_TYPE_MASK_CONVERSATION     = 0x80,
+    GRID_MAP_TYPE_MASK_ALL              = 0xFF
 };
 
 typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;
@@ -182,14 +185,21 @@ namespace Trinity
         double x_offset = (double(x) - center_offset)/size;
         double y_offset = (double(y) - center_offset)/size;
 
-        int x_val = int(x_offset + CENTER_VAL + 0.5f);
-        int y_val = int(y_offset + CENTER_VAL + 0.5f);
+        int x_val = int(x_offset + CENTER_VAL + 0.5);
+        int y_val = int(y_offset + CENTER_VAL + 0.5);
         return RET_TYPE(x_val, y_val);
     }
 
     inline GridCoord ComputeGridCoord(float x, float y)
     {
         return Compute<GridCoord, CENTER_GRID_ID>(x, y, CENTER_GRID_OFFSET, SIZE_OF_GRIDS);
+    }
+
+    inline GridCoord ComputeGridCoordSimple(float x, float y)
+    {
+        int gx = (int)(CENTER_GRID_ID - x / SIZE_OF_GRIDS);
+        int gy = (int)(CENTER_GRID_ID - y / SIZE_OF_GRIDS);
+        return GridCoord((MAX_NUMBER_OF_GRIDS - 1) - gx, (MAX_NUMBER_OF_GRIDS - 1) - gy);
     }
 
     inline CellCoord ComputeCellCoord(float x, float y)

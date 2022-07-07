@@ -24,3 +24,8 @@ target_link_libraries(extractor_common
 target_include_directories(extractor_common
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
+
+set_target_properties(extractor_common
+    PROPERTIES
+      FOLDER
+        "tools")

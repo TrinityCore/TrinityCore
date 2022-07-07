@@ -48,7 +48,6 @@ class ResolveAccountResponse;
 class GameAccountFlagUpdateRequest;
 class SubscriptionUpdateRequest;
 class SubscriptionUpdateResponse;
-class IsIgrAddressRequest;
 class GetAccountStateRequest;
 class GetAccountStateResponse;
 class GetSignedAccountStateRequest;
@@ -506,100 +505,6 @@ class TC_PROTO_API SubscriptionUpdateResponse : public ::google::protobuf::Messa
 
   void InitAsDefaultInstance();
   static SubscriptionUpdateResponse* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API IsIgrAddressRequest : public ::google::protobuf::Message {
- public:
-  IsIgrAddressRequest();
-  virtual ~IsIgrAddressRequest();
-
-  IsIgrAddressRequest(const IsIgrAddressRequest& from);
-
-  inline IsIgrAddressRequest& operator=(const IsIgrAddressRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const IsIgrAddressRequest& default_instance();
-
-  void Swap(IsIgrAddressRequest* other);
-
-  // implements Message ----------------------------------------------
-
-  IsIgrAddressRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const IsIgrAddressRequest& from);
-  void MergeFrom(const IsIgrAddressRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional string client_address = 1;
-  inline bool has_client_address() const;
-  inline void clear_client_address();
-  static const int kClientAddressFieldNumber = 1;
-  inline const ::std::string& client_address() const;
-  inline void set_client_address(const ::std::string& value);
-  inline void set_client_address(const char* value);
-  inline void set_client_address(const char* value, size_t size);
-  inline ::std::string* mutable_client_address();
-  inline ::std::string* release_client_address();
-  inline void set_allocated_client_address(::std::string* client_address);
-
-  // optional uint32 region = 2;
-  inline bool has_region() const;
-  inline void clear_region();
-  static const int kRegionFieldNumber = 2;
-  inline ::google::protobuf::uint32 region() const;
-  inline void set_region(::google::protobuf::uint32 value);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.IsIgrAddressRequest)
- private:
-  inline void set_has_client_address();
-  inline void clear_has_client_address();
-  inline void set_has_region();
-  inline void clear_has_region();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::std::string* client_address_;
-  ::google::protobuf::uint32 region_;
-  friend void TC_PROTO_API protobuf_AddDesc_account_5fservice_2eproto();
-  friend void protobuf_AssignDesc_account_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_account_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static IsIgrAddressRequest* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1642,12 +1547,26 @@ class TC_PROTO_API GetGameTimeRemainingInfoRequest : public ::google::protobuf::
   inline ::bgs::protocol::EntityId* release_account_id();
   inline void set_allocated_account_id(::bgs::protocol::EntityId* account_id);
 
+  // optional string benefactor_id = 3;
+  inline bool has_benefactor_id() const;
+  inline void clear_benefactor_id();
+  static const int kBenefactorIdFieldNumber = 3;
+  inline const ::std::string& benefactor_id() const;
+  inline void set_benefactor_id(const ::std::string& value);
+  inline void set_benefactor_id(const char* value);
+  inline void set_benefactor_id(const char* value, size_t size);
+  inline ::std::string* mutable_benefactor_id();
+  inline ::std::string* release_benefactor_id();
+  inline void set_allocated_benefactor_id(::std::string* benefactor_id);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest)
  private:
   inline void set_has_game_account_id();
   inline void clear_has_game_account_id();
   inline void set_has_account_id();
   inline void clear_has_account_id();
+  inline void set_has_benefactor_id();
+  inline void clear_has_benefactor_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1655,6 +1574,7 @@ class TC_PROTO_API GetGameTimeRemainingInfoRequest : public ::google::protobuf::
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::EntityId* account_id_;
+  ::std::string* benefactor_id_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5fservice_2eproto();
   friend void protobuf_AssignDesc_account_5fservice_2eproto();
   friend void protobuf_ShutdownFile_account_5fservice_2eproto();
@@ -2537,7 +2457,6 @@ class TC_PROTO_API AccountService : public ServiceBase
  protected:
   // server methods --------------------------------------------------
   virtual uint32 HandleResolveAccount(::bgs::protocol::account::v1::ResolveAccountRequest const* request, ::bgs::protocol::account::v1::ResolveAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-  virtual uint32 HandleIsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleSubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::account::v1::SubscriptionUpdateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleUnsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleGetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, ::bgs::protocol::account::v1::GetAccountStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
@@ -2584,7 +2503,6 @@ class TC_PROTO_API AccountListener : public ServiceBase
 };
 
 // ===================================================================
-
 
 // ===================================================================
 
@@ -2859,110 +2777,6 @@ inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::Subsc
 SubscriptionUpdateResponse::mutable_ref() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.account.v1.SubscriptionUpdateResponse.ref)
   return &ref_;
-}
-
-// -------------------------------------------------------------------
-
-// IsIgrAddressRequest
-
-// optional string client_address = 1;
-inline bool IsIgrAddressRequest::has_client_address() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void IsIgrAddressRequest::set_has_client_address() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void IsIgrAddressRequest::clear_has_client_address() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void IsIgrAddressRequest::clear_client_address() {
-  if (client_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_address_->clear();
-  }
-  clear_has_client_address();
-}
-inline const ::std::string& IsIgrAddressRequest::client_address() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.IsIgrAddressRequest.client_address)
-  return *client_address_;
-}
-inline void IsIgrAddressRequest::set_client_address(const ::std::string& value) {
-  set_has_client_address();
-  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_address_ = new ::std::string;
-  }
-  client_address_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.IsIgrAddressRequest.client_address)
-}
-inline void IsIgrAddressRequest::set_client_address(const char* value) {
-  set_has_client_address();
-  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_address_ = new ::std::string;
-  }
-  client_address_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.IsIgrAddressRequest.client_address)
-}
-inline void IsIgrAddressRequest::set_client_address(const char* value, size_t size) {
-  set_has_client_address();
-  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_address_ = new ::std::string;
-  }
-  client_address_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.IsIgrAddressRequest.client_address)
-}
-inline ::std::string* IsIgrAddressRequest::mutable_client_address() {
-  set_has_client_address();
-  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_address_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.IsIgrAddressRequest.client_address)
-  return client_address_;
-}
-inline ::std::string* IsIgrAddressRequest::release_client_address() {
-  clear_has_client_address();
-  if (client_address_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = client_address_;
-    client_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void IsIgrAddressRequest::set_allocated_client_address(::std::string* client_address) {
-  if (client_address_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete client_address_;
-  }
-  if (client_address) {
-    set_has_client_address();
-    client_address_ = client_address;
-  } else {
-    clear_has_client_address();
-    client_address_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.IsIgrAddressRequest.client_address)
-}
-
-// optional uint32 region = 2;
-inline bool IsIgrAddressRequest::has_region() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void IsIgrAddressRequest::set_has_region() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void IsIgrAddressRequest::clear_has_region() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void IsIgrAddressRequest::clear_region() {
-  region_ = 0u;
-  clear_has_region();
-}
-inline ::google::protobuf::uint32 IsIgrAddressRequest::region() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.IsIgrAddressRequest.region)
-  return region_;
-}
-inline void IsIgrAddressRequest::set_region(::google::protobuf::uint32 value) {
-  set_has_region();
-  region_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.IsIgrAddressRequest.region)
 }
 
 // -------------------------------------------------------------------
@@ -3980,6 +3794,82 @@ inline void GetGameTimeRemainingInfoRequest::set_allocated_account_id(::bgs::pro
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest.account_id)
 }
 
+// optional string benefactor_id = 3;
+inline bool GetGameTimeRemainingInfoRequest::has_benefactor_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void GetGameTimeRemainingInfoRequest::set_has_benefactor_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void GetGameTimeRemainingInfoRequest::clear_has_benefactor_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void GetGameTimeRemainingInfoRequest::clear_benefactor_id() {
+  if (benefactor_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    benefactor_id_->clear();
+  }
+  clear_has_benefactor_id();
+}
+inline const ::std::string& GetGameTimeRemainingInfoRequest::benefactor_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest.benefactor_id)
+  return *benefactor_id_;
+}
+inline void GetGameTimeRemainingInfoRequest::set_benefactor_id(const ::std::string& value) {
+  set_has_benefactor_id();
+  if (benefactor_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    benefactor_id_ = new ::std::string;
+  }
+  benefactor_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest.benefactor_id)
+}
+inline void GetGameTimeRemainingInfoRequest::set_benefactor_id(const char* value) {
+  set_has_benefactor_id();
+  if (benefactor_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    benefactor_id_ = new ::std::string;
+  }
+  benefactor_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest.benefactor_id)
+}
+inline void GetGameTimeRemainingInfoRequest::set_benefactor_id(const char* value, size_t size) {
+  set_has_benefactor_id();
+  if (benefactor_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    benefactor_id_ = new ::std::string;
+  }
+  benefactor_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest.benefactor_id)
+}
+inline ::std::string* GetGameTimeRemainingInfoRequest::mutable_benefactor_id() {
+  set_has_benefactor_id();
+  if (benefactor_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    benefactor_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest.benefactor_id)
+  return benefactor_id_;
+}
+inline ::std::string* GetGameTimeRemainingInfoRequest::release_benefactor_id() {
+  clear_has_benefactor_id();
+  if (benefactor_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = benefactor_id_;
+    benefactor_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void GetGameTimeRemainingInfoRequest::set_allocated_benefactor_id(::std::string* benefactor_id) {
+  if (benefactor_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete benefactor_id_;
+  }
+  if (benefactor_id) {
+    set_has_benefactor_id();
+    benefactor_id_ = benefactor_id;
+  } else {
+    clear_has_benefactor_id();
+    benefactor_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest.benefactor_id)
+}
+
 // -------------------------------------------------------------------
 
 // GetGameTimeRemainingInfoResponse
@@ -4725,7 +4615,6 @@ inline void GameAccountSessionNotification::set_allocated_session_info(::bgs::pr
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.GameAccountSessionNotification.session_info)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -4736,8 +4625,6 @@ inline void GameAccountSessionNotification::set_allocated_session_info(::bgs::pr
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

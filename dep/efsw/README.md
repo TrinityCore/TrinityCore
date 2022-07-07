@@ -29,57 +29,58 @@ This should never happen, except for the Kqueue implementation, see `Platform li
 **Some example code:**
 --------------------
 
-    :::c++
-	// Inherits from the abstract listener class, and implements the the file action handler
-	class UpdateListener : public efsw::FileWatchListener
+```c++
+// Inherits from the abstract listener class, and implements the the file action handler
+class UpdateListener : public efsw::FileWatchListener
+{
+public:
+	UpdateListener() {}
+
+	void handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "" )
 	{
-	public:
-		UpdateListener() {}
-
-		void handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "" )
+		switch( action )
 		{
-			switch( action )
-			{
-			case efsw::Actions::Add:
-				std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Added" << std::endl;
-				break;
-			case efsw::Actions::Delete:
-				std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Delete" << std::endl;
-				break;
-			case efsw::Actions::Modified:
-				std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Modified" << std::endl;
-				break;
-			case efsw::Actions::Moved:
-					std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Moved from (" << oldFilename << ")" << std::endl;
-				break;
-			default:
-				std::cout << "Should never happen!" << std::endl;
-			}
+		case efsw::Actions::Add:
+			std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Added" << std::endl;
+			break;
+		case efsw::Actions::Delete:
+			std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Delete" << std::endl;
+			break;
+		case efsw::Actions::Modified:
+			std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Modified" << std::endl;
+			break;
+		case efsw::Actions::Moved:
+				std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Moved from (" << oldFilename << ")" << std::endl;
+			break;
+		default:
+			std::cout << "Should never happen!" << std::endl;
 		}
-	};
+	}
+};
 
-	// Create the file system watcher instance
-    // efsw::FileWatcher allow a first boolean parameter that indicates if it should start with the generic file watcher instead of the platform specific backend
-	efsw::FileWatcher * fileWatcher = new efsw::FileWatcher();
+// Create the file system watcher instance
+// efsw::FileWatcher allow a first boolean parameter that indicates if it should start with the generic file watcher instead of the platform specific backend
+efsw::FileWatcher * fileWatcher = new efsw::FileWatcher();
 
-	// Create the instance of your efsw::FileWatcherListener implementation
-	UpdateListener * listener = new UpdateListener();
+// Create the instance of your efsw::FileWatcherListener implementation
+UpdateListener * listener = new UpdateListener();
 
-	// Add a folder to watch, and get the efsw::WatchID
-	// It will watch the /tmp folder recursively ( the third parameter indicates that is recursive )
-	// Reporting the files and directories changes to the instance of the listener
-	efsw::WatchID watchID = fileWatcher->addWatch( "/tmp", listener, true );
+// Add a folder to watch, and get the efsw::WatchID
+// It will watch the /tmp folder recursively ( the third parameter indicates that is recursive )
+// Reporting the files and directories changes to the instance of the listener
+efsw::WatchID watchID = fileWatcher->addWatch( "/tmp", listener, true );
 
-    // Adds another directory to watch. This time as non-recursive.
-    efsw::WatchID watchID2 = fileWatcher->addWatch( "/usr", listener, false );
+// Adds another directory to watch. This time as non-recursive.
+efsw::WatchID watchID2 = fileWatcher->addWatch( "/usr", listener, false );
 
-	// Start watching asynchronously the directories
-	fileWatcher.watch();
+// Start watching asynchronously the directories
+fileWatcher->watch();
 
-	// Remove the second watcher added
-    // You can also call removeWatch by passing the watch path ( it must end with an slash or backslash in windows, since that's how internally it's saved )
-	fileWatcher->removeWatch( watchID2 );
-	
+// Remove the second watcher added
+// You can also call removeWatch by passing the watch path ( it must end with an slash or backslash in windows, since that's how internally it's saved )
+fileWatcher->removeWatch( watchID2 );
+```
+
 **Dependencies**
 --------------
 None :)

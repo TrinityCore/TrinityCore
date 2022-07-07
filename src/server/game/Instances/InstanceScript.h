@@ -20,9 +20,9 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
+#include "Duration.h"
 #include <iosfwd>
 #include <map>
-#include <memory>
 #include <set>
 
 #define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -39,16 +39,9 @@ class ModuleReference;
 class Player;
 class Unit;
 struct InstanceSpawnGroupInfo;
-enum CriteriaTypes : uint8;
+enum class CriteriaType : uint8;
 enum class CriteriaStartEvent : uint8;
 enum EncounterCreditType : uint8;
-namespace WorldPackets
-{
-    namespace WorldState
-    {
-        class InitWorldStates;
-    }
-}
 
 enum EncounterFrameType
 {
@@ -65,6 +58,7 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT    = 10
 };
 
+// EnumUtils: DESCRIBE THIS
 enum EncounterState
 {
     NOT_STARTED   = 0,
@@ -157,14 +151,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
     public:
         explicit InstanceScript(InstanceMap* map);
 
-        virtual ~InstanceScript() { }
+        virtual ~InstanceScript();
 
         InstanceMap* instance;
-
-        // On creation, NOT load.
-        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
-        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
-        virtual void Initialize() { }
 
         // On instance load, exactly ONE of these methods will ALWAYS be called:
         // if we're starting without any saved instance data
@@ -195,11 +184,17 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectGuid GetObjectGuid(uint32 type) const;
         virtual ObjectGuid GetGuidData(uint32 type) const override;
 
+        // Triggers a GameEvent
+        // * If source is nullptr then event is triggered for each player in the instance as "source"
+        void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr) override;
+
         Creature* GetCreature(uint32 type);
         GameObject* GetGameObject(uint32 type);
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
+        // Called when a player successfully leaves the instance.
+        virtual void OnPlayerLeave(Player* /*player*/) { }
 
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -211,26 +206,24 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoCloseDoorOrButton(ObjectGuid guid);
 
         // Respawns a GO having negative spawntimesecs in gameobject-table
-        void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
+        void DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn = 1min);
 
         // Sends world state update to all players in instance
-        void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
+        void DoUpdateWorldState(int32 worldStateId, int32 value);
 
         // Send Notify to all players in instance
         void DoSendNotifyToInstance(char const* format, ...);
 
         // Update Achievement Criteria for all players in instance
-        void DoUpdateCriteria(CriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
-
-        // Start/Stop Timed Achievement Criteria for all players in instance
-        void DoStartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
-        void DoStopCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);
+        void DoUpdateCriteria(CriteriaType type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
 
         // Remove Auras due to Spell on all players in instance
-        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
+        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Cast spell on all players in instance
-        void DoCastSpellOnPlayers(uint32 spell);
+        void DoCastSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Return wether server allow two side groups or not
         static bool ServerAllowsTwoSideGroups();
@@ -257,6 +250,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
+        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
+
         // Sets the entrance location (WorldSafeLoc) id
         void SetEntranceLocation(uint32 worldSafeLocationId);
 
@@ -277,12 +272,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         void SendBossKillCredit(uint32 encounterId);
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
-
         // ReCheck PhaseTemplate related conditions
         void UpdatePhasing();
-
-        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
 
         void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
         void AddCombatResurrectionCharge();

@@ -30,6 +30,7 @@ EndScriptData */
 #include "BattlegroundMgr.h"
 #include "CharacterTemplateDataStore.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "ConversationDataStore.h"
 #include "Creature.h"
 #include "CreatureOutfit.h"
@@ -47,10 +48,14 @@ EndScriptData */
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "SupportMgr.h"
-#include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 #include "World.h"
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class reload_commandscript : public CommandScript
 {
@@ -86,7 +91,6 @@ public:
             { "autobroadcast",                 rbac::RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST,                    true,  &HandleReloadAutobroadcastCommand,              "" },
             { "battleground_template",         rbac::RBAC_PERM_COMMAND_RELOAD_BATTLEGROUND_TEMPLATE,            true,  &HandleReloadBattlegroundTemplate,              "" },
             { "character_template",            rbac::RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE,               true,  &HandleReloadCharacterTemplate,                 "" },
-            { "command",                       rbac::RBAC_PERM_COMMAND_RELOAD_COMMAND,                          true,  &HandleReloadCommandCommand,                    "" },
             { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS,                       true,  &HandleReloadConditions,                        "" },
             { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG,                           true,  &HandleReloadConfigCommand,                     "" },
             { "conversation_template",         rbac::RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE,            true,  &HandleReloadConversationTemplateCommand,       "" },
@@ -94,6 +98,7 @@ public:
             { "creature_questender",           rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTENDER,              true,  &HandleReloadCreatureQuestEnderCommand,         "" },
             { "creature_linked_respawn",       rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN,          true,  &HandleReloadLinkedRespawnCommand,              "" },
             { "creature_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE,           true,  &HandleReloadLootTemplatesCreatureCommand,      "" },
+            { "creature_movement_override",    rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE,       true,  &HandleReloadCreatureMovementOverrideCommand,   "" },
             { "creature_onkill_reputation",    rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_ONKILL_REPUTATION,       true,  &HandleReloadOnKillReputationCommand,           "" },
             { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER,            true,  &HandleReloadCreatureQuestStarterCommand,       "" },
             { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS,           true,  &HandleReloadCreatureSummonGroupsCommand,       "" },
@@ -154,13 +159,13 @@ public:
             { "spell_pet_auras",               rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS,                  true,  &HandleReloadSpellPetAurasCommand,              "" },
             { "spell_proc",                    rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PROC,                       true,  &HandleReloadSpellProcsCommand,                 "" },
             { "spell_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS,                    true,  &HandleReloadSpellScriptsCommand,               "" },
+            { "spell_script_names",            rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPT_NAMES,               true,  &HandleReloadSpellScriptNamesCommand,           "" },
             { "spell_target_position",         rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION,            true,  &HandleReloadSpellTargetPositionCommand,        "" },
             { "spell_threats",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS,                    true,  &HandleReloadSpellThreatsCommand,               "" },
             { "spell_group_stack_rules",       rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES,          true,  &HandleReloadSpellGroupStackRulesCommand,       "" },
             { "support",                       rbac::RBAC_PERM_COMMAND_RELOAD_SUPPORT_SYSTEM,                   true,  &HandleReloadSupportSystemCommand,              "" },
             { "trainer",                       rbac::RBAC_PERM_COMMAND_RELOAD_TRAINER,                          true,  &HandleReloadTrainerCommand,                    "" },
             { "trinity_string",                rbac::RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING,                   true,  &HandleReloadTrinityStringCommand,              "" },
-            { "warden_action",                 rbac::RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION,                    true,  &HandleReloadWardenactionCommand,               "" },
             { "waypoint_scripts",              rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS,                 true,  &HandleReloadWpScriptsCommand,                  "" },
             { "waypoint_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA,                    true,  &HandleReloadWpCommand,                         "" },
             { "vehicle_template",              rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE,                 true,  &HandleReloadVehicleTemplateCommand,            "" },
@@ -201,12 +206,12 @@ public:
 
         HandleReloadAccessRequirementCommand(handler, "");
         HandleReloadMailLevelRewardCommand(handler, "");
-        HandleReloadCommandCommand(handler, "");
         HandleReloadReservedNameCommand(handler, "");
         HandleReloadTrinityStringCommand(handler, "");
         HandleReloadGameTeleCommand(handler, "");
 
-        HandleReloadCreatureSummonGroupsCommand(handler, "");
+        HandleReloadCreatureMovementOverrideCommand(handler, "");
+        HandleReloadCreatureSummonGroupsCommand(handler);
         HandleReloadCreatureTemplateOutfitsCommand(handler, "");
 
         HandleReloadVehicleAccessoryCommand(handler, "");
@@ -278,6 +283,7 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Scripts...");
         HandleReloadEventScriptsCommand(handler, "a");
         HandleReloadSpellScriptsCommand(handler, "a");
+        HandleReloadSpellScriptNamesCommand(handler, "a");
         handler->SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
         HandleReloadWpScriptsCommand(handler, "a");
         HandleReloadWpCommand(handler, "a");
@@ -298,6 +304,7 @@ public:
         HandleReloadSpellThreatsCommand(handler, "a");
         HandleReloadSpellGroupStackRulesCommand(handler, "a");
         HandleReloadSpellPetAurasCommand(handler, "a");
+        HandleReloadSpellScriptNamesCommand(handler, "a");
         return true;
     }
 
@@ -351,6 +358,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Additional Criteria Data...");
         sCriteriaMgr->LoadCriteriaData();
+        sScriptMgr->NotifyScriptIDUpdate();
         handler->SendGlobalGMSysMessage("DB table `criteria_data` reloaded.");
         return true;
     }
@@ -391,6 +399,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Battleground Templates...");
         sBattlegroundMgr->LoadBattlegroundTemplates();
+        sScriptMgr->NotifyScriptIDUpdate();
         handler->SendGlobalGMSysMessage("DB table `battleground_template` reloaded.");
         return true;
     }
@@ -403,13 +412,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadCommandCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        ChatHandler::invalidateCommandTable();
-        handler->SendGlobalGMSysMessage("DB table `command` will be reloaded at next chat command use.");
-        return true;
-    }
-
     static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading creature award reputation definitions...");
@@ -418,7 +420,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler)
     {
         TC_LOG_INFO("misc", "Reloading creature summon groups...");
         sObjectMgr->LoadTempSummons();
@@ -431,11 +433,9 @@ public:
         if (!*args)
             return false;
 
-        Tokenizer entries(std::string(args), ' ');
-
-        for (Tokenizer::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
+        for (std::string_view entryStr : Trinity::Tokenize(args, ' ', false))
         {
-            uint32 entry = atoul(*itr);
+            uint32 entry = Trinity::StringTo<uint32>(entryStr).value_or(0);
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);
@@ -463,6 +463,7 @@ public:
         }
 
         sObjectMgr->InitializeQueriesData(QUERY_DATA_CREATURES);
+        sScriptMgr->NotifyScriptIDUpdate();
         handler->SendGlobalGMSysMessage("Creature template reloaded.");
         return true;
     }
@@ -570,6 +571,8 @@ public:
         TC_LOG_INFO("misc", "Re-Loading GameObjects for quests...");
         sObjectMgr->LoadGameObjectForQuests();
         handler->SendGlobalGMSysMessage("Data GameObjects for quests reloaded.");
+        sScriptMgr->NotifyScriptIDUpdate();
+
         return true;
     }
 
@@ -580,6 +583,14 @@ public:
         LootTemplates_Creature.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
         sConditionMgr->LoadConditions(true);
+        return true;
+    }
+
+    static bool HandleReloadCreatureMovementOverrideCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading Creature movement overrides...");
+        sObjectMgr->LoadCreatureMovementOverrides();
+        handler->SendGlobalGMSysMessage("DB table `creature_movement_override` reloaded.");
         return true;
     }
 
@@ -697,21 +708,6 @@ public:
         TC_LOG_INFO("misc", "Re-Loading trinity_string Table!");
         sObjectMgr->LoadTrinityStrings();
         handler->SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadWardenactionCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
-        {
-            handler->SendSysMessage("Warden system disabled by config - reloading warden_action skipped.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        TC_LOG_INFO("misc", "Re-Loading warden_action Table!");
-        sWardenCheckMgr->LoadWardenOverrides();
-        handler->SendGlobalGMSysMessage("DB table `warden_action` reloaded.");
         return true;
     }
 
@@ -986,6 +982,16 @@ public:
         return true;
     }
 
+    static bool HandleReloadSpellScriptNamesCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Reloading spell_script_names table...");
+        sObjectMgr->LoadSpellScriptNames();
+        sScriptMgr->NotifyScriptIDUpdate();
+        sObjectMgr->ValidateSpellScripts();
+        handler->SendGlobalGMSysMessage("Spell scripts reloaded.");
+        return true;
+    }
+
     static bool HandleReloadGameGraveyardZoneCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Graveyard-zone links...");
@@ -1119,6 +1125,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Conditions...");
         sConditionMgr->LoadConditions(true);
+        sScriptMgr->NotifyScriptIDUpdate();
         handler->SendGlobalGMSysMessage("Conditions reloaded.");
         return true;
     }
@@ -1167,7 +1174,8 @@ public:
     {
         TC_LOG_INFO("misc", "Reloading areatrigger_template table...");
         sAreaTriggerDataStore->LoadAreaTriggerTemplates();
-        handler->SendGlobalGMSysMessage("AreaTrigger templates reloaded. Already spawned AT won't be affected. New scriptname need a reboot.");
+        sScriptMgr->NotifyScriptIDUpdate();
+        handler->SendGlobalGMSysMessage("AreaTrigger templates reloaded.");
         return true;
     }
 
@@ -1175,7 +1183,8 @@ public:
     {
         TC_LOG_INFO("misc", "Reloading scene_template table...");
         sObjectMgr->LoadSceneTemplates();
-        handler->SendGlobalGMSysMessage("Scenes templates reloaded. New scriptname need a reboot.");
+        sScriptMgr->NotifyScriptIDUpdate();
+        handler->SendGlobalGMSysMessage("Scenes templates reloaded.");
         return true;
     }
 
@@ -1183,6 +1192,7 @@ public:
     {
         TC_LOG_INFO("misc", "Reloading conversation_* tables...");
         sConversationDataStore->LoadConversationTemplates();
+        sScriptMgr->NotifyScriptIDUpdate();
         handler->SendGlobalGMSysMessage("Conversation templates reloaded.");
         return true;
     }

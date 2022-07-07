@@ -87,15 +87,9 @@ void DestroyWatch(WatcherStructWin32* pWatch)
 
 		tWatch->StopNow = true;
 
-		CancelIo(tWatch->DirHandle);
+		CancelIoEx(tWatch->DirHandle, &pWatch->Overlapped);
 
 		RefreshWatch(pWatch);
-
-		if (!HasOverlappedIoCompleted(&pWatch->Overlapped))
-		{
-			SleepEx(5, TRUE);
-		}
-
 		CloseHandle(pWatch->Overlapped.hEvent);
 		CloseHandle(pWatch->Watch->DirHandle);
 		efSAFE_DELETE_ARRAY( pWatch->Watch->DirName );

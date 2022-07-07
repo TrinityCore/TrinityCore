@@ -85,7 +85,6 @@ enum Actions
     ACTION_EQUIP_DECIMATION_BLADE   = 3,
 };
 
-
 enum Misc
 {
     EQUIP_DEFAULT                   = 1,
@@ -276,7 +275,7 @@ struct npc_shard_of_torment : public NullCreatureAI
 {
     npc_shard_of_torment(Creature* creature) : NullCreatureAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         DoCastAOE(SPELL_TORMENT_PRE_VISUAL);
         scheduler.Schedule(Milliseconds(4400), [this](TaskContext)
@@ -291,9 +290,9 @@ struct npc_shard_of_torment : public NullCreatureAI
         });
     }
 
-    void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id != SPELL_TORMENT)
+        if (spellInfo->Id != SPELL_TORMENT)
             return;
 
         scheduler.CancelAll();
@@ -326,7 +325,7 @@ class spell_baleroc_blades_of_baleroc : public SpellScript
     void ChooseBlade(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster()->ToCreature();
-        if (!caster || !caster->IsAIEnabled)
+        if (!caster || !caster->IsAIEnabled())
             return;
 
         switch (urand(1, 2))
@@ -364,13 +363,13 @@ class spell_baleroc_inferno_blade : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_INFERNO_BLADE);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DEFAULT);
     }
 
@@ -393,13 +392,13 @@ class spell_baleroc_decimation_blade : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DECIMATION_BLADE);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->IsAIEnabled)
+        if (GetTarget()->IsAIEnabled())
             GetTarget()->GetAI()->DoAction(ACTION_EQUIP_DEFAULT);
     }
 
@@ -417,16 +416,16 @@ class spell_baleroc_decimating_strike : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (!spellInfo->GetEffect(EFFECT_0))
+        if (spellInfo->GetEffects().size() <= EFFECT_2)
             return false;
-        SpellEffectInfo const* spellEffectInfo = spellInfo->GetEffect(EFFECT_2);
-        return spellEffectInfo && ValidateSpellInfo({ uint32(spellEffectInfo->BasePoints) });
+        SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_2);
+        return ValidateSpellInfo({ uint32(spellEffectInfo.CalcValue()) });
     }
 
     void ChangeDamage()
     {
-        int32 healthPctDmg = GetHitUnit()->CountPctFromMaxHealth(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints);
-        int32 flatDmg = GetSpellInfo()->GetEffect(EFFECT_2)->BasePoints;
+        int32 healthPctDmg = GetHitUnit()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_0).CalcValue(GetCaster()));
+        int32 flatDmg = GetEffectInfo(EFFECT_2).CalcValue(GetCaster());
 
         SetHitDamage(healthPctDmg < flatDmg ? flatDmg : healthPctDmg);
     }
@@ -800,7 +799,8 @@ class spell_baleroc_vital_flame : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_VITAL_SPARK });
+        return ValidateSpellInfo({ SPELL_VITAL_SPARK })
+            && !sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, DIFFICULTY_NONE)->GetEffects().empty();
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -812,7 +812,7 @@ class spell_baleroc_vital_flame : public AuraScript
         }
 
         stacks = GetCaster()->GetAuraCount(SPELL_VITAL_SPARK);
-        int32 healingPct = sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, GetCastDifficulty())->GetEffect(EFFECT_0)->BasePoints * stacks;
+        int32 healingPct = sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(GetCaster()) * stacks;
 
         if (GetAura()->GetEffect(EFFECT_0)->GetAmount() < healingPct)
             GetAura()->GetEffect(EFFECT_0)->SetAmount(healingPct);
@@ -855,18 +855,18 @@ void AddSC_boss_baleroc()
     RegisterFirelandsAI(boss_baleroc);
     RegisterFirelandsAI(npc_shard_of_torment);
     RegisterSpellScript(spell_baleroc_blades_of_baleroc);
-    RegisterAuraScript(spell_baleroc_inferno_blade);
-    RegisterAuraScript(spell_baleroc_decimation_blade);
+    RegisterSpellScript(spell_baleroc_inferno_blade);
+    RegisterSpellScript(spell_baleroc_decimation_blade);
     RegisterSpellScript(spell_baleroc_decimating_strike);
     RegisterSpellScript(spell_baleroc_countdown_aoe_dummy);
-    RegisterAuraScript(spell_baleroc_countdown);
+    RegisterSpellScript(spell_baleroc_countdown);
     RegisterSpellScript(spell_baleroc_countdown_proximity_check);
     RegisterSpellScript(spell_baleroc_shards_of_torment_target_search);
     RegisterSpellScript(spell_baleroc_torment_target_search);
     RegisterSpellAndAuraScriptPair(spell_baleroc_torment, spell_baleroc_torment_AuraScript);
-    RegisterAuraScript(spell_baleroc_tormented);
+    RegisterSpellScript(spell_baleroc_tormented);
     RegisterSpellScript(spell_baleroc_tormented_spread);
-    RegisterAuraScript(spell_baleroc_vital_spark);
-    RegisterAuraScript(spell_baleroc_vital_flame);
+    RegisterSpellScript(spell_baleroc_vital_spark);
+    RegisterSpellScript(spell_baleroc_vital_flame);
     new achievement_share_the_pain();
 };

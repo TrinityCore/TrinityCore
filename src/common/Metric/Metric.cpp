@@ -16,7 +16,6 @@
  */
 
 #include "Metric.h"
-#include "Common.h"
 #include "Config.h"
 #include "DeadlineTimer.h"
 #include "Log.h"
@@ -55,7 +54,7 @@ void Metric::LoadFromConfigs()
 {
     bool previousValue = _enabled;
     _enabled = sConfigMgr->GetBoolDefault("Metric.Enable", false);
-    _updateInterval = sConfigMgr->GetIntDefault("Metric.Interval", 10);
+    _updateInterval = sConfigMgr->GetIntDefault("Metric.Interval", 1);
     if (_updateInterval < 1)
     {
         TC_LOG_ERROR("metric", "'Metric.Interval' config set to %d, overriding to 1.", _updateInterval);
@@ -69,6 +68,15 @@ void Metric::LoadFromConfigs()
         _overallStatusTimerInterval = 1;
     }
 
+    _thresholds.clear();
+    std::vector<std::string> thresholdSettings = sConfigMgr->GetKeysByString("Metric.Threshold.");
+    for (std::string const& thresholdSetting : thresholdSettings)
+    {
+        int thresholdValue = sConfigMgr->GetIntDefault(thresholdSetting, 0);
+        std::string thresholdName = thresholdSetting.substr(strlen("Metric.Threshold."));
+        _thresholds[thresholdName] = thresholdValue;
+    }
+
     // Schedule a send at this point only if the config changed from Disabled to Enabled.
     // Cancel any scheduled operation if the config changed from Enabled to Disabled.
     if (_enabled && !previousValue)
@@ -80,7 +88,7 @@ void Metric::LoadFromConfigs()
             return;
         }
 
-        Tokenizer tokens(connectionInfo, ';');
+        std::vector<std::string_view> tokens = Trinity::Tokenize(connectionInfo, ';', true);
         if (tokens.size() != 3)
         {
             TC_LOG_ERROR("metric", "'Metric.ConnectionInfo' specified with wrong format in configuration file.");
@@ -106,16 +114,24 @@ void Metric::Update()
     }
 }
 
-void Metric::LogEvent(std::string const& category, std::string const& title, std::string const& description)
+bool Metric::ShouldLog(std::string const& category, int64 value) const
+{
+    auto threshold = _thresholds.find(category);
+    if (threshold == _thresholds.end())
+        return false;
+    return value >= threshold->second;
+}
+
+void Metric::LogEvent(std::string category, std::string title, std::string description)
 {
     using namespace std::chrono;
 
     MetricData* data = new MetricData;
-    data->Category = category;
+    data->Category = std::move(category);
     data->Timestamp = system_clock::now();
     data->Type = METRIC_DATA_EVENT;
-    data->Title = title;
-    data->Text = description;
+    data->Title = std::move(title);
+    data->ValueOrEventText = std::move(description);
 
     _queuedData.Enqueue(data);
 }
@@ -136,15 +152,18 @@ void Metric::SendBatch()
         if (!_realmName.empty())
             batchedData << ",realm=" << _realmName;
 
+        for (MetricTag const& tag : data->Tags)
+            batchedData << "," << tag.first << "=" << FormatInfluxDBTagValue(tag.second);
+
         batchedData << " ";
 
         switch (data->Type)
         {
             case METRIC_DATA_VALUE:
-                batchedData << "value=" << data->Value;
+                batchedData << "value=" << data->ValueOrEventText;
                 break;
             case METRIC_DATA_EVENT:
-                batchedData << "title=\"" << data->Title << "\",text=\"" << data->Text << "\"";
+                batchedData << "title=\"" << data->Title << "\",text=\"" << data->ValueOrEventText << "\"";
                 break;
         }
 
@@ -209,7 +228,7 @@ void Metric::ScheduleSend()
         MetricData* data;
         // Clear the queue
         while (_queuedData.Dequeue(data))
-            ;
+            delete data;
     }
 }
 
@@ -274,6 +293,11 @@ std::string Metric::FormatInfluxDBTagValue(std::string const& value)
 {
     // ToDo: should handle '=' and ',' characters too
     return boost::replace_all_copy(value, " ", "\\ ");
+}
+
+std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)
+{
+    return FormatInfluxDBValue(std::chrono::duration_cast<Milliseconds>(value).count());
 }
 
 Metric::Metric()

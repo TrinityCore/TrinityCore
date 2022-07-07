@@ -17,6 +17,7 @@
 
 #include "AuctionHousePackets.h"
 #include "AuctionHouseMgr.h"
+#include "DB2Stores.h"
 #include "ObjectGuid.h"
 #include "Util.h"
 
@@ -63,9 +64,9 @@ ByteBuffer& operator>>(ByteBuffer& data, AuctionBucketKey& itemKey)
 ByteBuffer& operator<<(ByteBuffer& data, AuctionBucketKey const& itemKey)
 {
     data.WriteBits(itemKey.ItemID, 20);
-    data.WriteBit(itemKey.BattlePetSpeciesID.is_initialized());
+    data.WriteBit(itemKey.BattlePetSpeciesID.has_value());
     data.WriteBits(itemKey.ItemLevel, 11);
-    data.WriteBit(itemKey.SuffixItemNameDescriptionID.is_initialized());
+    data.WriteBit(itemKey.SuffixItemNameDescriptionID.has_value());
     data.FlushBits();
 
     if (itemKey.BattlePetSpeciesID)
@@ -160,10 +161,10 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
     if (!bucketInfo.ItemModifiedAppearanceIDs.empty())
         data.append(bucketInfo.ItemModifiedAppearanceIDs.data(), bucketInfo.ItemModifiedAppearanceIDs.size());
 
-    data.WriteBit(bucketInfo.MaxBattlePetQuality.is_initialized());
-    data.WriteBit(bucketInfo.MaxBattlePetLevel.is_initialized());
-    data.WriteBit(bucketInfo.BattlePetBreedID.is_initialized());
-    data.WriteBit(bucketInfo.Unk901_1.is_initialized());
+    data.WriteBit(bucketInfo.MaxBattlePetQuality.has_value());
+    data.WriteBit(bucketInfo.MaxBattlePetLevel.has_value());
+    data.WriteBit(bucketInfo.BattlePetBreedID.has_value());
+    data.WriteBit(bucketInfo.Unk901_1.has_value());
     data.WriteBit(bucketInfo.ContainsOwnerItem);
     data.WriteBit(bucketInfo.ContainsOnlyCollectedAppearances);
     data.FlushBits();
@@ -185,21 +186,21 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
 
 ByteBuffer& operator<<(ByteBuffer& data, AuctionItem const& auctionItem)
 {
-    data.WriteBit(auctionItem.Item.is_initialized());
+    data.WriteBit(auctionItem.Item.has_value());
     data.WriteBits(auctionItem.Enchantments.size(), 4);
     data.WriteBits(auctionItem.Gems.size(), 2);
-    data.WriteBit(auctionItem.MinBid.is_initialized());
-    data.WriteBit(auctionItem.MinIncrement.is_initialized());
-    data.WriteBit(auctionItem.BuyoutPrice.is_initialized());
-    data.WriteBit(auctionItem.UnitPrice.is_initialized());
+    data.WriteBit(auctionItem.MinBid.has_value());
+    data.WriteBit(auctionItem.MinIncrement.has_value());
+    data.WriteBit(auctionItem.BuyoutPrice.has_value());
+    data.WriteBit(auctionItem.UnitPrice.has_value());
     data.WriteBit(auctionItem.CensorServerSideInfo);
     data.WriteBit(auctionItem.CensorBidInfo);
-    data.WriteBit(auctionItem.AuctionBucketKey.is_initialized());
-    data.WriteBit(auctionItem.Creator.is_initialized());
+    data.WriteBit(auctionItem.AuctionBucketKey.has_value());
+    data.WriteBit(auctionItem.Creator.has_value());
     if (!auctionItem.CensorBidInfo)
     {
-        data.WriteBit(auctionItem.Bidder.is_initialized());
-        data.WriteBit(auctionItem.BidAmount.is_initialized());
+        data.WriteBit(auctionItem.Bidder.has_value());
+        data.WriteBit(auctionItem.BidAmount.has_value());
     }
 
     data.FlushBits();
@@ -280,7 +281,13 @@ void AuctionBrowseQuery::Read()
     _worldPacket >> MinLevel;
     _worldPacket >> MaxLevel;
     Filters = _worldPacket.read<AuctionHouseFilterMask, uint32>();
-    KnownPets.resize(_worldPacket.read<uint32>());
+
+    uint32 knownPetsSize = _worldPacket.read<uint32>();
+    uint32 const sizeLimit = sBattlePetSpeciesStore.GetNumRows() / (sizeof(decltype(KnownPets)::value_type) * 8) + 1;
+    if (knownPetsSize >= sizeLimit)
+        throw PacketArrayMaxCapacityException(knownPetsSize, sizeLimit);
+
+    KnownPets.resize(knownPetsSize);
     _worldPacket >> MaxPetLevel;
     for (uint8& knownPetMask : KnownPets)
         _worldPacket >> knownPetMask;
@@ -545,9 +552,9 @@ WorldPacket const* AuctionCommandResult::Write()
 
 WorldPacket const* AuctionGetCommodityQuoteResult::Write()
 {
-    _worldPacket.WriteBit(TotalPrice.is_initialized());
-    _worldPacket.WriteBit(Quantity.is_initialized());
-    _worldPacket.WriteBit(QuoteDuration.is_initialized());
+    _worldPacket.WriteBit(TotalPrice.has_value());
+    _worldPacket.WriteBit(Quantity.has_value());
+    _worldPacket.WriteBit(QuoteDuration.has_value());
     _worldPacket << int32(ItemID);
     _worldPacket << uint32(DesiredDelay);
 

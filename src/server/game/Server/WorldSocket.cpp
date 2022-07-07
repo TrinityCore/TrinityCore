@@ -31,7 +31,6 @@
 #include "RBAC.h"
 #include "ScriptMgr.h"
 #include "SessionKeyGenerator.h"
-#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -47,17 +46,6 @@ struct CompressedWorldPacket
 };
 
 #pragma pack(pop)
-
-class EncryptablePacket : public WorldPacket
-{
-public:
-    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt) { }
-
-    bool NeedsEncryption() const { return _encrypt; }
-
-private:
-    bool _encrypt;
-};
 
 using boost::asio::ip::tcp;
 
@@ -159,18 +147,28 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
                 return;
             }
 
-            ByteBuffer buffer(std::move(_packetBuffer));
-            std::string initializer = buffer.ReadString(ClientConnectionInitialize.length());
-            if (initializer != ClientConnectionInitialize)
+            try
             {
-                CloseSocket();
-                return;
-            }
+                ByteBuffer buffer(std::move(_packetBuffer));
+                std::string initializer = buffer.ReadString(ClientConnectionInitialize.length());
+                if (initializer != ClientConnectionInitialize)
+                {
+                    CloseSocket();
+                    return;
+                }
 
-            uint8 terminator;
-            buffer >> terminator;
-            if (terminator != '\n')
+                uint8 terminator;
+                buffer >> terminator;
+                if (terminator != '\n')
+                {
+                    CloseSocket();
+                    return;
+                }
+            }
+            catch (ByteBufferException const& ex)
             {
+                TC_LOG_ERROR("network", "WorldSocket::InitializeHandler ByteBufferException %s occured while parsing initial packet from %s",
+                    ex.what(), GetRemoteIpAddress().to_string().c_str());
                 CloseSocket();
                 return;
             }
@@ -435,8 +433,12 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             sessionGuard.lock();
             LogOpcodeText(opcode, sessionGuard);
             if (_worldSession)
+            {
                 _worldSession->ResetTimeOutTime(true);
-            break;
+                return ReadDataHandlerResult::Ok;
+            }
+            TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler: client %s sent CMSG_KEEP_ALIVE without being authenticated", GetRemoteIpAddress().to_string().c_str());
+            return ReadDataHandlerResult::Error;
         case CMSG_LOG_DISCONNECT:
             LogOpcodeText(opcode, sessionGuard);
             packet.rfinish();   // contains uint32 disconnectReason;
@@ -465,9 +467,12 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             break;
         case CMSG_HOTFIX_REQUEST:
             _canRequestHotfixes = false;
-            /* fallthrough */
+            [[fallthrough]];
         default:
         {
+            if (opcode == CMSG_TIME_SYNC_RESPONSE)
+                packet.SetReceiveTime(std::chrono::steady_clock::now());
+
             sessionGuard.lock();
 
             LogOpcodeText(opcode, sessionGuard);
@@ -739,12 +744,17 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     // only first 16 bytes of the hmac are used
     memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
 
-    // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
-    stmt->setString(0, address);
-    stmt->setString(1, authSession->RealmJoinTicket);
-    LoginDatabase.Execute(stmt);
-    // This also allows to check for possible "hack" attempts on account
+    LoginDatabasePreparedStatement* stmt = nullptr;
+
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE))
+    {
+        // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
+        stmt->setString(0, address);
+        stmt->setString(1, authSession->RealmJoinTicket);
+        LoginDatabase.Execute(stmt);
+        // This also allows to check for possible "hack" attempts on account
+    }
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setBinary(0, _sessionKey);
@@ -843,13 +853,16 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.", authSession->RealmJoinTicket.c_str(), address.c_str());
 
-    // Update the last_ip in the database as it was successful for login
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE))
+    {
+        // Update the last_ip in the database as it was successful for login
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
-    stmt->setString(0, address);
-    stmt->setString(1, authSession->RealmJoinTicket);
+        stmt->setString(0, address);
+        stmt->setString(1, authSession->RealmJoinTicket);
 
-    LoginDatabase.Execute(stmt);
+        LoginDatabase.Execute(stmt);
+    }
 
     // At this point, we can safely hook a successful login
     sScriptMgr->OnAccountLogin(account.Game.Id);
@@ -1035,10 +1048,7 @@ bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
         std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
 
         if (_worldSession)
-        {
             _worldSession->SetLatency(ping.Latency);
-            _worldSession->ResetClientTimeDelay();
-        }
         else
         {
             TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s", GetRemoteIpAddress().to_string().c_str());

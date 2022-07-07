@@ -41,3 +41,19 @@ LocaleConstant GetLocaleByName(std::string const& name)
 
     return TOTAL_LOCALES;
 }
+
+CascLocaleBit WowLocaleToCascLocaleBit[TOTAL_LOCALES] =
+{
+    CascLocaleBit::enUS,
+    CascLocaleBit::koKR,
+    CascLocaleBit::frFR,
+    CascLocaleBit::deDE,
+    CascLocaleBit::zhCN,
+    CascLocaleBit::zhTW,
+    CascLocaleBit::esES,
+    CascLocaleBit::esMX,
+    CascLocaleBit::ruRU,
+    CascLocaleBit::None,
+    CascLocaleBit::ptBR,
+    CascLocaleBit::itIT
+};

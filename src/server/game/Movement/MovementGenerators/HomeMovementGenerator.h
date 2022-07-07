@@ -24,22 +24,18 @@ template <class T>
 class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGenerator<T> >
 {
     public:
-        explicit HomeMovementGenerator() : _path(nullptr), _arrived(false), _skipToHome(false) { }
-        ~HomeMovementGenerator();
+        explicit HomeMovementGenerator();
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(T*);
-        void DoFinalize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*);
+        void DoFinalize(T*, bool, bool);
 
     private:
         void SetTargetLocation(T*);
-
-        PathGenerator* _path;
-        bool _arrived;
-        bool _skipToHome;
 };
 
 #endif

@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "black_temple.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 
@@ -81,12 +80,12 @@ struct boss_supremus : public BossAI
         _DespawnAtEvade();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         ChangePhase();
-        events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
-        events.ScheduleEvent(EVENT_FLAME, Seconds(20));
+        events.ScheduleEvent(EVENT_BERSERK, 15min);
+        events.ScheduleEvent(EVENT_FLAME, 20s);
     }
 
     void ChangePhase()
@@ -112,7 +111,7 @@ struct boss_supremus : public BossAI
         }
         ResetThreatList();
         DoZoneInCombat();
-        events.ScheduleEvent(EVENT_SWITCH_PHASE, Seconds(60));
+        events.ScheduleEvent(EVENT_SWITCH_PHASE, 1min);
     }
 
     Unit* CalculateHatefulStrikeTarget()
@@ -153,7 +152,7 @@ struct boss_supremus : public BossAI
                 events.Repeat(Seconds(5));
                 break;
             case EVENT_SWITCH_TARGET:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
                 {
                     ResetThreatList();
                     AddThreat(target, 1000000.0f);
@@ -183,7 +182,7 @@ struct npc_molten_flame : public NullCreatureAI
     void InitializeAI() override
     {
         float x, y, z;
-        me->GetNearPoint(me, x, y, z, 1, 100.0f, frand(0.f, 2.f * float(M_PI)));
+        me->GetNearPoint(me, x, y, z, 100.0f, frand(0.f, 2.f * float(M_PI)));
         me->GetMotionMaster()->MovePoint(0, x, y, z);
         DoCastSelf(SPELL_MOLTEN_FLAME, true);
     }

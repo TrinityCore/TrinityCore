@@ -17,11 +17,13 @@
 
 #include "Totem.h"
 #include "Group.h"
+#include "Log.h"
 #include "Map.h"
 #include "Player.h"
+#include "SmartEnum.h"
 #include "SpellHistory.h"
-#include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "TotemPackets.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)
@@ -66,8 +68,11 @@ void Totem::InitStats(uint32 duration)
         }
 
         // set display id depending on caster's race
-        if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(m_unitData->CreatedBySpell, owner->getRace()))
+        if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(m_unitData->CreatedBySpell, owner->GetRace()))
             SetDisplayId(totemDisplayId);
+        else
+            TC_LOG_DEBUG("misc", "Totem with entry %u, owned by player %s, does not have a specialized model for spell %u and race %s. Set to default.",
+                         GetEntry(), owner->GetGUID().ToString().c_str(), *m_unitData->CreatedBySpell, EnumUtils::ToTitle(Races(owner->GetRace())));
     }
 
     Minion::InitStats(duration);
@@ -78,8 +83,6 @@ void Totem::InitStats(uint32 duration)
             m_type = TOTEM_ACTIVE;
 
     m_duration = duration;
-
-    SetLevel(GetOwner()->getLevel());
 }
 
 void Totem::InitSummon()
@@ -96,7 +99,7 @@ void Totem::UnSummon(uint32 msTime)
 {
     if (msTime)
     {
-        m_Events.AddEvent(new ForcedUnsummonDelayEvent(*this), m_Events.CalculateTime(msTime));
+        m_Events.AddEvent(new ForcedUnsummonDelayEvent(*this), m_Events.CalculateTime(Milliseconds(msTime)));
         return;
     }
 
@@ -137,26 +140,26 @@ void Totem::UnSummon(uint32 msTime)
     AddObjectToRemoveList();
 }
 
-bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
+bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const
 {
-    /// @todo possibly all negative auras immune?
-    if (GetEntry() == 5925)
-        return false;
-    if (SpellEffectInfo const* effect = spellInfo->GetEffect(index))
-    {
-        switch (effect->ApplyAuraName)
-        {
-            case SPELL_AURA_PERIODIC_DAMAGE:
-            case SPELL_AURA_PERIODIC_LEECH:
-            case SPELL_AURA_MOD_FEAR:
-            case SPELL_AURA_TRANSFORM:
-                return true;
-            default:
-                break;
-        }
-    }
-    else
+    // immune to all positive spells, except of stoneclaw totem absorb and sentry totem bind sight
+    // totems positive spells have unit_caster target
+    if (spellEffectInfo.Effect != SPELL_EFFECT_DUMMY &&
+        spellEffectInfo.Effect != SPELL_EFFECT_SCRIPT_EFFECT &&
+        spellInfo->IsPositive() && spellEffectInfo.TargetA.GetTarget() != TARGET_UNIT_CASTER &&
+        spellEffectInfo.TargetA.GetCheckType() != TARGET_CHECK_ENTRY)
         return true;
 
-    return Creature::IsImmunedToSpellEffect(spellInfo, index, caster);
+    switch (spellEffectInfo.ApplyAuraName)
+    {
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_PERIODIC_LEECH:
+        case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_TRANSFORM:
+            return true;
+        default:
+            break;
+    }
+
+    return Creature::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster);
 }

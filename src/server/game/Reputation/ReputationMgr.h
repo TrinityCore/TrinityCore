@@ -20,7 +20,6 @@
 
 #include "Common.h"
 #include "EnumFlag.h"
-#include "Language.h"
 #include "DatabaseEnvFwd.h"
 #include "SharedDefines.h"
 #include <set>
@@ -29,11 +28,7 @@
 struct FactionEntry;
 struct FactionTemplateEntry;
 
-static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
-{
-    LANG_REP_HATED,    LANG_REP_HOSTILE, LANG_REP_UNFRIENDLY, LANG_REP_NEUTRAL,
-    LANG_REP_FRIENDLY, LANG_REP_HONORED, LANG_REP_REVERED,    LANG_REP_EXALTED
-};
+TC_GAME_API extern uint32 const ReputationRankStrIndex[MAX_REPUTATION_RANK];
 
 enum class ReputationFlags : uint16
 {
@@ -76,7 +71,7 @@ class TC_GAME_API ReputationMgr
             _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) { }
         ~ReputationMgr() { }
 
-        void SaveToDB(CharacterDatabaseTransaction& trans);
+        void SaveToDB(CharacterDatabaseTransaction trans);
         void LoadFromDB(PreparedQueryResult result);
     public:                                                 // statics
         static std::set<int32> const ReputationRankThresholds;

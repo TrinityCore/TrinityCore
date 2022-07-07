@@ -23,6 +23,7 @@
 #include "vec3d.h"
 #include "VMapDefinitions.h"
 #include "wmo.h"
+#include <algorithm>
 #include <fstream>
 #include <map>
 #include <cstdio>
@@ -76,11 +77,6 @@ bool WMORoot::open()
             f.read(&flags, 2);
             f.read(&numLod, 2);
         }
-        else if (!strcmp(fourcc, "MOGN"))
-        {
-            GroupNames.resize(size);
-            f.read(GroupNames.data(), size);
-        }
         else if (!strcmp(fourcc, "MODS"))
         {
             DoodadData.Sets.resize(size / sizeof(WMO::MODS));
@@ -129,6 +125,11 @@ bool WMORoot::open()
         {
             DoodadData.Spawns.resize(size / sizeof(WMO::MODD));
             f.read(DoodadData.Spawns.data(), size);
+        }
+        else if (!strcmp(fourcc, "MOGN"))
+        {
+            GroupNames.resize(size);
+            f.read(GroupNames.data(), size);
         }
         else if (!strcmp(fourcc, "GFID"))
         {
@@ -546,6 +547,10 @@ uint32 WMOGroup::GetLiquidTypeId(uint32 liquidTypeId)
 
 bool WMOGroup::ShouldSkip(WMORoot const* root) const
 {
+    // skip unreachable
+    if (mogpFlags & 0x80)
+        return true;
+
     // skip antiportals
     if (mogpFlags & 0x4000000)
         return true;

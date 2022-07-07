@@ -569,6 +569,11 @@ WorldPacket const* QuestPushResultResponse::Write()
     _worldPacket << SenderGUID;
     _worldPacket << uint8(Result);
 
+    _worldPacket.WriteBits(QuestTitle.size(), 9);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(QuestTitle);
+
     return &_worldPacket;
 }
 
@@ -678,11 +683,18 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseMawPower const& pla
 {
     data << int32(playerChoiceResponseMawPower.Unused901_1);
     data << int32(playerChoiceResponseMawPower.TypeArtFileID);
-    data << int32(playerChoiceResponseMawPower.Rarity);
-    data << uint32(playerChoiceResponseMawPower.RarityColor);
     data << int32(playerChoiceResponseMawPower.Unused901_2);
     data << int32(playerChoiceResponseMawPower.SpellID);
     data << int32(playerChoiceResponseMawPower.MaxStacks);
+    data.WriteBit(playerChoiceResponseMawPower.Rarity.has_value());
+    data.WriteBit(playerChoiceResponseMawPower.RarityColor.has_value());
+    data.FlushBits();
+
+    if (playerChoiceResponseMawPower.Rarity)
+        data << int32(*playerChoiceResponseMawPower.Rarity);
+
+    if (playerChoiceResponseMawPower.RarityColor)
+        data << uint32(*playerChoiceResponseMawPower.RarityColor);
 
     return data;
 }
@@ -705,9 +717,9 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponse const& playerChoic
     data.WriteBits(playerChoiceResponse.ButtonTooltip.length(), 9);
     data.WriteBits(playerChoiceResponse.Description.length(), 11);
     data.WriteBits(playerChoiceResponse.Confirmation.length(), 7);
-    data.WriteBit(playerChoiceResponse.RewardQuestID.is_initialized());
-    data.WriteBit(playerChoiceResponse.Reward.is_initialized());
-    data.WriteBit(playerChoiceResponse.MawPower.is_initialized());
+    data.WriteBit(playerChoiceResponse.RewardQuestID.has_value());
+    data.WriteBit(playerChoiceResponse.Reward.has_value());
+    data.WriteBit(playerChoiceResponse.MawPower.has_value());
     data.FlushBits();
 
     if (playerChoiceResponse.Reward)
@@ -736,8 +748,11 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket << SenderGUID;
     _worldPacket << int32(UiTextureKitID);
     _worldPacket << uint32(SoundKitID);
+    _worldPacket << uint32(CloseUISoundKitID);
     _worldPacket << uint8(NumRerolls);
+    _worldPacket << Duration;
     _worldPacket.WriteBits(Question.length(), 8);
+    _worldPacket.WriteBits(PendingChoiceText.length(), 8);
     _worldPacket.WriteBit(CloseChoiceFrame);
     _worldPacket.WriteBit(HideWarboardHeader);
     _worldPacket.WriteBit(KeepOpenAfterChoice);
@@ -747,13 +762,14 @@ WorldPacket const* DisplayPlayerChoice::Write()
         _worldPacket << response;
 
     _worldPacket.WriteString(Question);
+    _worldPacket.WriteString(PendingChoiceText);
     return &_worldPacket;
 }
 
 void ChoiceResponse::Read()
 {
     _worldPacket >> ChoiceID;
-    _worldPacket >> ResponseID;
+    _worldPacket >> ResponseIdentifier;
     IsReroll = _worldPacket.ReadBit();
 }
 }

@@ -64,6 +64,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
         virtual void Update(uint32 /*diff*/) { }
 
         bool IsComplete();
+        bool IsCompletedStep(ScenarioStepEntry const* step);
         void SetStepState(ScenarioStepEntry const* step, ScenarioStepState state) { _stepStates[step] = state; }
         ScenarioEntry const* GetEntry() const;
         ScenarioStepState GetStepState(ScenarioStepEntry const* step);
@@ -94,7 +95,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
         std::vector<WorldPackets::Scenario::BonusObjectiveData> GetBonusObjectivesData();
         std::vector<WorldPackets::Achievement::CriteriaProgress> GetCriteriasProgress();
 
-        CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const override;
+        CriteriaList const& GetCriteriaByType(CriteriaType type, uint32 asset) const override;
         ScenarioData const* _data;
 
     private:

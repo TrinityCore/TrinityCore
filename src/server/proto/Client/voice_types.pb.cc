@@ -28,9 +28,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
   VoiceCredentials_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* VoiceJoinType_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* VoiceMuteReason_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* VoiceProviderVersion_descriptor_ = NULL;
 
 }  // namespace
-
 
 void protobuf_AssignDesc_voice_5ftypes_2eproto() {
   protobuf_AddDesc_voice_5ftypes_2eproto();
@@ -59,6 +59,7 @@ void protobuf_AssignDesc_voice_5ftypes_2eproto() {
       sizeof(VoiceCredentials));
   VoiceJoinType_descriptor_ = file->enum_type(0);
   VoiceMuteReason_descriptor_ = file->enum_type(1);
+  VoiceProviderVersion_descriptor_ = file->enum_type(2);
 }
 
 namespace {
@@ -99,7 +100,9 @@ void protobuf_AddDesc_voice_5ftypes_2eproto() {
     "on\022\032\n\026VOICE_MUTE_REASON_NONE\020\000\0222\n.VOICE_"
     "MUTE_REASON_PARENTAL_CONTROL_LISTEN_ONLY"
     "\020\001\022\037\n\033VOICE_MUTE_REASON_REQUESTED\020\002\022\037\n\033V"
-    "OICE_MUTE_REASON_SQUELCHED\020\003B\002H\001", 432);
+    "OICE_MUTE_REASON_SQUELCHED\020\003*D\n\024VoicePro"
+    "viderVersion\022\025\n\021VOICE_PROVIDER_V4\020\000\022\025\n\021V"
+    "OICE_PROVIDER_V5\020\001B\002H\001", 502);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "voice_types.proto", &protobuf_RegisterTypes);
   VoiceCredentials::default_instance_ = new VoiceCredentials();
@@ -143,6 +146,19 @@ bool VoiceMuteReason_IsValid(int value) {
   }
 }
 
+const ::google::protobuf::EnumDescriptor* VoiceProviderVersion_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return VoiceProviderVersion_descriptor_;
+}
+bool VoiceProviderVersion_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
 
 // ===================================================================
 
@@ -584,7 +600,6 @@ void VoiceCredentials::CopyFrom(const VoiceCredentials& from) {
 }
 
 bool VoiceCredentials::IsInitialized() const {
-
   return true;
 }
 
@@ -608,7 +623,6 @@ void VoiceCredentials::Swap(VoiceCredentials* other) {
   metadata.reflection = VoiceCredentials_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

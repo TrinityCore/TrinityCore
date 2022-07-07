@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -33,9 +34,12 @@ EndScriptData */
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "WaypointDefines.h"
 #include "WaypointManager.h"
 #include "WorldSession.h"
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class wp_commandscript : public CommandScript
 {
@@ -137,6 +141,7 @@ public:
         stmt->setFloat(2, player->GetPositionX());
         stmt->setFloat(3, player->GetPositionY());
         stmt->setFloat(4, player->GetPositionZ());
+        stmt->setFloat(5, player->GetOrientation());
 
         WorldDatabase.Execute(stmt);
 
@@ -637,21 +642,27 @@ public:
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff%u|r", pathid);
 
-            target->DeleteFromDB();
-            target->AddObjectToRemoveList();
+            if (Creature::DeleteFromDB(target->GetSpawnId()))
+            {
+                stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_DATA);
+                stmt->setUInt32(0, pathid);
+                stmt->setUInt32(1, point);
+                WorldDatabase.Execute(stmt);
 
-            stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_DATA);
-            stmt->setUInt32(0, pathid);
-            stmt->setUInt32(1, point);
-            WorldDatabase.Execute(stmt);
+                stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_POINT);
+                stmt->setUInt32(0, pathid);
+                stmt->setUInt32(1, point);
+                WorldDatabase.Execute(stmt);
 
-            stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_POINT);
-            stmt->setUInt32(0, pathid);
-            stmt->setUInt32(1, point);
-            WorldDatabase.Execute(stmt);
-
-            handler->PSendSysMessage(LANG_WAYPOINT_REMOVED);
-            return true;
+                handler->SendSysMessage(LANG_WAYPOINT_REMOVED);
+                return true;
+            }
+            else
+            {
+                handler->SendSysMessage(LANG_WAYPOINT_NOTREMOVED);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
         }                                                       // del
 
         if (show == "move")
@@ -663,8 +674,12 @@ public:
             // What to do:
             // Move the visual spawnpoint
             // Respawn the owner of the waypoints
-            target->DeleteFromDB();
-            target->AddObjectToRemoveList();
+            if (!Creature::DeleteFromDB(target->GetSpawnId()))
+            {
+                handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
 
             // re-create
             Creature* wpCreature = Creature::CreateCreature(VISUAL_WAYPOINT, map, chr->GetPosition());
@@ -695,8 +710,9 @@ public:
             stmt->setFloat(0, chr->GetPositionX());
             stmt->setFloat(1, chr->GetPositionY());
             stmt->setFloat(2, chr->GetPositionZ());
-            stmt->setUInt32(3, pathid);
-            stmt->setUInt32(4, point);
+            stmt->setFloat(3, chr->GetOrientation());
+            stmt->setUInt32(4, pathid);
+            stmt->setUInt32(5, point);
             WorldDatabase.Execute(stmt);
 
             handler->PSendSysMessage(LANG_WAYPOINT_CHANGED);
@@ -800,7 +816,7 @@ public:
                 uint32 delay            = fields[2].GetUInt32();
                 uint32 flag             = fields[3].GetUInt32();
                 uint32 ev_id            = fields[4].GetUInt32();
-                uint32 ev_chance        = fields[5].GetUInt32();
+                uint32 ev_chance        = fields[5].GetUInt16();
 
                 handler->PSendSysMessage("|cff00ff00Show info: for current point: |r|cff00ffff%u|r|cff00ff00, Path ID: |r|cff00ffff%u|r", point, pathid);
                 handler->PSendSysMessage("|cff00ff00Show info: delay: |r|cff00ffff%u|r", delay);
@@ -842,22 +858,10 @@ public:
                 {
                     Field* fields = result2->Fetch();
                     ObjectGuid::LowType wpguid = fields[0].GetUInt64();
-                    Creature* creature = handler->GetCreatureFromPlayerMapByDbGuid(wpguid);
-
-                    if (!creature)
+                    if (!Creature::DeleteFromDB(wpguid))
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, std::to_string(wpguid).c_str());
                         hasError = true;
-
-                        stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-                        stmt->setUInt64(0, wpguid);
-                        WorldDatabase.Execute(stmt);
-                    }
-                    else
-                    {
-                        creature->CombatStop();
-                        creature->DeleteFromDB();
-                        creature->AddObjectToRemoveList();
                     }
 
                 }
@@ -878,14 +882,14 @@ public:
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
+                float o         = fields[4].GetFloat();
 
                 uint32 id = VISUAL_WAYPOINT;
 
                 Player* chr = handler->GetSession()->GetPlayer();
                 Map* map = chr->GetMap();
-                Position pos = { x, y, z, chr->GetOrientation() };
 
-                Creature* wpCreature = Creature::CreateCreature(id, map, pos);
+                Creature* wpCreature = Creature::CreateCreature(id, map, { x, y, z, o });
                 if (!wpCreature)
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -948,13 +952,14 @@ public:
             float x         = fields[0].GetFloat();
             float y         = fields[1].GetFloat();
             float z         = fields[2].GetFloat();
+            float o         = fields[3].GetFloat();
+
             uint32 id = VISUAL_WAYPOINT;
 
             Player* chr = handler->GetSession()->GetPlayer();
             Map* map = chr->GetMap();
-            Position pos = { x, y, z, chr->GetOrientation() };
 
-            Creature* creature = Creature::CreateCreature(id, map, pos);
+            Creature* creature = Creature::CreateCreature(id, map, { x, y, z, o });
             if (!creature)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -1061,21 +1066,10 @@ public:
                 Field* fields = result->Fetch();
                 ObjectGuid::LowType lowguid = fields[0].GetUInt64();
 
-                Creature* creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
-                if (!creature)
+                if (!Creature::DeleteFromDB(lowguid))
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, std::to_string(lowguid).c_str());
                     hasError = true;
-
-                    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-                    stmt->setUInt64(0, lowguid);
-                    WorldDatabase.Execute(stmt);
-                }
-                else
-                {
-                    creature->CombatStop();
-                    creature->DeleteFromDB();
-                    creature->AddObjectToRemoveList();
                 }
             }
             while (result->NextRow());

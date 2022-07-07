@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "CreatureAIImpl.h"
 #include "EventMap.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -735,18 +734,20 @@ public:
 
         static uint32 CheerPicker()
         {
-            uint32 newid = RAND(
+            uint32 ids[] =
+            {
                 SOUND_CHEER_1,
                 SOUND_CHEER_2,
                 SOUND_CHEER_3,
                 SOUND_CHEER_4
-            );
-            return newid;
+            };
+            return Trinity::Containers::SelectRandomContainerElement(ids);
         }
 
         static uint32 FireworksPicker()
         {
-            uint32 newid = RAND(
+            uint32 ids[] =
+            {
                 FIREWORK_SHOW_TYPE_1_RED,
                 FIREWORK_SHOW_TYPE_2_RED,
                 FIREWORK_SHOW_TYPE_1_RED_BIG,
@@ -770,13 +771,14 @@ public:
                 FIREWORK_SHOW_TYPE_2_PURPLE,
                 FIREWORK_SHOW_TYPE_1_PURPLE_BIG,
                 FIREWORK_SHOW_TYPE_2_PURPLE_BIG
-            );
-            return newid;
+            };
+            return Trinity::Containers::SelectRandomContainerElement(ids);
         }
 
         static uint32 FireworksBIGOnlyPicker()
         {
-            uint32 newid = RAND(
+            uint32 ids[] =
+            {
                 FIREWORK_SHOW_TYPE_1_RED_BIG,
                 FIREWORK_SHOW_TYPE_2_RED_BIG,
                 FIREWORK_SHOW_TYPE_1_BLUE_BIG,
@@ -789,8 +791,8 @@ public:
                 FIREWORK_SHOW_TYPE_2_YELLOW_BIG,
                 FIREWORK_SHOW_TYPE_1_PURPLE_BIG,
                 FIREWORK_SHOW_TYPE_2_PURPLE_BIG
-            );
-            return newid;
+            };
+            return Trinity::Containers::SelectRandomContainerElement(ids);
         }
 
         void UpdateAI(uint32 diff) override
@@ -804,15 +806,15 @@ public:
             // Start
             if ((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
-                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_CHEER, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
                 _started = true;
             }
 
             // Event is active
             if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59 && !_started) && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
                 _started = true;
             }
 
@@ -820,7 +822,7 @@ public:
             if ((localTm.tm_min == 10 && localTm.tm_sec == 0) && _started == true)
             {
                 _started = false;
-                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
+                _events.ScheduleEvent(EVENT_CHEER, 1s);
                 _events.CancelEvent(EVENT_FIRE);
             }
 
@@ -828,17 +830,17 @@ public:
             if ((localTm.tm_min == 10 && localTm.tm_sec == 30 && localTm.tm_hour == 0) && IsEventActive(GAME_EVENT_NEW_YEAR) && _big == true)
             {
                 _big = false;
-                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_CHEER, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, 1s);
             }
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -860,7 +862,7 @@ public:
 
                             if (_big)
                             {
-                                if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
+                                if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 5min))
                                 {
                                     firework->SetRespawnTime(0);
                                     firework->Delete();
@@ -868,7 +870,7 @@ public:
                             }
                             else
                             {
-                                if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
+                                if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 5min))
                                 {
                                     firework->SetRespawnTime(0);
                                     firework->Delete();
@@ -877,7 +879,7 @@ public:
                         }
 
                         if (_started == true)
-                            _events.ScheduleEvent(EVENT_FIRE, Seconds(1), Seconds(2));
+                            _events.ScheduleEvent(EVENT_FIRE, 1s, 2s);
 
                         break;
                     }

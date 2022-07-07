@@ -36,7 +36,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     WriteBits(Flags, 7);
     WriteBit(false); // Debug info
     WriteLogDataBit();
-    WriteBit(ContentTuning.is_initialized());
+    WriteBit(ContentTuning.has_value());
     FlushBits();
     WriteLogData();
     if (ContentTuning)
@@ -63,48 +63,60 @@ WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
 {
     *this << Caster;
     *this << int32(SpellID);
-    *this << uint32(Effects.size());
+    *this << uint32(Effects->size());
 
-    for (SpellLogEffect const& effect : Effects)
+    for (SpellLogEffect const& effect : *Effects)
     {
         *this << int32(effect.Effect);
 
-        *this << uint32(effect.PowerDrainTargets.size());
-        *this << uint32(effect.ExtraAttacksTargets.size());
-        *this << uint32(effect.DurabilityDamageTargets.size());
-        *this << uint32(effect.GenericVictimTargets.size());
-        *this << uint32(effect.TradeSkillTargets.size());
-        *this << uint32(effect.FeedPetTargets.size());
+        *this << uint32(effect.PowerDrainTargets ? effect.PowerDrainTargets->size() : 0);
+        *this << uint32(effect.ExtraAttacksTargets ? effect.ExtraAttacksTargets->size() : 0);
+        *this << uint32(effect.DurabilityDamageTargets ? effect.DurabilityDamageTargets->size() : 0);
+        *this << uint32(effect.GenericVictimTargets ? effect.GenericVictimTargets->size() : 0);
+        *this << uint32(effect.TradeSkillTargets ? effect.TradeSkillTargets->size() : 0);
+        *this << uint32(effect.FeedPetTargets ? effect.FeedPetTargets->size() : 0);
 
-        for (SpellLogEffectPowerDrainParams const& powerDrainTarget : effect.PowerDrainTargets)
+        if (effect.PowerDrainTargets)
         {
-            *this << powerDrainTarget.Victim;
-            *this << uint32(powerDrainTarget.Points);
-            *this << uint32(powerDrainTarget.PowerType);
-            *this << float(powerDrainTarget.Amplitude);
+            for (SpellLogEffectPowerDrainParams const& powerDrainTarget : *effect.PowerDrainTargets)
+            {
+                *this << powerDrainTarget.Victim;
+                *this << uint32(powerDrainTarget.Points);
+                *this << uint32(powerDrainTarget.PowerType);
+                *this << float(powerDrainTarget.Amplitude);
+            }
         }
 
-        for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : effect.ExtraAttacksTargets)
+        if (effect.ExtraAttacksTargets)
         {
-            *this << extraAttacksTarget.Victim;
-            *this << uint32(extraAttacksTarget.NumAttacks);
+            for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : *effect.ExtraAttacksTargets)
+            {
+                *this << extraAttacksTarget.Victim;
+                *this << uint32(extraAttacksTarget.NumAttacks);
+            }
         }
 
-        for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : effect.DurabilityDamageTargets)
+        if (effect.DurabilityDamageTargets)
         {
-            *this << durabilityDamageTarget.Victim;
-            *this << int32(durabilityDamageTarget.ItemID);
-            *this << int32(durabilityDamageTarget.Amount);
+            for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : *effect.DurabilityDamageTargets)
+            {
+                *this << durabilityDamageTarget.Victim;
+                *this << int32(durabilityDamageTarget.ItemID);
+                *this << int32(durabilityDamageTarget.Amount);
+            }
         }
 
-        for (SpellLogEffectGenericVictimParams const& genericVictimTarget : effect.GenericVictimTargets)
-            *this << genericVictimTarget.Victim;
+        if (effect.GenericVictimTargets)
+            for (SpellLogEffectGenericVictimParams const& genericVictimTarget : *effect.GenericVictimTargets)
+                *this << genericVictimTarget.Victim;
 
-        for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : effect.TradeSkillTargets)
-            *this << int32(tradeSkillTarget.ItemID);
+        if (effect.TradeSkillTargets)
+            for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : *effect.TradeSkillTargets)
+                *this << int32(tradeSkillTarget.ItemID);
 
-        for (SpellLogEffectFeedPetParams const& feedPetTarget : effect.FeedPetTargets)
-            *this << int32(feedPetTarget.ItemID);
+        if (effect.FeedPetTargets)
+            for (SpellLogEffectFeedPetParams const& feedPetTarget : *effect.FeedPetTargets)
+                *this << int32(feedPetTarget.ItemID);
     }
 
     WriteLogDataBit();
@@ -124,10 +136,10 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
     *this << int32(OverHeal);
     *this << int32(Absorbed);
     WriteBit(Crit);
-    WriteBit(CritRollMade.is_initialized());
-    WriteBit(CritRollNeeded.is_initialized());
+    WriteBit(CritRollMade.has_value());
+    WriteBit(CritRollNeeded.has_value());
     WriteLogDataBit();
-    WriteBit(ContentTuning.is_initialized());
+    WriteBit(ContentTuning.has_value());
     FlushBits();
 
     WriteLogData();
@@ -163,8 +175,8 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
         *this << int32(effect.AbsorbedOrAmplitude);
         *this << int32(effect.Resisted);
         WriteBit(effect.Crit);
-        WriteBit(effect.DebugInfo.is_initialized());
-        WriteBit(effect.ContentTuning.is_initialized());
+        WriteBit(effect.DebugInfo.has_value());
+        WriteBit(effect.ContentTuning.has_value());
         FlushBits();
 
         if (effect.ContentTuning)
@@ -229,7 +241,7 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellLogMiss
 {
     buffer << missEntry.Victim;
     buffer << uint8(missEntry.MissReason);
-    if (buffer.WriteBit(missEntry.Debug.is_initialized()))
+    if (buffer.WriteBit(missEntry.Debug.has_value()))
         buffer << *missEntry.Debug;
 
     buffer.FlushBits();
@@ -252,8 +264,8 @@ WorldPacket const* WorldPackets::CombatLog::ProcResist::Write()
     _worldPacket << Caster;
     _worldPacket << Target;
     _worldPacket << int32(SpellID);
-    _worldPacket.WriteBit(Rolled.is_initialized());
-    _worldPacket.WriteBit(Needed.is_initialized());
+    _worldPacket.WriteBit(Rolled.has_value());
+    _worldPacket.WriteBit(Needed.has_value());
     _worldPacket.FlushBits();
 
     if (Rolled)
@@ -302,7 +314,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << int32(Damage);
     attackRoundInfo << int32(OriginalDamage);
     attackRoundInfo << int32(OverDamage);
-    attackRoundInfo << uint8(SubDmg.is_initialized());
+    attackRoundInfo << uint8(SubDmg.has_value());
     if (SubDmg)
     {
        attackRoundInfo << int32(SubDmg->SchoolMask);
@@ -369,11 +381,11 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellDispell
 {
     buffer << int32(dispellData.SpellID);
     buffer.WriteBit(dispellData.Harmful);
-    buffer.WriteBit(dispellData.Rolled.is_initialized());
-    buffer.WriteBit(dispellData.Needed.is_initialized());
-    if (dispellData.Rolled.is_initialized())
+    buffer.WriteBit(dispellData.Rolled.has_value());
+    buffer.WriteBit(dispellData.Needed.has_value());
+    if (dispellData.Rolled.has_value())
         buffer << int32(*dispellData.Rolled);
-    if (dispellData.Needed.is_initialized())
+    if (dispellData.Needed.has_value())
         buffer << int32(*dispellData.Needed);
 
     buffer.FlushBits();

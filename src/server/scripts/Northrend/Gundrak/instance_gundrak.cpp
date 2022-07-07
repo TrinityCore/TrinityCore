@@ -129,7 +129,7 @@ class instance_gundrak : public InstanceMapScript
                         go->SetGoState(MoorabiStatueState);
                         break;
                     case GO_GAL_DARAH_STATUE:
-                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
+                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_DESTROYED : GO_STATE_READY);
                         break;
                     case GO_DRAKKARI_COLOSSUS_STATUE:
                         go->SetGoState(DrakkariColossusStatueState);
@@ -159,7 +159,7 @@ class instance_gundrak : public InstanceMapScript
                     DwellerGUIDs.erase(unit->GetGUID());
 
                     if (DwellerGUIDs.empty())
-                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300s);
                 }
             }
 
@@ -204,9 +204,9 @@ class instance_gundrak : public InstanceMapScript
                             return false;
                         break;
                     case DATA_GAL_DARAH:
-                        if (SladRanStatueState != GO_STATE_ACTIVE_ALTERNATIVE
-                            || DrakkariColossusStatueState != GO_STATE_ACTIVE_ALTERNATIVE
-                            || MoorabiStatueState != GO_STATE_ACTIVE_ALTERNATIVE)
+                        if (SladRanStatueState != GO_STATE_DESTROYED
+                            || DrakkariColossusStatueState != GO_STATE_DESTROYED
+                            || MoorabiStatueState != GO_STATE_DESTROYED)
                             return false;
                         break;
                     default:
@@ -311,7 +311,7 @@ class instance_gundrak : public InstanceMapScript
                             break;
                         case DATA_BRIDGE:
                             for (uint32 type = DATA_SLAD_RAN_STATUE; type <= DATA_GAL_DARAH_STATUE; ++type)
-                                ToggleGameObject(type, GO_STATE_ACTIVE_ALTERNATIVE);
+                                ToggleGameObject(type, GO_STATE_DESTROYED);
                             ToggleGameObject(DATA_TRAPDOOR, GO_STATE_READY);
                             ToggleGameObject(DATA_COLLISION, GO_STATE_ACTIVE);
                             SaveToDB();
@@ -349,35 +349,24 @@ class instance_gundrak : public InstanceMapScript
         }
 };
 
-class go_gundrak_altar : public GameObjectScript
+struct go_gundrak_altar : public GameObjectAI
 {
-    public:
-        go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
+    go_gundrak_altar(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        struct go_gundrak_altarAI : public GameObjectAI
-        {
-            go_gundrak_altarAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+    InstanceScript* instance;
 
-            InstanceScript* instance;
+    bool OnGossipHello(Player* /*player*/) override
+    {
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
+        me->SetGoState(GO_STATE_ACTIVE);
 
-            bool GossipHello(Player* /*player*/) override
-            {
-                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
-                me->SetGoState(GO_STATE_ACTIVE);
-
-                instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetGundrakAI<go_gundrak_altarAI>(go);
-        }
+        instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());
+        return true;
+    }
 };
 
 void AddSC_instance_gundrak()
 {
     new instance_gundrak();
-    new go_gundrak_altar();
+    RegisterGundrakGameObjectAI(go_gundrak_altar);
 }

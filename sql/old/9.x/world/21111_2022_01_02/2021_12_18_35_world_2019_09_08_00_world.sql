@@ -1,0 +1,2 @@
+-- 
+UPDATE `quest_request_items` SET `CompletionText`="Finally, you've arrived... and discretely also. Good.$b$bOur world is full of fools, $N. Even the mighty Thrall has greater flaws than most can see. He turns his back on the power needed to make this land ours completely! We're not the same people who were manipulated and used by creatures from the Nether. We are our own people. We are proud... and we are strong." WHERE `ID`=3090;

@@ -46,7 +46,7 @@ struct BattlegroundData
 struct BattlegroundTemplate
 {
     BattlegroundTypeId Id;
-    WorldSafeLocsEntry const* StartLocation[BG_TEAMS_COUNT] = { };
+    WorldSafeLocsEntry const* StartLocation[PVP_TEAMS_COUNT] = { };
     float MaxStartDistSq;
     uint8 Weight;
     uint32 ScriptId;
@@ -79,6 +79,11 @@ class TC_GAME_API BattlegroundMgr
         ~BattlegroundMgr();
 
     public:
+        BattlegroundMgr(BattlegroundMgr const& right) = delete;
+        BattlegroundMgr(BattlegroundMgr&& right) = delete;
+        BattlegroundMgr& operator=(BattlegroundMgr const& right) = delete;
+        BattlegroundMgr& operator=(BattlegroundMgr&& right) = delete;
+
         static BattlegroundMgr* instance();
 
         void Update(uint32 diff);
@@ -118,7 +123,8 @@ class TC_GAME_API BattlegroundMgr
         void ToggleArenaTesting();
         void ToggleTesting();
 
-        void SetHolidayWeekends(uint32 mask);
+        void ResetHolidays();
+        void SetHolidayActive(uint32 battlegroundId);
 
         bool isArenaTesting() const { return m_ArenaTesting; }
         bool isTesting() const { return m_Testing; }

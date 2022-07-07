@@ -19,10 +19,8 @@
 #include "black_temple.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -95,6 +93,7 @@ enum Misc
     ACTION_ESSENCE_OF_SUFFERING_DEAD,
     ACTION_ESSENCE_OF_DESIRE_DEAD,
     ACTION_KILL_SELF,
+    ACTION_START_COMBAT,
     ANGER_SOUND_ID_DEATH       = 11401
 };
 
@@ -140,10 +139,7 @@ class EnslavedSoulEvent : public BasicEvent
 
 struct boss_reliquary_of_souls : public BossAI
 {
-    boss_reliquary_of_souls(Creature* creature) : BossAI(creature, DATA_RELIQUARY_OF_SOULS), _inCombat(false)
-    {
-        creature->m_SightDistance = 70.0f;
-    }
+    boss_reliquary_of_souls(Creature* creature) : BossAI(creature, DATA_RELIQUARY_OF_SOULS), _inCombat(false) { }
 
     void Reset() override
     {
@@ -153,15 +149,10 @@ struct boss_reliquary_of_souls : public BossAI
         events.SetPhase(PHASE_ESSENCE_OF_SUFFERING);
     }
 
-    void MoveInLineOfSight(Unit* who) override
+    void JustSummoned(Creature* summon) override
     {
-        if (!_inCombat && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->IsGameMaster() && CanAIAttack(who))
-        {
-            _inCombat = true;
-            DoZoneInCombat();
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            events.ScheduleEvent(EVENT_SUBMERGE, Seconds(10));
-        }
+        summons.Summon(summon);
+        summon->AI()->DoZoneInCombat();
     }
 
     uint32 GetSummonSpell()
@@ -184,16 +175,25 @@ struct boss_reliquary_of_souls : public BossAI
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_VISUAL);
                 events.SetPhase(PHASE_ESSENCE_OF_DESIRE);
                 HandleSpirits();
-                events.ScheduleEvent(EVENT_SUBMERGE, Seconds(40));
+                events.ScheduleEvent(EVENT_SUBMERGE, 40s);
                 break;
             case ACTION_ESSENCE_OF_DESIRE_DEAD:
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_VISUAL);
                 events.SetPhase(PHASE_ESSENCE_OF_ANGER);
                 HandleSpirits();
-                events.ScheduleEvent(EVENT_SUBMERGE, Seconds(40));
+                events.ScheduleEvent(EVENT_SUBMERGE, 40s);
                 break;
             case ACTION_KILL_SELF:
                 me->KillSelf();
+                if (Creature* combatTrigger = instance->GetCreature(DATA_RELIQUARY_COMBAT_TRIGGER))
+                    combatTrigger->AI()->DoAction(ACTION_KILL_SELF);
+                break;
+            case ACTION_START_COMBAT:
+                _inCombat = true;
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                events.ScheduleEvent(EVENT_SUBMERGE, 10s);
+                break;
+            default:
                 break;
         }
     }
@@ -214,19 +214,19 @@ struct boss_reliquary_of_souls : public BossAI
         {
             Creature* wTrigger = _worldTriggerList[i];
             if (i < 3)
-                wTrigger->m_Events.AddEvent(new EnslavedSoulEvent(wTrigger), wTrigger->m_Events.CalculateTime(4000));
+                wTrigger->m_Events.AddEventAtOffset(new EnslavedSoulEvent(wTrigger), 4s);
             else if (i < 6)
-                wTrigger->m_Events.AddEvent(new EnslavedSoulEvent(wTrigger), wTrigger->m_Events.CalculateTime(8000));
+                wTrigger->m_Events.AddEventAtOffset(new EnslavedSoulEvent(wTrigger), 8s);
             else if (i < 9)
-                wTrigger->m_Events.AddEvent(new EnslavedSoulEvent(wTrigger), wTrigger->m_Events.CalculateTime(12000));
+                wTrigger->m_Events.AddEventAtOffset(new EnslavedSoulEvent(wTrigger), 12s);
             else if (i < 12)
-                wTrigger->m_Events.AddEvent(new EnslavedSoulEvent(wTrigger), wTrigger->m_Events.CalculateTime(16000));
+                wTrigger->m_Events.AddEventAtOffset(new EnslavedSoulEvent(wTrigger), 16s);
             else if (i < 15)
-                wTrigger->m_Events.AddEvent(new EnslavedSoulEvent(wTrigger), wTrigger->m_Events.CalculateTime(20000));
+                wTrigger->m_Events.AddEventAtOffset(new EnslavedSoulEvent(wTrigger), 20s);
             else if (i < 18)
-                wTrigger->m_Events.AddEvent(new EnslavedSoulEvent(wTrigger), wTrigger->m_Events.CalculateTime(24000));
+                wTrigger->m_Events.AddEventAtOffset(new EnslavedSoulEvent(wTrigger), 24s);
             else
-                wTrigger->m_Events.AddEvent(new EnslavedSoulEvent(wTrigger), wTrigger->m_Events.CalculateTime(28000));
+                wTrigger->m_Events.AddEventAtOffset(new EnslavedSoulEvent(wTrigger), 28s);
         }
     }
 
@@ -258,7 +258,7 @@ struct boss_reliquary_of_souls : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
+        if (!_inCombat)
             return;
 
         events.Update(diff);
@@ -268,25 +268,13 @@ struct boss_reliquary_of_souls : public BossAI
 
         while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+            if (eventId == EVENT_SUBMERGE)
             {
-                case EVENT_SUBMERGE:
-                    DoCastSelf(SPELL_SUBMERGE_VISUAL, true);
-                    events.ScheduleEvent(EVENT_SUMMON_ESSENCE, Seconds(3));
-                    break;
-                case EVENT_SUMMON_ESSENCE:
-                {
-                    EntryCheckPredicate pred(NPC_ENSLAVED_SOUL);
-                    summons.DoAction(ACTION_KILL_SELF, pred);
-                    DoCastSelf(GetSummonSpell());
-                    break;
-                }
-                default:
-                    break;
+                DoCastSelf(SPELL_SUBMERGE_VISUAL, true);
+                EntryCheckPredicate pred(NPC_ENSLAVED_SOUL);
+                summons.DoAction(ACTION_KILL_SELF, pred);
+                DoCastSelf(GetSummonSpell());
             }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
         }
     }
 
@@ -323,7 +311,7 @@ struct boss_essence_of_suffering : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -345,10 +333,9 @@ struct boss_essence_of_suffering : public BossAI
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
-        DoZoneInCombat();
 
-        events.ScheduleEvent(EVENT_SOUL_DRAIN, Seconds(20));
-        events.ScheduleEvent(EVENT_FRENZY, Seconds(45));
+        events.ScheduleEvent(EVENT_SOUL_DRAIN, 20s);
+        events.ScheduleEvent(EVENT_FRENZY, 45s);
         Talk(SUFF_SAY_AGRO);
     }
 
@@ -356,12 +343,6 @@ struct boss_essence_of_suffering : public BossAI
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
             Talk(SUFF_SAY_SLAY);
-    }
-
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        if (Creature* reliquary = instance->GetCreature(DATA_RELIQUARY_OF_SOULS))
-            reliquary->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
     }
 
     void UpdateAI(uint32 diff) override
@@ -417,13 +398,12 @@ struct boss_essence_of_desire : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_SPIRIT_SHOCK, Seconds(11));
-        events.ScheduleEvent(EVENT_RUNE_SHIELD, Seconds(16));
-        events.ScheduleEvent(EVENT_DEADEN, Seconds(31));
+        events.ScheduleEvent(EVENT_SPIRIT_SHOCK, 11s);
+        events.ScheduleEvent(EVENT_RUNE_SHIELD, 16s);
+        events.ScheduleEvent(EVENT_DEADEN, 31s);
 
         me->SetCombatPulseDelay(5);
         me->setActive(true);
-        DoZoneInCombat();
         Talk(DESI_SAY_FREED);
     }
 
@@ -442,7 +422,7 @@ struct boss_essence_of_desire : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -464,12 +444,6 @@ struct boss_essence_of_desire : public BossAI
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
             Talk(DESI_SAY_SLAY);
-    }
-
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        if (Creature* reliquary = instance->GetCreature(DATA_RELIQUARY_OF_SOULS))
-            reliquary->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
     }
 
     void UpdateAI(uint32 diff) override
@@ -531,14 +505,13 @@ struct boss_essence_of_anger : public BossAI
     {
         Talk(ANGER_SAY_FREED);
 
-        events.ScheduleEvent(EVENT_START_CHECK_TANKER, Seconds(5));
-        events.ScheduleEvent(EVENT_SOUL_SCREAM, Seconds(11));
-        events.ScheduleEvent(EVENT_SPITE, Seconds(20));
+        events.ScheduleEvent(EVENT_START_CHECK_TANKER, 5s);
+        events.ScheduleEvent(EVENT_SOUL_SCREAM, 11s);
+        events.ScheduleEvent(EVENT_SPITE, 20s);
         events.ScheduleEvent(EVENT_FREED_2, Seconds(1), Minutes(3));
 
         me->SetCombatPulseDelay(5);
         me->setActive(true);
-        DoZoneInCombat();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -590,7 +563,7 @@ struct boss_essence_of_anger : public BossAI
                     if (Unit* target = me->GetVictim())
                     {
                         _targetGUID = target->GetGUID();
-                        events.ScheduleEvent(EVENT_CHECK_TANKER, Seconds(1));
+                        events.ScheduleEvent(EVENT_CHECK_TANKER, 1s);
                     }
                     else
                         events.Repeat(Seconds(1));
@@ -609,19 +582,13 @@ struct boss_essence_of_anger : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        if (Creature* reliquary = instance->GetCreature(DATA_RELIQUARY_OF_SOULS))
-            reliquary->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
-    }
-
 private:
     ObjectGuid _targetGUID;
 };
 
 struct npc_enslaved_soul : public ScriptedAI
 {
-    npc_enslaved_soul(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_enslaved_soul(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _dead(false) { }
 
     void Reset() override
     {
@@ -636,12 +603,35 @@ struct npc_enslaved_soul : public ScriptedAI
             me->SetReactState(REACT_AGGRESSIVE);
             DoZoneInCombat();
         });
+        _dead = false;
     }
 
     void DoAction(int32 actionId) override
     {
         if (actionId == ACTION_KILL_SELF)
-            me->KillSelf();
+            HandleSoulRelease();
+    }
+
+    void HandleSoulRelease()
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->AttackStop();
+        me->GetMotionMaster()->Clear();
+        DoCastSelf(SPELL_SOUL_RELEASE);
+        me->m_Events.AddEventAtOffset([this]() { me->KillSelf(); }, 500ms);
+    }
+
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (damage >= me->GetHealth())
+        {
+            damage = 0;
+            if (!_dead)
+            {
+                _dead = true;
+                HandleSoulRelease();
+            }
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -654,14 +644,71 @@ struct npc_enslaved_soul : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* /*killer*/) override
+private:
+    InstanceScript* _instance;
+    TaskScheduler _scheduler;
+    bool _dead;
+};
+
+struct npc_reliquary_combat_trigger : public ScriptedAI
+{
+    npc_reliquary_combat_trigger(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
     {
-        DoCastSelf(SPELL_SOUL_RELEASE, true);
+        SetCombatMovement(false);
+        creature->m_SightDistance = 70.0f;
+        SetBoundary(_instance->GetBossBoundary(DATA_RELIQUARY_OF_SOULS));
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        return ScriptedAI::CanAIAttack(who) && IsInBoundary(who);
+    }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        if (_instance->GetBossState(DATA_RELIQUARY_OF_SOULS) == DONE)
+            me->DespawnOrUnsummon();
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!me->IsEngaged() && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->IsGameMaster() && CanAIAttack(who))
+        {
+            if (Creature* reliquary = _instance->GetCreature(DATA_RELIQUARY_OF_SOULS))
+            {
+                DoZoneInCombat();
+                reliquary->AI()->DoAction(ACTION_START_COMBAT);
+            }
+        }
+    }
+
+    void DamageTaken(Unit* /*done_by*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        damage = 0;
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ScriptedAI::EnterEvadeMode(why);
+        if (Creature* reliquary = _instance->GetCreature(DATA_RELIQUARY_OF_SOULS))
+            reliquary->AI()->EnterEvadeMode(why);
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        if (actionId == ACTION_KILL_SELF)
+            me->KillSelf();
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
     }
 
 private:
     InstanceScript* _instance;
-    TaskScheduler _scheduler;
 };
 
 // 41350 - Aura of Desire
@@ -695,6 +742,24 @@ class spell_reliquary_of_souls_aura_of_desire : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_reliquary_of_souls_aura_of_desire::OnProcSpell, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
         OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_reliquary_of_souls_aura_of_desire::UpdateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 41337 - Aura of Anger
+class spell_reliquary_of_souls_aura_of_anger : public AuraScript
+{
+    PrepareAuraScript(spell_reliquary_of_souls_aura_of_anger);
+
+    void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
+    {
+        if (AuraEffect* aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
+            aurEff1->ChangeAmount(aurEff1->GetAmount() + 5);
+        aurEff->SetAmount(100 * aurEff->GetTickNumber());
+    }
+
+    void Register() override
+    {
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_reliquary_of_souls_aura_of_anger::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
@@ -766,8 +831,10 @@ void AddSC_boss_reliquary_of_souls()
     RegisterBlackTempleCreatureAI(boss_essence_of_desire);
     RegisterBlackTempleCreatureAI(boss_essence_of_anger);
     RegisterBlackTempleCreatureAI(npc_enslaved_soul);
-    RegisterAuraScript(spell_reliquary_of_souls_aura_of_desire);
-    RegisterAuraScript(spell_reliquary_of_souls_submerge);
-    RegisterAuraScript(spell_reliquary_of_souls_spite);
+    RegisterBlackTempleCreatureAI(npc_reliquary_combat_trigger);
+    RegisterSpellScript(spell_reliquary_of_souls_aura_of_desire);
+    RegisterSpellScript(spell_reliquary_of_souls_aura_of_anger);
+    RegisterSpellScript(spell_reliquary_of_souls_submerge);
+    RegisterSpellScript(spell_reliquary_of_souls_spite);
     RegisterSpellScript(spell_reliquary_of_souls_frenzy);
 }

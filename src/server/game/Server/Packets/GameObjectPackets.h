@@ -19,9 +19,7 @@
 #define GOPackets_h__
 
 #include "Packet.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
-#include "WorldSession.h"
 
 namespace WorldPackets
 {
@@ -130,6 +128,7 @@ namespace WorldPackets
 
             ObjectGuid ObjectGUID;
             int32 UILink = 0;
+            int32 UIItemInteractionID = 0;
         };
 
         class GameObjectPlaySpellVisual final : public ServerPacket

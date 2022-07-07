@@ -78,24 +78,24 @@ public:
             summons.DoAction(ACTION_DESPAWN_IMPS, pred);
             _Reset();
 
-            events.ScheduleEvent(EVENT_SHADOWBOLT, Seconds(1));
-            events.ScheduleEvent(EVENT_SUMMON_KILREK, Seconds(3));
-            events.ScheduleEvent(EVENT_SACRIFICE, Seconds(30));
+            events.ScheduleEvent(EVENT_SHADOWBOLT, 1s);
+            events.ScheduleEvent(EVENT_SUMMON_KILREK, 3s);
+            events.ScheduleEvent(EVENT_SACRIFICE, 30s);
             events.ScheduleEvent(EVENT_SUMMON_PORTAL_1, Seconds(10));
             events.ScheduleEvent(EVENT_SUMMON_PORTAL_2, Seconds(11));
-            events.ScheduleEvent(EVENT_ENRAGE, Minutes(10));
+            events.ScheduleEvent(EVENT_ENRAGE, 10min);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_BROKEN_PACT)
-                events.ScheduleEvent(EVENT_SUMMON_KILREK, Seconds(32));
+            if (spellInfo->Id == SPELL_BROKEN_PACT)
+                events.ScheduleEvent(EVENT_SUMMON_KILREK, 32s);
         }
 
         void KilledUnit(Unit* victim) override
@@ -117,7 +117,7 @@ public:
             switch (eventId)
             {
                 case EVENT_SACRIFICE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         DoCast(target, SPELL_SACRIFICE, true);
                         target->CastSpell(target, SPELL_SUMMON_DEMONCHAINS, true);
@@ -126,7 +126,7 @@ public:
                     events.Repeat(Seconds(42));
                     break;
                 case EVENT_SHADOWBOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
                         DoCast(target, SPELL_SHADOW_BOLT);
                     events.Repeat(Seconds(4), Seconds(10));
                     break;
@@ -210,7 +210,7 @@ public:
     {
         npc_demon_chainAI(Creature* creature) : PassiveAI(creature) { }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             _sacrificeGUID = summoner->GetGUID();
             DoCastSelf(SPELL_DEMON_CHAINS, true);
