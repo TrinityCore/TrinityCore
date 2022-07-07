@@ -62,16 +62,14 @@ public:
     void OnLogin(Player* player, bool /*firstLogin*/)
     {
         for (uint8 i = 0; i < MAX_WEEKLY_EVENT; ++i)
+        {
             if (!sGameEventMgr->IsActiveEvent(events[i]))
                 if (player->HasAura(auras[i]))
                     player->RemoveAura(auras[i]);
 
-        for (uint8 i = 0; i < MAX_WEEKLY_EVENT; ++i)        
             if (sGameEventMgr->IsActiveEvent(events[i]))
-            {
                 player->CastSpell(nullptr, auras[i]);
-                break;
-            }
+        }
     }
 };
 
