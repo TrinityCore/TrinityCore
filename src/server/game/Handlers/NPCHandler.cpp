@@ -37,6 +37,7 @@
 #include "PetPackets.h"
 #include "Player.h"
 #include "ReputationMgr.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "Trainer.h"
 #include "World.h"
