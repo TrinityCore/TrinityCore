@@ -20,20 +20,38 @@
 
 constexpr auto MAX_WEEKLY_EVENT = 5;
 
+enum Spells
+{
+    SPELL_SIGN_OF_THE_SKIRMISHER    = 186401,
+    SPELL_SIGN_OF_BATTLE            = 186403,
+    SPELL_SIGN_OF_THE_CRITTER       = 186406,
+    SPELL_SIGN_OF_THE_WARRIOR       = 225787,
+    SPELL_SIGN_OF_THE_EMISSARY      = 225787
+};
+
+enum Events
+{
+    ARENA_SKIRMISH_BONUS_EVENT      = 91,
+    BATTLEGROUND_BONUS_EVENT        = 99,
+    PET_BATTLE_BONUS_EVENT          = 86,
+    SHADOWLANDS_DUNGEON_EVENT       = 102,
+    WORLD_QUEST_BONUS_EVENT         = 94
+};
+
 int32 events[MAX_WEEKLY_EVENT] = {
-    91,  //  561 - Arena Skirmish Bonus Event
-    99,  //  563 - Battleground Bonus Event
-    86,  //  565 - Pet Battle Bonus Event
-    102, // 1217 - Shadowlands Dungeon Event
-    94   //  592 - World Quest Bonus Event
+    ARENA_SKIRMISH_BONUS_EVENT,
+    BATTLEGROUND_BONUS_EVENT,
+    PET_BATTLE_BONUS_EVENT,
+    SHADOWLANDS_DUNGEON_EVENT,
+    WORLD_QUEST_BONUS_EVENT
 };
 
 int32 auras[MAX_WEEKLY_EVENT] = {
-    186401, // Sign of the Skirmisher
-    186403, // Sign of Battle
-    186406, // Sign of the Critter
-    225787, // Sign of the Warrior
-    225788  // Sign of the Emissary
+    SPELL_SIGN_OF_THE_SKIRMISHER,
+    SPELL_SIGN_OF_BATTLE,
+    SPELL_SIGN_OF_THE_CRITTER,
+    SPELL_SIGN_OF_THE_WARRIOR,
+    SPELL_SIGN_OF_THE_EMISSARY
 };
 
 class Weekly_Bonus_Event_PlayerScript : public PlayerScript
@@ -51,7 +69,7 @@ public:
         for (uint8 i = 0; i < MAX_WEEKLY_EVENT; ++i)        
             if (sGameEventMgr->IsActiveEvent(events[i]))
             {
-                player->AddAura(auras[i], player);
+                player->CastSpell(nullptr, auras[i]);
                 break;
             }
     }
