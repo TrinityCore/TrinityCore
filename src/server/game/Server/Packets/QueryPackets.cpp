@@ -100,15 +100,17 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Query::QueryPlayerName::Read()
+void WorldPackets::Query::QueryPlayerNames::Read()
 {
-    _worldPacket >> Player;
+    Players.resize(_worldPacket.read<uint32>());
+    for (ObjectGuid& player : Players)
+        _worldPacket >> player;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
 {
-    data.WriteBit(lookupHint.VirtualRealmAddress.is_initialized());
-    data.WriteBit(lookupHint.NativeRealmAddress.is_initialized());
+    data.WriteBit(lookupHint.VirtualRealmAddress.has_value());
+    data.WriteBit(lookupHint.NativeRealmAddress.has_value());
     data.FlushBits();
 
     if (lookupHint.VirtualRealmAddress)
@@ -133,10 +135,10 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         AccountID     = player->GetSession()->GetAccountGUID();
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
         Name          = player->GetName();
-        Race          = player->getRace();
-        Sex           = player->GetNativeSex();
-        ClassID       = player->getClass();
-        Level         = player->getLevel();
+        Race          = player->GetRace();
+        Sex           = player->GetNativeGender();
+        ClassID       = player->GetClass();
+        Level         = player->GetLevel();
 
         if (DeclinedName const* names = player->GetDeclinedNames())
             DeclinedNames = *names;
@@ -182,18 +184,46 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << uint8(lookupData.Sex);
     data << uint8(lookupData.ClassID);
     data << uint8(lookupData.Level);
+    data << uint8(lookupData.Unused915);
     data.WriteString(lookupData.Name);
 
     return data;
 }
 
-WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
+ByteBuffer operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheUnused920 const& thing)
 {
-    _worldPacket << uint8(Result);
-    _worldPacket << Player;
+    data << uint32(thing.Unused1);
+    data << thing.Unused2;
+    data.WriteBits(thing.Unused3.length(), 7);
+    data.FlushBits();
 
-    if (Result == RESPONSE_SUCCESS)
-        _worldPacket << Data;
+    data.WriteString(thing.Unused3);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheLookupResult const& result)
+{
+    data << uint8(result.Result);
+    data << result.Player;
+    data.WriteBit(result.Data.has_value());
+    data.WriteBit(result.Unused920.has_value());
+    data.FlushBits();
+
+    if (result.Data)
+        data << *result.Data;
+
+    if (result.Unused920)
+        data << *result.Unused920;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPlayerNamesResponse::Write()
+{
+    _worldPacket << uint32(Players.size());
+    for (NameCacheLookupResult const& lookupResult : Players)
+        _worldPacket << lookupResult;
 
     return &_worldPacket;
 }
@@ -203,7 +233,6 @@ void WorldPackets::Query::QueryPageText::Read()
     _worldPacket >> PageTextID;
     _worldPacket >> ItemGUID;
 }
-
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::QueryPageTextResponse::PageTextInfo const& page)
 {

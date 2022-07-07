@@ -109,6 +109,12 @@ Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
     return nullptr;
 }
 
+void GroupMgr::Update(uint32 diff)
+{
+    for (std::pair<ObjectGuid::LowType const, Group*> const& group : GroupStore)
+        group.second->Update(diff);
+}
+
 void GroupMgr::AddGroup(Group* group)
 {
     GroupStore[group->GetGUID().GetCounter()] = group;
@@ -124,10 +130,15 @@ void GroupMgr::LoadGroups()
     {
         uint32 oldMSTime = getMSTime();
 
+        // Delete all members that does not exist
+        CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
         // Delete all groups whose leader does not exist
         CharacterDatabase.DirectExecute("DELETE FROM `groups` WHERE leaderGuid NOT IN (SELECT guid FROM characters)");
         // Delete all groups with less than 2 members
         CharacterDatabase.DirectExecute("DELETE FROM `groups` WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
+        // Delete all rows from group_member or group_instance with no group
+        CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM `groups`)");
+        CharacterDatabase.DirectExecute("DELETE FROM group_instance WHERE guid NOT IN (SELECT guid FROM `groups`)");
 
         //                                                        0              1           2             3                 4      5          6      7         8       9
         QueryResult result = CharacterDatabase.Query("SELECT g.leaderGuid, g.lootMethod, g.looterGuid, g.lootThreshold, g.icon1, g.icon2, g.icon3, g.icon4, g.icon5, g.icon6"
@@ -167,12 +178,6 @@ void GroupMgr::LoadGroups()
     {
         uint32 oldMSTime = getMSTime();
 
-        // Delete all rows from group_member or group_instance with no group
-        CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM `groups`)");
-        CharacterDatabase.DirectExecute("DELETE FROM group_instance WHERE guid NOT IN (SELECT guid FROM `groups`)");
-        // Delete all members that does not exist
-        CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
-
         //                                                    0        1           2            3       4
         QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
         if (!result)
@@ -207,7 +212,7 @@ void GroupMgr::LoadGroups()
         //                                                   0        1      2            3             4             5            6
         QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, i.entranceId, "
             //           7
-            "(SELECT COUNT(1) FROM character_instance ci LEFT JOIN groups g ON ci.guid = g.leaderGuid WHERE ci.instance = gi.instance AND ci.permanent = 1 LIMIT 1) "
+            "(SELECT COUNT(1) FROM character_instance ci LEFT JOIN `groups` g ON ci.guid = g.leaderGuid WHERE ci.instance = gi.instance AND ci.permanent = 1 LIMIT 1) "
             "FROM group_instance gi LEFT JOIN instance i ON gi.instance = i.id ORDER BY guid");
 
         if (!result)
@@ -222,6 +227,7 @@ void GroupMgr::LoadGroups()
             Field* fields = result->Fetch();
             Group* group = GetGroupByDbStoreId(fields[0].GetUInt32());
             // group will never be NULL (we have run consistency sql's before loading)
+            ASSERT(group);
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt16());
             if (!mapEntry || !mapEntry->IsDungeon())
@@ -243,11 +249,4 @@ void GroupMgr::LoadGroups()
 
         TC_LOG_INFO("server.loading", ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
-}
-
-void GroupMgr::Update(uint32 diff)
-{
-    for (GroupContainer::iterator itr = GroupStore.begin(); itr != GroupStore.end(); itr++)
-        if (itr->second)
-            itr->second->Update(diff);
 }

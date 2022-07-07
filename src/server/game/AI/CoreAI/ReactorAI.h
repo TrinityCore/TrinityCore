@@ -23,8 +23,7 @@
 class TC_GAME_API ReactorAI : public CreatureAI
 {
     public:
-
-        explicit ReactorAI(Creature* c) : CreatureAI(c) { }
+        using CreatureAI::CreatureAI;
 
         void MoveInLineOfSight(Unit*) override { }
         void UpdateAI(uint32 diff) override;

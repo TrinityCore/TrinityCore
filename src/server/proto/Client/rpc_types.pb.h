@@ -1159,9 +1159,7 @@ class TC_PROTO_API KafkaHeader : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -2774,7 +2772,6 @@ inline void KafkaHeader::set_allocated_client_id(::std::string* client_id) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.KafkaHeader.client_id)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -2783,8 +2780,6 @@ inline void KafkaHeader::set_allocated_client_id(::std::string* client_id) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

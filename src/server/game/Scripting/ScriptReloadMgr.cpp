@@ -17,7 +17,6 @@
 
 #include "ScriptReloadMgr.h"
 #include "Errors.h"
-#include "Optional.h"
 
 #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 
@@ -41,8 +40,10 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Config.h"
 #include "GitRevision.h"
 #include "CryptoHash.h"
+#include "Duration.h"
 #include "Log.h"
 #include "MPSCQueue.h"
+#include "Optional.h"
 #include "Regex.h"
 #include "ScriptMgr.h"
 #include "StartProcess.h"
@@ -58,6 +59,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <future>
 #include <memory>
 #include <sstream>
+#include <thread>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -276,7 +278,7 @@ Optional<std::shared_ptr<ScriptModule>>
                          path.generic_string().c_str());
         }
 
-        return boost::none;
+        return {};
     }
 
     // Use RAII to release the library on failure.
@@ -303,7 +305,7 @@ Optional<std::shared_ptr<ScriptModule>>
         TC_LOG_ERROR("scripts.hotswap", "Could not extract all required functions from the shared library \"%s\"!",
             path.generic_string().c_str());
 
-        return boost::none;
+        return {};
     }
 }
 
@@ -369,7 +371,6 @@ static int InvokeCMakeCommand(T&&... args)
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -380,7 +381,6 @@ static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&.
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartAsyncProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -612,7 +612,7 @@ public:
         boost::system::error_code code;
         if ((!fs::exists(temporary_cache_path_, code)
              || (fs::remove_all(temporary_cache_path_, code) > 0)) &&
-             !fs::create_directory(temporary_cache_path_, code))
+             !fs::create_directories(temporary_cache_path_, code))
         {
             TC_LOG_ERROR("scripts.hotswap", "Couldn't create the cache directory at \"%s\".",
                 temporary_cache_path_.generic_string().c_str());
@@ -1035,7 +1035,7 @@ private:
             // Wait for the current build job to finish, if the job finishes in time
             // evaluate it and continue with the next one.
             if (_build_job->GetProcess()->GetFutureResult().
-                    wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                    wait_for(0s) == std::future_status::ready)
                 ProcessReadyBuildJob();
             else
                 return; // Return when the job didn't finish in time
@@ -1359,7 +1359,7 @@ private:
                         return;
 
                     TC_LOG_INFO("scripts.hotswap", ">> Found outdated CMAKE_INSTALL_PREFIX (\"%s\"), "
-                        "worldserver is currently installed at %s...",
+                        "worldserver is currently installed at %s",
                         value.generic_string().c_str(), current_path.generic_string().c_str());
                 }
                 else

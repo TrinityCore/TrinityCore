@@ -28,7 +28,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "old_hillsbrad.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 
 /*######
 ## go_barrel_old_hillsbrad
@@ -45,7 +45,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
                 return false;

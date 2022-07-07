@@ -91,7 +91,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fnotification_2eproto() {
   protobuf_AddDesc_club_5fnotification_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -720,7 +719,6 @@ struct StaticDescriptorInitializer_club_5fnotification_2eproto {
     protobuf_AddDesc_club_5fnotification_2eproto();
   }
 } static_descriptor_initializer_club_5fnotification_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -1138,7 +1136,6 @@ void SubscribeNotification::CopyFrom(const SubscribeNotification& from) {
 }
 
 bool SubscribeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1172,7 +1169,6 @@ void SubscribeNotification::Swap(SubscribeNotification* other) {
   metadata.reflection = SubscribeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1419,7 +1415,6 @@ void UnsubscribeNotification::CopyFrom(const UnsubscribeNotification& from) {
 }
 
 bool UnsubscribeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1443,7 +1438,6 @@ void UnsubscribeNotification::Swap(UnsubscribeNotification* other) {
   metadata.reflection = UnsubscribeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1733,7 +1727,6 @@ void StateChangedNotification::CopyFrom(const StateChangedNotification& from) {
 }
 
 bool StateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1761,7 +1754,6 @@ void StateChangedNotification::Swap(StateChangedNotification* other) {
   metadata.reflection = StateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2051,7 +2043,6 @@ void SettingsChangedNotification::CopyFrom(const SettingsChangedNotification& fr
 }
 
 bool SettingsChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2076,7 +2067,6 @@ void SettingsChangedNotification::Swap(SettingsChangedNotification* other) {
   metadata.reflection = SettingsChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2361,7 +2351,6 @@ void MemberAddedNotification::CopyFrom(const MemberAddedNotification& from) {
 }
 
 bool MemberAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2387,7 +2376,6 @@ void MemberAddedNotification::Swap(MemberAddedNotification* other) {
   metadata.reflection = MemberAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2672,7 +2660,6 @@ void MemberRemovedNotification::CopyFrom(const MemberRemovedNotification& from) 
 }
 
 bool MemberRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2698,7 +2685,6 @@ void MemberRemovedNotification::Swap(MemberRemovedNotification* other) {
   metadata.reflection = MemberRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2983,7 +2969,6 @@ void MemberStateChangedNotification::CopyFrom(const MemberStateChangedNotificati
 }
 
 bool MemberStateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3009,7 +2994,6 @@ void MemberStateChangedNotification::Swap(MemberStateChangedNotification* other)
   metadata.reflection = MemberStateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3294,7 +3278,6 @@ void SubscriberStateChangedNotification::CopyFrom(const SubscriberStateChangedNo
 }
 
 bool SubscriberStateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3320,7 +3303,6 @@ void SubscriberStateChangedNotification::Swap(SubscriberStateChangedNotification
   metadata.reflection = SubscriberStateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3605,7 +3587,6 @@ void MemberRoleChangedNotification::CopyFrom(const MemberRoleChangedNotification
 }
 
 bool MemberRoleChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3631,7 +3612,6 @@ void MemberRoleChangedNotification::Swap(MemberRoleChangedNotification* other) {
   metadata.reflection = MemberRoleChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3921,7 +3901,6 @@ void InvitationAddedNotification::CopyFrom(const InvitationAddedNotification& fr
 }
 
 bool InvitationAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3949,7 +3928,6 @@ void InvitationAddedNotification::Swap(InvitationAddedNotification* other) {
   metadata.reflection = InvitationAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4288,7 +4266,6 @@ void InvitationRemovedNotification::CopyFrom(const InvitationRemovedNotification
 }
 
 bool InvitationRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4314,7 +4291,6 @@ void InvitationRemovedNotification::Swap(InvitationRemovedNotification* other) {
   metadata.reflection = InvitationRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4604,7 +4580,6 @@ void SuggestionAddedNotification::CopyFrom(const SuggestionAddedNotification& fr
 }
 
 bool SuggestionAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4632,7 +4607,6 @@ void SuggestionAddedNotification::Swap(SuggestionAddedNotification* other) {
   metadata.reflection = SuggestionAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4971,7 +4945,6 @@ void SuggestionRemovedNotification::CopyFrom(const SuggestionRemovedNotification
 }
 
 bool SuggestionRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4997,7 +4970,6 @@ void SuggestionRemovedNotification::Swap(SuggestionRemovedNotification* other) {
   metadata.reflection = SuggestionRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5287,7 +5259,6 @@ void StreamAddedNotification::CopyFrom(const StreamAddedNotification& from) {
 }
 
 bool StreamAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5312,7 +5283,6 @@ void StreamAddedNotification::Swap(StreamAddedNotification* other) {
   metadata.reflection = StreamAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5610,7 +5580,6 @@ void StreamRemovedNotification::CopyFrom(const StreamRemovedNotification& from) 
 }
 
 bool StreamRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5635,7 +5604,6 @@ void StreamRemovedNotification::Swap(StreamRemovedNotification* other) {
   metadata.reflection = StreamRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5976,7 +5944,6 @@ void StreamStateChangedNotification::CopyFrom(const StreamStateChangedNotificati
 }
 
 bool StreamStateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6002,7 +5969,6 @@ void StreamStateChangedNotification::Swap(StreamStateChangedNotification* other)
   metadata.reflection = StreamStateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6343,7 +6309,6 @@ void StreamMessageAddedNotification::CopyFrom(const StreamMessageAddedNotificati
 }
 
 bool StreamMessageAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6372,7 +6337,6 @@ void StreamMessageAddedNotification::Swap(StreamMessageAddedNotification* other)
   metadata.reflection = StreamMessageAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6713,7 +6677,6 @@ void StreamMessageUpdatedNotification::CopyFrom(const StreamMessageUpdatedNotifi
 }
 
 bool StreamMessageUpdatedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6742,7 +6705,6 @@ void StreamMessageUpdatedNotification::Swap(StreamMessageUpdatedNotification* ot
   metadata.reflection = StreamMessageUpdatedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7078,7 +7040,6 @@ void StreamTypingIndicatorNotification::CopyFrom(const StreamTypingIndicatorNoti
 }
 
 bool StreamTypingIndicatorNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7105,7 +7066,6 @@ void StreamTypingIndicatorNotification::Swap(StreamTypingIndicatorNotification* 
   metadata.reflection = StreamTypingIndicatorNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7438,7 +7398,6 @@ void StreamUnreadIndicatorNotification::CopyFrom(const StreamUnreadIndicatorNoti
 }
 
 bool StreamUnreadIndicatorNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7467,7 +7426,6 @@ void StreamUnreadIndicatorNotification::Swap(StreamUnreadIndicatorNotification* 
   metadata.reflection = StreamUnreadIndicatorNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7752,7 +7710,6 @@ void StreamAdvanceViewTimeNotification::CopyFrom(const StreamAdvanceViewTimeNoti
 }
 
 bool StreamAdvanceViewTimeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7777,7 +7734,6 @@ void StreamAdvanceViewTimeNotification::Swap(StreamAdvanceViewTimeNotification* 
   metadata.reflection = StreamAdvanceViewTimeNotification_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

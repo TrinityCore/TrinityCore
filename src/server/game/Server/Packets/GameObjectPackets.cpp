@@ -74,6 +74,7 @@ WorldPacket const* WorldPackets::GameObject::GameObjectUILink::Write()
 {
     _worldPacket << ObjectGUID;
     _worldPacket << int32(UILink);
+    _worldPacket << int32(UIItemInteractionID);
 
     return &_worldPacket;
 }

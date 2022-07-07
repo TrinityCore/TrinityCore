@@ -32,6 +32,9 @@ class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovement
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
+        void Pause(uint32 timer = 0) override;
+        void Resume(uint32 overrideTimer = 0) override;
+
         void DoInitialize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
@@ -47,6 +50,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovement
         TimeTracker _timer;
         Position _reference;
         float _wanderDistance;
+        uint8 _wanderSteps;
 };
 
 #endif

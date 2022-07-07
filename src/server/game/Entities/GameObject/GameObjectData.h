@@ -19,11 +19,11 @@
 #define GameObjectData_h__
 
 #include "Common.h"
-#include "DBCEnums.h"
 #include "QuaternionData.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "WorldPacket.h"
+#include <array>
 #include <string>
 
 // from `gameobject_template`
@@ -93,7 +93,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 chestRestockTime;                        // 2 chestRestockTime, int, Min value: 0, Max value: 1800000, Default value: 0
             uint32 consumable;                              // 3 consumable, enum { false, true, }; Default: false
             uint32 minRestock;                              // 4 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
@@ -126,6 +126,7 @@ struct GameObjectTemplate
             uint32 turnpersonallootsecurityoff;             // 31 turn personal loot security off, enum { false, true, }; Default: false
             uint32 ChestProperties;                         // 32 Chest Properties, References: ChestProperties, NoValue = 0
             uint32 chestPushLoot;                           // 33 chest Push Loot, References: Treasure, NoValue = 0
+            uint32 ForceSingleLooter;                       // 34 Force Single Looter, enum { false, true, }; Default: false
         } chest;
         // 4 GAMEOBJECT_TYPE_BINDER
         struct
@@ -403,7 +404,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 radius;                                  // 0 radius, int, Min value: 0, Max value: 50, Default value: 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 minRestock;                              // 2 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 maxRestock;                              // 3 maxRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 open;                                    // 4 open, References: Lock_, NoValue = 0
@@ -692,7 +693,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
-            uint32 chestLoot;                               // 1 chestLoot, References: Treasure, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 Unused;                                  // 2 Unused, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 notInCombat;                             // 3 notInCombat, enum { false, true, }; Default: false
             uint32 trivialSkillLow;                         // 4 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0
@@ -891,6 +892,22 @@ struct GameObjectTemplate
         }
     }
 
+    // Cannot be used/activated/looted by players under immunity effects (example: Divine Shield)
+    uint32 GetNoDamageImmune() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
+            case GAMEOBJECT_TYPE_CHEST:      return 1;
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagStand.noDamageImmune;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagDrop.noDamageImmune;
+            default: return 0;
+        }
+    }
+
     uint32 GetCharges() const                               // despawn at uses amount
     {
         switch (type)
@@ -957,6 +974,7 @@ struct GameObjectTemplate
         {
             case GAMEOBJECT_TYPE_GOOBER:            return goober.eventID;
             case GAMEOBJECT_TYPE_CHEST:             return chest.triggeredEvent;
+            case GAMEOBJECT_TYPE_CHAIR:             return chair.triggeredEvent;
             case GAMEOBJECT_TYPE_CAMERA:            return camera.eventID;
             case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.triggeredEvent;
             default: return 0;
@@ -999,6 +1017,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_TRAP:                  return trap.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_SPELL_FOCUS:           return spellFocus.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_GOOBER:                return goober.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_TRANSPORT:             return true;
             case GAMEOBJECT_TYPE_SPELLCASTER:           return spellCaster.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_FLAGSTAND:             return flagStand.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_FLAGDROP:              return flagDrop.GiganticAOI != 0;
@@ -1059,17 +1078,18 @@ struct GameObjectTemplate
 // From `gameobject_template_addon`, `gameobject_overrides`
 struct GameObjectOverride
 {
-    uint32 Faction;
-    uint32 Flags;
+    uint32 Faction = 0;
+    uint32 Flags = 0;
 };
 
 // From `gameobject_template_addon`
 struct GameObjectTemplateAddon : public GameObjectOverride
 {
-    uint32 Mingold;
-    uint32 Maxgold;
-    uint32 WorldEffectID;
-    uint32 AIAnimKitID;
+    uint32 Mingold = 0;
+    uint32 Maxgold = 0;
+    std::array<uint32, 5> ArtKits = { };
+    uint32 WorldEffectID = 0;
+    uint32 AIAnimKitID = 0;
 };
 
 struct GameObjectLocale
@@ -1096,7 +1116,58 @@ struct GameObjectData : public SpawnData
     QuaternionData rotation;
     uint32 animprogress = 0;
     GOState goState = GO_STATE_ACTIVE;
-    uint8 artKit = 0;
+    uint32 artKit = 0;
+};
+
+enum class GameObjectActions : uint32
+{
+                                        // Name from client executable          // Comments
+    None                        = 0,    // -NONE-
+    AnimateCustom0              = 1,    // Animate Custom0
+    AnimateCustom1              = 2,    // Animate Custom1
+    AnimateCustom2              = 3,    // Animate Custom2
+    AnimateCustom3              = 4,    // Animate Custom3
+    Disturb                     = 5,    // Disturb                              // Triggers trap
+    Unlock                      = 6,    // Unlock                               // Resets GO_FLAG_LOCKED
+    Lock                        = 7,    // Lock                                 // Sets GO_FLAG_LOCKED
+    Open                        = 8,    // Open                                 // Sets GO_STATE_ACTIVE
+    OpenAndUnlock               = 9,    // Open + Unlock                        // Sets GO_STATE_ACTIVE and resets GO_FLAG_LOCKED
+    Close                       = 10,   // Close                                // Sets GO_STATE_READY
+    ToggleOpen                  = 11,   // Toggle Open
+    Destroy                     = 12,   // Destroy                              // Sets GO_STATE_DESTROYED
+    Rebuild                     = 13,   // Rebuild                              // Resets from GO_STATE_DESTROYED
+    Creation                    = 14,   // Creation
+    Despawn                     = 15,   // Despawn
+    MakeInert                   = 16,   // Make Inert                           // Disables interactions
+    MakeActive                  = 17,   // Make Active                          // Enables interactions
+    CloseAndLock                = 18,   // Close + Lock                         // Sets GO_STATE_READY and sets GO_FLAG_LOCKED
+    UseArtKit0                  = 19,   // Use ArtKit0                          // 46904: 121
+    UseArtKit1                  = 20,   // Use ArtKit1                          // 36639: 81, 46903: 122
+    UseArtKit2                  = 21,   // Use ArtKit2
+    UseArtKit3                  = 22,   // Use ArtKit3
+    SetTapList                  = 23,   // Set Tap List
+    GoTo1stFloor                = 24,   // Go to 1st floor
+    GoTo2ndFloor                = 25,   // Go to 2nd floor
+    GoTo3rdFloor                = 26,   // Go to 3rd floor
+    GoTo4thFloor                = 27,   // Go to 4th floor
+    GoTo5thFloor                = 28,   // Go to 5th floor
+    GoTo6thFloor                = 29,   // Go to 6th floor
+    GoTo7thFloor                = 30,   // Go to 7th floor
+    GoTo8thFloor                = 31,   // Go to 8th floor
+    GoTo9thFloor                = 32,   // Go to 9th floor
+    GoTo10thFloor               = 33,   // Go to 10th floor
+    UseArtKit4                  = 34,   // Use ArtKit4
+    PlayAnimKit                 = 35,   // Play Anim Kit "{AnimKit}"
+    OpenAndPlayAnimKit          = 36,   // Open + Play Anim Kit "{AnimKit}"
+    CloseAndPlayAnimKit         = 37,   // Close + Play Anim Kit "{AnimKit}"
+    PlayOneShotAnimKit          = 38,   // Play One-shot Anim Kit "{AnimKit}"
+    StopAnimKit                 = 39,   // Stop Anim Kit
+    OpenAndStopAnimKit          = 40,   // Open + Stop Anim Kit
+    CloseAndStopAnimKit         = 41,   // Close + Stop Anim Kit
+    PlaySpellVisual             = 42,   // Play Spell Visual "{SpellVisual}"
+    StopSpellVisual             = 43,   // Stop Spell Visual
+    SetTappedToChallengePlayers = 44,   // Set Tapped to Challenge Players
+    Max
 };
 
 #endif // GameObjectData_h__

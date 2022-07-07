@@ -18,7 +18,6 @@
 #ifndef AccountService_h__
 #define AccountService_h__
 
-#include "Common.h"
 #include "Service.h"
 #include "account_service.pb.h"
 

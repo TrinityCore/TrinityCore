@@ -25,7 +25,7 @@ class Creature;
 class TC_GAME_API GuardAI : public ScriptedAI
 {
     public:
-        explicit GuardAI(Creature* creature);
+        using ScriptedAI::ScriptedAI;
 
         static int32 Permissible(Creature const* creature);
         void UpdateAI(uint32 diff) override;

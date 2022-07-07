@@ -43,6 +43,13 @@ ByteBuffer& operator<<(ByteBuffer& data, EuropaTicketConfig const& europaTicketS
     return data;
 }
 
+WorldPacket operator<<(WorldPacket& data, GameRuleValuePair const& gameRuleValue)
+{
+    data << int32(gameRuleValue.Rule);
+    data << int32(gameRuleValue.Value);
+    return data;
+}
+
 WorldPacket const* FeatureSystemStatus::Write()
 {
     _worldPacket << uint8(ComplaintStatus);
@@ -70,15 +77,23 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << uint32(ClubsPresenceUpdateTimer);
     _worldPacket << uint32(HiddenUIClubsPresenceUpdateTimer);
 
+    _worldPacket << int32(GameRuleUnknown1);
+    _worldPacket << uint32(GameRuleValues.size());
+
+    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
+
+    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
+        _worldPacket << gameRuleValue;
+
     _worldPacket.WriteBit(VoiceEnabled);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
     _worldPacket.WriteBit(BpayStoreEnabled);
     _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
     _worldPacket.WriteBit(BrowserEnabled);
-    _worldPacket.WriteBit(SessionAlert.is_initialized());
+    _worldPacket.WriteBit(SessionAlert.has_value());
     _worldPacket.WriteBit(RAFSystem.Enabled);
     _worldPacket.WriteBit(RAFSystem.RecruitingEnabled);
     _worldPacket.WriteBit(CharUndeleteEnabled);
@@ -102,6 +117,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
+    _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
+    _worldPacket.WriteBit(ChatDisabledByDefault);
+    _worldPacket.WriteBit(ChatDisabledByPlayer);
+    _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
 
     _worldPacket.FlushBits();
 
@@ -150,15 +169,6 @@ WorldPacket const* FeatureSystemStatus::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* FeatureSystemStatus2::Write()
-{
-    _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
-
 WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 {
     _worldPacket.WriteBit(BpayStoreEnabled);
@@ -178,7 +188,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
     _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
     _worldPacket.FlushBits();
 
     if (EuropaTicketSystemStatus)
@@ -194,9 +204,15 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(ActiveClassTrialBoostType);
     _worldPacket << int32(MinimumExpansionLevel);
     _worldPacket << int32(MaximumExpansionLevel);
+    _worldPacket << int32(GameRuleUnknown1);
+    _worldPacket << uint32(GameRuleValues.size());
+    _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
 
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
+
+    for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
+        _worldPacket << gameRuleValue;
 
     return &_worldPacket;
 }

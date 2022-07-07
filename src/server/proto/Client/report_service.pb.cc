@@ -37,7 +37,6 @@ const ::google::protobuf::ServiceDescriptor* ReportService_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_report_5fservice_2eproto() {
   protobuf_AddDesc_report_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -143,7 +142,6 @@ struct StaticDescriptorInitializer_report_5fservice_2eproto {
     protobuf_AddDesc_report_5fservice_2eproto();
   }
 } static_descriptor_initializer_report_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -350,7 +348,6 @@ void SendReportRequest::CopyFrom(const SendReportRequest& from) {
 
 bool SendReportRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_report()) {
     if (!this->report().IsInitialized()) return false;
   }
@@ -373,7 +370,6 @@ void SendReportRequest::Swap(SendReportRequest* other) {
   metadata.reflection = SendReportRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -625,7 +621,6 @@ void SubmitReportRequest::CopyFrom(const SubmitReportRequest& from) {
 }
 
 bool SubmitReportRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -652,7 +647,6 @@ void SubmitReportRequest::Swap(SubmitReportRequest* other) {
   metadata.reflection = SubmitReportRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -739,7 +733,6 @@ uint32 ReportService::HandleSubmitReport(::bgs::protocol::report::v1::SubmitRepo
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

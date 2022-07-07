@@ -16,6 +16,9 @@ body:
         - don't use ' around numbers
         - don't use ( ) if they aren't needed
         - use only one INSERT INTO statement when you add multiple rows to one table, unless you are scripting multiple creatures
+        - always add every row you insert below INSERT INTO statement (each row inside new row)
+        - always use capital letters for all keywords (DELETE, FROM, SELECT, WHERE, IN, etc.)
+        - always use backticks for every column and table name
         - always include column names in every INSERT INTO statement
         - always make every INSERT INTO statement runnable twice (delete what you insert even if row does not exist, don't use REPLACE INTO)
         - DELETE by guid AND id to be sure we don't delete existing spawns

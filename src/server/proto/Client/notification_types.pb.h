@@ -528,9 +528,7 @@ class TC_PROTO_API Notification : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -1305,7 +1303,6 @@ inline void Notification::set_allocated_forwarding_identity(::bgs::protocol::acc
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.notification.v1.Notification.forwarding_identity)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -1316,8 +1313,6 @@ inline void Notification::set_allocated_forwarding_identity(::bgs::protocol::acc
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

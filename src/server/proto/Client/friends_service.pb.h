@@ -2008,7 +2008,6 @@ class TC_PROTO_API FriendsListener : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // SubscribeRequest
@@ -3614,7 +3613,6 @@ inline void SentInvitationRemovedNotification::set_reason(::google::protobuf::ui
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SentInvitationRemovedNotification.reason)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -3625,8 +3623,6 @@ inline void SentInvitationRemovedNotification::set_reason(::google::protobuf::ui
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

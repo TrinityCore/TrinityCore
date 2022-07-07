@@ -28,11 +28,14 @@
 #include "Player.h"
 #include "ScenarioMgr.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "World.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
 {
 }
+
+MapInstanced::~MapInstanced() = default;
 
 void MapInstanced::InitVisibilityDistance()
 {
@@ -154,7 +157,9 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
             if (loginInstanceId) // if the player has a saved instance id on login, we either use this instance or relocate him out (return null)
             {
                 map = FindInstanceMap(loginInstanceId);
-                return (map && map->GetId() == GetId()) ? map : nullptr; // is this check necessary? or does MapInstanced only find instances of itself?
+                if (!map && pSave && pSave->GetInstanceId() == loginInstanceId)
+                    map = CreateInstance(loginInstanceId, pSave, pSave->GetDifficultyID(), player->GetTeamId());
+                return map;
             }
 
             InstanceGroupBind* groupBind = nullptr;
@@ -227,9 +232,9 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     // some instances only have one difficulty
     sDB2Manager.GetDownscaledMapDifficultyData(GetId(), difficulty);
 
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save ? "" : "new ", InstanceId, GetId(), difficulty ? "heroic" : "normal");
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %u", save ? "" : "new ", InstanceId, GetId(), static_cast<uint32>(difficulty));
 
-    InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
+    InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this, team);
     ASSERT(map->IsDungeon());
 
     map->LoadRespawnTimes();

@@ -22,7 +22,6 @@ SDComment:
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -65,7 +64,7 @@ public:
             });
         }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if ((!who || who->GetTypeId() == TYPEID_UNIT) && me->HealthBelowPctDamaged(82, damage))
                 damage = 0;
@@ -100,7 +99,7 @@ public:
     {
         npc_big_earlAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if ((!who || who->GetTypeId() == TYPEID_UNIT) && me->HealthBelowPctDamaged(82, damage))
                 damage = 0;
@@ -275,27 +274,20 @@ enum RedridgeCitizen
     EVENT_SAY_TEXT                  = 9,     // Used by npc's in Lakeshire Townhall
     EVENT_LEAVE_TOWNHALL            = 10,    // Used by npc's in Lakeshire Townhall
 
-    EMOTE_ONESHOTCHEER              = 4,
-    EMOTE_ONESHOTROAR               = 15,
-    EMOTE_ONESHOTSHOT               = 22,
-    EMOTE_ONESHOTPOINT              = 25,
-    EMOTE_ONESHOTBATTLEROAR         = 53,
-    EMOTE_ONESHOTNO                 = 274,
-
     SAY_IN_TOWNHALL                 = 0,     // Used by npc's in Lakeshire Townhall
     SAY_LEAVE_TOWNHALL              = 1,     // Used by npc's in Lakeshire Townhall
 
     SPELL_APPLY_QUEST_INVIS_ZONE_19 = 82099  // Used by npc's in Lakeshire Townhall
 };
 
-const uint32 Emote[6] =
+const Emote EmoteID[6] =
 {
-    EMOTE_ONESHOTCHEER,
-    EMOTE_ONESHOTROAR,
-    EMOTE_ONESHOTSHOT,
-    EMOTE_ONESHOTPOINT,
-    EMOTE_ONESHOTBATTLEROAR,
-    EMOTE_ONESHOTNO
+    EMOTE_ONESHOT_CHEER,
+    EMOTE_ONESHOT_ROAR,
+    EMOTE_ONESHOT_SHOUT,
+    EMOTE_ONESHOT_POINT,
+    EMOTE_ONESHOT_BATTLE_ROAR,
+    EMOTE_ONESHOT_NO
 };
 
 uint32 const pathSize = 8;
@@ -343,7 +335,7 @@ public:
                             _events.ScheduleEvent(EVENT_SAY_TEXT, Seconds(5), Seconds(30));
                         break;
                     case EVENT_PLAYEMOTE:
-                        me->HandleEmoteCommand(Emote[urand(0, 5)]);
+                        me->HandleEmoteCommand(EmoteID[urand(0, 5)]);
                         _events.ScheduleEvent(EVENT_PLAYEMOTE, Seconds(10), Seconds(25));
                         break;
                     case EVENT_SAY_TEXT:

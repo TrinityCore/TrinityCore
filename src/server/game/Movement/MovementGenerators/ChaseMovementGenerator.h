@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef TRINITY_CHASEMOVEMENTGENERATOR_H
 #define TRINITY_CHASEMOVEMENTGENERATOR_H
 
@@ -23,6 +23,7 @@
 #include "MovementGenerator.h"
 #include "Optional.h"
 #include "Position.h"
+#include "Timer.h"
 
 class PathGenerator;
 class Unit;
@@ -40,7 +41,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
-        void UnitSpeedChanged() override { _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f); }
+        void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
 
     private:
         static constexpr uint32 RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
@@ -49,8 +50,8 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         Optional<ChaseAngle> const _angle;
 
         std::unique_ptr<PathGenerator> _path;
-        Position _lastTargetPosition;
-        uint32 _rangeCheckTimer = RANGE_CHECK_INTERVAL;
+        Optional<Position> _lastTargetPosition;
+        TimeTracker _rangeCheckTimer;
         bool _movingTowards = true;
         bool _mutualChase = true;
 };

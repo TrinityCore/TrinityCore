@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# We require CMake >= 3.2
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.11)
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
@@ -20,12 +19,12 @@ project(TrinityCore)
 
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 NEW)
-if (CMAKE_VERSION VERSION_LESS "3.16.0")
+if(CMAKE_VERSION VERSION_LESS "3.16.0")
   cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
 else()
   cmake_policy(SET CMP0043 NEW) # Cotire isn't used so set to NEW
 endif()
-cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
+cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if(SOME_STRING_VARIABLE MATCHES "MSVC") as if(SOME_STRING_VARIABLE MATCHES "1")
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
@@ -41,9 +40,9 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 list(APPEND CMAKE_MODULE_PATH
   "${CMAKE_SOURCE_DIR}/cmake/macros")
 
-if (CMAKE_VERSION VERSION_LESS "3.16.0")
+if(CMAKE_VERSION VERSION_LESS "3.16.0")
   list(APPEND CMAKE_MODULE_PATH
-          "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
+    "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
 endif()
 
 # build in Release-mode by default if not explicitly set
@@ -62,7 +61,7 @@ include(ConfigureScripts)
 include(cmake/options.cmake)
 
 # turn off PCH totally if enabled (hidden setting, mainly for devs)
-if( NOPCH )
+if(NOPCH)
   set(USE_COREPCH 0)
   set(USE_SCRIPTPCH 0)
 endif()
@@ -74,7 +73,6 @@ include(GroupSources)
 include(AutoCollect)
 
 find_package(PCHSupport)
-find_package(MySQL)
 
 if(NOT WITHOUT_GIT)
   find_package(Git 1.7)
@@ -91,3 +89,18 @@ add_subdirectory(dep)
 
 # add core sources
 add_subdirectory(src)
+
+include(CTest)
+if(BUILD_TESTING)
+  list(APPEND CMAKE_MODULE_PATH
+    "${Catch2_SOURCE_DIR}/contrib")
+  include(Catch)
+
+  add_subdirectory(tests)
+
+  # Catch cmakefile messes with our settings we explicitly leave up to the user
+  # restore user preference
+  if (NOT WITH_SOURCE_TREE STREQUAL "hierarchical-folders")
+    set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
+  endif()
+endif()

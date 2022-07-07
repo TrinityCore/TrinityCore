@@ -34,7 +34,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_game_5futilities_5ftypes_2eproto() {
   protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -136,7 +135,6 @@ struct StaticDescriptorInitializer_game_5futilities_5ftypes_2eproto {
     protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
   }
 } static_descriptor_initializer_game_5futilities_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -419,7 +417,6 @@ void PlayerVariables::CopyFrom(const PlayerVariables& from) {
 
 bool PlayerVariables::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_identity()) {
     if (!this->identity().IsInitialized()) return false;
   }
@@ -445,7 +442,6 @@ void PlayerVariables::Swap(PlayerVariables* other) {
   metadata.reflection = PlayerVariables_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -706,7 +702,6 @@ void ClientInfo::CopyFrom(const ClientInfo& from) {
 }
 
 bool ClientInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -727,7 +722,6 @@ void ClientInfo::Swap(ClientInfo* other) {
   metadata.reflection = ClientInfo_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

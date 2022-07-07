@@ -36,6 +36,7 @@
 #include "MySQLThreading.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
+#include "SecretMgr.h"
 #include "SessionManager.h"
 #include "SslContext.h"
 #include "Util.h"
@@ -112,6 +113,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::vector<std::string> overriddenKeys = sConfigMgr->OverrideWithEnvVariablesIfAny();
+
     sLog->RegisterAppender<AppenderDB>();
     sLog->Initialize(nullptr);
 
@@ -123,10 +126,13 @@ int main(int argc, char** argv)
         []()
         {
             TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-            TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
+
+    for (std::string const& key : overriddenKeys)
+        TC_LOG_INFO("server.authserver", "Configuration field '%s' was overridden with environment variable.", key.c_str());
 
     // Seed the OpenSSL's PRNG here.
     // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
@@ -156,12 +162,15 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
-    sSessionMgr.FixLegacyAuthHashes();
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
+    if (vm.count("update-databases-only"))
+        return 0;
+
+    sSecretMgr->Initialize(SECRET_OWNER_BNETSERVER);
 
     // Load IP Location Database
     sIPLocation->Load();
-
-    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
 
@@ -337,6 +346,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
         ("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_BNET_CONFIG)),
                      "use <arg> as configuration file")
+        ("update-databases-only,u", "updates databases only")
         ;
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     options_description win("Windows platform specific options");

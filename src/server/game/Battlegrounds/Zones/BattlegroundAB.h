@@ -197,7 +197,8 @@ enum BG_AB_Sounds
     BG_AB_SOUND_NODE_CAPTURED_HORDE     = 8213,
     BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE = 8212,
     BG_AB_SOUND_NODE_ASSAULTED_HORDE    = 8174,
-    BG_AB_SOUND_NEAR_VICTORY            = 8456
+    BG_AB_SOUND_NEAR_VICTORY_ALLIANCE   = 8456,
+    BG_AB_SOUND_NEAR_VICTORY_HORDE      = 8457
 };
 
 enum BG_AB_Objectives
@@ -360,13 +361,13 @@ class BattlegroundAB : public Battleground
         uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
         BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
         uint32              m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_lastTick[BG_TEAMS_COUNT];
-        uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
-        uint32              m_ReputationScoreTics[BG_TEAMS_COUNT];
+        uint32              m_lastTick[PVP_TEAMS_COUNT];
+        uint32              m_HonorScoreTics[PVP_TEAMS_COUNT];
+        uint32              m_ReputationScoreTics[PVP_TEAMS_COUNT];
         bool                m_IsInformedNearVictory;
         uint32              m_HonorTics;
         uint32              m_ReputationTics;
         // need for achievements
-        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool                m_TeamScores500Disadvantage[PVP_TEAMS_COUNT];
 };
 #endif

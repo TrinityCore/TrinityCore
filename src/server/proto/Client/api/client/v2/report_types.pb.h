@@ -556,9 +556,7 @@ class TC_PROTO_API EntityOptions : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -1081,7 +1079,6 @@ EntityOptions::mutable_attribute() {
   return &attribute_;
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v2
@@ -1092,7 +1089,6 @@ EntityOptions::mutable_attribute() {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::report::v2::IssueType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::report::v2::IssueType>() {
@@ -1108,7 +1104,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::report::v2::ClubSource>() {
   return ::bgs::protocol::report::v2::ClubSource_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

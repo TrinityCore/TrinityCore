@@ -43,7 +43,7 @@ enum Spells
 
 bool DelayedAttackStartEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
-    _owner->AI()->DoZoneInCombat(_owner, 200.0f);
+    _owner->AI()->DoZoneInCombat(_owner);
     return true;
 }
 
@@ -63,8 +63,8 @@ void firelands_bossAI::JustDied(Unit* killer)
 {
     BossAI::JustDied(killer);
     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    me->m_Events.AddEvent(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_1, false), me->m_Events.CalculateTime(2 * IN_MILLISECONDS));
-    me->m_Events.AddEvent(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_2, false), me->m_Events.CalculateTime(2 * IN_MILLISECONDS));
+    me->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_1, false), 2s);
+    me->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(me, static_cast<Unit*>(nullptr), SPELL_SMOULDERING_2, false), 2s);
 }
 
 void firelands_bossAI::EnterEvadeMode(EvadeReason why)
@@ -225,7 +225,7 @@ struct npc_firelands_magmakin : public ScriptedAI
 {
     npc_firelands_magmakin(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         //Not actually sniffed behavior
         Unit* target = me->SelectNearestTarget(50.0f, true);

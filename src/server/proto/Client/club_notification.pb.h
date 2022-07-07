@@ -2323,9 +2323,7 @@ class TC_PROTO_API StreamAdvanceViewTimeNotification : public ::google::protobuf
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -4778,7 +4776,6 @@ StreamAdvanceViewTimeNotification::mutable_view() {
   return &view_;
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -4789,8 +4786,6 @@ StreamAdvanceViewTimeNotification::mutable_view() {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

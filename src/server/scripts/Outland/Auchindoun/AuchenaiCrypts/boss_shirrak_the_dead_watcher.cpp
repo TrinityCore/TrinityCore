@@ -28,6 +28,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "InstanceScript.h"
 
 enum Spells
 {
@@ -97,7 +98,7 @@ public:
             {
                 summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
                 summoned->SetFaction(me->GetFaction());
-                summoned->SetLevel(me->getLevel());
+                summoned->SetLevel(me->GetLevel());
                 summoned->AddUnitState(UNIT_STATE_ROOT);
 
                 if (Unit* pFocusedTarget = ObjectAccessor::GetUnit(*me, FocusedTargetGUID))
@@ -110,21 +111,22 @@ public:
             //Inhibitmagic_Timer
             if (Inhibitmagic_Timer <= diff)
             {
-                float dist;
-                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (Player* i_pl = i->GetSource())
-                        if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
-                        {
-                            i_pl->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
-                            me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                            if (dist < 35)
-                                me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                            if (dist < 25)
-                                me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                            if (dist < 15)
-                                me->AddAura(SPELL_INHIBITMAGIC, i_pl);
-                        }
+                me->GetMap()->DoOnPlayers([this](Player* player)
+                {
+                    float dist = player->GetDistance(me);
+
+                    if (player->IsAlive() && dist < 45.f)
+                    {
+                        player->RemoveAurasDueToSpell(SPELL_INHIBITMAGIC);
+                        me->AddAura(SPELL_INHIBITMAGIC, player);
+                        if (dist < 35)
+                            me->AddAura(SPELL_INHIBITMAGIC, player);
+                        if (dist < 25)
+                            me->AddAura(SPELL_INHIBITMAGIC, player);
+                        if (dist < 15)
+                            me->AddAura(SPELL_INHIBITMAGIC, player);
+                    }
+                });
                 Inhibitmagic_Timer = 3000 + (rand32() % 1000);
             } else Inhibitmagic_Timer -= diff;
 
@@ -151,11 +153,11 @@ public:
             if (FocusFire_Timer <= diff)
             {
                 // Summon Focus Fire & Emote
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                 {
                     FocusedTargetGUID = target->GetGUID();
-                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
+                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500ms);
                     Talk(EMOTE_FOCUSED, target);
                 }
                 FocusFire_Timer = 15000 + (rand32() % 5000);

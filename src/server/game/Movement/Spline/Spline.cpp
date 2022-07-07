@@ -165,9 +165,9 @@ float SplineBase::SegLengthCatmullRom(index_type index) const
 
     index_type i = 1;
     float length = 0;
-    while (i <= STEPS_PER_SEGMENT)
+    while (i <= stepsPerSegment)
     {
-        C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_catmullRomCoeffs, nextPos);
+        C_Evaluate(p, float(i) / float(stepsPerSegment), s_catmullRomCoeffs, nextPos);
         length += (nextPos - curPos).length();
         curPos = nextPos;
         ++i;
@@ -188,9 +188,9 @@ float SplineBase::SegLengthBezier3(index_type index) const
 
     index_type i = 1;
     float length = 0;
-    while (i <= STEPS_PER_SEGMENT)
+    while (i <= stepsPerSegment)
     {
-        C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_Bezier3Coeffs, nextPos);
+        C_Evaluate(p, float(i) / float(stepsPerSegment), s_Bezier3Coeffs, nextPos);
         length += (nextPos - curPos).length();
         curPos = nextPos;
         ++i;
@@ -198,18 +198,20 @@ float SplineBase::SegLengthBezier3(index_type index) const
     return length;
 }
 
-void SplineBase::init_spline(const Vector3 * controls, index_type count, EvaluationMode m)
+void SplineBase::init_spline(const Vector3 * controls, index_type count, EvaluationMode m, float orientation)
 {
     m_mode = m;
     cyclic = false;
+    initialOrientation = orientation;
 
     (this->*initializers[m_mode])(controls, count, 0);
 }
 
-void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point)
+void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point, float orientation)
 {
     m_mode = m;
     cyclic = true;
+    initialOrientation = orientation;
 
     (this->*initializers[m_mode])(controls, count, cyclic_point);
 }
@@ -252,14 +254,14 @@ void SplineBase::InitCatmullRom(Vector3 const* controls, index_type count, index
         if (cyclic_point == 0)
             points[0] = controls[count-1];
         else
-            points[0] = controls[0].lerp(controls[1], -1);
+            points[0] = controls[0] - G3D::Vector3{ std::cos(initialOrientation), std::sin(initialOrientation), 0.0f };
 
         points[high_index+1] = controls[cyclic_point];
         points[high_index+2] = controls[cyclic_point+1];
     }
     else
     {
-        points[0] = controls[0].lerp(controls[1], -1);
+        points[0] = controls[0] - G3D::Vector3{ std::cos(initialOrientation), std::sin(initialOrientation), 0.0f };
         points[high_index+1] = controls[count-1];
     }
 
@@ -279,6 +281,12 @@ void SplineBase::InitBezier3(Vector3 const* controls, index_type count, index_ty
     index_hi = t-1;
     //mov_assert(points.size() % 3 == 0);
 }
+
+SplineBase::SplineBase(): index_lo(0), index_hi(0), m_mode(UninitializedMode), cyclic(false), initialOrientation(0.f)
+{
+}
+
+SplineBase::~SplineBase() = default;
 
 void SplineBase::clear()
 {

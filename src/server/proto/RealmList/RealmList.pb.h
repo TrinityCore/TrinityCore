@@ -1192,9 +1192,7 @@ class TC_PROTO_API RealmListServerIPAddresses : public ::google::protobuf::Messa
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -2656,7 +2654,6 @@ RealmListServerIPAddresses::mutable_families() {
   return &families_;
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace RealmList
@@ -2665,8 +2662,6 @@ RealmListServerIPAddresses::mutable_families() {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

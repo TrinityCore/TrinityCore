@@ -19,6 +19,7 @@
 #define TRINITYCORE_DYNAMICOBJECT_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "MapObject.h"
 
 class Unit;
@@ -46,6 +47,17 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
     public:
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target) const;
+
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(DynamicObject const* owner) : Owner(owner) { }
+
+            DynamicObject const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::DynamicObjectData::Base DynamicObjectMask;
+
+            void operator()(Player const* player) const;
+        };
 
         void AddToWorld() override;
         void RemoveFromWorld() override;

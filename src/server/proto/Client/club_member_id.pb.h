@@ -135,9 +135,7 @@ class TC_PROTO_API MemberId : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -208,7 +206,6 @@ inline void MemberId::set_unique_id(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.MemberId.unique_id)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -219,8 +216,6 @@ inline void MemberId::set_unique_id(::google::protobuf::uint64 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

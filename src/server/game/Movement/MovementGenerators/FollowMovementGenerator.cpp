@@ -31,12 +31,11 @@ static void DoMovementInform(Unit* owner, Unit* target)
     if (owner->GetTypeId() != TYPEID_UNIT)
         return;
 
-    Creature* creatureOwner = owner->ToCreature();
-    if (creatureOwner->IsAIEnabled && creatureOwner->AI())
-        creatureOwner->AI()->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
+    if (CreatureAI* AI = owner->ToCreature()->AI())
+        AI->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
-FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle)
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _checkTimer(CHECK_INTERVAL)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -56,12 +55,12 @@ static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseA
 void FollowMovementGenerator::Initialize(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
-    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
+    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
 
     owner->StopMoving();
     UpdatePetSpeed(owner);
     _path = nullptr;
-    _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f);
+    _lastTargetPosition.reset();
 }
 
 void FollowMovementGenerator::Reset(Unit* owner)
@@ -79,40 +78,41 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 
     // our target might have gone away
     Unit* const target = GetTarget();
-    if (!target)
+    if (!target || !target->IsInWorld())
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
+        _path = nullptr;
         owner->StopMoving();
+        _lastTargetPosition.reset();
         return true;
     }
 
-    if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE))
+    _checkTimer.Update(diff);
+    if (_checkTimer.Passed())
     {
-        if (_checkTimer > diff)
-            _checkTimer -= diff;
-        else
+        _checkTimer.Reset(CHECK_INTERVAL);
+        if (HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && PositionOkay(owner, target, _range, _angle))
         {
-            _checkTimer = CHECK_INTERVAL;
-            if (PositionOkay(owner, target, _range, _angle))
-            {
-                _path = nullptr;
-                owner->StopMoving();
-                DoMovementInform(owner, target);
-                return true;
-            }
+            RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+            _path = nullptr;
+            owner->StopMoving();
+            _lastTargetPosition.reset();
+            DoMovementInform(owner, target);
+            return true;
         }
     }
 
     if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) && owner->movespline->Finalized())
     {
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
         _path = nullptr;
         owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
         DoMovementInform(owner, target);
     }
 
-    if (_lastTargetPosition.GetExactDistSq(target->GetPosition()) > 0.0f)
+    if (!_lastTargetPosition || _lastTargetPosition->GetExactDistSq(target->GetPosition()) > 0.0f)
     {
         _lastTargetPosition = target->GetPosition();
         if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) || !PositionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))
@@ -158,6 +158,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             }
 
             owner->AddUnitState(UNIT_STATE_FOLLOW_MOVE);
+            AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
 
             Movement::MoveSplineInit init(owner);
             init.MovebyPath(_path->GetPath());
@@ -172,6 +173,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 void FollowMovementGenerator::Deactivate(Unit* owner)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
     owner->ClearUnitState(UNIT_STATE_FOLLOW_MOVE);
 }
 

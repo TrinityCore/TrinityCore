@@ -26,7 +26,7 @@
 using u_map_magic = std::array<char, 4>;
 
 TC_COMMON_API extern u_map_magic const MapMagic;
-TC_COMMON_API extern u_map_magic const MapVersionMagic;
+TC_COMMON_API extern uint32 const MapVersionMagic;
 TC_COMMON_API extern u_map_magic const MapAreaMagic;
 TC_COMMON_API extern u_map_magic const MapHeightMagic;
 TC_COMMON_API extern u_map_magic const MapLiquidMagic;
@@ -37,7 +37,7 @@ TC_COMMON_API extern u_map_magic const MapLiquidMagic;
 struct map_fileheader
 {
     u_map_magic mapMagic;
-    u_map_magic versionMagic;
+    uint32 versionMagic;
     uint32 buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;

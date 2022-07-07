@@ -8273,9 +8273,7 @@ class TC_PROTO_API KickFromStreamVoiceRequest : public ::google::protobuf::Messa
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -15836,7 +15834,6 @@ inline void KickFromStreamVoiceRequest::set_allocated_target_id(::bgs::protocol:
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.KickFromStreamVoiceRequest.target_id)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -15847,8 +15844,6 @@ inline void KickFromStreamVoiceRequest::set_allocated_target_id(::bgs::protocol:
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

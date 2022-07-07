@@ -30,7 +30,6 @@
 #include "BattlegroundSA.h"
 #include "BattlegroundTP.h"
 #include "BattlegroundWS.h"
-#include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -42,7 +41,6 @@
 #include "MapInstanced.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "SharedDefines.h"
 #include "World.h"
@@ -222,7 +220,7 @@ void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::
 {
     BuildBattlegroundStatusHeader(&battlefieldStatus->Hdr, bg, player, ticketId, joinTime, bg->GetQueueId(), arenaType);
     battlefieldStatus->ShutdownTimer = bg->GetRemainingTime();
-    battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+    battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
     battlefieldStatus->LeftEarly = false;
     battlefieldStatus->StartTimer = bg->GetElapsedTime();
     battlefieldStatus->Mapid = bg->GetMapId();
@@ -342,6 +340,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundQueueTypeId que
             bg = new BattlegroundWS(*(BattlegroundWS*)bg_template);
             break;
         case BATTLEGROUND_AB:
+        case BATTLEGROUND_DOM_AB:
             bg = new BattlegroundAB(*(BattlegroundAB*)bg_template);
             break;
         case BATTLEGROUND_NA:
@@ -413,6 +412,7 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
                 bg = new BattlegroundWS(bgTemplate);
                 break;
             case BATTLEGROUND_AB:
+            case BATTLEGROUND_DOM_AB:
                 bg = new BattlegroundAB(bgTemplate);
                 break;
             case BATTLEGROUND_NA:
@@ -620,12 +620,17 @@ void BattlegroundMgr::ToggleArenaTesting()
     sWorld->SendWorldText(m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
 }
 
-void BattlegroundMgr::SetHolidayWeekends(uint32 mask)
+void BattlegroundMgr::ResetHolidays()
 {
-    // The current code supports battlegrounds up to BattlegroundTypeId(31)
-    for (uint32 bgtype = 1; bgtype < MAX_BATTLEGROUND_TYPE_ID && bgtype < 32; ++bgtype)
-        if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(bgtype)))
-            bg->SetHoliday((mask & (1 << bgtype)) != 0);
+    for (uint32 i = BATTLEGROUND_AV; i < MAX_BATTLEGROUND_TYPE_ID; i++)
+        if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(i)))
+            bg->SetHoliday(false);
+}
+
+void BattlegroundMgr::SetHolidayActive(uint32 battlegroundId)
+{
+    if (Battleground* bg = GetBattlegroundTemplate(BattlegroundTypeId(battlegroundId)))
+        bg->SetHoliday(true);
 }
 
 bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)

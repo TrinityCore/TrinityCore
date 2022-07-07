@@ -39,6 +39,7 @@ enum MovementGeneratorFlags : uint16
     MOVEMENTGENERATOR_FLAG_DEACTIVATED            = 0x040,
     MOVEMENTGENERATOR_FLAG_INFORM_ENABLED         = 0x080,
     MOVEMENTGENERATOR_FLAG_FINALIZED              = 0x100,
+    MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH       = 0x200,
 
     MOVEMENTGENERATOR_FLAG_TRANSITORY = MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING | MOVEMENTGENERATOR_FLAG_INTERRUPTED
 };
@@ -72,6 +73,8 @@ class TC_GAME_API MovementGenerator
         void AddFlag(uint16 const flag) { Flags |= flag; }
         bool HasFlag(uint16 const flag) const { return (Flags & flag) != 0; }
         void RemoveFlag(uint16 const flag) { Flags &= ~flag; }
+
+        virtual std::string GetDebugInfo() const;
 
         uint8 Mode;
         uint8 Priority;

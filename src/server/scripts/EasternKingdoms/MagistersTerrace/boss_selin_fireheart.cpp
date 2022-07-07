@@ -73,7 +73,7 @@ class boss_selin_fireheart : public CreatureScript
 
         struct boss_selin_fireheartAI : public BossAI
         {
-            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN), _scheduledEvents(false) { }
+            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN_FIREHEART), _scheduledEvents(false) { }
 
             void Reset() override
             {
@@ -94,7 +94,7 @@ class boss_selin_fireheart : public CreatureScript
                 {
                     case ACTION_SWITCH_PHASE:
                         events.SetPhase(PHASE_NORMAL);
-                        events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2000, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2s, 0, PHASE_NORMAL);
                         AttackStart(me->GetVictim());
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
                         break;
@@ -131,13 +131,13 @@ class boss_selin_fireheart : public CreatureScript
                     crystal->KillSelf();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 events.SetPhase(PHASE_NORMAL);
-                events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2100, 0, PHASE_NORMAL);
+                events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2100ms, 0, PHASE_NORMAL);
              }
 
             void KilledUnit(Unit* victim) override
@@ -153,9 +153,9 @@ class boss_selin_fireheart : public CreatureScript
                     Unit* CrystalChosen = ObjectAccessor::GetUnit(*me, CrystalGUID);
                     if (CrystalChosen && CrystalChosen->IsAlive())
                     {
-                        CrystalChosen->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        CrystalChosen->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         CrystalChosen->CastSpell(me, SPELL_MANA_RAGE, true);
-                        events.ScheduleEvent(EVENT_EMPOWER, 10000, PHASE_DRAIN);
+                        events.ScheduleEvent(EVENT_EMPOWER, 10s, PHASE_DRAIN);
                     }
                 }
             }
@@ -184,21 +184,21 @@ class boss_selin_fireheart : public CreatureScript
                     {
                         case EVENT_FEL_EXPLOSION:
                             DoCastAOE(SPELL_FEL_EXPLOSION);
-                            events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2s, 0, PHASE_NORMAL);
                             break;
                         case EVENT_DRAIN_CRYSTAL:
                             SelectNearestCrystal();
                             _scheduledEvents = false;
                             break;
                         case EVENT_DRAIN_MANA:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                                 DoCast(target, SPELL_DRAIN_MANA);
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, 10000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, 10s, 0, PHASE_NORMAL);
                             break;
                         case EVENT_DRAIN_LIFE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, true))
                                 DoCast(target, SPELL_DRAIN_LIFE);
-                            events.ScheduleEvent(EVENT_DRAIN_LIFE, 10000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_LIFE, 10s, 0, PHASE_NORMAL);
                             break;
                         case EVENT_EMPOWER:
                         {
@@ -227,16 +227,16 @@ class boss_selin_fireheart : public CreatureScript
                     if (events.IsInPhase(PHASE_NORMAL) && !_scheduledEvents)
                     {
                         _scheduledEvents = true;
-                        uint32 timer = urand(3000, 7000);
+                        Milliseconds timer = randtime(3s, 7s);
                         events.ScheduleEvent(EVENT_DRAIN_LIFE, timer, 0, PHASE_NORMAL);
 
                         if (IsHeroic())
                         {
-                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, urand(10000, 15000), 0, PHASE_NORMAL);
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, timer + 5000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, 10s, 15s, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, timer + 5s, 0, PHASE_NORMAL);
                         }
                         else
-                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, urand(20000, 25000), 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, 20s, 25s, 0, PHASE_NORMAL);
                     }
                 }
 
@@ -267,9 +267,9 @@ class npc_fel_crystal : public CreatureScript
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    Creature* Selin = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SELIN));
-                    if (Selin && Selin->IsAlive())
-                        Selin->AI()->DoAction(ACTION_SWITCH_PHASE);
+                    Creature* selin = instance->GetCreature(DATA_SELIN_FIREHEART);
+                    if (selin && selin->IsAlive())
+                        selin->AI()->DoAction(ACTION_SWITCH_PHASE);
                 }
             }
         };

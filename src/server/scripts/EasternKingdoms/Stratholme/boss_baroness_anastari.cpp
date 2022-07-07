@@ -100,7 +100,7 @@ struct boss_baroness_anastari : public BossAI
                     events.Repeat(13s);
                     break;
                 case EVENT_SPELL_POSSESS:
-                    if (Unit* possessTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false))
+                    if (Unit* possessTarget = SelectTarget(SelectTargetMethod::Random, 1, 0, true, false))
                     {
                         DoCast(possessTarget, SPELL_POSSESS, true);
                         DoCast(possessTarget, SPELL_POSSESSED, true);
@@ -118,7 +118,7 @@ struct boss_baroness_anastari : public BossAI
                         {
                             possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
                             possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                            me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);                 
+                            me->RemoveAurasDueToSpell(SPELL_POSSESS_INV);
                             _possessedTargetGuid.Clear();
                             events.ScheduleEvent(EVENT_SPELL_POSSESS, 20s, 30s);
                             events.CancelEvent(EVENT_CHECK_POSSESSED);

@@ -27,7 +27,6 @@ const ::google::protobuf::EnumDescriptor* ClientIdentityRoutingType_descriptor_ 
 
 }  // namespace
 
-
 void protobuf_AssignDesc_global_5fextensions_2frouting_2eproto() {
   protobuf_AddDesc_global_5fextensions_2frouting_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -94,7 +93,6 @@ bool ClientIdentityRoutingType_IsValid(int value) {
       return false;
   }
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

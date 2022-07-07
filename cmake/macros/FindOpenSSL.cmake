@@ -80,7 +80,6 @@ Set ``OPENSSL_MSVC_STATIC_RT`` set ``TRUE`` to choose the MT version of the lib.
 #]=======================================================================]
 
 set(OPENSSL_EXPECTED_VERSION "1.0")
-set(OPENSSL_MAX_VERSION "1.2")
 
 macro(_OpenSSL_test_and_find_dependencies ssl_library crypto_library)
   if((CMAKE_SYSTEM_NAME STREQUAL "Linux") AND
@@ -129,9 +128,9 @@ if (WIN32)
   if(PLATFORM EQUAL 64)
     set(_OPENSSL_MSI_INSTALL_GUID "117551DB-A110-4BBD-BB05-CFE0BCB3ED31")
     set(_OPENSSL_ROOT_HINTS
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]"
       ${OPENSSL_ROOT_DIR}
       ENV OPENSSL_ROOT_DIR
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]"
       )
     file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" _programfiles)
     set(_OPENSSL_ROOT_PATHS
@@ -143,9 +142,9 @@ if (WIN32)
   else()
     set(_OPENSSL_MSI_INSTALL_GUID "A1EEC576-43B9-4E75-9E02-03DA542D2A38")
     set(_OPENSSL_ROOT_HINTS
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;Inno Setup: App Path]"
       ${OPENSSL_ROOT_DIR}
       ENV OPENSSL_ROOT_DIR
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;Inno Setup: App Path]"
       )
     file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" _programfiles)
     set(_OPENSSL_ROOT_PATHS
@@ -168,6 +167,12 @@ else ()
     ENV OPENSSL_ROOT_DIR
     )
 endif ()
+
+if(HOMEBREW_PREFIX)
+  list(APPEND _OPENSSL_ROOT_HINTS
+    "${HOMEBREW_PREFIX}/opt/openssl@1.1"
+    "${HOMEBREW_PREFIX}/opt/openssl@3")
+endif()
 
 set(_OPENSSL_ROOT_HINTS_AND_PATHS
     HINTS ${_OPENSSL_ROOT_HINTS}
@@ -210,7 +215,7 @@ if(WIN32 AND NOT CYGWIN)
     endif ()
 
     # Since OpenSSL 1.1, lib names are like libcrypto32MTd.lib and libssl32MTd.lib
-    if( "${CMAKE_SIZEOF_VOID_P}" STREQUAL "8" )
+    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
         set(_OPENSSL_MSVC_ARCH_SUFFIX "64")
     else()
         set(_OPENSSL_MSVC_ARCH_SUFFIX "32")
@@ -439,6 +444,36 @@ else()
   mark_as_advanced(OPENSSL_CRYPTO_LIBRARY OPENSSL_SSL_LIBRARY)
 
 endif()
+function(from_hex HEX DEC)
+  string(TOUPPER "${HEX}" HEX)
+  set(_res 0)
+  string(LENGTH "${HEX}" _strlen)
+
+  while (_strlen GREATER 0)
+    math(EXPR _res "${_res} * 16")
+    string(SUBSTRING "${HEX}" 0 1 NIBBLE) 
+    string(SUBSTRING "${HEX}" 1 -1 HEX) 
+    if (NIBBLE STREQUAL "A")
+      math(EXPR _res "${_res} + 10")
+    elseif (NIBBLE STREQUAL "B")
+      math(EXPR _res "${_res} + 11")
+    elseif (NIBBLE STREQUAL "C")
+      math(EXPR _res "${_res} + 12")
+    elseif (NIBBLE STREQUAL "D")
+      math(EXPR _res "${_res} + 13")
+    elseif (NIBBLE STREQUAL "E")
+      math(EXPR _res "${_res} + 14")
+    elseif (NIBBLE STREQUAL "F")
+      math(EXPR _res "${_res} + 15")
+    else()  
+      math(EXPR _res "${_res} + ${NIBBLE}")
+    endif() 
+
+    string(LENGTH "${HEX}" _strlen)
+  endwhile()
+
+  set(${DEC} ${_res} PARENT_SCOPE)
+endfunction(from_hex)
 
 set(OPENSSL_SSL_LIBRARIES ${OPENSSL_SSL_LIBRARY})
 set(OPENSSL_CRYPTO_LIBRARIES ${OPENSSL_CRYPTO_LIBRARY})
@@ -502,7 +537,7 @@ if(OPENSSL_INCLUDE_DIR AND EXISTS "${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h")
     from_hex("${OPENSSL_VERSION_FIX}" OPENSSL_VERSION_FIX)
     list(GET OPENSSL_VERSION_LIST 3 OPENSSL_VERSION_PATCH)
 
-    if (NOT OPENSSL_VERSION_PATCH STREQUAL "00")
+    if(NOT OPENSSL_VERSION_PATCH STREQUAL "00")
       from_hex("${OPENSSL_VERSION_PATCH}" _tmp)
       # 96 is the ASCII code of 'a' minus 1
       math(EXPR OPENSSL_VERSION_PATCH_ASCII "${_tmp} + 96")
@@ -574,7 +609,7 @@ if(OPENSSL_FOUND)
   message(STATUS "Found OpenSSL library: ${OPENSSL_LIBRARIES}")
   message(STATUS "Found OpenSSL headers: ${OPENSSL_INCLUDE_DIR}")
   include(EnsureVersion)
-  ENSURE_VERSION_RANGE("${OPENSSL_EXPECTED_VERSION}" "${OPENSSL_VERSION}" "${OPENSSL_MAX_VERSION}" OPENSSL_VERSION_OK)
+  ENSURE_VERSION("${OPENSSL_EXPECTED_VERSION}" "${OPENSSL_VERSION}" OPENSSL_VERSION_OK)
   if(NOT OPENSSL_VERSION_OK)
       message(FATAL_ERROR "TrinityCore needs OpenSSL version ${OPENSSL_EXPECTED_VERSION} but found too new version ${OPENSSL_VERSION}. TrinityCore needs OpenSSL 1.0.x or 1.1.x to work properly. If you still have problems please install OpenSSL 1.0.x if you still have problems search on forum for TCE00022")
   endif()

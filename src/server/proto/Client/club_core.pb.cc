@@ -70,7 +70,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fcore_2eproto() {
   protobuf_AddDesc_club_5fcore_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -551,7 +550,6 @@ struct StaticDescriptorInitializer_club_5fcore_2eproto {
     protobuf_AddDesc_club_5fcore_2eproto();
   }
 } static_descriptor_initializer_club_5fcore_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -752,7 +750,6 @@ void AvatarId::CopyFrom(const AvatarId& from) {
 }
 
 bool AvatarId::IsInitialized() const {
-
   return true;
 }
 
@@ -772,7 +769,6 @@ void AvatarId::Swap(AvatarId* other) {
   metadata.reflection = AvatarId_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -995,7 +991,6 @@ void SetBroadcastOptions::CopyFrom(const SetBroadcastOptions& from) {
 }
 
 bool SetBroadcastOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -1015,7 +1010,6 @@ void SetBroadcastOptions::Swap(SetBroadcastOptions* other) {
   metadata.reflection = SetBroadcastOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1321,7 +1315,6 @@ void Broadcast::CopyFrom(const Broadcast& from) {
 }
 
 bool Broadcast::IsInitialized() const {
-
   if (has_creator()) {
     if (!this->creator().IsInitialized()) return false;
   }
@@ -1346,7 +1339,6 @@ void Broadcast::Swap(Broadcast* other) {
   metadata.reflection = Broadcast_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1607,7 +1599,6 @@ void UniqueClubType::CopyFrom(const UniqueClubType& from) {
 }
 
 bool UniqueClubType::IsInitialized() const {
-
   return true;
 }
 
@@ -1628,7 +1619,6 @@ void UniqueClubType::Swap(UniqueClubType* other) {
   metadata.reflection = UniqueClubType_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2227,7 +2217,6 @@ void ClubCreateOptions::CopyFrom(const ClubCreateOptions& from) {
 }
 
 bool ClubCreateOptions::IsInitialized() const {
-
   if (has_member()) {
     if (!this->member().IsInitialized()) return false;
   }
@@ -2258,7 +2247,6 @@ void ClubCreateOptions::Swap(ClubCreateOptions* other) {
   metadata.reflection = ClubCreateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3111,7 +3099,6 @@ void Club::CopyFrom(const Club& from) {
 }
 
 bool Club::IsInitialized() const {
-
   if (has_broadcast()) {
     if (!this->broadcast().IsInitialized()) return false;
   }
@@ -3149,7 +3136,6 @@ void Club::Swap(Club* other) {
   metadata.reflection = Club_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3775,7 +3761,6 @@ void ClubDescription::CopyFrom(const ClubDescription& from) {
 }
 
 bool ClubDescription::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->leader())) return false;
   return true;
 }
@@ -3805,7 +3790,6 @@ void ClubDescription::Swap(ClubDescription* other) {
   metadata.reflection = ClubDescription_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4052,7 +4036,6 @@ void ClubView::CopyFrom(const ClubView& from) {
 }
 
 bool ClubView::IsInitialized() const {
-
   return true;
 }
 
@@ -4073,7 +4056,6 @@ void ClubView::Swap(ClubView* other) {
   metadata.reflection = ClubView_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4626,7 +4608,6 @@ void ClubStateOptions::CopyFrom(const ClubStateOptions& from) {
 }
 
 bool ClubStateOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -4653,7 +4634,6 @@ void ClubStateOptions::Swap(ClubStateOptions* other) {
   metadata.reflection = ClubStateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5247,7 +5227,6 @@ void ClubStateAssignment::CopyFrom(const ClubStateAssignment& from) {
 }
 
 bool ClubStateAssignment::IsInitialized() const {
-
   if (has_broadcast()) {
     if (!this->broadcast().IsInitialized()) return false;
   }
@@ -5278,7 +5257,6 @@ void ClubStateAssignment::Swap(ClubStateAssignment* other) {
   metadata.reflection = ClubStateAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5537,7 +5515,6 @@ void StreamSettings::CopyFrom(const StreamSettings& from) {
 }
 
 bool StreamSettings::IsInitialized() const {
-
   return true;
 }
 
@@ -5558,7 +5535,6 @@ void StreamSettings::Swap(StreamSettings* other) {
   metadata.reflection = StreamSettings_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5884,7 +5860,6 @@ void ClubSettings::CopyFrom(const ClubSettings& from) {
 }
 
 bool ClubSettings::IsInitialized() const {
-
   return true;
 }
 
@@ -5907,7 +5882,6 @@ void ClubSettings::Swap(ClubSettings* other) {
   metadata.reflection = ClubSettings_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6193,7 +6167,6 @@ void ClubSettingsOptions::CopyFrom(const ClubSettingsOptions& from) {
 }
 
 bool ClubSettingsOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -6215,7 +6188,6 @@ void ClubSettingsOptions::Swap(ClubSettingsOptions* other) {
   metadata.reflection = ClubSettingsOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6461,7 +6433,6 @@ void ClubSettingsAssignment::CopyFrom(const ClubSettingsAssignment& from) {
 }
 
 bool ClubSettingsAssignment::IsInitialized() const {
-
   return true;
 }
 
@@ -6482,7 +6453,6 @@ void ClubSettingsAssignment::Swap(ClubSettingsAssignment* other) {
   metadata.reflection = ClubSettingsAssignment_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

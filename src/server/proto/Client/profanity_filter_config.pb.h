@@ -223,9 +223,7 @@ class TC_PROTO_API WordFilters : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -417,7 +415,6 @@ WordFilters::mutable_filters() {
   return &filters_;
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -428,8 +425,6 @@ WordFilters::mutable_filters() {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

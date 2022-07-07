@@ -20,9 +20,11 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 
 #define SPEED_CHARGE 42.0f // assume it is 25 yard per 0.6 second
 
+// EnumUtils: DESCRIBE THIS
 enum MovementGeneratorType : uint8
 {
     IDLE_MOTION_TYPE                = 0,     // IdleMovementGenerator.h
@@ -44,7 +46,7 @@ enum MovementGeneratorType : uint8
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
     FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
-    MAX_MOTION_TYPE                          // limit
+    MAX_MOTION_TYPE                          // SKIP
 };
 
 enum MovementGeneratorMode : uint8
@@ -100,8 +102,25 @@ struct TC_GAME_API ChaseAngle
 
 struct JumpArrivalCastArgs
 {
-    uint32 SpellId;
+    uint32 SpellId = 0;
     ObjectGuid Target;
+};
+
+struct JumpChargeParams
+{
+    union
+    {
+        float Speed;
+        float MoveTimeInSec;
+    };
+
+    bool TreatSpeedAsMoveTimeSeconds = false;
+
+    float JumpGravity = 0.0f;
+
+    Optional<uint32> SpellVisualId;
+    Optional<uint32> ProgressCurveId;
+    Optional<uint32> ParabolicCurveId;
 };
 
 inline bool IsInvalidMovementGeneratorType(uint8 const type) { return type == MAX_DB_MOTION_TYPE || type >= MAX_MOTION_TYPE; }

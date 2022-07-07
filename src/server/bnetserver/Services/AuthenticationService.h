@@ -18,7 +18,6 @@
 #ifndef AuthenticationService_h__
 #define AuthenticationService_h__
 
-#include "Common.h"
 #include "Service.h"
 #include "authentication_service.pb.h"
 

@@ -499,9 +499,7 @@ class TC_PROTO_API EmbedInfo : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -1270,7 +1268,6 @@ inline void EmbedInfo::set_allocated_html(::bgs::protocol::EmbedHTML* html) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.EmbedInfo.html)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -1279,8 +1276,6 @@ inline void EmbedInfo::set_allocated_html(::bgs::protocol::EmbedHTML* html) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

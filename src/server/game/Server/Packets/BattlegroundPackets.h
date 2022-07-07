@@ -37,9 +37,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 MythicPlusSeasonID = 0;
-            int32 PreviousSeason = 0;
-            int32 CurrentSeason = 0;
+            int32 MythicPlusDisplaySeasonID = 0;
+            int32 MythicPlusMilestoneSeasonID = 0;
+            int32 PreviousArenaSeason = 0;
+            int32 CurrentArenaSeason = 0;
             int32 PvpSeasonID = 0;
             int32 ConquestWeeklyProgressCurrencyID = 0;
             bool WeeklyRewardChestsEnabled = false;
@@ -96,6 +97,8 @@ namespace WorldPackets
         {
             struct RatingData
             {
+                RatingData() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+
                 int32 Prematch[2] = { };
                 int32 Postmatch[2] = { };
                 int32 PrematchMMR[2] = { };
@@ -103,6 +106,8 @@ namespace WorldPackets
 
             struct HonorData
             {
+                HonorData() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+
                 uint32 HonorKills = 0;
                 uint32 Deaths = 0;
                 uint32 ContributionPoints = 0;
@@ -137,6 +142,7 @@ namespace WorldPackets
                 int32 Class = 0;
                 int32 CreatureID = 0;
                 int32 HonorLevel = 0;
+                int32 Role = 0;
             };
 
             std::vector<PVPMatchPlayerStatistics> Statistics;
@@ -217,6 +223,7 @@ namespace WorldPackets
             bool SuspendedQueue = false;
             bool EligibleForMatchmaking = false;
             uint32 WaitTime = 0;
+            int32 Unused920 = 0;
         };
 
         class BattlefieldStatusFailed final : public ServerPacket
@@ -449,6 +456,8 @@ namespace WorldPackets
                 int32 PvpTierID = 0;
                 int32 Unused3 = 0;
                 int32 WeeklyBestWinPvpTierID = 0;
+                int32 Unused4 = 0;
+                int32 Rank = 0;
                 bool Disqualified = false;
             } Bracket[6];
         };
@@ -487,6 +496,46 @@ namespace WorldPackets
             uint8 Winner = 0;
             WorldPackets::Duration<Seconds> Duration;
             Optional<PVPMatchStatistics> LogData;
+            uint32 SoloShuffleStatus = 0;
+        };
+
+        enum class BattlegroundCapturePointState : uint8
+        {
+            Neutral             = 1,
+            ContestedHorde      = 2,
+            ContestedAlliance   = 3,
+            HordeCaptured       = 4,
+            AllianceCaptured    = 5
+        };
+
+        struct BattlegroundCapturePointInfo
+        {
+            ObjectGuid Guid;
+            TaggedPosition<Position::XY> Pos;
+            BattlegroundCapturePointState State = BattlegroundCapturePointState::Neutral;
+            Timestamp<> CaptureTime;
+            Duration<Milliseconds, uint32> CaptureTotalDuration;
+        };
+
+        class UpdateCapturePoint final : public ServerPacket
+        {
+        public:
+            UpdateCapturePoint() : ServerPacket(SMSG_UPDATE_CAPTURE_POINT) { }
+
+            WorldPacket const* Write() override;
+
+            BattlegroundCapturePointInfo CapturePointInfo;
+        };
+
+        class CapturePointRemoved final : public ServerPacket
+        {
+        public:
+            CapturePointRemoved() : ServerPacket(SMSG_CAPTURE_POINT_REMOVED) { }
+            CapturePointRemoved(ObjectGuid capturePointGUID) : ServerPacket(SMSG_CAPTURE_POINT_REMOVED), CapturePointGUID(capturePointGUID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CapturePointGUID;
         };
     }
 }
