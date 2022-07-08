@@ -6,17 +6,17 @@
         </Anchors>
         <Scripts>
             <OnLoad>
-                this:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp");
-                this:RegisterForDrag("RightButton");
+                self:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp");
+                self:RegisterForDrag("RightButton");
             </OnLoad>
             <OnEnter>
-                GameTooltip:SetOwner(this, "ANCHOR_LEFT");
+                GameTooltip:SetOwner(self, "ANCHOR_LEFT");
                 GameTooltip:AddLine("GOMove UI");
                 GameTooltip:AddLine("Type /gomove to show or hide the GOMove window");
                 GameTooltip:AddLine("Type /gomove reset to reset the gomove UI positions");
                 GameTooltip:AddLine(" ");
                 GameTooltip:AddLine("Left click to show/hide");
-                GameTooltip:AddLine("Right click to drag this");
+                GameTooltip:AddLine("Right click to drag self");
                 GameTooltip:Show();
             </OnEnter>
             <OnLeave>
@@ -30,10 +30,10 @@
                 end
             </OnClick>
             <OnDragStart>
-                this:StartMoving();
+                self:StartMoving();
             </OnDragStart>
             <OnDragStop>
-                this:StopMovingOrSizing();
+                self:StopMovingOrSizing();
             </OnDragStop>
         </Scripts>
         <Layers>

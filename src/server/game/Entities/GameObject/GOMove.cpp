@@ -83,9 +83,7 @@ void GOMove::DeleteGameObject(GameObject * object)
         owner->RemoveGameObject(object, false);
     }
 
-    object->SetRespawnTime(0);                                 // not save respawn time
-    object->Delete();
-    object->DeleteFromDB();
+    GameObject::DeleteFromDB(object->GetSpawnId());
 }
 
 GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, float o, PhaseShift const & p, PhaseShift const & sp, uint32 entry)
@@ -108,14 +106,12 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
 
     Map* map = player->GetMap();
 
-    QuaternionData quat;
-    quat.fromEulerAnglesZYX(z, y, x);
     Position pos;
     pos.m_positionX = x;
     pos.m_positionY = y;
     pos.m_positionZ = z;
     pos.SetOrientation(o);
-    GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, pos, quat, 255, GO_STATE_READY);
+    GameObject* object = GameObject::CreateGameObject(objectInfo->entry, map, pos, QuaternionData::fromEulerAnglesZYX(o, 0.0f, 0.0f), 255, GO_STATE_READY);
     if (!object)
         return nullptr;
 
@@ -136,7 +132,7 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
         return nullptr;
 
     /// @todo is it really necessary to add both the real and DB table guid here ?
-    sObjectMgr->AddGameobjectToGrid(spawnId, ASSERT_NOTNULL(sObjectMgr->GetGameObjectData(spawnId)));
+    sObjectMgr->AddGameobjectToGrid(ASSERT_NOTNULL(sObjectMgr->GetGameObjectData(spawnId)));
 
     if (object)
         SendAdd(player, spawnId);
@@ -157,24 +153,29 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
     if (!MapManager::IsValidMapCoord(object->GetMapId(), x, y, z))
         return nullptr;
 
-    // copy paste .gob turn command
-    object->Relocate(x, y, z, o);
-    object->RelocateStationaryPosition(x, y, z, o);
-    object->SetWorldRotationAngles(o, 0.0f, 0.0f);
-    object->DestroyForNearbyPlayers();
-    object->UpdateObjectVisibility();
+    Map* map = object->GetMap();
 
     // copy paste .gob move command
-    object->DestroyForNearbyPlayers();
-    object->RelocateStationaryPosition(x, y, z, object->GetOrientation());
-    object->GetMap()->GameObjectRelocation(object, x, y, z, object->GetOrientation());
+    object->Relocate(x, y, z, o);
+    // copy paste .gob turn command
+    object->SetLocalRotationAngles(o, 0.0f, 0.0f);
 
     //// copy paste .gob phase command
     //// TODO multi phase support for 7.x
     object->GetPhaseShift() = p;
     object->GetSuppressedPhaseShift() = sp;
 
+    sObjectMgr->RemoveGameobjectFromGrid(object->GetGameObjectData());
     object->SaveToDB();
+    sObjectMgr->AddGameobjectToGrid(object->GetGameObjectData());
+
+    // Generate a completely new spawn with new guid
+    // 3.3.5a client caches recently deleted objects and brings them back to life
+    // when CreateObject block for this guid is received again
+    // however it entirely skips parsing that block and only uses already known location
+    object->Delete();
+
+    object = GameObject::CreateGameObjectFromDB(lowguid, map);
 
     return object;
 }

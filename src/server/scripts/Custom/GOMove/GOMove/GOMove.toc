@@ -1,4 +1,4 @@
-## Interface: 30300
+## Interface: 90205
 ## Title: GOMove UI Interface Addon
 ## Author: Rochet2
 

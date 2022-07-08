@@ -9,7 +9,7 @@ function GOMove:Update()
 end
 
 function GOMove:CreateFrame(name, width, height, DataTable, both)
-    local Frame = CreateFrame("Frame", name, UIParent)
+    local Frame = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
     Frame:SetMovable(true)
     Frame:EnableMouse(true)
     Frame:RegisterForDrag("LeftButton")

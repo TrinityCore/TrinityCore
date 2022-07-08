@@ -348,7 +348,7 @@ local EventFrame = CreateFrame("Frame")
 EventFrame:RegisterEvent("ADDON_LOADED")
 EventFrame:RegisterEvent("CHAT_MSG_ADDON")
 
-assert(RegisterAddonMessagePrefix("GOMOVE"))
+assert(C_ChatInfo.RegisterAddonMessagePrefix("GOMOVE"))
 
 EventFrame:SetScript("OnEvent",
     function(self, event, MSG, MSG2, Type, Sender)
