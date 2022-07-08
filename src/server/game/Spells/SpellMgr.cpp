@@ -3150,6 +3150,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_0).TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
     });
 
+    // Warsong Gulch Anti-Stall Debuffs
+    ApplySpellFix({
+        46392, // Focused Assault
+        46393, // Brutal Assault
+    }, [](SpellInfo* spellInfo)
+    {
+        // due to discrepancies between ranks
+        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+    });
+
     // Summon Skeletons
     ApplySpellFix({ 52611, 52612 }, [](SpellInfo* spellInfo)
     {
