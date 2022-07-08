@@ -11,6 +11,7 @@ http://rochet2.github.io/
 #include <sstream>
 #include <string>
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Map.h"
@@ -25,6 +26,8 @@ http://rochet2.github.io/
 #include "SpellScript.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+
+using namespace Trinity::ChatCommands;
 
 class GOMove_commandscript : public CommandScript
 {
@@ -66,34 +69,24 @@ public:
         SPAWNSPELL,
     };
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> GOMoveCommandTable =
+        static ChatCommandTable GOMoveCommandTable =
         {
-            { "gomove", rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, false, &GOMove_Command, "" },
+            { "gomove", GOMove_Command, rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, Console::No },
         };
         return GOMoveCommandTable;
     }
 
-    static bool GOMove_Command(ChatHandler* handler, const char* args)
+    static bool GOMove_Command(ChatHandler* handler, uint32 ID, Optional<ObjectGuid::LowType> cLowguid, Optional<uint32> ARG_t)
     {
-        if (!args)
-            return false;
-
-        char* ID_t = strtok((char*)args, " ");
-        if (!ID_t)
-            return false;
-        uint32 ID = static_cast<uint32>(atoul(ID_t));
-
-        char* cLowguid = strtok(nullptr, " ");
         ObjectGuid::LowType lowguid = 0;
         if (cLowguid)
-            lowguid = static_cast<ObjectGuid::LowType>(atoull(cLowguid));
+            lowguid = *cLowguid;
 
-        char* ARG_t = strtok(nullptr, " ");
         uint32 ARG = 0;
         if (ARG_t)
-            ARG = static_cast<uint32>(atoul(ARG_t));
+            ARG = *ARG_t;
 
         WorldSession* session = handler->GetSession();
         if (!session)
