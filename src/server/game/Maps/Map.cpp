@@ -698,8 +698,11 @@ int32 Map::GetWorldStateValue(int32 worldStateId) const
 
 void Map::SetWorldStateValue(int32 worldStateId, int32 value, bool hidden)
 {
-    auto itr = _worldStateValues.try_emplace(worldStateId, 0).first;
+    auto [itr, inserted] = _worldStateValues.try_emplace(worldStateId, 0);
     int32 oldValue = itr->second;
+    if (oldValue == value && !inserted)
+        return;
+
     itr->second = value;
 
     WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId);
