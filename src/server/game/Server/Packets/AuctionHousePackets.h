@@ -40,7 +40,6 @@ namespace WorldPackets
             AuctionBucketKey() : ItemID(0), ItemLevel(0) { }
             AuctionBucketKey(AuctionsBucketKey const& key) { *this = key; }
 
-            AuctionBucketKey& operator=(AuctionBucketKey const& key) = default;
             AuctionBucketKey& operator=(AuctionsBucketKey const& key);
 
             uint32 ItemID = 0;
@@ -154,7 +153,7 @@ namespace WorldPackets
             uint8 MinLevel = 1;
             uint8 MaxLevel = MAX_LEVEL;
             AuctionHouseFilterMask Filters = AuctionHouseFilterMask(0);
-            Array<uint8, BATTLE_PET_SPECIES_MAX_ID / 8 + 1> KnownPets;
+            std::vector<uint8> KnownPets; // size checked separately in Read()
             int8 MaxPetLevel = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
             std::string Name;
@@ -304,6 +303,14 @@ namespace WorldPackets
             uint32 ChangeNumberTombstone = 0;
             uint32 Count = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
+        };
+
+        class AuctionRequestFavoriteList final : public ClientPacket
+        {
+        public:
+            AuctionRequestFavoriteList(WorldPacket&& packet) : ClientPacket(CMSG_AUCTION_REQUEST_FAVORITE_LIST, std::move(packet)) { }
+
+            void Read() override { }
         };
 
         class AuctionSellCommodity final : public ClientPacket

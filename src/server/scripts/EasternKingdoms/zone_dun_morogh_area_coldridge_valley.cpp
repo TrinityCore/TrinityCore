@@ -57,7 +57,7 @@ public:
             _tapped = false;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (_tapped)
                 return;
@@ -68,7 +68,7 @@ public:
                 {
                     _tapped = true;
                     _playerGUID = caster->GetGUID();
-                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     _events.ScheduleEvent(EVENT_TURN_TO_PLAYER, Seconds(2));
                 }
@@ -151,7 +151,7 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(_percentHP));
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (!_hitBySpell)
             {
@@ -272,7 +272,7 @@ public:
         {
             if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
             {
-                if (Creature* milo = passenger->SummonCreature(NPC_MILO, me->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                if (Creature* milo = passenger->SummonCreature(NPC_MILO, me->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 0s))
                 {
                     _waitBeforePath = false;
                     _miloGUID = milo->GetGUID();

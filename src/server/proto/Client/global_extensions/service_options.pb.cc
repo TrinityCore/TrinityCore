@@ -26,12 +26,12 @@ namespace {
 const ::google::protobuf::Descriptor* BGSServiceOptions_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   BGSServiceOptions_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* BGSServiceOptions_ServiceType_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* SDKServiceOptions_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   SDKServiceOptions_reflection_ = NULL;
 
 }  // namespace
-
 
 void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto() {
   protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
@@ -40,10 +40,13 @@ void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto() {
       "global_extensions/service_options.proto");
   GOOGLE_CHECK(file != NULL);
   BGSServiceOptions_descriptor_ = file->message_type(0);
-  static const int BGSServiceOptions_offsets_[3] = {
+  static const int BGSServiceOptions_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, descriptor_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, version_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, shard_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, resolve_client_instance_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, api_type_),
   };
   BGSServiceOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -56,6 +59,7 @@ void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BGSServiceOptions));
+  BGSServiceOptions_ServiceType_descriptor_ = BGSServiceOptions_descriptor_->enum_type(0);
   SDKServiceOptions_descriptor_ = file->message_type(1);
   static const int SDKServiceOptions_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, inbound_),
@@ -110,17 +114,22 @@ void protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\'global_extensions/service_options.prot"
     "o\022\014bgs.protocol\032 google/protobuf/descrip"
-    "tor.proto\"Q\n\021BGSServiceOptions\022\027\n\017descri"
-    "ptor_name\030\001 \001(\t\022\017\n\007version\030\004 \001(\r\022\022\n\nshar"
-    "d_name\030\005 \001(\t\"M\n\021SDKServiceOptions\022\017\n\007inb"
-    "ound\030\001 \001(\010\022\020\n\010outbound\030\002 \001(\010\022\025\n\ruse_clie"
-    "nt_id\030\003 \001(\010:[\n\017service_options\022\037.google."
-    "protobuf.ServiceOptions\030\220\277\005 \001(\0132\037.bgs.pr"
-    "otocol.BGSServiceOptions:_\n\023sdk_service_"
-    "options\022\037.google.protobuf.ServiceOptions"
-    "\030\221\277\005 \001(\0132\037.bgs.protocol.SDKServiceOption"
-    "sB&\n\rbnet.protocolB\023ServiceOptionsProtoH"
-    "\001", 481);
+    "tor.proto\"\236\002\n\021BGSServiceOptions\022\027\n\017descr"
+    "iptor_name\030\001 \001(\t\022\017\n\007version\030\004 \001(\r\022\022\n\nsha"
+    "rd_name\030\005 \001(\t\022\037\n\027resolve_client_instance"
+    "\030\006 \001(\010\0229\n\004type\030\007 \001(\0162+.bgs.protocol.BGSS"
+    "erviceOptions.ServiceType\022\020\n\010api_type\030\010 "
+    "\001(\t\"]\n\013ServiceType\022\024\n\020SERVICE_TYPE_RPC\020\000"
+    "\022\026\n\022SERVICE_TYPE_EVENT\020\001\022 \n\034SERVICE_TYPE"
+    "_EVENT_BROADCAST\020\002\"M\n\021SDKServiceOptions\022"
+    "\017\n\007inbound\030\001 \001(\010\022\020\n\010outbound\030\002 \001(\010\022\025\n\rus"
+    "e_client_id\030\003 \001(\010:[\n\017service_options\022\037.g"
+    "oogle.protobuf.ServiceOptions\030\220\277\005 \001(\0132\037."
+    "bgs.protocol.BGSServiceOptions:_\n\023sdk_se"
+    "rvice_options\022\037.google.protobuf.ServiceO"
+    "ptions\030\221\277\005 \001(\0132\037.bgs.protocol.SDKService"
+    "OptionsB&\n\rbnet.protocolB\023ServiceOptions"
+    "ProtoH\001", 687);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/service_options.proto", &protobuf_RegisterTypes);
   BGSServiceOptions::default_instance_ = new BGSServiceOptions();
@@ -144,13 +153,38 @@ struct StaticDescriptorInitializer_global_5fextensions_2fservice_5foptions_2epro
     protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
   }
 } static_descriptor_initializer_global_5fextensions_2fservice_5foptions_2eproto_;
-
 // ===================================================================
 
+const ::google::protobuf::EnumDescriptor* BGSServiceOptions_ServiceType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return BGSServiceOptions_ServiceType_descriptor_;
+}
+bool BGSServiceOptions_ServiceType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#ifndef _MSC_VER
+const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_RPC;
+const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_EVENT;
+const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_EVENT_BROADCAST;
+const BGSServiceOptions_ServiceType BGSServiceOptions::ServiceType_MIN;
+const BGSServiceOptions_ServiceType BGSServiceOptions::ServiceType_MAX;
+const int BGSServiceOptions::ServiceType_ARRAYSIZE;
+#endif  // _MSC_VER
 #ifndef _MSC_VER
 const int BGSServiceOptions::kDescriptorNameFieldNumber;
 const int BGSServiceOptions::kVersionFieldNumber;
 const int BGSServiceOptions::kShardNameFieldNumber;
+const int BGSServiceOptions::kResolveClientInstanceFieldNumber;
+const int BGSServiceOptions::kTypeFieldNumber;
+const int BGSServiceOptions::kApiTypeFieldNumber;
 #endif  // !_MSC_VER
 
 BGSServiceOptions::BGSServiceOptions()
@@ -175,6 +209,9 @@ void BGSServiceOptions::SharedCtor() {
   descriptor_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   version_ = 0u;
   shard_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  resolve_client_instance_ = false;
+  type_ = 0;
+  api_type_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -189,6 +226,9 @@ void BGSServiceOptions::SharedDtor() {
   }
   if (shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete shard_name_;
+  }
+  if (api_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete api_type_;
   }
   if (this != default_instance_) {
   }
@@ -216,19 +256,39 @@ BGSServiceOptions* BGSServiceOptions::New() const {
 }
 
 void BGSServiceOptions::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<BGSServiceOptions*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(version_, resolve_client_instance_);
     if (has_descriptor_name()) {
       if (descriptor_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         descriptor_name_->clear();
       }
     }
-    version_ = 0u;
     if (has_shard_name()) {
       if (shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         shard_name_->clear();
       }
     }
+    type_ = 0;
+    if (has_api_type()) {
+      if (api_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        api_type_->clear();
+      }
+    }
   }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -287,6 +347,58 @@ bool BGSServiceOptions::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(48)) goto parse_resolve_client_instance;
+        break;
+      }
+
+      // optional bool resolve_client_instance = 6;
+      case 6: {
+        if (tag == 48) {
+         parse_resolve_client_instance:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &resolve_client_instance_)));
+          set_has_resolve_client_instance();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(56)) goto parse_type;
+        break;
+      }
+
+      // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
+      case 7: {
+        if (tag == 56) {
+         parse_type:
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::bgs::protocol::BGSServiceOptions_ServiceType_IsValid(value)) {
+            set_type(static_cast< ::bgs::protocol::BGSServiceOptions_ServiceType >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(7, value);
+          }
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(66)) goto parse_api_type;
+        break;
+      }
+
+      // optional string api_type = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_api_type:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_api_type()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->api_type().data(), this->api_type().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "api_type");
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -341,6 +453,27 @@ void BGSServiceOptions::SerializeWithCachedSizes(
       5, this->shard_name(), output);
   }
 
+  // optional bool resolve_client_instance = 6;
+  if (has_resolve_client_instance()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(6, this->resolve_client_instance(), output);
+  }
+
+  // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
+  if (has_type()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      7, this->type(), output);
+  }
+
+  // optional string api_type = 8;
+  if (has_api_type()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->api_type().data(), this->api_type().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "api_type");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      8, this->api_type(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -378,6 +511,28 @@ void BGSServiceOptions::SerializeWithCachedSizes(
         5, this->shard_name(), target);
   }
 
+  // optional bool resolve_client_instance = 6;
+  if (has_resolve_client_instance()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(6, this->resolve_client_instance(), target);
+  }
+
+  // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
+  if (has_type()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      7, this->type(), target);
+  }
+
+  // optional string api_type = 8;
+  if (has_api_type()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->api_type().data(), this->api_type().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "api_type");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        8, this->api_type(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -409,6 +564,24 @@ int BGSServiceOptions::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->shard_name());
+    }
+
+    // optional bool resolve_client_instance = 6;
+    if (has_resolve_client_instance()) {
+      total_size += 1 + 1;
+    }
+
+    // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
+    if (has_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+    }
+
+    // optional string api_type = 8;
+    if (has_api_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->api_type());
     }
 
   }
@@ -447,6 +620,15 @@ void BGSServiceOptions::MergeFrom(const BGSServiceOptions& from) {
     if (from.has_shard_name()) {
       set_shard_name(from.shard_name());
     }
+    if (from.has_resolve_client_instance()) {
+      set_resolve_client_instance(from.resolve_client_instance());
+    }
+    if (from.has_type()) {
+      set_type(from.type());
+    }
+    if (from.has_api_type()) {
+      set_api_type(from.api_type());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -464,7 +646,6 @@ void BGSServiceOptions::CopyFrom(const BGSServiceOptions& from) {
 }
 
 bool BGSServiceOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -473,6 +654,9 @@ void BGSServiceOptions::Swap(BGSServiceOptions* other) {
     std::swap(descriptor_name_, other->descriptor_name_);
     std::swap(version_, other->version_);
     std::swap(shard_name_, other->shard_name_);
+    std::swap(resolve_client_instance_, other->resolve_client_instance_);
+    std::swap(type_, other->type_);
+    std::swap(api_type_, other->api_type_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -486,7 +670,6 @@ void BGSServiceOptions::Swap(BGSServiceOptions* other) {
   metadata.reflection = BGSServiceOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -770,7 +953,6 @@ void SDKServiceOptions::CopyFrom(const SDKServiceOptions& from) {
 }
 
 bool SDKServiceOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -799,7 +981,6 @@ void SDKServiceOptions::Swap(SDKServiceOptions* other) {
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::ServiceOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::SDKServiceOptions >, 11, false >
   sdk_service_options(kSdkServiceOptionsFieldNumber, ::bgs::protocol::SDKServiceOptions::default_instance());
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol

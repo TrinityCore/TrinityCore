@@ -26,7 +26,6 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "user_manager_types.pb.h"
 #include "entity_types.pb.h"
-#include "role_types.pb.h"
 #include "rpc_types.pb.h"
 #include "ServiceBase.h"
 #include "MessageBuffer.h"
@@ -226,18 +225,6 @@ class TC_PROTO_API SubscribeResponse : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer >*
       mutable_recent_players();
 
-  // repeated .bgs.protocol.Role role = 3;
-  inline int role_size() const;
-  inline void clear_role();
-  static const int kRoleFieldNumber = 3;
-  inline const ::bgs::protocol::Role& role(int index) const;
-  inline ::bgs::protocol::Role* mutable_role(int index);
-  inline ::bgs::protocol::Role* add_role();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >&
-      role() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >*
-      mutable_role();
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.user_manager.v1.SubscribeResponse)
  private:
 
@@ -247,7 +234,6 @@ class TC_PROTO_API SubscribeResponse : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::BlockedPlayer > blocked_players_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer > recent_players_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role > role_;
   friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
@@ -614,21 +600,12 @@ class TC_PROTO_API BlockPlayerRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::EntityId* release_target_id();
   inline void set_allocated_target_id(::bgs::protocol::EntityId* target_id);
 
-  // optional uint32 role = 3;
-  inline bool has_role() const;
-  inline void clear_role();
-  static const int kRoleFieldNumber = 3;
-  inline ::google::protobuf::uint32 role() const;
-  inline void set_role(::google::protobuf::uint32 value);
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.user_manager.v1.BlockPlayerRequest)
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
   inline void set_has_target_id();
   inline void clear_has_target_id();
-  inline void set_has_role();
-  inline void clear_has_role();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -636,7 +613,6 @@ class TC_PROTO_API BlockPlayerRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* agent_id_;
   ::bgs::protocol::EntityId* target_id_;
-  ::google::protobuf::uint32 role_;
   friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
   friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
@@ -1173,7 +1149,6 @@ class TC_PROTO_API UserManagerListener : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // SubscribeRequest
@@ -1305,36 +1280,6 @@ inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::
 SubscribeResponse::mutable_recent_players() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.user_manager.v1.SubscribeResponse.recent_players)
   return &recent_players_;
-}
-
-// repeated .bgs.protocol.Role role = 3;
-inline int SubscribeResponse::role_size() const {
-  return role_.size();
-}
-inline void SubscribeResponse::clear_role() {
-  role_.Clear();
-}
-inline const ::bgs::protocol::Role& SubscribeResponse::role(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.SubscribeResponse.role)
-  return role_.Get(index);
-}
-inline ::bgs::protocol::Role* SubscribeResponse::mutable_role(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.user_manager.v1.SubscribeResponse.role)
-  return role_.Mutable(index);
-}
-inline ::bgs::protocol::Role* SubscribeResponse::add_role() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.user_manager.v1.SubscribeResponse.role)
-  return role_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >&
-SubscribeResponse::role() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.user_manager.v1.SubscribeResponse.role)
-  return role_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Role >*
-SubscribeResponse::mutable_role() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.user_manager.v1.SubscribeResponse.role)
-  return &role_;
 }
 
 // -------------------------------------------------------------------
@@ -1658,30 +1603,6 @@ inline void BlockPlayerRequest::set_allocated_target_id(::bgs::protocol::EntityI
     clear_has_target_id();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.user_manager.v1.BlockPlayerRequest.target_id)
-}
-
-// optional uint32 role = 3;
-inline bool BlockPlayerRequest::has_role() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void BlockPlayerRequest::set_has_role() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void BlockPlayerRequest::clear_has_role() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void BlockPlayerRequest::clear_role() {
-  role_ = 0u;
-  clear_has_role();
-}
-inline ::google::protobuf::uint32 BlockPlayerRequest::role() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.BlockPlayerRequest.role)
-  return role_;
-}
-inline void BlockPlayerRequest::set_role(::google::protobuf::uint32 value) {
-  set_has_role();
-  role_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.BlockPlayerRequest.role)
 }
 
 // -------------------------------------------------------------------
@@ -2092,7 +2013,6 @@ RecentPlayersRemovedNotification::mutable_player() {
   return &player_;
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -2103,8 +2023,6 @@ RecentPlayersRemovedNotification::mutable_player() {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

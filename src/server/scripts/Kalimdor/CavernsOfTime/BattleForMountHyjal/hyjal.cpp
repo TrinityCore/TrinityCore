@@ -35,15 +35,24 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedGossip.h"
 
-#define GOSSIP_ITEM_BEGIN_ALLY      "My companions and I are with you, Lady Proudmoore."
-#define GOSSIP_ITEM_ANETHERON       "We are ready for whatever Archimonde might send our way, Lady Proudmoore."
+enum GOSSIPS
+{
+    GOSSIP_ITEM_BEGIN_ALLY_MID     = 7552,  // My companions and I are with you, Lady Proudmoore.
+    GOSSIP_ITEM_BEGIN_ALLY_OID     = 0,
+    GOSSIP_ITEM_ANETHERON_MID      = 7552,  // We are ready for whatever Archimonde might send our way, Lady Proudmoore.
+    GOSSIP_ITEM_ANETHERON_OID      = 1,
+    GOSSIP_ITEM_ALLY_RETREAT_MID   = 7552,  // Until we meet again, Lady Proudmoore.
+    GOSSIP_ITEM_ALLY_RETREAT_OID   = 2,
+    GOSSIP_ITEM_BEGIN_HORDE_MID    = 7581,  // I am with you, Thrall.
+    GOSSIP_ITEM_BEGIN_HORDE_OID    = 0,
+    GOSSIP_ITEM_AZGALOR_MID        = 7581,  // We have nothing to fear.
+    GOSSIP_ITEM_AZGALOR_OID        = 1,
+    GOSSIP_ITEM_HORDE_RETREAT_MID  = 7581,  //Until we meet again, Thrall.
+    GOSSIP_ITEM_HORDE_RETREAT_OID  = 2,
+    GOSSIP_ITEM_TYRANDE_MID        = 7706,  // I would be grateful for any aid you can provide, Priestess.
+    GOSSIP_ITEM_TYRANDE_OID        = 0
+};
 
-#define GOSSIP_ITEM_BEGIN_HORDE     "I am with you, Thrall."
-#define GOSSIP_ITEM_AZGALOR         "We have nothing to fear."
-
-#define GOSSIP_ITEM_RETREAT         "We can't keep this up. Let's retreat!"
-
-#define GOSSIP_ITEM_TYRANDE         "Aid us in defending Nordrassil"
 #define ITEM_TEAR_OF_GODDESS        24494
 
 #define GOSSIP_ITEM_GM1             "[GM] Toggle Debug Timers"
@@ -57,9 +66,6 @@ class npc_jaina_proudmoore : public CreatureScript
         {
             npc_jaina_proudmooreAI(Creature* creature) : hyjalAI(creature)
             {
-                Reset();
-                EnterEvadeMode();
-
                 Spells[0].SpellId = SPELL_BLIZZARD;
                 Spells[0].Cooldown = urand(15000, 35000);
                 Spells[0].TargetType = TARGETTYPE_RANDOM;
@@ -73,7 +79,7 @@ class npc_jaina_proudmoore : public CreatureScript
                 Spells[2].TargetType = TARGETTYPE_SELF;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -98,7 +104,7 @@ class npc_jaina_proudmoore : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (EventBegun)
                     return false;
@@ -106,14 +112,14 @@ class npc_jaina_proudmoore : public CreatureScript
                 uint32 RageEncounter = GetInstanceData(DATA_RAGEWINTERCHILLEVENT);
                 uint32 AnetheronEncounter = GetInstanceData(DATA_ANETHERONEVENT);
                 if (RageEncounter == NOT_STARTED)
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN_ALLY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_ALLY_MID, GOSSIP_ITEM_BEGIN_ALLY_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 else if (RageEncounter == DONE && AnetheronEncounter == NOT_STARTED)
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ANETHERON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, GOSSIP_ITEM_ANETHERON_MID, GOSSIP_ITEM_ANETHERON_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 else if (RageEncounter == DONE && AnetheronEncounter == DONE)
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    AddGossipItemFor(player, GOSSIP_ITEM_ALLY_RETREAT_MID, GOSSIP_ITEM_ALLY_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
                 if (player->IsGameMaster())
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
                 SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
@@ -135,9 +141,6 @@ class npc_thrall : public CreatureScript
         {
             npc_thrallAI(Creature* creature) : hyjalAI(creature)
             {
-                Reset();
-                EnterEvadeMode();
-
                 Spells[0].SpellId = SPELL_CHAIN_LIGHTNING;
                 Spells[0].Cooldown = urand(3000, 8000);
                 Spells[0].TargetType = TARGETTYPE_VICTIM;
@@ -147,11 +150,11 @@ class npc_thrall : public CreatureScript
                 Spells[1].TargetType = TARGETTYPE_RANDOM;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
-                DeSpawnVeins();//despawn the alliance veins
+                DeSpawnVeins(); //despawn the alliance veins
                 switch (action)
                 {
                     case GOSSIP_ACTION_INFO_DEF + 1:
@@ -173,7 +176,7 @@ class npc_thrall : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (EventBegun)
                     return false;
@@ -185,15 +188,15 @@ class npc_thrall : public CreatureScript
                     uint32 KazrogalEvent = GetInstanceData(DATA_KAZROGALEVENT);
                     uint32 AzgalorEvent = GetInstanceData(DATA_AZGALOREVENT);
                     if (KazrogalEvent == NOT_STARTED)
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BEGIN_HORDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_HORDE_MID, GOSSIP_ITEM_BEGIN_HORDE_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     else if (KazrogalEvent == DONE && AzgalorEvent == NOT_STARTED)
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AZGALOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        AddGossipItemFor(player, GOSSIP_ITEM_AZGALOR_MID, GOSSIP_ITEM_AZGALOR_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     else if (AzgalorEvent == DONE)
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        AddGossipItemFor(player, GOSSIP_ITEM_HORDE_RETREAT_MID, GOSSIP_ITEM_HORDE_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                 }
 
                 if (player->IsGameMaster())
-                    AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
                 SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
@@ -215,11 +218,9 @@ class npc_tyrande_whisperwind : public CreatureScript
         {
             npc_tyrande_whisperwindAI(Creature* creature) : hyjalAI(creature)
             {
-                Reset();
-                EnterEvadeMode();
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -236,13 +237,13 @@ class npc_tyrande_whisperwind : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 uint32 AzgalorEvent = GetInstanceData(DATA_AZGALOREVENT);
 
                 // Only let them get item if Azgalor is dead.
                 if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS))
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_TYRANDE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    AddGossipItemFor(player, GOSSIP_ITEM_TYRANDE_MID, GOSSIP_ITEM_TYRANDE_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
             }

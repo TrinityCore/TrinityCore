@@ -127,16 +127,8 @@ void DB2StorageBase::LoadFromDB(char**& indexTable)
 {
     DB2DatabaseLoader loader(_fileName, _loadInfo);
 
-    auto loadTable = [&](bool custom)
-    {
-        char* extraStringHolders = nullptr;
-        _dataTableEx[custom ? 1 : 0] = loader.Load(custom, _indexTableSize, indexTable, extraStringHolders, _stringPool);
-        if (extraStringHolders)
-            _stringPool.push_back(extraStringHolders);
-    };
-
-    loadTable(false);
-    loadTable(true);
+    _dataTableEx[0] = loader.Load(false, _indexTableSize, indexTable, _stringPool);
+    _dataTableEx[1] = loader.Load(true, _indexTableSize, indexTable, _stringPool);
     _stringPool.shrink_to_fit();
 }
 

@@ -58,6 +58,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* UpdateClubSettingsRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   UpdateClubSettingsRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* AddMemberRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  AddMemberRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* JoinRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   JoinRequest_reflection_ = NULL;
@@ -274,7 +277,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5frequest_2eproto() {
   protobuf_AddDesc_club_5frequest_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -458,7 +460,24 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateClubSettingsRequest));
-  JoinRequest_descriptor_ = file->message_type(11);
+  AddMemberRequest_descriptor_ = file->message_type(11);
+  static const int AddMemberRequest_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, agent_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, club_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, options_),
+  };
+  AddMemberRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      AddMemberRequest_descriptor_,
+      AddMemberRequest::default_instance_,
+      AddMemberRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddMemberRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(AddMemberRequest));
+  JoinRequest_descriptor_ = file->message_type(12);
   static const int JoinRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JoinRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(JoinRequest, club_id_),
@@ -475,7 +494,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(JoinRequest));
-  LeaveRequest_descriptor_ = file->message_type(12);
+  LeaveRequest_descriptor_ = file->message_type(13);
   static const int LeaveRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LeaveRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LeaveRequest, club_id_),
@@ -491,7 +510,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LeaveRequest));
-  KickRequest_descriptor_ = file->message_type(13);
+  KickRequest_descriptor_ = file->message_type(14);
   static const int KickRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KickRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KickRequest, club_id_),
@@ -508,7 +527,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(KickRequest));
-  GetMemberRequest_descriptor_ = file->message_type(14);
+  GetMemberRequest_descriptor_ = file->message_type(15);
   static const int GetMemberRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetMemberRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetMemberRequest, club_id_),
@@ -525,7 +544,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetMemberRequest));
-  GetMemberResponse_descriptor_ = file->message_type(15);
+  GetMemberResponse_descriptor_ = file->message_type(16);
   static const int GetMemberResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetMemberResponse, member_),
   };
@@ -540,7 +559,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetMemberResponse));
-  GetMembersRequest_descriptor_ = file->message_type(16);
+  GetMembersRequest_descriptor_ = file->message_type(17);
   static const int GetMembersRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetMembersRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetMembersRequest, club_id_),
@@ -557,7 +576,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetMembersRequest));
-  GetMembersResponse_descriptor_ = file->message_type(17);
+  GetMembersResponse_descriptor_ = file->message_type(18);
   static const int GetMembersResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetMembersResponse, member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetMembersResponse, continuation_),
@@ -573,7 +592,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetMembersResponse));
-  UpdateMemberStateRequest_descriptor_ = file->message_type(18);
+  UpdateMemberStateRequest_descriptor_ = file->message_type(19);
   static const int UpdateMemberStateRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateMemberStateRequest, club_id_),
@@ -591,7 +610,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateMemberStateRequest));
-  UpdateSubscriberStateRequest_descriptor_ = file->message_type(19);
+  UpdateSubscriberStateRequest_descriptor_ = file->message_type(20);
   static const int UpdateSubscriberStateRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateSubscriberStateRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateSubscriberStateRequest, club_id_),
@@ -608,7 +627,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateSubscriberStateRequest));
-  AssignRoleRequest_descriptor_ = file->message_type(20);
+  AssignRoleRequest_descriptor_ = file->message_type(21);
   static const int AssignRoleRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AssignRoleRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AssignRoleRequest, club_id_),
@@ -625,7 +644,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AssignRoleRequest));
-  UnassignRoleRequest_descriptor_ = file->message_type(21);
+  UnassignRoleRequest_descriptor_ = file->message_type(22);
   static const int UnassignRoleRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnassignRoleRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnassignRoleRequest, club_id_),
@@ -642,7 +661,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UnassignRoleRequest));
-  SendInvitationRequest_descriptor_ = file->message_type(22);
+  SendInvitationRequest_descriptor_ = file->message_type(23);
   static const int SendInvitationRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendInvitationRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendInvitationRequest, club_id_),
@@ -659,7 +678,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SendInvitationRequest));
-  AcceptInvitationRequest_descriptor_ = file->message_type(23);
+  AcceptInvitationRequest_descriptor_ = file->message_type(24);
   static const int AcceptInvitationRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AcceptInvitationRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AcceptInvitationRequest, club_id_),
@@ -676,7 +695,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AcceptInvitationRequest));
-  DeclineInvitationRequest_descriptor_ = file->message_type(24);
+  DeclineInvitationRequest_descriptor_ = file->message_type(25);
   static const int DeclineInvitationRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DeclineInvitationRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DeclineInvitationRequest, club_id_),
@@ -693,7 +712,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DeclineInvitationRequest));
-  RevokeInvitationRequest_descriptor_ = file->message_type(25);
+  RevokeInvitationRequest_descriptor_ = file->message_type(26);
   static const int RevokeInvitationRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RevokeInvitationRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RevokeInvitationRequest, club_id_),
@@ -710,7 +729,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RevokeInvitationRequest));
-  GetInvitationRequest_descriptor_ = file->message_type(26);
+  GetInvitationRequest_descriptor_ = file->message_type(27);
   static const int GetInvitationRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInvitationRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInvitationRequest, club_id_),
@@ -727,7 +746,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetInvitationRequest));
-  GetInvitationResponse_descriptor_ = file->message_type(27);
+  GetInvitationResponse_descriptor_ = file->message_type(28);
   static const int GetInvitationResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInvitationResponse, invitation_),
   };
@@ -742,7 +761,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetInvitationResponse));
-  GetInvitationsRequest_descriptor_ = file->message_type(28);
+  GetInvitationsRequest_descriptor_ = file->message_type(29);
   static const int GetInvitationsRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInvitationsRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInvitationsRequest, club_id_),
@@ -759,7 +778,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetInvitationsRequest));
-  GetInvitationsResponse_descriptor_ = file->message_type(29);
+  GetInvitationsResponse_descriptor_ = file->message_type(30);
   static const int GetInvitationsResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInvitationsResponse, invitation_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetInvitationsResponse, continuation_),
@@ -775,7 +794,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetInvitationsResponse));
-  SendSuggestionRequest_descriptor_ = file->message_type(30);
+  SendSuggestionRequest_descriptor_ = file->message_type(31);
   static const int SendSuggestionRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendSuggestionRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendSuggestionRequest, club_id_),
@@ -792,7 +811,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SendSuggestionRequest));
-  AcceptSuggestionRequest_descriptor_ = file->message_type(31);
+  AcceptSuggestionRequest_descriptor_ = file->message_type(32);
   static const int AcceptSuggestionRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AcceptSuggestionRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AcceptSuggestionRequest, club_id_),
@@ -809,7 +828,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AcceptSuggestionRequest));
-  DeclineSuggestionRequest_descriptor_ = file->message_type(32);
+  DeclineSuggestionRequest_descriptor_ = file->message_type(33);
   static const int DeclineSuggestionRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DeclineSuggestionRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DeclineSuggestionRequest, club_id_),
@@ -826,7 +845,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DeclineSuggestionRequest));
-  GetSuggestionRequest_descriptor_ = file->message_type(33);
+  GetSuggestionRequest_descriptor_ = file->message_type(34);
   static const int GetSuggestionRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetSuggestionRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetSuggestionRequest, club_id_),
@@ -843,7 +862,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetSuggestionRequest));
-  GetSuggestionResponse_descriptor_ = file->message_type(34);
+  GetSuggestionResponse_descriptor_ = file->message_type(35);
   static const int GetSuggestionResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetSuggestionResponse, suggestion_),
   };
@@ -858,7 +877,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetSuggestionResponse));
-  GetSuggestionsRequest_descriptor_ = file->message_type(35);
+  GetSuggestionsRequest_descriptor_ = file->message_type(36);
   static const int GetSuggestionsRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetSuggestionsRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetSuggestionsRequest, club_id_),
@@ -875,7 +894,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetSuggestionsRequest));
-  GetSuggestionsResponse_descriptor_ = file->message_type(36);
+  GetSuggestionsResponse_descriptor_ = file->message_type(37);
   static const int GetSuggestionsResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetSuggestionsResponse, suggestion_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetSuggestionsResponse, continuation_),
@@ -891,7 +910,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetSuggestionsResponse));
-  CreateTicketRequest_descriptor_ = file->message_type(37);
+  CreateTicketRequest_descriptor_ = file->message_type(38);
   static const int CreateTicketRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketRequest, club_id_),
@@ -908,7 +927,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateTicketRequest));
-  CreateTicketResponse_descriptor_ = file->message_type(38);
+  CreateTicketResponse_descriptor_ = file->message_type(39);
   static const int CreateTicketResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateTicketResponse, ticket_),
   };
@@ -923,7 +942,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateTicketResponse));
-  DestroyTicketRequest_descriptor_ = file->message_type(39);
+  DestroyTicketRequest_descriptor_ = file->message_type(40);
   static const int DestroyTicketRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DestroyTicketRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DestroyTicketRequest, club_id_),
@@ -940,7 +959,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DestroyTicketRequest));
-  RedeemTicketRequest_descriptor_ = file->message_type(40);
+  RedeemTicketRequest_descriptor_ = file->message_type(41);
   static const int RedeemTicketRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RedeemTicketRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RedeemTicketRequest, ticket_id_),
@@ -956,7 +975,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RedeemTicketRequest));
-  GetTicketRequest_descriptor_ = file->message_type(41);
+  GetTicketRequest_descriptor_ = file->message_type(42);
   static const int GetTicketRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTicketRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTicketRequest, ticket_id_),
@@ -972,7 +991,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetTicketRequest));
-  GetTicketResponse_descriptor_ = file->message_type(42);
+  GetTicketResponse_descriptor_ = file->message_type(43);
   static const int GetTicketResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTicketResponse, ticket_),
   };
@@ -987,7 +1006,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetTicketResponse));
-  GetTicketsRequest_descriptor_ = file->message_type(43);
+  GetTicketsRequest_descriptor_ = file->message_type(44);
   static const int GetTicketsRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTicketsRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTicketsRequest, club_id_),
@@ -1004,7 +1023,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetTicketsRequest));
-  GetTicketsResponse_descriptor_ = file->message_type(44);
+  GetTicketsResponse_descriptor_ = file->message_type(45);
   static const int GetTicketsResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTicketsResponse, ticket_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTicketsResponse, continuation_),
@@ -1020,7 +1039,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetTicketsResponse));
-  AddBanRequest_descriptor_ = file->message_type(45);
+  AddBanRequest_descriptor_ = file->message_type(46);
   static const int AddBanRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddBanRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddBanRequest, club_id_),
@@ -1037,7 +1056,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AddBanRequest));
-  RemoveBanRequest_descriptor_ = file->message_type(46);
+  RemoveBanRequest_descriptor_ = file->message_type(47);
   static const int RemoveBanRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveBanRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveBanRequest, club_id_),
@@ -1054,7 +1073,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RemoveBanRequest));
-  GetBanRequest_descriptor_ = file->message_type(47);
+  GetBanRequest_descriptor_ = file->message_type(48);
   static const int GetBanRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetBanRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetBanRequest, club_id_),
@@ -1071,7 +1090,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetBanRequest));
-  GetBanResponse_descriptor_ = file->message_type(48);
+  GetBanResponse_descriptor_ = file->message_type(49);
   static const int GetBanResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetBanResponse, ban_),
   };
@@ -1086,7 +1105,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetBanResponse));
-  GetBansRequest_descriptor_ = file->message_type(49);
+  GetBansRequest_descriptor_ = file->message_type(50);
   static const int GetBansRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetBansRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetBansRequest, club_id_),
@@ -1103,7 +1122,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetBansRequest));
-  GetBansResponse_descriptor_ = file->message_type(50);
+  GetBansResponse_descriptor_ = file->message_type(51);
   static const int GetBansResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetBansResponse, ban_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetBansResponse, continuation_),
@@ -1119,7 +1138,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetBansResponse));
-  SubscribeStreamRequest_descriptor_ = file->message_type(51);
+  SubscribeStreamRequest_descriptor_ = file->message_type(52);
   static const int SubscribeStreamRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeStreamRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeStreamRequest, club_id_),
@@ -1136,7 +1155,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SubscribeStreamRequest));
-  UnsubscribeStreamRequest_descriptor_ = file->message_type(52);
+  UnsubscribeStreamRequest_descriptor_ = file->message_type(53);
   static const int UnsubscribeStreamRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeStreamRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnsubscribeStreamRequest, club_id_),
@@ -1153,7 +1172,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UnsubscribeStreamRequest));
-  CreateStreamRequest_descriptor_ = file->message_type(53);
+  CreateStreamRequest_descriptor_ = file->message_type(54);
   static const int CreateStreamRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateStreamRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateStreamRequest, club_id_),
@@ -1170,7 +1189,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateStreamRequest));
-  CreateStreamResponse_descriptor_ = file->message_type(54);
+  CreateStreamResponse_descriptor_ = file->message_type(55);
   static const int CreateStreamResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateStreamResponse, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateStreamResponse, stream_id_),
@@ -1186,7 +1205,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateStreamResponse));
-  DestroyStreamRequest_descriptor_ = file->message_type(55);
+  DestroyStreamRequest_descriptor_ = file->message_type(56);
   static const int DestroyStreamRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DestroyStreamRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DestroyStreamRequest, club_id_),
@@ -1203,7 +1222,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DestroyStreamRequest));
-  GetStreamRequest_descriptor_ = file->message_type(56);
+  GetStreamRequest_descriptor_ = file->message_type(57);
   static const int GetStreamRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamRequest, club_id_),
@@ -1220,7 +1239,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamRequest));
-  GetStreamResponse_descriptor_ = file->message_type(57);
+  GetStreamResponse_descriptor_ = file->message_type(58);
   static const int GetStreamResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamResponse, stream_),
   };
@@ -1235,7 +1254,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamResponse));
-  GetStreamsRequest_descriptor_ = file->message_type(58);
+  GetStreamsRequest_descriptor_ = file->message_type(59);
   static const int GetStreamsRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamsRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamsRequest, club_id_),
@@ -1252,7 +1271,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamsRequest));
-  GetStreamsResponse_descriptor_ = file->message_type(59);
+  GetStreamsResponse_descriptor_ = file->message_type(60);
   static const int GetStreamsResponse_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamsResponse, stream_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamsResponse, view_),
@@ -1269,7 +1288,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamsResponse));
-  UpdateStreamStateRequest_descriptor_ = file->message_type(60);
+  UpdateStreamStateRequest_descriptor_ = file->message_type(61);
   static const int UpdateStreamStateRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateStreamStateRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateStreamStateRequest, club_id_),
@@ -1287,7 +1306,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateStreamStateRequest));
-  SetStreamFocusRequest_descriptor_ = file->message_type(61);
+  SetStreamFocusRequest_descriptor_ = file->message_type(62);
   static const int SetStreamFocusRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetStreamFocusRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetStreamFocusRequest, club_id_),
@@ -1305,7 +1324,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SetStreamFocusRequest));
-  CreateMessageRequest_descriptor_ = file->message_type(62);
+  CreateMessageRequest_descriptor_ = file->message_type(63);
   static const int CreateMessageRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMessageRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMessageRequest, club_id_),
@@ -1323,7 +1342,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateMessageRequest));
-  CreateMessageResponse_descriptor_ = file->message_type(63);
+  CreateMessageResponse_descriptor_ = file->message_type(64);
   static const int CreateMessageResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMessageResponse, message_),
   };
@@ -1338,7 +1357,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateMessageResponse));
-  DestroyMessageRequest_descriptor_ = file->message_type(64);
+  DestroyMessageRequest_descriptor_ = file->message_type(65);
   static const int DestroyMessageRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DestroyMessageRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DestroyMessageRequest, club_id_),
@@ -1356,7 +1375,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DestroyMessageRequest));
-  DestroyMessageResponse_descriptor_ = file->message_type(65);
+  DestroyMessageResponse_descriptor_ = file->message_type(66);
   static const int DestroyMessageResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DestroyMessageResponse, message_),
   };
@@ -1371,7 +1390,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DestroyMessageResponse));
-  EditMessageRequest_descriptor_ = file->message_type(66);
+  EditMessageRequest_descriptor_ = file->message_type(67);
   static const int EditMessageRequest_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EditMessageRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EditMessageRequest, club_id_),
@@ -1390,7 +1409,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EditMessageRequest));
-  EditMessageResponse_descriptor_ = file->message_type(67);
+  EditMessageResponse_descriptor_ = file->message_type(68);
   static const int EditMessageResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EditMessageResponse, message_),
   };
@@ -1405,7 +1424,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EditMessageResponse));
-  SetMessagePinnedRequest_descriptor_ = file->message_type(68);
+  SetMessagePinnedRequest_descriptor_ = file->message_type(69);
   static const int SetMessagePinnedRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMessagePinnedRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetMessagePinnedRequest, club_id_),
@@ -1422,7 +1441,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SetMessagePinnedRequest));
-  SetTypingIndicatorRequest_descriptor_ = file->message_type(69);
+  SetTypingIndicatorRequest_descriptor_ = file->message_type(70);
   static const int SetTypingIndicatorRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetTypingIndicatorRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetTypingIndicatorRequest, club_id_),
@@ -1440,7 +1459,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SetTypingIndicatorRequest));
-  AdvanceStreamViewTimeRequest_descriptor_ = file->message_type(70);
+  AdvanceStreamViewTimeRequest_descriptor_ = file->message_type(71);
   static const int AdvanceStreamViewTimeRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AdvanceStreamViewTimeRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AdvanceStreamViewTimeRequest, club_id_),
@@ -1458,7 +1477,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AdvanceStreamViewTimeRequest));
-  AdvanceStreamMentionViewTimeRequest_descriptor_ = file->message_type(71);
+  AdvanceStreamMentionViewTimeRequest_descriptor_ = file->message_type(72);
   static const int AdvanceStreamMentionViewTimeRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AdvanceStreamMentionViewTimeRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AdvanceStreamMentionViewTimeRequest, club_id_),
@@ -1475,7 +1494,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AdvanceStreamMentionViewTimeRequest));
-  AdvanceActivityViewTimeRequest_descriptor_ = file->message_type(72);
+  AdvanceActivityViewTimeRequest_descriptor_ = file->message_type(73);
   static const int AdvanceActivityViewTimeRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AdvanceActivityViewTimeRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AdvanceActivityViewTimeRequest, club_id_),
@@ -1491,7 +1510,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AdvanceActivityViewTimeRequest));
-  GetStreamHistoryRequest_descriptor_ = file->message_type(73);
+  GetStreamHistoryRequest_descriptor_ = file->message_type(74);
   static const int GetStreamHistoryRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamHistoryRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamHistoryRequest, club_id_),
@@ -1509,7 +1528,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamHistoryRequest));
-  GetStreamHistoryResponse_descriptor_ = file->message_type(74);
+  GetStreamHistoryResponse_descriptor_ = file->message_type(75);
   static const int GetStreamHistoryResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamHistoryResponse, message_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamHistoryResponse, continuation_),
@@ -1525,7 +1544,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamHistoryResponse));
-  GetStreamMessageRequest_descriptor_ = file->message_type(75);
+  GetStreamMessageRequest_descriptor_ = file->message_type(76);
   static const int GetStreamMessageRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMessageRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMessageRequest, club_id_),
@@ -1543,7 +1562,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamMessageRequest));
-  GetStreamMessageResponse_descriptor_ = file->message_type(76);
+  GetStreamMessageResponse_descriptor_ = file->message_type(77);
   static const int GetStreamMessageResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMessageResponse, message_),
   };
@@ -1558,7 +1577,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamMessageResponse));
-  GetClubActivityRequest_descriptor_ = file->message_type(77);
+  GetClubActivityRequest_descriptor_ = file->message_type(78);
   static const int GetClubActivityRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetClubActivityRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetClubActivityRequest, club_id_),
@@ -1575,7 +1594,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetClubActivityRequest));
-  GetClubActivityResponse_descriptor_ = file->message_type(78);
+  GetClubActivityResponse_descriptor_ = file->message_type(79);
   static const int GetClubActivityResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetClubActivityResponse, continuation_),
   };
@@ -1590,11 +1609,12 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetClubActivityResponse));
-  GetStreamVoiceTokenRequest_descriptor_ = file->message_type(79);
-  static const int GetStreamVoiceTokenRequest_offsets_[3] = {
+  GetStreamVoiceTokenRequest_descriptor_ = file->message_type(80);
+  static const int GetStreamVoiceTokenRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamVoiceTokenRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamVoiceTokenRequest, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamVoiceTokenRequest, stream_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamVoiceTokenRequest, version_),
   };
   GetStreamVoiceTokenRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -1607,7 +1627,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamVoiceTokenRequest));
-  GetStreamVoiceTokenResponse_descriptor_ = file->message_type(80);
+  GetStreamVoiceTokenResponse_descriptor_ = file->message_type(81);
   static const int GetStreamVoiceTokenResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamVoiceTokenResponse, channel_uri_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamVoiceTokenResponse, credentials_),
@@ -1623,7 +1643,7 @@ void protobuf_AssignDesc_club_5frequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetStreamVoiceTokenResponse));
-  KickFromStreamVoiceRequest_descriptor_ = file->message_type(81);
+  KickFromStreamVoiceRequest_descriptor_ = file->message_type(82);
   static const int KickFromStreamVoiceRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KickFromStreamVoiceRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KickFromStreamVoiceRequest, club_id_),
@@ -1675,6 +1695,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     UpdateClubStateRequest_descriptor_, &UpdateClubStateRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     UpdateClubSettingsRequest_descriptor_, &UpdateClubSettingsRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    AddMemberRequest_descriptor_, &AddMemberRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     JoinRequest_descriptor_, &JoinRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -1844,6 +1866,8 @@ void protobuf_ShutdownFile_club_5frequest_2eproto() {
   delete UpdateClubStateRequest_reflection_;
   delete UpdateClubSettingsRequest::default_instance_;
   delete UpdateClubSettingsRequest_reflection_;
+  delete AddMemberRequest::default_instance_;
+  delete AddMemberRequest_reflection_;
   delete JoinRequest::default_instance_;
   delete JoinRequest_reflection_;
   delete LeaveRequest::default_instance_;
@@ -1997,248 +2021,264 @@ void protobuf_AddDesc_club_5frequest_2eproto() {
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\022club_request.proto\022\024bgs.protocol.club."
-    "v1\032\020club_types.proto\"U\n\020SubscribeRequest"
+    "v1\032\020club_types.proto\"]\n\020SubscribeRequest"
     "\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v"
-    "1.MemberId\022\017\n\007club_id\030\002 \001(\004\"W\n\022Unsubscri"
-    "beRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
-    "ol.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\"{\n\r"
-    "CreateRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.pr"
-    "otocol.club.v1.MemberId\0228\n\007options\030\002 \001(\013"
-    "2\'.bgs.protocol.club.v1.ClubCreateOption"
-    "s\"!\n\016CreateResponse\022\017\n\007club_id\030\001 \001(\004\"S\n\016"
-    "DestroyRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.p"
-    "rotocol.club.v1.MemberId\022\017\n\007club_id\030\002 \001("
-    "\004\"Z\n\025GetDescriptionRequest\0220\n\010agent_id\030\001"
-    " \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007"
-    "club_id\030\002 \001(\004\"M\n\026GetDescriptionResponse\022"
-    "3\n\004club\030\001 \001(\0132%.bgs.protocol.club.v1.Clu"
-    "bDescription\"z\n\022GetClubTypeRequest\0220\n\010ag"
-    "ent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Memb"
-    "erId\0222\n\004type\030\002 \001(\0132$.bgs.protocol.club.v"
-    "1.UniqueClubType\"\271\001\n\023GetClubTypeResponse"
-    "\0222\n\004type\030\001 \001(\0132$.bgs.protocol.club.v1.Un"
-    "iqueClubType\0223\n\010role_set\030\002 \001(\0132!.bgs.pro"
-    "tocol.club.v1.ClubRoleSet\0229\n\trange_set\030\003"
-    " \001(\0132&.bgs.protocol.club.v1.ClubTypeRang"
-    "eSet\"\224\001\n\026UpdateClubStateRequest\0220\n\010agent"
-    "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
-    "d\022\017\n\007club_id\030\002 \001(\004\0227\n\007options\030\003 \001(\0132&.bg"
-    "s.protocol.club.v1.ClubStateOptions\"\232\001\n\031"
-    "UpdateClubSettingsRequest\0220\n\010agent_id\030\001 "
-    "\001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007c"
-    "lub_id\030\002 \001(\004\022:\n\007options\030\003 \001(\0132).bgs.prot"
-    "ocol.club.v1.ClubSettingsOptions\"\214\001\n\013Joi"
-    "nRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoco"
-    "l.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022:\n\007o"
-    "ptions\030\003 \001(\0132).bgs.protocol.club.v1.Crea"
-    "teMemberOptions\"Q\n\014LeaveRequest\0220\n\010agent"
-    "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
-    "d\022\017\n\007club_id\030\002 \001(\004\"\203\001\n\013KickRequest\0220\n\010ag"
-    "ent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Memb"
-    "erId\022\017\n\007club_id\030\002 \001(\004\0221\n\ttarget_id\030\003 \001(\013"
-    "2\036.bgs.protocol.club.v1.MemberId\"\210\001\n\020Get"
-    "MemberRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.pr"
-    "otocol.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004"
-    "\0221\n\tmember_id\030\003 \001(\0132\036.bgs.protocol.club."
-    "v1.MemberId\"A\n\021GetMemberResponse\022,\n\006memb"
-    "er\030\001 \001(\0132\034.bgs.protocol.club.v1.Member\"l"
-    "\n\021GetMembersRequest\0220\n\010agent_id\030\001 \001(\0132\036."
-    "bgs.protocol.club.v1.MemberId\022\017\n\007club_id"
-    "\030\002 \001(\004\022\024\n\014continuation\030\004 \001(\004\"X\n\022GetMembe"
-    "rsResponse\022,\n\006member\030\001 \003(\0132\034.bgs.protoco"
-    "l.club.v1.Member\022\024\n\014continuation\030\002 \001(\004\"\313"
-    "\001\n\030UpdateMemberStateRequest\0220\n\010agent_id\030"
-    "\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n"
-    "\007club_id\030\002 \001(\004\0221\n\tmember_id\030\003 \001(\0132\036.bgs."
-    "protocol.club.v1.MemberId\0229\n\007options\030\005 \001"
-    "(\0132(.bgs.protocol.club.v1.MemberStateOpt"
-    "ions\"\240\001\n\034UpdateSubscriberStateRequest\0220\n"
-    "\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.M"
-    "emberId\022\017\n\007club_id\030\002 \001(\004\022=\n\007options\030\003 \001("
-    "\0132,.bgs.protocol.club.v1.SubscriberState"
-    "Options\"\212\001\n\021AssignRoleRequest\0220\n\010agent_i"
+    "1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\"_\n\022U"
+    "nsubscribeRequest\0220\n\010agent_id\030\001 \001(\0132\036.bg"
+    "s.protocol.club.v1.MemberId\022\027\n\007club_id\030\002"
+    " \001(\004B\006\202\371+\002\020\001\"{\n\rCreateRequest\0220\n\010agent_i"
     "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
-    "\017\n\007club_id\030\002 \001(\004\0222\n\007options\030\003 \001(\0132!.bgs."
-    "protocol.club.v1.RoleOptions\"\214\001\n\023Unassig"
-    "nRoleRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.pro"
-    "tocol.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022"
-    "2\n\007options\030\003 \001(\0132!.bgs.protocol.club.v1."
-    "RoleOptions\"\230\001\n\025SendInvitationRequest\0220\n"
-    "\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.M"
-    "emberId\022\017\n\007club_id\030\002 \001(\004\022<\n\007options\030\003 \001("
-    "\0132+.bgs.protocol.club.v1.SendInvitationO"
-    "ptions\"s\n\027AcceptInvitationRequest\0220\n\010age"
-    "nt_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
-    "rId\022\017\n\007club_id\030\002 \001(\004\022\025\n\rinvitation_id\030\003 "
-    "\001(\006\"t\n\030DeclineInvitationRequest\0220\n\010agent"
-    "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
-    "d\022\017\n\007club_id\030\002 \001(\004\022\025\n\rinvitation_id\030\003 \001("
-    "\006\"s\n\027RevokeInvitationRequest\0220\n\010agent_id"
-    "\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017"
-    "\n\007club_id\030\002 \001(\004\022\025\n\rinvitation_id\030\003 \001(\006\"p"
-    "\n\024GetInvitationRequest\0220\n\010agent_id\030\001 \001(\013"
-    "2\036.bgs.protocol.club.v1.MemberId\022\017\n\007club"
-    "_id\030\002 \001(\004\022\025\n\rinvitation_id\030\003 \001(\006\"Q\n\025GetI"
-    "nvitationResponse\0228\n\ninvitation\030\001 \001(\0132$."
-    "bgs.protocol.club.v1.ClubInvitation\"p\n\025G"
-    "etInvitationsRequest\0220\n\010agent_id\030\001 \001(\0132\036"
-    ".bgs.protocol.club.v1.MemberId\022\017\n\007club_i"
-    "d\030\002 \001(\004\022\024\n\014continuation\030\003 \001(\004\"h\n\026GetInvi"
-    "tationsResponse\0228\n\ninvitation\030\001 \003(\0132$.bg"
-    "s.protocol.club.v1.ClubInvitation\022\024\n\014con"
-    "tinuation\030\002 \001(\004\"\230\001\n\025SendSuggestionReques"
-    "t\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club."
-    "v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022<\n\007options\030"
-    "\003 \001(\0132+.bgs.protocol.club.v1.SendSuggest"
-    "ionOptions\"s\n\027AcceptSuggestionRequest\0220\n"
-    "\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.M"
-    "emberId\022\017\n\007club_id\030\002 \001(\004\022\025\n\rsuggestion_i"
-    "d\030\003 \001(\006\"t\n\030DeclineSuggestionRequest\0220\n\010a"
-    "gent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Mem"
-    "berId\022\017\n\007club_id\030\002 \001(\004\022\025\n\rsuggestion_id\030"
-    "\003 \001(\006\"p\n\024GetSuggestionRequest\0220\n\010agent_i"
-    "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
-    "\017\n\007club_id\030\002 \001(\004\022\025\n\rsuggestion_id\030\003 \001(\006\""
-    "Q\n\025GetSuggestionResponse\0228\n\nsuggestion\030\001"
-    " \001(\0132$.bgs.protocol.club.v1.ClubSuggesti"
-    "on\"p\n\025GetSuggestionsRequest\0220\n\010agent_id\030"
-    "\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n"
-    "\007club_id\030\002 \001(\004\022\024\n\014continuation\030\003 \001(\004\"h\n\026"
-    "GetSuggestionsResponse\0228\n\nsuggestion\030\001 \003"
-    "(\0132$.bgs.protocol.club.v1.ClubSuggestion"
-    "\022\024\n\014continuation\030\002 \001(\004\"\224\001\n\023CreateTicketR"
-    "equest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol."
-    "club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022:\n\007opt"
-    "ions\030\003 \001(\0132).bgs.protocol.club.v1.Create"
-    "TicketOptions\"H\n\024CreateTicketResponse\0220\n"
-    "\006ticket\030\001 \001(\0132 .bgs.protocol.club.v1.Clu"
-    "bTicket\"l\n\024DestroyTicketRequest\0220\n\010agent"
-    "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
-    "d\022\017\n\007club_id\030\002 \001(\004\022\021\n\tticket_id\030\003 \001(\t\"Z\n"
-    "\023RedeemTicketRequest\0220\n\010agent_id\030\001 \001(\0132\036"
-    ".bgs.protocol.club.v1.MemberId\022\021\n\tticket"
-    "_id\030\003 \001(\t\"W\n\020GetTicketRequest\0220\n\010agent_i"
-    "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
-    "\021\n\tticket_id\030\003 \001(\t\"E\n\021GetTicketResponse\022"
-    "0\n\006ticket\030\001 \001(\0132 .bgs.protocol.club.v1.C"
-    "lubTicket\"l\n\021GetTicketsRequest\0220\n\010agent_"
+    "8\n\007options\030\002 \001(\0132\'.bgs.protocol.club.v1."
+    "ClubCreateOptions\"!\n\016CreateResponse\022\017\n\007c"
+    "lub_id\030\001 \001(\004\"[\n\016DestroyRequest\0220\n\010agent_"
     "id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId"
-    "\022\017\n\007club_id\030\002 \001(\004\022\024\n\014continuation\030\003 \001(\004\""
-    "\\\n\022GetTicketsResponse\0220\n\006ticket\030\001 \003(\0132 ."
-    "bgs.protocol.club.v1.ClubTicket\022\024\n\014conti"
-    "nuation\030\002 \001(\004\"\210\001\n\rAddBanRequest\0220\n\010agent"
+    "\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\"b\n\025GetDescript"
+    "ionRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.proto"
+    "col.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202"
+    "\371+\002\020\001\"M\n\026GetDescriptionResponse\0223\n\004club\030"
+    "\001 \001(\0132%.bgs.protocol.club.v1.ClubDescrip"
+    "tion\"z\n\022GetClubTypeRequest\0220\n\010agent_id\030\001"
+    " \001(\0132\036.bgs.protocol.club.v1.MemberId\0222\n\004"
+    "type\030\002 \001(\0132$.bgs.protocol.club.v1.Unique"
+    "ClubType\"\271\001\n\023GetClubTypeResponse\0222\n\004type"
+    "\030\001 \001(\0132$.bgs.protocol.club.v1.UniqueClub"
+    "Type\0223\n\010role_set\030\002 \001(\0132!.bgs.protocol.cl"
+    "ub.v1.ClubRoleSet\0229\n\trange_set\030\003 \001(\0132&.b"
+    "gs.protocol.club.v1.ClubTypeRangeSet\"\234\001\n"
+    "\026UpdateClubStateRequest\0220\n\010agent_id\030\001 \001("
+    "\0132\036.bgs.protocol.club.v1.MemberId\022\027\n\007clu"
+    "b_id\030\002 \001(\004B\006\202\371+\002\020\001\0227\n\007options\030\003 \001(\0132&.bg"
+    "s.protocol.club.v1.ClubStateOptions\"\242\001\n\031"
+    "UpdateClubSettingsRequest\0220\n\010agent_id\030\001 "
+    "\001(\0132\036.bgs.protocol.club.v1.MemberId\022\027\n\007c"
+    "lub_id\030\002 \001(\004B\006\202\371+\002\020\001\022:\n\007options\030\003 \001(\0132)."
+    "bgs.protocol.club.v1.ClubSettingsOptions"
+    "\"\231\001\n\020AddMemberRequest\0220\n\010agent_id\030\001 \001(\0132"
+    "\036.bgs.protocol.club.v1.MemberId\022\027\n\007club_"
+    "id\030\002 \001(\004B\006\202\371+\002\020\001\022:\n\007options\030\003 \001(\0132).bgs."
+    "protocol.club.v1.CreateMemberOptions\"\224\001\n"
+    "\013JoinRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.pro"
+    "tocol.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B"
+    "\006\202\371+\002\020\001\022:\n\007options\030\003 \001(\0132).bgs.protocol."
+    "club.v1.CreateMemberOptions\"Y\n\014LeaveRequ"
+    "est\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.clu"
+    "b.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\"\213"
+    "\001\n\013KickRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.p"
+    "rotocol.club.v1.MemberId\022\027\n\007club_id\030\002 \001("
+    "\004B\006\202\371+\002\020\001\0221\n\ttarget_id\030\003 \001(\0132\036.bgs.proto"
+    "col.club.v1.MemberId\"\220\001\n\020GetMemberReques"
+    "t\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club."
+    "v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\0221\n\t"
+    "member_id\030\003 \001(\0132\036.bgs.protocol.club.v1.M"
+    "emberId\"A\n\021GetMemberResponse\022,\n\006member\030\001"
+    " \001(\0132\034.bgs.protocol.club.v1.Member\"t\n\021Ge"
+    "tMembersRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs."
+    "protocol.club.v1.MemberId\022\027\n\007club_id\030\002 \001"
+    "(\004B\006\202\371+\002\020\001\022\024\n\014continuation\030\004 \001(\004\"X\n\022GetM"
+    "embersResponse\022,\n\006member\030\001 \003(\0132\034.bgs.pro"
+    "tocol.club.v1.Member\022\024\n\014continuation\030\002 \001"
+    "(\004\"\323\001\n\030UpdateMemberStateRequest\0220\n\010agent"
     "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
-    "d\022\017\n\007club_id\030\002 \001(\004\0224\n\007options\030\003 \001(\0132#.bg"
-    "s.protocol.club.v1.AddBanOptions\"\210\001\n\020Rem"
-    "oveBanRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.pr"
-    "otocol.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004"
-    "\0221\n\ttarget_id\030\003 \001(\0132\036.bgs.protocol.club."
-    "v1.MemberId\"\205\001\n\rGetBanRequest\0220\n\010agent_i"
-    "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
-    "\017\n\007club_id\030\002 \001(\004\0221\n\ttarget_id\030\003 \001(\0132\036.bg"
-    "s.protocol.club.v1.MemberId\"<\n\016GetBanRes"
-    "ponse\022*\n\003ban\030\001 \001(\0132\035.bgs.protocol.club.v"
-    "1.ClubBan\"i\n\016GetBansRequest\0220\n\010agent_id\030"
-    "\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n"
-    "\007club_id\030\002 \001(\004\022\024\n\014continuation\030\003 \001(\004\"S\n\017"
-    "GetBansResponse\022*\n\003ban\030\001 \003(\0132\035.bgs.proto"
-    "col.club.v1.ClubBan\022\024\n\014continuation\030\002 \001("
-    "\004\"n\n\026SubscribeStreamRequest\0220\n\010agent_id\030"
-    "\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n"
-    "\007club_id\030\002 \001(\004\022\021\n\tstream_id\030\003 \003(\004\"p\n\030Uns"
-    "ubscribeStreamRequest\0220\n\010agent_id\030\001 \001(\0132"
-    "\036.bgs.protocol.club.v1.MemberId\022\017\n\007club_"
-    "id\030\002 \001(\004\022\021\n\tstream_id\030\003 \003(\004\"\224\001\n\023CreateSt"
-    "reamRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.prot"
-    "ocol.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022:"
-    "\n\007options\030\003 \001(\0132).bgs.protocol.club.v1.C"
-    "reateStreamOptions\":\n\024CreateStreamRespon"
-    "se\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\"l"
-    "\n\024DestroyStreamRequest\0220\n\010agent_id\030\001 \001(\013"
-    "2\036.bgs.protocol.club.v1.MemberId\022\017\n\007club"
-    "_id\030\002 \001(\004\022\021\n\tstream_id\030\003 \001(\004\"h\n\020GetStrea"
-    "mRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoco"
-    "l.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022\021\n\ts"
-    "tream_id\030\003 \001(\004\"A\n\021GetStreamResponse\022,\n\006s"
-    "tream\030\001 \001(\0132\034.bgs.protocol.club.v1.Strea"
-    "m\"l\n\021GetStreamsRequest\0220\n\010agent_id\030\001 \001(\013"
-    "2\036.bgs.protocol.club.v1.MemberId\022\017\n\007club"
-    "_id\030\002 \001(\004\022\024\n\014continuation\030\003 \001(\004\"\210\001\n\022GetS"
-    "treamsResponse\022,\n\006stream\030\001 \003(\0132\034.bgs.pro"
-    "tocol.club.v1.Stream\022.\n\004view\030\002 \003(\0132 .bgs"
-    ".protocol.club.v1.StreamView\022\024\n\014continua"
-    "tion\030\003 \001(\004\"\253\001\n\030UpdateStreamStateRequest\022"
-    "0\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1"
-    ".MemberId\022\017\n\007club_id\030\002 \001(\004\022\021\n\tstream_id\030"
-    "\003 \001(\004\0229\n\007options\030\005 \001(\0132(.bgs.protocol.cl"
-    "ub.v1.StreamStateOptions\"|\n\025SetStreamFoc"
-    "usRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
-    "ol.club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022\021\n\t"
-    "stream_id\030\003 \001(\004\022\r\n\005focus\030\004 \001(\010\"\251\001\n\024Creat"
-    "eMessageRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs."
-    "protocol.club.v1.MemberId\022\017\n\007club_id\030\002 \001"
-    "(\004\022\021\n\tstream_id\030\003 \001(\004\022;\n\007options\030\004 \001(\0132*"
-    ".bgs.protocol.club.v1.CreateMessageOptio"
-    "ns\"M\n\025CreateMessageResponse\0224\n\007message\030\001"
-    " \001(\0132#.bgs.protocol.club.v1.StreamMessag"
-    "e\"\232\001\n\025DestroyMessageRequest\0220\n\010agent_id\030"
-    "\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n"
-    "\007club_id\030\002 \001(\004\022\021\n\tstream_id\030\003 \001(\004\022+\n\nmes"
-    "sage_id\030\004 \001(\0132\027.bgs.protocol.MessageId\"N"
-    "\n\026DestroyMessageResponse\0224\n\007message\030\001 \001("
-    "\0132#.bgs.protocol.club.v1.StreamMessage\"\324"
-    "\001\n\022EditMessageRequest\0220\n\010agent_id\030\001 \001(\0132"
-    "\036.bgs.protocol.club.v1.MemberId\022\017\n\007club_"
-    "id\030\002 \001(\004\022\021\n\tstream_id\030\003 \001(\004\022+\n\nmessage_i"
-    "d\030\004 \001(\0132\027.bgs.protocol.MessageId\022;\n\007opti"
-    "ons\030\005 \001(\0132*.bgs.protocol.club.v1.CreateM"
-    "essageOptions\"K\n\023EditMessageResponse\0224\n\007"
-    "message\030\001 \001(\0132#.bgs.protocol.club.v1.Str"
-    "eamMessage\"o\n\027SetMessagePinnedRequest\0220\n"
-    "\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.M"
-    "emberId\022\017\n\007club_id\030\002 \001(\004\022\021\n\tstream_id\030\003 "
-    "\001(\004\"\243\001\n\031SetTypingIndicatorRequest\0220\n\010age"
-    "nt_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
-    "rId\022\017\n\007club_id\030\002 \001(\004\022\021\n\tstream_id\030\003 \001(\004\022"
-    "0\n\tindicator\030\004 \001(\0162\035.bgs.protocol.Typing"
-    "Indicator\"\232\001\n\034AdvanceStreamViewTimeReque"
-    "st\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club"
-    ".v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022 \n\024stream_"
-    "id_deprecated\030\003 \001(\004B\002\030\001\022\025\n\tstream_id\030\004 \003"
-    "(\004B\002\020\001\"{\n#AdvanceStreamMentionViewTimeRe"
-    "quest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.c"
-    "lub.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022\021\n\tstre"
-    "am_id\030\003 \001(\004\"c\n\036AdvanceActivityViewTimeRe"
-    "quest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.c"
-    "lub.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\"\237\001\n\027Get"
-    "StreamHistoryRequest\0220\n\010agent_id\030\001 \001(\0132\036"
-    ".bgs.protocol.club.v1.MemberId\022\017\n\007club_i"
-    "d\030\002 \001(\004\022\021\n\tstream_id\030\003 \001(\004\022.\n\007options\030\004 "
-    "\001(\0132\035.bgs.protocol.GetEventOptions\"f\n\030Ge"
-    "tStreamHistoryResponse\0224\n\007message\030\001 \003(\0132"
-    "#.bgs.protocol.club.v1.StreamMessage\022\024\n\014"
-    "continuation\030\002 \001(\004\"\234\001\n\027GetStreamMessageR"
-    "equest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol."
-    "club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022\021\n\tstr"
-    "eam_id\030\003 \001(\004\022+\n\nmessage_id\030\004 \001(\0132\027.bgs.p"
-    "rotocol.MessageId\"P\n\030GetStreamMessageRes"
-    "ponse\0224\n\007message\030\001 \001(\0132#.bgs.protocol.cl"
-    "ub.v1.StreamMessage\"\213\001\n\026GetClubActivityR"
-    "equest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol."
-    "club.v1.MemberId\022\017\n\007club_id\030\002 \001(\004\022.\n\007opt"
-    "ions\030\003 \001(\0132\035.bgs.protocol.GetEventOption"
-    "s\"/\n\027GetClubActivityResponse\022\024\n\014continua"
-    "tion\030\002 \001(\004\"r\n\032GetStreamVoiceTokenRequest"
+    "d\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\0221\n\tmember_id\030"
+    "\003 \001(\0132\036.bgs.protocol.club.v1.MemberId\0229\n"
+    "\007options\030\005 \001(\0132(.bgs.protocol.club.v1.Me"
+    "mberStateOptions\"\250\001\n\034UpdateSubscriberSta"
+    "teRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371"
+    "+\002\020\001\022=\n\007options\030\003 \001(\0132,.bgs.protocol.clu"
+    "b.v1.SubscriberStateOptions\"\222\001\n\021AssignRo"
+    "leRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371"
+    "+\002\020\001\0222\n\007options\030\003 \001(\0132!.bgs.protocol.clu"
+    "b.v1.RoleOptions\"\224\001\n\023UnassignRoleRequest"
     "\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v"
-    "1.MemberId\022\017\n\007club_id\030\002 \001(\004\022\021\n\tstream_id"
-    "\030\003 \001(\004\"g\n\033GetStreamVoiceTokenResponse\022\023\n"
-    "\013channel_uri\030\001 \001(\t\0223\n\013credentials\030\002 \001(\0132"
-    "\036.bgs.protocol.VoiceCredentials\"\245\001\n\032Kick"
-    "FromStreamVoiceRequest\0220\n\010agent_id\030\001 \001(\013"
-    "2\036.bgs.protocol.club.v1.MemberId\022\017\n\007club"
-    "_id\030\002 \001(\004\022\021\n\tstream_id\030\003 \001(\004\0221\n\ttarget_i"
-    "d\030\004 \001(\0132\036.bgs.protocol.club.v1.MemberIdB"
-    "\002H\001P\000", 9685);
+    "1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\0222\n\007o"
+    "ptions\030\003 \001(\0132!.bgs.protocol.club.v1.Role"
+    "Options\"\240\001\n\025SendInvitationRequest\0220\n\010age"
+    "nt_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
+    "rId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022<\n\007options\030"
+    "\003 \001(\0132+.bgs.protocol.club.v1.SendInvitat"
+    "ionOptions\"{\n\027AcceptInvitationRequest\0220\n"
+    "\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.M"
+    "emberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\025\n\rinvi"
+    "tation_id\030\003 \001(\006\"|\n\030DeclineInvitationRequ"
+    "est\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.clu"
+    "b.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\025"
+    "\n\rinvitation_id\030\003 \001(\006\"{\n\027RevokeInvitatio"
+    "nRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoco"
+    "l.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+"
+    "\002\020\001\022\025\n\rinvitation_id\030\003 \001(\006\"x\n\024GetInvitat"
+    "ionRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.proto"
+    "col.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202"
+    "\371+\002\020\001\022\025\n\rinvitation_id\030\003 \001(\006\"Q\n\025GetInvit"
+    "ationResponse\0228\n\ninvitation\030\001 \001(\0132$.bgs."
+    "protocol.club.v1.ClubInvitation\"x\n\025GetIn"
+    "vitationsRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs"
+    ".protocol.club.v1.MemberId\022\027\n\007club_id\030\002 "
+    "\001(\004B\006\202\371+\002\020\001\022\024\n\014continuation\030\003 \001(\004\"h\n\026Get"
+    "InvitationsResponse\0228\n\ninvitation\030\001 \003(\0132"
+    "$.bgs.protocol.club.v1.ClubInvitation\022\024\n"
+    "\014continuation\030\002 \001(\004\"\240\001\n\025SendSuggestionRe"
+    "quest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.c"
+    "lub.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001"
+    "\022<\n\007options\030\003 \001(\0132+.bgs.protocol.club.v1"
+    ".SendSuggestionOptions\"{\n\027AcceptSuggesti"
+    "onRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371"
+    "+\002\020\001\022\025\n\rsuggestion_id\030\003 \001(\006\"|\n\030DeclineSu"
+    "ggestionRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs."
+    "protocol.club.v1.MemberId\022\027\n\007club_id\030\002 \001"
+    "(\004B\006\202\371+\002\020\001\022\025\n\rsuggestion_id\030\003 \001(\006\"x\n\024Get"
+    "SuggestionRequest\0220\n\010agent_id\030\001 \001(\0132\036.bg"
+    "s.protocol.club.v1.MemberId\022\027\n\007club_id\030\002"
+    " \001(\004B\006\202\371+\002\020\001\022\025\n\rsuggestion_id\030\003 \001(\006\"Q\n\025G"
+    "etSuggestionResponse\0228\n\nsuggestion\030\001 \001(\013"
+    "2$.bgs.protocol.club.v1.ClubSuggestion\"x"
+    "\n\025GetSuggestionsRequest\0220\n\010agent_id\030\001 \001("
+    "\0132\036.bgs.protocol.club.v1.MemberId\022\027\n\007clu"
+    "b_id\030\002 \001(\004B\006\202\371+\002\020\001\022\024\n\014continuation\030\003 \001(\004"
+    "\"h\n\026GetSuggestionsResponse\0228\n\nsuggestion"
+    "\030\001 \003(\0132$.bgs.protocol.club.v1.ClubSugges"
+    "tion\022\024\n\014continuation\030\002 \001(\004\"\234\001\n\023CreateTic"
+    "ketRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.proto"
+    "col.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202"
+    "\371+\002\020\001\022:\n\007options\030\003 \001(\0132).bgs.protocol.cl"
+    "ub.v1.CreateTicketOptions\"H\n\024CreateTicke"
+    "tResponse\0220\n\006ticket\030\001 \001(\0132 .bgs.protocol"
+    ".club.v1.ClubTicket\"t\n\024DestroyTicketRequ"
+    "est\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.clu"
+    "b.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\021"
+    "\n\tticket_id\030\003 \001(\t\"Z\n\023RedeemTicketRequest"
+    "\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v"
+    "1.MemberId\022\021\n\tticket_id\030\003 \001(\t\"W\n\020GetTick"
+    "etRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\021\n\tticket_id\030\003 \001(\t\"E"
+    "\n\021GetTicketResponse\0220\n\006ticket\030\001 \001(\0132 .bg"
+    "s.protocol.club.v1.ClubTicket\"t\n\021GetTick"
+    "etsRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.proto"
+    "col.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202"
+    "\371+\002\020\001\022\024\n\014continuation\030\003 \001(\004\"\\\n\022GetTicket"
+    "sResponse\0220\n\006ticket\030\001 \003(\0132 .bgs.protocol"
+    ".club.v1.ClubTicket\022\024\n\014continuation\030\002 \001("
+    "\004\"\220\001\n\rAddBanRequest\0220\n\010agent_id\030\001 \001(\0132\036."
+    "bgs.protocol.club.v1.MemberId\022\027\n\007club_id"
+    "\030\002 \001(\004B\006\202\371+\002\020\001\0224\n\007options\030\003 \001(\0132#.bgs.pr"
+    "otocol.club.v1.AddBanOptions\"\220\001\n\020RemoveB"
+    "anRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371"
+    "+\002\020\001\0221\n\ttarget_id\030\003 \001(\0132\036.bgs.protocol.c"
+    "lub.v1.MemberId\"\215\001\n\rGetBanRequest\0220\n\010age"
+    "nt_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
+    "rId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\0221\n\ttarget_i"
+    "d\030\003 \001(\0132\036.bgs.protocol.club.v1.MemberId\""
+    "<\n\016GetBanResponse\022*\n\003ban\030\001 \001(\0132\035.bgs.pro"
+    "tocol.club.v1.ClubBan\"q\n\016GetBansRequest\022"
+    "0\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1"
+    ".MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\024\n\014co"
+    "ntinuation\030\003 \001(\004\"S\n\017GetBansResponse\022*\n\003b"
+    "an\030\001 \003(\0132\035.bgs.protocol.club.v1.ClubBan\022"
+    "\024\n\014continuation\030\002 \001(\004\"v\n\026SubscribeStream"
+    "Request\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002"
+    "\020\001\022\021\n\tstream_id\030\003 \003(\004\"x\n\030UnsubscribeStre"
+    "amRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371"
+    "+\002\020\001\022\021\n\tstream_id\030\003 \003(\004\"\234\001\n\023CreateStream"
+    "Request\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002"
+    "\020\001\022:\n\007options\030\003 \001(\0132).bgs.protocol.club."
+    "v1.CreateStreamOptions\":\n\024CreateStreamRe"
+    "sponse\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001"
+    "(\004\"t\n\024DestroyStreamRequest\0220\n\010agent_id\030\001"
+    " \001(\0132\036.bgs.protocol.club.v1.MemberId\022\027\n\007"
+    "club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004"
+    "\"p\n\020GetStreamRequest\0220\n\010agent_id\030\001 \001(\0132\036"
+    ".bgs.protocol.club.v1.MemberId\022\027\n\007club_i"
+    "d\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004\"A\n\021Ge"
+    "tStreamResponse\022,\n\006stream\030\001 \001(\0132\034.bgs.pr"
+    "otocol.club.v1.Stream\"t\n\021GetStreamsReque"
+    "st\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club"
+    ".v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\024\n"
+    "\014continuation\030\003 \001(\004\"\210\001\n\022GetStreamsRespon"
+    "se\022,\n\006stream\030\001 \003(\0132\034.bgs.protocol.club.v"
+    "1.Stream\022.\n\004view\030\002 \003(\0132 .bgs.protocol.cl"
+    "ub.v1.StreamView\022\024\n\014continuation\030\003 \001(\004\"\263"
+    "\001\n\030UpdateStreamStateRequest\0220\n\010agent_id\030"
+    "\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\027\n"
+    "\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003 \001("
+    "\004\0229\n\007options\030\005 \001(\0132(.bgs.protocol.club.v"
+    "1.StreamStateOptions\"\204\001\n\025SetStreamFocusR"
+    "equest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol."
+    "club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020"
+    "\001\022\021\n\tstream_id\030\003 \001(\004\022\r\n\005focus\030\004 \001(\010\"\261\001\n\024"
+    "CreateMessageRequest\0220\n\010agent_id\030\001 \001(\0132\036"
+    ".bgs.protocol.club.v1.MemberId\022\027\n\007club_i"
+    "d\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004\022;\n\007op"
+    "tions\030\004 \001(\0132*.bgs.protocol.club.v1.Creat"
+    "eMessageOptions\"M\n\025CreateMessageResponse"
+    "\0224\n\007message\030\001 \001(\0132#.bgs.protocol.club.v1"
+    ".StreamMessage\"\242\001\n\025DestroyMessageRequest"
+    "\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v"
+    "1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\ts"
+    "tream_id\030\003 \001(\004\022+\n\nmessage_id\030\004 \001(\0132\027.bgs"
+    ".protocol.MessageId\"N\n\026DestroyMessageRes"
+    "ponse\0224\n\007message\030\001 \001(\0132#.bgs.protocol.cl"
+    "ub.v1.StreamMessage\"\334\001\n\022EditMessageReque"
+    "st\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club"
+    ".v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n"
+    "\tstream_id\030\003 \001(\004\022+\n\nmessage_id\030\004 \001(\0132\027.b"
+    "gs.protocol.MessageId\022;\n\007options\030\005 \001(\0132*"
+    ".bgs.protocol.club.v1.CreateMessageOptio"
+    "ns\"K\n\023EditMessageResponse\0224\n\007message\030\001 \001"
+    "(\0132#.bgs.protocol.club.v1.StreamMessage\""
+    "w\n\027SetMessagePinnedRequest\0220\n\010agent_id\030\001"
+    " \001(\0132\036.bgs.protocol.club.v1.MemberId\022\027\n\007"
+    "club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004"
+    "\"\253\001\n\031SetTypingIndicatorRequest\0220\n\010agent_"
+    "id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId"
+    "\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003"
+    " \001(\004\0220\n\tindicator\030\004 \001(\0162\035.bgs.protocol.T"
+    "ypingIndicator\"\242\001\n\034AdvanceStreamViewTime"
+    "Request\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002"
+    "\020\001\022 \n\024stream_id_deprecated\030\003 \001(\004B\002\030\001\022\025\n\t"
+    "stream_id\030\004 \003(\004B\002\020\001\"\203\001\n#AdvanceStreamMen"
+    "tionViewTimeRequest\0220\n\010agent_id\030\001 \001(\0132\036."
+    "bgs.protocol.club.v1.MemberId\022\027\n\007club_id"
+    "\030\002 \001(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004\"k\n\036Adv"
+    "anceActivityViewTimeRequest\0220\n\010agent_id\030"
+    "\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\027\n"
+    "\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\"\247\001\n\027GetStreamHist"
+    "oryRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.proto"
+    "col.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202"
+    "\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004\022.\n\007options\030\004 \001("
+    "\0132\035.bgs.protocol.GetEventOptions\"f\n\030GetS"
+    "treamHistoryResponse\0224\n\007message\030\001 \003(\0132#."
+    "bgs.protocol.club.v1.StreamMessage\022\024\n\014co"
+    "ntinuation\030\002 \001(\004\"\244\001\n\027GetStreamMessageReq"
+    "uest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.cl"
+    "ub.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202\371+\002\020\001\022"
+    "\021\n\tstream_id\030\003 \001(\004\022+\n\nmessage_id\030\004 \001(\0132\027"
+    ".bgs.protocol.MessageId\"P\n\030GetStreamMess"
+    "ageResponse\0224\n\007message\030\001 \001(\0132#.bgs.proto"
+    "col.club.v1.StreamMessage\"\223\001\n\026GetClubAct"
+    "ivityRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.pro"
+    "tocol.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B"
+    "\006\202\371+\002\020\001\022.\n\007options\030\003 \001(\0132\035.bgs.protocol."
+    "GetEventOptions\"/\n\027GetClubActivityRespon"
+    "se\022\024\n\014continuation\030\002 \001(\004\"\247\001\n\032GetStreamVo"
+    "iceTokenRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs."
+    "protocol.club.v1.MemberId\022\027\n\007club_id\030\002 \001"
+    "(\004B\006\202\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004\022+\n\007version"
+    "\030\004 \001(\rB\032\202\371+\026*\024VoiceProviderVersion\"g\n\033Ge"
+    "tStreamVoiceTokenResponse\022\023\n\013channel_uri"
+    "\030\001 \001(\t\0223\n\013credentials\030\002 \001(\0132\036.bgs.protoc"
+    "ol.VoiceCredentials\"\255\001\n\032KickFromStreamVo"
+    "iceRequest\0220\n\010agent_id\030\001 \001(\0132\036.bgs.proto"
+    "col.club.v1.MemberId\022\027\n\007club_id\030\002 \001(\004B\006\202"
+    "\371+\002\020\001\022\021\n\tstream_id\030\003 \001(\004\0221\n\ttarget_id\030\004 "
+    "\001(\0132\036.bgs.protocol.club.v1.MemberIdB\002H\001P"
+    "\000", 10321);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_request.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -2252,6 +2292,7 @@ void protobuf_AddDesc_club_5frequest_2eproto() {
   GetClubTypeResponse::default_instance_ = new GetClubTypeResponse();
   UpdateClubStateRequest::default_instance_ = new UpdateClubStateRequest();
   UpdateClubSettingsRequest::default_instance_ = new UpdateClubSettingsRequest();
+  AddMemberRequest::default_instance_ = new AddMemberRequest();
   JoinRequest::default_instance_ = new JoinRequest();
   LeaveRequest::default_instance_ = new LeaveRequest();
   KickRequest::default_instance_ = new KickRequest();
@@ -2334,6 +2375,7 @@ void protobuf_AddDesc_club_5frequest_2eproto() {
   GetClubTypeResponse::default_instance_->InitAsDefaultInstance();
   UpdateClubStateRequest::default_instance_->InitAsDefaultInstance();
   UpdateClubSettingsRequest::default_instance_->InitAsDefaultInstance();
+  AddMemberRequest::default_instance_->InitAsDefaultInstance();
   JoinRequest::default_instance_->InitAsDefaultInstance();
   LeaveRequest::default_instance_->InitAsDefaultInstance();
   KickRequest::default_instance_->InitAsDefaultInstance();
@@ -2414,7 +2456,6 @@ struct StaticDescriptorInitializer_club_5frequest_2eproto {
     protobuf_AddDesc_club_5frequest_2eproto();
   }
 } static_descriptor_initializer_club_5frequest_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -2660,7 +2701,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 }
 
 bool SubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2684,7 +2724,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2931,7 +2970,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 }
 
 bool UnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2955,7 +2993,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3207,7 +3244,6 @@ void CreateRequest::CopyFrom(const CreateRequest& from) {
 }
 
 bool CreateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3234,7 +3270,6 @@ void CreateRequest::Swap(CreateRequest* other) {
   metadata.reflection = CreateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3436,7 +3471,6 @@ void CreateResponse::CopyFrom(const CreateResponse& from) {
 }
 
 bool CreateResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -3456,7 +3490,6 @@ void CreateResponse::Swap(CreateResponse* other) {
   metadata.reflection = CreateResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3703,7 +3736,6 @@ void DestroyRequest::CopyFrom(const DestroyRequest& from) {
 }
 
 bool DestroyRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3727,7 +3759,6 @@ void DestroyRequest::Swap(DestroyRequest* other) {
   metadata.reflection = DestroyRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3974,7 +4005,6 @@ void GetDescriptionRequest::CopyFrom(const GetDescriptionRequest& from) {
 }
 
 bool GetDescriptionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3998,7 +4028,6 @@ void GetDescriptionRequest::Swap(GetDescriptionRequest* other) {
   metadata.reflection = GetDescriptionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4205,7 +4234,6 @@ void GetDescriptionResponse::CopyFrom(const GetDescriptionResponse& from) {
 }
 
 bool GetDescriptionResponse::IsInitialized() const {
-
   if (has_club()) {
     if (!this->club().IsInitialized()) return false;
   }
@@ -4228,7 +4256,6 @@ void GetDescriptionResponse::Swap(GetDescriptionResponse* other) {
   metadata.reflection = GetDescriptionResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4480,7 +4507,6 @@ void GetClubTypeRequest::CopyFrom(const GetClubTypeRequest& from) {
 }
 
 bool GetClubTypeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4504,7 +4530,6 @@ void GetClubTypeRequest::Swap(GetClubTypeRequest* other) {
   metadata.reflection = GetClubTypeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4799,7 +4824,6 @@ void GetClubTypeResponse::CopyFrom(const GetClubTypeResponse& from) {
 }
 
 bool GetClubTypeResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -4821,7 +4845,6 @@ void GetClubTypeResponse::Swap(GetClubTypeResponse* other) {
   metadata.reflection = GetClubTypeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5111,7 +5134,6 @@ void UpdateClubStateRequest::CopyFrom(const UpdateClubStateRequest& from) {
 }
 
 bool UpdateClubStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5136,7 +5158,6 @@ void UpdateClubStateRequest::Swap(UpdateClubStateRequest* other) {
   metadata.reflection = UpdateClubStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5426,7 +5447,6 @@ void UpdateClubSettingsRequest::CopyFrom(const UpdateClubSettingsRequest& from) 
 }
 
 bool UpdateClubSettingsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5452,6 +5472,321 @@ void UpdateClubSettingsRequest::Swap(UpdateClubSettingsRequest* other) {
   return metadata;
 }
 
+// ===================================================================
+
+#ifndef _MSC_VER
+const int AddMemberRequest::kAgentIdFieldNumber;
+const int AddMemberRequest::kClubIdFieldNumber;
+const int AddMemberRequest::kOptionsFieldNumber;
+#endif  // !_MSC_VER
+
+AddMemberRequest::AddMemberRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.AddMemberRequest)
+}
+
+void AddMemberRequest::InitAsDefaultInstance() {
+  agent_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
+  options_ = const_cast< ::bgs::protocol::club::v1::CreateMemberOptions*>(&::bgs::protocol::club::v1::CreateMemberOptions::default_instance());
+}
+
+AddMemberRequest::AddMemberRequest(const AddMemberRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.AddMemberRequest)
+}
+
+void AddMemberRequest::SharedCtor() {
+  _cached_size_ = 0;
+  agent_id_ = NULL;
+  club_id_ = GOOGLE_ULONGLONG(0);
+  options_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+AddMemberRequest::~AddMemberRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.AddMemberRequest)
+  SharedDtor();
+}
+
+void AddMemberRequest::SharedDtor() {
+  if (this != default_instance_) {
+    delete agent_id_;
+    delete options_;
+  }
+}
+
+void AddMemberRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* AddMemberRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return AddMemberRequest_descriptor_;
+}
+
+const AddMemberRequest& AddMemberRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_club_5frequest_2eproto();
+  return *default_instance_;
+}
+
+AddMemberRequest* AddMemberRequest::default_instance_ = NULL;
+
+AddMemberRequest* AddMemberRequest::New() const {
+  return new AddMemberRequest;
+}
+
+void AddMemberRequest::Clear() {
+  if (_has_bits_[0 / 32] & 7) {
+    if (has_agent_id()) {
+      if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
+    }
+    club_id_ = GOOGLE_ULONGLONG(0);
+    if (has_options()) {
+      if (options_ != NULL) options_->::bgs::protocol::club::v1::CreateMemberOptions::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool AddMemberRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.AddMemberRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_agent_id()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(16)) goto parse_club_id;
+        break;
+      }
+
+      // optional uint64 club_id = 2;
+      case 2: {
+        if (tag == 16) {
+         parse_club_id:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &club_id_)));
+          set_has_club_id();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_options;
+        break;
+      }
+
+      // optional .bgs.protocol.club.v1.CreateMemberOptions options = 3;
+      case 3: {
+        if (tag == 26) {
+         parse_options:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_options()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.AddMemberRequest)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.AddMemberRequest)
+  return false;
+#undef DO_
+}
+
+void AddMemberRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.AddMemberRequest)
+  // optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+  if (has_agent_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->agent_id(), output);
+  }
+
+  // optional uint64 club_id = 2;
+  if (has_club_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->club_id(), output);
+  }
+
+  // optional .bgs.protocol.club.v1.CreateMemberOptions options = 3;
+  if (has_options()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->options(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.AddMemberRequest)
+}
+
+::google::protobuf::uint8* AddMemberRequest::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.AddMemberRequest)
+  // optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+  if (has_agent_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->agent_id(), target);
+  }
+
+  // optional uint64 club_id = 2;
+  if (has_club_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->club_id(), target);
+  }
+
+  // optional .bgs.protocol.club.v1.CreateMemberOptions options = 3;
+  if (has_options()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->options(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.AddMemberRequest)
+  return target;
+}
+
+int AddMemberRequest::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+    if (has_agent_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->agent_id());
+    }
+
+    // optional uint64 club_id = 2;
+    if (has_club_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->club_id());
+    }
+
+    // optional .bgs.protocol.club.v1.CreateMemberOptions options = 3;
+    if (has_options()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->options());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void AddMemberRequest::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const AddMemberRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const AddMemberRequest*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void AddMemberRequest::MergeFrom(const AddMemberRequest& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_agent_id()) {
+      mutable_agent_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.agent_id());
+    }
+    if (from.has_club_id()) {
+      set_club_id(from.club_id());
+    }
+    if (from.has_options()) {
+      mutable_options()->::bgs::protocol::club::v1::CreateMemberOptions::MergeFrom(from.options());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void AddMemberRequest::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void AddMemberRequest::CopyFrom(const AddMemberRequest& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool AddMemberRequest::IsInitialized() const {
+  if (has_agent_id()) {
+    if (!this->agent_id().IsInitialized()) return false;
+  }
+  if (has_options()) {
+    if (!this->options().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void AddMemberRequest::Swap(AddMemberRequest* other) {
+  if (other != this) {
+    std::swap(agent_id_, other->agent_id_);
+    std::swap(club_id_, other->club_id_);
+    std::swap(options_, other->options_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata AddMemberRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = AddMemberRequest_descriptor_;
+  metadata.reflection = AddMemberRequest_reflection_;
+  return metadata;
+}
 
 // ===================================================================
 
@@ -5741,7 +6076,6 @@ void JoinRequest::CopyFrom(const JoinRequest& from) {
 }
 
 bool JoinRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5769,7 +6103,6 @@ void JoinRequest::Swap(JoinRequest* other) {
   metadata.reflection = JoinRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6016,7 +6349,6 @@ void LeaveRequest::CopyFrom(const LeaveRequest& from) {
 }
 
 bool LeaveRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6040,7 +6372,6 @@ void LeaveRequest::Swap(LeaveRequest* other) {
   metadata.reflection = LeaveRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6330,7 +6661,6 @@ void KickRequest::CopyFrom(const KickRequest& from) {
 }
 
 bool KickRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6358,7 +6688,6 @@ void KickRequest::Swap(KickRequest* other) {
   metadata.reflection = KickRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6648,7 +6977,6 @@ void GetMemberRequest::CopyFrom(const GetMemberRequest& from) {
 }
 
 bool GetMemberRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6676,7 +7004,6 @@ void GetMemberRequest::Swap(GetMemberRequest* other) {
   metadata.reflection = GetMemberRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6883,7 +7210,6 @@ void GetMemberResponse::CopyFrom(const GetMemberResponse& from) {
 }
 
 bool GetMemberResponse::IsInitialized() const {
-
   if (has_member()) {
     if (!this->member().IsInitialized()) return false;
   }
@@ -6906,7 +7232,6 @@ void GetMemberResponse::Swap(GetMemberResponse* other) {
   metadata.reflection = GetMemberResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7204,7 +7529,6 @@ void GetMembersRequest::CopyFrom(const GetMembersRequest& from) {
 }
 
 bool GetMembersRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7229,7 +7553,6 @@ void GetMembersRequest::Swap(GetMembersRequest* other) {
   metadata.reflection = GetMembersRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7470,7 +7793,6 @@ void GetMembersResponse::CopyFrom(const GetMembersResponse& from) {
 }
 
 bool GetMembersResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->member())) return false;
   return true;
 }
@@ -7492,7 +7814,6 @@ void GetMembersResponse::Swap(GetMembersResponse* other) {
   metadata.reflection = GetMembersResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7825,7 +8146,6 @@ void UpdateMemberStateRequest::CopyFrom(const UpdateMemberStateRequest& from) {
 }
 
 bool UpdateMemberStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7854,7 +8174,6 @@ void UpdateMemberStateRequest::Swap(UpdateMemberStateRequest* other) {
   metadata.reflection = UpdateMemberStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8144,7 +8463,6 @@ void UpdateSubscriberStateRequest::CopyFrom(const UpdateSubscriberStateRequest& 
 }
 
 bool UpdateSubscriberStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -8169,7 +8487,6 @@ void UpdateSubscriberStateRequest::Swap(UpdateSubscriberStateRequest* other) {
   metadata.reflection = UpdateSubscriberStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8459,7 +8776,6 @@ void AssignRoleRequest::CopyFrom(const AssignRoleRequest& from) {
 }
 
 bool AssignRoleRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -8487,7 +8803,6 @@ void AssignRoleRequest::Swap(AssignRoleRequest* other) {
   metadata.reflection = AssignRoleRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8777,7 +9092,6 @@ void UnassignRoleRequest::CopyFrom(const UnassignRoleRequest& from) {
 }
 
 bool UnassignRoleRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -8805,7 +9119,6 @@ void UnassignRoleRequest::Swap(UnassignRoleRequest* other) {
   metadata.reflection = UnassignRoleRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9095,7 +9408,6 @@ void SendInvitationRequest::CopyFrom(const SendInvitationRequest& from) {
 }
 
 bool SendInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -9123,7 +9435,6 @@ void SendInvitationRequest::Swap(SendInvitationRequest* other) {
   metadata.reflection = SendInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9419,7 +9730,6 @@ void AcceptInvitationRequest::CopyFrom(const AcceptInvitationRequest& from) {
 }
 
 bool AcceptInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -9444,7 +9754,6 @@ void AcceptInvitationRequest::Swap(AcceptInvitationRequest* other) {
   metadata.reflection = AcceptInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9740,7 +10049,6 @@ void DeclineInvitationRequest::CopyFrom(const DeclineInvitationRequest& from) {
 }
 
 bool DeclineInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -9765,7 +10073,6 @@ void DeclineInvitationRequest::Swap(DeclineInvitationRequest* other) {
   metadata.reflection = DeclineInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10061,7 +10368,6 @@ void RevokeInvitationRequest::CopyFrom(const RevokeInvitationRequest& from) {
 }
 
 bool RevokeInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -10086,7 +10392,6 @@ void RevokeInvitationRequest::Swap(RevokeInvitationRequest* other) {
   metadata.reflection = RevokeInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10382,7 +10687,6 @@ void GetInvitationRequest::CopyFrom(const GetInvitationRequest& from) {
 }
 
 bool GetInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -10407,7 +10711,6 @@ void GetInvitationRequest::Swap(GetInvitationRequest* other) {
   metadata.reflection = GetInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10614,7 +10917,6 @@ void GetInvitationResponse::CopyFrom(const GetInvitationResponse& from) {
 }
 
 bool GetInvitationResponse::IsInitialized() const {
-
   if (has_invitation()) {
     if (!this->invitation().IsInitialized()) return false;
   }
@@ -10637,7 +10939,6 @@ void GetInvitationResponse::Swap(GetInvitationResponse* other) {
   metadata.reflection = GetInvitationResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10935,7 +11236,6 @@ void GetInvitationsRequest::CopyFrom(const GetInvitationsRequest& from) {
 }
 
 bool GetInvitationsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -10960,7 +11260,6 @@ void GetInvitationsRequest::Swap(GetInvitationsRequest* other) {
   metadata.reflection = GetInvitationsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11201,7 +11500,6 @@ void GetInvitationsResponse::CopyFrom(const GetInvitationsResponse& from) {
 }
 
 bool GetInvitationsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->invitation())) return false;
   return true;
 }
@@ -11223,7 +11521,6 @@ void GetInvitationsResponse::Swap(GetInvitationsResponse* other) {
   metadata.reflection = GetInvitationsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11513,7 +11810,6 @@ void SendSuggestionRequest::CopyFrom(const SendSuggestionRequest& from) {
 }
 
 bool SendSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -11541,7 +11837,6 @@ void SendSuggestionRequest::Swap(SendSuggestionRequest* other) {
   metadata.reflection = SendSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11837,7 +12132,6 @@ void AcceptSuggestionRequest::CopyFrom(const AcceptSuggestionRequest& from) {
 }
 
 bool AcceptSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -11862,7 +12156,6 @@ void AcceptSuggestionRequest::Swap(AcceptSuggestionRequest* other) {
   metadata.reflection = AcceptSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12158,7 +12451,6 @@ void DeclineSuggestionRequest::CopyFrom(const DeclineSuggestionRequest& from) {
 }
 
 bool DeclineSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -12183,7 +12475,6 @@ void DeclineSuggestionRequest::Swap(DeclineSuggestionRequest* other) {
   metadata.reflection = DeclineSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12479,7 +12770,6 @@ void GetSuggestionRequest::CopyFrom(const GetSuggestionRequest& from) {
 }
 
 bool GetSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -12504,7 +12794,6 @@ void GetSuggestionRequest::Swap(GetSuggestionRequest* other) {
   metadata.reflection = GetSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12711,7 +13000,6 @@ void GetSuggestionResponse::CopyFrom(const GetSuggestionResponse& from) {
 }
 
 bool GetSuggestionResponse::IsInitialized() const {
-
   if (has_suggestion()) {
     if (!this->suggestion().IsInitialized()) return false;
   }
@@ -12734,7 +13022,6 @@ void GetSuggestionResponse::Swap(GetSuggestionResponse* other) {
   metadata.reflection = GetSuggestionResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13032,7 +13319,6 @@ void GetSuggestionsRequest::CopyFrom(const GetSuggestionsRequest& from) {
 }
 
 bool GetSuggestionsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -13057,7 +13343,6 @@ void GetSuggestionsRequest::Swap(GetSuggestionsRequest* other) {
   metadata.reflection = GetSuggestionsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13298,7 +13583,6 @@ void GetSuggestionsResponse::CopyFrom(const GetSuggestionsResponse& from) {
 }
 
 bool GetSuggestionsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->suggestion())) return false;
   return true;
 }
@@ -13320,7 +13604,6 @@ void GetSuggestionsResponse::Swap(GetSuggestionsResponse* other) {
   metadata.reflection = GetSuggestionsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13610,7 +13893,6 @@ void CreateTicketRequest::CopyFrom(const CreateTicketRequest& from) {
 }
 
 bool CreateTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -13635,7 +13917,6 @@ void CreateTicketRequest::Swap(CreateTicketRequest* other) {
   metadata.reflection = CreateTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13842,7 +14123,6 @@ void CreateTicketResponse::CopyFrom(const CreateTicketResponse& from) {
 }
 
 bool CreateTicketResponse::IsInitialized() const {
-
   if (has_ticket()) {
     if (!this->ticket().IsInitialized()) return false;
   }
@@ -13865,7 +14145,6 @@ void CreateTicketResponse::Swap(CreateTicketResponse* other) {
   metadata.reflection = CreateTicketResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -14171,7 +14450,6 @@ void DestroyTicketRequest::CopyFrom(const DestroyTicketRequest& from) {
 }
 
 bool DestroyTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -14196,7 +14474,6 @@ void DestroyTicketRequest::Swap(DestroyTicketRequest* other) {
   metadata.reflection = DestroyTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -14464,7 +14741,6 @@ void RedeemTicketRequest::CopyFrom(const RedeemTicketRequest& from) {
 }
 
 bool RedeemTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -14488,7 +14764,6 @@ void RedeemTicketRequest::Swap(RedeemTicketRequest* other) {
   metadata.reflection = RedeemTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -14756,7 +15031,6 @@ void GetTicketRequest::CopyFrom(const GetTicketRequest& from) {
 }
 
 bool GetTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -14780,7 +15054,6 @@ void GetTicketRequest::Swap(GetTicketRequest* other) {
   metadata.reflection = GetTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -14987,7 +15260,6 @@ void GetTicketResponse::CopyFrom(const GetTicketResponse& from) {
 }
 
 bool GetTicketResponse::IsInitialized() const {
-
   if (has_ticket()) {
     if (!this->ticket().IsInitialized()) return false;
   }
@@ -15010,7 +15282,6 @@ void GetTicketResponse::Swap(GetTicketResponse* other) {
   metadata.reflection = GetTicketResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -15308,7 +15579,6 @@ void GetTicketsRequest::CopyFrom(const GetTicketsRequest& from) {
 }
 
 bool GetTicketsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -15333,7 +15603,6 @@ void GetTicketsRequest::Swap(GetTicketsRequest* other) {
   metadata.reflection = GetTicketsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -15574,7 +15843,6 @@ void GetTicketsResponse::CopyFrom(const GetTicketsResponse& from) {
 }
 
 bool GetTicketsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->ticket())) return false;
   return true;
 }
@@ -15596,7 +15864,6 @@ void GetTicketsResponse::Swap(GetTicketsResponse* other) {
   metadata.reflection = GetTicketsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -15886,7 +16153,6 @@ void AddBanRequest::CopyFrom(const AddBanRequest& from) {
 }
 
 bool AddBanRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -15914,7 +16180,6 @@ void AddBanRequest::Swap(AddBanRequest* other) {
   metadata.reflection = AddBanRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -16204,7 +16469,6 @@ void RemoveBanRequest::CopyFrom(const RemoveBanRequest& from) {
 }
 
 bool RemoveBanRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -16232,7 +16496,6 @@ void RemoveBanRequest::Swap(RemoveBanRequest* other) {
   metadata.reflection = RemoveBanRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -16522,7 +16785,6 @@ void GetBanRequest::CopyFrom(const GetBanRequest& from) {
 }
 
 bool GetBanRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -16550,7 +16812,6 @@ void GetBanRequest::Swap(GetBanRequest* other) {
   metadata.reflection = GetBanRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -16757,7 +17018,6 @@ void GetBanResponse::CopyFrom(const GetBanResponse& from) {
 }
 
 bool GetBanResponse::IsInitialized() const {
-
   if (has_ban()) {
     if (!this->ban().IsInitialized()) return false;
   }
@@ -16780,7 +17040,6 @@ void GetBanResponse::Swap(GetBanResponse* other) {
   metadata.reflection = GetBanResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -17078,7 +17337,6 @@ void GetBansRequest::CopyFrom(const GetBansRequest& from) {
 }
 
 bool GetBansRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -17103,7 +17361,6 @@ void GetBansRequest::Swap(GetBansRequest* other) {
   metadata.reflection = GetBansRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -17344,7 +17601,6 @@ void GetBansResponse::CopyFrom(const GetBansResponse& from) {
 }
 
 bool GetBansResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->ban())) return false;
   return true;
 }
@@ -17366,7 +17622,6 @@ void GetBansResponse::Swap(GetBansResponse* other) {
   metadata.reflection = GetBansResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -17657,7 +17912,6 @@ void SubscribeStreamRequest::CopyFrom(const SubscribeStreamRequest& from) {
 }
 
 bool SubscribeStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -17682,7 +17936,6 @@ void SubscribeStreamRequest::Swap(SubscribeStreamRequest* other) {
   metadata.reflection = SubscribeStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -17973,7 +18226,6 @@ void UnsubscribeStreamRequest::CopyFrom(const UnsubscribeStreamRequest& from) {
 }
 
 bool UnsubscribeStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -17998,7 +18250,6 @@ void UnsubscribeStreamRequest::Swap(UnsubscribeStreamRequest* other) {
   metadata.reflection = UnsubscribeStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -18288,7 +18539,6 @@ void CreateStreamRequest::CopyFrom(const CreateStreamRequest& from) {
 }
 
 bool CreateStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -18313,7 +18563,6 @@ void CreateStreamRequest::Swap(CreateStreamRequest* other) {
   metadata.reflection = CreateStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -18566,7 +18815,6 @@ void CreateStreamResponse::CopyFrom(const CreateStreamResponse& from) {
 }
 
 bool CreateStreamResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -18587,7 +18835,6 @@ void CreateStreamResponse::Swap(CreateStreamResponse* other) {
   metadata.reflection = CreateStreamResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -18885,7 +19132,6 @@ void DestroyStreamRequest::CopyFrom(const DestroyStreamRequest& from) {
 }
 
 bool DestroyStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -18910,7 +19156,6 @@ void DestroyStreamRequest::Swap(DestroyStreamRequest* other) {
   metadata.reflection = DestroyStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -19208,7 +19453,6 @@ void GetStreamRequest::CopyFrom(const GetStreamRequest& from) {
 }
 
 bool GetStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -19233,7 +19477,6 @@ void GetStreamRequest::Swap(GetStreamRequest* other) {
   metadata.reflection = GetStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -19440,7 +19683,6 @@ void GetStreamResponse::CopyFrom(const GetStreamResponse& from) {
 }
 
 bool GetStreamResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -19460,7 +19702,6 @@ void GetStreamResponse::Swap(GetStreamResponse* other) {
   metadata.reflection = GetStreamResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -19758,7 +19999,6 @@ void GetStreamsRequest::CopyFrom(const GetStreamsRequest& from) {
 }
 
 bool GetStreamsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -19783,7 +20023,6 @@ void GetStreamsRequest::Swap(GetStreamsRequest* other) {
   metadata.reflection = GetStreamsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -20062,7 +20301,6 @@ void GetStreamsResponse::CopyFrom(const GetStreamsResponse& from) {
 }
 
 bool GetStreamsResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -20084,7 +20322,6 @@ void GetStreamsResponse::Swap(GetStreamsResponse* other) {
   metadata.reflection = GetStreamsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -20425,7 +20662,6 @@ void UpdateStreamStateRequest::CopyFrom(const UpdateStreamStateRequest& from) {
 }
 
 bool UpdateStreamStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -20451,7 +20687,6 @@ void UpdateStreamStateRequest::Swap(UpdateStreamStateRequest* other) {
   metadata.reflection = UpdateStreamStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -20784,7 +21019,6 @@ void SetStreamFocusRequest::CopyFrom(const SetStreamFocusRequest& from) {
 }
 
 bool SetStreamFocusRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -20810,7 +21044,6 @@ void SetStreamFocusRequest::Swap(SetStreamFocusRequest* other) {
   metadata.reflection = SetStreamFocusRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -21151,7 +21384,6 @@ void CreateMessageRequest::CopyFrom(const CreateMessageRequest& from) {
 }
 
 bool CreateMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -21180,7 +21412,6 @@ void CreateMessageRequest::Swap(CreateMessageRequest* other) {
   metadata.reflection = CreateMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -21387,7 +21618,6 @@ void CreateMessageResponse::CopyFrom(const CreateMessageResponse& from) {
 }
 
 bool CreateMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -21410,7 +21640,6 @@ void CreateMessageResponse::Swap(CreateMessageResponse* other) {
   metadata.reflection = CreateMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -21751,7 +21980,6 @@ void DestroyMessageRequest::CopyFrom(const DestroyMessageRequest& from) {
 }
 
 bool DestroyMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -21777,7 +22005,6 @@ void DestroyMessageRequest::Swap(DestroyMessageRequest* other) {
   metadata.reflection = DestroyMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -21984,7 +22211,6 @@ void DestroyMessageResponse::CopyFrom(const DestroyMessageResponse& from) {
 }
 
 bool DestroyMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -22007,7 +22233,6 @@ void DestroyMessageResponse::Swap(DestroyMessageResponse* other) {
   metadata.reflection = DestroyMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -22391,7 +22616,6 @@ void EditMessageRequest::CopyFrom(const EditMessageRequest& from) {
 }
 
 bool EditMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -22421,7 +22645,6 @@ void EditMessageRequest::Swap(EditMessageRequest* other) {
   metadata.reflection = EditMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -22628,7 +22851,6 @@ void EditMessageResponse::CopyFrom(const EditMessageResponse& from) {
 }
 
 bool EditMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -22651,7 +22873,6 @@ void EditMessageResponse::Swap(EditMessageResponse* other) {
   metadata.reflection = EditMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -22949,7 +23170,6 @@ void SetMessagePinnedRequest::CopyFrom(const SetMessagePinnedRequest& from) {
 }
 
 bool SetMessagePinnedRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -22974,7 +23194,6 @@ void SetMessagePinnedRequest::Swap(SetMessagePinnedRequest* other) {
   metadata.reflection = SetMessagePinnedRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -23315,7 +23534,6 @@ void SetTypingIndicatorRequest::CopyFrom(const SetTypingIndicatorRequest& from) 
 }
 
 bool SetTypingIndicatorRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -23341,7 +23559,6 @@ void SetTypingIndicatorRequest::Swap(SetTypingIndicatorRequest* other) {
   metadata.reflection = SetTypingIndicatorRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -23702,7 +23919,6 @@ void AdvanceStreamViewTimeRequest::CopyFrom(const AdvanceStreamViewTimeRequest& 
 }
 
 bool AdvanceStreamViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -23728,7 +23944,6 @@ void AdvanceStreamViewTimeRequest::Swap(AdvanceStreamViewTimeRequest* other) {
   metadata.reflection = AdvanceStreamViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -24026,7 +24241,6 @@ void AdvanceStreamMentionViewTimeRequest::CopyFrom(const AdvanceStreamMentionVie
 }
 
 bool AdvanceStreamMentionViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -24051,7 +24265,6 @@ void AdvanceStreamMentionViewTimeRequest::Swap(AdvanceStreamMentionViewTimeReque
   metadata.reflection = AdvanceStreamMentionViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -24298,7 +24511,6 @@ void AdvanceActivityViewTimeRequest::CopyFrom(const AdvanceActivityViewTimeReque
 }
 
 bool AdvanceActivityViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -24322,7 +24534,6 @@ void AdvanceActivityViewTimeRequest::Swap(AdvanceActivityViewTimeRequest* other)
   metadata.reflection = AdvanceActivityViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -24663,7 +24874,6 @@ void GetStreamHistoryRequest::CopyFrom(const GetStreamHistoryRequest& from) {
 }
 
 bool GetStreamHistoryRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -24689,7 +24899,6 @@ void GetStreamHistoryRequest::Swap(GetStreamHistoryRequest* other) {
   metadata.reflection = GetStreamHistoryRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -24930,7 +25139,6 @@ void GetStreamHistoryResponse::CopyFrom(const GetStreamHistoryResponse& from) {
 }
 
 bool GetStreamHistoryResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->message())) return false;
   return true;
 }
@@ -24952,7 +25160,6 @@ void GetStreamHistoryResponse::Swap(GetStreamHistoryResponse* other) {
   metadata.reflection = GetStreamHistoryResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -25293,7 +25500,6 @@ void GetStreamMessageRequest::CopyFrom(const GetStreamMessageRequest& from) {
 }
 
 bool GetStreamMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -25319,7 +25525,6 @@ void GetStreamMessageRequest::Swap(GetStreamMessageRequest* other) {
   metadata.reflection = GetStreamMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -25526,7 +25731,6 @@ void GetStreamMessageResponse::CopyFrom(const GetStreamMessageResponse& from) {
 }
 
 bool GetStreamMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -25549,7 +25753,6 @@ void GetStreamMessageResponse::Swap(GetStreamMessageResponse* other) {
   metadata.reflection = GetStreamMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -25839,7 +26042,6 @@ void GetClubActivityRequest::CopyFrom(const GetClubActivityRequest& from) {
 }
 
 bool GetClubActivityRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -25864,7 +26066,6 @@ void GetClubActivityRequest::Swap(GetClubActivityRequest* other) {
   metadata.reflection = GetClubActivityRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -26066,7 +26267,6 @@ void GetClubActivityResponse::CopyFrom(const GetClubActivityResponse& from) {
 }
 
 bool GetClubActivityResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -26087,13 +26287,13 @@ void GetClubActivityResponse::Swap(GetClubActivityResponse* other) {
   return metadata;
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
 const int GetStreamVoiceTokenRequest::kAgentIdFieldNumber;
 const int GetStreamVoiceTokenRequest::kClubIdFieldNumber;
 const int GetStreamVoiceTokenRequest::kStreamIdFieldNumber;
+const int GetStreamVoiceTokenRequest::kVersionFieldNumber;
 #endif  // !_MSC_VER
 
 GetStreamVoiceTokenRequest::GetStreamVoiceTokenRequest()
@@ -26118,6 +26318,7 @@ void GetStreamVoiceTokenRequest::SharedCtor() {
   agent_id_ = NULL;
   club_id_ = GOOGLE_ULONGLONG(0);
   stream_id_ = GOOGLE_ULONGLONG(0);
+  version_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -26164,8 +26365,8 @@ void GetStreamVoiceTokenRequest::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 7) {
-    ZR_(club_id_, stream_id_);
+  if (_has_bits_[0 / 32] & 15) {
+    ZR_(club_id_, version_);
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
     }
@@ -26226,6 +26427,21 @@ bool GetStreamVoiceTokenRequest::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(32)) goto parse_version;
+        break;
+      }
+
+      // optional uint32 version = 4;
+      case 4: {
+        if (tag == 32) {
+         parse_version:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &version_)));
+          set_has_version();
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -26271,6 +26487,11 @@ void GetStreamVoiceTokenRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->stream_id(), output);
   }
 
+  // optional uint32 version = 4;
+  if (has_version()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->version(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -26296,6 +26517,11 @@ void GetStreamVoiceTokenRequest::SerializeWithCachedSizes(
   // optional uint64 stream_id = 3;
   if (has_stream_id()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->stream_id(), target);
+  }
+
+  // optional uint32 version = 4;
+  if (has_version()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->version(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -26329,6 +26555,13 @@ int GetStreamVoiceTokenRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->stream_id());
+    }
+
+    // optional uint32 version = 4;
+    if (has_version()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->version());
     }
 
   }
@@ -26367,6 +26600,9 @@ void GetStreamVoiceTokenRequest::MergeFrom(const GetStreamVoiceTokenRequest& fro
     if (from.has_stream_id()) {
       set_stream_id(from.stream_id());
     }
+    if (from.has_version()) {
+      set_version(from.version());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -26384,7 +26620,6 @@ void GetStreamVoiceTokenRequest::CopyFrom(const GetStreamVoiceTokenRequest& from
 }
 
 bool GetStreamVoiceTokenRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -26396,6 +26631,7 @@ void GetStreamVoiceTokenRequest::Swap(GetStreamVoiceTokenRequest* other) {
     std::swap(agent_id_, other->agent_id_);
     std::swap(club_id_, other->club_id_);
     std::swap(stream_id_, other->stream_id_);
+    std::swap(version_, other->version_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -26409,7 +26645,6 @@ void GetStreamVoiceTokenRequest::Swap(GetStreamVoiceTokenRequest* other) {
   metadata.reflection = GetStreamVoiceTokenRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -26677,7 +26912,6 @@ void GetStreamVoiceTokenResponse::CopyFrom(const GetStreamVoiceTokenResponse& fr
 }
 
 bool GetStreamVoiceTokenResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -26698,7 +26932,6 @@ void GetStreamVoiceTokenResponse::Swap(GetStreamVoiceTokenResponse* other) {
   metadata.reflection = GetStreamVoiceTokenResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -27039,7 +27272,6 @@ void KickFromStreamVoiceRequest::CopyFrom(const KickFromStreamVoiceRequest& from
 }
 
 bool KickFromStreamVoiceRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -27068,7 +27300,6 @@ void KickFromStreamVoiceRequest::Swap(KickFromStreamVoiceRequest* other) {
   metadata.reflection = KickFromStreamVoiceRequest_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

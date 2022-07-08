@@ -91,7 +91,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fnotification_2eproto() {
   protobuf_AddDesc_club_5fnotification_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -430,10 +429,11 @@ void protobuf_AssignDesc_club_5fnotification_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamTypingIndicatorNotification));
   StreamUnreadIndicatorNotification_descriptor_ = file->message_type(19);
-  static const int StreamUnreadIndicatorNotification_offsets_[3] = {
+  static const int StreamUnreadIndicatorNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamUnreadIndicatorNotification, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamUnreadIndicatorNotification, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamUnreadIndicatorNotification, event_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamUnreadIndicatorNotification, message_),
   };
   StreamUnreadIndicatorNotification_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -586,88 +586,86 @@ void protobuf_AddDesc_club_5fnotification_2eproto() {
     "\006member\030\013 \001(\0132\034.bgs.protocol.club.v1.Mem"
     "ber\"\\\n\027UnsubscribeNotification\0220\n\010agent_"
     "id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId"
-    "\022\017\n\007club_id\030\003 \001(\004\"\244\001\n\030StateChangedNotifi"
+    "\022\017\n\007club_id\030\003 \001(\004\"\234\001\n\030StateChangedNotifi"
     "cation\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol."
     "club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022=\n\nass"
     "ignment\030\005 \001(\0132).bgs.protocol.club.v1.Clu"
-    "bStateAssignment:\006\202\371+\002\030\001\"\252\001\n\033SettingsCha"
-    "ngedNotification\0220\n\010agent_id\030\001 \001(\0132\036.bgs"
-    ".protocol.club.v1.MemberId\022\017\n\007club_id\030\003 "
-    "\001(\004\022@\n\nassignment\030\004 \001(\0132,.bgs.protocol.c"
-    "lub.v1.ClubSettingsAssignment:\006\202\371+\002\030\001\"\222\001"
-    "\n\027MemberAddedNotification\0220\n\010agent_id\030\001 "
-    "\001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007c"
-    "lub_id\030\003 \001(\004\022,\n\006member\030\004 \003(\0132\034.bgs.proto"
-    "col.club.v1.Member:\006\202\371+\002\030\001\"\245\001\n\031MemberRem"
-    "ovedNotification\0220\n\010agent_id\030\001 \001(\0132\036.bgs"
-    ".protocol.club.v1.MemberId\022\017\n\007club_id\030\003 "
-    "\001(\004\022=\n\006member\030\004 \003(\0132-.bgs.protocol.club."
-    "v1.MemberRemovedAssignment:\006\202\371+\002\030\001\"\254\001\n\036M"
-    "emberStateChangedNotification\0220\n\010agent_i"
-    "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
-    "\017\n\007club_id\030\003 \001(\004\022\?\n\nassignment\030\004 \003(\0132+.b"
-    "gs.protocol.club.v1.MemberStateAssignmen"
-    "t:\006\202\371+\002\030\001\"\264\001\n\"SubscriberStateChangedNoti"
+    "bStateAssignment\"\242\001\n\033SettingsChangedNoti"
+    "fication\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoco"
+    "l.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022@\n\na"
+    "ssignment\030\004 \001(\0132,.bgs.protocol.club.v1.C"
+    "lubSettingsAssignment\"\212\001\n\027MemberAddedNot"
+    "ification\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022,\n\006"
+    "member\030\004 \003(\0132\034.bgs.protocol.club.v1.Memb"
+    "er\"\235\001\n\031MemberRemovedNotification\0220\n\010agen"
+    "t_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Member"
+    "Id\022\017\n\007club_id\030\003 \001(\004\022=\n\006member\030\004 \003(\0132-.bg"
+    "s.protocol.club.v1.MemberRemovedAssignme"
+    "nt\"\244\001\n\036MemberStateChangedNotification\0220\n"
+    "\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.M"
+    "emberId\022\017\n\007club_id\030\003 \001(\004\022\?\n\nassignment\030\004"
+    " \003(\0132+.bgs.protocol.club.v1.MemberStateA"
+    "ssignment\"\254\001\n\"SubscriberStateChangedNoti"
     "fication\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoco"
     "l.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022C\n\na"
     "ssignment\030\004 \003(\0132/.bgs.protocol.club.v1.S"
-    "ubscriberStateAssignment:\006\202\371+\002\030\001\"\244\001\n\035Mem"
-    "berRoleChangedNotification\0220\n\010agent_id\030\001"
-    " \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007"
-    "club_id\030\003 \001(\004\0228\n\nassignment\030\004 \003(\0132$.bgs."
-    "protocol.club.v1.RoleAssignment:\006\202\371+\002\030\001\""
-    "\242\001\n\033InvitationAddedNotification\0220\n\010agent"
+    "ubscriberStateAssignment\"\234\001\n\035MemberRoleC"
+    "hangedNotification\0220\n\010agent_id\030\001 \001(\0132\036.b"
+    "gs.protocol.club.v1.MemberId\022\017\n\007club_id\030"
+    "\003 \001(\004\0228\n\nassignment\030\004 \003(\0132$.bgs.protocol"
+    ".club.v1.RoleAssignment\"\232\001\n\033InvitationAd"
+    "dedNotification\0220\n\010agent_id\030\001 \001(\0132\036.bgs."
+    "protocol.club.v1.MemberId\022\017\n\007club_id\030\003 \001"
+    "(\004\0228\n\ninvitation\030\004 \001(\0132$.bgs.protocol.cl"
+    "ub.v1.ClubInvitation\"\260\001\n\035InvitationRemov"
+    "edNotification\0220\n\010agent_id\030\001 \001(\0132\036.bgs.p"
+    "rotocol.club.v1.MemberId\022\017\n\007club_id\030\003 \001("
+    "\004\022\025\n\rinvitation_id\030\004 \001(\006\0225\n\006reason\030\005 \001(\016"
+    "2%.bgs.protocol.InvitationRemovedReason\""
+    "\232\001\n\033SuggestionAddedNotification\0220\n\010agent"
     "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
-    "d\022\017\n\007club_id\030\003 \001(\004\0228\n\ninvitation\030\004 \001(\0132$"
-    ".bgs.protocol.club.v1.ClubInvitation:\006\202\371"
-    "+\002\030\001\"\270\001\n\035InvitationRemovedNotification\0220"
-    "\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1."
-    "MemberId\022\017\n\007club_id\030\003 \001(\004\022\025\n\rinvitation_"
-    "id\030\004 \001(\006\0225\n\006reason\030\005 \001(\0162%.bgs.protocol."
-    "InvitationRemovedReason:\006\202\371+\002\030\001\"\242\001\n\033Sugg"
-    "estionAddedNotification\0220\n\010agent_id\030\001 \001("
-    "\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007clu"
-    "b_id\030\003 \001(\004\0228\n\nsuggestion\030\004 \001(\0132$.bgs.pro"
-    "tocol.club.v1.ClubSuggestion:\006\202\371+\002\030\001\"\270\001\n"
+    "d\022\017\n\007club_id\030\003 \001(\004\0228\n\nsuggestion\030\004 \001(\0132$"
+    ".bgs.protocol.club.v1.ClubSuggestion\"\260\001\n"
     "\035SuggestionRemovedNotification\0220\n\010agent_"
     "id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId"
     "\022\017\n\007club_id\030\003 \001(\004\022\025\n\rsuggestion_id\030\004 \001(\006"
     "\0225\n\006reason\030\005 \001(\0162%.bgs.protocol.Suggesti"
-    "onRemovedReason:\006\202\371+\002\030\001\"\222\001\n\027StreamAddedN"
-    "otification\0220\n\010agent_id\030\001 \001(\0132\036.bgs.prot"
-    "ocol.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022,"
-    "\n\006stream\030\004 \001(\0132\034.bgs.protocol.club.v1.St"
-    "ream:\006\202\371+\002\030\001\"y\n\031StreamRemovedNotificatio"
-    "n\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club."
-    "v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022\021\n\tstream_i"
-    "d\030\004 \001(\004:\006\202\371+\002\030\001\"\277\001\n\036StreamStateChangedNo"
-    "tification\0220\n\010agent_id\030\001 \001(\0132\036.bgs.proto"
-    "col.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022\021\n"
-    "\tstream_id\030\004 \001(\004\022\?\n\nassignment\030\005 \001(\0132+.b"
-    "gs.protocol.club.v1.StreamStateAssignmen"
-    "t:\006\202\371+\002\030\001\"\264\001\n\036StreamMessageAddedNotifica"
-    "tion\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.cl"
-    "ub.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022\021\n\tstrea"
-    "m_id\030\004 \001(\004\0224\n\007message\030\005 \001(\0132#.bgs.protoc"
-    "ol.club.v1.StreamMessage:\006\202\371+\002\030\001\"\266\001\n Str"
+    "onRemovedReason\"\212\001\n\027StreamAddedNotificat"
+    "ion\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.clu"
+    "b.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022,\n\006stream"
+    "\030\004 \001(\0132\034.bgs.protocol.club.v1.Stream\"q\n\031"
+    "StreamRemovedNotification\0220\n\010agent_id\030\001 "
+    "\001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007c"
+    "lub_id\030\003 \001(\004\022\021\n\tstream_id\030\004 \001(\004\"\267\001\n\036Stre"
+    "amStateChangedNotification\0220\n\010agent_id\030\001"
+    " \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007"
+    "club_id\030\003 \001(\004\022\021\n\tstream_id\030\004 \001(\004\022\?\n\nassi"
+    "gnment\030\005 \001(\0132+.bgs.protocol.club.v1.Stre"
+    "amStateAssignment\"\254\001\n\036StreamMessageAdded"
+    "Notification\0220\n\010agent_id\030\001 \001(\0132\036.bgs.pro"
+    "tocol.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022"
+    "\021\n\tstream_id\030\004 \001(\004\0224\n\007message\030\005 \001(\0132#.bg"
+    "s.protocol.club.v1.StreamMessage\"\256\001\n Str"
     "eamMessageUpdatedNotification\0220\n\010agent_i"
     "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
     "\017\n\007club_id\030\003 \001(\004\022\021\n\tstream_id\030\004 \001(\004\0224\n\007m"
     "essage\030\005 \001(\0132#.bgs.protocol.club.v1.Stre"
-    "amMessage:\006\202\371+\002\030\001\"\301\001\n!StreamTypingIndica"
-    "torNotification\0220\n\010agent_id\030\001 \001(\0132\036.bgs."
-    "protocol.club.v1.MemberId\022\017\n\007club_id\030\003 \001"
-    "(\004\022\021\n\tstream_id\030\004 \001(\004\022>\n\tindicator\030\005 \003(\013"
-    "2+.bgs.protocol.club.v1.StreamTypingIndi"
-    "cator:\006\202\371+\002\030\001\"\244\001\n!StreamUnreadIndicatorN"
-    "otification\0220\n\010agent_id\030\001 \001(\0132\036.bgs.prot"
-    "ocol.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\0224"
-    "\n\005event\030\004 \001(\0132%.bgs.protocol.club.v1.Str"
-    "eamEventTime:\006\202\371+\002\030\001\"\251\001\n!StreamAdvanceVi"
-    "ewTimeNotification\0220\n\010agent_id\030\001 \001(\0132\036.b"
-    "gs.protocol.club.v1.MemberId\022\017\n\007club_id\030"
-    "\003 \001(\004\0229\n\004view\030\004 \003(\0132+.bgs.protocol.club."
-    "v1.StreamAdvanceViewTime:\006\202\371+\002\030\001B\002H\001P\000P\001", 3720);
+    "amMessage\"\271\001\n!StreamTypingIndicatorNotif"
+    "ication\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\022\021\n\tst"
+    "ream_id\030\004 \001(\004\022>\n\tindicator\030\005 \003(\0132+.bgs.p"
+    "rotocol.club.v1.StreamTypingIndicator\"\322\001"
+    "\n!StreamUnreadIndicatorNotification\0220\n\010a"
+    "gent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Mem"
+    "berId\022\017\n\007club_id\030\003 \001(\004\0224\n\005event\030\004 \001(\0132%."
+    "bgs.protocol.club.v1.StreamEventTime\0224\n\007"
+    "message\030\005 \001(\0132#.bgs.protocol.club.v1.Str"
+    "eamMessage\"\241\001\n!StreamAdvanceViewTimeNoti"
+    "fication\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protoco"
+    "l.club.v1.MemberId\022\017\n\007club_id\030\003 \001(\004\0229\n\004v"
+    "iew\030\004 \003(\0132+.bgs.protocol.club.v1.StreamA"
+    "dvanceViewTimeB\002H\001P\000P\001", 3622);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_notification.proto", &protobuf_RegisterTypes);
   SubscribeNotification::default_instance_ = new SubscribeNotification();
@@ -721,7 +719,6 @@ struct StaticDescriptorInitializer_club_5fnotification_2eproto {
     protobuf_AddDesc_club_5fnotification_2eproto();
   }
 } static_descriptor_initializer_club_5fnotification_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -1139,7 +1136,6 @@ void SubscribeNotification::CopyFrom(const SubscribeNotification& from) {
 }
 
 bool SubscribeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1173,7 +1169,6 @@ void SubscribeNotification::Swap(SubscribeNotification* other) {
   metadata.reflection = SubscribeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1420,7 +1415,6 @@ void UnsubscribeNotification::CopyFrom(const UnsubscribeNotification& from) {
 }
 
 bool UnsubscribeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1444,7 +1438,6 @@ void UnsubscribeNotification::Swap(UnsubscribeNotification* other) {
   metadata.reflection = UnsubscribeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1734,7 +1727,6 @@ void StateChangedNotification::CopyFrom(const StateChangedNotification& from) {
 }
 
 bool StateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1762,7 +1754,6 @@ void StateChangedNotification::Swap(StateChangedNotification* other) {
   metadata.reflection = StateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2052,7 +2043,6 @@ void SettingsChangedNotification::CopyFrom(const SettingsChangedNotification& fr
 }
 
 bool SettingsChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2077,7 +2067,6 @@ void SettingsChangedNotification::Swap(SettingsChangedNotification* other) {
   metadata.reflection = SettingsChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2362,7 +2351,6 @@ void MemberAddedNotification::CopyFrom(const MemberAddedNotification& from) {
 }
 
 bool MemberAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2388,7 +2376,6 @@ void MemberAddedNotification::Swap(MemberAddedNotification* other) {
   metadata.reflection = MemberAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2673,7 +2660,6 @@ void MemberRemovedNotification::CopyFrom(const MemberRemovedNotification& from) 
 }
 
 bool MemberRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2699,7 +2685,6 @@ void MemberRemovedNotification::Swap(MemberRemovedNotification* other) {
   metadata.reflection = MemberRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2984,7 +2969,6 @@ void MemberStateChangedNotification::CopyFrom(const MemberStateChangedNotificati
 }
 
 bool MemberStateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3010,7 +2994,6 @@ void MemberStateChangedNotification::Swap(MemberStateChangedNotification* other)
   metadata.reflection = MemberStateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3295,7 +3278,6 @@ void SubscriberStateChangedNotification::CopyFrom(const SubscriberStateChangedNo
 }
 
 bool SubscriberStateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3321,7 +3303,6 @@ void SubscriberStateChangedNotification::Swap(SubscriberStateChangedNotification
   metadata.reflection = SubscriberStateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3606,7 +3587,6 @@ void MemberRoleChangedNotification::CopyFrom(const MemberRoleChangedNotification
 }
 
 bool MemberRoleChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3632,7 +3612,6 @@ void MemberRoleChangedNotification::Swap(MemberRoleChangedNotification* other) {
   metadata.reflection = MemberRoleChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3922,7 +3901,6 @@ void InvitationAddedNotification::CopyFrom(const InvitationAddedNotification& fr
 }
 
 bool InvitationAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3950,7 +3928,6 @@ void InvitationAddedNotification::Swap(InvitationAddedNotification* other) {
   metadata.reflection = InvitationAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4289,7 +4266,6 @@ void InvitationRemovedNotification::CopyFrom(const InvitationRemovedNotification
 }
 
 bool InvitationRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4315,7 +4291,6 @@ void InvitationRemovedNotification::Swap(InvitationRemovedNotification* other) {
   metadata.reflection = InvitationRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4605,7 +4580,6 @@ void SuggestionAddedNotification::CopyFrom(const SuggestionAddedNotification& fr
 }
 
 bool SuggestionAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4633,7 +4607,6 @@ void SuggestionAddedNotification::Swap(SuggestionAddedNotification* other) {
   metadata.reflection = SuggestionAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4972,7 +4945,6 @@ void SuggestionRemovedNotification::CopyFrom(const SuggestionRemovedNotification
 }
 
 bool SuggestionRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4998,7 +4970,6 @@ void SuggestionRemovedNotification::Swap(SuggestionRemovedNotification* other) {
   metadata.reflection = SuggestionRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5288,7 +5259,6 @@ void StreamAddedNotification::CopyFrom(const StreamAddedNotification& from) {
 }
 
 bool StreamAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5313,7 +5283,6 @@ void StreamAddedNotification::Swap(StreamAddedNotification* other) {
   metadata.reflection = StreamAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5611,7 +5580,6 @@ void StreamRemovedNotification::CopyFrom(const StreamRemovedNotification& from) 
 }
 
 bool StreamRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5636,7 +5604,6 @@ void StreamRemovedNotification::Swap(StreamRemovedNotification* other) {
   metadata.reflection = StreamRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5977,7 +5944,6 @@ void StreamStateChangedNotification::CopyFrom(const StreamStateChangedNotificati
 }
 
 bool StreamStateChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6003,7 +5969,6 @@ void StreamStateChangedNotification::Swap(StreamStateChangedNotification* other)
   metadata.reflection = StreamStateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6344,7 +6309,6 @@ void StreamMessageAddedNotification::CopyFrom(const StreamMessageAddedNotificati
 }
 
 bool StreamMessageAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6373,7 +6337,6 @@ void StreamMessageAddedNotification::Swap(StreamMessageAddedNotification* other)
   metadata.reflection = StreamMessageAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6714,7 +6677,6 @@ void StreamMessageUpdatedNotification::CopyFrom(const StreamMessageUpdatedNotifi
 }
 
 bool StreamMessageUpdatedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6743,7 +6705,6 @@ void StreamMessageUpdatedNotification::Swap(StreamMessageUpdatedNotification* ot
   metadata.reflection = StreamMessageUpdatedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7079,7 +7040,6 @@ void StreamTypingIndicatorNotification::CopyFrom(const StreamTypingIndicatorNoti
 }
 
 bool StreamTypingIndicatorNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7107,13 +7067,13 @@ void StreamTypingIndicatorNotification::Swap(StreamTypingIndicatorNotification* 
   return metadata;
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
 const int StreamUnreadIndicatorNotification::kAgentIdFieldNumber;
 const int StreamUnreadIndicatorNotification::kClubIdFieldNumber;
 const int StreamUnreadIndicatorNotification::kEventFieldNumber;
+const int StreamUnreadIndicatorNotification::kMessageFieldNumber;
 #endif  // !_MSC_VER
 
 StreamUnreadIndicatorNotification::StreamUnreadIndicatorNotification()
@@ -7125,6 +7085,7 @@ StreamUnreadIndicatorNotification::StreamUnreadIndicatorNotification()
 void StreamUnreadIndicatorNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
   event_ = const_cast< ::bgs::protocol::club::v1::StreamEventTime*>(&::bgs::protocol::club::v1::StreamEventTime::default_instance());
+  message_ = const_cast< ::bgs::protocol::club::v1::StreamMessage*>(&::bgs::protocol::club::v1::StreamMessage::default_instance());
 }
 
 StreamUnreadIndicatorNotification::StreamUnreadIndicatorNotification(const StreamUnreadIndicatorNotification& from)
@@ -7139,6 +7100,7 @@ void StreamUnreadIndicatorNotification::SharedCtor() {
   agent_id_ = NULL;
   club_id_ = GOOGLE_ULONGLONG(0);
   event_ = NULL;
+  message_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -7151,6 +7113,7 @@ void StreamUnreadIndicatorNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
     delete event_;
+    delete message_;
   }
 }
 
@@ -7176,13 +7139,16 @@ StreamUnreadIndicatorNotification* StreamUnreadIndicatorNotification::New() cons
 }
 
 void StreamUnreadIndicatorNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 15) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
     }
     club_id_ = GOOGLE_ULONGLONG(0);
     if (has_event()) {
       if (event_ != NULL) event_->::bgs::protocol::club::v1::StreamEventTime::Clear();
+    }
+    if (has_message()) {
+      if (message_ != NULL) message_->::bgs::protocol::club::v1::StreamMessage::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -7235,6 +7201,19 @@ bool StreamUnreadIndicatorNotification::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(42)) goto parse_message;
+        break;
+      }
+
+      // optional .bgs.protocol.club.v1.StreamMessage message = 5;
+      case 5: {
+        if (tag == 42) {
+         parse_message:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_message()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -7281,6 +7260,12 @@ void StreamUnreadIndicatorNotification::SerializeWithCachedSizes(
       4, this->event(), output);
   }
 
+  // optional .bgs.protocol.club.v1.StreamMessage message = 5;
+  if (has_message()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, this->message(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -7308,6 +7293,13 @@ void StreamUnreadIndicatorNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         4, this->event(), target);
+  }
+
+  // optional .bgs.protocol.club.v1.StreamMessage message = 5;
+  if (has_message()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        5, this->message(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -7341,6 +7333,13 @@ int StreamUnreadIndicatorNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->event());
+    }
+
+    // optional .bgs.protocol.club.v1.StreamMessage message = 5;
+    if (has_message()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->message());
     }
 
   }
@@ -7379,6 +7378,9 @@ void StreamUnreadIndicatorNotification::MergeFrom(const StreamUnreadIndicatorNot
     if (from.has_event()) {
       mutable_event()->::bgs::protocol::club::v1::StreamEventTime::MergeFrom(from.event());
     }
+    if (from.has_message()) {
+      mutable_message()->::bgs::protocol::club::v1::StreamMessage::MergeFrom(from.message());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -7396,9 +7398,11 @@ void StreamUnreadIndicatorNotification::CopyFrom(const StreamUnreadIndicatorNoti
 }
 
 bool StreamUnreadIndicatorNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
+  }
+  if (has_message()) {
+    if (!this->message().IsInitialized()) return false;
   }
   return true;
 }
@@ -7408,6 +7412,7 @@ void StreamUnreadIndicatorNotification::Swap(StreamUnreadIndicatorNotification* 
     std::swap(agent_id_, other->agent_id_);
     std::swap(club_id_, other->club_id_);
     std::swap(event_, other->event_);
+    std::swap(message_, other->message_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -7421,7 +7426,6 @@ void StreamUnreadIndicatorNotification::Swap(StreamUnreadIndicatorNotification* 
   metadata.reflection = StreamUnreadIndicatorNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7706,7 +7710,6 @@ void StreamAdvanceViewTimeNotification::CopyFrom(const StreamAdvanceViewTimeNoti
 }
 
 bool StreamAdvanceViewTimeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7731,7 +7734,6 @@ void StreamAdvanceViewTimeNotification::Swap(StreamAdvanceViewTimeNotification* 
   metadata.reflection = StreamAdvanceViewTimeNotification_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

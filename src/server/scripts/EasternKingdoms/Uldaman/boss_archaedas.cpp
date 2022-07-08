@@ -101,7 +101,7 @@ class boss_archaedas : public CreatureScript
 
                 instance->SetData(0, 5);    // respawn any dead minions
                 me->SetFaction(FACTION_FRIENDLY);
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->AddAura(SPELL_FREEZE_ANIM, me);
             }
@@ -114,7 +114,7 @@ class boss_archaedas : public CreatureScript
                 {
                     DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
                     minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
-                    minion->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    minion->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     minion->SetControlled(false, UNIT_STATE_ROOT);
                     minion->SetFaction(FACTION_MONSTER);
                     minion->RemoveAura(SPELL_MINION_FREEZE_ANIM);
@@ -124,11 +124,11 @@ class boss_archaedas : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 // Being woken up from the altar, start the awaken sequence
                 if (spellInfo->Id == SPELL_ARCHAEDAS_AWAKEN)
@@ -264,7 +264,7 @@ class npc_archaedas_minions : public CreatureScript
                 Initialize();
 
                 me->SetFaction(35);
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
@@ -274,12 +274,12 @@ class npc_archaedas_minions : public CreatureScript
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveAllAuras();
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
                 bAmIAwake = true;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 // time to wake up, start animation
                 if (spellInfo->Id == SPELL_ARCHAEDAS_AWAKEN)
@@ -353,7 +353,7 @@ class npc_stonekeepers : public CreatureScript
             void Reset() override
             {
                 me->SetFaction(FACTION_FRIENDLY);
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
@@ -362,7 +362,7 @@ class npc_stonekeepers : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_FRIENDLY);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
@@ -406,7 +406,7 @@ class go_altar_of_archaedas : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 player->CastSpell(player, SPELL_BOSS_OBJECT_VISUAL, false);
 

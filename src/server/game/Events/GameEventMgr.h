@@ -139,6 +139,7 @@ class TC_GAME_API GameEventMgr
         bool hasCreatureActiveEventExcept(ObjectGuid::LowType creature_guid, uint16 event_id);
         bool hasGameObjectActiveEventExcept(ObjectGuid::LowType go_guid, uint16 event_id);
         void SetHolidayEventTime(GameEventData& event);
+        time_t GetLastStartTime(uint16 event_id) const;
 
         typedef std::list<ObjectGuid::LowType> GuidList;
         typedef std::list<uint32> IdList;
@@ -156,7 +157,7 @@ class TC_GAME_API GameEventMgr
         typedef std::pair<ObjectGuid::LowType /*guid*/, uint64 /*npcflag*/> GuidNPCFlagPair;
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
         typedef std::vector<NPCFlagList> GameEventNPCFlagMap;
-        typedef std::vector<uint32> GameEventBitmask;
+        typedef std::vector<uint32> GameEventBattlegroundMap;
         GameEventQuestMap mGameEventCreatureQuests;
         GameEventQuestMap mGameEventGameObjectQuests;
         GameEventNPCVendorMap mGameEventVendors;
@@ -165,7 +166,7 @@ class TC_GAME_API GameEventMgr
         //GameEventGuidMap  mGameEventGameobjectGuids;
         GameEventIdMap    mGameEventPoolIds;
         GameEventDataMap  mGameEvent;
-        GameEventBitmask  mGameEventBattlegroundHolidays;
+        GameEventBattlegroundMap mGameEventBattlegroundHolidays;
         QuestIdToEventConditionMap mQuestToEventConditions;
         GameEventNPCFlagMap mGameEventNPCFlags;
         ActiveEvents m_ActiveEvents;
@@ -179,6 +180,6 @@ class TC_GAME_API GameEventMgr
 #define sGameEventMgr GameEventMgr::instance()
 
 TC_GAME_API bool IsHolidayActive(HolidayIds id);
-TC_GAME_API bool IsEventActive(uint16 event_id);
+TC_GAME_API bool IsEventActive(uint16 eventId);
 
 #endif

@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "zulgurub.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "zulgurub.h"
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {

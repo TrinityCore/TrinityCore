@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "MovementGenerator.h"
 #include "ObjectMgr.h"
 
 #define MAX_DESYNC 5.0f
@@ -49,7 +50,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
     if (itr != map->CreatureGroupHolder.end())
     {
         //Add member to an existing group
-        TC_LOG_DEBUG("entities.unit", "Group found: " UI64FMTD ", inserting: %s, Group InstanceID %u", leaderSpawnId, creature->GetGUID().ToString().c_str(), creature->GetInstanceId());
+        TC_LOG_DEBUG("entities.unit", "Group found: " UI64FMTD ", inserting creature %s, Group InstanceID %u", leaderSpawnId, creature->GetGUID().ToString().c_str(), creature->GetInstanceId());
 
         // With dynamic spawn the creature may have just respawned
         // we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
@@ -198,12 +199,12 @@ CreatureGroup::~CreatureGroup()
 
 void CreatureGroup::AddMember(Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding %s.", member->GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit %s.", member->GetGUID().ToString().c_str());
 
     //Check if it is a leader
     if (member->GetSpawnId() == _leaderSpawnId)
     {
-        TC_LOG_DEBUG("entities.unit", "%s is formation leader. Adding group.", member->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("entities.unit", "Unit %s is formation leader. Adding group.", member->GetGUID().ToString().c_str());
         _leader = member;
     }
 
@@ -258,32 +259,24 @@ void CreatureGroup::MemberEngagingTarget(Creature* member, Unit* target)
     _engaging = false;
 }
 
-void CreatureGroup::FormationReset(bool dismiss)
+void CreatureGroup::FormationReset(bool /*dismiss*/)
 {
     for (auto const& pair : _members)
     {
         if (pair.first != _leader && pair.first->IsAlive())
         {
-            if (dismiss)
-                pair.first->GetMotionMaster()->Initialize();
-            else
-                pair.first->GetMotionMaster()->MoveIdle();
-            TC_LOG_DEBUG("entities.unit", "Set %s movement for member: %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
+            pair.first->GetMotionMaster()->MoveIdle();
+            // TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set %s movement for member %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
         }
     }
 
-    _formed = !dismiss;
+    // _formed = !dismiss;
 }
 
-void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
+void CreatureGroup::LeaderStartedMoving()
 {
-    //! To do: This should probably get its own movement generator or use WaypointMovementGenerator.
-    //! If the leader's path is known, member's path can be plotted as well using formation offsets.
     if (!_leader)
         return;
-
-    Position pos(destination);
-    float pathangle = std::atan2(_leader->GetPositionY() - pos.GetPositionY(), _leader->GetPositionX() - pos.GetPositionX());
 
     for (auto const& pair : _members)
     {
@@ -291,41 +284,17 @@ void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/,
         if (member == _leader || !member->IsAlive() || member->IsEngaged() || !(pair.second->GroupAI & FLAG_IDLE_IN_FORMATION))
             continue;
 
-        if (pair.second->LeaderWaypointIDs[0])
-        {
-            for (uint8 i = 0; i < 2; ++i)
-            {
-                if (_leader->GetCurrentWaypointInfo().first == pair.second->LeaderWaypointIDs[i])
-                {
-                    pair.second->FollowAngle = float(M_PI) * 2.f - pair.second->FollowAngle;
-                    break;
-                }
-            }
-        }
-
-        float angle = pair.second->FollowAngle;
+        float angle = pair.second->FollowAngle + float(M_PI); // for some reason, someone thought it was a great idea to invert relativ angles...
         float dist = pair.second->FollowDist;
 
-        float dx = pos.GetPositionX() + std::cos(angle + pathangle) * dist;
-        float dy = pos.GetPositionY() + std::sin(angle + pathangle) * dist;
-        float dz = pos.GetPositionZ();
-
-        Trinity::NormalizeMapCoord(dx);
-        Trinity::NormalizeMapCoord(dy);
-
-        if (!member->IsFlying())
-            member->UpdateGroundPositionZ(dx, dy, dz);
-
-        Position point(dx, dy, dz, destination.GetOrientation());
-
-        member->GetMotionMaster()->MoveFormation(id, point, moveType, !member->IsWithinDist(_leader, dist + MAX_DESYNC), orientation);
-        member->SetHomePosition(dx, dy, dz, pathangle);
+        if (!member->HasUnitState(UNIT_STATE_FOLLOW_FORMATION))
+            member->GetMotionMaster()->MoveFormation(_leader, dist, angle, pair.second->LeaderWaypointIDs[0], pair.second->LeaderWaypointIDs[1]);
     }
 }
 
 bool CreatureGroup::CanLeaderStartMoving() const
 {
-    for (auto const& pair : _members)
+    for (std::unordered_map<Creature*, FormationInfo*>::value_type const& pair : _members)
     {
         if (pair.first != _leader && pair.first->IsAlive())
         {

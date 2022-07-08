@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
-#include <array>
+#include <vector>
 
 #pragma pack(push, 1)
 
@@ -191,7 +191,27 @@ enum AzeriteTierUnlockSetFlags
     AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 3159
+enum class BattlePetSpeciesFlags : uint16
+{
+    NoRename                 = 0x0001,
+    WellKnown                = 0x0002,
+    NotAccountWide           = 0x0004,
+    Capturable               = 0x0008,
+    NotTradable              = 0x0010,
+    HideFromJournal          = 0x0020,
+    LegacyAccountUnique      = 0x0040,
+    CantBattle               = 0x0080,
+    HordeOnly                = 0x0100,
+    AllianceOnly             = 0x0200,
+    Boss                     = 0x0400,
+    RandomDisplay            = 0x0800,
+    NoLicenseRequired        = 0x1000,
+    AddsAllowedWithBoss      = 0x2000,
+    HideUntilLearned         = 0x4000,
+    MatchPlayerHighPetLevel  = 0x8000
+};
+
+DEFINE_ENUM_FLAG(BattlePetSpeciesFlags);
 
 enum class BattlemasterListFlags : uint32
 {
@@ -209,7 +229,31 @@ DEFINE_ENUM_FLAG(BattlemasterListFlags);
 
 enum class ChrRacesFlag : int32
 {
-    AlliedRace  = 0x80000
+    NPCOnly                                     = 0x000001,
+    DoNotComponentFeet                          = 0x000002,
+    CanMount                                    = 0x000004,
+    HasBald                                     = 0x000008,
+    BindToStartingArea                          = 0x000010,
+    AlternateForm                               = 0x000020,
+    CanMountSelf                                = 0x000040,
+    ForceToHDModelIfAvailable                   = 0x000080,
+    ExaltedWithAllVendors                       = 0x000100,
+    NotSelectable                               = 0x000200,
+    ReputationBonus                             = 0x000400,
+    UseLoincloth                                = 0x000800,
+    RestBonus                                   = 0x001000,
+    NoStartKits                                 = 0x002000,
+    NoStartingWeapon                            = 0x004000,
+    DontRedeemAccountLicenses                   = 0x008000,
+    SkinVariationIsHairColor                    = 0x010000,
+    UsePandarenRingForComponentingTexture       = 0x020000,
+    IgnoreForAssetManifestComponentInfoParsing  = 0x040000,
+    IsAlliedRace                                = 0x080000,
+    VoidVendorDiscount                          = 0x100000,
+    DAMMComponentNoMaleGeneration               = 0x200000,
+    DAMMComponentNoFemaleGeneration             = 0x400000,
+    NoAssociatedFactionReputationInRaceChange   = 0x800000,
+    InternalOnly                                = 0x100000,
 };
 
 DEFINE_ENUM_FLAG(ChrRacesFlag);
@@ -248,6 +292,30 @@ enum class CorruptionEffectsFlag
 };
 
 DEFINE_ENUM_FLAG(CorruptionEffectsFlag);
+
+enum class CreatureModelDataFlags : uint32
+{
+    NoFootprintParticles                    = 0x00001,
+    NoBreathParticles                       = 0x00002,
+    IsPlayerModel                           = 0x00004,
+    NoAttachedWeapons                       = 0x00010,
+    NoFootprintTrailTextures                = 0x00020,
+    DisableHighlight                        = 0x00040,
+    CanMountWhileTransformedAsThis          = 0x00080,
+    DisableScaleInterpolation               = 0x00100,
+    ForceProjectedTex                       = 0x00200,
+    CanJumpInPlaceAsMount                   = 0x00400,
+    AICannotUseWalkBackwardsAnim            = 0x00800,
+    IgnoreSpineLowForSplitBody              = 0x01000,
+    IgnoreHeadForSplitBody                  = 0x02000,
+    IgnoreSpineLowForSplitBodyWhenFlying    = 0x04000,
+    IgnoreHeadForSplitBodyWhenFlying        = 0x08000,
+    UseWheelAnimationOnUnitWheelBones       = 0x10000,
+    IsHDModel                               = 0x20000,
+    SuppressEmittersOnLowSettings           = 0x40000
+};
+
+DEFINE_ENUM_FLAG(CreatureModelDataFlags);
 
 enum class CriteriaFailEvent : uint8
 {
@@ -465,9 +533,9 @@ enum class CriteriaType : uint8
     AccountObtainPetThroughBattle                  = 157, /*NYI*/ // (Account Only) Obtain a pet through battle
     WinPetBattle                                   = 158, /*NYI*/ // Win a pet battle
     LosePetBattle                                  = 159, /*NYI*/ // Lose a pet battle
-    BattlePetReachLevel                            = 160, /*NYI*/ // (Account Only) Battle pet has reached level {#Level}
+    BattlePetReachLevel                            = 160, // (Account Only) Battle pet has reached level {#Level}
     PlayerObtainPetThroughBattle                   = 161, /*NYI*/ // (Player) Obtain a pet through battle
-    ActivelyEarnPetLevel                           = 162, /*NYI*/ // (Player) Actively earn level {#Level} with a pet by a player
+    ActivelyEarnPetLevel                           = 162, // (Player) Actively earn level {#Level} with a pet by a player
     EnterArea                                      = 163, /*NYI*/ // Enter Map Area "{AreaTable}"
     LeaveArea                                      = 164, /*NYI*/ // Leave Map Area "{AreaTable}"
     DefeatDungeonEncounter                         = 165, /*NYI*/ // Defeat Encounter "{DungeonEncounter}"
@@ -538,6 +606,7 @@ enum class CriteriaType : uint8
     MythicPlusRatingAttained                       = 230, /*NYI*/ // (Player) Mythic+ Rating "{#DungeonScore}" attained
     SpentTalentPoint                               = 231, /*NYI*/ // (Player) spent talent point
 
+    MythicPlusDisplaySeasonEnded                   = 234, /*NYI*/ // {DisplaySeason}
     Count
 };
 
@@ -646,25 +715,6 @@ enum DifficultyFlags
     DIFFICULTY_FLAG_DISPLAY_MYTHIC  = 0x80  // Controls icon displayed on minimap when inside the instance
 };
 
-enum SpawnMask
-{
-    SPAWNMASK_CONTINENT = (1 << DIFFICULTY_NONE), // any maps without spawn modes
-
-    SPAWNMASK_DUNGEON_NORMAL    = (1 << DIFFICULTY_NORMAL),
-    SPAWNMASK_DUNGEON_HEROIC    = (1 << DIFFICULTY_HEROIC),
-    SPAWNMASK_DUNGEON_ALL       = (SPAWNMASK_DUNGEON_NORMAL | SPAWNMASK_DUNGEON_HEROIC),
-
-    SPAWNMASK_RAID_10MAN_NORMAL = (1 << DIFFICULTY_10_N),
-    SPAWNMASK_RAID_25MAN_NORMAL = (1 << DIFFICULTY_25_N),
-    SPAWNMASK_RAID_NORMAL_ALL   = (SPAWNMASK_RAID_10MAN_NORMAL | SPAWNMASK_RAID_25MAN_NORMAL),
-
-    SPAWNMASK_RAID_10MAN_HEROIC = (1 << DIFFICULTY_10_HC),
-    SPAWNMASK_RAID_25MAN_HEROIC = (1 << DIFFICULTY_25_HC),
-    SPAWNMASK_RAID_HEROIC_ALL   = (SPAWNMASK_RAID_10MAN_HEROIC | SPAWNMASK_RAID_25MAN_HEROIC),
-
-    SPAWNMASK_RAID_ALL          = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL)
-};
-
 enum class ExpectedStatType : uint8
 {
     CreatureHealth          = 0,
@@ -749,21 +799,6 @@ enum MapFlags
     MAP_FLAG_GARRISON               = 0x4000000
 };
 
-enum AbilytyLearnType
-{
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
-    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
-};
-
-enum class SkillLineAbilityFlags
-{
-    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
-
-};
-
-DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
-
 enum GlyphSlotType
 {
     GLYPH_SLOT_MAJOR = 0,
@@ -828,6 +863,10 @@ enum ItemBonusType
     ITEM_BONUS_REQUIRED_LEVEL_CURVE             = 27,
     ITEM_BONUS_DESCRIPTION_TEXT                 = 30,             // Item description
     ITEM_BONUS_OVERRIDE_NAME                    = 31,             // ItemNameDescription id
+    ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34,
+    ITEM_BONUS_ITEM_LIMIT_CATEGORY              = 35,
+    ITEM_BONUS_ITEM_CONVERSION                  = 37,
+    ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
 };
 
 enum class ItemContext : uint8
@@ -1315,6 +1354,10 @@ enum class ModifierTreeType : int32
     PlayerBestWeeklyWinPvpTierInBracketEqualOrGreaterThan               = 325, // (Mainline) Player has best weekly win at or above "{@PVP_TIER_ENUM}" for "{@PVP_BRACKET}"
     PlayerHasVanillaCollectorsEdition                                   = 326, // Player has Vanilla Collector's Edition
     PlayerHasItemWithKeystoneLevelModifierEqualOrGreaterThan            = 327,
+
+    PlayerMythicPlusRatingInDisplaySeasonEqualOrGreaterThan             = 329, /*NYI*/ // Player has Mythic+ Rating of at least "{#DungeonScore}" in {DisplaySeason}
+
+    MythicPlusRatingIsInTop01Percent                                    = 334, // top 0.1% rating
 };
 
 enum class ModifierTreeOperator : int8
@@ -1343,12 +1386,21 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
-enum PhaseEntryFlags : uint16
+enum class PhaseEntryFlags : uint16
 {
-    PHASE_FLAG_NORMAL   = 0x08,
-    PHASE_FLAG_COSMETIC = 0x10,
-    PHASE_FLAG_PERSONAL = 0x20
+    ReadOnly                = 0x001,
+    InternalPhase           = 0x002,
+    Normal                  = 0x008,
+    Cosmetic                = 0x010,
+    Personal                = 0x020,
+    Expensive               = 0x040,
+    EventsAreObservable     = 0x080,
+    UsesPreloadConditions   = 0x100,
+    UnshareablePersonal     = 0x200,
+    ObjectsAreVisible       = 0x400,
 };
+
+DEFINE_ENUM_FLAG(PhaseEntryFlags);
 
 // PhaseUseFlags fields in different db2s
 enum PhaseUseFlagsValues : uint8
@@ -1391,6 +1443,42 @@ enum ScenarioStepFlags
     SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
 };
 
+enum class SkillLineFlags : uint16
+{
+    AlwaysShownInUI                                 = 0x0001,
+    NeverShownInUI                                  = 0x0002,
+    FirstTierIsSelfTaught                           = 0x0004,
+    GrantedIncrementallyByCharacterUpgrade          = 0x0008,
+    AutomaticRank                                   = 0x0010,
+    InheritParentRankWhenLearned                    = 0x0020,
+    ShowsInSpellTooltip                             = 0x0040,
+    AppearsInMiscTabOfSpellbook                     = 0x0080,
+    // unused                                       = 0x0100,
+    IgnoreCategoryMods                              = 0x0200,
+    DisplaysAsProficiency                           = 0x0400,
+    PetsOnly                                        = 0x0800,
+    UniqueBitfield                                  = 0x1000,
+    RacialForThePurposeOfPaidRaceOrFactionChange    = 0x2000,
+    ProgressiveSkillUp                              = 0x4000,
+    RacialForThePurposeOfTemporaryRaceChange        = 0x8000,
+};
+
+DEFINE_ENUM_FLAG(SkillLineFlags);
+
+enum AbilytyLearnType
+{
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
+    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
+};
+
+enum class SkillLineAbilityFlags
+{
+    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+};
+
+DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
+
 enum SkillRaceClassInfoFlags
 {
     SKILL_FLAG_NO_SKILLUP_MESSAGE       = 0x2,
@@ -1413,6 +1501,7 @@ enum class SpellEffectAttributes
     None                                    = 0,
     UnaffectedByInvulnerability             = 0x000001, // not cancelled by immunities
     NoScaleWithStack                        = 0x000040,
+    ChainFromInitialTarget                  = 0x000080,
     StackAuraAmountOnRecast                 = 0x008000, // refreshing periodic auras with this attribute will add remaining damage to new aura
     AllowAnyExplicitTarget                  = 0x100000,
     IgnoreDuringCooldownTimeRateCalculation = 0x800000
@@ -1425,15 +1514,21 @@ DEFINE_ENUM_FLAG(SpellEffectAttributes);
 
 #define MAX_SPELL_AURA_INTERRUPT_FLAGS 2
 
-enum SpellItemEnchantmentFlags
+enum class SpellItemEnchantmentFlags : uint16
 {
-    ENCHANTMENT_CAN_SOULBOUND           = 0x01,
-    ENCHANTMENT_UNK1                    = 0x02,
-    ENCHANTMENT_UNK2                    = 0x04,
-    ENCHANTMENT_UNK3                    = 0x08,
-    ENCHANTMENT_COLLECTABLE             = 0x100,
-    ENCHANTMENT_HIDE_IF_NOT_COLLECTED   = 0x200,
+    Soulbound               = 0x001,
+    DoNotLog                = 0x002,
+    MainhandOnly            = 0x004,
+    AllowEnteringArena      = 0x008,
+    DoNotSaveToDB           = 0x010,
+    ScaleAsAGem             = 0x020,
+    DisableInChallengeModes = 0x040,
+    DisableInProvingGrounds = 0x080,
+    AllowTransmog           = 0x100,
+    HideUntilCollected      = 0x200,
 };
+
+DEFINE_ENUM_FLAG(SpellItemEnchantmentFlags);
 
 enum SpellProcsPerMinuteModType
 {
@@ -1471,8 +1566,40 @@ enum class SpellShapeshiftFormFlags : int32
 
 DEFINE_ENUM_FLAG(SpellShapeshiftFormFlags);
 
-#define TaxiMaskSize 338
-typedef std::array<uint8, TaxiMaskSize> TaxiMask;
+enum class SpellVisualEffectNameType : uint32
+{
+    Model                           = 0,
+    Item                            = 1,
+    Creature                        = 2,
+    UnitItemMainHand                = 3,
+    UnitItemOffHand                 = 4,
+    UnitItemRanged                  = 5,
+    UnitAmmoBasic                   = 6,
+    UnitAmmoPreferred               = 7,
+    UnitItemMainHandIgnoreDisarmed  = 8,
+    UnitItemOffHandIgnoreDisarmed   = 9,
+    UnitItemRangedIgnoreDisarmed    = 10
+};
+
+class TaxiMask
+{
+public:
+    using value_type = uint8;
+
+    TaxiMask();
+
+    value_type& operator[](size_t i) { return _data[i]; }
+    value_type const& operator[](size_t i) const { return _data[i]; }
+
+    size_t size() const { return _data.size(); }
+    value_type const* data() const { return _data.data(); }
+
+    decltype(auto) begin() { return _data.begin(); }
+    decltype(auto) end() { return _data.end(); }
+
+private:
+    std::vector<value_type> _data;
+};
 
 enum TotemCategoryType
 {
@@ -1484,6 +1611,14 @@ enum TotemCategoryType
     TOTEM_CATEGORY_TYPE_HAMMER          = 23,
     TOTEM_CATEGORY_TYPE_SPANNER         = 24
 };
+
+enum class TransmogIllusionFlags : int32
+{
+    HideUntilCollected              = 0x1,
+    PlayerConditionGrantsOnLogin    = 0x2,
+};
+
+DEFINE_ENUM_FLAG(TransmogIllusionFlags);
 
 // SummonProperties.dbc, col 1
 enum SummonPropGroup
@@ -1514,33 +1649,44 @@ enum SummonPropType
     SUMMON_PROP_TYPE_LASHTAIL        = 13                   // Lashtail Hatchling, 1 spell in 4.2.2
 };
 
-// SummonProperties.dbc, col 5
-enum SummonPropFlags
+enum class SummonPropertiesFlags : uint32
 {
-    SUMMON_PROP_FLAG_NONE            = 0x00000000,          // 1342 spells in 3.0.3
-    SUMMON_PROP_FLAG_UNK1            = 0x00000001,          // 75 spells in 3.0.3, something unfriendly
-    SUMMON_PROP_FLAG_UNK2            = 0x00000002,          // 616 spells in 3.0.3, something friendly
-    SUMMON_PROP_FLAG_UNK3            = 0x00000004,          // 22 spells in 3.0.3, no idea...
-    SUMMON_PROP_FLAG_UNK4            = 0x00000008,          // 49 spells in 3.0.3, some mounts
-    SUMMON_PROP_FLAG_PERSONAL_SPAWN  = 0x00000010,          // Only Visible to Summoner
-    SUMMON_PROP_FLAG_UNK6            = 0x00000020,          // 0 spells in 3.3.5, unused
-    SUMMON_PROP_FLAG_UNK7            = 0x00000040,          // 12 spells in 3.0.3, no idea
-    SUMMON_PROP_FLAG_UNK8            = 0x00000080,          // 4 spells in 3.0.3, no idea
-    SUMMON_PROP_FLAG_UNK9            = 0x00000100,          // 51 spells in 3.0.3, no idea, many quest related
-    SUMMON_PROP_FLAG_UNK10           = 0x00000200,          // 51 spells in 3.0.3, something defensive
-    SUMMON_PROP_FLAG_UNK11           = 0x00000400,          // 3 spells, requires something near?
-    SUMMON_PROP_FLAG_UNK12           = 0x00000800,          // 30 spells in 3.0.3, no idea
-    SUMMON_PROP_FLAG_UNK13           = 0x00001000,          // Lightwell, Jeeves, Gnomish Alarm-o-bot, Build vehicles(wintergrasp)
-    SUMMON_PROP_FLAG_UNK14           = 0x00002000,          // Guides, player follows
-    SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
-    SUMMON_PROP_FLAG_UNK16           = 0x00008000,          // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
-    SUMMON_PROP_FLAG_PERSONAL_GROUP_SPAWN = 0x00010000,     // Only Visible to Summoner's Group
-    SUMMON_PROP_FLAG_UNK18           = 0x00020000,
-    SUMMON_PROP_FLAG_UNK19           = 0x00040000,
-    SUMMON_PROP_FLAG_UNK20           = 0x00080000,
-    SUMMON_PROP_FLAG_UNK21           = 0x00100000,          // Totems
-    SUMMON_PROP_FLAG_COMPANION       = 0x00200000
+    None                              = 0x00000000,
+    AttackSummoner                    = 0x00000001, // NYI
+    HelpWhenSummonedInCombat          = 0x00000002, // NYI
+    UseLevelOffset                    = 0x00000004, // NYI
+    DespawnOnSummonerDeath            = 0x00000008, // NYI
+    OnlyVisibleToSummoner             = 0x00000010,
+    CannotDismissPet                  = 0x00000020, // NYI
+    UseDemonTimeout                   = 0x00000040, // NYI
+    UnlimitedSummons                  = 0x00000080, // NYI
+    UseCreatureLevel                  = 0x00000100,
+    JoinSummonerSpawnGroup            = 0x00000200, // NYI
+    DoNotToggle                       = 0x00000400, // NYI
+    DespawnWhenExpired                = 0x00000800, // NYI
+    UseSummonerFaction                = 0x00001000,
+    DoNotFollowMountedSummoner        = 0x00002000, // NYI
+    SavePetAutocast                   = 0x00004000, // NYI
+    IgnoreSummonerPhase               = 0x00008000, // Wild Only
+    OnlyVisibleToSummonerGroup        = 0x00010000,
+    DespawnOnSummonerLogout           = 0x00020000, // NYI
+    CastRideVehicleSpellOnSummoner    = 0x00040000, // NYI
+    GuardianActsLikePet               = 0x00080000, // NYI
+    DontSnapSessileToGround           = 0x00100000, // NYI
+    SummonFromBattlePetJournal        = 0x00200000,
+    UnitClutter                       = 0x00400000, // NYI
+    DefaultNameColor                  = 0x00800000, // NYI
+    UseOwnInvisibilityDetection       = 0x01000000, // NYI. Ignore Owner's Invisibility Detection
+    DespawnWhenReplaced               = 0x02000000, // NYI. Totem Slots Only
+    DespawnWhenTeleportingOutOfRange  = 0x04000000, // NYI
+    SummonedAtGroupFormationPosition  = 0x08000000, // NYI
+    DontDespawnOnSummonerDeath        = 0x10000000, // NYI
+    UseTitleAsCreatureName            = 0x20000000, // NYI
+    AttackableBySummoner              = 0x40000000, // NYI
+    DontDismissWhenEncounterIsAborted = 0x80000000  // NYI
 };
+
+DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 #define MAX_TALENT_TIERS 7
 #define MAX_TALENT_COLUMNS 3
@@ -1600,6 +1746,124 @@ enum UiMapType : int8
     UI_MAP_TYPE_DUNGEON     = 4,
     UI_MAP_TYPE_MICRO       = 5,
     UI_MAP_TYPE_ORPHAN      = 6,
+};
+
+enum class UnitConditionFlags : uint8
+{
+    LogicOr = 0x1
+};
+
+DEFINE_ENUM_FLAG(UnitConditionFlags);
+
+enum class UnitConditionOp : int8
+{
+    EqualTo                 = 1,
+    NotEqualTo              = 2,
+    LessThan                = 3,
+    LessThanOrEqualTo       = 4,
+    GreaterThan             = 5,
+    GreaterThanOrEqualTo    = 6
+};
+
+enum class UnitConditionVariable : uint8
+{
+    None                                = 0,  // - NONE -
+    Race                                = 1,  // Race {$Is/Is Not} "{ChrRaces}"
+    Class                               = 2,  // Class {$Is/Is Not} "{ChrClasses}"
+    Level                               = 3,  // Level {$Relative Op} "{#Level}"
+    IsSelf                              = 4,  // Is self? {$Yes/No}{=1}
+    IsMyPet                             = 5,  // Is my pet? {$Yes/No}{=1}
+    IsMaster                            = 6,  // Is master? {$Yes/No}{=1}
+    IsTarget                            = 7,  // Is target? {$Yes/No}{=1}
+    CanAssist                           = 8,  // Can assist? {$Yes/No}{=1}
+    CanAttack                           = 9,  // Can attack? {$Yes/No}{=1}
+    HasPet                              = 10, // Has pet? {$Yes/No}{=1}
+    HasWeapon                           = 11, // Has weapon? {$Yes/No}{=1}
+    HealthPct                           = 12, // Health {$Relative Op} {#Health %}%
+    ManaPct                             = 13, // Mana {$Relative Op} {#Mana %}%
+    RagePct                             = 14, // Rage {$Relative Op} {#Rage %}%
+    EnergyPct                           = 15, // Energy {$Relative Op} {#Energy %}%
+    ComboPoints                         = 16, // Combo Points {$Relative Op} {#Points}
+    HasHelpfulAuraSpell                 = 17, // Has helpful aura spell? {$Yes/No} "{Spell}"
+    HasHelpfulAuraDispelType            = 18, // Has helpful aura dispel type? {$Yes/No} "{SpellDispelType}"
+    HasHelpfulAuraMechanic              = 19, // Has helpful aura mechanic? {$Yes/No} "{SpellMechanic}"
+    HasHarmfulAuraSpell                 = 20, // Has harmful aura spell? {$Yes/No} "{Spell}"
+    HasHarmfulAuraDispelType            = 21, // Has harmful aura dispel type? {$Yes/No} "{SpellDispelType}"
+    HasHarmfulAuraMechanic              = 22, // Has harmful aura mechanic? {$Yes/No} "{SpellMechanic}"
+    HasHarmfulAuraSchool                = 23, // Has harmful aura school? {$Yes/No} "{Resistances}"
+    DamagePhysicalPct                   = 24, // NYI Damage (Physical) {$Relative Op} {#Physical Damage %}%
+    DamageHolyPct                       = 25, // NYI Damage (Holy) {$Relative Op} {#Holy Damage %}%
+    DamageFirePct                       = 26, // NYI Damage (Fire) {$Relative Op} {#Fire Damage %}%
+    DamageNaturePct                     = 27, // NYI Damage (Nature) {$Relative Op} {#Nature Damage %}%
+    DamageFrostPct                      = 28, // NYI Damage (Frost) {$Relative Op} {#Frost Damage %}%
+    DamageShadowPct                     = 29, // NYI Damage (Shadow) {$Relative Op} {#Shadow Damage %}%
+    DamageArcanePct                     = 30, // NYI Damage (Arcane) {$Relative Op} {#Arcane Damage %}%
+    InCombat                            = 31, // In combat? {$Yes/No}{=1}
+    IsMoving                            = 32, // Is moving? {$Yes/No}{=1}
+    IsCasting                           = 33, // Is casting? {$Yes/No}{=1}
+    IsCastingSpell                      = 34, // Is casting spell? {$Yes/No}{=1}
+    IsChanneling                        = 35, // Is channeling? {$Yes/No}{=1}
+    IsChannelingSpell                   = 36, // Is channeling spell? {$Yes/No}{=1}
+    NumberOfMeleeAttackers              = 37, // Number of melee attackers {$Relative Op} {#Attackers}
+    IsAttackingMe                       = 38, // Is attacking me? {$Yes/No}{=1}
+    Range                               = 39, // Range {$Relative Op} {#Yards}
+    InMeleeRange                        = 40, // In melee range? {$Yes/No}{=1}
+    PursuitTime                         = 41, // NYI Pursuit time {$Relative Op} {#Seconds}
+    HasHarmfulAuraCanceledByDamage      = 42, // Has harmful aura canceled by damage? {$Yes/No}{=1}
+    HasHarmfulAuraWithPeriodicDamage    = 43, // Has harmful aura with periodic damage? {$Yes/No}{=1}
+    NumberOfEnemies                     = 44, // Number of enemies {$Relative Op} {#Enemies}
+    NumberOfFriends                     = 45, // NYI Number of friends {$Relative Op} {#Friends}
+    ThreatPhysicalPct                   = 46, // NYI Threat (Physical) {$Relative Op} {#Physical Threat %}%
+    ThreatHolyPct                       = 47, // NYI Threat (Holy) {$Relative Op} {#Holy Threat %}%
+    ThreatFirePct                       = 48, // NYI Threat (Fire) {$Relative Op} {#Fire Threat %}%
+    ThreatNaturePct                     = 49, // NYI Threat (Nature) {$Relative Op} {#Nature Threat %}%
+    ThreatFrostPct                      = 50, // NYI Threat (Frost) {$Relative Op} {#Frost Threat %}%
+    ThreatShadowPct                     = 51, // NYI Threat (Shadow) {$Relative Op} {#Shadow Threat %}%
+    ThreatArcanePct                     = 52, // NYI Threat (Arcane) {$Relative Op} {#Arcane Threat %}%
+    IsInterruptible                     = 53, // NYI Is interruptible? {$Yes/No}{=1}
+    NumberOfAttackers                   = 54, // Number of attackers {$Relative Op} {#Attackers}
+    NumberOfRangedAttackers             = 55, // Number of ranged attackers {$Relative Op} {#Ranged Attackers}
+    CreatureType                        = 56, // Creature type {$Is/Is Not} "{CreatureType}"
+    IsMeleeAttacking                    = 57, // Is melee-attacking? {$Yes/No}{=1}
+    IsRangedAttacking                   = 58, // Is ranged-attacking? {$Yes/No}{=1}
+    Health                              = 59, // Health {$Relative Op} {#HP} HP
+    SpellKnown                          = 60, // Spell known? {$Yes/No} "{Spell}"
+    HasHarmfulAuraEffect                = 61, // Has harmful aura effect? {$Yes/No} "{#Spell Aura}"
+    IsImmuneToAreaOfEffect              = 62, // NYI Is immune to area-of-effect? {$Yes/No}{=1}
+    IsPlayer                            = 63, // Is player? {$Yes/No}{=1}
+    DamageMagicPct                      = 64, // NYI Damage (Magic) {$Relative Op} {#Magic Damage %}%
+    DamageTotalPct                      = 65, // NYI Damage (Total) {$Relative Op} {#Damage %}%
+    ThreatMagicPct                      = 66, // NYI Threat (Magic) {$Relative Op} {#Magic Threat %}%
+    ThreatTotalPct                      = 67, // NYI Threat (Total) {$Relative Op} {#Threat %}%
+    HasCritter                          = 68, // Has critter? {$Yes/No}{=1}
+    HasTotemInSlot1                     = 69, // Has totem in slot 1? {$Yes/No}{=1}
+    HasTotemInSlot2                     = 70, // Has totem in slot 2? {$Yes/No}{=1}
+    HasTotemInSlot3                     = 71, // Has totem in slot 3? {$Yes/No}{=1}
+    HasTotemInSlot4                     = 72, // Has totem in slot 4? {$Yes/No}{=1}
+    HasTotemInSlot5                     = 73, // NYI Has totem in slot 5? {$Yes/No}{=1}
+    Creature                            = 74, // Creature {$Is/Is Not} "{Creature}"
+    StringID                            = 75, // NYI String ID {$Is/Is Not} "{StringID}"
+    HasAura                             = 76, // Has aura? {$Yes/No} {Spell}
+    IsEnemy                             = 77, // Is enemy? {$Yes/No}{=1}
+    IsSpecMelee                         = 78, // Is spec - melee? {$Yes/No}{=1}
+    IsSpecTank                          = 79, // Is spec - tank? {$Yes/No}{=1}
+    IsSpecRanged                        = 80, // Is spec - ranged? {$Yes/No}{=1}
+    IsSpecHealer                        = 81, // Is spec - healer? {$Yes/No}{=1}
+    IsPlayerControlledNPC               = 82, // Is player controlled NPC? {$Yes/No}{=1}
+    IsDying                             = 83, // Is dying? {$Yes/No}{=1}
+    PathFailCount                       = 84, // NYI Path fail count {$Relative Op} {#Path Fail Count}
+    IsMounted                           = 85, // Is mounted? {$Yes/No}{=1}
+    Label                               = 86, // NYI Label {$Is/Is Not} "{Label}"
+    IsMySummon                          = 87, //
+    IsSummoner                          = 88, //
+    IsMyTarget                          = 89, //
+    Sex                                 = 90, // Sex {$Is/Is Not} "{UnitSex}"
+    LevelWithinContentTuning            = 91, // Level is within {$Is/Is Not} {ContentTuning}
+
+    IsFlying                            = 93, // Is flying? {$Yes/No}{=1}
+    IsHovering                          = 94, // Is hovering? {$Yes/No}{=1}
+    HasHelpfulAuraEffect                = 95, // Has helpful aura effect? {$Yes/No} "{#Spell Aura}"
+    HasHelpfulAuraSchool                = 96, // Has helpful aura school? {$Yes/No} "{Resistances}"
 };
 
 enum VehicleSeatFlags
@@ -1743,6 +2007,7 @@ enum WorldStateExpressionFunctions
     WSE_FUNCTION_UNK35,
     WSE_FUNCTION_UNK36,
     WSE_FUNCTION_UI_WIDGET_DATA,
+    WSE_FUNCTION_UNK38,
 
     WSE_FUNCTION_MAX,
 };

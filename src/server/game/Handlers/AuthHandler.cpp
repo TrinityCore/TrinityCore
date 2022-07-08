@@ -20,6 +20,7 @@
 #include "BattlenetRpcErrorCodes.h"
 #include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
+#include "DisableMgr.h"
 #include "GameTime.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
@@ -34,7 +35,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 
     if (code == ERROR_OK)
     {
-        response.SuccessInfo = boost::in_place();
+        response.SuccessInfo.emplace();
 
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
@@ -49,18 +50,22 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
                 response.SuccessInfo->Templates.push_back(&templ.second);
 
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+
+        // TEMPORARY - prevent creating characters in uncompletable zone
+        // This has the side effect of disabling Exile's Reach choice clientside without actually forcing character templates
+        response.SuccessInfo->ForceCharacterTemplate = DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, 2175 /*Exile's Reach*/, nullptr);
     }
 
     if (queued)
     {
-        response.WaitInfo = boost::in_place();
+        response.WaitInfo.emplace();
         response.WaitInfo->WaitCount = queuePos;
     }
 
     SendPacket(response.Write());
 }
 
-void WorldSession::SendAuthWaitQue(uint32 position)
+void WorldSession::SendAuthWaitQueue(uint32 position)
 {
     if (position)
     {

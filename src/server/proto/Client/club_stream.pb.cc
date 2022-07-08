@@ -37,6 +37,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Stream_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Stream_reflection_ = NULL;
+const ::google::protobuf::Descriptor* StreamDescription_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  StreamDescription_reflection_ = NULL;
 const ::google::protobuf::Descriptor* MentionContent_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MentionContent_reflection_ = NULL;
@@ -78,7 +81,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
   StreamTypingIndicator_reflection_ = NULL;
 
 }  // namespace
-
 
 void protobuf_AssignDesc_club_5fstream_2eproto() {
   protobuf_AddDesc_club_5fstream_2eproto();
@@ -157,7 +159,23 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Stream));
-  MentionContent_descriptor_ = file->message_type(4);
+  StreamDescription_descriptor_ = file->message_type(4);
+  static const int StreamDescription_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamDescription, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamDescription, name_),
+  };
+  StreamDescription_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      StreamDescription_descriptor_,
+      StreamDescription::default_instance_,
+      StreamDescription_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamDescription, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamDescription, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(StreamDescription));
+  MentionContent_descriptor_ = file->message_type(5);
   static const int MentionContent_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MentionContent, all_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MentionContent, here_),
@@ -175,7 +193,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MentionContent));
-  CreateMessageOptions_descriptor_ = file->message_type(5);
+  CreateMessageOptions_descriptor_ = file->message_type(6);
   static const int CreateMessageOptions_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMessageOptions, content_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMessageOptions, mention_),
@@ -191,7 +209,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateMessageOptions));
-  ClubStreamMessageContainer_descriptor_ = file->message_type(6);
+  ClubStreamMessageContainer_descriptor_ = file->message_type(7);
   static const int ClubStreamMessageContainer_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStreamMessageContainer, message_),
   };
@@ -206,7 +224,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubStreamMessageContainer));
-  ContentChain_descriptor_ = file->message_type(7);
+  ContentChain_descriptor_ = file->message_type(8);
   static const int ContentChain_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ContentChain, content_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ContentChain, embed_),
@@ -224,7 +242,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ContentChain));
-  StreamMessage_descriptor_ = file->message_type(8);
+  StreamMessage_descriptor_ = file->message_type(9);
   static const int StreamMessage_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMessage, author_),
@@ -244,7 +262,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMessage));
-  StreamMention_descriptor_ = file->message_type(9);
+  StreamMention_descriptor_ = file->message_type(10);
   static const int StreamMention_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, stream_id_),
@@ -266,7 +284,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMention));
-  StreamView_descriptor_ = file->message_type(10);
+  StreamView_descriptor_ = file->message_type(11);
   static const int StreamView_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamView, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamView, stream_id_),
@@ -283,7 +301,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamView));
-  StreamAdvanceViewTime_descriptor_ = file->message_type(11);
+  StreamAdvanceViewTime_descriptor_ = file->message_type(12);
   static const int StreamAdvanceViewTime_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamAdvanceViewTime, stream_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamAdvanceViewTime, view_time_),
@@ -299,7 +317,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamAdvanceViewTime));
-  StreamEventTime_descriptor_ = file->message_type(12);
+  StreamEventTime_descriptor_ = file->message_type(13);
   static const int StreamEventTime_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamEventTime, stream_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamEventTime, event_time_),
@@ -315,7 +333,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamEventTime));
-  StreamMentionView_descriptor_ = file->message_type(13);
+  StreamMentionView_descriptor_ = file->message_type(14);
   static const int StreamMentionView_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionView, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionView, stream_id_),
@@ -332,7 +350,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMentionView));
-  StreamStateOptions_descriptor_ = file->message_type(14);
+  StreamStateOptions_descriptor_ = file->message_type(15);
   static const int StreamStateOptions_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamStateOptions, attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamStateOptions, name_),
@@ -351,7 +369,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamStateOptions));
-  StreamStateAssignment_descriptor_ = file->message_type(15);
+  StreamStateAssignment_descriptor_ = file->message_type(16);
   static const int StreamStateAssignment_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamStateAssignment, stream_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamStateAssignment, attribute_),
@@ -372,7 +390,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamStateAssignment));
-  StreamTypingIndicator_descriptor_ = file->message_type(16);
+  StreamTypingIndicator_descriptor_ = file->message_type(17);
   static const int StreamTypingIndicator_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamTypingIndicator, author_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamTypingIndicator, indicator_),
@@ -409,6 +427,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     CreateStreamOptions_descriptor_, &CreateStreamOptions::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Stream_descriptor_, &Stream::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    StreamDescription_descriptor_, &StreamDescription::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MentionContent_descriptor_, &MentionContent::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -448,6 +468,8 @@ void protobuf_ShutdownFile_club_5fstream_2eproto() {
   delete CreateStreamOptions_reflection_;
   delete Stream::default_instance_;
   delete Stream_reflection_;
+  delete StreamDescription::default_instance_;
+  delete StreamDescription_reflection_;
   delete MentionContent::default_instance_;
   delete MentionContent_reflection_;
   delete CreateMessageOptions::default_instance_;
@@ -508,63 +530,65 @@ void protobuf_AddDesc_club_5fstream_2eproto() {
     "\001(\t\0222\n\006access\030\006 \001(\0132\".bgs.protocol.club."
     "v1.StreamAccess\022;\n\013voice_level\030\007 \001(\0162&.b"
     "gs.protocol.club.v1.StreamVoiceLevel\022\025\n\r"
-    "creation_time\030\010 \001(\004\"p\n\016MentionContent\022\013\n"
-    "\003all\030\001 \001(\010\022\014\n\004here\030\002 \001(\010\0221\n\tmember_id\030\003 "
-    "\003(\0132\036.bgs.protocol.club.v1.MemberId\022\020\n\004r"
-    "ole\030\004 \003(\rB\002\020\001\"^\n\024CreateMessageOptions\022\017\n"
-    "\007content\030\002 \001(\t\0225\n\007mention\030\003 \001(\0132$.bgs.pr"
-    "otocol.club.v1.MentionContent\"R\n\032ClubStr"
-    "eamMessageContainer\0224\n\007message\030\001 \003(\0132#.b"
-    "gs.protocol.club.v1.StreamMessage\"\221\001\n\014Co"
-    "ntentChain\022\017\n\007content\030\005 \001(\t\022&\n\005embed\030\006 \003"
-    "(\0132\027.bgs.protocol.EmbedInfo\0225\n\007mention\030\007"
-    " \001(\0132$.bgs.protocol.club.v1.MentionConte"
-    "nt\022\021\n\tedit_time\030\010 \001(\004\"\215\002\n\rStreamMessage\022"
-    "#\n\002id\030\003 \001(\0132\027.bgs.protocol.MessageId\0227\n\006"
-    "author\030\004 \001(\0132\'.bgs.protocol.club.v1.Memb"
-    "erDescription\0229\n\rcontent_chain\030\006 \003(\0132\".b"
-    "gs.protocol.club.v1.ContentChain\022:\n\tdest"
-    "royer\030\017 \001(\0132\'.bgs.protocol.club.v1.Membe"
-    "rDescription\022\021\n\tdestroyed\030\020 \001(\010\022\024\n\014destr"
-    "oy_time\030\021 \001(\004\"\305\002\n\rStreamMention\022\017\n\007club_"
-    "id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022+\n\nmessage_i"
-    "d\030\003 \001(\0132\027.bgs.protocol.MessageId\0227\n\006auth"
-    "or\030\004 \001(\0132\'.bgs.protocol.club.v1.MemberDe"
-    "scription\022\021\n\tdestroyed\030\005 \001(\010\022.\n\nmention_"
-    "id\030\006 \001(\0132\032.bgs.protocol.TimeSeriesId\0221\n\t"
-    "member_id\030\007 \001(\0132\036.bgs.protocol.club.v1.M"
-    "emberId\0224\n\007message\030\010 \001(\0132#.bgs.protocol."
-    "club.v1.StreamMessage\"Z\n\nStreamView\022\017\n\007c"
-    "lub_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022(\n\006marke"
-    "r\030\003 \001(\0132\030.bgs.protocol.ViewMarker\"=\n\025Str"
-    "eamAdvanceViewTime\022\021\n\tstream_id\030\001 \001(\004\022\021\n"
-    "\tview_time\030\002 \001(\004\"8\n\017StreamEventTime\022\021\n\ts"
-    "tream_id\030\001 \001(\004\022\022\n\nevent_time\030\002 \001(\004\"a\n\021St"
-    "reamMentionView\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstre"
-    "am_id\030\002 \001(\004\022(\n\006marker\030\003 \001(\0132\030.bgs.protoc"
-    "ol.ViewMarker\"\323\001\n\022StreamStateOptions\022-\n\t"
-    "attribute\030\001 \003(\0132\032.bgs.protocol.v2.Attrib"
-    "ute\022\014\n\004name\030\002 \001(\t\022\017\n\007subject\030\003 \001(\t\0222\n\006ac"
-    "cess\030\004 \001(\0132\".bgs.protocol.club.v1.Stream"
-    "Access\022;\n\013voice_level\030\005 \001(\0162&.bgs.protoc"
-    "ol.club.v1.StreamVoiceLevel\"\216\002\n\025StreamSt"
-    "ateAssignment\022\021\n\tstream_id\030\001 \001(\004\022-\n\tattr"
-    "ibute\030\002 \003(\0132\032.bgs.protocol.v2.Attribute\022"
-    "\014\n\004name\030\003 \001(\t\022\017\n\007subject\030\004 \001(\t\0222\n\006access"
-    "\030\005 \001(\0132\".bgs.protocol.club.v1.StreamAcce"
-    "ss\022#\n\033stream_subscription_removed\030\006 \001(\010\022"
-    ";\n\013voice_level\030\007 \001(\0162&.bgs.protocol.club"
-    ".v1.StreamVoiceLevel\"\213\001\n\025StreamTypingInd"
-    "icator\0221\n\tauthor_id\030\001 \001(\0132\036.bgs.protocol"
-    ".club.v1.MemberId\0220\n\tindicator\030\002 \001(\0162\035.b"
-    "gs.protocol.TypingIndicator\022\r\n\005epoch\030\003 \001"
-    "(\004B\002H\001", 2726);
+    "creation_time\030\010 \001(\004\"-\n\021StreamDescription"
+    "\022\n\n\002id\030\002 \001(\004\022\014\n\004name\030\004 \001(\t\"p\n\016MentionCon"
+    "tent\022\013\n\003all\030\001 \001(\010\022\014\n\004here\030\002 \001(\010\0221\n\tmembe"
+    "r_id\030\003 \003(\0132\036.bgs.protocol.club.v1.Member"
+    "Id\022\020\n\004role\030\004 \003(\rB\002\020\001\"^\n\024CreateMessageOpt"
+    "ions\022\017\n\007content\030\002 \001(\t\0225\n\007mention\030\003 \001(\0132$"
+    ".bgs.protocol.club.v1.MentionContent\"R\n\032"
+    "ClubStreamMessageContainer\0224\n\007message\030\001 "
+    "\003(\0132#.bgs.protocol.club.v1.StreamMessage"
+    "\"\221\001\n\014ContentChain\022\017\n\007content\030\005 \001(\t\022&\n\005em"
+    "bed\030\006 \003(\0132\027.bgs.protocol.EmbedInfo\0225\n\007me"
+    "ntion\030\007 \001(\0132$.bgs.protocol.club.v1.Menti"
+    "onContent\022\021\n\tedit_time\030\010 \001(\004\"\215\002\n\rStreamM"
+    "essage\022#\n\002id\030\003 \001(\0132\027.bgs.protocol.Messag"
+    "eId\0227\n\006author\030\004 \001(\0132\'.bgs.protocol.club."
+    "v1.MemberDescription\0229\n\rcontent_chain\030\006 "
+    "\003(\0132\".bgs.protocol.club.v1.ContentChain\022"
+    ":\n\tdestroyer\030\017 \001(\0132\'.bgs.protocol.club.v"
+    "1.MemberDescription\022\021\n\tdestroyed\030\020 \001(\010\022\024"
+    "\n\014destroy_time\030\021 \001(\004\"\305\002\n\rStreamMention\022\017"
+    "\n\007club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022+\n\nme"
+    "ssage_id\030\003 \001(\0132\027.bgs.protocol.MessageId\022"
+    "7\n\006author\030\004 \001(\0132\'.bgs.protocol.club.v1.M"
+    "emberDescription\022\021\n\tdestroyed\030\005 \001(\010\022.\n\nm"
+    "ention_id\030\006 \001(\0132\032.bgs.protocol.TimeSerie"
+    "sId\0221\n\tmember_id\030\007 \001(\0132\036.bgs.protocol.cl"
+    "ub.v1.MemberId\0224\n\007message\030\010 \001(\0132#.bgs.pr"
+    "otocol.club.v1.StreamMessage\"Z\n\nStreamVi"
+    "ew\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022("
+    "\n\006marker\030\003 \001(\0132\030.bgs.protocol.ViewMarker"
+    "\"=\n\025StreamAdvanceViewTime\022\021\n\tstream_id\030\001"
+    " \001(\004\022\021\n\tview_time\030\002 \001(\004\"8\n\017StreamEventTi"
+    "me\022\021\n\tstream_id\030\001 \001(\004\022\022\n\nevent_time\030\002 \001("
+    "\004\"a\n\021StreamMentionView\022\017\n\007club_id\030\001 \001(\004\022"
+    "\021\n\tstream_id\030\002 \001(\004\022(\n\006marker\030\003 \001(\0132\030.bgs"
+    ".protocol.ViewMarker\"\323\001\n\022StreamStateOpti"
+    "ons\022-\n\tattribute\030\001 \003(\0132\032.bgs.protocol.v2"
+    ".Attribute\022\014\n\004name\030\002 \001(\t\022\017\n\007subject\030\003 \001("
+    "\t\0222\n\006access\030\004 \001(\0132\".bgs.protocol.club.v1"
+    ".StreamAccess\022;\n\013voice_level\030\005 \001(\0162&.bgs"
+    ".protocol.club.v1.StreamVoiceLevel\"\216\002\n\025S"
+    "treamStateAssignment\022\021\n\tstream_id\030\001 \001(\004\022"
+    "-\n\tattribute\030\002 \003(\0132\032.bgs.protocol.v2.Att"
+    "ribute\022\014\n\004name\030\003 \001(\t\022\017\n\007subject\030\004 \001(\t\0222\n"
+    "\006access\030\005 \001(\0132\".bgs.protocol.club.v1.Str"
+    "eamAccess\022#\n\033stream_subscription_removed"
+    "\030\006 \001(\010\022;\n\013voice_level\030\007 \001(\0162&.bgs.protoc"
+    "ol.club.v1.StreamVoiceLevel\"\213\001\n\025StreamTy"
+    "pingIndicator\0221\n\tauthor_id\030\001 \001(\0132\036.bgs.p"
+    "rotocol.club.v1.MemberId\0220\n\tindicator\030\002 "
+    "\001(\0162\035.bgs.protocol.TypingIndicator\022\r\n\005ep"
+    "och\030\003 \001(\004B\002H\001", 2773);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_stream.proto", &protobuf_RegisterTypes);
   StreamPosition::default_instance_ = new StreamPosition();
   StreamAccess::default_instance_ = new StreamAccess();
   CreateStreamOptions::default_instance_ = new CreateStreamOptions();
   Stream::default_instance_ = new Stream();
+  StreamDescription::default_instance_ = new StreamDescription();
   MentionContent::default_instance_ = new MentionContent();
   CreateMessageOptions::default_instance_ = new CreateMessageOptions();
   ClubStreamMessageContainer::default_instance_ = new ClubStreamMessageContainer();
@@ -582,6 +606,7 @@ void protobuf_AddDesc_club_5fstream_2eproto() {
   StreamAccess::default_instance_->InitAsDefaultInstance();
   CreateStreamOptions::default_instance_->InitAsDefaultInstance();
   Stream::default_instance_->InitAsDefaultInstance();
+  StreamDescription::default_instance_->InitAsDefaultInstance();
   MentionContent::default_instance_->InitAsDefaultInstance();
   CreateMessageOptions::default_instance_->InitAsDefaultInstance();
   ClubStreamMessageContainer::default_instance_->InitAsDefaultInstance();
@@ -604,7 +629,6 @@ struct StaticDescriptorInitializer_club_5fstream_2eproto {
     protobuf_AddDesc_club_5fstream_2eproto();
   }
 } static_descriptor_initializer_club_5fstream_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -826,7 +850,6 @@ void StreamPosition::CopyFrom(const StreamPosition& from) {
 }
 
 bool StreamPosition::IsInitialized() const {
-
   return true;
 }
 
@@ -846,7 +869,6 @@ void StreamPosition::Swap(StreamPosition* other) {
   metadata.reflection = StreamPosition_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1069,7 +1091,6 @@ void StreamAccess::CopyFrom(const StreamAccess& from) {
 }
 
 bool StreamAccess::IsInitialized() const {
-
   return true;
 }
 
@@ -1089,7 +1110,6 @@ void StreamAccess::Swap(StreamAccess* other) {
   metadata.reflection = StreamAccess_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1498,7 +1518,6 @@ void CreateStreamOptions::CopyFrom(const CreateStreamOptions& from) {
 }
 
 bool CreateStreamOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -1522,7 +1541,6 @@ void CreateStreamOptions::Swap(CreateStreamOptions* other) {
   metadata.reflection = CreateStreamOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2056,7 +2074,6 @@ void Stream::CopyFrom(const Stream& from) {
 }
 
 bool Stream::IsInitialized() const {
-
   return true;
 }
 
@@ -2084,6 +2101,287 @@ void Stream::Swap(Stream* other) {
   return metadata;
 }
 
+// ===================================================================
+
+#ifndef _MSC_VER
+const int StreamDescription::kIdFieldNumber;
+const int StreamDescription::kNameFieldNumber;
+#endif  // !_MSC_VER
+
+StreamDescription::StreamDescription()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.StreamDescription)
+}
+
+void StreamDescription::InitAsDefaultInstance() {
+}
+
+StreamDescription::StreamDescription(const StreamDescription& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.StreamDescription)
+}
+
+void StreamDescription::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  id_ = GOOGLE_ULONGLONG(0);
+  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+StreamDescription::~StreamDescription() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.StreamDescription)
+  SharedDtor();
+}
+
+void StreamDescription::SharedDtor() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void StreamDescription::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* StreamDescription::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return StreamDescription_descriptor_;
+}
+
+const StreamDescription& StreamDescription::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_club_5fstream_2eproto();
+  return *default_instance_;
+}
+
+StreamDescription* StreamDescription::default_instance_ = NULL;
+
+StreamDescription* StreamDescription::New() const {
+  return new StreamDescription;
+}
+
+void StreamDescription::Clear() {
+  if (_has_bits_[0 / 32] & 3) {
+    id_ = GOOGLE_ULONGLONG(0);
+    if (has_name()) {
+      if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        name_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool StreamDescription::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.StreamDescription)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional uint64 id = 2;
+      case 2: {
+        if (tag == 16) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &id_)));
+          set_has_id();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(34)) goto parse_name;
+        break;
+      }
+
+      // optional string name = 4;
+      case 4: {
+        if (tag == 34) {
+         parse_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->name().data(), this->name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "name");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.StreamDescription)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.StreamDescription)
+  return false;
+#undef DO_
+}
+
+void StreamDescription::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.StreamDescription)
+  // optional uint64 id = 2;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->id(), output);
+  }
+
+  // optional string name = 4;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      4, this->name(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.StreamDescription)
+}
+
+::google::protobuf::uint8* StreamDescription::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.StreamDescription)
+  // optional uint64 id = 2;
+  if (has_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->id(), target);
+  }
+
+  // optional string name = 4;
+  if (has_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->name().data(), this->name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "name");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        4, this->name(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.StreamDescription)
+  return target;
+}
+
+int StreamDescription::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional uint64 id = 2;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->id());
+    }
+
+    // optional string name = 4;
+    if (has_name()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->name());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void StreamDescription::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const StreamDescription* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const StreamDescription*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void StreamDescription::MergeFrom(const StreamDescription& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_id()) {
+      set_id(from.id());
+    }
+    if (from.has_name()) {
+      set_name(from.name());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void StreamDescription::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void StreamDescription::CopyFrom(const StreamDescription& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool StreamDescription::IsInitialized() const {
+  return true;
+}
+
+void StreamDescription::Swap(StreamDescription* other) {
+  if (other != this) {
+    std::swap(id_, other->id_);
+    std::swap(name_, other->name_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata StreamDescription::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = StreamDescription_descriptor_;
+  metadata.reflection = StreamDescription_reflection_;
+  return metadata;
+}
 
 // ===================================================================
 
@@ -2433,7 +2731,6 @@ void MentionContent::CopyFrom(const MentionContent& from) {
 }
 
 bool MentionContent::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->member_id())) return false;
   return true;
 }
@@ -2457,7 +2754,6 @@ void MentionContent::Swap(MentionContent* other) {
   metadata.reflection = MentionContent_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2725,7 +3021,6 @@ void CreateMessageOptions::CopyFrom(const CreateMessageOptions& from) {
 }
 
 bool CreateMessageOptions::IsInitialized() const {
-
   if (has_mention()) {
     if (!this->mention().IsInitialized()) return false;
   }
@@ -2749,7 +3044,6 @@ void CreateMessageOptions::Swap(CreateMessageOptions* other) {
   metadata.reflection = CreateMessageOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2948,7 +3242,6 @@ void ClubStreamMessageContainer::CopyFrom(const ClubStreamMessageContainer& from
 }
 
 bool ClubStreamMessageContainer::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->message())) return false;
   return true;
 }
@@ -2969,7 +3262,6 @@ void ClubStreamMessageContainer::Swap(ClubStreamMessageContainer* other) {
   metadata.reflection = ClubStreamMessageContainer_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3313,7 +3605,6 @@ void ContentChain::CopyFrom(const ContentChain& from) {
 }
 
 bool ContentChain::IsInitialized() const {
-
   if (has_mention()) {
     if (!this->mention().IsInitialized()) return false;
   }
@@ -3339,7 +3630,6 @@ void ContentChain::Swap(ContentChain* other) {
   metadata.reflection = ContentChain_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3759,7 +4049,6 @@ void StreamMessage::CopyFrom(const StreamMessage& from) {
 }
 
 bool StreamMessage::IsInitialized() const {
-
   if (has_author()) {
     if (!this->author().IsInitialized()) return false;
   }
@@ -3791,7 +4080,6 @@ void StreamMessage::Swap(StreamMessage* other) {
   metadata.reflection = StreamMessage_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4297,7 +4585,6 @@ void StreamMention::CopyFrom(const StreamMention& from) {
 }
 
 bool StreamMention::IsInitialized() const {
-
   if (has_author()) {
     if (!this->author().IsInitialized()) return false;
   }
@@ -4333,7 +4620,6 @@ void StreamMention::Swap(StreamMention* other) {
   metadata.reflection = StreamMention_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4631,7 +4917,6 @@ void StreamView::CopyFrom(const StreamView& from) {
 }
 
 bool StreamView::IsInitialized() const {
-
   return true;
 }
 
@@ -4653,7 +4938,6 @@ void StreamView::Swap(StreamView* other) {
   metadata.reflection = StreamView_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4906,7 +5190,6 @@ void StreamAdvanceViewTime::CopyFrom(const StreamAdvanceViewTime& from) {
 }
 
 bool StreamAdvanceViewTime::IsInitialized() const {
-
   return true;
 }
 
@@ -4927,7 +5210,6 @@ void StreamAdvanceViewTime::Swap(StreamAdvanceViewTime* other) {
   metadata.reflection = StreamAdvanceViewTime_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5180,7 +5462,6 @@ void StreamEventTime::CopyFrom(const StreamEventTime& from) {
 }
 
 bool StreamEventTime::IsInitialized() const {
-
   return true;
 }
 
@@ -5201,7 +5482,6 @@ void StreamEventTime::Swap(StreamEventTime* other) {
   metadata.reflection = StreamEventTime_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5499,7 +5779,6 @@ void StreamMentionView::CopyFrom(const StreamMentionView& from) {
 }
 
 bool StreamMentionView::IsInitialized() const {
-
   return true;
 }
 
@@ -5521,7 +5800,6 @@ void StreamMentionView::Swap(StreamMentionView* other) {
   metadata.reflection = StreamMentionView_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5930,7 +6208,6 @@ void StreamStateOptions::CopyFrom(const StreamStateOptions& from) {
 }
 
 bool StreamStateOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -5954,7 +6231,6 @@ void StreamStateOptions::Swap(StreamStateOptions* other) {
   metadata.reflection = StreamStateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6449,7 +6725,6 @@ void StreamStateAssignment::CopyFrom(const StreamStateAssignment& from) {
 }
 
 bool StreamStateAssignment::IsInitialized() const {
-
   return true;
 }
 
@@ -6475,7 +6750,6 @@ void StreamStateAssignment::Swap(StreamStateAssignment* other) {
   metadata.reflection = StreamStateAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6779,7 +7053,6 @@ void StreamTypingIndicator::CopyFrom(const StreamTypingIndicator& from) {
 }
 
 bool StreamTypingIndicator::IsInitialized() const {
-
   if (has_author_id()) {
     if (!this->author_id().IsInitialized()) return false;
   }
@@ -6804,7 +7077,6 @@ void StreamTypingIndicator::Swap(StreamTypingIndicator* other) {
   metadata.reflection = StreamTypingIndicator_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

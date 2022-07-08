@@ -53,10 +53,10 @@ class boss_moira_bronzebeard : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                //_events.ScheduleEvent(EVENT_HEAL, 12000); // not used atm // These times are probably wrong
-                _events.ScheduleEvent(EVENT_MINDBLAST, 16000);
-                _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2000);
-                _events.ScheduleEvent(EVENT_SMITE, 8000);
+                //_events.ScheduleEvent(EVENT_HEAL, 12s); // not used atm // These times are probably wrong
+                _events.ScheduleEvent(EVENT_MINDBLAST, 16s);
+                _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 2s);
+                _events.ScheduleEvent(EVENT_SMITE, 8s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -72,15 +72,15 @@ class boss_moira_bronzebeard : public CreatureScript
                     {
                         case EVENT_MINDBLAST:
                             DoCastVictim(SPELL_MINDBLAST);
-                            _events.ScheduleEvent(EVENT_MINDBLAST, 14000);
+                            _events.ScheduleEvent(EVENT_MINDBLAST, 14s);
                             break;
                         case EVENT_SHADOW_WORD_PAIN:
                             DoCastVictim(SPELL_SHADOWWORDPAIN);
-                            _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 18000);
+                            _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 18s);
                             break;
                         case EVENT_SMITE:
                             DoCastVictim(SPELL_SMITE);
-                            _events.ScheduleEvent(EVENT_SMITE, 10000);
+                            _events.ScheduleEvent(EVENT_SMITE, 10s);
                             break;
                         default:
                             break;

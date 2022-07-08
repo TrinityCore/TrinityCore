@@ -19,7 +19,6 @@
 #include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
 /*####
@@ -71,14 +70,13 @@ public:
             me->setActive(true);
             me->SetFarVisible(true);
             me->SetVisible(false);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
 
             me->GetPosition(x, y, z);
             z += 4.0f;
             x -= 3.5f;
             y -= 5.0f;
-            me->GetMotionMaster()->Clear(false);
+            me->GetMotionMaster()->Clear();
             me->UpdatePosition(x, y, z, 0.0f);
         }
 
@@ -88,7 +86,7 @@ public:
             {
                 Player* player = nullptr;
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                         player = summoner->ToPlayer();
 
                 if (!player)

@@ -1,0 +1,28 @@
+diff --git a/dep/g3dlite/include/G3D/Vector3.h b/dep/g3dlite/include/G3D/Vector3.h
+index ef1e39d821..1c42513b45 100644
+--- a/dep/g3dlite/include/G3D/Vector3.h
++++ b/dep/g3dlite/include/G3D/Vector3.h
+@@ -128,7 +128,7 @@ public:
+     Axis primaryAxis() const;
+ 
+     // assignment and comparison
+-    Vector3& __fastcall operator= (const Vector3& rkVector);
++    Vector3& operator=(const Vector3& rkVector) = default;
+     Vector3& operator=(const Any& a);
+     bool operator== (const Vector3& rkVector) const;
+     bool operator!= (const Vector3& rkVector) const;
+@@ -627,14 +627,6 @@ inline float& Vector3::operator[] (int i) {
+ }
+ 
+ 
+-//----------------------------------------------------------------------------
+-inline Vector3& Vector3::operator= (const Vector3& rkVector) {
+-    x = rkVector.x;
+-    y = rkVector.y;
+-    z = rkVector.z;
+-    return *this;
+-}
+-
+ //----------------------------------------------------------------------------
+ 
+ inline bool Vector3::fuzzyEq(const Vector3& other) const {

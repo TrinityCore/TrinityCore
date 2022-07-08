@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 
+class Creature;
 class GameObject;
 class Player;
 class Quest;
@@ -31,13 +32,29 @@ class Unit;
 class WorldObject;
 enum class QuestGiverStatus : uint32;
 
+namespace WorldPackets
+{
+    namespace Battleground
+    {
+        enum class BattlegroundCapturePointState : uint8;
+    }
+}
+
 class TC_GAME_API GameObjectAI
 {
+    private:
+        // Script Id
+        uint32 const _scriptId;
+
     protected:
         GameObject* const me;
+
     public:
-        explicit GameObjectAI(GameObject* g) : me(g) { }
+        explicit GameObjectAI(GameObject* go, uint32 scriptId = {});
         virtual ~GameObjectAI() { }
+
+        // Gets the id of the AI (script id)
+        uint32 GetId() const { return _scriptId; }
 
         virtual void UpdateAI(uint32 /*diff*/) { }
 
@@ -56,19 +73,19 @@ class TC_GAME_API GameObjectAI
         virtual Optional<QuestGiverStatus> GetDialogStatus(Player* player);
 
         // Called when a player opens a gossip dialog with the gameobject.
-        virtual bool GossipHello(Player* /*player*/) { return false; }
+        virtual bool OnGossipHello(Player* /*player*/) { return false; }
 
         // Called when a player selects a gossip item in the gameobject's gossip menu.
-        virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
+        virtual bool OnGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
 
         // Called when a player selects a gossip with a code in the gameobject's gossip menu.
-        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
+        virtual bool OnGossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
 
         // Called when a player accepts a quest from the gameobject.
-        virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+        virtual void OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
 
         // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) { }
+        virtual void OnQuestReward(Player* /*player*/, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) { }
 
         // Called when a Player clicks a GameObject, before GossipHello
         // prevents achievement tracking if returning true
@@ -88,18 +105,27 @@ class TC_GAME_API GameObjectAI
         virtual void EventInform(uint32 /*eventId*/) { }
 
         // Called when hit by a spell
-        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spellInfo*/) { }
-        virtual void SpellHit(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHit(WorldObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
-        virtual void SpellHitTarget(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when the gameobject summon successfully other creature
+        virtual void JustSummoned(Creature* /*summon*/) { }
+
+        virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
+        virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
+
+        // Called when the capture point gets assaulted by a player. Return true to disable default behaviour.
+        virtual bool OnCapturePointAssaulted(Player* /*player*/) { return false; }
+        // Called when the capture point state gets updated. Return true to disable default behaviour.
+        virtual bool OnCapturePointUpdated(WorldPackets::Battleground::BattlegroundCapturePointState /*state*/) { return false; }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI
 {
     public:
-        explicit NullGameObjectAI(GameObject* g);
+        using GameObjectAI::GameObjectAI;
 
         void UpdateAI(uint32 /*diff*/) override { }
 

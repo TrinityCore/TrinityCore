@@ -21,6 +21,7 @@
 #include "MovementGenerator.h"
 #include "MoveSplineInit.h"
 #include "Timer.h"
+#include <functional>
 
 class Unit;
 
@@ -29,22 +30,23 @@ enum MovementGeneratorType : uint8;
 class GenericMovementGenerator : public MovementGenerator
 {
     public:
-        explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty)
-            : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0), _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
+        explicit GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id,
+            uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty);
 
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override;
-        void Reset(Unit*) override { }
+        void Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return _type; }
 
     private:
         void MovementInform(Unit*);
 
-        Movement::MoveSplineInit _splineInit;
+        std::function<void(Movement::MoveSplineInit& init)> _splineInit;
         MovementGeneratorType _type;
         uint32 _pointId;
-        TimeTrackerSmall _duration;
+        TimeTracker _duration;
 
         uint32 _arrivalSpellId;
         ObjectGuid _arrivalSpellTargetGuid;

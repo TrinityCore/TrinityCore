@@ -12,7 +12,7 @@ else()
       -xSSE2)
 endif()
 
-if( WITH_WARNINGS )
+if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface
     INTERFACE
       -w1)
@@ -20,7 +20,7 @@ if( WITH_WARNINGS )
   message(STATUS "ICC: All warnings enabled")
 endif()
 
-if( WITH_COREDEBUG )
+if(WITH_COREDEBUG)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -g)

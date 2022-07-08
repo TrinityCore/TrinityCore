@@ -25,18 +25,22 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatCommand.h"
+#include "Creature.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "ReputationMgr.h"
-#include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "UpdateFields.h"
 #include "WorldSession.h"
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class modify_commandscript : public CommandScript
 {
@@ -264,10 +268,10 @@ public:
         handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, std::to_string(npcflag).c_str(), dyflag);
 
         target->SetFaction(factionid);
-        target->SetUnitFlags(UnitFlags(flag));
-        target->SetNpcFlags(NPCFlags(npcflag & 0xFFFFFFFF));
-        target->SetNpcFlags2(NPCFlags2(npcflag >> 32));
-        target->SetDynamicFlags(dyflag);
+        target->ReplaceAllUnitFlags(UnitFlags(flag));
+        target->ReplaceAllNpcFlags(NPCFlags(npcflag & 0xFFFFFFFF));
+        target->ReplaceAllNpcFlags2(NPCFlags2(npcflag >> 32));
+        target->ReplaceAllDynamicFlags(dyflag);
 
         return true;
     }
@@ -566,11 +570,16 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        int64 moneyToAdd = 0;
+        Optional<int64> moneyToAddO = 0;
         if (strchr(args, 'g') || strchr(args, 's') || strchr(args, 'c'))
-            moneyToAdd = MoneyStringToMoney(std::string(args));
+            moneyToAddO = MoneyStringToMoney(std::string(args));
         else
-            moneyToAdd = atoll(args);
+            moneyToAddO = Trinity::StringTo<int64>(args);
+
+        if (!moneyToAddO)
+            return false;
+
+        int64 moneyToAdd = *moneyToAddO;
 
         uint64 targetMoney = target->GetMoney();
 
@@ -702,7 +711,7 @@ public:
 
         amount = atoi(rankTxt);
         // try to find rank by name
-        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit(rankTxt[0]))
+        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit((unsigned char)rankTxt[0]))
         {
             std::string rankStr = rankTxt;
             std::wstring wrankStr;
@@ -734,7 +743,7 @@ public:
 
             if (rankThresholdItr == end)
             {
-                handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, rankTxt);
+                handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, rankTxt);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -868,7 +877,7 @@ public:
             return false;
         }
 
-        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->getRace(), target->getClass());
+        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->GetRace(), target->GetClass());
         if (!info)
             return false;
 
@@ -879,14 +888,14 @@ public:
 
         if (!strncmp(gender_str, "male", gender_len))            // MALE
         {
-            if (target->getGender() == GENDER_MALE)
+            if (target->GetGender() == GENDER_MALE)
                 return true;
 
             gender = GENDER_MALE;
         }
         else if (!strncmp(gender_str, "female", gender_len))    // FEMALE
         {
-            if (target->getGender() == GENDER_FEMALE)
+            if (target->GetGender() == GENDER_FEMALE)
                 return true;
 
             gender = GENDER_FEMALE;
@@ -900,7 +909,7 @@ public:
 
         // Set gender
         target->SetGender(gender);
-        target->SetNativeSex(gender);
+        target->SetNativeGender(gender);
 
         // Change display ID
         target->InitDisplayIds();
@@ -911,8 +920,8 @@ public:
         // Generate random customizations
         std::vector<UF::ChrCustomizationChoice> customizations;
 
-        Classes playerClass = Classes(target->getClass());
-        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->getRace(), gender);
+        Classes playerClass = Classes(target->GetClass());
+        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->GetRace(), gender);
         WorldSession const* worldSession = target->GetSession();
         for (ChrCustomizationOptionEntry const* option : *options)
         {

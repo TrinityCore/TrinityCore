@@ -18,11 +18,8 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "SupportMgr.h"
 #include "TicketPackets.h"
-#include "Util.h"
 
 void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& /*packet*/)
 {
@@ -78,7 +75,9 @@ void WorldSession::HandleSupportTicketSubmitComplaint(WorldPackets::Ticket::Supp
     comp->SetFacing(packet.Header.Facing);
     comp->SetChatLog(packet.ChatLog);
     comp->SetTargetCharacterGuid(packet.TargetCharacterGUID);
-    comp->SetComplaintType(GMSupportComplaintType(packet.ComplaintType));
+    comp->SetReportType(ReportType(packet.ReportType));
+    comp->SetMajorCategory(ReportMajorCategory(packet.MajorCategory));
+    comp->SetMinorCategoryFlags(ReportMinorCategory(packet.MinorCategoryFlags));
     comp->SetNote(packet.Note);
 
     sSupportMgr->AddTicket(comp);

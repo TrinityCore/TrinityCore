@@ -18,7 +18,6 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_GOMove_commandscript();
 
-
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()

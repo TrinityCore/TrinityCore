@@ -33,11 +33,11 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 struct SubmitReportRequestOneofInstance {
   const ::bgs::protocol::report::v2::UserOptions* user_options_;
   const ::bgs::protocol::report::v2::ClubOptions* club_options_;
+  const ::bgs::protocol::report::v2::EntityOptions* entity_options_;
 }* SubmitReportRequest_default_oneof_instance_ = NULL;
 const ::google::protobuf::ServiceDescriptor* ReportService_descriptor_ = NULL;
 
 }  // namespace
-
 
 void protobuf_AssignDesc_api_2fclient_2fv2_2freport_5fservice_2eproto() {
   protobuf_AddDesc_api_2fclient_2fv2_2freport_5fservice_2eproto();
@@ -49,9 +49,9 @@ void protobuf_AssignDesc_api_2fclient_2fv2_2freport_5fservice_2eproto() {
   static const int SubmitReportRequest_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubmitReportRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubmitReportRequest, user_description_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubmitReportRequest, program_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(SubmitReportRequest_default_oneof_instance_, user_options_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(SubmitReportRequest_default_oneof_instance_, club_options_),
+    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(SubmitReportRequest_default_oneof_instance_, entity_options_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubmitReportRequest, type_),
   };
   SubmitReportRequest_reflection_ =
@@ -105,18 +105,19 @@ void protobuf_AddDesc_api_2fclient_2fv2_2freport_5fservice_2eproto() {
     "\n\"api/client/v2/report_service.proto\022\026bg"
     "s.protocol.report.v2\032\023account_types.prot"
     "o\032 api/client/v2/report_types.proto\032\017rpc"
-    "_types.proto\"\200\002\n\023SubmitReportRequest\0224\n\010"
+    "_types.proto\"\250\002\n\023SubmitReportRequest\0224\n\010"
     "agent_id\030\001 \001(\0132\".bgs.protocol.account.v1"
-    ".AccountId\022\030\n\020user_description\030\002 \001(\t\022\017\n\007"
-    "program\030\003 \001(\r\022;\n\014user_options\030\n \001(\0132#.bg"
-    "s.protocol.report.v2.UserOptionsH\000\022;\n\014cl"
-    "ub_options\030\013 \001(\0132#.bgs.protocol.report.v"
-    "2.ClubOptionsH\000:\006\202\371+\002\020\001B\006\n\004type2\245\001\n\rRepo"
+    ".AccountId\022\030\n\020user_description\030\002 \001(\t\022;\n\014"
+    "user_options\030\n \001(\0132#.bgs.protocol.report"
+    ".v2.UserOptionsH\000\022;\n\014club_options\030\013 \001(\0132"
+    "#.bgs.protocol.report.v2.ClubOptionsH\000\022\?"
+    "\n\016entity_options\030\024 \001(\0132%.bgs.protocol.re"
+    "port.v2.EntityOptionsH\000B\006\n\004type2\245\001\n\rRepo"
     "rtService\022Y\n\014SubmitReport\022+.bgs.protocol"
     ".report.v2.SubmitReportRequest\032\024.bgs.pro"
     "tocol.NoData\"\006\202\371+\002\010\001\0329\202\371+/\n%bnet.protoco"
     "l.report.v2.ReportService*\006report\212\371+\002\020\001B"
-    "\005H\001\200\001\000", 566);
+    "\005H\001\200\001\000", 606);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v2/report_service.proto", &protobuf_RegisterTypes);
   SubmitReportRequest::default_instance_ = new SubmitReportRequest();
@@ -131,15 +132,14 @@ struct StaticDescriptorInitializer_api_2fclient_2fv2_2freport_5fservice_2eproto 
     protobuf_AddDesc_api_2fclient_2fv2_2freport_5fservice_2eproto();
   }
 } static_descriptor_initializer_api_2fclient_2fv2_2freport_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
 const int SubmitReportRequest::kAgentIdFieldNumber;
 const int SubmitReportRequest::kUserDescriptionFieldNumber;
-const int SubmitReportRequest::kProgramFieldNumber;
 const int SubmitReportRequest::kUserOptionsFieldNumber;
 const int SubmitReportRequest::kClubOptionsFieldNumber;
+const int SubmitReportRequest::kEntityOptionsFieldNumber;
 #endif  // !_MSC_VER
 
 SubmitReportRequest::SubmitReportRequest()
@@ -152,6 +152,7 @@ void SubmitReportRequest::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   SubmitReportRequest_default_oneof_instance_->user_options_ = const_cast< ::bgs::protocol::report::v2::UserOptions*>(&::bgs::protocol::report::v2::UserOptions::default_instance());
   SubmitReportRequest_default_oneof_instance_->club_options_ = const_cast< ::bgs::protocol::report::v2::ClubOptions*>(&::bgs::protocol::report::v2::ClubOptions::default_instance());
+  SubmitReportRequest_default_oneof_instance_->entity_options_ = const_cast< ::bgs::protocol::report::v2::EntityOptions*>(&::bgs::protocol::report::v2::EntityOptions::default_instance());
 }
 
 SubmitReportRequest::SubmitReportRequest(const SubmitReportRequest& from)
@@ -166,7 +167,6 @@ void SubmitReportRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
   user_description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  program_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   clear_has_type();
 }
@@ -219,6 +219,10 @@ void SubmitReportRequest::clear_type() {
       delete type_.club_options_;
       break;
     }
+    case kEntityOptions: {
+      delete type_.entity_options_;
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
@@ -226,9 +230,8 @@ void SubmitReportRequest::clear_type() {
   _oneof_case_[0] = TYPE_NOT_SET;
 }
 
-
 void SubmitReportRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
@@ -237,7 +240,6 @@ void SubmitReportRequest::Clear() {
         user_description_->clear();
       }
     }
-    program_ = 0u;
   }
   clear_type();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -250,7 +252,7 @@ bool SubmitReportRequest::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:bgs.protocol.report.v2.SubmitReportRequest)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(16383);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -279,21 +281,6 @@ bool SubmitReportRequest::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(24)) goto parse_program;
-        break;
-      }
-
-      // optional uint32 program = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_program:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &program_)));
-          set_has_program();
-        } else {
-          goto handle_unusual;
-        }
         if (input->ExpectTag(82)) goto parse_user_options;
         break;
       }
@@ -317,6 +304,19 @@ bool SubmitReportRequest::MergePartialFromCodedStream(
          parse_club_options:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_club_options()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(162)) goto parse_entity_options;
+        break;
+      }
+
+      // optional .bgs.protocol.report.v2.EntityOptions entity_options = 20;
+      case 20: {
+        if (tag == 162) {
+         parse_entity_options:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_entity_options()));
         } else {
           goto handle_unusual;
         }
@@ -365,11 +365,6 @@ void SubmitReportRequest::SerializeWithCachedSizes(
       2, this->user_description(), output);
   }
 
-  // optional uint32 program = 3;
-  if (has_program()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->program(), output);
-  }
-
   // optional .bgs.protocol.report.v2.UserOptions user_options = 10;
   if (has_user_options()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -380,6 +375,12 @@ void SubmitReportRequest::SerializeWithCachedSizes(
   if (has_club_options()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       11, this->club_options(), output);
+  }
+
+  // optional .bgs.protocol.report.v2.EntityOptions entity_options = 20;
+  if (has_entity_options()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      20, this->entity_options(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -410,11 +411,6 @@ void SubmitReportRequest::SerializeWithCachedSizes(
         2, this->user_description(), target);
   }
 
-  // optional uint32 program = 3;
-  if (has_program()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->program(), target);
-  }
-
   // optional .bgs.protocol.report.v2.UserOptions user_options = 10;
   if (has_user_options()) {
     target = ::google::protobuf::internal::WireFormatLite::
@@ -427,6 +423,13 @@ void SubmitReportRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         11, this->club_options(), target);
+  }
+
+  // optional .bgs.protocol.report.v2.EntityOptions entity_options = 20;
+  if (has_entity_options()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        20, this->entity_options(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -455,13 +458,6 @@ int SubmitReportRequest::ByteSize() const {
           this->user_description());
     }
 
-    // optional uint32 program = 3;
-    if (has_program()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->program());
-    }
-
   }
   switch (type_case()) {
     // optional .bgs.protocol.report.v2.UserOptions user_options = 10;
@@ -476,6 +472,13 @@ int SubmitReportRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->club_options());
+      break;
+    }
+    // optional .bgs.protocol.report.v2.EntityOptions entity_options = 20;
+    case kEntityOptions: {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->entity_options());
       break;
     }
     case TYPE_NOT_SET: {
@@ -516,6 +519,10 @@ void SubmitReportRequest::MergeFrom(const SubmitReportRequest& from) {
       mutable_club_options()->::bgs::protocol::report::v2::ClubOptions::MergeFrom(from.club_options());
       break;
     }
+    case kEntityOptions: {
+      mutable_entity_options()->::bgs::protocol::report::v2::EntityOptions::MergeFrom(from.entity_options());
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
@@ -526,9 +533,6 @@ void SubmitReportRequest::MergeFrom(const SubmitReportRequest& from) {
     }
     if (from.has_user_description()) {
       set_user_description(from.user_description());
-    }
-    if (from.has_program()) {
-      set_program(from.program());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -547,7 +551,6 @@ void SubmitReportRequest::CopyFrom(const SubmitReportRequest& from) {
 }
 
 bool SubmitReportRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -561,7 +564,6 @@ void SubmitReportRequest::Swap(SubmitReportRequest* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
     std::swap(user_description_, other->user_description_);
-    std::swap(program_, other->program_);
     std::swap(type_, other->type_);
     std::swap(_oneof_case_[0], other->_oneof_case_[0]);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
@@ -577,7 +579,6 @@ void SubmitReportRequest::Swap(SubmitReportRequest* other) {
   metadata.reflection = SubmitReportRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -632,7 +633,6 @@ uint32 ReportService::HandleSubmitReport(::bgs::protocol::report::v2::SubmitRepo
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

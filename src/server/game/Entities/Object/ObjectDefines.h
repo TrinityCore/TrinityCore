@@ -42,6 +42,8 @@
 #define NOMINAL_MELEE_RANGE                 5.0f
 #define MELEE_RANGE                         (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
 
+#define EXTRA_CELL_SEARCH_RADIUS            40.0f // We need in some cases increase search radius. Allow to find creatures with huge combat reach in a different nearby cell.
+
 enum class VisibilityDistanceType : uint8
 {
     Normal      = 0,
@@ -64,12 +66,6 @@ enum TempSummonType
     TEMPSUMMON_CORPSE_TIMED_DESPAWN        = 6,             // despawns after a specified time after death
     TEMPSUMMON_DEAD_DESPAWN                = 7,             // despawns when the creature disappears
     TEMPSUMMON_MANUAL_DESPAWN              = 8              // despawns when UnSummon() is called
-};
-
-enum PhaseMasks
-{
-    PHASEMASK_NORMAL   = 0x00000001,
-    PHASEMASK_ANYWHERE = 0xFFFFFFFF
 };
 
 enum NotifyFlags

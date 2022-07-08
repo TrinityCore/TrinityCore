@@ -93,376 +93,352 @@ enum Stanges
 ## boss_bjarngrim
 ######*/
 
-class boss_bjarngrim : public CreatureScript
+struct boss_bjarngrim : public ScriptedAI
 {
-public:
-    boss_bjarngrim() : CreatureScript("boss_bjarngrim") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    boss_bjarngrim(Creature* creature) : ScriptedAI(creature)
     {
-        return GetHallsOfLightningAI<boss_bjarngrimAI>(creature);
+        Initialize();
+        instance = creature->GetInstanceScript();
+        m_uiStance = STANCE_DEFENSIVE;
+        canBuff = true;
     }
 
-    struct boss_bjarngrimAI : public ScriptedAI
+    void Initialize()
     {
-        boss_bjarngrimAI(Creature* creature) : ScriptedAI(creature)
+        m_bIsChangingStance = false;
+
+        m_uiChargingStatus = 0;
+        m_uiCharge_Timer = 1000;
+
+        m_uiChangeStance_Timer = urand(20000, 25000);
+
+        m_uiReflection_Timer = 8000;
+        m_uiKnockAway_Timer = 20000;
+        m_uiPummel_Timer = 10000;
+        m_uiIronform_Timer = 25000;
+
+        m_uiIntercept_Timer = 5000;
+        m_uiWhirlwind_Timer = 10000;
+        m_uiCleave_Timer = 8000;
+
+        m_uiMortalStrike_Timer = 8000;
+        m_uiSlam_Timer = 10000;
+    }
+
+    InstanceScript* instance;
+
+    bool m_bIsChangingStance;
+    bool canBuff;
+
+    uint8 m_uiChargingStatus;
+    uint8 m_uiStance;
+
+    uint32 m_uiCharge_Timer;
+    uint32 m_uiChangeStance_Timer;
+
+    uint32 m_uiReflection_Timer;
+    uint32 m_uiKnockAway_Timer;
+    uint32 m_uiPummel_Timer;
+    uint32 m_uiIronform_Timer;
+
+    uint32 m_uiIntercept_Timer;
+    uint32 m_uiWhirlwind_Timer;
+    uint32 m_uiCleave_Timer;
+
+    uint32 m_uiMortalStrike_Timer;
+    uint32 m_uiSlam_Timer;
+
+    ObjectGuid m_auiStormforgedLieutenantGUID[2];
+
+    void Reset() override
+    {
+        if (canBuff)
+            if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
+
+        Initialize();
+
+        for (uint8 i = 0; i < 2; ++i)
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
+            // Something isn't right here - m_auiStormforgedLieutenantGUID is never assinged to
+            if (Creature* pStormforgedLieutenant = ObjectAccessor::GetCreature(*me, m_auiStormforgedLieutenantGUID[i]))
+                if (!pStormforgedLieutenant->IsAlive())
+                    pStormforgedLieutenant->Respawn();
+        }
+
+        if (m_uiStance != STANCE_DEFENSIVE)
+        {
+            DoRemoveStanceAura(m_uiStance);
+            DoCast(me, SPELL_DEFENSIVE_STANCE);
             m_uiStance = STANCE_DEFENSIVE;
+        }
+
+        SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
+
+        instance->SetBossState(DATA_BJARNGRIM, NOT_STARTED);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
             canBuff = true;
-        }
+        else
+            canBuff = false;
 
-        void Initialize()
+        ScriptedAI::EnterEvadeMode(why);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_AGGRO);
+
+        //must get both lieutenants here and make sure they are with him
+        me->CallForHelp(30.0f);
+
+        instance->SetBossState(DATA_BJARNGRIM, IN_PROGRESS);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+
+        instance->SetBossState(DATA_BJARNGRIM, DONE);
+    }
+
+    /// @todo remove when removal is done by the core
+    void DoRemoveStanceAura(uint8 uiStance)
+    {
+        switch (uiStance)
         {
-            m_bIsChangingStance = false;
-
-            m_uiChargingStatus = 0;
-            m_uiCharge_Timer = 1000;
-
-            m_uiChangeStance_Timer = urand(20000, 25000);
-
-            m_uiReflection_Timer = 8000;
-            m_uiKnockAway_Timer = 20000;
-            m_uiPummel_Timer = 10000;
-            m_uiIronform_Timer = 25000;
-
-            m_uiIntercept_Timer = 5000;
-            m_uiWhirlwind_Timer = 10000;
-            m_uiCleave_Timer = 8000;
-
-            m_uiMortalStrike_Timer = 8000;
-            m_uiSlam_Timer = 10000;
+            case STANCE_DEFENSIVE:
+                me->RemoveAurasDueToSpell(SPELL_DEFENSIVE_STANCE);
+                break;
+            case STANCE_BERSERKER:
+                me->RemoveAurasDueToSpell(SPELL_BERSEKER_STANCE);
+                break;
+            case STANCE_BATTLE:
+                me->RemoveAurasDueToSpell(SPELL_BATTLE_STANCE);
+                break;
         }
+    }
 
-        InstanceScript* instance;
+    void UpdateAI(uint32 uiDiff) override
+    {
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
 
-        bool m_bIsChangingStance;
-        bool canBuff;
-
-        uint8 m_uiChargingStatus;
-        uint8 m_uiStance;
-
-        uint32 m_uiCharge_Timer;
-        uint32 m_uiChangeStance_Timer;
-
-        uint32 m_uiReflection_Timer;
-        uint32 m_uiKnockAway_Timer;
-        uint32 m_uiPummel_Timer;
-        uint32 m_uiIronform_Timer;
-
-        uint32 m_uiIntercept_Timer;
-        uint32 m_uiWhirlwind_Timer;
-        uint32 m_uiCleave_Timer;
-
-        uint32 m_uiMortalStrike_Timer;
-        uint32 m_uiSlam_Timer;
-
-        ObjectGuid m_auiStormforgedLieutenantGUID[2];
-
-        void Reset() override
+        // Change stance
+        if (m_uiChangeStance_Timer <= uiDiff)
         {
-            if (canBuff)
-                if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
-                    me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
-
-            Initialize();
-
-            for (uint8 i = 0; i < 2; ++i)
-            {
-                // Something isn't right here - m_auiStormforgedLieutenantGUID is never assinged to
-                if (Creature* pStormforgedLieutenant = ObjectAccessor::GetCreature(*me, m_auiStormforgedLieutenantGUID[i]))
-                    if (!pStormforgedLieutenant->IsAlive())
-                        pStormforgedLieutenant->Respawn();
-            }
-
-            if (m_uiStance != STANCE_DEFENSIVE)
-            {
-                DoRemoveStanceAura(m_uiStance);
-                DoCast(me, SPELL_DEFENSIVE_STANCE);
-                m_uiStance = STANCE_DEFENSIVE;
-            }
-
-            SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
-
-            instance->SetBossState(DATA_BJARNGRIM, NOT_STARTED);
-        }
-
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
-                canBuff = true;
-            else
-                canBuff = false;
-
-            ScriptedAI::EnterEvadeMode(why);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-
-            //must get both lieutenants here and make sure they are with him
-            me->CallForHelp(30.0f);
-
-            instance->SetBossState(DATA_BJARNGRIM, IN_PROGRESS);
-        }
-
-        void KilledUnit(Unit* /*victim*/) override
-        {
-            Talk(SAY_SLAY);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-
-            instance->SetBossState(DATA_BJARNGRIM, DONE);
-        }
-
-        /// @todo remove when removal is done by the core
-        void DoRemoveStanceAura(uint8 uiStance)
-        {
-            switch (uiStance)
-            {
-                case STANCE_DEFENSIVE:
-                    me->RemoveAurasDueToSpell(SPELL_DEFENSIVE_STANCE);
-                    break;
-                case STANCE_BERSERKER:
-                    me->RemoveAurasDueToSpell(SPELL_BERSEKER_STANCE);
-                    break;
-                case STANCE_BATTLE:
-                    me->RemoveAurasDueToSpell(SPELL_BATTLE_STANCE);
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
+            //wait for current spell to finish before change stance
+            if (me->IsNonMeleeSpellCast(false))
                 return;
 
-            // Change stance
-            if (m_uiChangeStance_Timer <= uiDiff)
-            {
-                //wait for current spell to finish before change stance
-                if (me->IsNonMeleeSpellCast(false))
-                    return;
+            DoRemoveStanceAura(m_uiStance);
 
-                DoRemoveStanceAura(m_uiStance);
+            int uiTempStance = rand32() % (3 - 1);
 
-                int uiTempStance = rand32() % (3 - 1);
+            if (uiTempStance >= m_uiStance)
+                ++uiTempStance;
 
-                if (uiTempStance >= m_uiStance)
-                    ++uiTempStance;
-
-                m_uiStance = uiTempStance;
-
-                switch (m_uiStance)
-                {
-                    case STANCE_DEFENSIVE:
-                        Talk(SAY_DEFENSIVE_STANCE);
-                        Talk(EMOTE_DEFENSIVE_STANCE);
-                        DoCast(me, SPELL_DEFENSIVE_STANCE);
-                        SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
-                        break;
-                    case STANCE_BERSERKER:
-                        Talk(SAY_BERSEKER_STANCE);
-                        Talk(EMOTE_BERSEKER_STANCE);
-                        DoCast(me, SPELL_BERSEKER_STANCE);
-                        SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SWORD, EQUIP_NO_CHANGE);
-                        break;
-                    case STANCE_BATTLE:
-                        Talk(SAY_BATTLE_STANCE);
-                        Talk(EMOTE_BATTLE_STANCE);
-                        DoCast(me, SPELL_BATTLE_STANCE);
-                        SetEquipmentSlots(false, EQUIP_MACE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-                        break;
-                }
-
-                m_uiChangeStance_Timer = urand(20000, 25000);
-                return;
-            }
-            else
-                m_uiChangeStance_Timer -= uiDiff;
+            m_uiStance = uiTempStance;
 
             switch (m_uiStance)
             {
                 case STANCE_DEFENSIVE:
-                {
-                    if (m_uiReflection_Timer <= uiDiff)
-                    {
-                        DoCast(me, SPELL_SPELL_REFLECTION);
-                        m_uiReflection_Timer = urand(8000, 9000);
-                    }
-                    else
-                        m_uiReflection_Timer -= uiDiff;
-
-                    if (m_uiKnockAway_Timer <= uiDiff)
-                    {
-                        DoCast(me, SPELL_KNOCK_AWAY);
-                        m_uiKnockAway_Timer = urand(20000, 21000);
-                    }
-                    else
-                        m_uiKnockAway_Timer -= uiDiff;
-
-                    if (m_uiPummel_Timer <= uiDiff)
-                    {
-                        DoCastVictim(SPELL_PUMMEL);
-                        m_uiPummel_Timer = urand(10000, 11000);
-                    }
-                    else
-                        m_uiPummel_Timer -= uiDiff;
-
-                    if (m_uiIronform_Timer <= uiDiff)
-                    {
-                        DoCast(me, SPELL_IRONFORM);
-                        m_uiIronform_Timer = urand(25000, 26000);
-                    }
-                    else
-                        m_uiIronform_Timer -= uiDiff;
-
+                    Talk(SAY_DEFENSIVE_STANCE);
+                    Talk(EMOTE_DEFENSIVE_STANCE);
+                    DoCast(me, SPELL_DEFENSIVE_STANCE);
+                    SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
                     break;
-                }
                 case STANCE_BERSERKER:
-                {
-                    if (m_uiIntercept_Timer <= uiDiff)
-                    {
-                        //not much point is this, better random target and more often?
-                        DoCastVictim(SPELL_INTERCEPT);
-                        m_uiIntercept_Timer = urand(45000, 46000);
-                    }
-                    else
-                        m_uiIntercept_Timer -= uiDiff;
-
-                    if (m_uiWhirlwind_Timer <= uiDiff)
-                    {
-                        DoCast(me, SPELL_WHIRLWIND);
-                        m_uiWhirlwind_Timer = urand(10000, 11000);
-                    }
-                    else
-                        m_uiWhirlwind_Timer -= uiDiff;
-
-                    if (m_uiCleave_Timer <= uiDiff)
-                    {
-                        DoCastVictim(SPELL_CLEAVE);
-                        m_uiCleave_Timer = urand(8000, 9000);
-                    }
-                    else
-                        m_uiCleave_Timer -= uiDiff;
-
+                    Talk(SAY_BERSEKER_STANCE);
+                    Talk(EMOTE_BERSEKER_STANCE);
+                    DoCast(me, SPELL_BERSEKER_STANCE);
+                    SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SWORD, EQUIP_NO_CHANGE);
                     break;
-                }
                 case STANCE_BATTLE:
-                {
-                    if (m_uiMortalStrike_Timer <= uiDiff)
-                    {
-                        DoCastVictim(SPELL_MORTAL_STRIKE);
-                        m_uiMortalStrike_Timer = urand(20000, 21000);
-                    }
-                    else
-                        m_uiMortalStrike_Timer -= uiDiff;
-
-                    if (m_uiSlam_Timer <= uiDiff)
-                    {
-                        DoCastVictim(SPELL_SLAM);
-                        m_uiSlam_Timer = urand(15000, 16000);
-                    }
-                    else
-                        m_uiSlam_Timer -= uiDiff;
-
+                    Talk(SAY_BATTLE_STANCE);
+                    Talk(EMOTE_BATTLE_STANCE);
+                    DoCast(me, SPELL_BATTLE_STANCE);
+                    SetEquipmentSlots(false, EQUIP_MACE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                     break;
-                }
             }
 
-            DoMeleeAttackIfReady();
+            m_uiChangeStance_Timer = urand(20000, 25000);
+            return;
         }
-    };
+        else
+            m_uiChangeStance_Timer -= uiDiff;
 
+        switch (m_uiStance)
+        {
+            case STANCE_DEFENSIVE:
+            {
+                if (m_uiReflection_Timer <= uiDiff)
+                {
+                    DoCast(me, SPELL_SPELL_REFLECTION);
+                    m_uiReflection_Timer = urand(8000, 9000);
+                }
+                else
+                    m_uiReflection_Timer -= uiDiff;
+
+                if (m_uiKnockAway_Timer <= uiDiff)
+                {
+                    DoCast(me, SPELL_KNOCK_AWAY);
+                    m_uiKnockAway_Timer = urand(20000, 21000);
+                }
+                else
+                    m_uiKnockAway_Timer -= uiDiff;
+
+                if (m_uiPummel_Timer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_PUMMEL);
+                    m_uiPummel_Timer = urand(10000, 11000);
+                }
+                else
+                    m_uiPummel_Timer -= uiDiff;
+
+                if (m_uiIronform_Timer <= uiDiff)
+                {
+                    DoCast(me, SPELL_IRONFORM);
+                    m_uiIronform_Timer = urand(25000, 26000);
+                }
+                else
+                    m_uiIronform_Timer -= uiDiff;
+
+                break;
+            }
+            case STANCE_BERSERKER:
+            {
+                if (m_uiIntercept_Timer <= uiDiff)
+                {
+                    //not much point is this, better random target and more often?
+                    DoCastVictim(SPELL_INTERCEPT);
+                    m_uiIntercept_Timer = urand(45000, 46000);
+                }
+                else
+                    m_uiIntercept_Timer -= uiDiff;
+
+                if (m_uiWhirlwind_Timer <= uiDiff)
+                {
+                    DoCast(me, SPELL_WHIRLWIND);
+                    m_uiWhirlwind_Timer = urand(10000, 11000);
+                }
+                else
+                    m_uiWhirlwind_Timer -= uiDiff;
+
+                if (m_uiCleave_Timer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_CLEAVE);
+                    m_uiCleave_Timer = urand(8000, 9000);
+                }
+                else
+                    m_uiCleave_Timer -= uiDiff;
+
+                break;
+            }
+            case STANCE_BATTLE:
+            {
+                if (m_uiMortalStrike_Timer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_MORTAL_STRIKE);
+                    m_uiMortalStrike_Timer = urand(20000, 21000);
+                }
+                else
+                    m_uiMortalStrike_Timer -= uiDiff;
+
+                if (m_uiSlam_Timer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_SLAM);
+                    m_uiSlam_Timer = urand(15000, 16000);
+                }
+                else
+                    m_uiSlam_Timer -= uiDiff;
+
+                break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 /*######
 ## npc_stormforged_lieutenant
 ######*/
 
-class npc_stormforged_lieutenant : public CreatureScript
+struct npc_stormforged_lieutenant : public ScriptedAI
 {
-public:
-    npc_stormforged_lieutenant() : CreatureScript("npc_stormforged_lieutenant") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    npc_stormforged_lieutenant(Creature* creature) : ScriptedAI(creature)
     {
-        return GetHallsOfLightningAI<npc_stormforged_lieutenantAI>(creature);
+        Initialize();
+        instance = creature->GetInstanceScript();
     }
 
-    struct npc_stormforged_lieutenantAI : public ScriptedAI
+    void Initialize()
     {
-        npc_stormforged_lieutenantAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
+        m_uiArcWeld_Timer = urand(20000, 21000);
+        m_uiRenewSteel_Timer = urand(10000, 11000);
+    }
 
-        void Initialize()
+    InstanceScript* instance;
+
+    uint32 m_uiArcWeld_Timer;
+    uint32 m_uiRenewSteel_Timer;
+
+    void Reset() override
+    {
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
         {
+            if (pBjarngrim->IsAlive() && !pBjarngrim->GetVictim())
+                pBjarngrim->AI()->AttackStart(who);
+        }
+    }
+
+    void UpdateAI(uint32 uiDiff) override
+    {
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        if (m_uiArcWeld_Timer <= uiDiff)
+        {
+            DoCastVictim(SPELL_ARC_WELD);
             m_uiArcWeld_Timer = urand(20000, 21000);
-            m_uiRenewSteel_Timer = urand(10000, 11000);
         }
+        else
+            m_uiArcWeld_Timer -= uiDiff;
 
-        InstanceScript* instance;
-
-        uint32 m_uiArcWeld_Timer;
-        uint32 m_uiRenewSteel_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* who) override
+        if (m_uiRenewSteel_Timer <= uiDiff)
         {
             if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
             {
-                if (pBjarngrim->IsAlive() && !pBjarngrim->GetVictim())
-                    pBjarngrim->AI()->AttackStart(who);
+                if (pBjarngrim->IsAlive())
+                    DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
             }
+            m_uiRenewSteel_Timer = urand(10000, 14000);
         }
+        else
+            m_uiRenewSteel_Timer -= uiDiff;
 
-        void UpdateAI(uint32 uiDiff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (m_uiArcWeld_Timer <= uiDiff)
-            {
-                DoCastVictim(SPELL_ARC_WELD);
-                m_uiArcWeld_Timer = urand(20000, 21000);
-            }
-            else
-                m_uiArcWeld_Timer -= uiDiff;
-
-            if (m_uiRenewSteel_Timer <= uiDiff)
-            {
-                if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
-                {
-                    if (pBjarngrim->IsAlive())
-                        DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
-                }
-                m_uiRenewSteel_Timer = urand(10000, 14000);
-            }
-            else
-                m_uiRenewSteel_Timer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_bjarngrim()
 {
-    new boss_bjarngrim();
-    new npc_stormforged_lieutenant();
+    RegisterHallsOfLightningCreatureAI(boss_bjarngrim);
+    RegisterHallsOfLightningCreatureAI(npc_stormforged_lieutenant);
 }

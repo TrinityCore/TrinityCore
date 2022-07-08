@@ -111,7 +111,7 @@ void CASC_SOCKET::Release()
 
 int CASC_SOCKET::GetSockError()
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
     return WSAGetLastError();
 #else
     return errno;
@@ -134,7 +134,7 @@ DWORD CASC_SOCKET::GetAddrInfoWrapper(const char * hostName, unsigned portNum, P
         // Error-specific handling
         switch(dwErrCode)
         {
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
             case WSANOTINITIALISED:     // Windows-specific: WSAStartup not called
             {
                 WSADATA wsd;

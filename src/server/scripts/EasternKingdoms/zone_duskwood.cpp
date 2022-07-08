@@ -74,8 +74,8 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(YELL_TWILIGHT_CORRUPTOR_AGGRO);
-            _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15000);
-            _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 30000);
+            _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15s);
+            _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 30s);
         }
 
         void KilledUnit(Unit* victim) override
@@ -109,12 +109,12 @@ public:
                 {
                     case EVENT_SOUL_CORRUPTION:
                         DoCastAOE(SPELL_SOUL_CORRUPTION);
-                        _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, urand(15000, 19000));
+                        _events.ScheduleEvent(EVENT_SOUL_CORRUPTION, 15s, 19s);
                         break;
                     case EVENT_CREATURE_OF_NIGHTMARE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             DoCast(target, SPELL_CREATURE_OF_NIGHTMARE);
-                        _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 45000);
+                        _events.ScheduleEvent(EVENT_CREATURE_OF_NIGHTMARE, 45s);
                         break;
                     default:
                         break;
@@ -146,11 +146,11 @@ class at_twilight_grove : public AreaTriggerScript
     public:
         at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (player->GetQuestStatus(QUEST_NIGHTMARES_CORRUPTION) == QUEST_STATUS_INCOMPLETE)
                 if (!player->FindNearestCreature(NPC_TWILIGHT_CORRUPTER, 500.0f, true))
-                    if (Creature* corrupter = player->SummonCreature(NPC_TWILIGHT_CORRUPTER, TwillightCorrupter, TEMPSUMMON_MANUAL_DESPAWN, 60000))
+                    if (Creature* corrupter = player->SummonCreature(NPC_TWILIGHT_CORRUPTER, TwillightCorrupter, TEMPSUMMON_MANUAL_DESPAWN, 1min))
                         corrupter->AI()->Talk(YELL_TWILIGHT_CORRUPTOR_RESPAWN, player);
 
             return false;

@@ -43,7 +43,9 @@ void WaypointMgr::Load()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
-        float o = fields[5].GetFloat();
+        Optional<float> o;
+        if (!fields[5].IsNull())
+            o = fields[5].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
@@ -84,10 +86,6 @@ WaypointMgr* WaypointMgr::instance()
 
 void WaypointMgr::ReloadPath(uint32 id)
 {
-    auto itr = _waypointStore.find(id);
-    if (itr != _waypointStore.end())
-        _waypointStore.erase(itr);
-
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
 
     stmt->setUInt32(0, id);
@@ -104,7 +102,9 @@ void WaypointMgr::ReloadPath(uint32 id)
         float x = fields[1].GetFloat();
         float y = fields[2].GetFloat();
         float z = fields[3].GetFloat();
-        float o = fields[4].GetFloat();
+        Optional<float> o;
+        if (!fields[4].IsNull())
+            o = fields[4].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
@@ -131,7 +131,9 @@ void WaypointMgr::ReloadPath(uint32 id)
     }
     while (result->NextRow());
 
-    _waypointStore[id] = WaypointPath(id, std::move(values));
+    WaypointPath& path = _waypointStore[id];
+    path.id = id;
+    path.nodes = std::move(values);
 }
 
 WaypointPath const* WaypointMgr::GetPath(uint32 id) const

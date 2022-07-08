@@ -62,7 +62,6 @@ const ::google::protobuf::ServiceDescriptor* ClubMembershipService_descriptor_ =
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto() {
   protobuf_AddDesc_club_5fmembership_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -297,61 +296,62 @@ void protobuf_AddDesc_club_5fmembership_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\035club_membership_service.proto\022\037bgs.pro"
     "tocol.club.v1.membership\032\020club_types.pro"
-    "to\032\021club_stream.proto\"\217\001\n\020SubscribeReque"
-    "st\0224\n\010agent_id\030\001 \001(\0132\".bgs.protocol.acco"
-    "unt.v1.AccountId\022E\n\007options\030\002 \001(\01324.bgs."
-    "protocol.club.v1.ClubMembershipSubscribe"
-    "Options\"M\n\021SubscribeResponse\0228\n\005state\030\001 "
-    "\001(\0132).bgs.protocol.club.v1.ClubMembershi"
-    "pState\"J\n\022UnsubscribeRequest\0224\n\010agent_id"
-    "\030\001 \001(\0132\".bgs.protocol.account.v1.Account"
-    "Id\"\215\001\n\017GetStateRequest\0224\n\010agent_id\030\001 \001(\013"
-    "2\".bgs.protocol.account.v1.AccountId\022D\n\007"
-    "options\030\002 \001(\01323.bgs.protocol.club.v1.Clu"
-    "bMembershipGetStateOptions\"L\n\020GetStateRe"
-    "sponse\0228\n\005state\030\001 \001(\0132).bgs.protocol.clu"
-    "b.v1.ClubMembershipState\"\231\001\n\037UpdateClubS"
-    "haredSettingsRequest\0224\n\010agent_id\030\001 \001(\0132\""
-    ".bgs.protocol.account.v1.AccountId\022@\n\007op"
-    "tions\030\002 \001(\0132/.bgs.protocol.club.v1.ClubS"
-    "haredSettingsOptions\"\230\001\n\030GetStreamMentio"
-    "nsRequest\0224\n\010agent_id\030\001 \001(\0132\".bgs.protoc"
-    "ol.account.v1.AccountId\022.\n\007options\030\002 \001(\013"
+    "to\032\021club_stream.proto\"\227\001\n\020SubscribeReque"
+    "st\022<\n\010agent_id\030\001 \001(\0132\".bgs.protocol.acco"
+    "unt.v1.AccountIdB\006\202\371+\002\020\001\022E\n\007options\030\002 \001("
+    "\01324.bgs.protocol.club.v1.ClubMembershipS"
+    "ubscribeOptions\"M\n\021SubscribeResponse\0228\n\005"
+    "state\030\001 \001(\0132).bgs.protocol.club.v1.ClubM"
+    "embershipState\"R\n\022UnsubscribeRequest\022<\n\010"
+    "agent_id\030\001 \001(\0132\".bgs.protocol.account.v1"
+    ".AccountIdB\006\202\371+\002\020\001\"\225\001\n\017GetStateRequest\022<"
+    "\n\010agent_id\030\001 \001(\0132\".bgs.protocol.account."
+    "v1.AccountIdB\006\202\371+\002\020\001\022D\n\007options\030\002 \001(\01323."
+    "bgs.protocol.club.v1.ClubMembershipGetSt"
+    "ateOptions\"L\n\020GetStateResponse\0228\n\005state\030"
+    "\001 \001(\0132).bgs.protocol.club.v1.ClubMembers"
+    "hipState\"\241\001\n\037UpdateClubSharedSettingsReq"
+    "uest\022<\n\010agent_id\030\001 \001(\0132\".bgs.protocol.ac"
+    "count.v1.AccountIdB\006\202\371+\002\020\001\022@\n\007options\030\002 "
+    "\001(\0132/.bgs.protocol.club.v1.ClubSharedSet"
+    "tingsOptions\"\240\001\n\030GetStreamMentionsReques"
+    "t\022<\n\010agent_id\030\001 \001(\0132\".bgs.protocol.accou"
+    "nt.v1.AccountIdB\006\202\371+\002\020\001\022.\n\007options\030\002 \001(\013"
     "2\035.bgs.protocol.GetEventOptions\022\026\n\016fetch"
     "_messages\030\003 \001(\010\"g\n\031GetStreamMentionsResp"
     "onse\0224\n\007mention\030\001 \003(\0132#.bgs.protocol.clu"
     "b.v1.StreamMention\022\024\n\014continuation\030\002 \001(\004"
-    "\"\203\001\n\033RemoveStreamMentionsRequest\0224\n\010agen"
+    "\"\213\001\n\033RemoveStreamMentionsRequest\022<\n\010agen"
     "t_id\030\001 \001(\0132\".bgs.protocol.account.v1.Acc"
-    "ountId\022.\n\nmention_id\030\002 \003(\0132\032.bgs.protoco"
-    "l.TimeSeriesId\"[\n#AdvanceStreamMentionVi"
-    "ewTimeRequest\0224\n\010agent_id\030\001 \001(\0132\".bgs.pr"
-    "otocol.account.v1.AccountId2\304\007\n\025ClubMemb"
-    "ershipService\022z\n\tSubscribe\0221.bgs.protoco"
-    "l.club.v1.membership.SubscribeRequest\0322."
-    "bgs.protocol.club.v1.membership.Subscrib"
-    "eResponse\"\006\202\371+\002\010\001\022`\n\013Unsubscribe\0223.bgs.p"
-    "rotocol.club.v1.membership.UnsubscribeRe"
-    "quest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\002\022w\n\010G"
-    "etState\0220.bgs.protocol.club.v1.membershi"
-    "p.GetStateRequest\0321.bgs.protocol.club.v1"
-    ".membership.GetStateResponse\"\006\202\371+\002\010\003\022z\n\030"
-    "UpdateClubSharedSettings\022@.bgs.protocol."
-    "club.v1.membership.UpdateClubSharedSetti"
-    "ngsRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\004"
-    "\022\222\001\n\021GetStreamMentions\0229.bgs.protocol.cl"
-    "ub.v1.membership.GetStreamMentionsReques"
-    "t\032:.bgs.protocol.club.v1.membership.GetS"
-    "treamMentionsResponse\"\006\202\371+\002\010\005\022r\n\024RemoveS"
-    "treamMentions\022<.bgs.protocol.club.v1.mem"
-    "bership.RemoveStreamMentionsRequest\032\024.bg"
-    "s.protocol.NoData\"\006\202\371+\002\010\006\022\202\001\n\034AdvanceStr"
-    "eamMentionViewTime\022D.bgs.protocol.club.v"
-    "1.membership.AdvanceStreamMentionViewTim"
-    "eRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\007\032J"
-    "\202\371+>\n+bnet.protocol.club.v1.ClubMembersh"
-    "ipService*\017club_membership\212\371+\004\020\001\030\001B\005H\001\200\001"
-    "\000", 2241);
+    "ountIdB\006\202\371+\002\020\001\022.\n\nmention_id\030\002 \003(\0132\032.bgs"
+    ".protocol.TimeSeriesId\"c\n#AdvanceStreamM"
+    "entionViewTimeRequest\022<\n\010agent_id\030\001 \001(\0132"
+    "\".bgs.protocol.account.v1.AccountIdB\006\202\371+"
+    "\002\020\0012\310\007\n\025ClubMembershipService\022z\n\tSubscri"
+    "be\0221.bgs.protocol.club.v1.membership.Sub"
+    "scribeRequest\0322.bgs.protocol.club.v1.mem"
+    "bership.SubscribeResponse\"\006\202\371+\002\010\001\022`\n\013Uns"
+    "ubscribe\0223.bgs.protocol.club.v1.membersh"
+    "ip.UnsubscribeRequest\032\024.bgs.protocol.NoD"
+    "ata\"\006\202\371+\002\010\002\022y\n\010GetState\0220.bgs.protocol.c"
+    "lub.v1.membership.GetStateRequest\0321.bgs."
+    "protocol.club.v1.membership.GetStateResp"
+    "onse\"\010\202\371+\004\010\0030\001\022z\n\030UpdateClubSharedSettin"
+    "gs\022@.bgs.protocol.club.v1.membership.Upd"
+    "ateClubSharedSettingsRequest\032\024.bgs.proto"
+    "col.NoData\"\006\202\371+\002\010\004\022\224\001\n\021GetStreamMentions"
+    "\0229.bgs.protocol.club.v1.membership.GetSt"
+    "reamMentionsRequest\032:.bgs.protocol.club."
+    "v1.membership.GetStreamMentionsResponse\""
+    "\010\202\371+\004\010\0050\001\022r\n\024RemoveStreamMentions\022<.bgs."
+    "protocol.club.v1.membership.RemoveStream"
+    "MentionsRequest\032\024.bgs.protocol.NoData\"\006\202"
+    "\371+\002\010\006\022\202\001\n\034AdvanceStreamMentionViewTime\022D"
+    ".bgs.protocol.club.v1.membership.Advance"
+    "StreamMentionViewTimeRequest\032\024.bgs.proto"
+    "col.NoData\"\006\202\371+\002\010\007\032J\202\371+>\n+bnet.protocol."
+    "club.v1.ClubMembershipService*\017club_memb"
+    "ership\212\371+\004\020\001\030\001B\005H\001\200\001\000", 2301);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -383,7 +383,6 @@ struct StaticDescriptorInitializer_club_5fmembership_5fservice_2eproto {
     protobuf_AddDesc_club_5fmembership_5fservice_2eproto();
   }
 } static_descriptor_initializer_club_5fmembership_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -634,7 +633,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 }
 
 bool SubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -661,7 +659,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -868,7 +865,6 @@ void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
 }
 
 bool SubscribeResponse::IsInitialized() const {
-
   if (has_state()) {
     if (!this->state().IsInitialized()) return false;
   }
@@ -891,7 +887,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
   metadata.reflection = SubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1098,7 +1093,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 }
 
 bool UnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1121,7 +1115,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1373,7 +1366,6 @@ void GetStateRequest::CopyFrom(const GetStateRequest& from) {
 }
 
 bool GetStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1400,7 +1392,6 @@ void GetStateRequest::Swap(GetStateRequest* other) {
   metadata.reflection = GetStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1607,7 +1598,6 @@ void GetStateResponse::CopyFrom(const GetStateResponse& from) {
 }
 
 bool GetStateResponse::IsInitialized() const {
-
   if (has_state()) {
     if (!this->state().IsInitialized()) return false;
   }
@@ -1630,7 +1620,6 @@ void GetStateResponse::Swap(GetStateResponse* other) {
   metadata.reflection = GetStateResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1882,7 +1871,6 @@ void UpdateClubSharedSettingsRequest::CopyFrom(const UpdateClubSharedSettingsReq
 }
 
 bool UpdateClubSharedSettingsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1906,7 +1894,6 @@ void UpdateClubSharedSettingsRequest::Swap(UpdateClubSharedSettingsRequest* othe
   metadata.reflection = UpdateClubSharedSettingsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2194,7 +2181,6 @@ void GetStreamMentionsRequest::CopyFrom(const GetStreamMentionsRequest& from) {
 }
 
 bool GetStreamMentionsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2219,7 +2205,6 @@ void GetStreamMentionsRequest::Swap(GetStreamMentionsRequest* other) {
   metadata.reflection = GetStreamMentionsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2460,7 +2445,6 @@ void GetStreamMentionsResponse::CopyFrom(const GetStreamMentionsResponse& from) 
 }
 
 bool GetStreamMentionsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->mention())) return false;
   return true;
 }
@@ -2482,7 +2466,6 @@ void GetStreamMentionsResponse::Swap(GetStreamMentionsResponse* other) {
   metadata.reflection = GetStreamMentionsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2727,7 +2710,6 @@ void RemoveStreamMentionsRequest::CopyFrom(const RemoveStreamMentionsRequest& fr
 }
 
 bool RemoveStreamMentionsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2751,7 +2733,6 @@ void RemoveStreamMentionsRequest::Swap(RemoveStreamMentionsRequest* other) {
   metadata.reflection = RemoveStreamMentionsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2958,7 +2939,6 @@ void AdvanceStreamMentionViewTimeRequest::CopyFrom(const AdvanceStreamMentionVie
 }
 
 bool AdvanceStreamMentionViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2981,7 +2961,6 @@ void AdvanceStreamMentionViewTimeRequest::Swap(AdvanceStreamMentionViewTimeReque
   metadata.reflection = AdvanceStreamMentionViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3228,7 +3207,6 @@ uint32 ClubMembershipService::HandleAdvanceStreamMentionViewTime(::bgs::protocol
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -20,9 +20,11 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 
 #define SPEED_CHARGE 42.0f // assume it is 25 yard per 0.6 second
 
+// EnumUtils: DESCRIBE THIS
 enum MovementGeneratorType : uint8
 {
     IDLE_MOTION_TYPE                = 0,     // IdleMovementGenerator.h
@@ -30,36 +32,41 @@ enum MovementGeneratorType : uint8
     WAYPOINT_MOTION_TYPE            = 2,     // WaypointMovementGenerator.h
     MAX_DB_MOTION_TYPE              = 3,     // Below motion types can't be set in DB.
     CONFUSED_MOTION_TYPE            = 4,     // ConfusedMovementGenerator.h
-    CHASE_MOTION_TYPE               = 5,     // TargetedMovementGenerator.h
+    CHASE_MOTION_TYPE               = 5,     // ChaseMovementGenerator.h
     HOME_MOTION_TYPE                = 6,     // HomeMovementGenerator.h
-    FLIGHT_MOTION_TYPE              = 7,     // WaypointMovementGenerator.h
+    FLIGHT_MOTION_TYPE              = 7,     // FlightPathMovementGenerator.h
     POINT_MOTION_TYPE               = 8,     // PointMovementGenerator.h
     FLEEING_MOTION_TYPE             = 9,     // FleeingMovementGenerator.h
     DISTRACT_MOTION_TYPE            = 10,    // IdleMovementGenerator.h
     ASSISTANCE_MOTION_TYPE          = 11,    // PointMovementGenerator.h
     ASSISTANCE_DISTRACT_MOTION_TYPE = 12,    // IdleMovementGenerator.h
     TIMED_FLEEING_MOTION_TYPE       = 13,    // FleeingMovementGenerator.h
-    FOLLOW_MOTION_TYPE              = 14,
-    ROTATE_MOTION_TYPE              = 15,
+    FOLLOW_MOTION_TYPE              = 14,    // FollowMovementGenerator.h
+    ROTATE_MOTION_TYPE              = 15,    // IdleMovementGenerator.h
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,    // SplineChainMovementGenerator.h
     FORMATION_MOTION_TYPE           = 18,    // FormationMovementGenerator.h
-    MAX_MOTION_TYPE                          // limit
+    MAX_MOTION_TYPE                          // SKIP
+};
+
+enum MovementGeneratorMode : uint8
+{
+    MOTION_MODE_DEFAULT = 0,
+    MOTION_MODE_OVERRIDE
+};
+
+enum MovementGeneratorPriority : uint8
+{
+    MOTION_PRIORITY_NONE = 0,
+    MOTION_PRIORITY_NORMAL,
+    MOTION_PRIORITY_HIGHEST
 };
 
 enum MovementSlot : uint8
 {
-    MOTION_SLOT_IDLE = 0,
+    MOTION_SLOT_DEFAULT = 0,
     MOTION_SLOT_ACTIVE,
-    MOTION_SLOT_CONTROLLED,
     MAX_MOTION_SLOT
-};
-
-enum MotionMasterCleanFlags
-{
-    MOTIONMMASTER_CLEANFLAG_NONE   = 0,
-    MOTIONMMASTER_CLEANFLAG_UPDATE = 1, // Clear or Expire called from update
-    MOTIONMMASTER_CLEANFLAG_RESET  = 2  // Flag if need top()->Reset()
 };
 
 enum RotateDirection : uint8
@@ -95,8 +102,25 @@ struct TC_GAME_API ChaseAngle
 
 struct JumpArrivalCastArgs
 {
-    uint32 SpellId;
+    uint32 SpellId = 0;
     ObjectGuid Target;
+};
+
+struct JumpChargeParams
+{
+    union
+    {
+        float Speed;
+        float MoveTimeInSec;
+    };
+
+    bool TreatSpeedAsMoveTimeSeconds = false;
+
+    float JumpGravity = 0.0f;
+
+    Optional<uint32> SpellVisualId;
+    Optional<uint32> ProgressCurveId;
+    Optional<uint32> ParabolicCurveId;
 };
 
 inline bool IsInvalidMovementGeneratorType(uint8 const type) { return type == MAX_DB_MOTION_TYPE || type >= MAX_MOTION_TYPE; }

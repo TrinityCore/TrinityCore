@@ -78,6 +78,25 @@ inline bool VoiceMuteReason_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<VoiceMuteReason>(
     VoiceMuteReason_descriptor(), name, value);
 }
+enum VoiceProviderVersion {
+  VOICE_PROVIDER_V4 = 0,
+  VOICE_PROVIDER_V5 = 1
+};
+TC_PROTO_API bool VoiceProviderVersion_IsValid(int value);
+const VoiceProviderVersion VoiceProviderVersion_MIN = VOICE_PROVIDER_V4;
+const VoiceProviderVersion VoiceProviderVersion_MAX = VOICE_PROVIDER_V5;
+const int VoiceProviderVersion_ARRAYSIZE = VoiceProviderVersion_MAX + 1;
+
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* VoiceProviderVersion_descriptor();
+inline const ::std::string& VoiceProviderVersion_Name(VoiceProviderVersion value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    VoiceProviderVersion_descriptor(), value);
+}
+inline bool VoiceProviderVersion_Parse(
+    const ::std::string& name, VoiceProviderVersion* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<VoiceProviderVersion>(
+    VoiceProviderVersion_descriptor(), name, value);
+}
 // ===================================================================
 
 class TC_PROTO_API VoiceCredentials : public ::google::protobuf::Message {
@@ -214,9 +233,7 @@ class TC_PROTO_API VoiceCredentials : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -500,7 +517,6 @@ inline void VoiceCredentials::set_mute_reason(::bgs::protocol::VoiceMuteReason v
   // @@protoc_insertion_point(field_set:bgs.protocol.VoiceCredentials.mute_reason)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -509,7 +525,6 @@ inline void VoiceCredentials::set_mute_reason(::bgs::protocol::VoiceMuteReason v
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::VoiceJoinType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::VoiceJoinType>() {
@@ -520,7 +535,11 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::VoiceMuteReason>() {
   return ::bgs::protocol::VoiceMuteReason_descriptor();
 }
-
+template <> struct is_proto_enum< ::bgs::protocol::VoiceProviderVersion> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::VoiceProviderVersion>() {
+  return ::bgs::protocol::VoiceProviderVersion_descriptor();
+}
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

@@ -20,6 +20,7 @@
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include <typeinfo>
 
 class SpellInfo;
 struct SpellModifier;
@@ -91,6 +92,8 @@ class TC_GAME_API AuraApplication
         bool IsNeedClientUpdate() const { return _needClientUpdate; }
         void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
         void ClientUpdate(bool remove = false);
+
+        std::string GetDebugInfo() const;
 };
 
 // Structure representing database aura primary key fields
@@ -123,7 +126,7 @@ class TC_GAME_API Aura
         typedef std::unordered_map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo);
+        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo, bool updateEffectMask = true);
         static Aura* TryCreate(AuraCreateInfo& createInfo);
         static Aura* Create(AuraCreateInfo& createInfo);
         explicit Aura(AuraCreateInfo const& createInfo);
@@ -135,13 +138,14 @@ class TC_GAME_API Aura
         uint32 GetId() const{ return GetSpellInfo()->Id; }
         Difficulty GetCastDifficulty() const { return m_castDifficulty; }
 
-        ObjectGuid GetCastGUID() const { return m_castGuid; }
+        ObjectGuid GetCastId() const { return m_castId; }
         ObjectGuid GetCasterGUID() const { return m_casterGuid; }
         ObjectGuid GetCastItemGUID() const { return m_castItemGuid; }
         uint32 GetCastItemId() const { return m_castItemId; }
         int32 GetCastItemLevel() const { return m_castItemLevel; }
         SpellCastVisual GetSpellVisual() const { return m_spellVisual; }
         Unit* GetCaster() const;
+        WorldObject* GetWorldObjectCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return m_owner->ToUnit(); }
         DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return m_owner->ToDynObject(); }
@@ -242,17 +246,20 @@ class TC_GAME_API Aura
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
 
-        bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
-        void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
+        bool IsProcOnCooldown(TimePoint now) const;
+        void AddProcCooldown(SpellProcEntry const* procEntry, TimePoint now);
+        void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
-        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
-        uint32 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
+        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now);
+        void PrepareProcChargeDrop(SpellProcEntry const* procEntry, ProcEventInfo const& eventInfo);
+        void ConsumeProcCharges(SpellProcEntry const* procEntry);
+        uint32 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
         float CalcPPMProcChance(Unit* actor) const;
-        void SetLastProcAttemptTime(std::chrono::steady_clock::time_point lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
-        void SetLastProcSuccessTime(std::chrono::steady_clock::time_point lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
+        void SetLastProcAttemptTime(TimePoint lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
+        void SetLastProcSuccessTime(TimePoint lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
 
         // AuraScript
         void LoadScripts();
@@ -291,23 +298,31 @@ class TC_GAME_API Aura
         DynObjAura const* ToDynObjAura() const { if (GetType() == DYNOBJ_AURA_TYPE) return reinterpret_cast<DynObjAura const*>(this); else return nullptr; }
 
         template <class Script>
-        Script* GetScript(std::string const& scriptName) const
+        Script* GetScript() const
         {
-            return dynamic_cast<Script*>(GetScriptByName(scriptName));
+            return static_cast<Script*>(GetScriptByType(typeid(Script)));
         }
 
         std::vector<AuraScript*> m_loadedScripts;
 
         AuraEffectVector const& GetAuraEffects() const { return _effects; }
 
+        virtual std::string GetDebugInfo() const;
+
+        Aura(Aura const&) = delete;
+        Aura(Aura&&) = delete;
+
+        Aura& operator=(Aura const&) = delete;
+        Aura& operator=(Aura&&) = delete;
+
     private:
-        AuraScript* GetScriptByName(std::string const& scriptName) const;
+        AuraScript* GetScriptByType(std::type_info const& type) const;
         void _DeleteRemovedApplications();
 
     protected:
         SpellInfo const* const m_spellInfo;
         Difficulty const m_castDifficulty;
-        ObjectGuid const m_castGuid;
+        ObjectGuid const m_castId;
         ObjectGuid const m_casterGuid;
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         uint32 m_castItemId;
@@ -334,9 +349,9 @@ class TC_GAME_API Aura
 
         ChargeDropEvent* m_dropEvent;
 
-        std::chrono::steady_clock::time_point m_procCooldown;
-        std::chrono::steady_clock::time_point m_lastProcAttemptTime;
-        std::chrono::steady_clock::time_point m_lastProcSuccessTime;
+        TimePoint m_procCooldown;
+        TimePoint m_lastProcAttemptTime;
+        TimePoint m_lastProcSuccessTime;
 
     private:
         std::vector<AuraApplication*> _removedApplications;

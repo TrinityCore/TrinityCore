@@ -76,4 +76,6 @@ inline AI* GetArcatrazAI(T* obj)
     return GetInstanceAI<AI>(obj, ArcatrazScriptName);
 }
 
+#define RegisterArcatrazCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetArcatrazAI)
+
 #endif // ARCATRAZ_H

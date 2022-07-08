@@ -49,6 +49,7 @@ class GetClubTypeRequest;
 class GetClubTypeResponse;
 class UpdateClubStateRequest;
 class UpdateClubSettingsRequest;
+class AddMemberRequest;
 class JoinRequest;
 class LeaveRequest;
 class KickRequest;
@@ -1141,6 +1142,109 @@ class TC_PROTO_API UpdateClubSettingsRequest : public ::google::protobuf::Messag
 
   void InitAsDefaultInstance();
   static UpdateClubSettingsRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API AddMemberRequest : public ::google::protobuf::Message {
+ public:
+  AddMemberRequest();
+  virtual ~AddMemberRequest();
+
+  AddMemberRequest(const AddMemberRequest& from);
+
+  inline AddMemberRequest& operator=(const AddMemberRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const AddMemberRequest& default_instance();
+
+  void Swap(AddMemberRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  AddMemberRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const AddMemberRequest& from);
+  void MergeFrom(const AddMemberRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+  inline bool has_agent_id() const;
+  inline void clear_agent_id();
+  static const int kAgentIdFieldNumber = 1;
+  inline const ::bgs::protocol::club::v1::MemberId& agent_id() const;
+  inline ::bgs::protocol::club::v1::MemberId* mutable_agent_id();
+  inline ::bgs::protocol::club::v1::MemberId* release_agent_id();
+  inline void set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id);
+
+  // optional uint64 club_id = 2;
+  inline bool has_club_id() const;
+  inline void clear_club_id();
+  static const int kClubIdFieldNumber = 2;
+  inline ::google::protobuf::uint64 club_id() const;
+  inline void set_club_id(::google::protobuf::uint64 value);
+
+  // optional .bgs.protocol.club.v1.CreateMemberOptions options = 3;
+  inline bool has_options() const;
+  inline void clear_options();
+  static const int kOptionsFieldNumber = 3;
+  inline const ::bgs::protocol::club::v1::CreateMemberOptions& options() const;
+  inline ::bgs::protocol::club::v1::CreateMemberOptions* mutable_options();
+  inline ::bgs::protocol::club::v1::CreateMemberOptions* release_options();
+  inline void set_allocated_options(::bgs::protocol::club::v1::CreateMemberOptions* options);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.AddMemberRequest)
+ private:
+  inline void set_has_agent_id();
+  inline void clear_has_agent_id();
+  inline void set_has_club_id();
+  inline void clear_has_club_id();
+  inline void set_has_options();
+  inline void clear_has_options();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::club::v1::MemberId* agent_id_;
+  ::google::protobuf::uint64 club_id_;
+  ::bgs::protocol::club::v1::CreateMemberOptions* options_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
+  friend void protobuf_AssignDesc_club_5frequest_2eproto();
+  friend void protobuf_ShutdownFile_club_5frequest_2eproto();
+
+  void InitAsDefaultInstance();
+  static AddMemberRequest* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -7925,6 +8029,13 @@ class TC_PROTO_API GetStreamVoiceTokenRequest : public ::google::protobuf::Messa
   inline ::google::protobuf::uint64 stream_id() const;
   inline void set_stream_id(::google::protobuf::uint64 value);
 
+  // optional uint32 version = 4;
+  inline bool has_version() const;
+  inline void clear_version();
+  static const int kVersionFieldNumber = 4;
+  inline ::google::protobuf::uint32 version() const;
+  inline void set_version(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.GetStreamVoiceTokenRequest)
  private:
   inline void set_has_agent_id();
@@ -7933,6 +8044,8 @@ class TC_PROTO_API GetStreamVoiceTokenRequest : public ::google::protobuf::Messa
   inline void clear_has_club_id();
   inline void set_has_stream_id();
   inline void clear_has_stream_id();
+  inline void set_has_version();
+  inline void clear_has_version();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -7941,6 +8054,7 @@ class TC_PROTO_API GetStreamVoiceTokenRequest : public ::google::protobuf::Messa
   ::bgs::protocol::club::v1::MemberId* agent_id_;
   ::google::protobuf::uint64 club_id_;
   ::google::protobuf::uint64 stream_id_;
+  ::google::protobuf::uint32 version_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
   friend void protobuf_AssignDesc_club_5frequest_2eproto();
   friend void protobuf_ShutdownFile_club_5frequest_2eproto();
@@ -8159,9 +8273,7 @@ class TC_PROTO_API KickFromStreamVoiceRequest : public ::google::protobuf::Messa
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -9029,6 +9141,116 @@ inline void UpdateClubSettingsRequest::set_allocated_options(::bgs::protocol::cl
     clear_has_options();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.UpdateClubSettingsRequest.options)
+}
+
+// -------------------------------------------------------------------
+
+// AddMemberRequest
+
+// optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+inline bool AddMemberRequest::has_agent_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void AddMemberRequest::set_has_agent_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void AddMemberRequest::clear_has_agent_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void AddMemberRequest::clear_agent_id() {
+  if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
+  clear_has_agent_id();
+}
+inline const ::bgs::protocol::club::v1::MemberId& AddMemberRequest::agent_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.AddMemberRequest.agent_id)
+  return agent_id_ != NULL ? *agent_id_ : *default_instance_->agent_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* AddMemberRequest::mutable_agent_id() {
+  set_has_agent_id();
+  if (agent_id_ == NULL) agent_id_ = new ::bgs::protocol::club::v1::MemberId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.AddMemberRequest.agent_id)
+  return agent_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* AddMemberRequest::release_agent_id() {
+  clear_has_agent_id();
+  ::bgs::protocol::club::v1::MemberId* temp = agent_id_;
+  agent_id_ = NULL;
+  return temp;
+}
+inline void AddMemberRequest::set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id) {
+  delete agent_id_;
+  agent_id_ = agent_id;
+  if (agent_id) {
+    set_has_agent_id();
+  } else {
+    clear_has_agent_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.AddMemberRequest.agent_id)
+}
+
+// optional uint64 club_id = 2;
+inline bool AddMemberRequest::has_club_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void AddMemberRequest::set_has_club_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void AddMemberRequest::clear_has_club_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void AddMemberRequest::clear_club_id() {
+  club_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_club_id();
+}
+inline ::google::protobuf::uint64 AddMemberRequest::club_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.AddMemberRequest.club_id)
+  return club_id_;
+}
+inline void AddMemberRequest::set_club_id(::google::protobuf::uint64 value) {
+  set_has_club_id();
+  club_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.AddMemberRequest.club_id)
+}
+
+// optional .bgs.protocol.club.v1.CreateMemberOptions options = 3;
+inline bool AddMemberRequest::has_options() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void AddMemberRequest::set_has_options() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void AddMemberRequest::clear_has_options() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void AddMemberRequest::clear_options() {
+  if (options_ != NULL) options_->::bgs::protocol::club::v1::CreateMemberOptions::Clear();
+  clear_has_options();
+}
+inline const ::bgs::protocol::club::v1::CreateMemberOptions& AddMemberRequest::options() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.AddMemberRequest.options)
+  return options_ != NULL ? *options_ : *default_instance_->options_;
+}
+inline ::bgs::protocol::club::v1::CreateMemberOptions* AddMemberRequest::mutable_options() {
+  set_has_options();
+  if (options_ == NULL) options_ = new ::bgs::protocol::club::v1::CreateMemberOptions;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.AddMemberRequest.options)
+  return options_;
+}
+inline ::bgs::protocol::club::v1::CreateMemberOptions* AddMemberRequest::release_options() {
+  clear_has_options();
+  ::bgs::protocol::club::v1::CreateMemberOptions* temp = options_;
+  options_ = NULL;
+  return temp;
+}
+inline void AddMemberRequest::set_allocated_options(::bgs::protocol::club::v1::CreateMemberOptions* options) {
+  delete options_;
+  options_ = options;
+  if (options) {
+    set_has_options();
+  } else {
+    clear_has_options();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.AddMemberRequest.options)
 }
 
 // -------------------------------------------------------------------
@@ -15333,6 +15555,30 @@ inline void GetStreamVoiceTokenRequest::set_stream_id(::google::protobuf::uint64
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.GetStreamVoiceTokenRequest.stream_id)
 }
 
+// optional uint32 version = 4;
+inline bool GetStreamVoiceTokenRequest::has_version() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void GetStreamVoiceTokenRequest::set_has_version() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void GetStreamVoiceTokenRequest::clear_has_version() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void GetStreamVoiceTokenRequest::clear_version() {
+  version_ = 0u;
+  clear_has_version();
+}
+inline ::google::protobuf::uint32 GetStreamVoiceTokenRequest::version() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetStreamVoiceTokenRequest.version)
+  return version_;
+}
+inline void GetStreamVoiceTokenRequest::set_version(::google::protobuf::uint32 value) {
+  set_has_version();
+  version_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.GetStreamVoiceTokenRequest.version)
+}
+
 // -------------------------------------------------------------------
 
 // GetStreamVoiceTokenResponse
@@ -15588,7 +15834,6 @@ inline void KickFromStreamVoiceRequest::set_allocated_target_id(::bgs::protocol:
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.KickFromStreamVoiceRequest.target_id)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -15599,8 +15844,6 @@ inline void KickFromStreamVoiceRequest::set_allocated_target_id(::bgs::protocol:
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

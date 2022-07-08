@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "ahnkahet.h"
 #include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellScript.h"
 
 enum AmanitarSpells
@@ -89,22 +90,22 @@ struct boss_amanitar : public BossAI
 {
     boss_amanitar(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
-        events.ScheduleEvent(EVENT_ROOT, Seconds(5), Seconds(9));
-        events.ScheduleEvent(EVENT_BASH, Seconds(10), Seconds(14));
-        events.ScheduleEvent(EVENT_BOLT, Seconds(15), Seconds(20));
-        events.ScheduleEvent(EVENT_MINI, Seconds(12), Seconds(18));
-        events.ScheduleEvent(EVENT_SPAWN, Seconds(1));
-        events.ScheduleEvent(EVENT_RESPAWN, Seconds(40), Seconds(60));
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_ROOT, 5s, 9s);
+        events.ScheduleEvent(EVENT_BASH, 10s, 14s);
+        events.ScheduleEvent(EVENT_BOLT, 15s, 20s);
+        events.ScheduleEvent(EVENT_MINI, 12s, 18s);
+        events.ScheduleEvent(EVENT_SPAWN, 1s);
+        events.ScheduleEvent(EVENT_RESPAWN, 40s, 1min);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         summons.DespawnAll();
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI, true, true);
         _DespawnAtEvade();
     }
 
@@ -112,7 +113,7 @@ struct boss_amanitar : public BossAI
     {
         _JustDied();
         DoCastAOE(SPELL_REMOVE_MUSHROOM_POWER);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI, true, true);
     }
 
     void JustSummoned(Creature* summon) override
@@ -129,7 +130,7 @@ struct boss_amanitar : public BossAI
 
     void SpawnMushroom(Position const pos)
     {
-        me->SummonCreature(roll_chance_i(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4000);
+        me->SummonCreature(roll_chance_i(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -147,11 +148,11 @@ struct boss_amanitar : public BossAI
             switch (eventId)
             {
                 case EVENT_SPAWN:
-                    for (Position const pos : MushroomPositions)
+                    for (Position const& pos : MushroomPositions)
                         SpawnMushroom(pos);
                     break;
                 case EVENT_MINI:
-                    if (SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_MINI))
+                    if (SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_MINI))
                     {
                         DoCastAOE(SPELL_MINI);
                         events.Repeat(Seconds(30));
@@ -160,7 +161,7 @@ struct boss_amanitar : public BossAI
                         events.Repeat(Seconds(1));
                     break;
                 case EVENT_ROOT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
                         DoCast(target, SPELL_ENTANGLING_ROOTS, true);
                     events.Repeat(Seconds(10), Seconds(15));
                     break;
@@ -169,7 +170,7 @@ struct boss_amanitar : public BossAI
                     events.Repeat(Seconds(7), Seconds(12));
                     break;
                 case EVENT_BOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_VENOM_BOLT_VOLLEY, true);
                     events.Repeat(Seconds(18), Seconds(22));
                     break;
@@ -192,8 +193,8 @@ struct boss_amanitar : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    private:
-        std::deque<Position> _mushroomsDeque;
+private:
+    std::deque<Position> _mushroomsDeque;
 };
 
 struct npc_amanitar_mushrooms : public ScriptedAI
@@ -209,12 +210,34 @@ struct npc_amanitar_mushrooms : public ScriptedAI
         DoCastSelf(SPELL_GROW, true);
 
         if (me->GetEntry() == NPC_HEALTHY_MUSHROOM)
-        {
             DoCastSelf(SPELL_POWER_MUSHROOM_VISUAL_AURA);
-            _active = true;
-        }
         else
+        {
             DoCastSelf(SPELL_POISONOUS_MUSHROOM_VISUAL_AURA);
+
+            _scheduler.Schedule(1s, [this](TaskContext checkRangeContext)
+            {
+                std::vector<Player*> playersNearby;
+                GetPlayerListInGrid(playersNearby, me, 2.0f);
+                if (!playersNearby.empty())
+                {
+                    _active = true;
+
+                    for (Player* foundPlayer : playersNearby)
+                        foundPlayer->RemoveAurasDueToSpell(SPELL_POTENT_FUNGUS);
+
+                    DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
+
+                    _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+                    {
+                        me->SetObjectScale(0.1f);
+                        me->DespawnOrUnsummon(Seconds(4));
+                    });
+                }
+                else
+                    checkRangeContext.Repeat(1s);
+            });
+        }
 
         _scheduler.Schedule(Milliseconds(800), [this](TaskContext /*context*/)
         {
@@ -222,27 +245,12 @@ struct npc_amanitar_mushrooms : public ScriptedAI
         });
     }
 
-    void MoveInLineOfSight(Unit* target) override
-    {
-        if (_active || target->GetTypeId() != TYPEID_PLAYER || me->GetDistance2d(target) > 2.0f)
-            return;
-
-        _active = true;
-
-        target->RemoveAurasDueToSpell(SPELL_POTENT_FUNGUS);
-        DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
-
-        _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
-        {
-            me->SetObjectScale(0.1f);
-            me->DespawnOrUnsummon(Seconds(4));
-        });
-    }
-
     void JustDied(Unit* /*killer*/) override
     {
         if (me->GetEntry() == NPC_HEALTHY_MUSHROOM)
             DoCastAOE(SPELL_POTENT_FUNGUS, true);
+        else if (!_active)
+            DoCastAOE(SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
     }
 
     void UpdateAI(uint32 diff) override
@@ -280,5 +288,5 @@ void AddSC_boss_amanitar()
 {
     RegisterAhnKahetCreatureAI(boss_amanitar);
     RegisterAhnKahetCreatureAI(npc_amanitar_mushrooms);
-    RegisterAuraScript(spell_amanitar_potent_fungus);
+    RegisterSpellScript(spell_amanitar_potent_fungus);
 }

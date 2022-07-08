@@ -39,7 +39,7 @@ bool AzeriteEmpoweredItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, It
     return true;
 }
 
-void AzeriteEmpoweredItem::SaveToDB(CharacterDatabaseTransaction& trans)
+void AzeriteEmpoweredItem::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
     stmt->setUInt64(0, GetGUID().GetCounter());
@@ -75,7 +75,7 @@ void AzeriteEmpoweredItem::LoadAzeriteEmpoweredItemData(Player const* owner, Aze
         for (int32 i = MAX_AZERITE_EMPOWERED_TIER; --i >= 0; )
         {
             int32 selection = azeriteEmpoweredItem.SelectedAzeritePowers[i];
-            if (GetTierForAzeritePower(Classes(owner->getClass()), selection) != i)
+            if (GetTierForAzeritePower(Classes(owner->GetClass()), selection) != i)
             {
                 needSave = true;
                 break;
@@ -98,14 +98,14 @@ void AzeriteEmpoweredItem::LoadAzeriteEmpoweredItemData(Player const* owner, Aze
     }
 }
 
-void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
     stmt->setUInt64(0, itemGuid);
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void AzeriteEmpoweredItem::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     AzeriteEmpoweredItem::DeleteFromDB(trans, GetGUID().GetCounter());
     Item::DeleteFromDB(trans);
@@ -218,6 +218,17 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+}
+
+void AzeriteEmpoweredItem::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(player->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), AzeriteEmpoweredItemMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void AzeriteEmpoweredItem::ClearUpdateMask(bool remove)

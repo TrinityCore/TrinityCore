@@ -21,7 +21,6 @@
 #include "Common.h"
 #include <exception>
 #include <string>
-#include <vector>
 
 class DB2FileLoaderImpl;
 struct DB2FieldMeta;

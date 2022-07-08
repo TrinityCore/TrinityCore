@@ -46,6 +46,7 @@ WorldPacket const* WorldPackets::Scenario::ScenarioState::Write()
     _worldPacket << uint32(BonusObjectives.size());
     _worldPacket << uint32(PickedSteps.size());
     _worldPacket << uint32(Spells.size());
+    _worldPacket << PlayerGUID;
 
     for (uint32 i = 0; i < PickedSteps.size(); ++i)
         _worldPacket << uint32(PickedSteps[i]);

@@ -242,7 +242,7 @@ class TC_PROTO_API FieldKey : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 field() const;
   inline void set_field(::google::protobuf::uint32 value);
 
-  // optional uint64 unique_id = 4 [default = 0];
+  // optional uint64 unique_id = 4;
   inline bool has_unique_id() const;
   inline void clear_unique_id();
   static const int kUniqueIdFieldNumber = 4;
@@ -653,7 +653,7 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation >*
       mutable_field_operation();
 
-  // optional bool healing = 3 [default = false];
+  // optional bool healing = 3;
   inline bool has_healing() const;
   inline void clear_healing();
   static const int kHealingFieldNumber = 3;
@@ -687,9 +687,7 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -843,7 +841,7 @@ inline void FieldKey::set_field(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.FieldKey.field)
 }
 
-// optional uint64 unique_id = 4 [default = 0];
+// optional uint64 unique_id = 4;
 inline bool FieldKey::has_unique_id() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -1173,7 +1171,7 @@ ChannelState::mutable_field_operation() {
   return &field_operation_;
 }
 
-// optional bool healing = 3 [default = false];
+// optional bool healing = 3;
 inline bool ChannelState::has_healing() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -1197,7 +1195,6 @@ inline void ChannelState::set_healing(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.ChannelState.healing)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -1208,13 +1205,11 @@ inline void ChannelState::set_healing(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::presence::v1::FieldOperation_OperationType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::presence::v1::FieldOperation_OperationType>() {
   return ::bgs::protocol::presence::v1::FieldOperation_OperationType_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

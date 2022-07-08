@@ -45,13 +45,13 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 ## Requirements
 
 
-Software requirements are available in the [wiki](https://www.trinitycore.info/display/tc/Requirements) for
+Software requirements are available in the [wiki](https://trinitycore.info/en/install/requirements) for
 Windows, Linux and macOS.
 
 
 ## Install
 
-Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
+Detailed installation guides are available in the [wiki](https://trinitycore.info/en/home) for
 Windows, Linux and macOS.
 
 

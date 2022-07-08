@@ -49,4 +49,6 @@ inline AI* GetBotanicaAI(T* obj)
     return GetInstanceAI<AI>(obj, BotanicaScriptName);
 }
 
+#define RegisterBotanicaCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBotanicaAI)
+
 #endif

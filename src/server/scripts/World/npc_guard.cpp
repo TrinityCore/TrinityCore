@@ -133,10 +133,7 @@ struct npc_guard_generic : public GuardAI
                     return;
                 }
             }
-            if (ShouldSparWith(victim))
-                me->FakeAttackerStateUpdate(victim);
-            else
-                me->AttackerStateUpdate(victim);
+            me->AttackerStateUpdate(victim);
             me->resetAttackTimer();
             meleeContext.Repeat();
         }).Schedule(Seconds(5), [this](TaskContext spellContext)

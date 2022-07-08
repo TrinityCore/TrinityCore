@@ -20,17 +20,13 @@
 
 #include "MoveSplineInitArgs.h"
 
+class ObjectGuid;
 class Unit;
+
+enum class AnimTier : uint8;
 
 namespace Movement
 {
-    enum AnimType
-    {
-        ToGround    = 0, // 460 = ToGround, index of AnimationData.dbc
-        FlyToFly    = 1, // 461 = FlyToFly?
-        ToFly       = 2, // 458 = ToFly
-        FlyToGround = 3  // 463 = FlyToGround
-    };
 
     // Transforms coordinates from global to transport offsets
     class TC_GAME_API TransportPathTransform
@@ -52,11 +48,13 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
-        MoveSplineInit(MoveSplineInit&& init) = default;
 
         ~MoveSplineInit();
+
         MoveSplineInit(MoveSplineInit const&) = delete;
         MoveSplineInit& operator=(MoveSplineInit const&) = delete;
+        MoveSplineInit(MoveSplineInit&& init) = delete;
+        MoveSplineInit& operator=(MoveSplineInit&&) = delete;
 
         /*  Final pass of initialization that launches spline movement.
          */
@@ -72,10 +70,16 @@ namespace Movement
          * can't be combined with final animation
          */
         void SetParabolic(float amplitude, float start_time);
+        /* Adds movement by parabolic trajectory
+         * @param vertical_acceleration - vertical acceleration
+         * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
+         * can't be combined with final animation
+         */
+        void SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
-        void SetAnimation(AnimType anim);
+        void SetAnimation(AnimTier anim);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
@@ -177,10 +181,19 @@ namespace Movement
     {
         args.time_perc = time_shift;
         args.parabolic_amplitude = amplitude;
+        args.vertical_acceleration = 0.0f;
         args.flags.EnableParabolic();
     }
 
-    inline void MoveSplineInit::SetAnimation(AnimType anim)
+    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
+    {
+        args.time_perc = time_shift;
+        args.parabolic_amplitude = 0.0f;
+        args.vertical_acceleration = vertical_acceleration;
+        args.flags.EnableParabolic();
+    }
+
+    inline void MoveSplineInit::SetAnimation(AnimTier anim)
     {
         args.time_perc = 0.f;
         args.animTier.emplace();

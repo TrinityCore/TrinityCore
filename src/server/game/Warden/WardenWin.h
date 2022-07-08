@@ -20,9 +20,9 @@
 
 #include "Cryptography/ARC4.h"
 #include "Cryptography/BigNumber.h"
-#include "ByteBuffer.h"
 #include "Warden.h"
-#include <list>
+#include <array>
+#include <utility>
 
 #pragma pack(push, 1)
 
@@ -55,6 +55,7 @@ struct WardenInitModuleRequest
     uint32 Function3;
     uint8 Function3_set;
 };
+static_assert(sizeof(WardenInitModuleRequest) == (1 + 2 + 4 + 1 + 1 + 1 + 1 + (4 * 4) + 1 + 2 + 4 + 1 + 1 + 1 + 4 + 1 + 1 + 2 + 4 + 1 + 1 + 1 + 4 + 1));
 
 #pragma pack(pop)
 
@@ -65,21 +66,21 @@ class TC_GAME_API WardenWin : public Warden
 {
     public:
         WardenWin();
-        ~WardenWin();
 
         void Init(WorldSession* session, SessionKey const& K) override;
-        ClientWardenModule* GetModuleForClient() override;
+        void InitializeModuleForClient(ClientWardenModule& module) override;
         void InitializeModule() override;
         void RequestHash() override;
         void HandleHashResult(ByteBuffer &buff) override;
-        void RequestData() override;
-        void HandleData(ByteBuffer &buff) override;
+        void RequestChecks() override;
+        void HandleCheckResult(ByteBuffer &buff) override;
+
+        size_t DEBUG_ForceSpecificChecks(std::vector<uint16> const& checks) override;
 
     private:
         uint32 _serverTicks;
-        std::list<uint16> _otherChecksTodo;
-        std::list<uint16> _memChecksTodo;
-        std::list<uint16> _currentChecks;
+        std::array<std::pair<std::vector<uint16>, std::vector<uint16>::const_iterator>, NUM_CHECK_CATEGORIES> _checks;
+        std::vector<uint16> _currentChecks;
 };
 
 #endif
