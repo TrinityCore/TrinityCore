@@ -20,7 +20,6 @@
 
 #include "Map.h"
 #include "InstanceSaveMgr.h"
-#include "DBCEnums.h"
 
 class GarrisonMap;
 
@@ -31,16 +30,20 @@ class TC_GAME_API MapInstanced : public Map
         typedef std::unordered_map< uint32, Map*> InstancedMaps;
 
         MapInstanced(uint32 id, time_t expiry);
-        ~MapInstanced() { }
+        MapInstanced(MapInstanced const& right) = delete;
+        MapInstanced(MapInstanced&& right) = delete;
+        MapInstanced& operator=(MapInstanced const& right) = delete;
+        MapInstanced& operator=(MapInstanced&& right) = delete;
+        ~MapInstanced();
 
-        // functions overwrite Map versions
-        void Update(const uint32) override;
-        void DelayedUpdate(const uint32 diff) override;
+    // functions overwrite Map versions
+        void Update(uint32 diff) override;
+        void DelayedUpdate(uint32 diff) override;
         //void RelocationNotify();
         void UnloadAll() override;
         EnterState CannotEnter(Player* /*player*/) override;
 
-        Map* CreateInstanceForPlayer(const uint32 mapId, Player* player, uint32 loginInstanceId=0);
+        Map* CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 loginInstanceId = 0);
         Map* FindInstanceMap(uint32 instanceId) const
         {
             InstancedMaps::const_iterator i = m_InstancedMaps.find(instanceId);

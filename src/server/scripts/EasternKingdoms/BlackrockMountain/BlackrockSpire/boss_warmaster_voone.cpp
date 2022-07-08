@@ -39,90 +39,79 @@ enum Events
     EVENT_THROW_AXE                 = 6
 };
 
-class boss_warmaster_voone : public CreatureScript
+struct boss_warmaster_voone : public BossAI
 {
-public:
-    boss_warmaster_voone() : CreatureScript("boss_warmaster_voone") { }
+    boss_warmaster_voone(Creature* creature) : BossAI(creature, DATA_WARMASTER_VOONE) { }
 
-    struct boss_warmastervooneAI : public BossAI
+    void Reset() override
     {
-        boss_warmastervooneAI(Creature* creature) : BossAI(creature, DATA_WARMASTER_VOONE) { }
+        _Reset();
+    }
 
-        void Reset() override
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_SNAP_KICK, 8s);
+        events.ScheduleEvent(EVENT_CLEAVE, 14s);
+        events.ScheduleEvent(EVENT_UPPERCUT, 20s);
+        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s);
+        events.ScheduleEvent(EVENT_PUMMEL, 32s);
+        events.ScheduleEvent(EVENT_THROW_AXE, 1s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_SNAP_KICK, 8 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE,   14 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_UPPERCUT, 20 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_PUMMEL,   32 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_THROW_AXE, 1 * IN_MILLISECONDS);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_SNAP_KICK:
+                    DoCastVictim(SPELL_SNAPKICK);
+                    events.ScheduleEvent(EVENT_SNAP_KICK, 6s);
+                    break;
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    events.ScheduleEvent(EVENT_CLEAVE, 12s);
+                    break;
+                case EVENT_UPPERCUT:
+                    DoCastVictim(SPELL_UPPERCUT);
+                    events.ScheduleEvent(EVENT_UPPERCUT, 14s);
+                    break;
+                case EVENT_MORTAL_STRIKE:
+                    DoCastVictim(SPELL_MORTALSTRIKE);
+                    events.ScheduleEvent(EVENT_MORTAL_STRIKE, 10s);
+                    break;
+                case EVENT_PUMMEL:
+                    DoCastVictim(SPELL_PUMMEL);
+                    events.ScheduleEvent(EVENT_MORTAL_STRIKE, 16s);
+                    break;
+                case EVENT_THROW_AXE:
+                    DoCastVictim(SPELL_THROWAXE);
+                    events.ScheduleEvent(EVENT_THROW_AXE, 8s);
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_SNAP_KICK:
-                        DoCastVictim(SPELL_SNAPKICK);
-                        events.ScheduleEvent(EVENT_SNAP_KICK, 6 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_CLEAVE:
-                        DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 12 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_UPPERCUT:
-                        DoCastVictim(SPELL_UPPERCUT);
-                        events.ScheduleEvent(EVENT_UPPERCUT, 14 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_MORTAL_STRIKE:
-                        DoCastVictim(SPELL_MORTALSTRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 10 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_PUMMEL:
-                        DoCastVictim(SPELL_PUMMEL);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 16 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_THROW_AXE:
-                        DoCastVictim(SPELL_THROWAXE);
-                        events.ScheduleEvent(EVENT_THROW_AXE, 8 * IN_MILLISECONDS);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackrockSpireAI<boss_warmastervooneAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_warmastervoone()
 {
-    new boss_warmaster_voone();
+    RegisterBlackrockSpireCreatureAI(boss_warmaster_voone);
 }

@@ -52,7 +52,7 @@ class boss_romogg_bonecrusher : public CreatureScript
         {
             boss_romogg_bonecrusherAI(Creature* creature) : BossAI(creature, DATA_ROMOGG_BONECRUSHER)
             {
-                me->SummonCreature(NPC_RAZ_THE_CRAZED, SummonPos, TEMPSUMMON_MANUAL_DESPAWN, 200000);
+                me->SummonCreature(NPC_RAZ_THE_CRAZED, SummonPos, TEMPSUMMON_MANUAL_DESPAWN, 200s);
             }
 
             void Reset() override
@@ -75,12 +75,12 @@ class boss_romogg_bonecrusher : public CreatureScript
                     Talk(YELL_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_CHAINS_OF_WOE, urand(22000, 32000));
-                events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(26000, 32000));
-                events.ScheduleEvent(EVENT_QUAKE, 45000);
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_CHAINS_OF_WOE, 22s, 32s);
+                events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 26s, 32s);
+                events.ScheduleEvent(EVENT_QUAKE, 45s);
                 Talk(YELL_AGGRO);
                 Talk(EMOTE_CALL_FOR_HELP);
                 DoCast(me, SPELL_CALL_FOR_HELP);
@@ -103,8 +103,8 @@ class boss_romogg_bonecrusher : public CreatureScript
                         case EVENT_CHAINS_OF_WOE:
                             Talk(YELL_SKULLCRACKER);
                             DoCast(me, SPELL_CHAINS_OF_WOE);
-                            events.ScheduleEvent(EVENT_CHAINS_OF_WOE, urand(22000, 32000));
-                            events.ScheduleEvent(EVENT_SKULLCRACKER, 3000);
+                            events.ScheduleEvent(EVENT_CHAINS_OF_WOE, 22s, 32s);
+                            events.ScheduleEvent(EVENT_SKULLCRACKER, 3s);
                             break;
                         case EVENT_SKULLCRACKER:
                             Talk(EMOTE_SKULLCRACKER);
@@ -112,11 +112,11 @@ class boss_romogg_bonecrusher : public CreatureScript
                             break;
                         case EVENT_QUAKE:
                             DoCast(me, SPELL_QUAKE);
-                            events.ScheduleEvent(EVENT_QUAKE, urand(32000, 40000));
+                            events.ScheduleEvent(EVENT_QUAKE, 32s, 40s);
                             break;
                         case EVENT_WOUNDING_STRIKE:
                             DoCastVictim(SPELL_WOUNDING_STRIKE, true);
-                            events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(26000, 32000));
+                            events.ScheduleEvent(EVENT_WOUNDING_STRIKE, 26s, 32s);
                             break;
                         default:
                             break;

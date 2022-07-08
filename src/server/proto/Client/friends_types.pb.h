@@ -24,6 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "global_extensions/field_options.pb.h"  // IWYU pragma: export
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "invitation_types.pb.h"
@@ -1113,9 +1114,7 @@ class TC_PROTO_API AcceptInvitationOptions : public ::google::protobuf::Message 
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -2689,7 +2688,6 @@ inline void AcceptInvitationOptions::set_program(::google::protobuf::uint32 valu
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.AcceptInvitationOptions.program)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -2700,8 +2698,6 @@ inline void AcceptInvitationOptions::set_program(::google::protobuf::uint32 valu
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

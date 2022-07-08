@@ -20,22 +20,8 @@
 #include "SpellScript.h"
 #include "vault_of_archavon.h"
 
-enum Events
+enum KoralonSpells
 {
-    // Koralon
-    EVENT_BURNING_BREATH    = 1,
-    EVENT_BURNING_FURY      = 2,
-    EVENT_FLAME_CINDER      = 3,
-    EVENT_METEOR_FISTS      = 4,
-
-    // Flame Warder
-    EVENT_FW_LAVA_BIRST     = 5,
-    EVENT_FW_METEOR_FISTS   = 6
-};
-
-enum Spells
-{
-    // Spells Koralon
     SPELL_BURNING_BREATH                        = 66665,
     SPELL_BURNING_FURY                          = 66721,
     SPELL_FLAME_CINDER_A                        = 66684,
@@ -43,259 +29,158 @@ enum Spells
     SPELL_METEOR_FISTS                          = 66725,
     SPELL_METEOR_FISTS_DAMAGE                   = 66765,
 
-    // Spells Flame Warder
-    SPELL_FW_LAVA_BIRST                         = 66813,
-    SPELL_FW_METEOR_FISTS                       = 66808,
+    // Flame Warder
     SPELL_FW_METEOR_FISTS_DAMAGE                = 66809
 };
 
-class boss_koralon : public CreatureScript
+enum KoralonEvents
 {
-    public:
-        boss_koralon() : CreatureScript("boss_koralon") { }
-
-        struct boss_koralonAI : public BossAI
-        {
-            boss_koralonAI(Creature* creature) : BossAI(creature, DATA_KORALON)
-            {
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                DoCast(me, SPELL_BURNING_FURY);
-
-                events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    /// @todo check timer
-                events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
-                events.ScheduleEvent(EVENT_METEOR_FISTS, 75000);    // 1st after 75sec, then every 45sec
-                events.ScheduleEvent(EVENT_FLAME_CINDER, 30000);    /// @todo check timer
-
-                _EnterCombat();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_BURNING_FURY:
-                            DoCast(me, SPELL_BURNING_FURY);
-                            events.ScheduleEvent(EVENT_BURNING_FURY, 20000);
-                            break;
-                        case EVENT_BURNING_BREATH:
-                            DoCast(me, SPELL_BURNING_BREATH);
-                            events.ScheduleEvent(EVENT_BURNING_BREATH, 45000);
-                            break;
-                        case EVENT_METEOR_FISTS:
-                            DoCast(me, SPELL_METEOR_FISTS);
-                            events.ScheduleEvent(EVENT_METEOR_FISTS, 45000);
-                            break;
-                        case EVENT_FLAME_CINDER:
-                            DoCast(me, SPELL_FLAME_CINDER_A);
-                            events.ScheduleEvent(EVENT_FLAME_CINDER, 30000);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVaultOfArchavonAI<boss_koralonAI>(creature);
-        }
+    EVENT_BURNING_BREATH = 1,
+    EVENT_BURNING_FURY,
+    EVENT_FLAME_CINDER,
+    EVENT_METEOR_FISTS
 };
 
-/*######
-##  Npc Flame Warder
-######*/
-class npc_flame_warder : public CreatureScript
+struct boss_koralon : public BossAI
 {
-    public:
-        npc_flame_warder() : CreatureScript("npc_flame_warder") { }
+    boss_koralon(Creature* creature) : BossAI(creature, DATA_KORALON) { }
 
-        struct npc_flame_warderAI : public ScriptedAI
+    void JustEngagedWith(Unit* who) override
+    {
+        DoCast(me, SPELL_BURNING_FURY);
+
+        events.ScheduleEvent(EVENT_BURNING_FURY, 20s);    /// @todo check timer
+        events.ScheduleEvent(EVENT_BURNING_BREATH, 15s);  // 1st after 15sec, then every 45sec
+        events.ScheduleEvent(EVENT_METEOR_FISTS, 75s);    // 1st after 75sec, then every 45sec
+        events.ScheduleEvent(EVENT_FLAME_CINDER, 30s);    /// @todo check timer
+
+        BossAI::JustEngagedWith(who);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            npc_flame_warderAI(Creature* creature) : ScriptedAI(creature)
+            switch (eventId)
             {
+                case EVENT_BURNING_FURY:
+                    DoCast(me, SPELL_BURNING_FURY);
+                    events.ScheduleEvent(EVENT_BURNING_FURY, 20s);
+                    break;
+                case EVENT_BURNING_BREATH:
+                    DoCast(me, SPELL_BURNING_BREATH);
+                    events.ScheduleEvent(EVENT_BURNING_BREATH, 45s);
+                    break;
+                case EVENT_METEOR_FISTS:
+                    DoCast(me, SPELL_METEOR_FISTS);
+                    events.ScheduleEvent(EVENT_METEOR_FISTS, 45s);
+                    break;
+                case EVENT_FLAME_CINDER:
+                    DoCast(me, SPELL_FLAME_CINDER_A);
+                    events.ScheduleEvent(EVENT_FLAME_CINDER, 30s);
+                    break;
+                default:
+                    break;
             }
 
-            void Reset() override
-            {
-                events.Reset();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                DoZoneInCombat();
-
-                events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5000);
-                events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 10000);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FW_LAVA_BIRST:
-                            DoCastVictim(SPELL_FW_LAVA_BIRST);
-                            events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15000);
-                            break;
-                        case EVENT_FW_METEOR_FISTS:
-                            DoCast(me, SPELL_FW_METEOR_FISTS);
-                            events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 20000);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVaultOfArchavonAI<npc_flame_warderAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-class spell_koralon_meteor_fists : public SpellScriptLoader
+// 66725, 68161 - Meteor Fists
+class spell_koralon_meteor_fists : public AuraScript
 {
-    public:
-        spell_koralon_meteor_fists() : SpellScriptLoader("spell_koralon_meteor_fists") { }
+    PrepareAuraScript(spell_koralon_meteor_fists);
 
-        class spell_koralon_meteor_fists_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_koralon_meteor_fists_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
-            }
+    void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_METEOR_FISTS_DAMAGE, aurEff);
+    }
 
-            void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_METEOR_FISTS_DAMAGE, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_koralon_meteor_fists_AuraScript::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_koralon_meteor_fists_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_koralon_meteor_fists::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
-class spell_koralon_meteor_fists_damage : public SpellScriptLoader
+// 66765, 67333 - Meteor Fists
+// 66809, 67331 - Meteor Fists
+class spell_koralon_meteor_fists_damage : public SpellScript
 {
-    public:
-        spell_koralon_meteor_fists_damage() : SpellScriptLoader("spell_koralon_meteor_fists_damage") { }
+    PrepareSpellScript(spell_koralon_meteor_fists_damage);
 
-        class spell_koralon_meteor_fists_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_koralon_meteor_fists_damage_SpellScript);
+public:
+    spell_koralon_meteor_fists_damage()
+    {
+        _chainTargets = 0;
+    }
 
-        public:
-            spell_koralon_meteor_fists_damage_SpellScript()
-            {
-                _chainTargets = 0;
-            }
+private:
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        _chainTargets = uint8(targets.size());
+    }
 
-        private:
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                _chainTargets = targets.size();
-            }
+    void CalculateSplitDamage()
+    {
+        if (_chainTargets)
+            SetHitDamage(GetHitDamage() / (_chainTargets + 1));
+    }
 
-            void CalculateSplitDamage()
-            {
-                if (_chainTargets)
-                    SetHitDamage(GetHitDamage() / (_chainTargets + 1));
-            }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_koralon_meteor_fists_damage::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
+        OnHit += SpellHitFn(spell_koralon_meteor_fists_damage::CalculateSplitDamage);
+    }
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_koralon_meteor_fists_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
-                OnHit += SpellHitFn(spell_koralon_meteor_fists_damage_SpellScript::CalculateSplitDamage);
-            }
-
-        private:
-            uint8 _chainTargets;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_koralon_meteor_fists_damage_SpellScript();
-        }
+private:
+    uint8 _chainTargets;
 };
 
-class spell_flame_warder_meteor_fists : public SpellScriptLoader
+// 66808, 68160 - Meteor Fists
+class spell_flame_warder_meteor_fists : public AuraScript
 {
-    public:
-        spell_flame_warder_meteor_fists() : SpellScriptLoader("spell_flame_warder_meteor_fists") { }
+    PrepareAuraScript(spell_flame_warder_meteor_fists);
 
-        class spell_flame_warder_meteor_fists_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_flame_warder_meteor_fists_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });
-            }
+    void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, aurEff);
+    }
 
-            void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_flame_warder_meteor_fists_AuraScript::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_flame_warder_meteor_fists_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_flame_warder_meteor_fists::TriggerFists, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 void AddSC_boss_koralon()
 {
-    new boss_koralon();
-    new npc_flame_warder();
-    new spell_koralon_meteor_fists();
-    new spell_koralon_meteor_fists_damage();
-    new spell_flame_warder_meteor_fists();
+    RegisterVaultOfArchavonCreatureAI(boss_koralon);
+    RegisterSpellScript(spell_koralon_meteor_fists);
+    RegisterSpellScript(spell_koralon_meteor_fists_damage);
+    RegisterSpellScript(spell_flame_warder_meteor_fists);
 }

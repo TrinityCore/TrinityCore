@@ -51,6 +51,14 @@ char const* ItemTemplate::GetName(LocaleConstant locale) const
     return ExtendedData->Display[locale];
 }
 
+bool ItemTemplate::HasSignature() const
+{
+    return GetMaxStackSize() == 1 &&
+        GetClass() != ITEM_CLASS_CONSUMABLE &&
+        GetClass() != ITEM_CLASS_QUEST &&
+        !HasFlag(ITEM_FLAG_NO_CREATOR) &&
+        GetId() != 6948; /*Hearthstone*/
+}
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
@@ -89,7 +97,6 @@ uint32 ItemTemplate::GetSkill() const
     {
         0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
     };
-
 
     switch (GetClass())
     {
@@ -175,16 +182,11 @@ uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
     return uint32(shield->Quality[quality] + 0.5f);
 }
 
-void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const
+float ItemTemplate::GetDPS(uint32 itemLevel) const
 {
-    minDamage = maxDamage = 0.0f;
     uint32 quality = ItemQualities(GetQuality()) != ITEM_QUALITY_HEIRLOOM ? ItemQualities(GetQuality()) : ITEM_QUALITY_RARE;
     if (GetClass() != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
-        return;
-
-    // get the right store here
-    if (GetInventoryType() > INVTYPE_RANGEDRIGHT)
-        return;
+        return 0.0f;
 
     float dps = 0.0f;
     switch (GetInventoryType())
@@ -193,7 +195,7 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
             dps = sItemDamageAmmoStore.AssertEntry(itemLevel)->Quality[quality];
             break;
         case INVTYPE_2HWEAPON:
-            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+            if (HasFlag(ITEM_FLAG2_CASTER_WEAPON))
                 dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->Quality[quality];
             else
                 dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->Quality[quality];
@@ -209,35 +211,45 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
                 case ITEM_SUBCLASS_WEAPON_BOW:
                 case ITEM_SUBCLASS_WEAPON_GUN:
                 case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+                    if (HasFlag(ITEM_FLAG2_CASTER_WEAPON))
                         dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->Quality[quality];
                     else
                         dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->Quality[quality];
                     break;
                 default:
-                    return;
+                    break;
             }
             break;
         case INVTYPE_WEAPON:
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
-            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+            if (HasFlag(ITEM_FLAG2_CASTER_WEAPON))
                 dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->Quality[quality];
             else
                 dps = sItemDamageOneHandStore.AssertEntry(itemLevel)->Quality[quality];
             break;
         default:
-            return;
+            break;
     }
 
-    float avgDamage = dps * GetDelay() * 0.001f;
-    minDamage = (GetDmgVariance() * -0.5f + 1.0f) * avgDamage;
-    maxDamage = floor(float(avgDamage * (GetDmgVariance() * 0.5f + 1.0f) + 0.5f));
+    return dps;
+}
+
+void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const
+{
+    minDamage = maxDamage = 0.0f;
+    float dps = GetDPS(itemLevel);
+    if (dps > 0.0f)
+    {
+        float avgDamage = dps * GetDelay() * 0.001f;
+        minDamage = (GetDmgVariance() * -0.5f + 1.0f) * avgDamage;
+        maxDamage = floor(float(avgDamage * (GetDmgVariance() * 0.5f + 1.0f) + 0.5f));
+    }
 }
 
 bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const
 {
-    if (GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT && alwaysAllowBoundToAccount)
+    if (HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT) && alwaysAllowBoundToAccount)
         return true;
 
     uint32 spec = player->GetLootSpecId();
@@ -251,9 +263,9 @@ bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alway
         return false;
 
     std::size_t levelIndex = 0;
-    if (player->getLevel() >= 110)
+    if (player->GetLevel() >= 110)
         levelIndex = 2;
-    else if (player->getLevel() > 40)
+    else if (player->GetLevel() > 40)
         levelIndex = 1;
 
     return Specializations[levelIndex].test(CalculateItemSpecBit(chrSpecialization));

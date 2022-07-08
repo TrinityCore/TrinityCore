@@ -27,7 +27,7 @@ struct TC_GAME_API ArenaScore : public BattlegroundScore
     protected:
         ArenaScore(ObjectGuid playerGuid, uint32 team);
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override;
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override;
 
         // For Logging purpose
         std::string ToString() const override;

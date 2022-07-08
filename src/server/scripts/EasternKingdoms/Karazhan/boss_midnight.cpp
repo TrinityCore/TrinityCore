@@ -109,7 +109,7 @@ public:
 
             scheduler.Schedule(Seconds(25), Seconds(45), [this](TaskContext task)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target,SPELL_INTANGIBLE_PRESENCE);
 
                 task.Repeat(Seconds(25), Seconds(45));
@@ -122,7 +122,7 @@ public:
             });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             // Attumen does not die until he mounts Midnight, let health fall to 1 and prevent further damage.
             if (damage >= me->GetHealth() && _phase != PHASE_MOUNTED)
@@ -159,7 +159,7 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->GetEntry() == NPC_MIDNIGHT)
                 _phase = PHASE_ATTUMEN_ENGAGES;
@@ -198,18 +198,18 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             if (Unit* midnight = ObjectAccessor::GetUnit(*me, _midnightGUID))
                 midnight->KillSelf();
 
-            BossAI::JustDied(killer);
+            _JustDied();
         }
 
-        void SetGUID(ObjectGuid guid, int32 data) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (data == NPC_MIDNIGHT)
+            if (id == NPC_MIDNIGHT)
                 _midnightGUID = guid;
         }
 
@@ -222,12 +222,12 @@ public:
                 std::bind(&BossAI::DoMeleeAttackIfReady, this));
         }
 
-        void SpellHit(Unit* /*source*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Mechanic == MECHANIC_DISARM)
+            if (spellInfo->Mechanic == MECHANIC_DISARM)
                 Talk(SAY_DISARMED);
 
-            if (spell->Id == SPELL_MOUNT)
+            if (spellInfo->Id == SPELL_MOUNT)
             {
                 if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
                 {
@@ -305,7 +305,7 @@ public:
             me->SetReactState(REACT_DEFENSIVE);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             // Midnight never dies, let health fall to 1 and prevent further damage.
             if (damage >= me->GetHealth())
@@ -337,9 +337,9 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
             {

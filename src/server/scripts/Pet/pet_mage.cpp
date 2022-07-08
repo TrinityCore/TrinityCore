@@ -26,8 +26,6 @@
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "Pet.h"
-#include "PetAI.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 
 enum MageSpells
@@ -40,192 +38,161 @@ enum MageSpells
 
 enum MirrorImageTimers
 {
-    TIMER_MIRROR_IMAGE_INIT             = 0,
-    TIMER_MIRROR_IMAGE_FROST_BOLT       = 4000,
-    TIMER_MIRROR_IMAGE_FIRE_BLAST       = 6000
+    TIMER_MIRROR_IMAGE_FIRE_BLAST       = 6500
 };
 
-class npc_pet_mage_mirror_image : public CreatureScript
+struct npc_pet_mage_mirror_image : ScriptedAI
 {
-    public:
-        npc_pet_mage_mirror_image() : CreatureScript("npc_pet_mage_mirror_image") { }
+    const float CHASE_DISTANCE = 35.0f;
 
-        struct npc_pet_mage_mirror_imageAI : CasterAI
+    npc_pet_mage_mirror_image(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
+
+        // here mirror image casts on summoner spell (not present in client dbc) 49866
+        // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcast by mirror images (stats related?)
+        // Clone Me!
+        owner->CastSpell(me, SPELL_MAGE_CLONE_ME, true);
+    }
+
+    // custom UpdateVictim implementation to handle special target selection
+    // we prioritize between things that are in combat with owner based on the owner's threat to them
+    bool UpdateVictim()
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return false;
+
+        if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->IsInCombat() && !owner->IsInCombat())
+            return false;
+
+        Unit* currentTarget = me->GetVictim();
+        if (currentTarget && !CanAIAttack(currentTarget))
         {
-            npc_pet_mage_mirror_imageAI(Creature* creature) : CasterAI(creature) { }
-
-            void Init()
-            {
-                Unit* owner = me->GetCharmerOrOwner();
-
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                Cell::VisitAllObjects(me, searcher, 40.0f);
-
-                Unit* highestThreatUnit = nullptr;
-                float highestThreat = 0.0f;
-                Unit* nearestPlayer = nullptr;
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                {
-                    // Consider only units without CC
-                    if (!(*iter)->HasBreakableByDamageCrowdControlAura((*iter)))
-                    {
-                        // Take first found unit
-                        if (!highestThreatUnit && (*iter)->GetTypeId() != TYPEID_PLAYER)
-                        {
-                            highestThreatUnit = (*iter);
-                            continue;
-                        }
-                        if (!nearestPlayer && ((*iter)->GetTypeId() == TYPEID_PLAYER))
-                        {
-                            nearestPlayer = (*iter);
-                            continue;
-                        }
-                        // else compare best fit unit with current unit
-                        float threat = (*iter)->GetThreatManager().GetThreat(owner);
-                        // Check if best fit hostile unit hs lower threat than this current unit
-                        if (highestThreat < threat)
-                        {
-                            // If so, update best fit unit
-                            highestThreat = threat;
-                            highestThreatUnit = (*iter);
-                        }
-                        // In case no unit with threat was found so far, always check for nearest unit (only for players)
-                        if ((*iter)->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            // If this player is closer than the previous one, update it
-                            if (me->GetDistance((*iter)->GetPosition()) < me->GetDistance(nearestPlayer->GetPosition()))
-                                nearestPlayer = (*iter);
-                        }
-                    }
-                }
-                // Prioritize units with threat referenced to owner
-                if (highestThreat > 0.0f && highestThreatUnit)
-                        me->Attack(highestThreatUnit, false);
-                // If there is no such target, try to attack nearest hostile unit if such exists
-                else if (nearestPlayer)
-                        me->Attack(nearestPlayer, false);
-            }
-
-            bool IsInThreatList(Unit* target)
-            {
-                Unit* owner = me->GetCharmerOrOwner();
-                return owner && target->IsThreatenedBy(owner);
-            }
-
-            void InitializeAI() override
-            {
-                CasterAI::InitializeAI();
-                Unit* owner = me->GetOwner();
-                if (!owner)
-                    return;
-
-                // here mirror image casts on summoner spell (not present in client dbc) 49866
-                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcast by mirror images (stats related?)
-                // Clone Me!
-                owner->CastSpell(me, SPELL_MAGE_CLONE_ME, false);
-            }
-
-            void EnterCombat(Unit* who) override
-            {
-                if (me->GetVictim() && !me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
-                {
-                    me->CastSpell(who, SPELL_MAGE_FIRE_BLAST, false);
-                    events.ScheduleEvent(SPELL_MAGE_FROST_BOLT, TIMER_MIRROR_IMAGE_INIT);
-                    events.ScheduleEvent(SPELL_MAGE_FIRE_BLAST, TIMER_MIRROR_IMAGE_FIRE_BLAST);
-                }
-                else
-                    EnterEvadeMode(EVADE_REASON_OTHER);
-            }
-
-            void Reset() override
-            {
-                events.Reset();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                Unit* owner = me->GetCharmerOrOwner();
-                if (!owner)
-                    return;
-
-                Unit* target = owner->getAttackerForHelper();
-
-                events.Update(diff);
-
-                // prevent CC interrupts by images
-                if (me->GetVictim() && me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
-                {
-                    me->InterruptNonMeleeSpells(false);
-                    return;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                // assign target if image doesnt have any or the target is not actual
-                if (!target || me->GetVictim() != target)
-                {
-                    Unit* ownerTarget = nullptr;
-                    if (Player* playerOwner = me->GetCharmerOrOwner()->ToPlayer())
-                        ownerTarget = playerOwner->GetSelectedUnit();
-
-                    // recognize which victim will be choosen
-                    if (ownerTarget && ownerTarget->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (!ownerTarget->HasBreakableByDamageCrowdControlAura(ownerTarget))
-                            me->Attack(ownerTarget, false);
-                    }
-                    else if (ownerTarget && (ownerTarget->GetTypeId() != TYPEID_PLAYER) && IsInThreatList(ownerTarget))
-                    {
-                        if (!ownerTarget->HasBreakableByDamageCrowdControlAura(ownerTarget))
-                            me->Attack(ownerTarget, false);
-                    }
-                    else
-                        Init();
-                }
-
-                if (uint32 spellId = events.ExecuteEvent())
-                {
-                    if (spellId == SPELL_MAGE_FROST_BOLT)
-                    {
-                        events.ScheduleEvent(SPELL_MAGE_FROST_BOLT, TIMER_MIRROR_IMAGE_FROST_BOLT);
-                        DoCastVictim(spellId);
-                    }
-                    else if (spellId == SPELL_MAGE_FIRE_BLAST)
-                    {
-                        DoCastVictim(spellId);
-                        events.ScheduleEvent(SPELL_MAGE_FIRE_BLAST, TIMER_MIRROR_IMAGE_FIRE_BLAST);
-                    }
-                }
-            }
-
-            // Do not reload Creature templates on evade mode enter - prevent visual lost
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                if (me->IsInEvadeMode() || !me->IsAlive())
-                    return;
-
-                Unit* owner = me->GetCharmerOrOwner();
-
-                me->CombatStop(true);
-                if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
-                {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
-                }
-                Init();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_pet_mage_mirror_imageAI(creature);
+            me->InterruptNonMeleeSpells(true); // do not finish casting on invalid targets
+            me->AttackStop();
+            currentTarget = nullptr;
         }
+
+        // don't reselect if we're currently casting anyway
+        if (currentTarget && me->HasUnitState(UNIT_STATE_CASTING))
+            return true;
+
+        Unit* selectedTarget = nullptr;
+        CombatManager const& mgr = owner->GetCombatManager();
+        if (mgr.HasPvPCombat())
+        { // select pvp target
+            float minDistance = 0.0f;
+            for (auto const& pair : mgr.GetPvPCombatRefs())
+            {
+                Unit* target = pair.second->GetOther(owner);
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    continue;
+                if (!CanAIAttack(target))
+                    continue;
+
+                float dist = owner->GetDistance(target);
+                if (!selectedTarget || dist < minDistance)
+                {
+                    selectedTarget = target;
+                    minDistance = dist;
+                }
+            }
+        }
+
+        if (!selectedTarget)
+        { // select pve target
+            float maxThreat = 0.0f;
+            for (auto const& pair : mgr.GetPvECombatRefs())
+            {
+                Unit* target = pair.second->GetOther(owner);
+                if (!CanAIAttack(target))
+                    continue;
+
+                float threat = target->GetThreatManager().GetThreat(owner);
+                if (threat >= maxThreat)
+                {
+                    selectedTarget = target;
+                    maxThreat = threat;
+                }
+            }
+        }
+
+        if (!selectedTarget)
+        {
+            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            return false;
+        }
+
+        if (selectedTarget != me->GetVictim())
+            AttackStartCaster(selectedTarget, CHASE_DISTANCE);
+        return true;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        Unit* owner = me->GetOwner();
+        if (!owner)
+        {
+            me->DespawnOrUnsummon();
+            return;
+        }
+
+        if (_fireBlastTimer)
+        {
+            if (_fireBlastTimer <= diff)
+                _fireBlastTimer = 0;
+            else
+                _fireBlastTimer -= diff;
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (!_fireBlastTimer)
+        {
+            DoCastVictim(SPELL_MAGE_FIRE_BLAST);
+            _fireBlastTimer = TIMER_MIRROR_IMAGE_FIRE_BLAST;
+        }
+        else
+            DoCastVictim(SPELL_MAGE_FROST_BOLT);
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        Unit* owner = me->GetOwner();
+        return owner && who->IsAlive() && me->IsValidAttackTarget(who) &&
+            !who->HasBreakableByDamageCrowdControlAura() &&
+            who->IsInCombatWith(owner) && ScriptedAI::CanAIAttack(who);
+    }
+
+    // Do not reload Creature templates on evade mode enter - prevent visual lost
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (me->IsInEvadeMode() || !me->IsAlive())
+            return;
+
+        Unit* owner = me->GetCharmerOrOwner();
+
+        me->CombatStop(true);
+        if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+        {
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+    }
+
+    uint32 _fireBlastTimer = 0;
 };
 
 void AddSC_mage_pet_scripts()
 {
-    new npc_pet_mage_mirror_image();
+    RegisterCreatureAI(npc_pet_mage_mirror_image);
 }

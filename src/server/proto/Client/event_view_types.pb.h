@@ -258,9 +258,7 @@ class TC_PROTO_API ViewMarker : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -415,7 +413,6 @@ inline void ViewMarker::set_last_message_time(::google::protobuf::uint64 value) 
   // @@protoc_insertion_point(field_set:bgs.protocol.ViewMarker.last_message_time)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -424,13 +421,11 @@ inline void ViewMarker::set_last_message_time(::google::protobuf::uint64 value) 
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::EventOrder> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::EventOrder>() {
   return ::bgs::protocol::EventOrder_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

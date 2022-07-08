@@ -23,8 +23,8 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "karazhan.h"
+#include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -121,9 +121,8 @@ public:
         InfernalPoint *point;
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
         void UpdateAI(uint32 diff) override
         {
@@ -154,20 +153,20 @@ public:
                     creature->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_INFERNAL_RELAY)
+            if (spellInfo->Id == SPELL_INFERNAL_RELAY)
             {
                 me->SetDisplayId(me->GetNativeDisplayId());
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 HellfireTimer = 4000;
                 CleanupTimer = 170000;
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
-            if (done_by->GetGUID() != malchezaar)
+            if (!done_by || done_by->GetGUID() != malchezaar)
                 damage = 0;
         }
 
@@ -271,7 +270,7 @@ public:
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -339,7 +338,10 @@ public:
                     enfeeble_targets[i] = target->GetGUID();
                     enfeeble_health[i] = target->GetHealth();
 
-                    target->CastSpell(target, SPELL_ENFEEBLE, true, nullptr, nullptr, me->GetGUID());
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.OriginalCaster = me->GetGUID();
+                    target->CastSpell(target, SPELL_ENFEEBLE, args);
                     target->SetHealth(1);
                 }
         }
@@ -368,7 +370,7 @@ public:
                 pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
             }
 
-            Creature* infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
+            Creature* infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 3min);
 
             if (infernal)
             {
@@ -441,13 +443,13 @@ public:
 
                     Talk(SAY_AXE_TOSS2);
 
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true);
                     for (uint8 i = 0; i < 2; ++i)
                     {
-                        Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                        Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
                         if (axe)
                         {
-                            axe->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            axe->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             axe->SetFaction(me->GetFaction());
                             axes[i] = axe->GetGUID();
                             if (target)
@@ -482,7 +484,7 @@ public:
                 {
                     AxesTargetSwitchTimer = urand(7500, 20000);
 
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
@@ -490,8 +492,7 @@ public:
                             {
                                 if (axe->GetVictim())
                                     ResetThreat(axe->GetVictim(), axe);
-                                if (target)
-                                    AddThreat(target, 1000000.0f, axe);
+                                AddThreat(target, 1000000.0f, axe);
                             }
                         }
                     }
@@ -499,7 +500,7 @@ public:
 
                 if (AmplifyDamageTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                         DoCast(target, SPELL_AMPLIFY_DAMAGE);
                     AmplifyDamageTimer = urand(20000, 30000);
                 } else AmplifyDamageTimer -= diff;
@@ -526,7 +527,7 @@ public:
                     if (phase == 1)
                         target = me->GetVictim();        // the tank
                     else                                          // anyone but the tank
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                        target = SelectTarget(SelectTargetMethod::Random, 1, 100, true);
 
                     if (target)
                         DoCast(target, SPELL_SW_PAIN);

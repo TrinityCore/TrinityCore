@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
@@ -67,9 +66,9 @@ struct boss_hogger : public BossAI
         _hasEnraged = false;
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::EnterCombat(who);
+        BossAI::JustEngagedWith(who);
 
         Talk(SAY_PULL);
 
@@ -111,7 +110,7 @@ struct boss_hogger : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(30, damage) && !_hasEnraged)
         {

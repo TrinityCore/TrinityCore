@@ -46,7 +46,7 @@ CinematicMgr::~CinematicMgr()
 void CinematicMgr::NextCinematicCamera()
 {
     // Sanity check for active camera set
-    if (!m_activeCinematic || m_activeCinematicCameraIndex >= int32(Trinity::Containers::Size(m_activeCinematic->Camera)))
+    if (!m_activeCinematic || m_activeCinematicCameraIndex >= int32(std::size(m_activeCinematic->Camera)))
         return;
 
     uint32 cinematicCameraId = m_activeCinematic->Camera[++m_activeCinematicCameraIndex];
@@ -66,8 +66,8 @@ void CinematicMgr::NextCinematicCamera()
             if (!pos.IsPositionValid())
                 return;
 
-            player->GetMap()->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
-            m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE * IN_MILLISECONDS);
+            player->GetMap()->LoadGridForActiveObject(pos.GetPositionX(), pos.GetPositionY(), player);
+            m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5min);
             if (m_CinematicObject)
             {
                 m_CinematicObject->setActive(true);
@@ -121,7 +121,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
         lastPosition.Relocate(cam.locations);
         lastTimestamp = cam.timeStamp;
     }
-    float angle = lastPosition.GetAngle(&nextPosition);
+    float angle = lastPosition.GetAbsoluteAngle(&nextPosition);
     angle -= lastPosition.GetOrientation();
     if (angle < 0)
         angle += 2 * float(M_PI);

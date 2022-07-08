@@ -60,10 +60,10 @@ namespace WorldPackets
             ByteBuffer Data;
         };
 
-        class SetSessionState final : public ServerPacket
+        class ConnectionStatus final : public ServerPacket
         {
         public:
-            SetSessionState() : ServerPacket(SMSG_BATTLENET_SET_SESSION_STATE, 1) { }
+            ConnectionStatus() : ServerPacket(SMSG_BATTLE_NET_CONNECTION_STATUS, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -71,10 +71,10 @@ namespace WorldPackets
             bool SuppressNotification = true;
         };
 
-        class RealmListTicket final : public ServerPacket
+        class ChangeRealmTicketResponse final : public ServerPacket
         {
         public:
-            RealmListTicket() : ServerPacket(SMSG_BATTLENET_REALM_LIST_TICKET) { }
+            ChangeRealmTicketResponse() : ServerPacket(SMSG_CHANGE_REALM_TICKET_RESPONSE) { }
 
             WorldPacket const* Write() override;
 
@@ -94,10 +94,10 @@ namespace WorldPackets
             MessageBuffer Data;
         };
 
-        class RequestRealmListTicket final : public ClientPacket
+        class ChangeRealmTicket final : public ClientPacket
         {
         public:
-            RequestRealmListTicket(WorldPacket&& packet) : ClientPacket(CMSG_BATTLENET_REQUEST_REALM_LIST_TICKET, std::move(packet)) { }
+            ChangeRealmTicket(WorldPacket&& packet) : ClientPacket(CMSG_CHANGE_REALM_TICKET, std::move(packet)) { }
 
             void Read() override;
 

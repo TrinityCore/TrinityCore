@@ -20,8 +20,8 @@
 
 struct NpcTextData
 {
-    float Probability;
-    uint32 BroadcastTextID;
+    float Probability = 0.0f;
+    uint32 BroadcastTextID = 0;
 };
 
 #define MAX_NPC_TEXT_OPTIONS 8

@@ -20,8 +20,6 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
-#include "SharedDefines.h"
-
 #include <string>
 #include <utility>
 #include <vector>
@@ -54,13 +52,13 @@ typedef std::vector<Signature> SignaturesVector;
 
 struct Petition
 {
-    ObjectGuid       petitionGuid;
-    ObjectGuid       ownerGuid;
-    std::string      petitionName;
-    SignaturesVector signatures;
+    ObjectGuid       PetitionGuid;
+    ObjectGuid       OwnerGuid;
+    std::string      PetitionName;
+    SignaturesVector Signatures;
 
     bool IsPetitionSignedByAccount(uint32 accountId) const;
-    void AddSignature(ObjectGuid petitionGuid, uint32 accountId, ObjectGuid playerGuid, bool isLoading);
+    void AddSignature(uint32 accountId, ObjectGuid playerGuid, bool isLoading);
     void UpdateName(std::string const& newName);
     void RemoveSignatureBySigner(ObjectGuid playerGuid);
 };

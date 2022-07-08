@@ -37,13 +37,14 @@ class DefenseMessageBuilder
         DefenseMessageBuilder(uint32 zoneId, uint32 id)
             : _zoneId(zoneId), _id(id) { }
 
-        WorldPackets::Chat::DefenseMessage* operator()(LocaleConstant locale) const
+        Trinity::PacketSenderOwning<WorldPackets::Chat::DefenseMessage>* operator()(LocaleConstant locale) const
         {
             std::string text = sOutdoorPvPMgr->GetDefenseMessage(_zoneId, _id, locale);
 
-            WorldPackets::Chat::DefenseMessage* defenseMessage = new WorldPackets::Chat::DefenseMessage();
-            defenseMessage->ZoneID = _zoneId;
-            defenseMessage->MessageText = text;
+            Trinity::PacketSenderOwning<WorldPackets::Chat::DefenseMessage>* defenseMessage = new Trinity::PacketSenderOwning<WorldPackets::Chat::DefenseMessage>();
+            defenseMessage->Data.ZoneID = _zoneId;
+            defenseMessage->Data.MessageText = text;
+            defenseMessage->Data.Write();
             return defenseMessage;
         }
 
@@ -164,56 +165,23 @@ bool OPvPCapturePoint::DelCreature(uint32 type)
         TC_LOG_DEBUG("outdoorpvp", "opvp creature type %u was already deleted", type);
         return false;
     }
-
-    auto bounds = m_PvP->GetMap()->GetCreatureBySpawnIdStore().equal_range(spawnId);
-    for (auto itr = bounds.first; itr != bounds.second;)
-    {
-        Creature* c = itr->second;
-        ++itr;
-        // Don't save respawn time
-        c->SetRespawnTime(0);
-        c->DespawnOrUnsummon();
-        c->AddObjectToRemoveList();
-    }
-
     TC_LOG_DEBUG("outdoorpvp", "deleting opvp creature type %u", type);
-    // explicit removal from map
-    // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
-    // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
-    //if (Map* map = sMapMgr->FindMap(cr->GetMapId()))
-    //    map->Remove(cr, false);
-    // delete respawn time for this creature
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
-    stmt->setUInt64(0, spawnId);
-    stmt->setUInt16(1, m_PvP->GetMap()->GetId());
-    stmt->setUInt32(2, 0);  // instance id, always 0 for world maps
-    CharacterDatabase.Execute(stmt);
-
-    sObjectMgr->DeleteCreatureData(spawnId);
     m_CreatureTypes[m_Creatures[type]] = 0;
     m_Creatures[type] = 0;
-    return true;
+
+    return Creature::DeleteFromDB(spawnId);
 }
 
 bool OPvPCapturePoint::DelObject(uint32 type)
 {
-    if (!m_Objects[type])
+    uint32 spawnId = m_Objects[type];
+    if (!spawnId)
         return false;
 
-    ObjectGuid::LowType spawnId = m_Objects[type];
-    auto bounds = m_PvP->GetMap()->GetGameObjectBySpawnIdStore().equal_range(spawnId);
-    for (auto itr = bounds.first; itr != bounds.second;)
-    {
-        GameObject* go = itr->second;
-        ++itr;
-        // Don't save respawn time
-        go->SetRespawnTime(0);
-        go->Delete();
-    }
-    sObjectMgr->DeleteGameObjectData(spawnId);
     m_ObjectTypes[m_Objects[type]] = 0;
     m_Objects[type] = 0;
-    return true;
+
+    return GameObject::DeleteFromDB(spawnId);
 }
 
 bool OPvPCapturePoint::DelCapturePoint()
@@ -489,7 +457,7 @@ bool OutdoorPvP::IsInsideObjective(Player* player) const
 
 bool OPvPCapturePoint::IsInsideObjective(Player* player) const
 {
-    GuidSet const &plSet = m_activePlayers[player->GetTeamId()];
+    GuidSet const& plSet = m_activePlayers[player->GetTeamId()];
     return plSet.find(player->GetGUID()) != plSet.end();
 }
 
@@ -557,7 +525,7 @@ int32 OPvPCapturePoint::HandleOpenGo(Player* /*player*/, GameObject* go)
 void OutdoorPvP::BroadcastPacket(WorldPacket const* data) const
 {
     // This is faster than sWorld->SendZoneMessage
-    for (uint32 team = 0; team < 2; ++team)
+    for (uint32 team = 0; team < PVP_TEAMS_COUNT; ++team)
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* const player = ObjectAccessor::FindPlayer(*itr))
                 player->SendDirectMessage(data);
@@ -589,7 +557,7 @@ void OutdoorPvP::RegisterZone(uint32 zoneId)
 
 bool OutdoorPvP::HasPlayer(Player const* player) const
 {
-    GuidSet const &plSet = m_players[player->GetTeamId()];
+    GuidSet const& plSet = m_players[player->GetTeamId()];
     return plSet.find(player->GetGUID()) != plSet.end();
 }
 
@@ -636,14 +604,14 @@ void OutdoorPvP::OnGameObjectRemove(GameObject* go)
 void OutdoorPvP::SendDefenseMessage(uint32 zoneId, uint32 id)
 {
     DefenseMessageBuilder builder(zoneId, id);
-    Trinity::LocalizedPacketDo<DefenseMessageBuilder> localizer(builder);
+    Trinity::LocalizedDo<DefenseMessageBuilder> localizer(builder);
     BroadcastWorker(localizer, zoneId);
 }
 
 template<class Worker>
 void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
 {
-    for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
+    for (uint32 i = 0; i < PVP_TEAMS_COUNT; ++i)
         for (GuidSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->GetZoneId() == zoneId)
@@ -652,8 +620,7 @@ void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
 
 void OutdoorPvP::SetMapFromZone(uint32 zone)
 {
-    AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(zone);
-    ASSERT(areaTable);
+    AreaTableEntry const* areaTable = sAreaTableStore.AssertEntry(zone);
     Map* map = sMapMgr->CreateBaseMap(areaTable->ContinentID);
     ASSERT(!map->Instanceable());
     m_map = map;

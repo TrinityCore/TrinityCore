@@ -29,48 +29,37 @@ enum Events
     EVENT_THROW_NET   = 1
 };
 
-class boss_gelihast : public CreatureScript
+struct boss_gelihast : public BossAI
 {
-public:
-    boss_gelihast() : CreatureScript("boss_gelihast") { }
+    boss_gelihast(Creature* creature) : BossAI(creature, DATA_GELIHAST) { }
 
-    struct boss_gelihastAI : public BossAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_gelihastAI(Creature* creature) : BossAI(creature, DATA_GELIHAST) { }
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_THROW_NET, 2s, 4s);
+    }
 
-        void EnterCombat(Unit* /*who*/) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_THROW_NET, urand(2000, 4000));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            if (eventId == EVENT_THROW_NET)
             {
-                if (eventId == EVENT_THROW_NET)
-                {
-                    DoCastVictim(SPELL_NET);
-                    events.ScheduleEvent(EVENT_THROW_NET, urand(4000, 7000));
-                }
+                DoCastVictim(SPELL_NET);
+                events.ScheduleEvent(EVENT_THROW_NET, 4s, 7s);
             }
-
-            DoMeleeAttackIfReady();
         }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackfathomDeepsAI<boss_gelihastAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_gelihast()
 {
-    new boss_gelihast();
+    RegisterBlackfathomDeepsCreatureAI(boss_gelihast);
 }

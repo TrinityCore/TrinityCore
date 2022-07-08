@@ -37,7 +37,7 @@ namespace WorldPackets
             ObjectGuid CasterGUID;
             ObjectGuid CastID;
             int32 SpellID = 0;
-            int32 SpellXSpellVisualID = 0;
+            Spells::SpellCastVisual Visual;
             int32 Damage = 0;
             int32 OriginalDamage = 0;
             int32 Overkill = -1;
@@ -68,31 +68,19 @@ namespace WorldPackets
         class SpellExecuteLog final : public CombatLogServerPacket
         {
         public:
-            struct SpellLogEffect
-            {
-                int32 Effect = 0;
-
-                std::vector<SpellLogEffectPowerDrainParams> PowerDrainTargets;
-                std::vector<SpellLogEffectExtraAttacksParams> ExtraAttacksTargets;
-                std::vector<SpellLogEffectDurabilityDamageParams> DurabilityDamageTargets;
-                std::vector<SpellLogEffectGenericVictimParams> GenericVictimTargets;
-                std::vector<SpellLogEffectTradeSkillItemParams> TradeSkillTargets;
-                std::vector<SpellLogEffectFeedPetParams> FeedPetTargets;
-            };
-
             SpellExecuteLog() : CombatLogServerPacket(SMSG_SPELL_EXECUTE_LOG, 16 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid Caster;
             int32 SpellID = 0;
-            std::vector<SpellLogEffect> Effects;
+            std::vector<SpellLogEffect> const* Effects = nullptr;
         };
 
         class SpellHealLog final : public CombatLogServerPacket
         {
         public:
-            SpellHealLog() : CombatLogServerPacket(SMSG_SPELL_HEAL_LOG, 16 + 16 + 4 * 4 + 1) { }
+            SpellHealLog() : CombatLogServerPacket(SMSG_SPELL_HEAL_LOG, 16 + 16 + 4 * 5 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -323,6 +311,23 @@ namespace WorldPackets
             UnkAttackerState UnkState;
             float Unk = 0.0f;
             Spells::ContentTuningParams ContentTuning;
+        };
+
+        class SpellAbsorbLog final : public CombatLogServerPacket
+        {
+        public:
+            SpellAbsorbLog() : CombatLogServerPacket(SMSG_SPELL_ABSORB_LOG, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Attacker;
+            ObjectGuid Victim;
+            ObjectGuid Caster;
+            int32 AbsorbedSpellID = 0;
+            int32 AbsorbSpellID = 0;
+            int32 Absorbed = 0;
+            int32 OriginalDamage = 0;
+            bool Unk = false;
         };
     }
 }

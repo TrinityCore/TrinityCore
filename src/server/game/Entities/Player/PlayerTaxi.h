@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PLAYERTAXI_H__
-#define __PLAYERTAXI_H__
+#ifndef PlayerTaxi_h__
+#define PlayerTaxi_h__
 
 #include "DBCEnums.h"
 #include "Define.h"
 #include <deque>
 #include <iosfwd>
-#include <vector>
+#include <string>
 
 struct FactionTemplateEntry;
 namespace WorldPackets
@@ -36,11 +36,11 @@ namespace WorldPackets
 class TC_GAME_API PlayerTaxi
 {
     public:
-        PlayerTaxi() : m_flightMasterFactionId(0) { m_taximask.fill(0); }
+        PlayerTaxi() : m_flightMasterFactionId(0) { }
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
-        void LoadTaxiMask(std::string const& data);
+        bool LoadTaxiMask(std::string const& data);
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
@@ -64,12 +64,11 @@ class TC_GAME_API PlayerTaxi
         TaxiMask const& GetTaxiMask() const { return m_taximask; }
 
         // Destinations
-        bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
+        [[nodiscard]] bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
         std::string SaveTaxiDestinationsToString();
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
         void AddTaxiDestination(uint32 dest) { m_TaxiDestinations.push_back(dest); }
-        void SetTaxiDestination(std::vector<uint32>& nodes) { m_TaxiDestinations.clear(); m_TaxiDestinations.insert(m_TaxiDestinations.begin(), nodes.begin(), nodes.end()); }
         uint32 GetTaxiSource() const { return m_TaxiDestinations.empty() ? 0 : m_TaxiDestinations.front(); }
         uint32 GetTaxiDestination() const { return m_TaxiDestinations.size() < 2 ? 0 : m_TaxiDestinations[1]; }
         uint32 GetCurrentTaxiPath() const;
@@ -93,4 +92,4 @@ class TC_GAME_API PlayerTaxi
 
 std::ostringstream& operator <<(std::ostringstream& ss, PlayerTaxi const& taxi);
 
-#endif
+#endif // PlayerTaxi_h__

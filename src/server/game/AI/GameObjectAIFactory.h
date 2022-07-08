@@ -18,27 +18,20 @@
 #ifndef TRINITY_GAMEOBJECTAIFACTORY_H
 #define TRINITY_GAMEOBJECTAIFACTORY_H
 
-#include "ObjectRegistry.h"
-#include "FactoryHolder.h"
+#include "SelectableAI.h"
 
 class GameObject;
 class GameObjectAI;
 
-typedef FactoryHolder<GameObjectAI, GameObject> GameObjectAICreator;
-
-struct SelectableGameObjectAI : public GameObjectAICreator, public Permissible<GameObject>
+template <class REAL_GO_AI, bool is_db_allowed = true>
+struct GameObjectAIFactory : public SelectableAI<GameObject, GameObjectAI>
 {
-    SelectableGameObjectAI(std::string const& name) : GameObjectAICreator(name), Permissible<GameObject>() { }
-};
-
-template<class REAL_GO_AI>
-struct GameObjectAIFactory : public SelectableGameObjectAI
-{
-    GameObjectAIFactory(std::string const& name) : SelectableGameObjectAI(name) { }
+    GameObjectAIFactory(std::string const& name)
+        : SelectableAI<GameObject, GameObjectAI>(name, sObjectMgr->GetScriptId(name, false), is_db_allowed) { }
 
     GameObjectAI* Create(GameObject* go) const override
     {
-        return new REAL_GO_AI(go);
+        return new REAL_GO_AI(go, GetScriptId());
     }
 
     int32 Permit(GameObject const* go) const override
@@ -47,7 +40,7 @@ struct GameObjectAIFactory : public SelectableGameObjectAI
     }
 };
 
-typedef GameObjectAICreator::FactoryHolderRegistry GameObjectAIRegistry;
+typedef SelectableAI<GameObject, GameObjectAI>::FactoryHolderRegistry GameObjectAIRegistry;
 
 #define sGameObjectAIRegistry GameObjectAIRegistry::instance()
 

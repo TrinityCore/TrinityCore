@@ -50,8 +50,8 @@ static bool IndexDirectory_OnFileFound(
 {
     TCascStorage * hs = (TCascStorage *)pvContext;
     PCASC_INDEX pIndexFile;
-    DWORD IndexValue = 0;
     DWORD IndexVersion = 0;
+    DWORD IndexValue = 0;
 
     // Auto-detect the format of the index file name
     if(hs->szIndexFormat == NULL)
@@ -71,9 +71,9 @@ static bool IndexDirectory_OnFileFound(
             return false;
 
         // Get the main index from the first two digits
-        if(ConvertStringToInt32(szFileName, 2, &IndexValue) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 0, 2, IndexValue) != ERROR_SUCCESS)
             return false;
-        if(ConvertStringToInt32(szFileName + 2, 8, &IndexVersion) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 2, 8, IndexVersion) != ERROR_SUCCESS)
             return false;
     }
     else if(hs->szIndexFormat == szIndexFormat_V1)
@@ -83,9 +83,9 @@ static bool IndexDirectory_OnFileFound(
             return false;
 
         // Get the main index from the first two digits
-        if(ConvertDigitToInt32(szFileName + 6, &IndexValue) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 6, 1, IndexValue) != ERROR_SUCCESS)
             return false;
-        if(ConvertDigitToInt32(szFileName + 7, &IndexVersion) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 7, 1, IndexVersion) != ERROR_SUCCESS)
             return false;
     }
     else
@@ -118,6 +118,7 @@ static bool IndexDirectory_OnFileFound(
 
 static LPTSTR CreateIndexFileName(TCascStorage * hs, DWORD IndexValue, DWORD IndexVersion)
 {
+    TCHAR szFullName[MAX_PATH];
     TCHAR szPlainName[0x40];
 
     // Sanity checks
@@ -127,7 +128,10 @@ static LPTSTR CreateIndexFileName(TCascStorage * hs, DWORD IndexValue, DWORD Ind
 
     // Create the full path
     CascStrPrintf(szPlainName, _countof(szPlainName), hs->szIndexFormat, IndexValue, IndexVersion);
-    return CombinePath(hs->szIndexPath, szPlainName);
+    CombinePath(szFullName, _countof(szFullName), hs->szIndexPath, szPlainName, NULL);
+
+    // Return allocated path
+    return CascNewStr(szFullName);
 }
 
 static void SaveFileOffsetBitsAndEKeyLength(TCascStorage * hs, BYTE FileOffsetBits, BYTE EKeyLength)
@@ -316,10 +320,8 @@ static DWORD LoadIndexItems(TCascStorage * hs, CASC_INDEX_HEADER & InHeader, EKE
 
     while((pbEKeyEntry + EntryLength) <= pbEKeyEnd)
     {
-        // ENCODING, DOWNLOAD, ROOT in Warcraft III Reforged build 14481
-        BREAK_ON_XKEY3(pbEKeyEntry, 0xcd, 0x3b, 0xd8);
-        BREAK_ON_XKEY3(pbEKeyEntry, 0xdb, 0xfa, 0x35);
-        BREAK_ON_XKEY3(pbEKeyEntry, 0x5c, 0xe8, 0x48);
+        // ENCODING for Starcraft II Beta
+        BREAK_ON_XKEY3(pbEKeyEntry, 0x8b, 0x0d, 0x9a);
 
         if(!PfnEKeyEntry(hs, InHeader, pbEKeyEntry))
             return ERROR_INDEX_PARSING_DONE;
@@ -581,7 +583,7 @@ static DWORD LoadLocalIndexFiles(TCascStorage * hs)
             if((IndexFile.pbFileData = LoadFileToMemory(IndexFile.szFileName, &cbFileData)) == NULL)
             {
                 // Storages downloaded by Blizzget tool don't have all index files present
-                if((dwErrCode = GetLastError()) == ERROR_FILE_NOT_FOUND)
+                if((dwErrCode = GetCascError()) == ERROR_FILE_NOT_FOUND)
                 {
                     dwErrCode = ERROR_SUCCESS;
                     break;

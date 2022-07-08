@@ -15,11 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Spell.h"
 #include "zulgurub.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Yells
 {
@@ -41,72 +39,61 @@ enum Events
 {
 };
 
-class boss_venoxis : public CreatureScript
+struct boss_venoxis : public BossAI
 {
-    public:
-        boss_venoxis() : CreatureScript("boss_venoxis") { }
+    boss_venoxis(Creature* creature) : BossAI(creature, DATA_VENOXIS) { }
 
-        struct boss_venoxisAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_PLAYER_KILL);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+    /*
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
+                default:
+                    break;
             }
 
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                Talk(SAY_AGGRO);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_PLAYER_KILL);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            /*
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-            */
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulGurubAI<boss_venoxisAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+    */
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_venoxis()
 {
-    new boss_venoxis();
+    RegisterZulGurubCreatureAI(boss_venoxis);
 }

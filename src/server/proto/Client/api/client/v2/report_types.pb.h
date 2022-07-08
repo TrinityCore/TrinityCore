@@ -25,6 +25,7 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "api/client/v2/attribute_types.pb.h"
 #include "account_types.pb.h"
 #include "rpc_types.pb.h"
 #include "message_types.pb.h"
@@ -44,6 +45,7 @@ void protobuf_ShutdownFile_api_2fclient_2fv2_2freport_5ftypes_2eproto();
 class ReportItem;
 class UserOptions;
 class ClubOptions;
+class EntityOptions;
 
 enum IssueType {
   ISSUE_TYPE_SPAM = 0,
@@ -440,11 +442,121 @@ class TC_PROTO_API ClubOptions : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static ClubOptions* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API EntityOptions : public ::google::protobuf::Message {
+ public:
+  EntityOptions();
+  virtual ~EntityOptions();
+
+  EntityOptions(const EntityOptions& from);
+
+  inline EntityOptions& operator=(const EntityOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const EntityOptions& default_instance();
+
+  void Swap(EntityOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  EntityOptions* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const EntityOptions& from);
+  void MergeFrom(const EntityOptions& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string entity_id = 1;
+  inline bool has_entity_id() const;
+  inline void clear_entity_id();
+  static const int kEntityIdFieldNumber = 1;
+  inline const ::std::string& entity_id() const;
+  inline void set_entity_id(const ::std::string& value);
+  inline void set_entity_id(const char* value);
+  inline void set_entity_id(const char* value, size_t size);
+  inline ::std::string* mutable_entity_id();
+  inline ::std::string* release_entity_id();
+  inline void set_allocated_entity_id(::std::string* entity_id);
+
+  // optional string entity_type = 2;
+  inline bool has_entity_type() const;
+  inline void clear_entity_type();
+  static const int kEntityTypeFieldNumber = 2;
+  inline const ::std::string& entity_type() const;
+  inline void set_entity_type(const ::std::string& value);
+  inline void set_entity_type(const char* value);
+  inline void set_entity_type(const char* value, size_t size);
+  inline ::std::string* mutable_entity_type();
+  inline ::std::string* release_entity_type();
+  inline void set_allocated_entity_type(::std::string* entity_type);
+
+  // repeated .bgs.protocol.v2.Attribute attribute = 5;
+  inline int attribute_size() const;
+  inline void clear_attribute();
+  static const int kAttributeFieldNumber = 5;
+  inline const ::bgs::protocol::v2::Attribute& attribute(int index) const;
+  inline ::bgs::protocol::v2::Attribute* mutable_attribute(int index);
+  inline ::bgs::protocol::v2::Attribute* add_attribute();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+      attribute() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+      mutable_attribute();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.report.v2.EntityOptions)
+ private:
+  inline void set_has_entity_id();
+  inline void clear_has_entity_id();
+  inline void set_has_entity_type();
+  inline void clear_has_entity_type();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* entity_id_;
+  ::std::string* entity_type_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > attribute_;
+  friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_api_2fclient_2fv2_2freport_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static EntityOptions* default_instance_;
+};
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -781,6 +893,191 @@ inline void ClubOptions::set_allocated_item(::bgs::protocol::report::v2::ReportI
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v2.ClubOptions.item)
 }
 
+// -------------------------------------------------------------------
+
+// EntityOptions
+
+// optional string entity_id = 1;
+inline bool EntityOptions::has_entity_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void EntityOptions::set_has_entity_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void EntityOptions::clear_has_entity_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void EntityOptions::clear_entity_id() {
+  if (entity_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_id_->clear();
+  }
+  clear_has_entity_id();
+}
+inline const ::std::string& EntityOptions::entity_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.report.v2.EntityOptions.entity_id)
+  return *entity_id_;
+}
+inline void EntityOptions::set_entity_id(const ::std::string& value) {
+  set_has_entity_id();
+  if (entity_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_id_ = new ::std::string;
+  }
+  entity_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.report.v2.EntityOptions.entity_id)
+}
+inline void EntityOptions::set_entity_id(const char* value) {
+  set_has_entity_id();
+  if (entity_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_id_ = new ::std::string;
+  }
+  entity_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.report.v2.EntityOptions.entity_id)
+}
+inline void EntityOptions::set_entity_id(const char* value, size_t size) {
+  set_has_entity_id();
+  if (entity_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_id_ = new ::std::string;
+  }
+  entity_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.report.v2.EntityOptions.entity_id)
+}
+inline ::std::string* EntityOptions::mutable_entity_id() {
+  set_has_entity_id();
+  if (entity_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.report.v2.EntityOptions.entity_id)
+  return entity_id_;
+}
+inline ::std::string* EntityOptions::release_entity_id() {
+  clear_has_entity_id();
+  if (entity_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = entity_id_;
+    entity_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void EntityOptions::set_allocated_entity_id(::std::string* entity_id) {
+  if (entity_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete entity_id_;
+  }
+  if (entity_id) {
+    set_has_entity_id();
+    entity_id_ = entity_id;
+  } else {
+    clear_has_entity_id();
+    entity_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v2.EntityOptions.entity_id)
+}
+
+// optional string entity_type = 2;
+inline bool EntityOptions::has_entity_type() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void EntityOptions::set_has_entity_type() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void EntityOptions::clear_has_entity_type() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void EntityOptions::clear_entity_type() {
+  if (entity_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_type_->clear();
+  }
+  clear_has_entity_type();
+}
+inline const ::std::string& EntityOptions::entity_type() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.report.v2.EntityOptions.entity_type)
+  return *entity_type_;
+}
+inline void EntityOptions::set_entity_type(const ::std::string& value) {
+  set_has_entity_type();
+  if (entity_type_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_type_ = new ::std::string;
+  }
+  entity_type_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.report.v2.EntityOptions.entity_type)
+}
+inline void EntityOptions::set_entity_type(const char* value) {
+  set_has_entity_type();
+  if (entity_type_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_type_ = new ::std::string;
+  }
+  entity_type_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.report.v2.EntityOptions.entity_type)
+}
+inline void EntityOptions::set_entity_type(const char* value, size_t size) {
+  set_has_entity_type();
+  if (entity_type_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_type_ = new ::std::string;
+  }
+  entity_type_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.report.v2.EntityOptions.entity_type)
+}
+inline ::std::string* EntityOptions::mutable_entity_type() {
+  set_has_entity_type();
+  if (entity_type_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    entity_type_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.report.v2.EntityOptions.entity_type)
+  return entity_type_;
+}
+inline ::std::string* EntityOptions::release_entity_type() {
+  clear_has_entity_type();
+  if (entity_type_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = entity_type_;
+    entity_type_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void EntityOptions::set_allocated_entity_type(::std::string* entity_type) {
+  if (entity_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete entity_type_;
+  }
+  if (entity_type) {
+    set_has_entity_type();
+    entity_type_ = entity_type;
+  } else {
+    clear_has_entity_type();
+    entity_type_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v2.EntityOptions.entity_type)
+}
+
+// repeated .bgs.protocol.v2.Attribute attribute = 5;
+inline int EntityOptions::attribute_size() const {
+  return attribute_.size();
+}
+inline void EntityOptions::clear_attribute() {
+  attribute_.Clear();
+}
+inline const ::bgs::protocol::v2::Attribute& EntityOptions::attribute(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.report.v2.EntityOptions.attribute)
+  return attribute_.Get(index);
+}
+inline ::bgs::protocol::v2::Attribute* EntityOptions::mutable_attribute(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.report.v2.EntityOptions.attribute)
+  return attribute_.Mutable(index);
+}
+inline ::bgs::protocol::v2::Attribute* EntityOptions::add_attribute() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.report.v2.EntityOptions.attribute)
+  return attribute_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+EntityOptions::attribute() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.report.v2.EntityOptions.attribute)
+  return attribute_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+EntityOptions::mutable_attribute() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.report.v2.EntityOptions.attribute)
+  return &attribute_;
+}
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -792,7 +1089,6 @@ inline void ClubOptions::set_allocated_item(::bgs::protocol::report::v2::ReportI
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::report::v2::IssueType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::report::v2::IssueType>() {
@@ -808,7 +1104,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::report::v2::ClubSource>() {
   return ::bgs::protocol::report::v2::ClubSource_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

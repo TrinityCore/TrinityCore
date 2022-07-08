@@ -29,18 +29,13 @@
 #include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 #include <zlib.h>
 
 RealmList::RealmList() : _updateInterval(0)
 {
-    _realmsMutex = std::make_unique<boost::shared_mutex>();
 }
 
-RealmList::~RealmList()
-{
-}
+RealmList::~RealmList() = default;
 
 RealmList* RealmList::Instance()
 {
@@ -53,7 +48,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 {
     _updateInterval = updateInterval;
     _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _resolver = std::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
+    _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
 
     LoadBuildInfo();
     // Get the content of the realmlist table in the database
@@ -87,11 +82,11 @@ void RealmList::LoadBuildInfo()
             build.Build = fields[4].GetUInt32();
             std::string win64AuthSeedHexStr = fields[5].GetString();
             if (win64AuthSeedHexStr.length() == build.Win64AuthSeed.size() * 2)
-                HexStrToByteArray(win64AuthSeedHexStr, build.Win64AuthSeed.data());
+                HexStrToByteArray(win64AuthSeedHexStr, build.Win64AuthSeed);
 
             std::string mac64AuthSeedHexStr = fields[6].GetString();
             if (mac64AuthSeedHexStr.length() == build.Mac64AuthSeed.size() * 2)
-                HexStrToByteArray(mac64AuthSeedHexStr, build.Mac64AuthSeed.data());
+                HexStrToByteArray(mac64AuthSeedHexStr, build.Mac64AuthSeed);
 
         } while (result->NextRow());
     }
@@ -151,21 +146,21 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 std::string localAddressString = fields[3].GetString();
                 std::string localSubmaskString = fields[4].GetString();
 
-                Optional<boost::asio::ip::tcp::endpoint> externalAddress = Trinity::Net::Resolve(*_resolver, boost::asio::ip::tcp::v4(), externalAddressString, "");
+                Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
                 if (!externalAddress)
                 {
                     TC_LOG_ERROR("realmlist", "Could not resolve address %s for realm \"%s\" id %u", externalAddressString.c_str(), name.c_str(), realmId);
                     continue;
                 }
 
-                Optional<boost::asio::ip::tcp::endpoint> localAddress = Trinity::Net::Resolve(*_resolver, boost::asio::ip::tcp::v4(), localAddressString, "");
+                Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
                 if (!localAddress)
                 {
                     TC_LOG_ERROR("realmlist", "Could not resolve localAddress %s for realm \"%s\" id %u", localAddressString.c_str(), name.c_str(), realmId);
                     continue;
                 }
 
-                Optional<boost::asio::ip::tcp::endpoint> localSubmask = Trinity::Net::Resolve(*_resolver, boost::asio::ip::tcp::v4(), localSubmaskString, "");
+                Optional<boost::asio::ip::tcp::endpoint> localSubmask = _resolver->Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
                 if (!localSubmask)
                 {
                     TC_LOG_ERROR("realmlist", "Could not resolve localSubnetMask %s for realm \"%s\" id %u", localSubmaskString.c_str(), name.c_str(), realmId);
@@ -213,7 +208,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
         TC_LOG_INFO("realmlist", "Removed realm \"%s\".", itr->second.c_str());
 
     {
-        std::unique_lock<boost::shared_mutex> lock(*_realmsMutex);
+        std::unique_lock<std::shared_mutex> lock(_realmsMutex);
 
         _subRegions.swap(newSubRegions);
         _realms.swap(newRealms);
@@ -228,7 +223,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
 Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 {
-    boost::shared_lock<boost::shared_mutex> lock(*_realmsMutex);
+    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
     auto itr = _realms.find(id);
     if (itr != _realms.end())
         return &itr->second;
@@ -256,7 +251,7 @@ uint32 RealmList::GetMinorMajorBugfixVersionForBuild(uint32 build) const
 
 void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const
 {
-    boost::shared_lock<boost::shared_mutex> lock(*_realmsMutex);
+    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
     for (std::string const& subRegion : _subRegions)
         response->add_attribute_value()->set_string_value(subRegion);
 }
@@ -264,7 +259,7 @@ void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesF
 std::vector<uint8> RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build) const
 {
     std::vector<uint8> compressed;
-    boost::shared_lock<boost::shared_mutex> lock(*_realmsMutex);
+    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
     if (Realm const* realm = GetRealm(id))
     {
         if (!(realm->Flags & REALM_FLAG_OFFLINE) && realm->Build == build)
@@ -319,7 +314,7 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, std::string const& subR
 {
     JSON::RealmList::RealmListUpdates realmList;
     {
-        boost::shared_lock<boost::shared_mutex> lock(*_realmsMutex);
+        std::shared_lock<std::shared_mutex> lock(_realmsMutex);
         for (auto const& realm : _realms)
         {
             if (realm.second.Id.GetSubRegionAddress() != subRegion)
@@ -378,7 +373,7 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, std::string const& subR
 uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::address const& clientAddress, std::array<uint8, 32> const& clientSecret,
     LocaleConstant locale, std::string const& os, std::string accountName, bgs::protocol::game_utilities::v1::ClientResponse* response) const
 {
-    boost::shared_lock<boost::shared_mutex> lock(*_realmsMutex);
+    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
     if (Realm const* realm = GetRealm(Battlenet::RealmHandle(realmAddress)))
     {
         if (realm->Flags & REALM_FLAG_OFFLINE || realm->Build != build)

@@ -22,7 +22,6 @@
 #include "DBCEnums.h"
 #include "ItemDefines.h"
 #include "ItemPacketsCommon.h"
-#include "PacketUtilities.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include <array>
@@ -473,10 +472,10 @@ namespace WorldPackets
             std::array<ObjectGuid, MAX_ITEM_PROTO_SOCKETS> GemItem = { };
         };
 
-        class SocketGemsResult final : public ServerPacket
+        class SocketGemsSuccess final : public ServerPacket
         {
         public:
-            SocketGemsResult() : ServerPacket(SMSG_SOCKET_GEMS, 16 + 4 * 3 + 4) { }
+            SocketGemsSuccess() : ServerPacket(SMSG_SOCKET_GEMS_SUCCESS, 16 + 4 * 3 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -507,10 +506,10 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class SortBagsResult final : public ServerPacket
+        class BagCleanupFinished final : public ServerPacket
         {
         public:
-            SortBagsResult() : ServerPacket(SMSG_SORT_BAGS_RESULT, 0) { }
+            BagCleanupFinished() : ServerPacket(SMSG_BAG_CLEANUP_FINISHED, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -525,10 +524,10 @@ namespace WorldPackets
             ObjectGuid ItemGuid;
         };
 
-        class CharacterInventoryOverflowWarning final : public ServerPacket
+        class InventoryFullOverflow final : public ServerPacket
         {
         public:
-            CharacterInventoryOverflowWarning() : ServerPacket(SMSG_CHARACTER_INVENTORY_OVERFLOW_WARNING, 0) { }
+            InventoryFullOverflow() : ServerPacket(SMSG_INVENTORY_FULL_OVERFLOW, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };

@@ -60,118 +60,107 @@ Position const PosSummonBrood[7] =
     { -81.70527f, 280.8776f, 44.58830f, 0.526849f }
 };
 
-class boss_anzu : public CreatureScript
+struct boss_anzu : public BossAI
 {
-    public:
-        boss_anzu() : CreatureScript("boss_anzu") { }
+    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU)
+    {
+        Initialize();
+    }
 
-        struct boss_anzuAI : public BossAI
+    void Initialize()
+    {
+        _under33Percent = false;
+        _under66Percent = false;
+    }
+
+    void Reset() override
+    {
+        //_Reset();
+        events.Reset();
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14s);
+        events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->HealthBelowPctDamaged(33, damage) && !_under33Percent)
         {
-            boss_anzuAI(Creature* creature) : BossAI(creature, DATA_ANZU)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _under33Percent = false;
-                _under66Percent = false;
-            }
-
-            void Reset() override
-            {
-                //_Reset();
-                events.Reset();
-                Initialize();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14000);
-                events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5000);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void DamageTaken(Unit* /*killer*/, uint32 &damage) override
-            {
-                if (me->HealthBelowPctDamaged(33, damage) && !_under33Percent)
-                {
-                    _under33Percent = true;
-                    Talk(SAY_SUMMON_BROOD);
-                    events.ScheduleEvent(EVENT_SUMMON, 3000);
-                }
-
-                if (me->HealthBelowPctDamaged(66, damage) && !_under66Percent)
-                {
-                    _under66Percent = true;
-                    Talk(SAY_SUMMON_BROOD);
-                    events.ScheduleEvent(EVENT_SUMMON, 3000);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_PARALYZING_SCREECH:
-                            DoCastVictim(SPELL_PARALYZING_SCREECH);
-                            events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 26000);
-                            break;
-                        case EVENT_CYCLONE_OF_FEATHERS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
-                            events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21000);
-                            break;
-                        case EVENT_SUMMON:
-                            // TODO: Add pathing for Brood of Anzu
-                            for (uint8 i = 0; i < 7; i++)
-                                me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
-
-                            DoCast(me, SPELL_BANISH_SELF);
-                            events.ScheduleEvent(EVENT_SPELL_BOMB, 12000);
-                            break;
-                        case EVENT_SPELL_BOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            {
-                                if (target->GetPowerType() == POWER_MANA)
-                                {
-                                    DoCast(target, SPELL_SPELL_BOMB);
-                                    Talk(SAY_SPELL_BOMB, target);
-                                }
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            private:
-                bool _under33Percent;
-                bool _under66Percent;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetSethekkHallsAI<boss_anzuAI>(creature);
+            _under33Percent = true;
+            Talk(SAY_SUMMON_BROOD);
+            events.ScheduleEvent(EVENT_SUMMON, 3s);
         }
+
+        if (me->HealthBelowPctDamaged(66, damage) && !_under66Percent)
+        {
+            _under66Percent = true;
+            Talk(SAY_SUMMON_BROOD);
+            events.ScheduleEvent(EVENT_SUMMON, 3s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PARALYZING_SCREECH:
+                    DoCastVictim(SPELL_PARALYZING_SCREECH);
+                    events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 25s);
+                    break;
+                case EVENT_CYCLONE_OF_FEATHERS:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
+                    events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 21s);
+                    break;
+                case EVENT_SUMMON:
+                    // TODO: Add pathing for Brood of Anzu
+                    for (uint8 i = 0; i < 7; i++)
+                        me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
+
+                    DoCast(me, SPELL_BANISH_SELF);
+                    events.ScheduleEvent(EVENT_SPELL_BOMB, 12s);
+                    break;
+                case EVENT_SPELL_BOMB:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    {
+                        if (target->GetPowerType() == POWER_MANA)
+                        {
+                            DoCast(target, SPELL_SPELL_BOMB);
+                            Talk(SAY_SPELL_BOMB, target);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    private:
+        bool _under33Percent;
+        bool _under66Percent;
 };
 
 void AddSC_boss_anzu()
 {
-    new boss_anzu();
+    RegisterSethekkHallsCreatureAI(boss_anzu);
 }

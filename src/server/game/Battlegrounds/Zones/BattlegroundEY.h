@@ -98,18 +98,29 @@ enum BG_EY_Spells
 
 enum EYBattlegroundObjectEntry
 {
-    BG_OBJECT_A_DOOR_EY_ENTRY           = 184719,           //Alliance door
-    BG_OBJECT_H_DOOR_EY_ENTRY           = 184720,           //Horde door
-    BG_OBJECT_FLAG1_EY_ENTRY            = 184493,           //Netherstorm flag (generic)
-    BG_OBJECT_FLAG2_EY_ENTRY            = 184141,           //Netherstorm flag (flagstand)
-    BG_OBJECT_FLAG3_EY_ENTRY            = 184142,           //Netherstorm flag (flagdrop)
-    BG_OBJECT_A_BANNER_EY_ENTRY         = 184381,           //Visual Banner (Alliance)
-    BG_OBJECT_H_BANNER_EY_ENTRY         = 184380,           //Visual Banner (Horde)
-    BG_OBJECT_N_BANNER_EY_ENTRY         = 184382,           //Visual Banner (Neutral)
-    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY     = 184080,           //BE Tower Cap Pt
-    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY     = 184081,           //Fel Reaver Cap Pt
-    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY     = 184082,           //Human Tower Cap Pt
-    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY     = 184083            //Draenei Tower Cap Pt
+    BG_OBJECT_A_DOOR_EY_ENTRY                           = 184719,           //Alliance door
+    BG_OBJECT_H_DOOR_EY_ENTRY                           = 184720,           //Horde door
+    BG_OBJECT_FLAG1_EY_ENTRY                            = 184493,           //Netherstorm flag (generic)
+    BG_OBJECT_FLAG2_EY_ENTRY                            = 208977,           //Netherstorm flag (flagstand)
+    BG_OBJECT_A_BANNER_EY_ENTRY                         = 184381,           //Visual Banner (Alliance)
+    BG_OBJECT_H_BANNER_EY_ENTRY                         = 184380,           //Visual Banner (Horde)
+    BG_OBJECT_N_BANNER_EY_ENTRY                         = 184382,           //Visual Banner (Neutral)
+    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY                     = 184080,           //BE Tower Cap Pt
+    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY                     = 184081,           //Fel Reaver Cap Pt
+    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY                     = 184082,           //Human Tower Cap Pt
+    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY                     = 184083,           //Draenei Tower Cap Pt
+    BG_OBJECT_SPEED_BUFF_FEL_REAVER_EY_ENTRY            = 184970,
+    BG_OBJECT_RESTORATION_BUFF_FEL_REAVER_EY_ENTRY      = 184971,
+    BG_OBJECT_BERSERK_BUFF_FEL_REAVER_EY_ENTRY          = 184972,
+    BG_OBJECT_SPEED_BUFF_BLOOD_ELF_EY_ENTRY             = 184964,
+    BG_OBJECT_RESTORATION_BUFF_BLOOD_ELF_EY_ENTRY       = 184965,
+    BG_OBJECT_BERSERK_BUFF_BLOOD_ELF_EY_ENTRY           = 184966,
+    BG_OBJECT_SPEED_BUFF_DRAENEI_RUINS_EY_ENTRY         = 184976,
+    BG_OBJECT_RESTORATION_BUFF_DRAENEI_RUINS_EY_ENTRY   = 184977,
+    BG_OBJECT_BERSERK_BUFF_DRAENEI_RUINS_EY_ENTRY       = 184978,
+    BG_OBJECT_SPEED_BUFF_MAGE_TOWER_EY_ENTRY            = 184973,
+    BG_OBJECT_RESTORATION_BUFF_MAGE_TOWER_EY_ENTRY      = 184974,
+    BG_OBJECT_BERSERK_BUFF_MAGE_TOWER_EY_ENTRY          = 184975,
 };
 
 enum EYBattlegroundPointsTrigger
@@ -274,8 +285,8 @@ enum BG_EY_BroadcastTexts
     BG_EY_TEXT_ALLIANCE_LOST_BLOOD_ELF_TOWER    = 17831,
     BG_EY_TEXT_HORDE_LOST_BLOOD_ELF_TOWER       = 17832,
 
-    BG_EY_TEXT_ALLIANCE_TAKEN_DRAENEI_RUINS     = 17826,
-    BG_EY_TEXT_HORDE_TAKEN_DRAENEI_RUINS        = 17827,
+    BG_EY_TEXT_ALLIANCE_TAKEN_DRAENEI_RUINS     = 17827,
+    BG_EY_TEXT_HORDE_TAKEN_DRAENEI_RUINS        = 17826,
     BG_EY_TEXT_ALLIANCE_LOST_DRAENEI_RUINS      = 17833,
     BG_EY_TEXT_HORDE_LOST_DRAENEI_RUINS         = 17834,
 
@@ -329,11 +340,11 @@ struct BattlegroundEYLosingPointStruct
 
 struct BattlegroundEYCapturingPointStruct
 {
-    BattlegroundEYCapturingPointStruct(uint32 _DespawnNeutralObjectType, uint32 _SpawnObjectTypeAlliance, uint32 _MessageIdAlliance, uint32 _SpawnObjectTypeHorde, uint32 _MessageIdHorde, uint32 _GraveYardId)
+    BattlegroundEYCapturingPointStruct(uint32 _DespawnNeutralObjectType, uint32 _SpawnObjectTypeAlliance, uint32 _MessageIdAlliance, uint32 _SpawnObjectTypeHorde, uint32 _MessageIdHorde, uint32 _GraveyardId)
         : DespawnNeutralObjectType(_DespawnNeutralObjectType),
         SpawnObjectTypeAlliance(_SpawnObjectTypeAlliance), MessageIdAlliance(_MessageIdAlliance),
         SpawnObjectTypeHorde(_SpawnObjectTypeHorde), MessageIdHorde(_MessageIdHorde),
-        GraveYardId(_GraveYardId)
+        GraveyardId(_GraveyardId)
     { }
 
     uint32 DespawnNeutralObjectType;
@@ -341,7 +352,7 @@ struct BattlegroundEYCapturingPointStruct
     uint32 MessageIdAlliance;
     uint32 SpawnObjectTypeHorde;
     uint32 MessageIdHorde;
-    uint32 GraveYardId;
+    uint32 GraveyardId;
 };
 
 const uint8  BG_EY_TickPoints[EY_POINTS_MAX] = {1, 2, 5, 10};
@@ -390,7 +401,7 @@ struct BattlegroundEYScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
@@ -424,7 +435,7 @@ class BattlegroundEY : public Battleground
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
         bool SetupBattleground() override;
         void Reset() override;
@@ -445,7 +456,6 @@ class BattlegroundEY : public Battleground
         uint32 GetPrematureWinner() override;
 protected:
         void PostUpdateImpl(uint32 diff) override;
-        void GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const override;
 
         void EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType);
         void EventTeamCapturedPoint(Player* Source, uint32 Point);

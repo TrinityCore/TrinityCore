@@ -21,6 +21,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "DatabaseEnv.h"
+#include "GameEventSender.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "InstancePackets.h"
@@ -29,18 +30,20 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
-#include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
+#include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include <sstream>
 #include <cstdarg>
-#include "SpellMgr.h"
+
+#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#include "ScriptMgr.h"
+#endif
 
 BossBoundaryData::~BossBoundaryData()
 {
@@ -48,7 +51,7 @@ BossBoundaryData::~BossBoundaryData()
         delete it->Boundary;
 }
 
-InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetSpawnGroupsForInstance(map->GetId())),
+InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
 _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -59,6 +62,10 @@ _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatRes
    // to keep it loaded until this object is destroyed.
     module_reference = sScriptMgr->AcquireModuleReferenceOfScriptName(scriptname);
 #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+}
+
+InstanceScript::~InstanceScript()
+{
 }
 
 void InstanceScript::SaveToDB()
@@ -124,6 +131,23 @@ ObjectGuid InstanceScript::GetGuidData(uint32 type) const
     return GetObjectGuid(type);
 }
 
+void InstanceScript::TriggerGameEvent(uint32 gameEventId, WorldObject* source /*= nullptr*/, WorldObject* target /*= nullptr*/)
+{
+    if (source)
+    {
+        ZoneScript::TriggerGameEvent(gameEventId, source, target);
+        return;
+    }
+
+    ProcessEvent(target, gameEventId, source);
+    instance->DoOnPlayers([gameEventId](Player* player)
+    {
+        GameEvents::TriggerForPlayer(gameEventId, player);
+    });
+
+    GameEvents::TriggerForMap(gameEventId, instance);
+}
+
 Creature* InstanceScript::GetCreature(uint32 type)
 {
     return instance->GetCreature(GetObjectGuid(type));
@@ -141,14 +165,14 @@ void InstanceScript::SetHeaders(std::string const& dataHeaders)
             headers.push_back(header);
 }
 
-void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
+void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
 {
     for (BossBoundaryEntry const& entry : data)
         if (entry.BossId < bosses.size())
             bosses[entry.BossId].boundary.push_back(entry.Boundary);
 }
 
-void InstanceScript::LoadMinionData(const MinionData* data)
+void InstanceScript::LoadMinionData(MinionData const* data)
 {
     while (data->entry)
     {
@@ -160,7 +184,7 @@ void InstanceScript::LoadMinionData(const MinionData* data)
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
 }
 
-void InstanceScript::LoadDoorData(const DoorData* data)
+void InstanceScript::LoadDoorData(DoorData const* data)
 {
     while (data->entry)
     {
@@ -257,6 +281,9 @@ void InstanceScript::UpdateSpawnGroups()
             continue;
         if (!((1 << GetBossState(info.BossStateId)) & info.BossStates))
             continue;
+        if (((instance->GetTeamIdInInstance() == TEAM_ALLIANCE) && (info.Flags & InstanceSpawnGroupInfo::FLAG_HORDE_ONLY))
+            || ((instance->GetTeamIdInInstance() == TEAM_HORDE) && (info.Flags & InstanceSpawnGroupInfo::FLAG_ALLIANCE_ONLY)))
+            continue;
         if (info.Flags & InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN)
             curValue = FORCEBLOCK;
         else if (info.Flags & InstanceSpawnGroupInfo::FLAG_ACTIVATE_SPAWN)
@@ -272,7 +299,7 @@ void InstanceScript::UpdateSpawnGroups()
         if (doSpawn)
             instance->SpawnGroupSpawn(groupId);
         else // otherwise, set it as inactive so it no longer respawns (but don't despawn it)
-            instance->SetSpawnGroupActive(groupId, false);
+            instance->SetSpawnGroupInactive(groupId);
     }
 }
 
@@ -360,7 +387,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             if (bossInfo->state == DONE)
             {
-                TC_LOG_ERROR("map", "InstanceScript: Tried to set instance state from %s back to %s for map %u, instance id %u. Blocked!", GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
+                TC_LOG_ERROR("map", "InstanceScript: Tried to set instance boss %u state from %s back to %s for map %u, instance id %u. Blocked!", id, GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
                 return false;
             }
 
@@ -378,12 +405,11 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     InitializeCombatResurrections(1, resInterval);
                     SendEncounterStart(1, 9, resInterval, resInterval);
 
-                    Map::PlayerList const &playerList = instance->GetPlayers();
-                    if (!playerList.isEmpty())
-                        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
-                            if (Player* player = i->GetSource())
-                                if (player->IsAlive())
-                                    player->ProcSkillsAndAuras(nullptr, PROC_FLAG_ENCOUNTER_START, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+                    instance->DoOnPlayers([](Player* player)
+                    {
+                        if (player->IsAlive())
+                            Unit::ProcSkillsAndAuras(player, nullptr, PROC_FLAG_ENCOUNTER_START, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+                    });
                     break;
                 }
                 case FAIL:
@@ -557,7 +583,7 @@ void InstanceScript::DoCloseDoorOrButton(ObjectGuid guid)
         TC_LOG_DEBUG("scripts", "InstanceScript: DoCloseDoorOrButton failed");
 }
 
-void InstanceScript::DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn /*= MINUTE*/)
+void InstanceScript::DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn /*= 1min */)
 {
     if (GameObject* go = instance->GetGameObject(guid))
     {
@@ -577,105 +603,113 @@ void InstanceScript::DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn /
         if (go->isSpawned())
             return;
 
-        go->SetRespawnTime(timeToDespawn);
+        go->SetRespawnTime(timeToDespawn.count());
     }
     else
         TC_LOG_DEBUG("scripts", "InstanceScript: DoRespawnGameObject failed");
 }
 
-void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
+void InstanceScript::DoUpdateWorldState(int32 worldStateId, int32 value)
 {
-    Map::PlayerList const& lPlayers = instance->GetPlayers();
-
-    if (!lPlayers.isEmpty())
-    {
-        for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
-            if (Player* player = itr->GetSource())
-                player->SendUpdateWorldState(uiStateId, uiStateData);
-    }
-    else
-        TC_LOG_DEBUG("scripts", "DoUpdateWorldState attempt send data but no players in map.");
+    sWorldStateMgr->SetValue(worldStateId, value, instance);
 }
 
 // Send Notify to all players in instance
 void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
 {
-    InstanceMap::PlayerList const& players = instance->GetPlayers();
+    va_list ap;
+    va_start(ap, format);
+    char buff[1024];
+    vsnprintf(buff, 1024, format, ap);
+    va_end(ap);
 
-    if (!players.isEmpty())
+    instance->DoOnPlayers([&buff](Player const* player)
     {
-        va_list ap;
-        va_start(ap, format);
-        char buff[1024];
-        vsnprintf(buff, 1024, format, ap);
-        va_end(ap);
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-            if (Player* player = i->GetSource())
-                if (WorldSession* session = player->GetSession())
-                    session->SendNotification("%s", buff);
-    }
+        player->GetSession()->SendNotification("%s", buff);
+    });
 }
 
 // Update Achievement Criteria for all players in instance
-void InstanceScript::DoUpdateCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= nullptr*/)
+void InstanceScript::DoUpdateCriteria(CriteriaType type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= nullptr*/)
 {
-    Map::PlayerList const &PlayerList = instance->GetPlayers();
-
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
-}
-
-// Start timed achievement for all players in instance
-void InstanceScript::DoStartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
-{
-    Map::PlayerList const &PlayerList = instance->GetPlayers();
-
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->StartCriteriaTimer(type, entry);
-}
-
-// Stop timed achievement for all players in instance
-void InstanceScript::DoStopCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
-{
-    Map::PlayerList const &PlayerList = instance->GetPlayers();
-
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->RemoveCriteriaTimer(type, entry);
-}
-
-// Remove Auras due to Spell on all players in instance
-void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
-{
-    Map::PlayerList const& PlayerList = instance->GetPlayers();
-    if (!PlayerList.isEmpty())
+    instance->DoOnPlayers([type, miscValue1, miscValue2, unit](Player* player)
     {
-        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-        {
-            if (Player* player = itr->GetSource())
-            {
-                player->RemoveAurasDueToSpell(spell);
-                if (Pet* pet = player->GetPet())
-                    pet->RemoveAurasDueToSpell(spell);
-            }
-        }
+        player->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
+    });
+}
+
+void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
+{
+    instance->DoOnPlayers([this, spell, includePets, includeControlled](Player* player)
+    {
+        DoRemoveAurasDueToSpellOnPlayer(player, spell, includePets, includeControlled);
+    });
+}
+
+void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
+{
+    if (!player)
+        return;
+
+    player->RemoveAurasDueToSpell(spell);
+
+    if (!includePets)
+        return;
+
+    for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
+    {
+        ObjectGuid summonGUID = player->m_SummonSlot[itr2];
+        if (!summonGUID.IsEmpty())
+            if (Creature* summon = instance->GetCreature(summonGUID))
+                summon->RemoveAurasDueToSpell(spell);
+    }
+
+    if (!includeControlled)
+        return;
+
+    for (auto itr2 = player->m_Controlled.begin(); itr2 != player->m_Controlled.end(); ++itr2)
+    {
+        if (Unit* controlled = *itr2)
+            if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
+                controlled->RemoveAurasDueToSpell(spell);
     }
 }
 
-// Cast spell on all players in instance
-void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
+void InstanceScript::DoCastSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
 {
-    Map::PlayerList const &PlayerList = instance->GetPlayers();
+    instance->DoOnPlayers([this, spell, includePets, includeControlled](Player* player)
+    {
+        DoCastSpellOnPlayer(player, spell, includePets, includeControlled);
+    });
+}
 
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->CastSpell(player, spell, true);
+void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
+{
+    if (!player)
+        return;
+
+    player->CastSpell(player, spell, true);
+
+    if (!includePets)
+        return;
+
+    for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
+    {
+        ObjectGuid summonGUID = player->m_SummonSlot[itr2];
+        if (!summonGUID.IsEmpty())
+            if (Creature* summon = instance->GetCreature(summonGUID))
+                summon->CastSpell(player, spell, true);
+    }
+
+    if (!includeControlled)
+        return;
+
+    for (auto itr2 = player->m_Controlled.begin(); itr2 != player->m_Controlled.end(); ++itr2)
+    {
+        if (Unit* controlled = *itr2)
+            if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
+                controlled->CastSpell(player, spell, true);
+    }
 }
 
 bool InstanceScript::ServerAllowsTwoSideGroups()
@@ -757,7 +791,7 @@ void InstanceScript::SendEncounterEnd()
 
 void InstanceScript::SendBossKillCredit(uint32 encounterId)
 {
-    WorldPackets::Instance::BossKillCredit bossKillCreditMessage;
+    WorldPackets::Instance::BossKill bossKillCreditMessage;
     bossKillCreditMessage.DungeonEncounterID = encounterId;
 
     instance->SendToPlayers(bossKillCreditMessage.Write());
@@ -771,17 +805,16 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
     uint32 dungeonId = 0;
 
-    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    for (auto const& encounter : *encounters)
     {
-        DungeonEncounter const* encounter = *itr;
-        if (encounter->creditType == type && encounter->creditEntry == creditEntry)
+        if (encounter.creditType == type && encounter.creditEntry == creditEntry)
         {
-            completedEncounters |= 1 << encounter->dbcEntry->Bit;
-            if (encounter->lastEncounterDungeon)
+            completedEncounters |= 1 << encounter.dbcEntry->Bit;
+            if (encounter.lastEncounterDungeon)
             {
-                dungeonId = encounter->lastEncounterDungeon;
+                dungeonId = encounter.lastEncounterDungeon;
                 TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u",
-                    instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name[sWorld->GetDefaultDbcLocale()], dungeonId);
+                    instance->GetMapName(), instance->GetInstanceId(), encounter.dbcEntry->Name[sWorld->GetDefaultDbcLocale()], dungeonId);
                 break;
             }
         }
@@ -790,15 +823,19 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     if (dungeonId)
     {
         Map::PlayerList const& players = instance->GetPlayers();
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+        for (auto const& ref : players)
         {
-            if (Player* player = i->GetSource())
+            if (Player* player = ref.GetSource())
+            {
                 if (Group* grp = player->GetGroup())
+                {
                     if (grp->isLFGGroup())
                     {
                         sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
                         return;
                     }
+                }
+            }
         }
     }
 }
@@ -815,10 +852,10 @@ void InstanceScript::UpdateEncounterStateForSpellCast(uint32 spellId, Unit* sour
 
 void InstanceScript::UpdatePhasing()
 {
-    Map::PlayerList const& players = instance->GetPlayers();
-    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        if (Player* player = itr->GetSource())
-            PhasingHandler::SendToPlayer(player);
+    instance->DoOnPlayers([](Player const* player)
+    {
+        PhasingHandler::SendToPlayer(player);
+    });
 }
 
 /*static*/ char const* InstanceScript::GetBossStateName(uint8 state)

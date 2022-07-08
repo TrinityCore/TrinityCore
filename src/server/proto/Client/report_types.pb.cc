@@ -65,7 +65,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_report_5ftypes_2eproto() {
   protobuf_AddDesc_report_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -325,20 +324,20 @@ void protobuf_AddDesc_report_5ftypes_2eproto() {
     ".account.v1.GameAccountHandle\022\014\n\004text\030\002 "
     "\001(\t\"`\n\024RealLifeThreatReport\022:\n\006target\030\001 "
     "\001(\0132*.bgs.protocol.account.v1.GameAccoun"
-    "tHandle\022\014\n\004text\030\002 \001(\t\"n\n\034InappropriateBa"
+    "tHandle\022\014\n\004text\030\002 \001(\t\"v\n\034InappropriateBa"
     "ttleTagReport\022:\n\006target\030\001 \001(\0132*.bgs.prot"
-    "ocol.account.v1.GameAccountHandle\022\022\n\nbat"
-    "tle_tag\030\002 \001(\t\"K\n\rHackingReport\022:\n\006target"
-    "\030\001 \001(\0132*.bgs.protocol.account.v1.GameAcc"
-    "ountHandle\"K\n\rBottingReport\022:\n\006target\030\001 "
-    "\001(\0132*.bgs.protocol.account.v1.GameAccoun"
-    "tHandle\"\345\001\n\006Report\022\023\n\013report_type\030\001 \002(\t\022"
-    "*\n\tattribute\030\002 \003(\0132\027.bgs.protocol.Attrib"
-    "ute\022\025\n\nreport_qos\030\003 \001(\005:\0010\0221\n\021reporting_"
-    "account\030\004 \001(\0132\026.bgs.protocol.EntityId\0226\n"
-    "\026reporting_game_account\030\005 \001(\0132\026.bgs.prot"
-    "ocol.EntityId\022\030\n\020report_timestamp\030\006 \001(\006B"
-    "\005H\001\200\001\000", 1686);
+    "ocol.account.v1.GameAccountHandle\022\032\n\nbat"
+    "tle_tag\030\002 \001(\tB\006\202\371+\002\010\001\"K\n\rHackingReport\022:"
+    "\n\006target\030\001 \001(\0132*.bgs.protocol.account.v1"
+    ".GameAccountHandle\"K\n\rBottingReport\022:\n\006t"
+    "arget\030\001 \001(\0132*.bgs.protocol.account.v1.Ga"
+    "meAccountHandle\"\345\001\n\006Report\022\023\n\013report_typ"
+    "e\030\001 \002(\t\022*\n\tattribute\030\002 \003(\0132\027.bgs.protoco"
+    "l.Attribute\022\025\n\nreport_qos\030\003 \001(\005:\0010\0221\n\021re"
+    "porting_account\030\004 \001(\0132\026.bgs.protocol.Ent"
+    "ityId\0226\n\026reporting_game_account\030\005 \001(\0132\026."
+    "bgs.protocol.EntityId\022\030\n\020report_timestam"
+    "p\030\006 \001(\006B\005H\001\200\001\000", 1694);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "report_types.proto", &protobuf_RegisterTypes);
   ReportType::default_instance_ = new ReportType();
@@ -369,7 +368,6 @@ struct StaticDescriptorInitializer_report_5ftypes_2eproto {
     protobuf_AddDesc_report_5ftypes_2eproto();
   }
 } static_descriptor_initializer_report_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -487,7 +485,6 @@ void ReportType::clear_type() {
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void ReportType::Clear() {
   if (has_user_description()) {
@@ -917,7 +914,6 @@ void ReportType::CopyFrom(const ReportType& from) {
 }
 
 bool ReportType::IsInitialized() const {
-
   if (has_custom_report()) {
     if (!this->custom_report().IsInitialized()) return false;
   }
@@ -960,7 +956,6 @@ void ReportType::Swap(ReportType* other) {
   metadata.reflection = ReportType_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1281,7 +1276,6 @@ void CustomReport::CopyFrom(const CustomReport& from) {
 }
 
 bool CustomReport::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -1304,7 +1298,6 @@ void CustomReport::Swap(CustomReport* other) {
   metadata.reflection = CustomReport_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1582,7 +1575,6 @@ void SpamReport::CopyFrom(const SpamReport& from) {
 }
 
 bool SpamReport::IsInitialized() const {
-
   if (has_target()) {
     if (!this->target().IsInitialized()) return false;
   }
@@ -1606,7 +1598,6 @@ void SpamReport::Swap(SpamReport* other) {
   metadata.reflection = SpamReport_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1874,7 +1865,6 @@ void HarassmentReport::CopyFrom(const HarassmentReport& from) {
 }
 
 bool HarassmentReport::IsInitialized() const {
-
   if (has_target()) {
     if (!this->target().IsInitialized()) return false;
   }
@@ -1898,7 +1888,6 @@ void HarassmentReport::Swap(HarassmentReport* other) {
   metadata.reflection = HarassmentReport_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2166,7 +2155,6 @@ void RealLifeThreatReport::CopyFrom(const RealLifeThreatReport& from) {
 }
 
 bool RealLifeThreatReport::IsInitialized() const {
-
   if (has_target()) {
     if (!this->target().IsInitialized()) return false;
   }
@@ -2190,7 +2178,6 @@ void RealLifeThreatReport::Swap(RealLifeThreatReport* other) {
   metadata.reflection = RealLifeThreatReport_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2458,7 +2445,6 @@ void InappropriateBattleTagReport::CopyFrom(const InappropriateBattleTagReport& 
 }
 
 bool InappropriateBattleTagReport::IsInitialized() const {
-
   if (has_target()) {
     if (!this->target().IsInitialized()) return false;
   }
@@ -2482,7 +2468,6 @@ void InappropriateBattleTagReport::Swap(InappropriateBattleTagReport* other) {
   metadata.reflection = InappropriateBattleTagReport_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2689,7 +2674,6 @@ void HackingReport::CopyFrom(const HackingReport& from) {
 }
 
 bool HackingReport::IsInitialized() const {
-
   if (has_target()) {
     if (!this->target().IsInitialized()) return false;
   }
@@ -2712,7 +2696,6 @@ void HackingReport::Swap(HackingReport* other) {
   metadata.reflection = HackingReport_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2919,7 +2902,6 @@ void BottingReport::CopyFrom(const BottingReport& from) {
 }
 
 bool BottingReport::IsInitialized() const {
-
   if (has_target()) {
     if (!this->target().IsInitialized()) return false;
   }
@@ -2942,7 +2924,6 @@ void BottingReport::Swap(BottingReport* other) {
   metadata.reflection = BottingReport_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3379,7 +3360,6 @@ void Report::CopyFrom(const Report& from) {
 
 bool Report::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   if (has_reporting_account()) {
     if (!this->reporting_account().IsInitialized()) return false;
@@ -3411,7 +3391,6 @@ void Report::Swap(Report* other) {
   metadata.reflection = Report_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -16,7 +16,6 @@
  */
 
 #include "ItemPackets.h"
-#include "Player.h"
 
 void WorldPackets::Item::BuyBackItem::Read()
 {
@@ -32,7 +31,7 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Muid;
     _worldPacket >> Slot;
     _worldPacket >> Item;
-    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(2));
+    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(3));
 }
 
 WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
@@ -106,7 +105,7 @@ WorldPacket const* WorldPackets::Item::ItemPurchaseRefundResult::Write()
 {
     _worldPacket << ItemGUID;
     _worldPacket << uint8(Result);
-    _worldPacket.WriteBit(Contents.is_initialized());
+    _worldPacket.WriteBit(Contents.has_value());
     _worldPacket.FlushBits();
     if (Contents)
         _worldPacket << *Contents;
@@ -347,7 +346,7 @@ void WorldPackets::Item::SocketGems::Read()
         _worldPacket >> gemGuid;
 }
 
-WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
+WorldPacket const* WorldPackets::Item::SocketGemsSuccess::Write()
 {
     _worldPacket << Item;
 

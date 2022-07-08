@@ -32,10 +32,12 @@ enum ACDataTypes
     DATA_EXARCH_MALADAAR            = 1
 };
 
-template<typename AI>
-inline AI* GetAuchenaiCryptsAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetAuchenaiCryptsAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ACScriptName);
+    return GetInstanceAI<AI>(obj, ACScriptName);
 }
+
+#define RegisterAuchenaiCryptsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAuchenaiCryptsAI)
 
 #endif // AUCHENAI_CRYPTS_H_

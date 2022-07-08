@@ -17,14 +17,9 @@
 
 #include "GuardAI.h"
 #include "Creature.h"
-#include "Errors.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "Player.h"
-
-GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature)
-{
-}
 
 int32 GuardAI::Permissible(Creature const* creature)
 {
@@ -56,23 +51,22 @@ void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
     {
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop(true);
-        me->GetThreatManager().ClearAllThreat();
+        EngagementOver();
         return;
     }
 
-    TC_LOG_DEBUG("entities.unit", "Guard entry: %u enters evade mode.", me->GetEntry());
+    TC_LOG_TRACE("scripts.ai", "GuardAI::EnterEvadeMode: %s enters evade mode.", me->GetGUID().ToString().c_str());
 
     me->RemoveAllAuras();
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
+    EngagementOver();
 
-    // Remove ChaseMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-        me->GetMotionMaster()->MoveTargetedHome();
+    me->GetMotionMaster()->MoveTargetedHome();
 }
 
 void GuardAI::JustDied(Unit* killer)
 {
-    if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
-        me->SendZoneUnderAttackMessage(player);
+    if (killer)
+        if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+            me->SendZoneUnderAttackMessage(player);
 }

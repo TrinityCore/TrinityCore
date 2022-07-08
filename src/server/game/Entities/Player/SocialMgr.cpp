@@ -34,7 +34,7 @@ uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
     return counter;
 }
 
-bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, SocialFlag flag)
+bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, ObjectGuid const& accountGuid, SocialFlag flag)
 {
     // check client limits
     if (GetNumberOfSocialsWithFlag(flag) >= (((flag & SOCIAL_FLAG_FRIEND) != 0) ? SOCIALMGR_FRIEND_LIMIT : SOCIALMGR_IGNORE_LIMIT))
@@ -44,6 +44,7 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, SocialFlag flag
     if (itr != _playerSocialMap.end())
     {
         itr->second.Flags |= flag;
+        itr->second.WowAccountGuid = accountGuid;
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_FLAGS);
 
@@ -55,7 +56,10 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, SocialFlag flag
     }
     else
     {
-        _playerSocialMap[friendGuid].Flags |= flag;
+        itr = _playerSocialMap.emplace(std::piecewise_construct, std::forward_as_tuple(friendGuid), std::forward_as_tuple()).first;
+
+        itr->second.Flags |= flag;
+        itr->second.WowAccountGuid = accountGuid;
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SOCIAL);
 
@@ -65,6 +69,9 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, SocialFlag flag
 
         CharacterDatabase.Execute(stmt);
     }
+
+    if (flag & SOCIAL_FLAG_IGNORED)
+        _ignoredAccounts.insert(accountGuid);
 
     return true;
 }
@@ -86,7 +93,20 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, SocialFlag
 
         CharacterDatabase.Execute(stmt);
 
+        ObjectGuid accountGuid = itr->second.WowAccountGuid;
+
         _playerSocialMap.erase(itr);
+
+        if (flag & SOCIAL_FLAG_IGNORED)
+        {
+            auto otherIgnoreForAccount = std::find_if(_playerSocialMap.begin(), _playerSocialMap.end(), [&](PlayerSocialMap::value_type const& social)
+            {
+                return social.second.Flags & SOCIAL_FLAG_IGNORED && social.second.WowAccountGuid == accountGuid;
+            });
+
+            if (otherIgnoreForAccount == _playerSocialMap.end())
+                _ignoredAccounts.erase(accountGuid);
+        }
     }
     else
     {
@@ -122,21 +142,31 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
 {
     ASSERT(player);
 
+    uint32 friendsCount = 0;
+    uint32 ignoredCount = 0;
+
     WorldPackets::Social::ContactList contactList;
-    contactList.Flags = flags;
+    contactList.Flags = flags;                              // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
 
     for (PlayerSocialMap::value_type& v : _playerSocialMap)
     {
-        if (!(v.second.Flags & flags))
+        uint8 contactFlags = v.second.Flags;
+        if (!(contactFlags & flags))
             continue;
 
-        sSocialMgr->GetFriendInfo(player, v.first, v.second);
+        // Check client limit for friends list
+        if (contactFlags & SOCIAL_FLAG_FRIEND)
+            if (++friendsCount > SOCIALMGR_FRIEND_LIMIT)
+                continue;
+
+        // Check client limit for ignore list
+        if (contactFlags & SOCIAL_FLAG_IGNORED)
+            if (++ignoredCount > SOCIALMGR_IGNORE_LIMIT)
+                continue;
+
+        SocialMgr::GetFriendInfo(player, v.first, v.second);
 
         contactList.Contacts.emplace_back(v.first, v.second);
-
-        // client's friends list and ignore list limit
-        if (contactList.Contacts.size() >= (((flags & SOCIAL_FLAG_FRIEND) != 0) ? SOCIALMGR_FRIEND_LIMIT : SOCIALMGR_IGNORE_LIMIT))
-            break;
     }
 
     player->SendDirectMessage(contactList.Write());
@@ -156,9 +186,9 @@ bool PlayerSocial::HasFriend(ObjectGuid const& friendGuid)
     return _HasContact(friendGuid, SOCIAL_FLAG_FRIEND);
 }
 
-bool PlayerSocial::HasIgnore(ObjectGuid const& ignoreGuid)
+bool PlayerSocial::HasIgnore(ObjectGuid const& ignoreGuid, ObjectGuid const& ignoreAccountGuid)
 {
-    return _HasContact(ignoreGuid, SOCIAL_FLAG_IGNORED);
+    return _HasContact(ignoreGuid, SOCIAL_FLAG_IGNORED) || _ignoredAccounts.find(ignoreAccountGuid) != _ignoredAccounts.end();
 }
 
 SocialMgr* SocialMgr::instance()
@@ -211,8 +241,8 @@ void SocialMgr::GetFriendInfo(Player* player, ObjectGuid const& friendGUID, Frie
         }
 
         friendInfo.Area = target->GetZoneId();
-        friendInfo.Level = target->getLevel();
-        friendInfo.Class = target->getClass();
+        friendInfo.Level = target->GetLevel();
+        friendInfo.Class = target->GetClass();
     }
 }
 
@@ -273,6 +303,8 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid const
 
             uint8 flag = fields[2].GetUInt8();
             social->_playerSocialMap[friendGuid] = FriendInfo(friendAccountGuid, flag, fields[3].GetString());
+            if (flag & SOCIAL_FLAG_IGNORED)
+                social->_ignoredAccounts.insert(friendAccountGuid);
         }
         while (result->NextRow());
     }

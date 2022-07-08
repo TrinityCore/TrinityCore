@@ -15,22 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "ruby_sanctum.h"
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "ruby_sanctum.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 
 Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0f };
 
 BossBoundaryData const boundaries =
 {
     { DATA_GENERAL_ZARITHRIAN, new EllipseBoundary(Position(3013.409f, 529.492f), 45.0, 100.0) },
-    { DATA_HALION,             new CircleBoundary(Position(3156.037f, 533.2656f), 48.5)        }
+    { DATA_HALION,             new CircleBoundary(Position(3156.037f, 533.2656f), 52.5)        }
 };
 
 DoorData const doorData[] =
@@ -71,7 +70,6 @@ ObjectData const gameObjectData[] =
     { GO_TWILIGHT_FLAME_RING,   DATA_TWILIGHT_FLAME_RING    },
     { 0,                        0                           } //END
 };
-
 
 class instance_ruby_sanctum : public InstanceMapScript
 {
@@ -177,7 +175,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
                     {
-                        zarithrian->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        zarithrian->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                         zarithrian->SetImmuneToPC(false);
                     }
             }
@@ -196,13 +194,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     return 0;
 
                 return BaltharusSharedHealth;
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_MATERIAL), 50);
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TWILIGHT), 50);
-                packet.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TOGGLE), 0);
             }
 
         protected:

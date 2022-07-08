@@ -143,8 +143,8 @@ WorldPacket const* WorldPackets::Loot::LootList::Write()
     _worldPacket << Owner;
     _worldPacket << LootObj;
 
-    _worldPacket.WriteBit(Master.is_initialized());
-    _worldPacket.WriteBit(RoundRobinWinner.is_initialized());
+    _worldPacket.WriteBit(Master.has_value());
+    _worldPacket.WriteBit(RoundRobinWinner.has_value());
 
     _worldPacket.FlushBits();
 

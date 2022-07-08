@@ -12,9 +12,7 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
-if (WIN32)
-  list(APPEND PRIVATE_SOURCES ${sources_windows})
-endif()
+list(APPEND PRIVATE_SOURCES ${sources_windows})
 
 add_executable(mmaps_generator ${PRIVATE_SOURCES})
 
@@ -26,8 +24,7 @@ target_link_libraries(mmaps_generator
     extractor_common
     Recast
     Detour
-    zlib
-    bzip2)
+    zlib)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -44,8 +41,8 @@ set_target_properties(mmaps_generator
       FOLDER
         "tools")
 
-if( UNIX )
+if(UNIX)
   install(TARGETS mmaps_generator DESTINATION bin)
-elseif( WIN32 )
+elseif(WIN32)
   install(TARGETS mmaps_generator DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()

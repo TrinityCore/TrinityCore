@@ -33,78 +33,66 @@ enum Events
     EVENT_CLEAVE                    = 3,
 };
 
-class boss_shadow_hunter_voshgajin : public CreatureScript
+struct boss_shadow_hunter_voshgajin : public BossAI
 {
-public:
-    boss_shadow_hunter_voshgajin() : CreatureScript("boss_shadow_hunter_voshgajin") { }
+    boss_shadow_hunter_voshgajin(Creature* creature) : BossAI(creature, DATA_SHADOW_HUNTER_VOSHGAJIN) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetBlackrockSpireAI<boss_shadowvoshAI>(creature);
+        _Reset();
+        //DoCast(me, SPELL_ICEARMOR, true);
     }
 
-    struct boss_shadowvoshAI : public BossAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_shadowvoshAI(Creature* creature) : BossAI(creature, DATA_SHADOW_HUNTER_VOSHGAJIN) { }
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 2s);
+        events.ScheduleEvent(EVENT_HEX, 8s);
+        events.ScheduleEvent(EVENT_CLEAVE, 14s);
+    }
 
-        void Reset() override
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-            //DoCast(me, SPELL_ICEARMOR, true);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 2 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_HEX,     8 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 14 * IN_MILLISECONDS);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_CURSE_OF_BLOOD:
+                    DoCastVictim(SPELL_CURSEOFBLOOD);
+                    events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45s);
+                    break;
+                case EVENT_HEX:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                        DoCast(target, SPELL_HEX);
+                    events.ScheduleEvent(EVENT_HEX, 15s);
+                    break;
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    events.ScheduleEvent(EVENT_CLEAVE, 7s);
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_CURSE_OF_BLOOD:
-                        DoCastVictim(SPELL_CURSEOFBLOOD);
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_HEX:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_HEX);
-                        events.ScheduleEvent(EVENT_HEX, 15 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_CLEAVE:
-                        DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7 * IN_MILLISECONDS);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_shadowvosh()
 {
-    new boss_shadow_hunter_voshgajin();
+    RegisterBlackrockSpireCreatureAI(boss_shadow_hunter_voshgajin);
 }

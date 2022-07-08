@@ -19,11 +19,12 @@
 #define UpdateMask_h__
 
 #include "Define.h"
+#include <algorithm>
 
 namespace UpdateMaskHelpers
 {
-    inline constexpr uint32 GetBlockIndex(uint32 bit) { return bit / 32; }
-    inline constexpr uint32 GetBlockFlag(uint32 bit) { return 1 << (bit % 32); }
+    inline constexpr std::size_t GetBlockIndex(std::size_t bit) { return bit / 32u; }
+    inline constexpr uint32 GetBlockFlag(std::size_t bit) { return 1u << (bit % 32u); }
 }
 
 template<uint32 Bits>

@@ -33,9 +33,9 @@ enum NEXDataTypes
     DATA_ORMOROK                      = 3,
     DATA_KERISTRASZA                  = 4,
 
-    ANOMALUS_CONTAINMET_SPHERE        = 5,
-    ORMOROKS_CONTAINMET_SPHERE        = 6,
-    TELESTRAS_CONTAINMET_SPHERE       = 7
+    ANOMALUS_CONTAINMENT_SPHERE        = 5,
+    ORMOROKS_CONTAINMENT_SPHERE        = 6,
+    TELESTRAS_CONTAINMENT_SPHERE       = 7
 };
 
 enum NEXCreatureIds
@@ -60,9 +60,9 @@ enum NEXCreatureIds
 
 enum NEXGameObjectIds
 {
-    GO_ANOMALUS_CONTAINMET_SPHERE     = 188527,
-    GO_ORMOROKS_CONTAINMET_SPHERE     = 188528,
-    GO_TELESTRAS_CONTAINMET_SPHERE    = 188526
+    GO_ANOMALUS_CONTAINMENT_SPHERE     = 188527,
+    GO_ORMOROKS_CONTAINMENT_SPHERE     = 188528,
+    GO_TELESTRAS_CONTAINMENT_SPHERE    = 188526
 };
 
 template <class AI, class T>
@@ -70,5 +70,8 @@ inline AI* GetNexusAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, NexusScriptName);
 }
+
+#define RegisterNexusCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetNexusAI)
+#define RegisterNexusGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetNexusAI)
 
 #endif

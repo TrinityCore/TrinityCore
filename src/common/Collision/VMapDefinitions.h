@@ -17,15 +17,15 @@
 
 #ifndef _VMAPDEFINITIONS_H
 #define _VMAPDEFINITIONS_H
-#include <cstring>
+
 #include <cstdio>
 
 #define LIQUID_TILE_SIZE (533.333f / 128.f)
 
 namespace VMAP
 {
-    const char VMAP_MAGIC[] = "VMAP_4.9";
-    const char RAW_VMAP_MAGIC[] = "VMAP049";                // used in extracted vmap files with raw data
+    const char VMAP_MAGIC[] = "VMAP_4.B";
+    const char RAW_VMAP_MAGIC[] = "VMAP04B";                // used in extracted vmap files with raw data
     const char GAMEOBJECT_MODELS[] = "GameObjectModels.dtree";
 
     // defined in VMapManager2.cpp currently...

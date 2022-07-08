@@ -256,7 +256,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 healthMod = 0;
                     uint32 baseHealth = pInfo->health;
                     switch (pet->GetEntry())
@@ -288,7 +288,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateHealth(pInfo->health);
                 }
         }
@@ -400,7 +400,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 manaMod = 0;
                     uint32 baseMana = pInfo->mana;
                     switch (pet->GetEntry())
@@ -428,7 +428,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateMana(pInfo->mana);
                 }
         }
@@ -898,7 +898,7 @@ public:
                         if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                         {
                             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
-                            AddPct(mod, spellInfo->GetEffect(EFFECT_0)->CalcValue());
+                            AddPct(mod, spellInfo->GetEffect(EFFECT_0).CalcValue());
                         }
 
                         int32 const ownerBonus = owner->GetStat(STAT_STAMINA) * mod;
@@ -940,7 +940,7 @@ public:
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
-                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1)->CalcValue());
+                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1).CalcValue());
                 }
 
                 bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
@@ -970,7 +970,7 @@ public:
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
                     SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
-                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1)->CalcValue());
+                    mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1).CalcValue());
                 }
 
                 bonusDamage = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod;
@@ -1410,7 +1410,7 @@ public:
                         amount = -90;
                     // Night of the dead
                     else if (Aura* aur = owner->GetAuraOfRankedSpell(SPELL_NIGHT_OF_THE_DEAD))
-                        amount = aur->GetSpellInfo()->GetEffect(EFFECT_2)->CalcValue();
+                        amount = aur->GetSpellInfo()->GetEffect(EFFECT_2).CalcValue();
                 }
             }
         }
@@ -1436,13 +1436,6 @@ public:
     {
         PrepareAuraScript(spell_dk_pet_scaling_01_AuraScript);
 
-    public:
-        spell_dk_pet_scaling_01_AuraScript()
-        {
-            _tempHealth = 0;
-        }
-
-    private:
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1502,8 +1495,7 @@ public:
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_pet_scaling_01_AuraScript::CalculateStrengthAmount, EFFECT_1, SPELL_AURA_MOD_STAT);
         }
 
-    private:
-        uint32 _tempHealth;
+        uint32 _tempHealth = 0;
     };
 
     AuraScript* GetAuraScript() const override

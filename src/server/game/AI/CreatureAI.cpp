@@ -21,26 +21,18 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
+#include "DB2Structure.h"
+#include "Errors.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "MapReference.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpellMgr.h"
+#include "SpellHistory.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-#include "World.h"
-
-//Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool apply)
-{
-    if (apply)
-    {
-        me->NeedChangeAI = true;
-        me->IsAIEnabled = false;
-    }
-}
 
 std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
@@ -48,8 +40,11 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
     return Trinity::Containers::MapGetValuePtr(UnitAI::AISpellInfo, { spellId, difficulty });
 }
 
-CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false)
+CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
+    : UnitAI(creature), me(creature), _boundary(nullptr),
+      _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), _isEngaged(false), _moveInLOSLocked(false)
 {
+    ASSERT(_scriptId, "A CreatureAI was initialized with an invalid scriptId!");
 }
 
 CreatureAI::~CreatureAI()
@@ -61,64 +56,55 @@ void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRangeToNearestTarget /* = 250.0f*/)
+// Disable CreatureAI when charmed
+void CreatureAI::OnCharmed(bool isNew)
+{
+    if (isNew && !me->IsCharmed() && !me->LastCharmerGUID.IsEmpty())
+    {
+        if (!me->HasReactState(REACT_PASSIVE))
+        {
+            if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
+                me->EngageWithTarget(lastCharmer);
+        }
+
+        me->LastCharmerGUID.Clear();
+
+        if (!me->IsInCombat())
+            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+    }
+
+    UnitAI::OnCharmed(isNew);
+}
+
+void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
 {
     if (!creature)
         creature = me;
 
-    if (!creature->CanHaveThreatList())
-        return;
-
     Map* map = creature->GetMap();
-    if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
+    if (!map->IsDungeon()) // use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::DoZoneInCombat: call for map that isn't an instance (%s)", creature->GetGUID().ToString().c_str());
         return;
     }
 
-    if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
+    if (!map->HavePlayers())
+        return;
+
+    for (MapReference const& ref : map->GetPlayers())
     {
-        if (Unit* nearTarget = creature->SelectNearestTarget(maxRangeToNearestTarget))
-            creature->AI()->AttackStart(nearTarget);
-        else if (creature->IsSummon())
+        if (Player* player = ref.GetSource())
         {
-            if (Unit* summoner = creature->ToTempSummon()->GetSummoner())
-            {
-                Unit* target = summoner->getAttackerForHelper();
-                if (!target && summoner->CanHaveThreatList() && !summoner->GetThreatManager().IsThreatListEmpty())
-                    target = summoner->GetThreatManager().GetAnyTarget();
-                if (target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
-                    creature->AI()->AttackStart(target);
-            }
-        }
-    }
-
-    // Intended duplicated check, the code above this should select a victim
-    // If it can't find a suitable attack target then we should error out.
-    if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
-    {
-        TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
-        return;
-    }
-
-    Map::PlayerList const& playerList = map->GetPlayers();
-
-    if (playerList.isEmpty())
-        return;
-
-    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-    {
-        if (Player* player = itr->GetSource())
-        {
-            if (player->IsGameMaster())
+            if (!player->IsAlive() || !CombatManager::CanBeginCombat(creature, player))
                 continue;
 
-            if (player->IsAlive())
-            {
-                creature->SetInCombatWith(player);
-                player->SetInCombatWith(creature);
-                creature->GetThreatManager().AddThreat(player, 0.0f, nullptr, true, true);
-            }
+            creature->EngageWithTarget(player);
+
+            for (Unit* pet : player->m_Controlled)
+                creature->EngageWithTarget(pet);
+
+            if (Unit* vehicle = player->GetVehicleBase())
+                creature->EngageWithTarget(vehicle);
         }
     }
 }
@@ -127,11 +113,11 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
 // MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
 void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
 {
-    if (m_MoveInLineOfSight_locked == true)
+    if (_moveInLOSLocked == true)
         return;
-    m_MoveInLineOfSight_locked = true;
+    _moveInLOSLocked = true;
     MoveInLineOfSight(who);
-    m_MoveInLineOfSight_locked = false;
+    _moveInLOSLocked = false;
 }
 
 void CreatureAI::MoveInLineOfSight(Unit* who)
@@ -143,7 +129,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
         me->EngageWithTarget(who);
 }
 
-void CreatureAI::_OnOwnerCombatInteraction(Unit* target)
+void CreatureAI::OnOwnerCombatInteraction(Unit* target)
 {
     if (!target || !me->IsAlive())
         return;
@@ -171,9 +157,64 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->SendAIReaction(AI_REACTION_ALERT);
 
     // Face the unit (stealthed player) and set distracted state for 5 seconds
-    me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS);
-    me->StopMoving();
-    me->SetFacingTo(me->GetAngle(who));
+    me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
+}
+
+// adapted from logic in Spell:EffectSummonType before commit 8499434
+static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
+{
+    // Summons without SummonProperties are generally scripted summons that don't belong to any owner
+    if (!properties)
+        return false;
+
+    switch (properties->Control)
+    {
+        case SUMMON_CATEGORY_PET:
+            return true;
+        case SUMMON_CATEGORY_WILD:
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
+            if (properties->GetFlags().HasFlag(SummonPropertiesFlags::JoinSummonerSpawnGroup))
+                return true;
+            switch (SummonTitle(properties->Title))
+            {
+                case SummonTitle::Pet:
+                case SummonTitle::Guardian:
+                case SummonTitle::Runeblade:
+                case SummonTitle::Minion:
+                case SummonTitle::Companion:
+                    return true;
+                default:
+                    return false;
+            }
+        default:
+            return false;
+    }
+}
+
+void CreatureAI::JustAppeared()
+{
+    if (!IsEngaged())
+    {
+        if (TempSummon* summon = me->ToTempSummon())
+        {
+            // Only apply this to specific types of summons
+            if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties) && summon->CanFollowOwner())
+            {
+                if (Unit* owner = summon->GetCharmerOrOwner())
+                {
+                    summon->GetMotionMaster()->Clear();
+                    summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+                }
+            }
+        }
+    }
+}
+
+void CreatureAI::JustEnteredCombat(Unit* who)
+{
+    if (!IsEngaged() && !me->CanHaveThreatList())
+        EngagementStart(who);
 }
 
 void CreatureAI::EnterEvadeMode(EvadeReason why)
@@ -181,14 +222,14 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     if (!_EnterEvadeMode(why))
         return;
 
-    TC_LOG_DEBUG("entities.unit", "Creature %u enters evade mode.", me->GetEntry());
+    TC_LOG_DEBUG("scripts.ai", "CreatureAI::EnterEvadeMode: entering evade mode (why: %u) (%s)", why, me->GetGUID().ToString().c_str());
 
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
         if (Unit* owner = me->GetCharmerOrOwner())
         {
-            me->GetMotionMaster()->Clear(false);
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
         }
         else
         {
@@ -200,83 +241,91 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     }
 
     Reset();
-
-    if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
-        me->GetVehicleKit()->Reset(true);
-}
-
-void CreatureAI::SetGazeOn(Unit* target)
-{
-    if (me->IsValidAttackTarget(target))
-    {
-        if (!me->IsFocusing(nullptr, true) && target != me->GetVictim())
-            AttackStart(target);
-        me->SetReactState(REACT_PASSIVE);
-    }
-}
-
-bool CreatureAI::UpdateVictimWithGaze()
-{
-    if (!me->IsEngaged())
-        return false;
-
-    if (me->HasReactState(REACT_PASSIVE))
-    {
-        if (me->GetVictim())
-            return true;
-        else
-            me->SetReactState(REACT_AGGRESSIVE);
-    }
-
-    if (Unit* victim = me->SelectVictim())
-        if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
-            AttackStart(victim);
-
-    return me->GetVictim() != nullptr;
 }
 
 bool CreatureAI::UpdateVictim()
 {
-    if (!me->IsEngaged())
+    if (!IsEngaged())
         return false;
+
+    if (!me->IsAlive())
+    {
+        EngagementOver();
+        return false;
+    }
 
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
-            if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+            if (victim != me->GetVictim())
                 AttackStart(victim);
 
         return me->GetVictim() != nullptr;
     }
-    else if (me->GetThreatManager().IsThreatListEmpty())
+    else if (!me->IsInCombat())
     {
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         return false;
     }
+    else if (me->GetVictim())
+        me->AttackStop();
 
     return true;
 }
 
+void CreatureAI::EngagementStart(Unit* who)
+{
+    if (_isEngaged)
+    {
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementStart called even though creature is already engaged. Creature debug info:\n%s", me->GetDebugInfo().c_str());
+        return;
+    }
+    _isEngaged = true;
+
+    me->AtEngage(who);
+}
+
+void CreatureAI::EngagementOver()
+{
+    if (!_isEngaged)
+    {
+        TC_LOG_DEBUG("scripts.ai", "CreatureAI::EngagementOver called even though creature is not currently engaged. Creature debug info:\n%s", me->GetDebugInfo().c_str());
+        return;
+    }
+    _isEngaged = false;
+
+    me->AtDisengage();
+}
+
 bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 {
-    if (!me->IsAlive())
+    if (me->IsInEvadeMode())
         return false;
+
+    if (!me->IsAlive())
+    {
+        EngagementOver();
+        return false;
+    }
 
     me->RemoveAurasOnEvade();
 
-    // sometimes bosses stuck in combat?
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
-    me->DoNotReacquireTarget();
-
-    if (me->IsInEvadeMode())
-        return false;
+    me->DoNotReacquireSpellFocusTarget();
+    me->SetTarget(ObjectGuid::Empty);
+    me->GetSpellHistory()->ResetAllCooldowns();
+    EngagementOver();
 
     return true;
+}
+
+Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player* /*player*/)
+{
+    return {};
 }
 
 const uint32 BOUNDARY_VISUALIZE_CREATURE = 15425;
@@ -284,7 +333,7 @@ const float BOUNDARY_VISUALIZE_CREATURE_SCALE = 0.25f;
 const int8 BOUNDARY_VISUALIZE_STEP_SIZE = 1;
 const int32 BOUNDARY_VISUALIZE_FAILSAFE_LIMIT = 750;
 const float BOUNDARY_VISUALIZE_SPAWN_HEIGHT = 5.0f;
-int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) const
+int32 CreatureAI::VisualizeBoundary(Seconds duration, Unit* owner, bool fill) const
 {
     typedef std::pair<int32, int32> coordinate;
 
@@ -299,13 +348,13 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     std::unordered_set<coordinate> outOfBounds;
 
     Position startPosition = owner->GetPosition();
-    if (!CheckBoundary(&startPosition))
-    { // fall back to creature position
+    if (!IsInBoundary(&startPosition)) // fall back to creature position
+    {
         startPosition = me->GetPosition();
-        if (!CheckBoundary(&startPosition))
-        { // fall back to creature home position
+        if (!IsInBoundary(&startPosition)) // fall back to creature home position
+        {
             startPosition = me->GetHomePosition();
-            if (!CheckBoundary(&startPosition))
+            if (!IsInBoundary(&startPosition))
                 return LANG_CREATURE_NO_INTERIOR_POINT_FOUND;
         }
     }
@@ -317,7 +366,7 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     {
         coordinate front = Q.front();
         bool hasOutOfBoundsNeighbor = false;
-        for (coordinate off : std::initializer_list<coordinate>{{1,0}, {0,1}, {-1,0}, {0,-1}})
+        for (coordinate const& off : std::list<coordinate>{ {1, 0}, {0, 1}, {-1, 0}, {0, -1} })
         {
             coordinate next(front.first + off.first, front.second + off.second);
             if (next.first > BOUNDARY_VISUALIZE_FAILSAFE_LIMIT || next.first < -BOUNDARY_VISUALIZE_FAILSAFE_LIMIT || next.second > BOUNDARY_VISUALIZE_FAILSAFE_LIMIT || next.second < -BOUNDARY_VISUALIZE_FAILSAFE_LIMIT)
@@ -328,7 +377,7 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
             if (alreadyChecked.find(next) == alreadyChecked.end()) // never check a coordinate twice
             {
                 Position nextPos(startPosition.GetPositionX() + next.first*BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionY() + next.second*BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionZ());
-                if (CheckBoundary(&nextPos))
+                if (IsInBoundary(&nextPos))
                     Q.push(next);
                 else
                 {
@@ -337,25 +386,27 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
                 }
                 alreadyChecked.insert(next);
             }
-            else
-                if (outOfBounds.find(next) != outOfBounds.end())
-                    hasOutOfBoundsNeighbor = true;
+            else if (outOfBounds.find(next) != outOfBounds.end())
+                hasOutOfBoundsNeighbor = true;
         }
         if (fill || hasOutOfBoundsNeighbor)
-            if (TempSummon* point = owner->SummonCreature(BOUNDARY_VISUALIZE_CREATURE, Position(startPosition.GetPositionX() + front.first*BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionY() + front.second*BOUNDARY_VISUALIZE_STEP_SIZE, spawnZ), TEMPSUMMON_TIMED_DESPAWN, duration * IN_MILLISECONDS))
+        {
+            if (TempSummon* point = owner->SummonCreature(BOUNDARY_VISUALIZE_CREATURE, Position(startPosition.GetPositionX() + front.first * BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionY() + front.second * BOUNDARY_VISUALIZE_STEP_SIZE, spawnZ), TEMPSUMMON_TIMED_DESPAWN, duration))
             {
                 point->SetObjectScale(BOUNDARY_VISUALIZE_CREATURE_SCALE);
-                point->AddUnitFlag(UNIT_FLAG_STUNNED);
+                point->SetUnitFlag(UNIT_FLAG_STUNNED);
                 point->SetImmuneToAll(true);
                 if (!hasOutOfBoundsNeighbor)
-                    point->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    point->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             }
+        }
+
         Q.pop();
     }
     return boundsWarning ? LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED : 0;
 }
 
-bool CreatureAI::CheckBoundary(Position const* who) const
+bool CreatureAI::IsInBoundary(Position const* who) const
 {
     if (!_boundary)
         return true;
@@ -363,7 +414,7 @@ bool CreatureAI::CheckBoundary(Position const* who) const
     if (!who)
         who = me;
 
-    return (CreatureAI::IsInBounds(*_boundary, who) != _negateBoundary);
+    return CreatureAI::IsInBounds(*_boundary, who) != _negateBoundary;
 }
 
 bool CreatureAI::IsInBounds(CreatureBoundary const& boundary, Position const* pos)
@@ -384,7 +435,7 @@ void CreatureAI::SetBoundary(CreatureBoundary const* boundary, bool negateBounda
 
 bool CreatureAI::CheckInRoom()
 {
-    if (CheckBoundary())
+    if (IsInBoundary())
         return true;
     else
     {
@@ -393,18 +444,18 @@ bool CreatureAI::CheckInRoom()
     }
 }
 
-Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
+Creature* CreatureAI::DoSummon(uint32 entry, Position const& pos, Milliseconds despawnTime, TempSummonType summonType)
 {
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }
 
-Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, uint32 despawnTime, TempSummonType summonType)
+Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, Milliseconds despawnTime, TempSummonType summonType)
 {
     Position pos = obj->GetRandomNearPosition(radius);
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }
 
-Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, uint32 despawnTime, TempSummonType summonType)
+Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, Milliseconds despawnTime, TempSummonType summonType)
 {
     Position pos = obj->GetRandomNearPosition(radius);
     pos.m_positionZ += flightZ;

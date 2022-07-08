@@ -68,13 +68,16 @@ class boss_thorngrin_the_tender : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_SACRIFICE, 5700);
-                events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
-                events.ScheduleEvent(EVENT_ENRAGE, 12000);
+                events.ScheduleEvent(EVENT_SACRIFICE, 5700ms);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_HELLFIRE, 17400ms, 19300ms);
+                else
+                    events.ScheduleEvent(EVENT_HELLFIRE, 18s);
+                events.ScheduleEvent(EVENT_ENRAGE, 12s);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -88,7 +91,7 @@ class boss_thorngrin_the_tender : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage) override
+            void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HealthBelowPctDamaged(50, damage) && _phase1)
                 {
@@ -117,22 +120,25 @@ class boss_thorngrin_the_tender : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SACRIFICE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 Talk(SAY_CAST_SACRIFICE);
                                 DoCast(target, SPELL_SACRIFICE, true);
                             }
-                            events.ScheduleEvent(EVENT_SACRIFICE, 29400);
+                            events.ScheduleEvent(EVENT_SACRIFICE, 29400ms);
                             break;
                         case EVENT_HELLFIRE:
                             Talk(SAY_CAST_HELLFIRE);
                             DoCastVictim(SPELL_HELLFIRE, true);
-                            events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
+                            if (IsHeroic())
+                                events.ScheduleEvent(EVENT_HELLFIRE, 17400ms, 19300ms);
+                            else
+                                events.ScheduleEvent(EVENT_HELLFIRE, 18s);
                             break;
                         case EVENT_ENRAGE:
                             Talk(EMOTE_ENRAGE);
                             DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 33000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 33s);
                             break;
                         default:
                             break;

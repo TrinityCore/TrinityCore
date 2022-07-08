@@ -41,10 +41,12 @@ enum MRGameobjectIds
     GO_DOOR_NETHERMANCER                = 184449
 };
 
-template<typename AI>
-inline AI* GetMechanarAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetMechanarAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, MechanarScriptName);
+    return GetInstanceAI<AI>(obj, MechanarScriptName);
 }
+
+#define RegisterMechanarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMechanarAI)
 
 #endif

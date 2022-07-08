@@ -46,6 +46,7 @@ WorldPacket const* WorldPackets::Scenario::ScenarioState::Write()
     _worldPacket << uint32(BonusObjectives.size());
     _worldPacket << uint32(PickedSteps.size());
     _worldPacket << uint32(Spells.size());
+    _worldPacket << PlayerGUID;
 
     for (uint32 i = 0; i < PickedSteps.size(); ++i)
         _worldPacket << uint32(PickedSteps[i]);
@@ -79,7 +80,7 @@ WorldPacket const* WorldPackets::Scenario::ScenarioCompleted::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Scenario::ScenarioBoot::Write()
+WorldPacket const* WorldPackets::Scenario::ScenarioVacate::Write()
 {
     _worldPacket << int32(ScenarioID);
     _worldPacket << int32(Unk1);
@@ -114,12 +115,14 @@ WorldPacket const* WorldPackets::Scenario::ScenarioPOIs::Write()
             _worldPacket << int32(scenarioPOI.Flags);
             _worldPacket << int32(scenarioPOI.WorldEffectID);
             _worldPacket << int32(scenarioPOI.PlayerConditionID);
+            _worldPacket << int32(scenarioPOI.NavigationPlayerConditionID);
             _worldPacket << uint32(scenarioPOI.Points.size());
 
             for (ScenarioPOIPoint const& scenarioPOIBlobPoint : scenarioPOI.Points)
             {
                 _worldPacket << int32(scenarioPOIBlobPoint.X);
                 _worldPacket << int32(scenarioPOIBlobPoint.Y);
+                _worldPacket << int32(scenarioPOIBlobPoint.Z);
             }
         }
     }

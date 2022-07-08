@@ -31,68 +31,57 @@ enum Events
     EVENT_FRENZIED_RAGE
 };
 
-class boss_aku_mai : public CreatureScript
+struct boss_aku_mai : public BossAI
 {
-public:
-    boss_aku_mai() : CreatureScript("boss_aku_mai") { }
-
-    struct boss_aku_maiAI : public BossAI
+    boss_aku_mai(Creature* creature) : BossAI(creature, DATA_AKU_MAI)
     {
-        boss_aku_maiAI(Creature* creature) : BossAI(creature, DATA_AKU_MAI)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            IsEnraged = false;
-        }
-
-        void Reset() override
-        {
-            Initialize();
-            _Reset();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
-        }
-
-        void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
-        {
-            if (!IsEnraged && me->HealthBelowPctDamaged(30, damage))
-            {
-                DoCast(me, SPELL_FRENZIED_RAGE);
-                IsEnraged = true;
-            }
-        }
-
-        void ExecuteEvent(uint32 eventId) override
-        {
-            switch (eventId)
-            {
-                case EVENT_POISON_CLOUD:
-                    DoCastVictim(SPELL_POISON_CLOUD);
-                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private:
-            bool IsEnraged;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackfathomDeepsAI<boss_aku_maiAI>(creature);
+        Initialize();
     }
+
+    void Initialize()
+    {
+        IsEnraged = false;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        _Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 9s);
+    }
+
+    void DamageTaken(Unit* /*atacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!IsEnraged && me->HealthBelowPctDamaged(30, damage))
+        {
+            DoCast(me, SPELL_FRENZIED_RAGE);
+            IsEnraged = true;
+        }
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_POISON_CLOUD:
+                DoCastVictim(SPELL_POISON_CLOUD);
+                events.ScheduleEvent(EVENT_POISON_CLOUD, 25s, 50s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private:
+        bool IsEnraged;
 };
 
 void AddSC_boss_aku_mai()
 {
-    new boss_aku_mai();
+    RegisterBlackfathomDeepsCreatureAI(boss_aku_mai);
 }

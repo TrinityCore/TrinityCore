@@ -18,7 +18,7 @@
 #include "Field.h"
 #include "Errors.h"
 #include "Log.h"
-#include "MySQLHacks.h"
+#include <cstring>
 
 Field::Field()
 {
@@ -35,7 +35,7 @@ uint8 Field::GetUInt8() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int8))
     {
         LogWrongType(__FUNCTION__);
@@ -53,7 +53,7 @@ int8 Field::GetInt8() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int8))
     {
         LogWrongType(__FUNCTION__);
@@ -71,7 +71,7 @@ uint16 Field::GetUInt16() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int16))
     {
         LogWrongType(__FUNCTION__);
@@ -89,7 +89,7 @@ int16 Field::GetInt16() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int16))
     {
         LogWrongType(__FUNCTION__);
@@ -107,7 +107,7 @@ uint32 Field::GetUInt32() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int32))
     {
         LogWrongType(__FUNCTION__);
@@ -125,7 +125,7 @@ int32 Field::GetInt32() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int32))
     {
         LogWrongType(__FUNCTION__);
@@ -143,7 +143,7 @@ uint64 Field::GetUInt64() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int64))
     {
         LogWrongType(__FUNCTION__);
@@ -161,7 +161,7 @@ int64 Field::GetInt64() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int64))
     {
         LogWrongType(__FUNCTION__);
@@ -179,7 +179,7 @@ float Field::GetFloat() const
     if (!data.value)
         return 0.0f;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Float))
     {
         LogWrongType(__FUNCTION__);
@@ -197,7 +197,7 @@ double Field::GetDouble() const
     if (!data.value)
         return 0.0f;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Double) && !IsType(DatabaseFieldTypes::Decimal))
     {
         LogWrongType(__FUNCTION__);
@@ -215,7 +215,7 @@ char const* Field::GetCString() const
     if (!data.value)
         return nullptr;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (IsNumeric() && data.raw)
     {
         LogWrongType(__FUNCTION__);
@@ -235,6 +235,18 @@ std::string Field::GetString() const
         return "";
 
     return std::string(string, data.length);
+}
+
+std::string_view Field::GetStringView() const
+{
+    if (!data.value)
+        return {};
+
+    char const* const string = GetCString();
+    if (!string)
+        return {};
+
+    return { string, data.length };
 }
 
 std::vector<uint8> Field::GetBinary() const

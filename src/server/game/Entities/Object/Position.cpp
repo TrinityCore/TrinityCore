@@ -17,13 +17,13 @@
 
 #include "Position.h"
 #include "ByteBuffer.h"
+#include "DB2Stores.h"
 #include "GridDefines.h"
-#include "Random.h"
-
+#include "World.h"
 #include <G3D/g3dmath.h>
 #include <sstream>
 
-bool Position::operator==(Position const &a) const
+bool Position::operator==(Position const& a) const
 {
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
         G3D::fuzzyEq(a.m_positionY, m_positionY) &&
@@ -31,7 +31,7 @@ bool Position::operator==(Position const &a) const
         G3D::fuzzyEq(a.m_orientation, m_orientation));
 }
 
-void Position::RelocateOffset(const Position & offset)
+void Position::RelocateOffset(Position const& offset)
 {
     m_positionX = GetPositionX() + (offset.GetPositionX() * std::cos(GetOrientation()) + offset.GetPositionY() * std::sin(GetOrientation() + float(M_PI)));
     m_positionY = GetPositionY() + (offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation()));
@@ -44,27 +44,7 @@ bool Position::IsPositionValid() const
     return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
-float Position::GetExactDist2d(const float x, const float y) const
-{
-    return std::sqrt(GetExactDist2dSq(x, y));
-}
-
-float Position::GetExactDist2d(Position const* pos) const
-{
-    return std::sqrt(GetExactDist2dSq(pos));
-}
-
-float Position::GetExactDist(float x, float y, float z) const
-{
-    return std::sqrt(GetExactDistSq(x, y, z));
-}
-
-float Position::GetExactDist(Position const* pos) const
-{
-    return std::sqrt(GetExactDistSq(pos));
-}
-
-void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset) const
+void Position::GetPositionOffsetTo(Position const& endPos, Position& retOffset) const
 {
     float dx = endPos.GetPositionX() - GetPositionX();
     float dy = endPos.GetPositionY() - GetPositionY();
@@ -82,45 +62,7 @@ Position Position::GetPositionWithOffset(Position const& offset) const
     return ret;
 }
 
-float Position::GetAngle(Position const* pos) const
-{
-    if (!pos)
-        return 0;
-
-    return GetAngle(pos->GetPositionX(), pos->GetPositionY());
-}
-
-// Return angle in range 0..2*pi
-float Position::GetAngle(float x, float y) const
-{
-    float dx = x - GetPositionX();
-    float dy = y - GetPositionY();
-
-    float ang = std::atan2(dy, dx);
-    ang = (ang >= 0) ? ang : 2 * float(M_PI) + ang;
-    return ang;
-}
-
-void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos) const
-{
-    float dx = GetPositionX() - x;
-    float dy = GetPositionY() - y;
-
-    if (std::fabs(dx) < 0.001f && std::fabs(dy) < 0.001f)
-    {
-        float angle = (float)rand_norm()*static_cast<float>(2 * M_PI);
-        vcos = std::cos(angle);
-        vsin = std::sin(angle);
-    }
-    else
-    {
-        float dist = std::sqrt((dx*dx) + (dy*dy));
-        vcos = dx / dist;
-        vsin = dy / dist;
-    }
-}
-
-bool Position::IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const
+bool Position::IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const
 {
     // rotate the WorldObject position instead of rotating the whole cube, that way we can make a simplified
     // is-in-cube check and we have to calculate only one point instead of 4
@@ -154,7 +96,7 @@ bool Position::IsWithinDoubleVerticalCylinder(Position const* center, float radi
     return IsInDist2d(center, radius) && std::abs(verticalDelta) <= height;
 }
 
-bool Position::HasInArc(float arc, const Position* obj, float border) const
+bool Position::HasInArc(float arc, Position const* obj, float border) const
 {
     // always have self in arc
     if (obj == this)
@@ -163,11 +105,8 @@ bool Position::HasInArc(float arc, const Position* obj, float border) const
     // move arc to range 0.. 2*pi
     arc = NormalizeOrientation(arc);
 
-    float angle = GetAngle(obj);
-    angle -= m_orientation;
-
     // move angle to range -pi ... +pi
-    angle = NormalizeOrientation(angle);
+    float angle = GetRelativeAngle(obj);
     if (angle > float(M_PI))
         angle -= 2.0f * float(M_PI);
 
@@ -178,7 +117,7 @@ bool Position::HasInArc(float arc, const Position* obj, float border) const
 
 bool Position::HasInLine(Position const* pos, float objSize, float width) const
 {
-    if (!HasInArc(float(M_PI), pos))
+    if (!HasInArc(float(M_PI), pos, 2.0f))
         return false;
 
     width += objSize;
@@ -259,4 +198,12 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::Packed
 {
     buf.appendPackXYZ(streamer.Pos->GetPositionX(), streamer.Pos->GetPositionY(), streamer.Pos->GetPositionZ());
     return buf;
+}
+
+std::string WorldLocation::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
+    sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>") <<"' " << Position::ToString();
+    return sstr.str();
 }

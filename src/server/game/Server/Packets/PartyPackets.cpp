@@ -47,11 +47,12 @@ void WorldPackets::Party::PartyInviteClient::Read()
     uint32 targetNameLen, targetRealmLen;
 
     _worldPacket >> PartyIndex;
-    _worldPacket >> ProposedRoles;
-    _worldPacket >> TargetGUID;
 
     targetNameLen = _worldPacket.ReadBits(9);
     targetRealmLen = _worldPacket.ReadBits(9);
+
+    _worldPacket >> ProposedRoles;
+    _worldPacket >> TargetGUID;
 
     TargetName = _worldPacket.ReadString(targetNameLen);
     TargetRealm = _worldPacket.ReadString(targetRealmLen);
@@ -64,16 +65,10 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBit(IsXRealm);
     _worldPacket.WriteBit(MustBeBNetFriend);
     _worldPacket.WriteBit(AllowMultipleRoles);
+    _worldPacket.WriteBit(QuestSessionActive);
     _worldPacket.WriteBits(InviterName.length(), 6);
 
-    _worldPacket << InviterVirtualRealmAddress;
-    _worldPacket.WriteBit(IsLocal);
-    _worldPacket.WriteBit(Unk2);
-    _worldPacket.WriteBits(InviterRealmNameActual.size(), 8);
-    _worldPacket.WriteBits(InviterRealmNameNormalized.size(), 8);
-    _worldPacket.WriteString(InviterRealmNameActual);
-    _worldPacket.WriteString(InviterRealmNameNormalized);
-
+    _worldPacket << InviterRealm;
     _worldPacket << InviterGUID;
     _worldPacket << InviterBNetAccountId;
     _worldPacket << uint16(Unk1);
@@ -99,9 +94,7 @@ void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 p
 
     ProposedRoles = proposedRoles;
 
-    InviterVirtualRealmAddress = realm.Id.GetAddress();
-    InviterRealmNameActual = realm.Name;
-    InviterRealmNameNormalized = realm.NormalizedName;
+    InviterRealm = Auth::VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
 }
 
 void WorldPackets::Party::PartyInviteResponse::Read()
@@ -113,7 +106,7 @@ void WorldPackets::Party::PartyInviteResponse::Read()
     bool hasRolesDesired = _worldPacket.ReadBit();
     if (hasRolesDesired)
     {
-        RolesDesired = boost::in_place();
+        RolesDesired.emplace();
         _worldPacket >> *RolesDesired;
     }
 }
@@ -165,11 +158,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberPhaseSt
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberAuraStates const& aura)
 {
     data << int32(aura.SpellID);
-    data << uint8(aura.Flags);
+    data << uint16(aura.Flags);
     data << uint32(aura.ActiveFlags);
     data << int32(aura.Points.size());
     for (float points : aura.Points)
         data << float(points);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::CTROptions const& ctrOptions)
+{
+    data << uint32(ctrOptions.ContentTuningConditionMask);
+    data << int32(ctrOptions.Unused901);
+    data << uint32(ctrOptions.ExpansionLevelMask);
 
     return data;
 }
@@ -214,20 +216,23 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberStats c
     data << int32(memberStats.VehicleSeat);
     data << uint32(memberStats.Auras.size());
     data << memberStats.Phases;
+    data << memberStats.ChromieTime;
 
     for (WorldPackets::Party::PartyMemberAuraStates const& aura : memberStats.Auras)
         data << aura;
 
-    data.WriteBit(memberStats.PetStats.is_initialized());
+    data.WriteBit(memberStats.PetStats.has_value());
     data.FlushBits();
 
-    if (memberStats.PetStats.is_initialized())
+    data << memberStats.DungeonScore;
+
+    if (memberStats.PetStats.has_value())
         data << *memberStats.PetStats;
 
     return data;
 }
 
-WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
+WorldPacket const* WorldPackets::Party::PartyMemberFullState::Write()
 {
     _worldPacket.WriteBit(ForEnemy);
 
@@ -250,7 +255,6 @@ void WorldPackets::Party::SetPartyAssignment::Read()
     _worldPacket >> Target;
     Set = _worldPacket.ReadBit();
 }
-
 
 void WorldPackets::Party::SetRole::Read()
 {
@@ -409,7 +413,7 @@ WorldPacket const* WorldPackets::Party::RolePollInform::Write()
 WorldPacket const* WorldPackets::Party::GroupNewLeader::Write()
 {
     _worldPacket << PartyIndex;
-    _worldPacket.WriteBits(Name.size(), 6);
+    _worldPacket.WriteBits(Name.size(), 9);
     _worldPacket.WriteString(Name);
 
     return &_worldPacket;
@@ -427,6 +431,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo co
     data << uint8(playerInfo.Flags);
     data << uint8(playerInfo.RolesAssigned);
     data << uint8(playerInfo.Class);
+    data << uint8(playerInfo.FactionGroup);
     data.WriteString(playerInfo.Name);
     if (!playerInfo.VoiceStateID.empty())
         data << playerInfo.VoiceStateID;
@@ -479,21 +484,21 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << uint32(SequenceNum);
     _worldPacket << LeaderGUID;
     _worldPacket << uint32(PlayerList.size());
-    _worldPacket.WriteBit(LfgInfos.is_initialized());
-    _worldPacket.WriteBit(LootSettings.is_initialized());
-    _worldPacket.WriteBit(DifficultySettings.is_initialized());
+    _worldPacket.WriteBit(LfgInfos.has_value());
+    _worldPacket.WriteBit(LootSettings.has_value());
+    _worldPacket.WriteBit(DifficultySettings.has_value());
     _worldPacket.FlushBits();
 
     for (WorldPackets::Party::PartyPlayerInfo const& playerInfos : PlayerList)
         _worldPacket << playerInfos;
 
-    if (LootSettings.is_initialized())
+    if (LootSettings.has_value())
         _worldPacket << *LootSettings;
 
-    if (DifficultySettings.is_initialized())
+    if (DifficultySettings.has_value())
         _worldPacket << *DifficultySettings;
 
-    if (LfgInfos.is_initialized())
+    if (LfgInfos.has_value())
         _worldPacket << *LfgInfos;
 
     return &_worldPacket;
@@ -542,7 +547,7 @@ WorldPacket const* WorldPackets::Party::RaidMarkersChanged::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
+void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
 {
     ForEnemy = false;
 
@@ -575,7 +580,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
         MemberStats.Status |= MEMBER_STATUS_VEHICLE;
 
     // Level
-    MemberStats.Level = player->getLevel();
+    MemberStats.Level = player->GetLevel();
 
     // Health
     MemberStats.CurrentHealth = player->GetHealth();
@@ -600,8 +605,9 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     MemberStats.WmoDoodadPlacementID = 0;
 
     // Vehicle
-    if (player->GetVehicle() && player->GetVehicle()->GetVehicleInfo())
-        MemberStats.VehicleSeat = player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat];
+    if (::Vehicle const* vehicle = player->GetVehicle())
+        if (VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(player))
+            MemberStats.VehicleSeat = vehicleSeat->ID;
 
     // Auras
     for (AuraApplication const* aurApp : player->GetVisibleAuras())
@@ -635,7 +641,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     {
         ::Pet* pet = player->GetPet();
 
-        MemberStats.PetStats = boost::in_place();
+        MemberStats.PetStats.emplace();
 
         MemberStats.PetStats->GUID = pet->GetGUID();
         MemberStats.PetStats->Name = pet->GetName();
@@ -673,6 +679,22 @@ WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
 {
     _worldPacket << Player;
     _worldPacket << Victim;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::BroadcastSummonCast::Write()
+{
+    _worldPacket << Target;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::BroadcastSummonResponse::Write()
+{
+    _worldPacket << Target;
+    _worldPacket.WriteBit(Accepted);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

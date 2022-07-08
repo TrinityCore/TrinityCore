@@ -51,10 +51,12 @@ enum HOLGameObjectIds
     GO_LOKEN_THRONE         = 192654
 };
 
-template<typename AI>
-inline AI* GetHallsOfLightningAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfLightningAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoLScriptName);
+    return GetInstanceAI<AI>(obj, HoLScriptName);
 }
+
+#define RegisterHallsOfLightningCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfLightningAI)
 
 #endif // HALLS_OF_LIGHTNING_H_

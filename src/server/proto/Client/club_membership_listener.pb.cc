@@ -56,7 +56,6 @@ const ::google::protobuf::ServiceDescriptor* ClubMembershipListener_descriptor_ 
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
   protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -256,67 +255,65 @@ void protobuf_AddDesc_club_5fmembership_5flistener_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\036club_membership_listener.proto\022\037bgs.pr"
     "otocol.club.v1.membership\032\020club_types.pr"
-    "oto\"\226\001\n\025ClubAddedNotification\0220\n\010agent_i"
+    "oto\"\216\001\n\025ClubAddedNotification\0220\n\010agent_i"
     "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
     "C\n\nmembership\030\003 \001(\0132/.bgs.protocol.club."
-    "v1.ClubMembershipDescription:\006\202\371+\002\030\001\"\320\001\n"
-    "\027ClubRemovedNotification\0220\n\010agent_id\030\001 \001"
-    "(\0132\036.bgs.protocol.club.v1.MemberId\0221\n\tme"
-    "mber_id\030\003 \001(\0132\036.bgs.protocol.club.v1.Mem"
-    "berId\022\017\n\007club_id\030\004 \001(\004\0227\n\006reason\030\005 \001(\0162\'"
-    ".bgs.protocol.club.v1.ClubRemovedReason:"
-    "\006\202\371+\002\030\001\"\231\001\n#ReceivedInvitationAddedNotif"
-    "ication\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol"
-    ".club.v1.MemberId\0228\n\ninvitation\030\003 \001(\0132$."
-    "bgs.protocol.club.v1.ClubInvitation:\006\202\371+"
-    "\002\030\001\"\257\001\n%ReceivedInvitationRemovedNotific"
-    "ation\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.c"
-    "lub.v1.MemberId\022\025\n\rinvitation_id\030\003 \001(\006\0225"
-    "\n\006reason\030\004 \001(\0162%.bgs.protocol.Invitation"
-    "RemovedReason:\006\202\371+\002\030\001\"\251\001\n!SharedSettings"
-    "ChangedNotification\0224\n\010agent_id\030\001 \001(\0132\"."
-    "bgs.protocol.account.v1.AccountId\022F\n\nass"
-    "ignment\030\004 \001(\01322.bgs.protocol.club.v1.Clu"
-    "bSharedSettingsAssignment:\006\202\371+\002\030\001\"\220\001\n\036St"
+    "v1.ClubMembershipDescription\"\310\001\n\027ClubRem"
+    "ovedNotification\0220\n\010agent_id\030\001 \001(\0132\036.bgs"
+    ".protocol.club.v1.MemberId\0221\n\tmember_id\030"
+    "\003 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n"
+    "\007club_id\030\004 \001(\004\0227\n\006reason\030\005 \001(\0162\'.bgs.pro"
+    "tocol.club.v1.ClubRemovedReason\"\221\001\n#Rece"
+    "ivedInvitationAddedNotification\0220\n\010agent"
+    "_id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
+    "d\0228\n\ninvitation\030\003 \001(\0132$.bgs.protocol.clu"
+    "b.v1.ClubInvitation\"\247\001\n%ReceivedInvitati"
+    "onRemovedNotification\0220\n\010agent_id\030\001 \001(\0132"
+    "\036.bgs.protocol.club.v1.MemberId\022\025\n\rinvit"
+    "ation_id\030\003 \001(\006\0225\n\006reason\030\004 \001(\0162%.bgs.pro"
+    "tocol.InvitationRemovedReason\"\241\001\n!Shared"
+    "SettingsChangedNotification\0224\n\010agent_id\030"
+    "\001 \001(\0132\".bgs.protocol.account.v1.AccountI"
+    "d\022F\n\nassignment\030\004 \001(\01322.bgs.protocol.clu"
+    "b.v1.ClubSharedSettingsAssignment\"\210\001\n\036St"
     "reamMentionAddedNotification\0220\n\010agent_id"
     "\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\0224"
     "\n\007mention\030\003 \001(\0132#.bgs.protocol.club.v1.S"
-    "treamMention:\006\202\371+\002\030\001\"\220\001\n StreamMentionRe"
-    "movedNotification\0224\n\010agent_id\030\001 \001(\0132\".bg"
-    "s.protocol.account.v1.AccountId\022.\n\nmenti"
-    "on_id\030\003 \001(\0132\032.bgs.protocol.TimeSeriesId:"
-    "\006\202\371+\002\030\001\"{\n(StreamMentionAdvanceViewTimeN"
-    "otification\0224\n\010agent_id\030\001 \001(\0132\".bgs.prot"
-    "ocol.account.v1.AccountId\022\021\n\tview_time\030\003"
-    " \001(\004:\006\202\371+\002\030\0012\316\010\n\026ClubMembershipListener\022"
-    "h\n\013OnClubAdded\0226.bgs.protocol.club.v1.me"
-    "mbership.ClubAddedNotification\032\031.bgs.pro"
-    "tocol.NO_RESPONSE\"\006\202\371+\002\010\001\022l\n\rOnClubRemov"
-    "ed\0228.bgs.protocol.club.v1.membership.Clu"
-    "bRemovedNotification\032\031.bgs.protocol.NO_R"
-    "ESPONSE\"\006\202\371+\002\010\002\022\204\001\n\031OnReceivedInvitation"
-    "Added\022D.bgs.protocol.club.v1.membership."
-    "ReceivedInvitationAddedNotification\032\031.bg"
-    "s.protocol.NO_RESPONSE\"\006\202\371+\002\010\003\022\210\001\n\033OnRec"
-    "eivedInvitationRemoved\022F.bgs.protocol.cl"
-    "ub.v1.membership.ReceivedInvitationRemov"
-    "edNotification\032\031.bgs.protocol.NO_RESPONS"
-    "E\"\006\202\371+\002\010\004\022\200\001\n\027OnSharedSettingsChanged\022B."
-    "bgs.protocol.club.v1.membership.SharedSe"
-    "ttingsChangedNotification\032\031.bgs.protocol"
-    ".NO_RESPONSE\"\006\202\371+\002\010\005\022z\n\024OnStreamMentionA"
-    "dded\022\?.bgs.protocol.club.v1.membership.S"
-    "treamMentionAddedNotification\032\031.bgs.prot"
-    "ocol.NO_RESPONSE\"\006\202\371+\002\010\006\022~\n\026OnStreamMent"
-    "ionRemoved\022A.bgs.protocol.club.v1.member"
-    "ship.StreamMentionRemovedNotification\032\031."
-    "bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\007\022\216\001\n\036OnS"
-    "treamMentionAdvanceViewTime\022I.bgs.protoc"
-    "ol.club.v1.membership.StreamMentionAdvan"
-    "ceViewTimeNotification\032\031.bgs.protocol.NO"
-    "_RESPONSE\"\006\202\371+\002\010\010\032:\202\371+.\n,bnet.protocol.c"
-    "lub.v1.ClubMembershipListener\212\371+\004\010\001\030\001B\005H"
-    "\001\200\001\000", 2484);
+    "treamMention\"\210\001\n StreamMentionRemovedNot"
+    "ification\0224\n\010agent_id\030\001 \001(\0132\".bgs.protoc"
+    "ol.account.v1.AccountId\022.\n\nmention_id\030\003 "
+    "\001(\0132\032.bgs.protocol.TimeSeriesId\"s\n(Strea"
+    "mMentionAdvanceViewTimeNotification\0224\n\010a"
+    "gent_id\030\001 \001(\0132\".bgs.protocol.account.v1."
+    "AccountId\022\021\n\tview_time\030\003 \001(\0042\337\010\n\026ClubMem"
+    "bershipListener\022j\n\013OnClubAdded\0226.bgs.pro"
+    "tocol.club.v1.membership.ClubAddedNotifi"
+    "cation\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010"
+    "\001\030\001\022n\n\rOnClubRemoved\0228.bgs.protocol.club"
+    ".v1.membership.ClubRemovedNotification\032\031"
+    ".bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\002\030\001\022\206\001\n\031"
+    "OnReceivedInvitationAdded\022D.bgs.protocol"
+    ".club.v1.membership.ReceivedInvitationAd"
+    "dedNotification\032\031.bgs.protocol.NO_RESPON"
+    "SE\"\010\202\371+\004\010\003\030\001\022\212\001\n\033OnReceivedInvitationRem"
+    "oved\022F.bgs.protocol.club.v1.membership.R"
+    "eceivedInvitationRemovedNotification\032\031.b"
+    "gs.protocol.NO_RESPONSE\"\010\202\371+\004\010\004\030\001\022\202\001\n\027On"
+    "SharedSettingsChanged\022B.bgs.protocol.clu"
+    "b.v1.membership.SharedSettingsChangedNot"
+    "ification\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371"
+    "+\004\010\005\030\001\022|\n\024OnStreamMentionAdded\022\?.bgs.pro"
+    "tocol.club.v1.membership.StreamMentionAd"
+    "dedNotification\032\031.bgs.protocol.NO_RESPON"
+    "SE\"\010\202\371+\004\010\006\030\001\022\200\001\n\026OnStreamMentionRemoved\022"
+    "A.bgs.protocol.club.v1.membership.Stream"
+    "MentionRemovedNotification\032\031.bgs.protoco"
+    "l.NO_RESPONSE\"\010\202\371+\004\010\007\030\001\022\220\001\n\036OnStreamMent"
+    "ionAdvanceViewTime\022I.bgs.protocol.club.v"
+    "1.membership.StreamMentionAdvanceViewTim"
+    "eNotification\032\031.bgs.protocol.NO_RESPONSE"
+    "\"\010\202\371+\004\010\010\030\001\032:\202\371+.\n,bnet.protocol.club.v1."
+    "ClubMembershipListener\212\371+\004\010\001\030\001B\005H\001\200\001\000", 2437);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_listener.proto", &protobuf_RegisterTypes);
   ClubAddedNotification::default_instance_ = new ClubAddedNotification();
@@ -344,7 +341,6 @@ struct StaticDescriptorInitializer_club_5fmembership_5flistener_2eproto {
     protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   }
 } static_descriptor_initializer_club_5fmembership_5flistener_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -595,7 +591,6 @@ void ClubAddedNotification::CopyFrom(const ClubAddedNotification& from) {
 }
 
 bool ClubAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -622,7 +617,6 @@ void ClubAddedNotification::Swap(ClubAddedNotification* other) {
   metadata.reflection = ClubAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -969,7 +963,6 @@ void ClubRemovedNotification::CopyFrom(const ClubRemovedNotification& from) {
 }
 
 bool ClubRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -998,7 +991,6 @@ void ClubRemovedNotification::Swap(ClubRemovedNotification* other) {
   metadata.reflection = ClubRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1250,7 +1242,6 @@ void ReceivedInvitationAddedNotification::CopyFrom(const ReceivedInvitationAdded
 }
 
 bool ReceivedInvitationAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1277,7 +1268,6 @@ void ReceivedInvitationAddedNotification::Swap(ReceivedInvitationAddedNotificati
   metadata.reflection = ReceivedInvitationAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1579,7 +1569,6 @@ void ReceivedInvitationRemovedNotification::CopyFrom(const ReceivedInvitationRem
 }
 
 bool ReceivedInvitationRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1604,7 +1593,6 @@ void ReceivedInvitationRemovedNotification::Swap(ReceivedInvitationRemovedNotifi
   metadata.reflection = ReceivedInvitationRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1856,7 +1844,6 @@ void SharedSettingsChangedNotification::CopyFrom(const SharedSettingsChangedNoti
 }
 
 bool SharedSettingsChangedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1880,7 +1867,6 @@ void SharedSettingsChangedNotification::Swap(SharedSettingsChangedNotification* 
   metadata.reflection = SharedSettingsChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2132,7 +2118,6 @@ void StreamMentionAddedNotification::CopyFrom(const StreamMentionAddedNotificati
 }
 
 bool StreamMentionAddedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2159,7 +2144,6 @@ void StreamMentionAddedNotification::Swap(StreamMentionAddedNotification* other)
   metadata.reflection = StreamMentionAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2411,7 +2395,6 @@ void StreamMentionRemovedNotification::CopyFrom(const StreamMentionRemovedNotifi
 }
 
 bool StreamMentionRemovedNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2435,7 +2418,6 @@ void StreamMentionRemovedNotification::Swap(StreamMentionRemovedNotification* ot
   metadata.reflection = StreamMentionRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2682,7 +2664,6 @@ void StreamMentionAdvanceViewTimeNotification::CopyFrom(const StreamMentionAdvan
 }
 
 bool StreamMentionAdvanceViewTimeNotification::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2706,7 +2687,6 @@ void StreamMentionAdvanceViewTimeNotification::Swap(StreamMentionAdvanceViewTime
   metadata.reflection = StreamMentionAdvanceViewTimeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2773,7 +2753,6 @@ void ClubMembershipListener::CallServerMethod(uint32 token, uint32 methodId, Mes
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -18,32 +18,40 @@
 #ifndef TRINITY_FORMATIONMOVEMENTGENERATOR_H
 #define TRINITY_FORMATIONMOVEMENTGENERATOR_H
 
+#include "AbstractFollower.h"
 #include "MovementGenerator.h"
+#include "Position.h"
+#include "Timer.h"
 
-class FormationMovementGenerator : public MovementGeneratorMedium< Creature, FormationMovementGenerator >
+class Creature;
+
+class FormationMovementGenerator : public MovementGeneratorMedium<Creature, FormationMovementGenerator>, public AbstractFollower
 {
     public:
-        explicit FormationMovementGenerator(uint32 id, Position destination, uint32 moveType, bool run, bool orientation) : _movementId(id), _destination(destination), _moveType(moveType), _run(run), _orientation(orientation), _recalculateSpeed(false), _interrupt(false) { }
+        explicit FormationMovementGenerator(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return FORMATION_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(Creature*);
-        void DoFinalize(Creature*);
         void DoReset(Creature*);
         bool DoUpdate(Creature*, uint32);
-
-        void UnitSpeedChanged() override { _recalculateSpeed = true; }
+        void DoDeactivate(Creature*);
+        void DoFinalize(Creature*, bool, bool);
 
     private:
         void MovementInform(Creature*);
+        void LaunchMovement(Creature* owner, Unit* target);
 
-        uint32 _movementId;
-        Position _destination;
-        uint32 _moveType;
-        bool _run;
-        bool _orientation;
-        bool _recalculateSpeed;
-        bool _interrupt;
+        static constexpr uint32 FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
+        float const _range;
+        float _angle;
+        uint32 const _point1;
+        uint32 const _point2;
+        uint32 _lastLeaderSplineID;
+        bool _hasPredictedDestination;
+
+        Position _lastLeaderPosition;
+        TimeTracker _nextMoveTimer;
 };
 
 #endif // TRINITY_FORMATIONMOVEMENTGENERATOR_H

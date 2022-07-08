@@ -24,6 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "global_extensions/field_options.pb.h"  // IWYU pragma: export
 #include "entity_types.pb.h"
 #include "attribute_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
@@ -137,13 +138,6 @@ class TC_PROTO_API RecentPlayer : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
       mutable_attributes();
 
-  // optional fixed32 id = 5 [default = 0];
-  inline bool has_id() const;
-  inline void clear_id();
-  static const int kIdFieldNumber = 5;
-  inline ::google::protobuf::uint32 id() const;
-  inline void set_id(::google::protobuf::uint32 value);
-
   // optional fixed32 counter = 6 [default = 0];
   inline bool has_counter() const;
   inline void clear_counter();
@@ -159,8 +153,6 @@ class TC_PROTO_API RecentPlayer : public ::google::protobuf::Message {
   inline void clear_has_program();
   inline void set_has_timestamp_played();
   inline void clear_has_timestamp_played();
-  inline void set_has_id();
-  inline void clear_has_id();
   inline void set_has_counter();
   inline void clear_has_counter();
 
@@ -172,7 +164,6 @@ class TC_PROTO_API RecentPlayer : public ::google::protobuf::Message {
   ::std::string* program_;
   ::google::protobuf::uint64 timestamp_played_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attributes_;
-  ::google::protobuf::uint32 id_;
   ::google::protobuf::uint32 counter_;
   friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5ftypes_2eproto();
@@ -245,43 +236,43 @@ class TC_PROTO_API BlockedPlayer : public ::google::protobuf::Message {
   inline ::bgs::protocol::EntityId* release_account_id();
   inline void set_allocated_account_id(::bgs::protocol::EntityId* account_id);
 
-  // optional string name = 2;
-  inline bool has_name() const;
-  inline void clear_name();
-  static const int kNameFieldNumber = 2;
-  inline const ::std::string& name() const;
-  inline void set_name(const ::std::string& value);
-  inline void set_name(const char* value);
-  inline void set_name(const char* value, size_t size);
-  inline ::std::string* mutable_name();
-  inline ::std::string* release_name();
-  inline void set_allocated_name(::std::string* name);
+  // optional string battle_tag = 2;
+  inline bool has_battle_tag() const;
+  inline void clear_battle_tag();
+  static const int kBattleTagFieldNumber = 2;
+  inline const ::std::string& battle_tag() const;
+  inline void set_battle_tag(const ::std::string& value);
+  inline void set_battle_tag(const char* value);
+  inline void set_battle_tag(const char* value, size_t size);
+  inline ::std::string* mutable_battle_tag();
+  inline ::std::string* release_battle_tag();
+  inline void set_allocated_battle_tag(::std::string* battle_tag);
 
-  // repeated uint32 role = 3 [packed = true];
-  inline int role_size() const;
-  inline void clear_role();
+  // repeated uint32 role = 3 [deprecated = true];
+  inline int role_size() const PROTOBUF_DEPRECATED;
+  inline void clear_role() PROTOBUF_DEPRECATED;
   static const int kRoleFieldNumber = 3;
-  inline ::google::protobuf::uint32 role(int index) const;
-  inline void set_role(int index, ::google::protobuf::uint32 value);
-  inline void add_role(::google::protobuf::uint32 value);
+  inline ::google::protobuf::uint32 role(int index) const PROTOBUF_DEPRECATED;
+  inline void set_role(int index, ::google::protobuf::uint32 value) PROTOBUF_DEPRECATED;
+  inline void add_role(::google::protobuf::uint32 value) PROTOBUF_DEPRECATED;
   inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      role() const;
+      role() const PROTOBUF_DEPRECATED;
   inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_role();
+      mutable_role() PROTOBUF_DEPRECATED;
 
-  // optional uint64 privileges = 4 [default = 0];
-  inline bool has_privileges() const;
-  inline void clear_privileges();
+  // optional uint64 privileges = 4 [deprecated = true];
+  inline bool has_privileges() const PROTOBUF_DEPRECATED;
+  inline void clear_privileges() PROTOBUF_DEPRECATED;
   static const int kPrivilegesFieldNumber = 4;
-  inline ::google::protobuf::uint64 privileges() const;
-  inline void set_privileges(::google::protobuf::uint64 value);
+  inline ::google::protobuf::uint64 privileges() const PROTOBUF_DEPRECATED;
+  inline void set_privileges(::google::protobuf::uint64 value) PROTOBUF_DEPRECATED;
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.user_manager.v1.BlockedPlayer)
  private:
   inline void set_has_account_id();
   inline void clear_has_account_id();
-  inline void set_has_name();
-  inline void clear_has_name();
+  inline void set_has_battle_tag();
+  inline void clear_has_battle_tag();
   inline void set_has_privileges();
   inline void clear_has_privileges();
 
@@ -290,9 +281,8 @@ class TC_PROTO_API BlockedPlayer : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* account_id_;
-  ::std::string* name_;
+  ::std::string* battle_tag_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
-  mutable int _role_cached_byte_size_;
   ::google::protobuf::uint64 privileges_;
   friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
   friend void protobuf_AssignDesc_user_5fmanager_5ftypes_2eproto();
@@ -303,9 +293,7 @@ class TC_PROTO_API BlockedPlayer : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -482,39 +470,15 @@ RecentPlayer::mutable_attributes() {
   return &attributes_;
 }
 
-// optional fixed32 id = 5 [default = 0];
-inline bool RecentPlayer::has_id() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void RecentPlayer::set_has_id() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void RecentPlayer::clear_has_id() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void RecentPlayer::clear_id() {
-  id_ = 0u;
-  clear_has_id();
-}
-inline ::google::protobuf::uint32 RecentPlayer::id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.RecentPlayer.id)
-  return id_;
-}
-inline void RecentPlayer::set_id(::google::protobuf::uint32 value) {
-  set_has_id();
-  id_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.RecentPlayer.id)
-}
-
 // optional fixed32 counter = 6 [default = 0];
 inline bool RecentPlayer::has_counter() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void RecentPlayer::set_has_counter() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void RecentPlayer::clear_has_counter() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void RecentPlayer::clear_counter() {
   counter_ = 0u;
@@ -575,83 +539,83 @@ inline void BlockedPlayer::set_allocated_account_id(::bgs::protocol::EntityId* a
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.user_manager.v1.BlockedPlayer.account_id)
 }
 
-// optional string name = 2;
-inline bool BlockedPlayer::has_name() const {
+// optional string battle_tag = 2;
+inline bool BlockedPlayer::has_battle_tag() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void BlockedPlayer::set_has_name() {
+inline void BlockedPlayer::set_has_battle_tag() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void BlockedPlayer::clear_has_name() {
+inline void BlockedPlayer::clear_has_battle_tag() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void BlockedPlayer::clear_name() {
-  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_->clear();
+inline void BlockedPlayer::clear_battle_tag() {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_->clear();
   }
-  clear_has_name();
+  clear_has_battle_tag();
 }
-inline const ::std::string& BlockedPlayer::name() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.BlockedPlayer.name)
-  return *name_;
+inline const ::std::string& BlockedPlayer::battle_tag() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.BlockedPlayer.battle_tag)
+  return *battle_tag_;
 }
-inline void BlockedPlayer::set_name(const ::std::string& value) {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
+inline void BlockedPlayer::set_battle_tag(const ::std::string& value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  name_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.BlockedPlayer.name)
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.BlockedPlayer.battle_tag)
 }
-inline void BlockedPlayer::set_name(const char* value) {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
+inline void BlockedPlayer::set_battle_tag(const char* value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  name_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.user_manager.v1.BlockedPlayer.name)
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.user_manager.v1.BlockedPlayer.battle_tag)
 }
-inline void BlockedPlayer::set_name(const char* value, size_t size) {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
+inline void BlockedPlayer::set_battle_tag(const char* value, size_t size) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  name_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.user_manager.v1.BlockedPlayer.name)
+  battle_tag_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.user_manager.v1.BlockedPlayer.battle_tag)
 }
-inline ::std::string* BlockedPlayer::mutable_name() {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
+inline ::std::string* BlockedPlayer::mutable_battle_tag() {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.user_manager.v1.BlockedPlayer.name)
-  return name_;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.user_manager.v1.BlockedPlayer.battle_tag)
+  return battle_tag_;
 }
-inline ::std::string* BlockedPlayer::release_name() {
-  clear_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+inline ::std::string* BlockedPlayer::release_battle_tag() {
+  clear_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
   } else {
-    ::std::string* temp = name_;
-    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    ::std::string* temp = battle_tag_;
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     return temp;
   }
 }
-inline void BlockedPlayer::set_allocated_name(::std::string* name) {
-  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete name_;
+inline void BlockedPlayer::set_allocated_battle_tag(::std::string* battle_tag) {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete battle_tag_;
   }
-  if (name) {
-    set_has_name();
-    name_ = name;
+  if (battle_tag) {
+    set_has_battle_tag();
+    battle_tag_ = battle_tag;
   } else {
-    clear_has_name();
-    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    clear_has_battle_tag();
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.user_manager.v1.BlockedPlayer.name)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.user_manager.v1.BlockedPlayer.battle_tag)
 }
 
-// repeated uint32 role = 3 [packed = true];
+// repeated uint32 role = 3 [deprecated = true];
 inline int BlockedPlayer::role_size() const {
   return role_.size();
 }
@@ -681,7 +645,7 @@ BlockedPlayer::mutable_role() {
   return &role_;
 }
 
-// optional uint64 privileges = 4 [default = 0];
+// optional uint64 privileges = 4 [deprecated = true];
 inline bool BlockedPlayer::has_privileges() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -705,7 +669,6 @@ inline void BlockedPlayer::set_privileges(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.BlockedPlayer.privileges)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -716,8 +679,6 @@ inline void BlockedPlayer::set_privileges(::google::protobuf::uint64 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

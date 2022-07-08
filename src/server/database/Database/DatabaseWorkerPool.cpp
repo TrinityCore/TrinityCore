@@ -34,9 +34,15 @@
 #include "Transaction.h"
 #include "MySQLWorkaround.h"
 #include <mysqld_error.h>
+#ifdef TRINITY_DEBUG
+#include <sstream>
+#include <boost/stacktrace.hpp>
+#endif
 
-#define MIN_MYSQL_SERVER_VERSION 50100u
-#define MIN_MYSQL_CLIENT_VERSION 50100u
+#define MIN_MYSQL_SERVER_VERSION 50700u
+#define MIN_MYSQL_SERVER_VERSION_STRING "5.7"
+#define MIN_MYSQL_CLIENT_VERSION 50700u
+#define MIN_MYSQL_CLIENT_VERSION_STRING "5.7"
 
 class PingOperation : public SQLOperation
 {
@@ -54,9 +60,9 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
       _async_threads(0), _synch_threads(0)
 {
     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-    WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s). Search on forum for TCE00011.",
-        mysql_get_client_info(), MYSQL_SERVER_VERSION);
+    WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below " MIN_MYSQL_CLIENT_VERSION_STRING " (found %s id %lu, need id >= %u), please update your MySQL client library", mysql_get_client_info(), mysql_get_client_version(), MIN_MYSQL_CLIENT_VERSION);
+    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.",
+        mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
 }
 
 template <class T>
@@ -167,7 +173,7 @@ bool DatabaseWorkerPool<T>::PrepareStatements()
 }
 
 template <class T>
-QueryResult DatabaseWorkerPool<T>::Query(const char* sql, T* connection /*= nullptr*/)
+QueryResult DatabaseWorkerPool<T>::Query(char const* sql, T* connection /*= nullptr*/)
 {
     if (!connection)
         connection = GetFreeConnection();
@@ -203,7 +209,7 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-QueryCallback DatabaseWorkerPool<T>::AsyncQuery(const char* sql)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(char const* sql)
 {
     BasicStatementTask* task = new BasicStatementTask(sql, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -223,13 +229,13 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
+SQLQueryHolderCallback DatabaseWorkerPool<T>::DelayQueryHolder(std::shared_ptr<SQLQueryHolder<T>> holder)
 {
     SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
     QueryResultHolderFuture result = task->GetFuture();
     Enqueue(task);
-    return result;
+    return { std::move(holder), std::move(result) };
 }
 
 template <class T>
@@ -302,6 +308,7 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction<T>& transacti
     /// @todo More elegant way
     if (errorCode == ER_LOCK_DEADLOCK)
     {
+        //todo: handle multiple sync threads deadlocking in a similar way as async threads
         uint8 loopBreaker = 5;
         for (uint8 i = 0; i < loopBreaker; ++i)
         {
@@ -381,7 +388,7 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
         }
         else if (connection->GetServerVersion() < MIN_MYSQL_SERVER_VERSION)
         {
-            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below 5.1");
+            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below " MIN_MYSQL_SERVER_VERSION_STRING " (found id %u, need id >= %u), please update your MySQL server", connection->GetServerVersion(), MIN_MYSQL_SERVER_VERSION);
             return 1;
         }
         else
@@ -395,7 +402,7 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
 }
 
 template <class T>
-unsigned long DatabaseWorkerPool<T>::EscapeString(char *to, const char *from, unsigned long length)
+unsigned long DatabaseWorkerPool<T>::EscapeString(char* to, char const* from, unsigned long length)
 {
     if (!to || !from || !length)
         return 0;
@@ -410,8 +417,23 @@ void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
 }
 
 template <class T>
+size_t DatabaseWorkerPool<T>::QueueSize() const
+{
+    return _queue->Size();
+}
+
+template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
+#ifdef TRINITY_DEBUG
+    if (_warnSyncQueries)
+    {
+        std::ostringstream ss;
+        ss << boost::stacktrace::stacktrace();
+        TC_LOG_WARN("sql.performances", "Sync query at:\n%s", ss.str().c_str());
+    }
+#endif
+
     uint8 i = 0;
     auto const num_cons = _connections[IDX_SYNCH].size();
     T* connection = nullptr;
@@ -434,7 +456,7 @@ char const* DatabaseWorkerPool<T>::GetDatabaseName() const
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::Execute(const char* sql)
+void DatabaseWorkerPool<T>::Execute(char const* sql)
 {
     if (Trinity::IsFormatEmptyOrNull(sql))
         return;
@@ -451,7 +473,7 @@ void DatabaseWorkerPool<T>::Execute(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::DirectExecute(const char* sql)
+void DatabaseWorkerPool<T>::DirectExecute(char const* sql)
 {
     if (Trinity::IsFormatEmptyOrNull(sql))
         return;
@@ -473,7 +495,7 @@ void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, const char* sql)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, char const* sql)
 {
     if (!trans)
         Execute(sql);

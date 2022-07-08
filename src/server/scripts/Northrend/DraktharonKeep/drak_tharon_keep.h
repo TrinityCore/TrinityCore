@@ -86,10 +86,12 @@ enum DTKGameObjectIds
     GO_NOVOS_CRYSTAL_4                  = 189302
 };
 
-template<typename AI>
-inline AI* GetDrakTharonKeepAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetDrakTharonKeepAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, DrakTharonKeepScriptName);
+    return GetInstanceAI<AI>(obj, DrakTharonKeepScriptName);
 }
+
+#define RegisterDrakTharonKeepCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetDrakTharonKeepAI)
 
 #endif // DRAK_THARON_KEEP_H_

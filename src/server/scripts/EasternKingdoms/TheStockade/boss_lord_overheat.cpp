@@ -44,9 +44,9 @@ struct boss_lord_overheat : public BossAI
 {
     boss_lord_overheat(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) { }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::EnterCombat(who);
+        BossAI::JustEngagedWith(who);
 
         Talk(SAY_PULL);
 
@@ -71,7 +71,7 @@ struct boss_lord_overheat : public BossAI
                 events.Repeat(2s);
                 break;
             case EVENT_OVERHEAT:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     DoCast(target, SPELL_OVERHEAT);
                 events.Repeat(9s, 10s);
                 break;

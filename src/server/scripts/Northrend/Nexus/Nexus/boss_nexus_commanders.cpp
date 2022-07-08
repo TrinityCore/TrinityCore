@@ -42,69 +42,58 @@ enum Events
     EVENT_FRIGHTENING_SHOUT
 };
 
-class boss_nexus_commanders : public CreatureScript
+struct boss_nexus_commanders : public BossAI
 {
-    public:
-        boss_nexus_commanders() : CreatureScript("boss_nexus_commanders") { }
+    boss_nexus_commanders(Creature* creature) : BossAI(creature, DATA_COMMANDER) { }
 
-        struct boss_nexus_commandersAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
+        DoCast(me, SPELL_BATTLE_SHOUT);
+
+        events.ScheduleEvent(EVENT_CHARGE_COMMANDER, 3s, 4s);
+        events.ScheduleEvent(EVENT_WHIRLWIND, 6s, 8s);
+        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 13s, 15s);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
         {
-            boss_nexus_commandersAI(Creature* creature) : BossAI(creature, DATA_COMMANDER) { }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                Talk(SAY_AGGRO);
-                me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
-                DoCast(me, SPELL_BATTLE_SHOUT);
-
-                events.ScheduleEvent(EVENT_CHARGE_COMMANDER, urand(3000, 4000));
-                events.ScheduleEvent(EVENT_WHIRLWIND, urand(6000, 8000));
-                events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(13000, 15000));
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_CHARGE_COMMANDER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            DoCast(target, SPELL_CHARGE);
-                        events.ScheduleEvent(EVENT_CHARGE_COMMANDER, urand(11000, 15000));
-                        break;
-                    case EVENT_WHIRLWIND:
-                        DoCast(me, SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, urand(19500, 25000));
-                        break;
-                    case EVENT_FRIGHTENING_SHOUT:
-                        DoCastAOE(SPELL_FRIGHTENING_SHOUT);
-                        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(45000, 55000));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_KILL);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetNexusAI<boss_nexus_commandersAI>(creature);
+            case EVENT_CHARGE_COMMANDER:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                    DoCast(target, SPELL_CHARGE);
+                events.ScheduleEvent(EVENT_CHARGE_COMMANDER, 11s, 15s);
+                break;
+            case EVENT_WHIRLWIND:
+                DoCast(me, SPELL_WHIRLWIND);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 19500ms, 25s);
+                break;
+            case EVENT_FRIGHTENING_SHOUT:
+                DoCastAOE(SPELL_FRIGHTENING_SHOUT);
+                events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 45s, 55s);
+                break;
+            default:
+                break;
         }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_KILL);
+    }
 };
 
 void AddSC_boss_nexus_commanders()
 {
-    new boss_nexus_commanders();
+    RegisterNexusCreatureAI(boss_nexus_commanders);
 }

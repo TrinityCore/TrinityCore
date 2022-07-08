@@ -74,6 +74,8 @@ class instance_halls_of_stone : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_ABEDNEUM:
@@ -96,21 +98,6 @@ class instance_halls_of_stone : public InstanceMapScript
                         break;
                     case GO_TRIBUNAL_SKY_FLOOR:
                         TribunalSkyFloorGUID = go->GetGUID();
-                        break;
-                    case GO_SJONNIR_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_SJONNIR_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

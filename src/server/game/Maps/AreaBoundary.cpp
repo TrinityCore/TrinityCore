@@ -17,7 +17,6 @@
 
 #include "AreaBoundary.h"
 #include "Unit.h"
-#include "TemporarySummon.h"
 
 // ---== RECTANGLE ==---
 RectangleBoundary::RectangleBoundary(float southX, float northX, float eastY, float westY, bool isInverted) :
@@ -32,7 +31,6 @@ bool RectangleBoundary::IsWithinBoundaryArea(Position const* pos) const
         );
 }
 
-
 // ---== CIRCLE ==---
 CircleBoundary::CircleBoundary(Position const& center, double radius, bool isInverted) :
     AreaBoundary(isInverted), _center(center), _radiusSq(radius*radius) { }
@@ -45,7 +43,6 @@ bool CircleBoundary::IsWithinBoundaryArea(Position const* pos) const
     return offX*offX+offY*offY <= _radiusSq;
 }
 
-
 // ---== ELLIPSE ==---
 EllipseBoundary::EllipseBoundary(Position const& center, double radiusX, double radiusY, bool isInverted) :
     AreaBoundary(isInverted), _center(center), _radiusYSq(radiusY*radiusY), _scaleXSq(_radiusYSq / (radiusX*radiusX)) { }
@@ -55,7 +52,6 @@ bool EllipseBoundary::IsWithinBoundaryArea(Position const* pos) const
     double offY = _center.GetDoublePositionY() - pos->GetPositionY();
     return (offX*offX)*_scaleXSq + (offY*offY)  <=  _radiusYSq;
 }
-
 
 // ---== TRIANGLE ==---
 TriangleBoundary::TriangleBoundary(Position const& pointA, Position const& pointB, Position const& pointC, bool isInverted) :
@@ -70,7 +66,6 @@ bool TriangleBoundary::IsWithinBoundaryArea(Position const* pos) const
     // if all signs are the same, the point is inside the triangle
     return ((sign1 == sign2) && (sign2 == sign3));
 }
-
 
 // ---== PARALLELOGRAM ==---
 ParallelogramBoundary::ParallelogramBoundary(Position const& cornerA, Position const& cornerB, Position const& cornerD, bool isInverted) :
@@ -87,7 +82,6 @@ bool ParallelogramBoundary::IsWithinBoundaryArea(Position const* pos) const
     return ((sign1 == sign2) && (sign2 == sign3) && (sign3 == sign4));
 }
 
-
 // ---== Z RANGE ==---
 ZRangeBoundary::ZRangeBoundary(float minZ, float maxZ, bool isInverted) :
     AreaBoundary(isInverted), _minZ(minZ), _maxZ(maxZ) { }
@@ -96,12 +90,16 @@ bool ZRangeBoundary::IsWithinBoundaryArea(Position const* pos) const
     return (_minZ <= pos->GetPositionZ() && pos->GetPositionZ() <= _maxZ);
 }
 
-
 // ---== UNION OF 2 BOUNDARIES ==---
 BoundaryUnionBoundary::BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted) :
     AreaBoundary(isInverted), _b1(b1), _b2(b2)
 {
     ASSERT(b1 && b2);
+}
+BoundaryUnionBoundary::~BoundaryUnionBoundary()
+{
+    delete _b1;
+    delete _b2;
 }
 bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
 {

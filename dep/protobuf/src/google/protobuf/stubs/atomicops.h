@@ -181,7 +181,11 @@ GOOGLE_PROTOBUF_ATOMICOPS_ERROR
 
 // Apple.
 #elif defined(GOOGLE_PROTOBUF_OS_APPLE)
+#if __has_feature(cxx_atomic) || _GNUC_VER >= 407
+#include <google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h>
+#else  // __has_feature(cxx_atomic) || _GNUC_VER >= 407
 #include <google/protobuf/stubs/atomicops_internals_macosx.h>
+#endif  // __has_feature(cxx_atomic) || _GNUC_VER >= 407
 
 // GCC.
 #elif defined(__GNUC__)
@@ -196,7 +200,7 @@ GOOGLE_PROTOBUF_ATOMICOPS_ERROR
 #elif defined(GOOGLE_PROTOBUF_ARCH_MIPS) || defined(GOOGLE_PROTOBUF_ARCH_MIPS64)
 #include <google/protobuf/stubs/atomicops_internals_mips_gcc.h>
 #elif defined(__native_client__)
-#include <google/protobuf/stubs/atomicops_internals_pnacl.h>
+#include <google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h>
 #elif (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)) || (__GNUC__ > 4))
 #include <google/protobuf/stubs/atomicops_internals_generic_gcc.h>
 #elif defined(__clang__)

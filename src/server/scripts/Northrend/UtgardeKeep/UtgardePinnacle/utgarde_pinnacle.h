@@ -97,10 +97,13 @@ enum UPGameObjectIds
     GO_KING_YMIRON_DOOR             = 192174
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetUtgardePinnacleAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, UPScriptName);
 }
+
+#define RegisterUtgardePinnacleCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUtgardePinnacleAI)
+#define RegisterUtgardePinnacleGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetUtgardePinnacleAI)
 
 #endif // UTGARDE_PINNACLE_H_

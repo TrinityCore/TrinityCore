@@ -2182,6 +2182,15 @@ class TC_PROTO_API StreamUnreadIndicatorNotification : public ::google::protobuf
   inline ::bgs::protocol::club::v1::StreamEventTime* release_event();
   inline void set_allocated_event(::bgs::protocol::club::v1::StreamEventTime* event);
 
+  // optional .bgs.protocol.club.v1.StreamMessage message = 5;
+  inline bool has_message() const;
+  inline void clear_message();
+  static const int kMessageFieldNumber = 5;
+  inline const ::bgs::protocol::club::v1::StreamMessage& message() const;
+  inline ::bgs::protocol::club::v1::StreamMessage* mutable_message();
+  inline ::bgs::protocol::club::v1::StreamMessage* release_message();
+  inline void set_allocated_message(::bgs::protocol::club::v1::StreamMessage* message);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.StreamUnreadIndicatorNotification)
  private:
   inline void set_has_agent_id();
@@ -2190,6 +2199,8 @@ class TC_PROTO_API StreamUnreadIndicatorNotification : public ::google::protobuf
   inline void clear_has_club_id();
   inline void set_has_event();
   inline void clear_has_event();
+  inline void set_has_message();
+  inline void clear_has_message();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -2198,6 +2209,7 @@ class TC_PROTO_API StreamUnreadIndicatorNotification : public ::google::protobuf
   ::bgs::protocol::club::v1::MemberId* agent_id_;
   ::google::protobuf::uint64 club_id_;
   ::bgs::protocol::club::v1::StreamEventTime* event_;
+  ::bgs::protocol::club::v1::StreamMessage* message_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fnotification_2eproto();
   friend void protobuf_AssignDesc_club_5fnotification_2eproto();
   friend void protobuf_ShutdownFile_club_5fnotification_2eproto();
@@ -2311,9 +2323,7 @@ class TC_PROTO_API StreamAdvanceViewTimeNotification : public ::google::protobuf
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -4626,6 +4636,47 @@ inline void StreamUnreadIndicatorNotification::set_allocated_event(::bgs::protoc
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.StreamUnreadIndicatorNotification.event)
 }
 
+// optional .bgs.protocol.club.v1.StreamMessage message = 5;
+inline bool StreamUnreadIndicatorNotification::has_message() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void StreamUnreadIndicatorNotification::set_has_message() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void StreamUnreadIndicatorNotification::clear_has_message() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void StreamUnreadIndicatorNotification::clear_message() {
+  if (message_ != NULL) message_->::bgs::protocol::club::v1::StreamMessage::Clear();
+  clear_has_message();
+}
+inline const ::bgs::protocol::club::v1::StreamMessage& StreamUnreadIndicatorNotification::message() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.StreamUnreadIndicatorNotification.message)
+  return message_ != NULL ? *message_ : *default_instance_->message_;
+}
+inline ::bgs::protocol::club::v1::StreamMessage* StreamUnreadIndicatorNotification::mutable_message() {
+  set_has_message();
+  if (message_ == NULL) message_ = new ::bgs::protocol::club::v1::StreamMessage;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.StreamUnreadIndicatorNotification.message)
+  return message_;
+}
+inline ::bgs::protocol::club::v1::StreamMessage* StreamUnreadIndicatorNotification::release_message() {
+  clear_has_message();
+  ::bgs::protocol::club::v1::StreamMessage* temp = message_;
+  message_ = NULL;
+  return temp;
+}
+inline void StreamUnreadIndicatorNotification::set_allocated_message(::bgs::protocol::club::v1::StreamMessage* message) {
+  delete message_;
+  message_ = message;
+  if (message) {
+    set_has_message();
+  } else {
+    clear_has_message();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.StreamUnreadIndicatorNotification.message)
+}
+
 // -------------------------------------------------------------------
 
 // StreamAdvanceViewTimeNotification
@@ -4725,7 +4776,6 @@ StreamAdvanceViewTimeNotification::mutable_view() {
   return &view_;
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -4736,8 +4786,6 @@ StreamAdvanceViewTimeNotification::mutable_view() {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

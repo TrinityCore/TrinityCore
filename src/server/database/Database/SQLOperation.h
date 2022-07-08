@@ -25,7 +25,7 @@
 union SQLElementUnion
 {
     PreparedStatementBase* stmt;
-    const char* query;
+    char const* query;
 };
 
 //- Type specifier of our element data
@@ -40,13 +40,6 @@ struct SQLElementData
 {
     SQLElementUnion element;
     SQLElementDataType type;
-};
-
-//- For ambigious resultsets
-union SQLResultSetUnion
-{
-    PreparedResultSet* presult;
-    ResultSet* qresult;
 };
 
 class MySQLConnection;

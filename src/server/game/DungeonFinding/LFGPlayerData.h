@@ -42,7 +42,7 @@ class TC_GAME_API LfgPlayerData
 
         // Queue
         void SetRoles(uint8 roles);
-        void SetSelectedDungeons(const LfgDungeonSet& dungeons);
+        void SetSelectedDungeons(LfgDungeonSet const& dungeons);
 
         // General
         WorldPackets::LFG::RideTicket const& GetTicket() const;
@@ -54,6 +54,10 @@ class TC_GAME_API LfgPlayerData
         // Queue
         uint8 GetRoles() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
+
+        // Achievement-related
+        void SetNumberOfPartyMembersAtJoin(uint8 count);
+        uint8 GetNumberOfPartyMembersAtJoin();
 
     private:
         // General
@@ -67,6 +71,9 @@ class TC_GAME_API LfgPlayerData
         // Queue
         uint8 m_Roles;                                     ///< Roles the player selected when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
+
+        // Achievement-related
+        uint8 m_NumberOfPartyMembersAtJoin;
 };
 
 } // namespace lfg

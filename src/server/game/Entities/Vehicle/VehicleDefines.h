@@ -19,9 +19,12 @@
 #define __TRINITY_VEHICLEDEFINES_H
 
 #include "Define.h"
+#include "Duration.h"
 #include <vector>
 #include <map>
 
+class Map;
+class WorldObject;
 struct VehicleSeatEntry;
 
 enum PowerType
@@ -75,23 +78,46 @@ enum VehicleSpells
     VEHICLE_SPELL_PARACHUTE                      = 45472
 };
 
+enum class VehicleExitParameters
+{
+    VehicleExitParamNone    = 0, // provided parameters will be ignored
+    VehicleExitParamOffset  = 1, // provided parameters will be used as offset values
+    VehicleExitParamDest    = 2, // provided parameters will be used as absolute destination
+    VehicleExitParamMax
+};
+
 struct PassengerInfo
 {
     ObjectGuid Guid;
-    bool IsUnselectable;
+    bool IsUninteractible;
     bool IsGravityDisabled;
 
     void Reset()
     {
         Guid.Clear();
-        IsUnselectable = false;
+        IsUninteractible = false;
         IsGravityDisabled = false;
     }
 };
 
+struct VehicleSeatAddon
+{
+    VehicleSeatAddon() { }
+    VehicleSeatAddon(float orientatonOffset, float exitX, float exitY, float exitZ, float exitO, uint8 param) :
+        SeatOrientationOffset(orientatonOffset), ExitParameterX(exitX), ExitParameterY(exitY), ExitParameterZ(exitZ),
+        ExitParameterO(exitO), ExitParameter(VehicleExitParameters(param)) { }
+
+    float SeatOrientationOffset = 0.f;
+    float ExitParameterX = 0.f;
+    float ExitParameterY = 0.f;
+    float ExitParameterZ = 0.f;
+    float ExitParameterO = 0.f;
+    VehicleExitParameters ExitParameter = VehicleExitParameters::VehicleExitParamNone;
+};
+
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const* seatInfo) : SeatInfo(seatInfo)
+    explicit VehicleSeat(VehicleSeatEntry const* seatInfo, VehicleSeatAddon const* seatAddon) : SeatInfo(seatInfo), SeatAddon(seatAddon)
     {
         Passenger.Reset();
     }
@@ -99,6 +125,7 @@ struct VehicleSeat
     bool IsEmpty() const { return Passenger.Guid.IsEmpty(); }
 
     VehicleSeatEntry const* SeatInfo;
+    VehicleSeatAddon const* SeatAddon;
     PassengerInfo Passenger;
 };
 
@@ -113,6 +140,11 @@ struct VehicleAccessory
     uint8 SummonedType;
 };
 
+struct VehicleTemplate
+{
+    Milliseconds DespawnDelay = Milliseconds::zero();
+};
+
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<ObjectGuid::LowType, VehicleAccessoryList> VehicleAccessoryContainer;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryTemplateContainer;
@@ -125,11 +157,21 @@ protected:
     virtual ~TransportBase() { }
 
 public:
+    virtual ObjectGuid GetTransportGUID() const = 0;
+
     /// This method transforms supplied transport offsets into global coordinates
     virtual void CalculatePassengerPosition(float& x, float& y, float& z, float* o = nullptr) const = 0;
 
     /// This method transforms supplied global coordinates into local offsets
     virtual void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const = 0;
+
+    virtual float GetTransportOrientation() const = 0;
+
+    virtual void AddPassenger(WorldObject* passenger) = 0;
+
+    virtual TransportBase* RemovePassenger(WorldObject* passenger) = 0;
+
+    void UpdatePassengerPosition(Map* map, WorldObject* passenger, float x, float y, float z, float o, bool setHomePosition);
 
     static void CalculatePassengerPosition(float& x, float& y, float& z, float* o, float transX, float transY, float transZ, float transO)
     {
@@ -154,6 +196,8 @@ public:
         y = (iny - inx * std::tan(transO)) / (std::cos(transO) + std::sin(transO) * std::tan(transO));
         x = (inx + iny * std::tan(transO)) / (std::cos(transO) + std::sin(transO) * std::tan(transO));
     }
+
+    virtual int32 GetMapIdForSpawning() const = 0;
 };
 
 #endif

@@ -24,7 +24,6 @@
  * to overload its types as a visit method is called.
  */
 
-#include "Define.h"
 #include "Dynamic/TypeContainer.h"
 
 // forward declaration
@@ -86,12 +85,12 @@ class TypeContainerVisitor
     public:
         TypeContainerVisitor(VISITOR &v) : i_visitor(v) { }
 
-        void Visit(TYPE_CONTAINER &c)
+        void Visit(TYPE_CONTAINER& c)
         {
             VisitorHelper(i_visitor, c);
         }
 
-        void Visit(const TYPE_CONTAINER &c) const
+        void Visit(TYPE_CONTAINER const& c) const
         {
             VisitorHelper(i_visitor, c);
         }

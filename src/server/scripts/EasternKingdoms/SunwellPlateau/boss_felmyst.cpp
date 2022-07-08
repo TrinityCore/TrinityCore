@@ -156,9 +156,9 @@ public:
             instance->SetBossState(DATA_FELMYST, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_BERSERK, 600000);
+            events.ScheduleEvent(EVENT_BERSERK, 10min);
 
             me->setActive(true);
             DoZoneInCombat();
@@ -198,26 +198,30 @@ public:
             instance->SetBossState(DATA_FELMYST, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
+            Unit* unitCaster = caster->ToUnit();
+            if (!unitCaster)
+                return;
+
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)
             {
                 caster->CastSpell(caster, SPELL_VAPOR_TRIGGER, true);
             }*/
             // workaround for mind control
-            if (spell->Id == SPELL_FOG_INFORM)
+            if (spellInfo->Id == SPELL_FOG_INFORM)
             {
                 float x, y, z;
-                caster->GetPosition(x, y, z);
-                if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                unitCaster->GetPosition(x, y, z);
+                if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
                 {
-                    summon->SetMaxHealth(caster->GetMaxHealth());
-                    summon->SetHealth(caster->GetMaxHealth());
+                    summon->SetMaxHealth(unitCaster->GetMaxHealth());
+                    summon->SetHealth(unitCaster->GetMaxHealth());
                     summon->CastSpell(summon, SPELL_FOG_CHARM, true);
                     summon->CastSpell(summon, SPELL_FOG_CHARM2, true);
                 }
-                me->DealDamage(caster, caster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                Unit::DealDamage(me, unitCaster, unitCaster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             }
         }
 
@@ -225,7 +229,7 @@ public:
         {
             if (summon->GetEntry() == NPC_DEAD)
             {
-                summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random));
                 DoZoneInCombat(summon);
                 summon->CastSpell(summon, SPELL_DEAD_PASSIVE, true);
             }
@@ -234,10 +238,10 @@ public:
         void MovementInform(uint32, uint32) override
         {
             if (phase == PHASE_FLIGHT)
-                events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
         }
 
-        void DamageTaken(Unit*, uint32 &damage) override
+        void DamageTaken(Unit*, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (phase != PHASE_GROUND && damage >= me->GetHealth())
                 damage = 0;
@@ -253,15 +257,15 @@ public:
                     me->StopMoving();
                     me->SetSpeedRate(MOVE_RUN, 2.0f);
 
-                    events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
-                    events.ScheduleEvent(EVENT_CORROSION, urand(10000, 20000));
-                    events.ScheduleEvent(EVENT_GAS_NOVA, urand(15000, 20000));
-                    events.ScheduleEvent(EVENT_ENCAPSULATE, urand(20000, 25000));
-                    events.ScheduleEvent(EVENT_FLIGHT, 60000);
+                    events.ScheduleEvent(EVENT_CLEAVE, 5s, 10s);
+                    events.ScheduleEvent(EVENT_CORROSION, 10s, 20s);
+                    events.ScheduleEvent(EVENT_GAS_NOVA, 15s, 20s);
+                    events.ScheduleEvent(EVENT_ENCAPSULATE, 20s, 25s);
+                    events.ScheduleEvent(EVENT_FLIGHT, 1min);
                     break;
                 case PHASE_FLIGHT:
                     me->SetDisableGravity(true);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1s);
                     uiFlightCount = 0;
                     uiBreathCount = 0;
                     break;
@@ -277,18 +281,18 @@ public:
             {
                 case 0:
                     //me->AttackStop();
-                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->Clear();
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->StopMoving();
                     Talk(YELL_TAKEOFF);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 2000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 2s);
                     break;
                 case 1:
                     me->GetMotionMaster()->MovePoint(0, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ()+10);
                     break;
                 case 2:
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true);
                     if (!target)
                         target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
@@ -298,7 +302,7 @@ public:
                         return;
                     }
 
-                    if (Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
+                    if (Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9s))
                     {
                         Vapor->AI()->AttackStart(target);
                         me->InterruptNonMeleeSpells(false);
@@ -306,7 +310,7 @@ public:
                         Vapor->CastSpell(Vapor, SPELL_VAPOR_TRIGGER, true);
                     }
 
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10s);
                     break;
                 }
                 case 3:
@@ -314,7 +318,7 @@ public:
                     DespawnSummons(NPC_VAPOR_TRAIL);
                     //DoCast(me, SPELL_VAPOR_SELECT); need core support
 
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true);
                     if (!target)
                         target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
@@ -325,7 +329,7 @@ public:
                     }
 
                     //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
-                    if (Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000))
+                    if (Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX() - 5 + rand32() % 10, target->GetPositionY() - 5 + rand32() % 10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9s))
                     {
                         if (pVapor->AI())
                             pVapor->AI()->AttackStart(target);
@@ -334,16 +338,16 @@ public:
                         pVapor->CastSpell(pVapor, SPELL_VAPOR_TRIGGER, true);
                     }
 
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10s);
                     break;
                 }
                 case 4:
                     DespawnSummons(NPC_VAPOR_TRAIL);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
                     break;
                 case 5:
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true);
                     if (!target)
                         target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
 
@@ -361,9 +365,9 @@ public:
                     break;
                 }
                 case 6:
-                    me->SetFacingTo(me->GetAngle(breathX, breathY));
+                    me->SetFacingTo(me->GetAbsoluteAngle(breathX, breathY));
                     //DoTextEmote("takes a deep breath.", nullptr);
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10s);
                     break;
                 case 7:
                 {
@@ -373,19 +377,19 @@ public:
                     x = 2 * breathX - x;
                     y = 2 * breathY - y;
                     me->GetMotionMaster()->MovePoint(0, x, y, z);
-                    events.ScheduleEvent(EVENT_SUMMON_FOG, 1);
+                    events.ScheduleEvent(EVENT_SUMMON_FOG, 1ms);
                     break;
                 }
                 case 8:
                     me->CastStop(SPELL_FOG_BREATH);
                     me->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
                     ++uiBreathCount;
-                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
+                    events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1ms);
                     if (uiBreathCount < 3)
                         uiFlightCount = 4;
                     break;
                 case 9:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat))
                         DoStartMovement(target);
                     else
                     {
@@ -397,7 +401,7 @@ public:
                     me->SetDisableGravity(false);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                     EnterPhase(PHASE_GROUND);
-                    AttackStart(SelectTarget(SELECT_TARGET_MAXTHREAT));
+                    AttackStart(SelectTarget(SelectTargetMethod::MaxThreat));
                     break;
             }
             ++uiFlightCount;
@@ -424,24 +428,24 @@ public:
                     case EVENT_BERSERK:
                         Talk(YELL_BERSERK);
                         DoCast(me, SPELL_BERSERK, true);
-                        events.ScheduleEvent(EVENT_BERSERK, 10000);
+                        events.ScheduleEvent(EVENT_BERSERK, 10s);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE, false);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_CLEAVE, 5s, 10s);
                         break;
                     case EVENT_CORROSION:
                         DoCastVictim(SPELL_CORROSION, false);
-                        events.ScheduleEvent(EVENT_CORROSION, urand(20000, 30000));
+                        events.ScheduleEvent(EVENT_CORROSION, 20s, 30s);
                         break;
                     case EVENT_GAS_NOVA:
                         DoCast(me, SPELL_GAS_NOVA, false);
-                        events.ScheduleEvent(EVENT_GAS_NOVA, urand(20000, 25000));
+                        events.ScheduleEvent(EVENT_GAS_NOVA, 20s, 25s);
                         break;
                     case EVENT_ENCAPSULATE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true))
                             DoCast(target, SPELL_ENCAPSULATE_CHANNEL, false);
-                        events.ScheduleEvent(EVENT_ENCAPSULATE, urand(25000, 30000));
+                        events.ScheduleEvent(EVENT_ENCAPSULATE, 25s, 30s);
                         break;
                     case EVENT_FLIGHT:
                         EnterPhase(PHASE_FLIGHT);
@@ -468,14 +472,14 @@ public:
                             float x, y, z;
                             me->GetPosition(x, y, z);
                             me->UpdateGroundPositionZ(x, y, z);
-                            if (Creature* Fog = me->SummonCreature(NPC_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            if (Creature* Fog = me->SummonCreature(NPC_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10s))
                             {
                                 Fog->RemoveAurasDueToSpell(SPELL_TRAIL_TRIGGER);
                                 Fog->CastSpell(Fog, SPELL_FOG_TRIGGER, true);
                                 me->CastSpell(Fog, SPELL_FOG_FORCE, true);
                             }
                         }
-                        events.ScheduleEvent(EVENT_SUMMON_FOG, 1000);
+                        events.ScheduleEvent(EVENT_SUMMON_FOG, 1s);
                         break;
                 }
             }
@@ -496,7 +500,7 @@ public:
                 if (entry == NPC_VAPOR_TRAIL && phase == PHASE_FLIGHT)
                 {
                     (*i)->GetPosition(x, y, z);
-                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 }
                 (*i)->SetVisible(false);
                 (*i)->DespawnOrUnsummon();
@@ -522,14 +526,10 @@ public:
 
     struct npc_felmyst_vaporAI : public ScriptedAI
     {
-        npc_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            me->SetSpeedRate(MOVE_RUN, 0.8f);
-        }
+        npc_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             //DoCast(me, SPELL_VAPOR_FORCE, true); core bug
@@ -538,7 +538,7 @@ public:
         void UpdateAI(uint32 /*diff*/) override
         {
             if (!me->GetVictim())
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     AttackStart(target);
         }
     };
@@ -558,14 +558,13 @@ public:
     {
         npc_felmyst_trailAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_TRAIL_TRIGGER, true);
             me->SetTarget(me->GetGUID());
             me->SetBoundingRadius(0.01f); // core bug
         }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void AttackStart(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 

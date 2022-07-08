@@ -37,6 +37,7 @@ struct FieldRestrictionOneofInstance {
   const ::bgs::protocol::RepeatedFieldRestriction* repeated_;
   const ::bgs::protocol::MessageFieldRestriction* message_;
   const ::bgs::protocol::EntityIdRestriction* entity_id_;
+  const ::bgs::protocol::StringFieldRestriction* bytes_;
 }* FieldRestriction_default_oneof_instance_ = NULL;
 const ::google::protobuf::Descriptor* RepeatedFieldRestriction_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
@@ -47,6 +48,7 @@ struct RepeatedFieldRestrictionOneofInstance {
   const ::bgs::protocol::FloatFieldRestriction* float__;
   const ::bgs::protocol::StringFieldRestriction* string_;
   const ::bgs::protocol::EntityIdRestriction* entity_id_;
+  const ::bgs::protocol::StringFieldRestriction* bytes_;
 }* RepeatedFieldRestriction_default_oneof_instance_ = NULL;
 const ::google::protobuf::Descriptor* SignedFieldRestriction_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
@@ -71,7 +73,6 @@ const ::google::protobuf::EnumDescriptor* LogOption_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
   protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -79,10 +80,12 @@ void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
       "global_extensions/field_options.proto");
   GOOGLE_CHECK(file != NULL);
   BGSFieldOptions_descriptor_ = file->message_type(0);
-  static const int BGSFieldOptions_offsets_[3] = {
+  static const int BGSFieldOptions_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, log_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, shard_key_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, fanout_key_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, client_instance_key_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, realized_enum_),
   };
   BGSFieldOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -96,7 +99,7 @@ void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BGSFieldOptions));
   FieldRestriction_descriptor_ = file->message_type(1);
-  static const int FieldRestriction_offsets_[8] = {
+  static const int FieldRestriction_offsets_[9] = {
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FieldRestriction_default_oneof_instance_, signed__),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FieldRestriction_default_oneof_instance_, unsigned__),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FieldRestriction_default_oneof_instance_, float__),
@@ -104,6 +107,7 @@ void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FieldRestriction_default_oneof_instance_, repeated_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FieldRestriction_default_oneof_instance_, message_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FieldRestriction_default_oneof_instance_, entity_id_),
+    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FieldRestriction_default_oneof_instance_, bytes_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FieldRestriction, type_),
   };
   FieldRestriction_reflection_ =
@@ -120,7 +124,7 @@ void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FieldRestriction));
   RepeatedFieldRestriction_descriptor_ = file->message_type(2);
-  static const int RepeatedFieldRestriction_offsets_[8] = {
+  static const int RepeatedFieldRestriction_offsets_[9] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RepeatedFieldRestriction, size_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RepeatedFieldRestriction, unique_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(RepeatedFieldRestriction_default_oneof_instance_, signed__),
@@ -128,6 +132,7 @@ void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(RepeatedFieldRestriction_default_oneof_instance_, float__),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(RepeatedFieldRestriction_default_oneof_instance_, string_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(RepeatedFieldRestriction_default_oneof_instance_, entity_id_),
+    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(RepeatedFieldRestriction_default_oneof_instance_, bytes_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RepeatedFieldRestriction, type_),
   };
   RepeatedFieldRestriction_reflection_ =
@@ -308,51 +313,55 @@ void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n%global_extensions/field_options.proto\022"
     "\014bgs.protocol\032 google/protobuf/descripto"
-    "r.proto\032\035global_extensions/range.proto\"^"
-    "\n\017BGSFieldOptions\022$\n\003log\030\001 \001(\0162\027.bgs.pro"
-    "tocol.LogOption\022\021\n\tshard_key\030\002 \001(\010\022\022\n\nfa"
-    "nout_key\030\003 \001(\010\"\252\003\n\020FieldRestriction\0226\n\006s"
-    "igned\030\001 \001(\0132$.bgs.protocol.SignedFieldRe"
-    "strictionH\000\022:\n\010unsigned\030\002 \001(\0132&.bgs.prot"
-    "ocol.UnsignedFieldRestrictionH\000\0224\n\005float"
-    "\030\003 \001(\0132#.bgs.protocol.FloatFieldRestrict"
-    "ionH\000\0226\n\006string\030\004 \001(\0132$.bgs.protocol.Str"
-    "ingFieldRestrictionH\000\022:\n\010repeated\030\005 \001(\0132"
-    "&.bgs.protocol.RepeatedFieldRestrictionH"
-    "\000\0228\n\007message\030\006 \001(\0132%.bgs.protocol.Messag"
-    "eFieldRestrictionH\000\0226\n\tentity_id\030\007 \001(\0132!"
-    ".bgs.protocol.EntityIdRestrictionH\000B\006\n\004t"
-    "ype\"\372\002\n\030RepeatedFieldRestriction\022,\n\004size"
-    "\030\001 \001(\0132\036.bgs.protocol.UnsignedIntRange\022\016"
-    "\n\006unique\030\002 \001(\010\0226\n\006signed\030\003 \001(\0132$.bgs.pro"
-    "tocol.SignedFieldRestrictionH\000\022:\n\010unsign"
-    "ed\030\004 \001(\0132&.bgs.protocol.UnsignedFieldRes"
-    "trictionH\000\0224\n\005float\030\005 \001(\0132#.bgs.protocol"
-    ".FloatFieldRestrictionH\000\0226\n\006string\030\006 \001(\013"
-    "2$.bgs.protocol.StringFieldRestrictionH\000"
-    "\0226\n\tentity_id\030\007 \001(\0132!.bgs.protocol.Entit"
-    "yIdRestrictionH\000B\006\n\004type\"W\n\026SignedFieldR"
-    "estriction\022,\n\006limits\030\001 \001(\0132\034.bgs.protoco"
-    "l.SignedIntRange\022\017\n\007exclude\030\002 \003(\022\"[\n\030Uns"
-    "ignedFieldRestriction\022.\n\006limits\030\001 \001(\0132\036."
-    "bgs.protocol.UnsignedIntRange\022\017\n\007exclude"
-    "\030\002 \003(\004\"R\n\025FloatFieldRestriction\022(\n\006limit"
-    "s\030\001 \001(\0132\030.bgs.protocol.FloatRange\022\017\n\007exc"
-    "lude\030\002 \003(\002\"W\n\026StringFieldRestriction\022,\n\004"
-    "size\030\001 \001(\0132\036.bgs.protocol.UnsignedIntRan"
-    "ge\022\017\n\007exclude\030\002 \003(\t\"\302\001\n\023EntityIdRestrict"
-    "ion\022\016\n\006needed\030\001 \001(\010\0224\n\004kind\030\002 \001(\0162&.bgs."
-    "protocol.EntityIdRestriction.Kind\"e\n\004Kin"
-    "d\022\007\n\003ANY\020\000\022\013\n\007ACCOUNT\020\001\022\020\n\014GAME_ACCOUNT\020"
-    "\002\022\033\n\027ACCOUNT_OR_GAME_ACCOUNT\020\003\022\013\n\007SERVIC"
-    "E\020\004\022\013\n\007CHANNEL\020\005\")\n\027MessageFieldRestrict"
-    "ion\022\016\n\006needed\030\001 \001(\010* \n\tLogOption\022\n\n\006HIDD"
-    "EN\020\001\022\007\n\003HEX\020\002:U\n\rfield_options\022\035.google."
-    "protobuf.FieldOptions\030\220\277\005 \001(\0132\035.bgs.prot"
-    "ocol.BGSFieldOptions:N\n\005valid\022\035.google.p"
-    "rotobuf.FieldOptions\030\221\277\005 \001(\0132\036.bgs.proto"
-    "col.FieldRestrictionB$\n\rbnet.protocolB\021F"
-    "ieldOptionsProtoH\001", 1858);
+    "r.proto\032\035global_extensions/range.proto\"\222"
+    "\001\n\017BGSFieldOptions\022$\n\003log\030\001 \001(\0162\027.bgs.pr"
+    "otocol.LogOption\022\021\n\tshard_key\030\002 \001(\010\022\022\n\nf"
+    "anout_key\030\003 \001(\010\022\033\n\023client_instance_key\030\004"
+    " \001(\010\022\025\n\rrealized_enum\030\005 \001(\t\"\341\003\n\020FieldRes"
+    "triction\0226\n\006signed\030\001 \001(\0132$.bgs.protocol."
+    "SignedFieldRestrictionH\000\022:\n\010unsigned\030\002 \001"
+    "(\0132&.bgs.protocol.UnsignedFieldRestricti"
+    "onH\000\0224\n\005float\030\003 \001(\0132#.bgs.protocol.Float"
+    "FieldRestrictionH\000\0226\n\006string\030\004 \001(\0132$.bgs"
+    ".protocol.StringFieldRestrictionH\000\022:\n\010re"
+    "peated\030\005 \001(\0132&.bgs.protocol.RepeatedFiel"
+    "dRestrictionH\000\0228\n\007message\030\006 \001(\0132%.bgs.pr"
+    "otocol.MessageFieldRestrictionH\000\0226\n\tenti"
+    "ty_id\030\007 \001(\0132!.bgs.protocol.EntityIdRestr"
+    "ictionH\000\0225\n\005bytes\030\010 \001(\0132$.bgs.protocol.S"
+    "tringFieldRestrictionH\000B\006\n\004type\"\261\003\n\030Repe"
+    "atedFieldRestriction\022,\n\004size\030\001 \001(\0132\036.bgs"
+    ".protocol.UnsignedIntRange\022\016\n\006unique\030\002 \001"
+    "(\010\0226\n\006signed\030\003 \001(\0132$.bgs.protocol.Signed"
+    "FieldRestrictionH\000\022:\n\010unsigned\030\004 \001(\0132&.b"
+    "gs.protocol.UnsignedFieldRestrictionH\000\0224"
+    "\n\005float\030\005 \001(\0132#.bgs.protocol.FloatFieldR"
+    "estrictionH\000\0226\n\006string\030\006 \001(\0132$.bgs.proto"
+    "col.StringFieldRestrictionH\000\0226\n\tentity_i"
+    "d\030\007 \001(\0132!.bgs.protocol.EntityIdRestricti"
+    "onH\000\0225\n\005bytes\030\010 \001(\0132$.bgs.protocol.Strin"
+    "gFieldRestrictionH\000B\006\n\004type\"W\n\026SignedFie"
+    "ldRestriction\022,\n\006limits\030\001 \001(\0132\034.bgs.prot"
+    "ocol.SignedIntRange\022\017\n\007exclude\030\002 \003(\022\"[\n\030"
+    "UnsignedFieldRestriction\022.\n\006limits\030\001 \001(\013"
+    "2\036.bgs.protocol.UnsignedIntRange\022\017\n\007excl"
+    "ude\030\002 \003(\004\"R\n\025FloatFieldRestriction\022(\n\006li"
+    "mits\030\001 \001(\0132\030.bgs.protocol.FloatRange\022\017\n\007"
+    "exclude\030\002 \003(\002\"W\n\026StringFieldRestriction\022"
+    ",\n\004size\030\001 \001(\0132\036.bgs.protocol.UnsignedInt"
+    "Range\022\017\n\007exclude\030\002 \003(\t\"\302\001\n\023EntityIdRestr"
+    "iction\022\016\n\006needed\030\001 \001(\010\0224\n\004kind\030\002 \001(\0162&.b"
+    "gs.protocol.EntityIdRestriction.Kind\"e\n\004"
+    "Kind\022\007\n\003ANY\020\000\022\013\n\007ACCOUNT\020\001\022\020\n\014GAME_ACCOU"
+    "NT\020\002\022\033\n\027ACCOUNT_OR_GAME_ACCOUNT\020\003\022\013\n\007SER"
+    "VICE\020\004\022\013\n\007CHANNEL\020\005\")\n\027MessageFieldRestr"
+    "iction\022\016\n\006needed\030\001 \001(\010* \n\tLogOption\022\n\n\006H"
+    "IDDEN\020\001\022\007\n\003HEX\020\002:U\n\rfield_options\022\035.goog"
+    "le.protobuf.FieldOptions\030\220\277\005 \001(\0132\035.bgs.p"
+    "rotocol.BGSFieldOptions:N\n\005valid\022\035.googl"
+    "e.protobuf.FieldOptions\030\221\277\005 \001(\0132\036.bgs.pr"
+    "otocol.FieldRestrictionB$\n\rbnet.protocol"
+    "B\021FieldOptionsProtoH\001", 2021);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/field_options.proto", &protobuf_RegisterTypes);
   BGSFieldOptions::default_instance_ = new BGSFieldOptions();
@@ -406,13 +415,14 @@ bool LogOption_IsValid(int value) {
   }
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
 const int BGSFieldOptions::kLogFieldNumber;
 const int BGSFieldOptions::kShardKeyFieldNumber;
 const int BGSFieldOptions::kFanoutKeyFieldNumber;
+const int BGSFieldOptions::kClientInstanceKeyFieldNumber;
+const int BGSFieldOptions::kRealizedEnumFieldNumber;
 #endif  // !_MSC_VER
 
 BGSFieldOptions::BGSFieldOptions()
@@ -432,10 +442,13 @@ BGSFieldOptions::BGSFieldOptions(const BGSFieldOptions& from)
 }
 
 void BGSFieldOptions::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   log_ = 1;
   shard_key_ = false;
   fanout_key_ = false;
+  client_instance_key_ = false;
+  realized_enum_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -445,6 +458,9 @@ BGSFieldOptions::~BGSFieldOptions() {
 }
 
 void BGSFieldOptions::SharedDtor() {
+  if (realized_enum_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete realized_enum_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -481,9 +497,14 @@ void BGSFieldOptions::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 7) {
-    ZR_(shard_key_, fanout_key_);
+  if (_has_bits_[0 / 32] & 31) {
+    ZR_(shard_key_, client_instance_key_);
     log_ = 1;
+    if (has_realized_enum()) {
+      if (realized_enum_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        realized_enum_->clear();
+      }
+    }
   }
 
 #undef OFFSET_OF_FIELD_
@@ -548,6 +569,38 @@ bool BGSFieldOptions::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(32)) goto parse_client_instance_key;
+        break;
+      }
+
+      // optional bool client_instance_key = 4;
+      case 4: {
+        if (tag == 32) {
+         parse_client_instance_key:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &client_instance_key_)));
+          set_has_client_instance_key();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_realized_enum;
+        break;
+      }
+
+      // optional string realized_enum = 5;
+      case 5: {
+        if (tag == 42) {
+         parse_realized_enum:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_realized_enum()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->realized_enum().data(), this->realized_enum().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "realized_enum");
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -593,6 +646,21 @@ void BGSFieldOptions::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->fanout_key(), output);
   }
 
+  // optional bool client_instance_key = 4;
+  if (has_client_instance_key()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(4, this->client_instance_key(), output);
+  }
+
+  // optional string realized_enum = 5;
+  if (has_realized_enum()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->realized_enum().data(), this->realized_enum().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "realized_enum");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      5, this->realized_enum(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -617,6 +685,22 @@ void BGSFieldOptions::SerializeWithCachedSizes(
   // optional bool fanout_key = 3;
   if (has_fanout_key()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->fanout_key(), target);
+  }
+
+  // optional bool client_instance_key = 4;
+  if (has_client_instance_key()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(4, this->client_instance_key(), target);
+  }
+
+  // optional string realized_enum = 5;
+  if (has_realized_enum()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->realized_enum().data(), this->realized_enum().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "realized_enum");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        5, this->realized_enum(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -645,6 +729,18 @@ int BGSFieldOptions::ByteSize() const {
     // optional bool fanout_key = 3;
     if (has_fanout_key()) {
       total_size += 1 + 1;
+    }
+
+    // optional bool client_instance_key = 4;
+    if (has_client_instance_key()) {
+      total_size += 1 + 1;
+    }
+
+    // optional string realized_enum = 5;
+    if (has_realized_enum()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->realized_enum());
     }
 
   }
@@ -683,6 +779,12 @@ void BGSFieldOptions::MergeFrom(const BGSFieldOptions& from) {
     if (from.has_fanout_key()) {
       set_fanout_key(from.fanout_key());
     }
+    if (from.has_client_instance_key()) {
+      set_client_instance_key(from.client_instance_key());
+    }
+    if (from.has_realized_enum()) {
+      set_realized_enum(from.realized_enum());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -700,7 +802,6 @@ void BGSFieldOptions::CopyFrom(const BGSFieldOptions& from) {
 }
 
 bool BGSFieldOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -709,6 +810,8 @@ void BGSFieldOptions::Swap(BGSFieldOptions* other) {
     std::swap(log_, other->log_);
     std::swap(shard_key_, other->shard_key_);
     std::swap(fanout_key_, other->fanout_key_);
+    std::swap(client_instance_key_, other->client_instance_key_);
+    std::swap(realized_enum_, other->realized_enum_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -723,7 +826,6 @@ void BGSFieldOptions::Swap(BGSFieldOptions* other) {
   return metadata;
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -734,6 +836,7 @@ const int FieldRestriction::kStringFieldNumber;
 const int FieldRestriction::kRepeatedFieldNumber;
 const int FieldRestriction::kMessageFieldNumber;
 const int FieldRestriction::kEntityIdFieldNumber;
+const int FieldRestriction::kBytesFieldNumber;
 #endif  // !_MSC_VER
 
 FieldRestriction::FieldRestriction()
@@ -750,6 +853,7 @@ void FieldRestriction::InitAsDefaultInstance() {
   FieldRestriction_default_oneof_instance_->repeated_ = const_cast< ::bgs::protocol::RepeatedFieldRestriction*>(&::bgs::protocol::RepeatedFieldRestriction::default_instance());
   FieldRestriction_default_oneof_instance_->message_ = const_cast< ::bgs::protocol::MessageFieldRestriction*>(&::bgs::protocol::MessageFieldRestriction::default_instance());
   FieldRestriction_default_oneof_instance_->entity_id_ = const_cast< ::bgs::protocol::EntityIdRestriction*>(&::bgs::protocol::EntityIdRestriction::default_instance());
+  FieldRestriction_default_oneof_instance_->bytes_ = const_cast< ::bgs::protocol::StringFieldRestriction*>(&::bgs::protocol::StringFieldRestriction::default_instance());
 }
 
 FieldRestriction::FieldRestriction(const FieldRestriction& from)
@@ -829,13 +933,16 @@ void FieldRestriction::clear_type() {
       delete type_.entity_id_;
       break;
     }
+    case kBytes: {
+      delete type_.bytes_;
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void FieldRestriction::Clear() {
   clear_type();
@@ -939,6 +1046,19 @@ bool FieldRestriction::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(66)) goto parse_bytes;
+        break;
+      }
+
+      // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_bytes:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_bytes()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1010,6 +1130,12 @@ void FieldRestriction::SerializeWithCachedSizes(
       7, this->entity_id(), output);
   }
 
+  // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+  if (has_bytes()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, this->bytes(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1067,6 +1193,13 @@ void FieldRestriction::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         7, this->entity_id(), target);
+  }
+
+  // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+  if (has_bytes()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->bytes(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1130,6 +1263,13 @@ int FieldRestriction::ByteSize() const {
           this->entity_id());
       break;
     }
+    // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+    case kBytes: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->bytes());
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
@@ -1188,6 +1328,10 @@ void FieldRestriction::MergeFrom(const FieldRestriction& from) {
       mutable_entity_id()->::bgs::protocol::EntityIdRestriction::MergeFrom(from.entity_id());
       break;
     }
+    case kBytes: {
+      mutable_bytes()->::bgs::protocol::StringFieldRestriction::MergeFrom(from.bytes());
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
@@ -1208,7 +1352,6 @@ void FieldRestriction::CopyFrom(const FieldRestriction& from) {
 }
 
 bool FieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -1230,7 +1373,6 @@ void FieldRestriction::Swap(FieldRestriction* other) {
   return metadata;
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -1241,6 +1383,7 @@ const int RepeatedFieldRestriction::kUnsignedFieldNumber;
 const int RepeatedFieldRestriction::kFloatFieldNumber;
 const int RepeatedFieldRestriction::kStringFieldNumber;
 const int RepeatedFieldRestriction::kEntityIdFieldNumber;
+const int RepeatedFieldRestriction::kBytesFieldNumber;
 #endif  // !_MSC_VER
 
 RepeatedFieldRestriction::RepeatedFieldRestriction()
@@ -1256,6 +1399,7 @@ void RepeatedFieldRestriction::InitAsDefaultInstance() {
   RepeatedFieldRestriction_default_oneof_instance_->float__ = const_cast< ::bgs::protocol::FloatFieldRestriction*>(&::bgs::protocol::FloatFieldRestriction::default_instance());
   RepeatedFieldRestriction_default_oneof_instance_->string_ = const_cast< ::bgs::protocol::StringFieldRestriction*>(&::bgs::protocol::StringFieldRestriction::default_instance());
   RepeatedFieldRestriction_default_oneof_instance_->entity_id_ = const_cast< ::bgs::protocol::EntityIdRestriction*>(&::bgs::protocol::EntityIdRestriction::default_instance());
+  RepeatedFieldRestriction_default_oneof_instance_->bytes_ = const_cast< ::bgs::protocol::StringFieldRestriction*>(&::bgs::protocol::StringFieldRestriction::default_instance());
 }
 
 RepeatedFieldRestriction::RepeatedFieldRestriction(const RepeatedFieldRestriction& from)
@@ -1330,13 +1474,16 @@ void RepeatedFieldRestriction::clear_type() {
       delete type_.entity_id_;
       break;
     }
+    case kBytes: {
+      delete type_.bytes_;
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void RepeatedFieldRestriction::Clear() {
   if (_has_bits_[0 / 32] & 3) {
@@ -1448,6 +1595,19 @@ bool RepeatedFieldRestriction::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(66)) goto parse_bytes;
+        break;
+      }
+
+      // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_bytes:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_bytes()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1518,6 +1678,12 @@ void RepeatedFieldRestriction::SerializeWithCachedSizes(
       7, this->entity_id(), output);
   }
 
+  // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+  if (has_bytes()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, this->bytes(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1573,6 +1739,13 @@ void RepeatedFieldRestriction::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         7, this->entity_id(), target);
+  }
+
+  // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+  if (has_bytes()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->bytes(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1636,6 +1809,13 @@ int RepeatedFieldRestriction::ByteSize() const {
           this->entity_id());
       break;
     }
+    // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+    case kBytes: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->bytes());
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
@@ -1686,6 +1866,10 @@ void RepeatedFieldRestriction::MergeFrom(const RepeatedFieldRestriction& from) {
       mutable_entity_id()->::bgs::protocol::EntityIdRestriction::MergeFrom(from.entity_id());
       break;
     }
+    case kBytes: {
+      mutable_bytes()->::bgs::protocol::StringFieldRestriction::MergeFrom(from.bytes());
+      break;
+    }
     case TYPE_NOT_SET: {
       break;
     }
@@ -1714,7 +1898,6 @@ void RepeatedFieldRestriction::CopyFrom(const RepeatedFieldRestriction& from) {
 }
 
 bool RepeatedFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -1737,7 +1920,6 @@ void RepeatedFieldRestriction::Swap(RepeatedFieldRestriction* other) {
   metadata.reflection = RepeatedFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1988,7 +2170,6 @@ void SignedFieldRestriction::CopyFrom(const SignedFieldRestriction& from) {
 }
 
 bool SignedFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -2009,7 +2190,6 @@ void SignedFieldRestriction::Swap(SignedFieldRestriction* other) {
   metadata.reflection = SignedFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2260,7 +2440,6 @@ void UnsignedFieldRestriction::CopyFrom(const UnsignedFieldRestriction& from) {
 }
 
 bool UnsignedFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -2281,7 +2460,6 @@ void UnsignedFieldRestriction::Swap(UnsignedFieldRestriction* other) {
   metadata.reflection = UnsignedFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2529,7 +2707,6 @@ void FloatFieldRestriction::CopyFrom(const FloatFieldRestriction& from) {
 }
 
 bool FloatFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -2550,7 +2727,6 @@ void FloatFieldRestriction::Swap(FloatFieldRestriction* other) {
   metadata.reflection = FloatFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2807,7 +2983,6 @@ void StringFieldRestriction::CopyFrom(const StringFieldRestriction& from) {
 }
 
 bool StringFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -2828,7 +3003,6 @@ void StringFieldRestriction::Swap(StringFieldRestriction* other) {
   metadata.reflection = StringFieldRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3114,7 +3288,6 @@ void EntityIdRestriction::CopyFrom(const EntityIdRestriction& from) {
 }
 
 bool EntityIdRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -3135,7 +3308,6 @@ void EntityIdRestriction::Swap(EntityIdRestriction* other) {
   metadata.reflection = EntityIdRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3335,7 +3507,6 @@ void MessageFieldRestriction::CopyFrom(const MessageFieldRestriction& from) {
 }
 
 bool MessageFieldRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -3362,7 +3533,6 @@ void MessageFieldRestriction::Swap(MessageFieldRestriction* other) {
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::FieldRestriction >, 11, false >
   valid(kValidFieldNumber, ::bgs::protocol::FieldRestriction::default_instance());
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol

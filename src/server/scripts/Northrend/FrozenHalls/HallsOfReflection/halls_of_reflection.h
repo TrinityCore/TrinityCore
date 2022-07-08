@@ -19,21 +19,20 @@
 #define HALLS_OF_REFLECTION_H_
 
 #include "CreatureAIImpl.h"
-#include "EventProcessor.h"
-#include "ObjectGuid.h"
 
 class Unit;
 
 #define HoRScriptName "instance_halls_of_reflection"
-#define DataHeader    "HOR"
+#define DataHeader "HOR"
 
 uint32 const EncounterCount = 3;
 
-/* Halls of Reflection encounters:
- 0 - Falric
- 1 - Marwyn
- 2 - The Lich King
-*/
+/*
+ *  Halls of Reflection encounters:
+ *  0 - Falric
+ *  1 - Marwyn
+ *  2 - The Lich King
+ */
 
 enum HORDataTypes
 {
@@ -198,33 +197,10 @@ enum HORInstanceYells
     SAY_CAPTAIN_FINAL                           = 1
 };
 
-class GameObjectDeleteDelayEvent : public BasicEvent
+template <class AI, class T>
+inline AI* GetHallsOfReflectionAI(T* obj)
 {
-    public:
-        GameObjectDeleteDelayEvent(Unit* owner, ObjectGuid gameObjectGUID) : _owner(owner), _gameObjectGUID(gameObjectGUID) { }
-
-        void DeleteGameObject();
-
-        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
-        {
-            DeleteGameObject();
-            return true;
-        }
-
-        void Abort(uint64 /*execTime*/) override
-        {
-            DeleteGameObject();
-        }
-
-    private:
-        Unit* _owner;
-        ObjectGuid _gameObjectGUID;
-};
-
-template<typename AI>
-inline AI* GetHallsOfReflectionAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, HoRScriptName);
+    return GetInstanceAI<AI>(obj, HoRScriptName);
 }
 
 #endif // HALLS_OF_REFLECTION_H_

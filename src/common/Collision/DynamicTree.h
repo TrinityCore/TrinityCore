@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef _DYNTREE_H
 #define _DYNTREE_H
 
@@ -53,9 +52,9 @@ public:
     bool getAreaInfo(float x, float y, float& z, PhaseShift const& phaseShift, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
     void getAreaAndLiquidData(float x, float y, float z, PhaseShift const& phaseShift, uint8 reqLiquidType, VMAP::AreaAndLiquidData& data) const;
 
-    void insert(const GameObjectModel&);
-    void remove(const GameObjectModel&);
-    bool contains(const GameObjectModel&) const;
+    void insert(GameObjectModel const&);
+    void remove(GameObjectModel const&);
+    bool contains(GameObjectModel const&) const;
 
     void balance();
     void update(uint32 diff);

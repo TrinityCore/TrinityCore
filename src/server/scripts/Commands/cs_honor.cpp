@@ -24,43 +24,42 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "Language.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"
+
+using namespace Trinity::ChatCommands;
 
 class honor_commandscript : public CommandScript
 {
 public:
     honor_commandscript() : CommandScript("honor_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> honorAddCommandTable =
+        static ChatCommandTable honorAddCommandTable =
         {
-            { "kill", rbac::RBAC_PERM_COMMAND_HONOR_ADD_KILL, false, &HandleHonorAddKillCommand,         "" },
-            { "",     rbac::RBAC_PERM_COMMAND_HONOR_ADD,      false, &HandleHonorAddCommand,             "" },
+            { "kill", HandleHonorAddKillCommand, rbac::RBAC_PERM_COMMAND_HONOR_ADD_KILL, Console::No },
+            { "",     HandleHonorAddCommand,     rbac::RBAC_PERM_COMMAND_HONOR_ADD,      Console::No },
         };
 
-        static std::vector<ChatCommand> honorCommandTable =
+        static ChatCommandTable honorCommandTable =
         {
-            { "add",    rbac::RBAC_PERM_COMMAND_HONOR_ADD,    false, nullptr,               "", honorAddCommandTable },
-            { "update", rbac::RBAC_PERM_COMMAND_HONOR_UPDATE, false, &HandleHonorUpdateCommand,          "" },
+            { "add",    honorAddCommandTable },
+            { "update", HandleHonorUpdateCommand, rbac::RBAC_PERM_COMMAND_HONOR_UPDATE, Console::No },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "honor", rbac::RBAC_PERM_COMMAND_HONOR, false, nullptr, "", honorCommandTable },
+            { "honor", honorCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleHonorAddCommand(ChatHandler* handler, char const* args)
+    static bool HandleHonorAddCommand(ChatHandler* handler, int32 amount)
     {
-        if (!*args)
-            return false;
-
         Player* target = handler->getSelectedPlayer();
         if (!target)
         {
@@ -73,12 +72,11 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        int32 amount = atoi(args);
         target->RewardHonor(nullptr, 1, amount);
         return true;
     }
 
-    static bool HandleHonorAddKillCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleHonorAddKillCommand(ChatHandler* handler)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -97,7 +95,7 @@ public:
         return true;
     }
 
-    static bool HandleHonorUpdateCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleHonorUpdateCommand(ChatHandler* handler)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)

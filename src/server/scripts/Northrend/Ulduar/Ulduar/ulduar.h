@@ -19,6 +19,7 @@
 #define DEF_ULDUAR_H
 
 #include "CreatureAIImpl.h"
+#include "EventProcessor.h"
 
 struct Position;
 
@@ -29,27 +30,27 @@ extern Position const ObservationRingKeepersPos[4];
 extern Position const YSKeepersPos[4];
 extern Position const AlgalonLandPos;
 
+static constexpr uint8 const MAX_ENCOUNTER = 17;
+
 enum UlduarBosses
 {
-    MAX_ENCOUNTER            = 17,
-
-    BOSS_LEVIATHAN           = 0,
-    BOSS_IGNIS               = 1,
-    BOSS_RAZORSCALE          = 2,
-    BOSS_XT002               = 3,
-    BOSS_ASSEMBLY_OF_IRON    = 4,
-    BOSS_KOLOGARN            = 5,
-    BOSS_AURIAYA             = 6,
-    BOSS_HODIR               = 7,
-    BOSS_THORIM              = 8,
-    BOSS_FREYA               = 9,
-    BOSS_MIMIRON             = 10,
-    BOSS_VEZAX               = 11,
-    BOSS_YOGG_SARON          = 12,
-    BOSS_ALGALON             = 13,
-    BOSS_BRIGHTLEAF          = 14,
-    BOSS_IRONBRANCH          = 15,
-    BOSS_STONEBARK           = 16,
+    DATA_FLAME_LEVIATHAN     = 0,
+    DATA_IGNIS               = 1,
+    DATA_RAZORSCALE          = 2,
+    DATA_XT002               = 3,
+    DATA_ASSEMBLY_OF_IRON    = 4,
+    DATA_KOLOGARN            = 5,
+    DATA_AURIAYA             = 6,
+    DATA_HODIR               = 7,
+    DATA_THORIM              = 8,
+    DATA_FREYA               = 9,
+    DATA_MIMIRON             = 10,
+    DATA_VEZAX               = 11,
+    DATA_YOGG_SARON          = 12,
+    DATA_ALGALON             = 13,
+    DATA_BRIGHTLEAF          = 14,
+    DATA_IRONBRANCH          = 15,
+    DATA_STONEBARK           = 16,
 };
 
 enum UlduarNPCs
@@ -96,6 +97,7 @@ enum UlduarNPCs
 
     //XT002
     NPC_XS013_SCRAPBOT                      = 33343,
+    NPC_HEART_OF_DECONSTRUCTOR              = 33329,
 
     // Flame Leviathan
     NPC_ULDUAR_COLOSSUS                     = 33237,
@@ -355,14 +357,6 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_WAITS_DREAMING_ICECROWN_10      = 10326,
     CRITERIA_DRIVE_ME_CRAZY_10               = 10185,
     CRITERIA_DRIVE_ME_CRAZY_25               = 10296,
-    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_10 = 10410,
-    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_25 = 10414,
-    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_10   = 10388,
-    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_25   = 10415,
-    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_10    = 10409,
-    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_25    = 10416,
-    CRITERIA_ALONE_IN_THE_DARKNESS_10        = 10412,
-    CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
     CRITERIA_HERALD_OF_TITANS                = 10678,
 
     // Champion of Ulduar
@@ -409,6 +403,7 @@ enum UlduarData
     DATA_TOY_PILE_1,
     DATA_TOY_PILE_2,
     DATA_TOY_PILE_3,
+    DATA_XT002_HEART,
 
     // Assembly of Iron
     DATA_STEELBREAKER,
@@ -450,6 +445,8 @@ enum UlduarData
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
+    DATA_GIFT_OF_THE_OBSERVER,
+    DATA_AZEROTH,
 
     // Thorim
     DATA_SIF,
@@ -470,8 +467,10 @@ enum UlduarData
 
 enum UlduarWorldStates
 {
-    WORLD_STATE_ALGALON_DESPAWN_TIMER   = 4131,
-    WORLD_STATE_ALGALON_TIMER_ENABLED   = 4132,
+    WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS    = 4129,
+    WORLD_STATE_YOGG_SARON_KEEPERS                  = 4116,
+    WORLD_STATE_ALGALON_DESPAWN_TIMER               = 4131,
+    WORLD_STATE_ALGALON_TIMER_ENABLED               = 5636,
 };
 
 enum UlduarAchievementData
@@ -504,29 +503,26 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
+class Creature;
 
-class KeeperDespawnEvent : public BasicEvent
+class UlduarKeeperDespawnEvent : public BasicEvent
 {
-public:
-    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
+    public:
+        UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset = 500ms);
 
-    bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
-    {
-        _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
-        _owner->DespawnOrUnsummon(1000 + _despawnTimer);
-        return true;
-    }
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override;
 
-private:
-    Creature* _owner;
-    uint32 _despawnTimer;
+    private:
+        Creature* _owner;
+        Milliseconds _despawnTimer;
 };
 
-template<typename AI, typename T>
+template <class AI, class T>
 inline AI* GetUlduarAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, UlduarScriptName);
+    return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
+
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
 
 #endif

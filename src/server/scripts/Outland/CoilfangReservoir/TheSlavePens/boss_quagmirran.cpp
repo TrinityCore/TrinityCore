@@ -42,86 +42,75 @@ enum Events
     EVENT_POISON_BOLT_VOLLEY        = 4
 };
 
-class boss_quagmirran : public CreatureScript
+struct boss_quagmirran : public BossAI
 {
-    public:
-        boss_quagmirran() : CreatureScript("boss_quagmirran") { }
+    boss_quagmirran(Creature* creature) : BossAI(creature, DATA_QUAGMIRRAN) { }
 
-        struct boss_quagmirranAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_ACID_SPRAY, 25s);
+        events.ScheduleEvent(EVENT_CLEAVE, 9s);
+        events.ScheduleEvent(EVENT_UPPERCUT, 20s);
+        events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 31s);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override { }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_quagmirranAI(Creature* creature) : BossAI(creature, DATA_QUAGMIRRAN) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
+                case EVENT_ACID_SPRAY:
+                    DoCastAOE(SPELL_ACID_SPRAY);
+                    events.ScheduleEvent(EVENT_ACID_SPRAY, 20s, 25s);
+                    break;
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE, true);
+                    events.ScheduleEvent(EVENT_CLEAVE, 18s, 34s);
+                    break;
+                case EVENT_UPPERCUT:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 10.0f, true))
+                    DoCast(target, SPELL_UPPERCUT);
+                    events.ScheduleEvent(EVENT_UPPERCUT, 22s);
+                    break;
+                case EVENT_POISON_BOLT_VOLLEY:
+                    DoCast(me, SPELL_POISON_BOLT_VOLLEY);
+                    events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 24s);
+                    break;
+                default:
+                    break;
             }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_ACID_SPRAY, 25000);
-                events.ScheduleEvent(EVENT_CLEAVE, 9000);
-                events.ScheduleEvent(EVENT_UPPERCUT, 20000);
-                events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 31000);
-            }
-
-            void KilledUnit(Unit* /*victim*/) override { }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_ACID_SPRAY:
-                            DoCastAOE(SPELL_ACID_SPRAY);
-                            events.ScheduleEvent(EVENT_ACID_SPRAY, urand(20000, 25000));
-                            break;
-                        case EVENT_CLEAVE:
-                            DoCastVictim(SPELL_CLEAVE, true);
-                            events.ScheduleEvent(EVENT_CLEAVE, urand(18000, 34000));
-                            break;
-                        case EVENT_UPPERCUT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
-                            DoCast(target, SPELL_UPPERCUT);
-                            events.ScheduleEvent(EVENT_UPPERCUT, 22000);
-                            break;
-                        case EVENT_POISON_BOLT_VOLLEY:
-                            DoCast(me, SPELL_POISON_BOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 24000);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetSlavePensAI<boss_quagmirranAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_quagmirran()
 {
-    new boss_quagmirran();
+    RegisterSlavePensCreatureAI(boss_quagmirran);
 }

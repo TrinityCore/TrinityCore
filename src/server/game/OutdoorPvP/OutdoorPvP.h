@@ -90,6 +90,11 @@ class TC_GAME_API OPvPCapturePoint
 
         virtual ~OPvPCapturePoint() { }
 
+        OPvPCapturePoint(OPvPCapturePoint const& right) = delete;
+        OPvPCapturePoint(OPvPCapturePoint&& right) = delete;
+        OPvPCapturePoint& operator=(OPvPCapturePoint const& right) = delete;
+        OPvPCapturePoint& operator=(OPvPCapturePoint&& right) = delete;
+
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // send world state update to all players present
@@ -198,7 +203,7 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         typedef std::map<ObjectGuid::LowType/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates & /*packet*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/, bool /*entered*/) { return false; }

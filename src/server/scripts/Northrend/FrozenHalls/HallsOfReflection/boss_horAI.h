@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef boss_horAI_h__
+#define boss_horAI_h__
+
 #include "ScriptedCreature.h"
 
 // Base class for FALRIC and MARWYN
@@ -25,3 +28,5 @@ struct boss_horAI : BossAI
     void DoAction(int32 actionId) override;
     void JustSummoned(Creature* summon) override;
 };
+
+#endif // boss_horAI_h__

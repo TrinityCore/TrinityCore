@@ -48,10 +48,12 @@ enum OSGameObjectIds
     GO_TWILIGHT_PORTAL          = 193988
 };
 
-template<typename AI>
-inline AI* GetObsidianSanctumAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetObsidianSanctumAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, OSScriptName);
+    return GetInstanceAI<AI>(obj, OSScriptName);
 }
+
+#define RegisterObsidianSanctumCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetObsidianSanctumAI)
 
 #endif // OBSIDIAN_SANCTUM_H_

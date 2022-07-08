@@ -124,7 +124,7 @@ struct hyjalAI : public EscortAI
 
     void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;    // Send creature back to spawn location and evade.
 
-    void EnterCombat(Unit* /*who*/) override;               // Used to reset cooldowns for our spells and to inform the raid that we're under attack
+    void JustEngagedWith(Unit* /*who*/) override;               // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 
     void UpdateAI(uint32 diff) override;                    // Called to summon waves, check for boss deaths and to cast our spells.
 
@@ -203,6 +203,5 @@ struct hyjalAI : public EscortAI
 
     private:
         uint32 SpellTimer[3];
-        //std::list<uint64> CreatureList;
 };
 #endif

@@ -166,6 +166,25 @@ class TC_PROTO_API BGSFieldOptions : public ::google::protobuf::Message {
   inline bool fanout_key() const;
   inline void set_fanout_key(bool value);
 
+  // optional bool client_instance_key = 4;
+  inline bool has_client_instance_key() const;
+  inline void clear_client_instance_key();
+  static const int kClientInstanceKeyFieldNumber = 4;
+  inline bool client_instance_key() const;
+  inline void set_client_instance_key(bool value);
+
+  // optional string realized_enum = 5;
+  inline bool has_realized_enum() const;
+  inline void clear_realized_enum();
+  static const int kRealizedEnumFieldNumber = 5;
+  inline const ::std::string& realized_enum() const;
+  inline void set_realized_enum(const ::std::string& value);
+  inline void set_realized_enum(const char* value);
+  inline void set_realized_enum(const char* value, size_t size);
+  inline ::std::string* mutable_realized_enum();
+  inline ::std::string* release_realized_enum();
+  inline void set_allocated_realized_enum(::std::string* realized_enum);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSFieldOptions)
  private:
   inline void set_has_log();
@@ -174,6 +193,10 @@ class TC_PROTO_API BGSFieldOptions : public ::google::protobuf::Message {
   inline void clear_has_shard_key();
   inline void set_has_fanout_key();
   inline void clear_has_fanout_key();
+  inline void set_has_client_instance_key();
+  inline void clear_has_client_instance_key();
+  inline void set_has_realized_enum();
+  inline void clear_has_realized_enum();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -182,6 +205,8 @@ class TC_PROTO_API BGSFieldOptions : public ::google::protobuf::Message {
   int log_;
   bool shard_key_;
   bool fanout_key_;
+  bool client_instance_key_;
+  ::std::string* realized_enum_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2ffield_5foptions_2eproto();
@@ -222,6 +247,7 @@ class TC_PROTO_API FieldRestriction : public ::google::protobuf::Message {
     kRepeated = 5,
     kMessage = 6,
     kEntityId = 7,
+    kBytes = 8,
     TYPE_NOT_SET = 0,
   };
 
@@ -318,6 +344,15 @@ class TC_PROTO_API FieldRestriction : public ::google::protobuf::Message {
   inline ::bgs::protocol::EntityIdRestriction* release_entity_id();
   inline void set_allocated_entity_id(::bgs::protocol::EntityIdRestriction* entity_id);
 
+  // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+  inline bool has_bytes() const;
+  inline void clear_bytes();
+  static const int kBytesFieldNumber = 8;
+  inline const ::bgs::protocol::StringFieldRestriction& bytes() const;
+  inline ::bgs::protocol::StringFieldRestriction* mutable_bytes();
+  inline ::bgs::protocol::StringFieldRestriction* release_bytes();
+  inline void set_allocated_bytes(::bgs::protocol::StringFieldRestriction* bytes);
+
   inline TypeCase type_case() const;
   // @@protoc_insertion_point(class_scope:bgs.protocol.FieldRestriction)
  private:
@@ -328,6 +363,7 @@ class TC_PROTO_API FieldRestriction : public ::google::protobuf::Message {
   inline void set_has_repeated();
   inline void set_has_message();
   inline void set_has_entity_id();
+  inline void set_has_bytes();
 
   inline bool has_type();
   void clear_type();
@@ -345,6 +381,7 @@ class TC_PROTO_API FieldRestriction : public ::google::protobuf::Message {
     ::bgs::protocol::RepeatedFieldRestriction* repeated_;
     ::bgs::protocol::MessageFieldRestriction* message_;
     ::bgs::protocol::EntityIdRestriction* entity_id_;
+    ::bgs::protocol::StringFieldRestriction* bytes_;
   } type_;
   ::google::protobuf::uint32 _oneof_case_[1];
 
@@ -386,6 +423,7 @@ class TC_PROTO_API RepeatedFieldRestriction : public ::google::protobuf::Message
     kFloat = 5,
     kString = 6,
     kEntityId = 7,
+    kBytes = 8,
     TYPE_NOT_SET = 0,
   };
 
@@ -480,6 +518,15 @@ class TC_PROTO_API RepeatedFieldRestriction : public ::google::protobuf::Message
   inline ::bgs::protocol::EntityIdRestriction* release_entity_id();
   inline void set_allocated_entity_id(::bgs::protocol::EntityIdRestriction* entity_id);
 
+  // optional .bgs.protocol.StringFieldRestriction bytes = 8;
+  inline bool has_bytes() const;
+  inline void clear_bytes();
+  static const int kBytesFieldNumber = 8;
+  inline const ::bgs::protocol::StringFieldRestriction& bytes() const;
+  inline ::bgs::protocol::StringFieldRestriction* mutable_bytes();
+  inline ::bgs::protocol::StringFieldRestriction* release_bytes();
+  inline void set_allocated_bytes(::bgs::protocol::StringFieldRestriction* bytes);
+
   inline TypeCase type_case() const;
   // @@protoc_insertion_point(class_scope:bgs.protocol.RepeatedFieldRestriction)
  private:
@@ -492,6 +539,7 @@ class TC_PROTO_API RepeatedFieldRestriction : public ::google::protobuf::Message
   inline void set_has_float_();
   inline void set_has_string();
   inline void set_has_entity_id();
+  inline void set_has_bytes();
 
   inline bool has_type();
   void clear_type();
@@ -509,6 +557,7 @@ class TC_PROTO_API RepeatedFieldRestriction : public ::google::protobuf::Message
     ::bgs::protocol::FloatFieldRestriction* float__;
     ::bgs::protocol::StringFieldRestriction* string_;
     ::bgs::protocol::EntityIdRestriction* entity_id_;
+    ::bgs::protocol::StringFieldRestriction* bytes_;
   } type_;
   ::google::protobuf::uint32 _oneof_case_[1];
 
@@ -1097,7 +1146,6 @@ class TC_PROTO_API MessageFieldRestriction : public ::google::protobuf::Message 
 };
 // ===================================================================
 
-
 // ===================================================================
 
 static const int kFieldOptionsFieldNumber = 90000;
@@ -1184,6 +1232,106 @@ inline void BGSFieldOptions::set_fanout_key(bool value) {
   set_has_fanout_key();
   fanout_key_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSFieldOptions.fanout_key)
+}
+
+// optional bool client_instance_key = 4;
+inline bool BGSFieldOptions::has_client_instance_key() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void BGSFieldOptions::set_has_client_instance_key() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void BGSFieldOptions::clear_has_client_instance_key() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void BGSFieldOptions::clear_client_instance_key() {
+  client_instance_key_ = false;
+  clear_has_client_instance_key();
+}
+inline bool BGSFieldOptions::client_instance_key() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSFieldOptions.client_instance_key)
+  return client_instance_key_;
+}
+inline void BGSFieldOptions::set_client_instance_key(bool value) {
+  set_has_client_instance_key();
+  client_instance_key_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSFieldOptions.client_instance_key)
+}
+
+// optional string realized_enum = 5;
+inline bool BGSFieldOptions::has_realized_enum() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void BGSFieldOptions::set_has_realized_enum() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void BGSFieldOptions::clear_has_realized_enum() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void BGSFieldOptions::clear_realized_enum() {
+  if (realized_enum_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    realized_enum_->clear();
+  }
+  clear_has_realized_enum();
+}
+inline const ::std::string& BGSFieldOptions::realized_enum() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSFieldOptions.realized_enum)
+  return *realized_enum_;
+}
+inline void BGSFieldOptions::set_realized_enum(const ::std::string& value) {
+  set_has_realized_enum();
+  if (realized_enum_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    realized_enum_ = new ::std::string;
+  }
+  realized_enum_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSFieldOptions.realized_enum)
+}
+inline void BGSFieldOptions::set_realized_enum(const char* value) {
+  set_has_realized_enum();
+  if (realized_enum_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    realized_enum_ = new ::std::string;
+  }
+  realized_enum_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSFieldOptions.realized_enum)
+}
+inline void BGSFieldOptions::set_realized_enum(const char* value, size_t size) {
+  set_has_realized_enum();
+  if (realized_enum_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    realized_enum_ = new ::std::string;
+  }
+  realized_enum_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSFieldOptions.realized_enum)
+}
+inline ::std::string* BGSFieldOptions::mutable_realized_enum() {
+  set_has_realized_enum();
+  if (realized_enum_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    realized_enum_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSFieldOptions.realized_enum)
+  return realized_enum_;
+}
+inline ::std::string* BGSFieldOptions::release_realized_enum() {
+  clear_has_realized_enum();
+  if (realized_enum_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = realized_enum_;
+    realized_enum_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSFieldOptions::set_allocated_realized_enum(::std::string* realized_enum) {
+  if (realized_enum_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete realized_enum_;
+  }
+  if (realized_enum) {
+    set_has_realized_enum();
+    realized_enum_ = realized_enum;
+  } else {
+    clear_has_realized_enum();
+    realized_enum_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSFieldOptions.realized_enum)
 }
 
 // -------------------------------------------------------------------
@@ -1491,6 +1639,49 @@ inline void FieldRestriction::set_allocated_entity_id(::bgs::protocol::EntityIdR
   }
 }
 
+// optional .bgs.protocol.StringFieldRestriction bytes = 8;
+inline bool FieldRestriction::has_bytes() const {
+  return type_case() == kBytes;
+}
+inline void FieldRestriction::set_has_bytes() {
+  _oneof_case_[0] = kBytes;
+}
+inline void FieldRestriction::clear_bytes() {
+  if (has_bytes()) {
+    delete type_.bytes_;
+    clear_has_type();
+  }
+}
+inline const ::bgs::protocol::StringFieldRestriction& FieldRestriction::bytes() const {
+  return has_bytes() ? *type_.bytes_
+                      : ::bgs::protocol::StringFieldRestriction::default_instance();
+}
+inline ::bgs::protocol::StringFieldRestriction* FieldRestriction::mutable_bytes() {
+  if (!has_bytes()) {
+    clear_type();
+    set_has_bytes();
+    type_.bytes_ = new ::bgs::protocol::StringFieldRestriction;
+  }
+  return type_.bytes_;
+}
+inline ::bgs::protocol::StringFieldRestriction* FieldRestriction::release_bytes() {
+  if (has_bytes()) {
+    clear_has_type();
+    ::bgs::protocol::StringFieldRestriction* temp = type_.bytes_;
+    type_.bytes_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void FieldRestriction::set_allocated_bytes(::bgs::protocol::StringFieldRestriction* bytes) {
+  clear_type();
+  if (bytes) {
+    set_has_bytes();
+    type_.bytes_ = bytes;
+  }
+}
+
 inline bool FieldRestriction::has_type() {
   return type_case() != TYPE_NOT_SET;
 }
@@ -1781,6 +1972,49 @@ inline void RepeatedFieldRestriction::set_allocated_entity_id(::bgs::protocol::E
   if (entity_id) {
     set_has_entity_id();
     type_.entity_id_ = entity_id;
+  }
+}
+
+// optional .bgs.protocol.StringFieldRestriction bytes = 8;
+inline bool RepeatedFieldRestriction::has_bytes() const {
+  return type_case() == kBytes;
+}
+inline void RepeatedFieldRestriction::set_has_bytes() {
+  _oneof_case_[0] = kBytes;
+}
+inline void RepeatedFieldRestriction::clear_bytes() {
+  if (has_bytes()) {
+    delete type_.bytes_;
+    clear_has_type();
+  }
+}
+inline const ::bgs::protocol::StringFieldRestriction& RepeatedFieldRestriction::bytes() const {
+  return has_bytes() ? *type_.bytes_
+                      : ::bgs::protocol::StringFieldRestriction::default_instance();
+}
+inline ::bgs::protocol::StringFieldRestriction* RepeatedFieldRestriction::mutable_bytes() {
+  if (!has_bytes()) {
+    clear_type();
+    set_has_bytes();
+    type_.bytes_ = new ::bgs::protocol::StringFieldRestriction;
+  }
+  return type_.bytes_;
+}
+inline ::bgs::protocol::StringFieldRestriction* RepeatedFieldRestriction::release_bytes() {
+  if (has_bytes()) {
+    clear_has_type();
+    ::bgs::protocol::StringFieldRestriction* temp = type_.bytes_;
+    type_.bytes_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void RepeatedFieldRestriction::set_allocated_bytes(::bgs::protocol::StringFieldRestriction* bytes) {
+  clear_type();
+  if (bytes) {
+    set_has_bytes();
+    type_.bytes_ = bytes;
   }
 }
 
@@ -2198,7 +2432,6 @@ inline void MessageFieldRestriction::set_needed(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.MessageFieldRestriction.needed)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -2207,7 +2440,6 @@ inline void MessageFieldRestriction::set_needed(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::EntityIdRestriction_Kind> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::EntityIdRestriction_Kind>() {
@@ -2218,7 +2450,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::LogOption>() {
   return ::bgs::protocol::LogOption_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

@@ -26,6 +26,7 @@
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
 #include <memory>
+#include <thread>
 
 using boost::asio::ip::tcp;
 
@@ -39,8 +40,7 @@ void RASession::Start()
     if (_socket.available() > 0)
     {
         // Handle subnegotiation
-        char buf[1024];
-        memset(buf, 0, sizeof(buf));
+        char buf[1024] = { };
         _socket.read_some(boost::asio::buffer(buf));
 
         // Send the end-of-negotiation packet
@@ -91,7 +91,7 @@ void RASession::Start()
     _socket.close();
 }
 
-int RASession::Send(const char* data)
+int RASession::Send(std::string_view data)
 {
     std::ostream os(&_writeBuffer);
     os << data;
@@ -204,9 +204,9 @@ bool RASession::ProcessCommand(std::string& command)
     return false;
 }
 
-void RASession::CommandPrint(void* callbackArg, const char* text)
+void RASession::CommandPrint(void* callbackArg, std::string_view text)
 {
-    if (!text || !*text)
+    if (text.empty())
         return;
 
     RASession* session = static_cast<RASession*>(callbackArg);

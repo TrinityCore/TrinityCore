@@ -24,7 +24,7 @@
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 #include "Position.h"
-#include "QuestDef.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
 #include <array>
@@ -61,12 +61,6 @@ namespace WorldPackets
 
         struct CreatureStats
         {
-            CreatureStats()
-            {
-                Flags.fill(0);
-                ProxyCreatureID.fill(0);
-            }
-
             std::string Title;
             std::string TitleAlt;
             std::string CursorName;
@@ -83,13 +77,13 @@ namespace WorldPackets
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
             int32 Class = 0;
-            float FadeRegionRadius = 0.0f;
+            int32 CreatureDifficultyID = 0;
             int32 WidgetSetID = 0;
             int32 WidgetSetUnitConditionID = 0;
-            std::array<uint32, 2> Flags;
-            std::array<uint32, 2> ProxyCreatureID;
-            std::array<std::string, 4> Name;
-            std::array<std::string, 4> NameAlt;
+            std::array<uint32, 2> Flags = { };
+            std::array<uint32, 2> ProxyCreatureID = { };
+            std::array<std::string, 4> Name = { };
+            std::array<std::string, 4> NameAlt = { };
         };
 
         class QueryCreatureResponse final : public ServerPacket
@@ -110,14 +104,14 @@ namespace WorldPackets
             Optional<uint32> NativeRealmAddress; ///< original realm (?) (identifier made from the Index, BattleGroup and Region)
         };
 
-        class QueryPlayerName final : public ClientPacket
+        class QueryPlayerNames final : public ClientPacket
         {
         public:
-            QueryPlayerName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAME, std::move(packet)) { }
+            QueryPlayerNames(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PLAYER_NAMES, std::move(packet)) { }
 
             void Read() override;
 
-            ObjectGuid Player;
+            Array<ObjectGuid, 50> Players;
         };
 
         struct PlayerGuidLookupData
@@ -135,19 +129,33 @@ namespace WorldPackets
             uint8 Sex = GENDER_NONE;
             uint8 ClassID = CLASS_NONE;
             uint8 Level = 0;
+            uint8 Unused915 = 0;
             DeclinedName DeclinedNames;
         };
 
-        class QueryPlayerNameResponse final : public ServerPacket
+        struct NameCacheUnused920
+        {
+            uint32 Unused1 = 0;
+            ObjectGuid Unused2;
+            std::string_view Unused3;
+        };
+
+        struct NameCacheLookupResult
+        {
+            ObjectGuid Player;
+            uint8 Result = 0; // 0 - full packet, != 0 - only guid
+            Optional<PlayerGuidLookupData> Data;
+            Optional<NameCacheUnused920> Unused920;
+        };
+
+        class QueryPlayerNamesResponse final : public ServerPacket
         {
         public:
-            QueryPlayerNameResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAME_RESPONSE, 60) { }
+            QueryPlayerNamesResponse() : ServerPacket(SMSG_QUERY_PLAYER_NAMES_RESPONSE, 60) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Player;
-            uint8 Result = 0; // 0 - full packet, != 0 - only guid
-            PlayerGuidLookupData Data;
+            std::vector<NameCacheLookupResult> Players;
         };
 
         class QueryPageText final : public ClientPacket
@@ -228,7 +236,7 @@ namespace WorldPackets
             uint32 Data[MAX_GAMEOBJECT_DATA];
             float Size = 0.0f;
             std::vector<int32> QuestItems;
-            uint32 RequiredLevel = 0;
+            uint32 ContentTuningId = 0;
         };
 
         class QueryGameObjectResponse final : public ServerPacket
@@ -307,7 +315,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            time_t CurrentTime = time_t(0);
+            Timestamp<> CurrentTime;
         };
 
         class QuestPOIQuery final : public ClientPacket
@@ -379,7 +387,7 @@ namespace WorldPackets
 
             bool HasDeclined = false;
             DeclinedName DeclinedNames;
-            uint32 Timestamp = 0;
+            WorldPackets::Timestamp<> Timestamp;
             std::string Name;
         };
 

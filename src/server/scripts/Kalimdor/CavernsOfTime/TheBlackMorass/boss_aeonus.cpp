@@ -50,102 +50,91 @@ enum Events
     EVENT_FRENZY        = 3
 };
 
-class boss_aeonus : public CreatureScript
+struct boss_aeonus : public BossAI
 {
-public:
-    boss_aeonus() : CreatureScript("boss_aeonus") { }
+    boss_aeonus(Creature* creature) : BossAI(creature, TYPE_AEONUS) { }
 
-    struct boss_aeonusAI : public BossAI
+    void Reset() override { }
+
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        boss_aeonusAI(Creature* creature) : BossAI(creature, TYPE_AEONUS) { }
+        events.ScheduleEvent(EVENT_SANDBREATH, 15s, 30s);
+        events.ScheduleEvent(EVENT_TIMESTOP, 10s, 15s);
+        events.ScheduleEvent(EVENT_FRENZY, 30s, 45s);
 
-        void Reset() override { }
+        Talk(SAY_AGGRO);
+    }
 
-        void EnterCombat(Unit* /*who*/) override
+    void MoveInLineOfSight(Unit* who) override
+
+    {
+        //Despawn Time Keeper
+        if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_TIME_KEEPER)
         {
-            events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 30000));
-            events.ScheduleEvent(EVENT_TIMESTOP, urand(10000, 15000));
-            events.ScheduleEvent(EVENT_FRENZY, urand(30000, 45000));
-
-            Talk(SAY_AGGRO);
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            //Despawn Time Keeper
-            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_TIME_KEEPER)
+            if (me->IsWithinDistInMap(who, 20.0f))
             {
-                if (me->IsWithinDistInMap(who, 20.0f))
-                {
-                    Talk(SAY_BANISH);
-                    me->DealDamage(who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
-                }
+                Talk(SAY_BANISH);
+                Unit::DealDamage(me, who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             }
-
-            ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+
+        instance->SetData(TYPE_RIFT, DONE);
+        instance->SetData(TYPE_MEDIVH, DONE); // FIXME: later should be removed
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Talk(SAY_DEATH);
-
-            instance->SetData(TYPE_RIFT, DONE);
-            instance->SetData(TYPE_MEDIVH, DONE); // FIXME: later should be removed
-        }
-
-        void KilledUnit(Unit* who) override
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_SANDBREATH:
+                    DoCastVictim(SPELL_SAND_BREATH);
+                    events.ScheduleEvent(EVENT_SANDBREATH, 15s, 25s);
+                    break;
+                case EVENT_TIMESTOP:
+                    DoCastVictim(SPELL_TIME_STOP);
+                    events.ScheduleEvent(EVENT_TIMESTOP, 20s, 35s);
+                    break;
+                case EVENT_FRENZY:
+                     Talk(EMOTE_FRENZY);
+                     DoCast(me, SPELL_ENRAGE);
+                    events.ScheduleEvent(EVENT_FRENZY, 20s, 35s);
+                    break;
+                default:
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_SANDBREATH:
-                        DoCastVictim(SPELL_SAND_BREATH);
-                        events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 25000));
-                        break;
-                    case EVENT_TIMESTOP:
-                        DoCastVictim(SPELL_TIME_STOP);
-                        events.ScheduleEvent(EVENT_TIMESTOP, urand(20000, 35000));
-                        break;
-                    case EVENT_FRENZY:
-                         Talk(EMOTE_FRENZY);
-                         DoCast(me, SPELL_ENRAGE);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(20000, 35000));
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackMorassAI<boss_aeonusAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_aeonus()
 {
-    new boss_aeonus();
+    RegisterBlackMorassCreatureAI(boss_aeonus);
 }

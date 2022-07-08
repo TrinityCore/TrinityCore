@@ -87,14 +87,14 @@ class boss_ozruk : public CreatureScript
 
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 5000);
-                events.ScheduleEvent(EVENT_GROUND_SLAM, 10000);
-                events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13000);
+                events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 5s);
+                events.ScheduleEvent(EVENT_GROUND_SLAM, 10s);
+                events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13s);
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
 
                 Talk(SAY_AGGRO);
             }
@@ -104,13 +104,13 @@ class boss_ozruk : public CreatureScript
                 if (summon->GetEntry() == NPC_RUPTURE_CONTROLLER)
                 {
                     summon->CastSpell(summon, SPELL_RUPTURE, true);
-                    summon->DespawnOrUnsummon(10000);
+                    summon->DespawnOrUnsummon(10s);
                 }
 
                 BossAI::JustSummoned(summon);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!me->HealthBelowPctDamaged(25, damage) || me->HasAura(SPELL_ENRAGE))
                     return;
@@ -148,23 +148,23 @@ class boss_ozruk : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             DoCast(me, SPELL_GROUND_SLAM);
-                            events.ScheduleEvent(EVENT_START_ATTACK, 4600);
+                            events.ScheduleEvent(EVENT_START_ATTACK, 4600ms);
                             break;
                         case EVENT_ELEMENTIUM_SPIKE_SHIELD:
                             DoCast(me, SPELL_ELEMENTIUM_SPIKE_SHIELD);
                             Talk(SAY_ELEMENTIUM_SPIKE_SHIELD);
-                            events.ScheduleEvent(EVENT_SHATTER, 10000);
+                            events.ScheduleEvent(EVENT_SHATTER, 10s);
                             break;
                         case EVENT_SHATTER:
                             summons.DespawnEntry(NPC_BOUNCER_SPIKE);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             DoCast(me, SPELL_SHATTER);
-                            events.ScheduleEvent(EVENT_START_ATTACK, 4600);
+                            events.ScheduleEvent(EVENT_START_ATTACK, 4600ms);
                             // Spells are cast in same order everytime after Shatter, so we schedule them here
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, urand(3000,4000));
-                            events.ScheduleEvent(EVENT_GROUND_SLAM, urand(7000,9000));
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, urand(10000,12000));
+                            events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 3s, 4s);
+                            events.ScheduleEvent(EVENT_GROUND_SLAM, 7s, 9s);
+                            events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 10s, 12s);
                             break;
                         case EVENT_START_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -214,7 +214,7 @@ public:
 
         void SummonRupture(Unit* caster, Position pos)
         {
-            Creature* rupture = caster->SummonCreature(NPC_RUPTURE, pos, TEMPSUMMON_TIMED_DESPAWN, 2500);
+            Creature* rupture = caster->SummonCreature(NPC_RUPTURE, pos, TEMPSUMMON_TIMED_DESPAWN, 2500ms);
             if (!rupture)
                 return;
 
@@ -251,7 +251,7 @@ public:
                 return;
 
             for (uint8 i = 0; i < vehicle->GetAvailableSeatCount(); i++)
-                if (Creature* summon = caster->SummonCreature(NPC_BOUNCER_SPIKE, caster->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 10000))
+                if (Creature* summon = caster->SummonCreature(NPC_BOUNCER_SPIKE, caster->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 10s))
                     summon->EnterVehicle(caster, i);
         }
 

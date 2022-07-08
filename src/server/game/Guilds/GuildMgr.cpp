@@ -16,13 +16,14 @@
  */
 
 #include "GuildMgr.h"
-#include "DB2Stores.h"
+#include "AchievementMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Guild.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "Util.h"
 #include "World.h"
-#include <algorithm>
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
 {
@@ -81,17 +82,12 @@ Guild* GuildMgr::GetGuildByGuid(ObjectGuid guid) const
     return nullptr;
 }
 
-Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
+Guild* GuildMgr::GetGuildByName(std::string_view guildName) const
 {
-    std::string search = guildName;
-    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
-    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-    {
-        std::string gname = itr->second->GetName();
-        std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
-        if (search == gname)
-            return itr->second;
-    }
+    for (auto [id, guild] : GuildStore)
+        if (StringEqualI(guild->GetName(), guildName))
+            return guild;
+
     return nullptr;
 }
 
@@ -168,8 +164,8 @@ void GuildMgr::LoadGuilds()
         // Delete orphaned guild rank entries before loading the valid ones
         CharacterDatabase.DirectExecute("DELETE gr FROM guild_rank gr LEFT JOIN guild g ON gr.guildId = g.guildId WHERE g.guildId IS NULL");
 
-        //                                                         0    1      2       3                4
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, rid, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
+        //                                                         0    1          2      3       4                5
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, rid, RankOrder, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
 
         if (!result)
         {
@@ -205,8 +201,8 @@ void GuildMgr::LoadGuilds()
 
                                                 //           0           1        2     3      4        5       6       7       8       9       10
         QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, `rank`, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
-                                                //    11      12      13       14      15       16       17        18      19         20
-                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.gender, c.zone, c.account, c.logout_time "
+                                                //    11      12      13       14      15       16      17       18        19      20         21
+                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.race, c.class, c.gender, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
                                                      "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
@@ -365,7 +361,6 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-
     // 8. Load all guild bank tabs
     TC_LOG_INFO("server.loading", "Loading guild bank tabs...");
     {
@@ -408,19 +403,23 @@ void GuildMgr::LoadGuilds()
         // Delete orphan guild bank items
         CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
 
-        //           0          1            2                3      4         5        6      7             8                 9          10          11    12
-        // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
+        //           0          1            2                3      4         5        6      7             8                  9          10          11    12
+        // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomBonusListId, durability, playedTime, text,
         //                        13                  14              15                  16       17            18
         //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
-        //                                    19                           20                           21                           22                           23
-        //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-        //                                  24                         25                         26                         27                         28
-        //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-        //                29           30           31                32          33           34           35                36          37           38           39                40
+        //                                    19                           20                           21                           22                           23                           24
+        //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4, itemModifiedAppearanceSpec5,
+        //                                  25                         26                         27                         28                         29                         30
+        //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4, spellItemEnchantmentSpec5,
+        //                                             31                                    32                                    33
+        //        secondaryItemModifiedAppearanceAllSpecs, secondaryItemModifiedAppearanceSpec1, secondaryItemModifiedAppearanceSpec2,
+        //                                          34                                    35                                    36
+        //        secondaryItemModifiedAppearanceSpec3, secondaryItemModifiedAppearanceSpec4, secondaryItemModifiedAppearanceSpec5,
+        //                37           38           39                40          41           42           43                44          45           46           47                48
         //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-        //                       41                      42
+        //                       49                      50
         //        fixedScalingLevel, artifactKnowledgeLevel
-        //             43     44      45
+        //             51     52      53
         //        guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
@@ -434,7 +433,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint64 guildId = fields[43].GetUInt64();
+                uint64 guildId = fields[51].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

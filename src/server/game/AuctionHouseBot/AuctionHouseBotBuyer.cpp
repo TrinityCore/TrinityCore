@@ -17,6 +17,7 @@
 
 #include "AuctionHouseBotBuyer.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "ItemTemplate.h"
 #include "Log.h"
@@ -97,7 +98,7 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
 uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 {
     config.SameItemInfo.clear();
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     uint32 count = 0;
 
     AuctionHouseObject* house = sAuctionMgr->GetAuctionsById(sAuctionBotConfig->GetAuctionHouseId(config.GetHouseType()));
@@ -254,7 +255,7 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, AuctionPosting 
 void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 {
     // now - 5 seconds to leave out all old entries but keep the ones just updated a moment ago
-    time_t now = time(nullptr) - 5;
+    time_t now = GameTime::GetGameTime() - 5;
 
     for (CheckEntryMap::iterator itr = config.EligibleItems.begin(); itr != config.EligibleItems.end();)
     {
@@ -270,7 +271,7 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 // Tries to bid and buy items based on their prices and chances set in configs
 void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsById(sAuctionBotConfig->GetAuctionHouseId(config.GetHouseType()));
     CheckEntryMap& items = config.EligibleItems;
 
@@ -317,7 +318,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
             bidPrice = auction->MinBid;
         }
 
-        const BuyerItemInfo* ahInfo = nullptr;
+        BuyerItemInfo const* ahInfo = nullptr;
         BuyerItemInfoMap::const_iterator sameItemItr = config.SameItemInfo.find(auction->Bucket->Key.ItemId);
         if (sameItemItr != config.SameItemInfo.end())
             ahInfo = &sameItemItr->second;
@@ -438,12 +439,14 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionPosting* auction, AuctionHouseObjec
     // Set bot as bidder and set new bid amount
     auction->Bidder = newBidder;
     auction->BidAmount = bidPrice;
+    auction->ServerFlags &= ~AuctionPostingServerFlag::GmLogBuyer;
 
     // Update auction to DB
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
     stmt->setUInt64(0, auction->Bidder.GetCounter());
-    stmt->setUInt32(1, auction->BidAmount);
-    stmt->setUInt32(2, auction->Id);
+    stmt->setUInt64(1, auction->BidAmount);
+    stmt->setUInt8(2, auction->ServerFlags.AsUnderlyingType());
+    stmt->setUInt32(3, auction->Id);
     trans->Append(stmt);
 
     // Run SQLs

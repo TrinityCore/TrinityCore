@@ -96,7 +96,7 @@ const Point MovementPoint[] =
 */
 void AggroAllPlayers(Creature* temp)
 {
-    Map::PlayerList const &PlList = temp->GetMap()->GetPlayers();
+    Map::PlayerList const& PlList = temp->GetMap()->GetPlayers();
 
     if (PlList.isEmpty())
             return;
@@ -225,7 +225,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCastSpellShield();
         }
@@ -328,7 +328,7 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetImmuneToPC(true);
         }
 
@@ -435,7 +435,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -466,7 +466,7 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetImmuneToPC(true);
         }
 
@@ -522,7 +522,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -555,7 +555,7 @@ public:
 
             if (uiPolymorphTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_POLYMORPH);
                 uiPolymorphTimer = 8000;
             } else uiPolymorphTimer -= uiDiff;
@@ -579,7 +579,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -610,7 +610,7 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetImmuneToPC(true);
         }
 
@@ -640,7 +640,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             DoCast(me, SPELL_EARTH_SHIELD);
             DoCast(who, SPELL_HEX_OF_MENDING);
@@ -672,7 +672,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -692,7 +692,7 @@ public:
 
             if (uiChainLightningTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_CHAIN_LIGHTNING);
 
                 uiChainLightningTimer = 16000;
@@ -731,7 +731,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -762,7 +762,7 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetImmuneToPC(true);
         }
 
@@ -823,7 +823,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -849,7 +849,7 @@ public:
 
             if (uiShootTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30.0f))
+                if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30.0f))
                 {
                     uiTargetGUID = target->GetGUID();
                     DoCast(target, SPELL_SHOOT);
@@ -892,7 +892,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -923,7 +923,7 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetImmuneToPC(true);
         }
 
@@ -976,7 +976,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -1008,7 +1008,7 @@ public:
 
             if (uiPosionBottleTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
@@ -1018,7 +1018,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 

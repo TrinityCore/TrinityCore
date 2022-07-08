@@ -1,0 +1,5 @@
+--
+UPDATE `smart_scripts` SET `event_param1` = 30, `event_param2` = 5000, `event_param3` = 10000, `event_param4` = 0 WHERE `entryorguid` IN (20032,20036,20049) AND `source_type` = 0 AND `event_type` = 15 AND `action_type` = 11 AND `action_param1` = 39078;
+UPDATE `smart_scripts` SET `event_param1` = 30, `event_param3` = 0 WHERE `entryorguid` = 9450 AND `source_type` = 0 AND `event_type` = 15 AND `action_type` = 11 AND `action_param1` = 17201;
+UPDATE `smart_scripts` SET `event_param1` = 15, `event_param3` = 0 WHERE `entryorguid` = 12339 AND `source_type` = 0 AND `event_type` = 15 AND `action_type` = 11 AND `action_param1` = 17201;
+UPDATE `smart_scripts` SET `event_type` = 0, `event_flags` = 0, `event_param1` = 10000, `event_param2` = 12500, `event_param3` = 13000, `event_param4` = 15000, `action_param2` = 0, `comment` = "Nathanos Blightcaller - In Combat - Cast 'Psychic Scream'" WHERE `entryorguid` = 11878 AND `source_type` = 0 AND `event_type` = 15 AND `action_type` = 11 AND `action_param1` = 13704;

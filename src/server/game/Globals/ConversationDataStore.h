@@ -20,42 +20,66 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
-
+#include <variant>
 #include <vector>
+
+enum class ConversationActorType : uint32
+{
+    WorldObject = 0,
+    TalkingHead = 1
+};
+
+struct ConversationActorWorldObjectTemplate
+{
+    ObjectGuid::LowType SpawnId = 0;
+};
+
+struct ConversationActorNoObjectTemplate
+{
+    uint32 CreatureId = 0;
+    uint32 CreatureDisplayInfoId = 0;
+};
+
+struct ConversationActorActivePlayerTemplate
+{
+};
+
+struct ConversationActorTalkingHeadTemplate
+{
+    uint32 CreatureId = 0;
+    uint32 CreatureDisplayInfoId = 0;
+};
+
+struct ConversationActorTemplate
+{
+    int32 Id = 0;
+    uint32 Index = 0;
+    std::variant<ConversationActorWorldObjectTemplate,
+                 ConversationActorNoObjectTemplate,
+                 ConversationActorActivePlayerTemplate,
+                 ConversationActorTalkingHeadTemplate> Data;
+};
 
 enum ConversationLineFlags
 {
     CONVERSATION_LINE_FLAG_NOTIFY_STARTED = 0x1 // Client will send CMSG_CONVERSATION_LINE_STARTED when it runs this line
 };
 
-struct ConversationActorTemplate
-{
-    uint32 Id;
-    uint32 CreatureId;
-    uint32 CreatureModelId;
-};
-
-#pragma pack(push, 1)
 struct ConversationLineTemplate
 {
     uint32 Id;          // Link to ConversationLine.db2
-    uint32 StartTime;   // Time in ms after conversation creation the line is displayed
     uint32 UiCameraID;  // Link to UiCamera.db2
     uint8 ActorIdx;     // Index from conversation_actors
     uint8 Flags;
-    uint16 Padding;
 };
-#pragma pack(pop)
 
 struct ConversationTemplate
 {
     uint32 Id;
     uint32 FirstLineId;     // Link to ConversationLine.db2
-    uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
     uint32 TextureKitId;    // Background texture
 
-    std::vector<ConversationActorTemplate const*> Actors;
-    std::vector<ObjectGuid::LowType> ActorGuids;
+    std::vector<ConversationActorTemplate> Actors;
     std::vector<ConversationLineTemplate const*> Lines;
 
     uint32 ScriptId;
@@ -67,6 +91,7 @@ public:
     void LoadConversationTemplates();
 
     ConversationTemplate const* GetConversationTemplate(uint32 conversationId) const;
+    ConversationLineTemplate const* GetConversationLineTemplate(uint32 conversationLineId) const;
 
     static ConversationDataStore* Instance();
 };

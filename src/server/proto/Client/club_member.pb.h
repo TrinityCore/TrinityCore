@@ -1690,9 +1690,7 @@ class TC_PROTO_API MemberStateAssignment : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -3586,7 +3584,6 @@ inline void MemberStateAssignment::set_allocated_note(::std::string* note) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.MemberStateAssignment.note)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -3597,8 +3594,6 @@ inline void MemberStateAssignment::set_allocated_note(::std::string* note) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

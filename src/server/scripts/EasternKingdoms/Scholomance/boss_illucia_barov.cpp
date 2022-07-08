@@ -23,8 +23,8 @@ Category: Scholomance
 */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -51,13 +51,13 @@ class boss_illucia_barov : public CreatureScript
         {
             boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_CURSEOFAGONY, 18000);
-                events.ScheduleEvent(EVENT_SHADOWSHOCK, 9000);
-                events.ScheduleEvent(EVENT_SILENCE, 5000);
-                events.ScheduleEvent(EVENT_FEAR, 30000);
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_CURSEOFAGONY, 18s);
+                events.ScheduleEvent(EVENT_SHADOWSHOCK, 9s);
+                events.ScheduleEvent(EVENT_SILENCE, 5s);
+                events.ScheduleEvent(EVENT_FEAR, 30s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -76,19 +76,19 @@ class boss_illucia_barov : public CreatureScript
                     {
                         case EVENT_CURSEOFAGONY:
                             DoCastVictim(SPELL_CURSEOFAGONY, true);
-                            events.ScheduleEvent(EVENT_CURSEOFAGONY, 30000);
+                            events.ScheduleEvent(EVENT_CURSEOFAGONY, 30s);
                             break;
                         case EVENT_SHADOWSHOCK:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOWSHOCK, true);
-                            events.ScheduleEvent(EVENT_SHADOWSHOCK, 12000);
+                            DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_SHADOWSHOCK, true);
+                            events.ScheduleEvent(EVENT_SHADOWSHOCK, 12s);
                             break;
                         case EVENT_SILENCE:
                             DoCastVictim(SPELL_SILENCE, true);
-                            events.ScheduleEvent(EVENT_SILENCE, 14000);
+                            events.ScheduleEvent(EVENT_SILENCE, 14s);
                             break;
                         case EVENT_FEAR:
                             DoCastVictim(SPELL_FEAR, true);
-                            events.ScheduleEvent(EVENT_FEAR, 30000);
+                            events.ScheduleEvent(EVENT_FEAR, 30s);
                             break;
                         default:
                             break;

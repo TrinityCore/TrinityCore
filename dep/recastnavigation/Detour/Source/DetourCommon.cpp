@@ -203,33 +203,32 @@ void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const floa
 
 bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
+	const float EPS = 1e-6f;
 	float v0[3], v1[3], v2[3];
-	dtVsub(v0, c,a);
-	dtVsub(v1, b,a);
-	dtVsub(v2, p,a);
-	
-	const float dot00 = dtVdot2D(v0, v0);
-	const float dot01 = dtVdot2D(v0, v1);
-	const float dot02 = dtVdot2D(v0, v2);
-	const float dot11 = dtVdot2D(v1, v1);
-	const float dot12 = dtVdot2D(v1, v2);
-	
-	// Compute barycentric coordinates
-	const float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-	const float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-	const float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
-	// The (sloppy) epsilon is needed to allow to get height of points which
-	// are interpolated along the edges of the triangles.
-	static const float EPS = 1e-4f;
-	
+	dtVsub(v0, c, a);
+	dtVsub(v1, b, a);
+	dtVsub(v2, p, a);
+
+	// Compute scaled barycentric coordinates
+	float denom = v0[0] * v1[2] - v0[2] * v1[0];
+	if (fabsf(denom) < EPS)
+		return false;
+
+	float u = v1[2] * v2[0] - v1[0] * v2[2];
+	float v = v0[0] * v2[2] - v0[2] * v2[0];
+
+	if (denom < 0) {
+		denom = -denom;
+		u = -u;
+		v = -v;
+	}
+
 	// If point lies inside the triangle, return interpolated ycoord.
-	if (u >= -EPS && v >= -EPS && (u+v) <= 1+EPS)
-	{
-		h = a[1] + v0[1]*u + v1[1]*v;
+	if (u >= 0.0f && v >= 0.0f && (u + v) <= denom) {
+		h = a[1] + (v0[1] * u + v1[1] * v) / denom;
 		return true;
 	}
-	
 	return false;
 }
 
@@ -342,8 +341,8 @@ void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 	// Find sub triangle weighted by area.
 	const float thr = s*areasum;
 	float acc = 0.0f;
-	float u = 0.0f;
-	int tri = 0;
+	float u = 1.0f;
+	int tri = npts - 1;
 	for (int i = 2; i < npts; i++) {
 		const float dacc = areas[i];
 		if (thr >= acc && thr < (acc+dacc))

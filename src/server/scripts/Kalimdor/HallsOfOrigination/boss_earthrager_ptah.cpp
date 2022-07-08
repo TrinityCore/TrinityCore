@@ -121,12 +121,12 @@ public:
             Cleanup();
             _Reset();
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 12s, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_FLAME_BOLT, 15s, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_EARTH_SPIKE, 16s, 21s, 0, PHASE_NORMAL);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_MASK_NORMAL) && !_hasDispersed)
             {
@@ -136,8 +136,8 @@ public:
                 me->AttackStop();
                 DoCast(me, SPELL_SANDSTORM);
                 me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_LIGHT_SANDSTORM, 1.0f);
-                events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6000, 0, PHASE_DISPERSE);
-                events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
+                events.ScheduleEvent(EVENT_PTAH_EXPLODE, 6s, 0, PHASE_DISPERSE);
+                events.ScheduleEvent(EVENT_QUICKSAND, 10s, 0, PHASE_DISPERSE);
 
                 std::list<Creature*> stalkers;
                 GetCreatureListWithEntryInGrid(stalkers, me, NPC_BEETLE_STALKER, 100.0f);
@@ -150,7 +150,7 @@ public:
                     stalkers.remove((*itr)); // Remove it to prevent a single trigger from spawning multiple npcs.
                     (*itr)->CastSpell((*itr), SPELL_BEETLE_BURROW); // Cast visual
                     // Summon after 5 seconds.
-                    (*itr)->m_Events.AddEvent(new SummonScarab((*itr), instance), (*itr)->m_Events.CalculateTime(5000));
+                    (*itr)->m_Events.AddEventAtOffset(new SummonScarab((*itr), instance), 5s);
                 }
 
                 Trinity::Containers::RandomResize(stalkers, 2); // Holds the summoners of Dustbone Horror
@@ -170,18 +170,18 @@ public:
                     me->GetMap()->SetZoneWeather(AREA_TOMB_OF_THE_EARTHRAGER, WEATHER_STATE_FOG, 0.0f);
                     me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
                     events.SetPhase(PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
-                    events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 12s, 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_FLAME_BOLT, 15s, 0, PHASE_NORMAL);
+                    events.ScheduleEvent(EVENT_EARTH_SPIKE, 16s, 21s, 0, PHASE_NORMAL);
                 }
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            BossAI::JustEngagedWith(who);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -215,26 +215,26 @@ public:
                 {
                     case EVENT_RAGING_SMASH:
                         DoCastVictim(SPELL_RAGING_SMASH);
-                        events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 12s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_FLAME_BOLT:
                         DoCast(me, SPELL_FLAME_BOLT);
-                        events.ScheduleEvent(EVENT_FLAME_BOLT, 15000, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_FLAME_BOLT, 15s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_EARTH_SPIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             DoCast(target, SPELL_EARTH_SPIKE_WARN);
-                        events.ScheduleEvent(EVENT_EARTH_SPIKE, urand(16000, 21000), 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_EARTH_SPIKE, 16s, 21s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_PTAH_EXPLODE:
                         DoCast(me, SPELL_PTAH_EXPLOSION);
                         break;
                     case EVENT_QUICKSAND:
                         // Spell not in DBC, it is not cast either, according to sniffs
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             if (Creature* quicksand = me->SummonCreature(NPC_QUICKSAND, *target))
                                 quicksand->SetCreatedBySpell(SPELL_SUMMON_QUICKSAND);
-                        events.ScheduleEvent(EVENT_QUICKSAND, 10000, 0, PHASE_DISPERSE);
+                        events.ScheduleEvent(EVENT_QUICKSAND, 10s, 0, PHASE_DISPERSE);
                         break;
                 }
             }
@@ -293,8 +293,8 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
-                ptah->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+                ptah->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
+                ptah->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }
 
@@ -302,7 +302,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
+                ptah->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
                 ptah->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
         }

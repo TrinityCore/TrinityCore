@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -54,33 +55,33 @@ class boss_general_angerforge : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
-                _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
-                _events.ScheduleEvent(EVENT_CLEAVE, 16000);
+                _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8s);
+                _events.ScheduleEvent(EVENT_HAMSTRING, 12s);
+                _events.ScheduleEvent(EVENT_CLEAVE, 16s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (me->HealthBelowPctDamaged(20, damage) && _events.IsInPhase(PHASE_ONE))
                 {
                     _events.SetPhase(PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_MEDIC, 0, 0, PHASE_TWO);
-                    _events.ScheduleEvent(EVENT_ADDS, 0, 0, PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_MEDIC, 0s, 0, PHASE_TWO);
+                    _events.ScheduleEvent(EVENT_ADDS, 0s, 0, PHASE_TWO);
                 }
             }
 
             void SummonAdd(Unit* victim)
             {
-                if (Creature* SummonedAdd = DoSpawnCreature(8901, float(irand(-14, 14)), float(irand(-14, 14)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+                if (Creature* SummonedAdd = DoSpawnCreature(8901, float(irand(-14, 14)), float(irand(-14, 14)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120s))
                     SummonedAdd->AI()->AttackStart(victim);
             }
 
             void SummonMedic(Unit* victim)
             {
-                if (Creature* SummonedMedic = DoSpawnCreature(8894, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+                if (Creature* SummonedMedic = DoSpawnCreature(8894, float(irand(-9, 9)), float(irand(-9, 9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120s))
                     SummonedMedic->AI()->AttackStart(victim);
             }
 
@@ -97,15 +98,15 @@ class boss_general_angerforge : public CreatureScript
                     {
                         case EVENT_MIGHTYBLOW:
                             DoCastVictim(SPELL_MIGHTYBLOW);
-                            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 18000);
+                            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 18s);
                             break;
                         case EVENT_HAMSTRING:
                             DoCastVictim(SPELL_HAMSTRING);
-                            _events.ScheduleEvent(EVENT_HAMSTRING, 15000);
+                            _events.ScheduleEvent(EVENT_HAMSTRING, 15s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, 9000);
+                            _events.ScheduleEvent(EVENT_CLEAVE, 9s);
                             break;
                         case EVENT_MEDIC:
                             for (uint8 i = 0; i < 2; ++i)
@@ -114,7 +115,7 @@ class boss_general_angerforge : public CreatureScript
                         case EVENT_ADDS:
                             for (uint8 i = 0; i < 3; ++i)
                                 SummonAdd(me->GetVictim());
-                            _events.ScheduleEvent(EVENT_ADDS, 25000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_ADDS, 25s, 0, PHASE_TWO);
                             break;
                         default:
                             break;
@@ -130,7 +131,7 @@ class boss_general_angerforge : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_general_angerforgeAI(creature);
+            return GetBlackrockDepthsAI<boss_general_angerforgeAI>(creature);
         }
 };
 

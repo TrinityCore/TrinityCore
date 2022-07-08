@@ -24,10 +24,10 @@ namespace WorldPackets
 {
     namespace RaF
     {
-        class ReferAFriendFailure final : public ServerPacket
+        class RecruitAFriendFailure final : public ServerPacket
         {
         public:
-            ReferAFriendFailure() : ServerPacket(SMSG_REFER_A_FRIEND_FAILURE, 1 + 4) { }
+            RecruitAFriendFailure() : ServerPacket(SMSG_RECRUIT_A_FRIEND_FAILURE, 1 + 4) { }
 
             WorldPacket const* Write() override;
 

@@ -119,7 +119,7 @@ struct firelands_bossAI : public BossAI
 {
     firelands_bossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId) { }
 
-    void EnterCombat(Unit* target) override;
+    void JustEngagedWith(Unit* target) override;
     void JustDied(Unit* killer) override;
     void EnterEvadeMode(EvadeReason why) override;
 };

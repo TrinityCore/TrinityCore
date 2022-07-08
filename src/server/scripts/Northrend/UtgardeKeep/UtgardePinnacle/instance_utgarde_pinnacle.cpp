@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
-#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "utgarde_pinnacle.h"
@@ -73,14 +72,13 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 LoadObjectData(creatureData, gameObjectData);
             }
 
-
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);
 
                 if (go->GetEntry() == GO_GORTOK_PALEHOOF_SPHERE)
                     if (GetBossState(DATA_GORTOK_PALEHOOF) == DONE)
-                        go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                        go->SetFlag(GO_FLAG_NOT_SELECTABLE);
             }
 
             void SetGuidData(uint32 type, ObjectGuid data) override

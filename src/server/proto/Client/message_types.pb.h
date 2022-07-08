@@ -148,9 +148,7 @@ class TC_PROTO_API MessageId : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -204,7 +202,6 @@ inline void MessageId::set_position(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.MessageId.position)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -213,13 +210,11 @@ inline void MessageId::set_position(::google::protobuf::uint64 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::TypingIndicator> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::TypingIndicator>() {
   return ::bgs::protocol::TypingIndicator_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

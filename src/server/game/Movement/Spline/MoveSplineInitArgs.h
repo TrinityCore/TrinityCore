@@ -1,28 +1,31 @@
 /*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
+#include "MovementTypedefs.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 
 class Unit;
+
+enum class AnimTier : uint8;
 
 namespace Movement
 {
@@ -50,9 +53,16 @@ namespace Movement
         uint32 ParabolicCurveId = 0;
     };
 
+    struct AnimTierTransition
+    {
+        uint32 TierTransitionId = 0;
+        ::AnimTier AnimTier = ::AnimTier(0);
+    };
+
     struct MoveSplineInitArgs
     {
         explicit MoveSplineInitArgs(size_t path_capacity = 16);
+        MoveSplineInitArgs(MoveSplineInitArgs&& args);
         ~MoveSplineInitArgs();
 
         PointsArray path;
@@ -61,10 +71,12 @@ namespace Movement
         int32 path_Idx_offset;
         float velocity;
         float parabolic_amplitude;
+        float vertical_acceleration;
         float time_perc;
         uint32 splineId;
         float initialOrientation;
         Optional<SpellEffectExtraData> spellEffectExtra;
+        Optional<AnimTierTransition> animTier;
         bool walk;
         bool HasVelocity;
         bool TransformForTransport;

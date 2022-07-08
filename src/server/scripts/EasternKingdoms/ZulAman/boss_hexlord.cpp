@@ -56,10 +56,10 @@ class boss_hexlord_malacrass : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                BossAI::JustEngagedWith(who);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -104,6 +104,7 @@ class boss_hexlord_malacrass : public CreatureScript
         }
 };
 
+// 43522 - Unstable Affliction
 class spell_hexlord_unstable_affliction : public SpellScriptLoader
 {
     public:
@@ -121,7 +122,7 @@ class spell_hexlord_unstable_affliction : public SpellScriptLoader
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WL_UNSTABLE_AFFL_DISPEL, true, nullptr, GetEffect(EFFECT_0));
+                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WL_UNSTABLE_AFFL_DISPEL, GetEffect(EFFECT_0));
             }
 
             void Register() override

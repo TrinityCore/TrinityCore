@@ -83,7 +83,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
@@ -128,7 +128,7 @@ public:
 
             if (WingBuffet_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_WING_BUFFET);
                 WingBuffet_Timer = 25000 + rand32() % 10000;
             } else WingBuffet_Timer -= diff;

@@ -27,8 +27,8 @@ Category: Scholomance
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -76,19 +76,19 @@ class boss_darkmaster_gandling : public CreatureScript
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
-                events.ScheduleEvent(EVENT_SHADOWSHIELD, 12000);
-                events.ScheduleEvent(EVENT_CURSE, 2000);
-                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 16000);
+                BossAI::JustEngagedWith(who);
+                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500ms);
+                events.ScheduleEvent(EVENT_SHADOWSHIELD, 12s);
+                events.ScheduleEvent(EVENT_CURSE, 2s);
+                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 15s);
 
                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_READY);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 Talk(YELL_SUMMONED);
                 me->GetMotionMaster()->MoveRandom(5);
@@ -110,21 +110,21 @@ class boss_darkmaster_gandling : public CreatureScript
                     {
                         case EVENT_ARCANEMISSILES:
                             DoCastVictim(SPELL_ARCANEMISSILES, true);
-                            events.ScheduleEvent(EVENT_ARCANEMISSILES, 8000);
+                            events.ScheduleEvent(EVENT_ARCANEMISSILES, 8s);
                             break;
                         case EVENT_SHADOWSHIELD:
                             DoCast(me, SPELL_SHADOWSHIELD);
-                            events.ScheduleEvent(EVENT_SHADOWSHIELD, urand(14000, 28000));
+                            events.ScheduleEvent(EVENT_SHADOWSHIELD, 14s, 28s);
                             break;
                         case EVENT_CURSE:
                             DoCastVictim(SPELL_CURSE, true);
-                            events.ScheduleEvent(EVENT_CURSE, urand(15000, 27000));
+                            events.ScheduleEvent(EVENT_CURSE, 15s, 27s);
                             break;
                         case EVENT_SHADOW_PORTAL:
                             if (HealthAbovePct(3))
                             {
-                                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOW_PORTAL, true);
-                                events.ScheduleEvent(EVENT_SHADOW_PORTAL, urand(17000, 27000));
+                                DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_SHADOW_PORTAL, true);
+                                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 17s, 27s);
                             }
                     }
 
@@ -162,6 +162,7 @@ enum SPSpells
     SPELL_SHADOW_PORTAL_VAULTOFTHERAVENIAN     = 17948
 };
 
+// 17950 - Shadow Portal
 class spell_shadow_portal : public SpellScriptLoader
 {
     public:
@@ -171,17 +172,10 @@ class spell_shadow_portal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_SpellScript);
 
-        public:
-            spell_shadow_portal_SpellScript()
-            {
-                _instance = nullptr;
-            }
-
-        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
-                return _instance != nullptr;
+                return InstanceHasScript(GetCaster(), ScholomanceScriptName);
             }
 
             void HandleCast(SpellEffIndex /*effIndex*/)
@@ -238,7 +232,7 @@ class spell_shadow_portal : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-            InstanceScript* _instance;
+            InstanceScript* _instance = nullptr;
         };
 
         SpellScript* GetSpellScript() const override
@@ -251,8 +245,6 @@ class spell_shadow_portal : public SpellScriptLoader
 Position const SummonPos[18] =
 {
     // Hall of Secrects
-
-
 
     // The Hall of the damned
     { 177.9624f, -68.23893f, 84.95197f, 3.228859f },
@@ -272,8 +264,6 @@ Position const SummonPos[18] =
     { 185.6157f, -42.91200f, 75.4812f, 4.45059f },
     // Vault of the Ravenian
 
-
-
 };
 
 enum Creatures
@@ -291,6 +281,7 @@ enum ScriptEventId
     SPELL_EVENT_VAULTOFTHERAVENIAN     = 5623
 };
 
+// 17863, 17939, 17943, 17944, 17946, 17948 - Shadow Portal
 class spell_shadow_portal_rooms : public SpellScriptLoader
 {
     public:
@@ -300,20 +291,13 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
 
-        public:
-            spell_shadow_portal_rooms_SpellScript()
-            {
-                _instance = nullptr;
-            }
-
-        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
                 return InstanceHasScript(GetCaster(), ScholomanceScriptName);
             }
 
-            void HandleSendEvent(SpellEffIndex effIndex)
+            void HandleSendEvent(SpellEffIndex /*effIndex*/)
             {
                 // If only one player in threat list fail spell
 
@@ -323,7 +307,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 int8 phase_to_set = 0;
                 int32 gate_to_close = 0;
 
-                switch (GetSpellInfo()->GetEffect(effIndex)->MiscValue)
+                switch (GetEffectInfo().MiscValue)
                 {
                     case SPELL_EVENT_HALLOFSECRETS:
                         pos_to_summon = 0; // Not yet spawned
@@ -363,7 +347,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        if (Creature* Summoned = caster->SummonCreature(NPC_RISEN_GUARDIAN, SummonPos[pos_to_summon++], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+                        if (Creature* Summoned = caster->SummonCreature(NPC_RISEN_GUARDIAN, SummonPos[pos_to_summon++], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2min))
                         {
                             Summoned->GetMotionMaster()->MoveRandom(5);
                             Summoned->AI()->SetData(0, phase_to_set);
@@ -380,7 +364,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
 
-            InstanceScript* _instance;
+            InstanceScript* _instance = nullptr;
         };
 
         SpellScript* GetSpellScript() const override

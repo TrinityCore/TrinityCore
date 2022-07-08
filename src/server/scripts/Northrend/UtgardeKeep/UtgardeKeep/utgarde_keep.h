@@ -87,10 +87,12 @@ struct ForgeInfo
     uint32 Event;
 };
 
-template<typename AI>
-inline AI* GetUtgardeKeepAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetUtgardeKeepAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, UKScriptName);
+    return GetInstanceAI<AI>(obj, UKScriptName);
 }
+
+#define RegisterUtgardeKeepCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUtgardeKeepAI)
 
 #endif // UTGARDE_KEEP_H_

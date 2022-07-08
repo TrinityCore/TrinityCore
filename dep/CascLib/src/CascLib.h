@@ -74,8 +74,8 @@ extern "C" {
 //-----------------------------------------------------------------------------
 // Defines
 
-#define CASCLIB_VERSION                 0x0200  // CascLib version - integral (1.50)
-#define CASCLIB_VERSION_STRING           "2.0"  // CascLib version - string
+#define CASCLIB_VERSION                 0x0210  // CascLib version - integral (2.1)
+#define CASCLIB_VERSION_STRING           "2.1"  // CascLib version - string
 
 // Values for CascOpenFile
 #define CASC_OPEN_BY_NAME           0x00000000  // Open the file by name. This is the default value
@@ -369,18 +369,16 @@ bool  WINAPI CascFindClose(HANDLE hFind);
 
 bool   WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key);
 bool   WINAPI CascAddStringEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPCSTR szKey);
+bool   WINAPI CascImportKeysFromString(HANDLE hStorage, LPCSTR szKeyList);
+bool   WINAPI CascImportKeysFromFile(HANDLE hStorage, LPCTSTR szFileName);
 LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName);
 bool   WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName);
 
 //-----------------------------------------------------------------------------
-// GetLastError/SetLastError support for non-Windows platform
+// Error code support
 
-#ifndef PLATFORM_WINDOWS
-
-DWORD GetLastError();
-void SetLastError(DWORD dwErrCode);
-
-#endif  // PLATFORM_WINDOWS
+void SetCascError(DWORD dwErrCode);
+DWORD GetCascError();
 
 #ifdef __cplusplus
 }   // extern "C"

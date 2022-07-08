@@ -1,18 +1,18 @@
 /*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYSERVER_MOVESPLINEINIT_H
@@ -20,17 +20,13 @@
 
 #include "MoveSplineInitArgs.h"
 
+class ObjectGuid;
 class Unit;
+
+enum class AnimTier : uint8;
 
 namespace Movement
 {
-    enum AnimType
-    {
-        ToGround    = 0, // 460 = ToGround, index of AnimationData.dbc
-        FlyToFly    = 1, // 461 = FlyToFly?
-        ToFly       = 2, // 458 = ToFly
-        FlyToGround = 3  // 463 = FlyToGround
-    };
 
     // Transforms coordinates from global to transport offsets
     class TC_GAME_API TransportPathTransform
@@ -52,9 +48,13 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
+
         ~MoveSplineInit();
+
         MoveSplineInit(MoveSplineInit const&) = delete;
         MoveSplineInit& operator=(MoveSplineInit const&) = delete;
+        MoveSplineInit(MoveSplineInit&& init) = delete;
+        MoveSplineInit& operator=(MoveSplineInit&&) = delete;
 
         /*  Final pass of initialization that launches spline movement.
          */
@@ -70,10 +70,16 @@ namespace Movement
          * can't be combined with final animation
          */
         void SetParabolic(float amplitude, float start_time);
+        /* Adds movement by parabolic trajectory
+         * @param vertical_acceleration - vertical acceleration
+         * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
+         * can't be combined with final animation
+         */
+        void SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
-        void SetAnimation(AnimType anim);
+        void SetAnimation(AnimTier anim);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
@@ -87,11 +93,11 @@ namespace Movement
          * @param path - array of points, shouldn't be empty
          * @param pointId - Id of fisrt point of the path. Example: when third path point will be done it will notify that pointId + 3 done
          */
-        void MovebyPath(const PointsArray& path, int32 pointId = 0);
+        void MovebyPath(PointsArray const& path, int32 pointId = 0);
 
         /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
-        void MoveTo(const Vector3& destination, bool generatePath = true, bool forceDestination = false);
+        void MoveTo(Vector3 const& destination, bool generatePath = true, bool forceDestination = false);
         void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDestination = false);
 
         /* Sets Id of fisrt point of the path. When N-th path point will be done ILisener will notify that pointId + N done
@@ -175,13 +181,24 @@ namespace Movement
     {
         args.time_perc = time_shift;
         args.parabolic_amplitude = amplitude;
+        args.vertical_acceleration = 0.0f;
         args.flags.EnableParabolic();
     }
 
-    inline void MoveSplineInit::SetAnimation(AnimType anim)
+    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
+    {
+        args.time_perc = time_shift;
+        args.parabolic_amplitude = 0.0f;
+        args.vertical_acceleration = vertical_acceleration;
+        args.flags.EnableParabolic();
+    }
+
+    inline void MoveSplineInit::SetAnimation(AnimTier anim)
     {
         args.time_perc = 0.f;
-        args.flags.EnableAnimation((uint8)anim);
+        args.animTier.emplace();
+        args.animTier->AnimTier = anim;
+        args.flags.EnableAnimation();
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }

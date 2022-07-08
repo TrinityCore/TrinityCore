@@ -32,7 +32,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_entity_5ftypes_2eproto() {
   protobuf_AddDesc_entity_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -131,7 +130,6 @@ struct StaticDescriptorInitializer_entity_5ftypes_2eproto {
     protobuf_AddDesc_entity_5ftypes_2eproto();
   }
 } static_descriptor_initializer_entity_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -380,7 +378,6 @@ void EntityId::CopyFrom(const EntityId& from) {
 
 bool EntityId::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   return true;
 }
 
@@ -401,7 +398,6 @@ void EntityId::Swap(EntityId* other) {
   metadata.reflection = EntityId_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -653,7 +649,6 @@ void Identity::CopyFrom(const Identity& from) {
 }
 
 bool Identity::IsInitialized() const {
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -680,7 +675,6 @@ void Identity::Swap(Identity* other) {
   metadata.reflection = Identity_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

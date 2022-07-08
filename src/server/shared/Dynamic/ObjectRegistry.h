@@ -18,11 +18,8 @@
 #ifndef TRINITY_OBJECTREGISTRY_H
 #define TRINITY_OBJECTREGISTRY_H
 
-#include "Define.h"
-
 #include <string>
 #include <map>
-#include <vector>
 #include <memory>
 
 /** ObjectRegistry holds all registry item of the same type
@@ -81,6 +78,8 @@ class ObjectRegistry final
         // non instanceable, only static
         ObjectRegistry() { }
         ~ObjectRegistry() { }
+        ObjectRegistry(ObjectRegistry const&) = delete;
+        ObjectRegistry& operator=(ObjectRegistry const&) = delete;
 };
 
 #endif

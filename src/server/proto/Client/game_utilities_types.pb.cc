@@ -34,7 +34,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_game_5futilities_5ftypes_2eproto() {
   protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -109,16 +108,18 @@ void protobuf_AddDesc_game_5futilities_5ftypes_2eproto() {
 
   ::bgs::protocol::protobuf_AddDesc_attribute_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\032game_utilities_types.proto\022\036bgs.protoc"
     "ol.game_utilities.v1\032\025attribute_types.pr"
-    "oto\032\022entity_types.proto\"w\n\017PlayerVariabl"
-    "es\022(\n\010identity\030\001 \002(\0132\026.bgs.protocol.Iden"
-    "tity\022\016\n\006rating\030\002 \001(\001\022*\n\tattribute\030\003 \003(\0132"
-    "\027.bgs.protocol.Attribute\"@\n\nClientInfo\022\026"
-    "\n\016client_address\030\001 \001(\t\022\032\n\022privileged_net"
-    "work\030\002 \001(\010B<\n\037bnet.protocol.game_utiliti"
-    "es.v1B\027GameUtilitiesTypesProtoH\001", 352);
+    "oto\032\022entity_types.proto\032\017rpc_types.proto"
+    "\"w\n\017PlayerVariables\022(\n\010identity\030\001 \002(\0132\026."
+    "bgs.protocol.Identity\022\016\n\006rating\030\002 \001(\001\022*\n"
+    "\tattribute\030\003 \003(\0132\027.bgs.protocol.Attribut"
+    "e\"@\n\nClientInfo\022\026\n\016client_address\030\001 \001(\t\022"
+    "\032\n\022privileged_network\030\002 \001(\010B<\n\037bnet.prot"
+    "ocol.game_utilities.v1B\027GameUtilitiesTyp"
+    "esProtoH\001", 369);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "game_utilities_types.proto", &protobuf_RegisterTypes);
   PlayerVariables::default_instance_ = new PlayerVariables();
@@ -134,7 +135,6 @@ struct StaticDescriptorInitializer_game_5futilities_5ftypes_2eproto {
     protobuf_AddDesc_game_5futilities_5ftypes_2eproto();
   }
 } static_descriptor_initializer_game_5futilities_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -417,7 +417,6 @@ void PlayerVariables::CopyFrom(const PlayerVariables& from) {
 
 bool PlayerVariables::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_identity()) {
     if (!this->identity().IsInitialized()) return false;
   }
@@ -443,7 +442,6 @@ void PlayerVariables::Swap(PlayerVariables* other) {
   metadata.reflection = PlayerVariables_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -704,7 +702,6 @@ void ClientInfo::CopyFrom(const ClientInfo& from) {
 }
 
 bool ClientInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -725,7 +722,6 @@ void ClientInfo::Swap(ClientInfo* other) {
   metadata.reflection = ClientInfo_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

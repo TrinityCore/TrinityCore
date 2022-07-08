@@ -18,7 +18,7 @@
 #pragma once
 
 #include "Packet.h"
-#include "EquipementSet.h"
+#include "EquipmentSet.h"
 #include "ItemPacketsCommon.h"
 
 namespace WorldPackets
@@ -82,7 +82,7 @@ namespace WorldPackets
             };
 
             WorldPackets::Item::InvUpdate Inv;
-            EquipmentSetItem Items[EQUIPEMENT_SET_SLOTS];
+            EquipmentSetItem Items[EQUIPMENT_SET_SLOTS];
             uint64 GUID = 0; ///< Set Identifier
         };
 

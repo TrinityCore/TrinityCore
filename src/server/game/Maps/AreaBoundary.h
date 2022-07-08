@@ -156,6 +156,7 @@ class TC_GAME_API BoundaryUnionBoundary : public AreaBoundary
         BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted = false);
 
     protected:
+        virtual ~BoundaryUnionBoundary();
         bool IsWithinBoundaryArea(Position const* pos) const override;
 
     private:

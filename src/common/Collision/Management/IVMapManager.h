@@ -18,10 +18,10 @@
 #ifndef _IVMAPMANAGER_H
 #define _IVMAPMANAGER_H
 
-#include <string>
 #include "Define.h"
 #include "ModelIgnoreFlags.h"
 #include "Optional.h"
+#include <string>
 
 //===========================================================
 
@@ -43,7 +43,8 @@ namespace VMAP
     {
         Success,
         FileNotFound,
-        VersionMismatch
+        VersionMismatch,
+        ReadFromFileFailed
     };
 
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
@@ -82,9 +83,9 @@ namespace VMAP
 
             virtual ~IVMapManager(void) { }
 
-            virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            virtual int loadMap(char const* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
-            virtual LoadResult existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            virtual LoadResult existsMap(char const* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual void unloadMap(unsigned int pMapId, int x, int y) = 0;
             virtual void unloadMap(unsigned int pMapId) = 0;
@@ -121,8 +122,8 @@ namespace VMAP
             Query world model area info.
             \param z gets adjusted to the ground height for which this are info is valid
             */
-            virtual bool getAreaInfo(unsigned int pMapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const=0;
-            virtual bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float &level, float &floor, uint32 &type) const=0;
+            virtual bool getAreaInfo(uint32 mapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const=0;
+            virtual bool GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type, uint32& mogpFlags) const=0;
             // get both area + liquid data in a single vmap lookup
             virtual void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const=0;
     };

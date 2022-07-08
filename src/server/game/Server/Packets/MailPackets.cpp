@@ -16,10 +16,10 @@
  */
 
 #include "MailPackets.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Mail.h"
 #include "Player.h"
-#include "World.h"
 
 WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8 pos)
 {
@@ -100,7 +100,7 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     StationeryID = mail->stationery;
     SentMoney = mail->money;
     Flags = mail->checked;
-    DaysLeft = float(mail->expire_time - time(nullptr)) / DAY;
+    DaysLeft = float(mail->expire_time - GameTime::GetGameTime()) / DAY;
     MailTemplateID = mail->mailTemplateId;
     Subject = mail->subject;
     Body = mail->body;
@@ -123,8 +123,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
     data << float(entry.DaysLeft);
     data << int32(entry.MailTemplateID);
     data << uint32(entry.Attachments.size());
-    data.WriteBit(entry.SenderCharacter.is_initialized());
-    data.WriteBit(entry.AltSenderID.is_initialized());
+    data.WriteBit(entry.SenderCharacter.has_value());
+    data.WriteBit(entry.AltSenderID.has_value());
     data.WriteBits(entry.Subject.size(), 8);
     data.WriteBits(entry.Body.size(), 13);
     data.FlushBits();
@@ -212,7 +212,6 @@ void WorldPackets::Mail::MailMarkAsRead::Read()
 {
     _worldPacket >> Mailbox;
     _worldPacket >> MailID;
-    BiReceipt = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Mail::MailDelete::Read()
@@ -250,7 +249,7 @@ WorldPackets::Mail::MailQueryNextTimeResult::MailNextTimeEntry::MailNextTimeEntr
             break;
     }
 
-    TimeLeft = mail->deliver_time - time(nullptr);
+    TimeLeft = mail->deliver_time - GameTime::GetGameTime();
     AltSenderType = mail->messageType;
     StationeryID = mail->stationery;
 }

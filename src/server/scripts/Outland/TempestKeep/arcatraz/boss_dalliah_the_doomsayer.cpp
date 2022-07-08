@@ -54,151 +54,140 @@ enum Events
     EVENT_SOCCOTHRATES_DEATH        = 6
 };
 
-class boss_dalliah_the_doomsayer : public CreatureScript
+struct boss_dalliah_the_doomsayer : public BossAI
 {
-    public:
-        boss_dalliah_the_doomsayer() : CreatureScript("boss_dalliah_the_doomsayer") { }
+    boss_dalliah_the_doomsayer(Creature* creature) : BossAI(creature, DATA_DALLIAH)
+    {
+        soccothratesTaunt = false;
+        soccothratesDeath = false;
+    }
 
-        struct boss_dalliah_the_doomsayerAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        soccothratesTaunt = false;
+        soccothratesDeath = false;
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+
+        if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SOCCOTHRATES)))
+            if (soccothrates->IsAlive() && !soccothrates->IsInCombat())
+                soccothrates->AI()->SetData(1, 1);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, 1s, 4s);
+        events.ScheduleEvent(EVENT_WHIRLWIND, 7s, 9s);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_SHADOW_WAVE, 11s, 16s);
+        events.ScheduleEvent(EVENT_ME_FIRST, 6s);
+        Talk(SAY_AGGRO);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        switch (data)
         {
-            boss_dalliah_the_doomsayerAI(Creature* creature) : BossAI(creature, DATA_DALLIAH)
+            case 1:
+                events.ScheduleEvent(EVENT_SOCCOTHRATES_DEATH, 6s);
+                soccothratesDeath = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+        {
+            if (soccothratesDeath)
             {
-                soccothratesTaunt = false;
-                soccothratesDeath = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                soccothratesTaunt = false;
-                soccothratesDeath = false;
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-
-                if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SOCCOTHRATES)))
-                    if (soccothrates->IsAlive() && !soccothrates->IsInCombat())
-                        soccothrates->AI()->SetData(1, 1);
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, urand(1000, 4000));
-                events.ScheduleEvent(EVENT_WHIRLWIND, urand(7000, 9000));
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SHADOW_WAVE, urand(11000, 16000));
-                events.ScheduleEvent(EVENT_ME_FIRST, 6000);
-                Talk(SAY_AGGRO);
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                Talk(SAY_SLAY);
-            }
-
-            void SetData(uint32 /*type*/, uint32 data) override
-            {
-                switch (data)
-                {
-                    case 1:
-                        events.ScheduleEvent(EVENT_SOCCOTHRATES_DEATH, 6000);
-                        soccothratesDeath = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                {
-                    if (soccothratesDeath)
-                    {
-                        events.Update(diff);
-
-                        while (uint32 eventId = events.ExecuteEvent())
-                        {
-                            switch (eventId)
-                            {
-                                case EVENT_SOCCOTHRATES_DEATH:
-                                    Talk(SAY_SOCCOTHRATES_DEATH);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-
-                    return;
-                }
-
                 events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
-                        case EVENT_GIFT_OF_THE_DOOMSAYER:
-                            DoCastVictim(SPELL_GIFT_OF_THE_DOOMSAYER, true);
-                            events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, urand(16000, 21000));
-                            break;
-                        case EVENT_WHIRLWIND:
-                            DoCast(me, SPELL_WHIRLWIND);
-                            Talk(SAY_WHIRLWIND);
-                            events.ScheduleEvent(EVENT_WHIRLWIND, urand(19000, 21000));
-                            events.ScheduleEvent(EVENT_HEAL, 6000);
-                            break;
-                        case EVENT_HEAL:
-                            DoCast(me, SPELL_HEAL);
-                            Talk(SAY_HEAL);
-                            break;
-                        case EVENT_SHADOW_WAVE:
-                            DoCastVictim(SPELL_SHADOW_WAVE, true);
-                            events.ScheduleEvent(EVENT_SHADOW_WAVE, urand(11000, 16000));
-                            break;
-                        case EVENT_ME_FIRST:
-                            if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SOCCOTHRATES)))
-                                if (soccothrates->IsAlive() && !soccothrates->IsInCombat())
-                                    soccothrates->AI()->Talk(SAY_AGGRO_DALLIAH_FIRST);
+                        case EVENT_SOCCOTHRATES_DEATH:
+                            Talk(SAY_SOCCOTHRATES_DEATH);
                             break;
                         default:
                             break;
                     }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
                 }
-
-                if (HealthBelowPct(25) && !soccothratesTaunt)
-                {
-                    if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SOCCOTHRATES)))
-                        soccothrates->AI()->Talk(SAY_DALLIAH_25_PERCENT);
-                    soccothratesTaunt = true;
-                }
-
-                DoMeleeAttackIfReady();
             }
 
-        private:
-            bool soccothratesTaunt;
-            bool soccothratesDeath;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetArcatrazAI<boss_dalliah_the_doomsayerAI>(creature);
+            return;
         }
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GIFT_OF_THE_DOOMSAYER:
+                    DoCastVictim(SPELL_GIFT_OF_THE_DOOMSAYER, true);
+                    events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, 16s, 21s);
+                    break;
+                case EVENT_WHIRLWIND:
+                    DoCast(me, SPELL_WHIRLWIND);
+                    Talk(SAY_WHIRLWIND);
+                    events.ScheduleEvent(EVENT_WHIRLWIND, 19s, 21s);
+                    events.ScheduleEvent(EVENT_HEAL, 6s);
+                    break;
+                case EVENT_HEAL:
+                    DoCast(me, SPELL_HEAL);
+                    Talk(SAY_HEAL);
+                    break;
+                case EVENT_SHADOW_WAVE:
+                    DoCastVictim(SPELL_SHADOW_WAVE, true);
+                    events.ScheduleEvent(EVENT_SHADOW_WAVE, 11s, 16s);
+                    break;
+                case EVENT_ME_FIRST:
+                    if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SOCCOTHRATES)))
+                        if (soccothrates->IsAlive() && !soccothrates->IsInCombat())
+                            soccothrates->AI()->Talk(SAY_AGGRO_DALLIAH_FIRST);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        if (HealthBelowPct(25) && !soccothratesTaunt)
+        {
+            if (Creature* soccothrates = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SOCCOTHRATES)))
+                soccothrates->AI()->Talk(SAY_DALLIAH_25_PERCENT);
+            soccothratesTaunt = true;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool soccothratesTaunt;
+    bool soccothratesDeath;
 };
 
 void AddSC_boss_dalliah_the_doomsayer()
 {
-    new boss_dalliah_the_doomsayer();
+    RegisterArcatrazCreatureAI(boss_dalliah_the_doomsayer);
 }

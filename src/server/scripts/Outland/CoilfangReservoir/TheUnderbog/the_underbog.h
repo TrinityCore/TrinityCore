@@ -22,10 +22,12 @@
 
 #define TheUndebogScriptName "instance_the_underbog"
 
-template<typename AI>
-inline AI* GetTheUnderbogAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetTheUnderbogAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, TheUndebogScriptName);
+    return GetInstanceAI<AI>(obj, TheUndebogScriptName);
 }
+
+#define RegisterTheUnderbogCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetTheUnderbogAI)
 
 #endif // the_underbog_h__

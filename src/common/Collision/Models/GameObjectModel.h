@@ -26,6 +26,11 @@
 #include "Define.h"
 #include <memory>
 
+namespace G3D
+{
+class Quat;
+}
+
 namespace VMAP
 {
     class WorldModel;
@@ -48,7 +53,7 @@ public:
     virtual uint8 GetNameSetId() const = 0;
     virtual bool IsInPhase(PhaseShift const& /*phaseShift*/) const = 0;
     virtual G3D::Vector3 GetPosition() const = 0;
-    virtual float GetOrientation() const = 0;
+    virtual G3D::Quat GetRotation() const = 0;
     virtual float GetScale() const = 0;
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const = 0;
 };
@@ -57,8 +62,6 @@ class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
     GameObjectModel() : _collisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr), isWmo(false) { }
 public:
-    std::string name;
-
     const G3D::AABox& getBounds() const { return iBound; }
 
     ~GameObjectModel();

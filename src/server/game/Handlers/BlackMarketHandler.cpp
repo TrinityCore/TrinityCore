@@ -21,7 +21,6 @@
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Log.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
 
@@ -96,7 +95,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMa
 
     if (!entry->ValidateBid(blackMarketBidOnItem.BidAmount))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBlackMarketBidOnItem - Player (%s, name: %s) tried to place an invalid bid. Amount: %lu (MarketId: %i).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), blackMarketBidOnItem.BidAmount, blackMarketBidOnItem.MarketID);
+        TC_LOG_DEBUG("network", "WORLD: HandleBlackMarketBidOnItem - Player (%s, name: %s) tried to place an invalid bid. Amount: " UI64FMTD " (MarketId: %i).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), blackMarketBidOnItem.BidAmount, blackMarketBidOnItem.MarketID);
         SendBlackMarketBidOnItemResult(ERR_BMAH_HIGHER_BID, blackMarketBidOnItem.MarketID, blackMarketBidOnItem.Item);
         return;
     }

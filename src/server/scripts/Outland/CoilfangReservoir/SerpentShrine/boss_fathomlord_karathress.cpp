@@ -26,7 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
 
@@ -75,7 +75,6 @@ enum FathomlordKarathress
     SPELL_CYCLONE_CYCLONE           = 29538,
 
     //Yells and Quotes
-    SOUND_GAIN_BLESSING_OF_TIDES    = 11278,
     SOUND_MISC                      = 11283,
 
     //Summoned Unit GUIDs
@@ -94,7 +93,6 @@ enum FathomlordKarathress
 #define OLUM_Z                     -7.54773f
 #define OLUM_O                     0.401581f
 
-#define SAY_GAIN_BLESSING_OF_TIDES      "Your overconfidence will be your undoing! Guards, lend me your strength!"
 #define SAY_MISC                        "Alana be'lendor!" //don't know what use this
 
 #define MAX_ADVISORS 3
@@ -210,10 +208,10 @@ public:
             instance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
             //support for quest 10944
-            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
+            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 1h);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             StartEvent(who);
         }
@@ -245,7 +243,7 @@ public:
             if (CataclysmicBolt_Timer <= diff)
             {
                 //select a random unit other than the main tank
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
 
                 //if there aren't other units, cast on the tank
                 if (!target)
@@ -291,8 +289,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->Yell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL);
-                    DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
+                    Talk(SAY_GAIN_BLESSING);
                 }
             }
 
@@ -348,7 +345,7 @@ public:
 
             Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
-                Pet->DealDamage(Pet, Pet->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                Pet->KillSelf();
 
             SummonedPet.Clear();
 
@@ -361,7 +358,7 @@ public:
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
@@ -430,9 +427,9 @@ public:
                     pet_id = CREATURE_FATHOM_SPOREBAT;
                 }
                 //DoCast(me, spell_id, true);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
-                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                     {
                         Pet->AI()->AttackStart(target);
                         SummonedPet = Pet->GetGUID();
@@ -493,7 +490,7 @@ public:
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
@@ -615,7 +612,7 @@ public:
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
@@ -664,13 +661,12 @@ public:
                 //DoCast(me, SPELL_SUMMON_CYCLONE); // Doesn't work
                 Cyclone_Timer = 30000 + rand32() % 10000;
 
-                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15000))
+                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15s))
                 {
                     Cyclone->SetObjectScale(3.0f);
-                    Cyclone->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     Cyclone->SetFaction(me->GetFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         Cyclone->AI()->AttackStart(target);
                 }
             }
@@ -686,8 +682,7 @@ public:
                 while (unit == nullptr || !unit->IsAlive())
                     unit = selectAdvisorUnit();
 
-                if (unit && unit->IsAlive())
-                    DoCast(unit, SPELL_HEAL);
+                DoCast(unit, SPELL_HEAL);
                 Heal_Timer = 60000;
             }
             else

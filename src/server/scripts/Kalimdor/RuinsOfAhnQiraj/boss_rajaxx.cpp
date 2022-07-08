@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -76,19 +77,8 @@ class boss_rajaxx : public CreatureScript
             {
                 _Reset();
                 Initialize();
-                events.ScheduleEvent(EVENT_DISARM, 10000);
-                events.ScheduleEvent(EVENT_THUNDERCRASH, 12000);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                //SAY_DEATH
-                _JustDied();
-            }
-
-            void EnterCombat(Unit* /*victim*/) override
-            {
-                _EnterCombat();
+                events.ScheduleEvent(EVENT_DISARM, 10s);
+                events.ScheduleEvent(EVENT_THUNDERCRASH, 12s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -107,11 +97,11 @@ class boss_rajaxx : public CreatureScript
                     {
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM);
-                            events.ScheduleEvent(EVENT_DISARM, 22000);
+                            events.ScheduleEvent(EVENT_DISARM, 22s);
                             break;
                         case EVENT_THUNDERCRASH:
                             DoCast(me, SPELL_THUNDERCRASH);
-                            events.ScheduleEvent(EVENT_THUNDERCRASH, 21000);
+                            events.ScheduleEvent(EVENT_THUNDERCRASH, 21s);
                             break;
                         default:
                             break;
@@ -133,7 +123,28 @@ class boss_rajaxx : public CreatureScript
         }
 };
 
+// 25599 - Thundercrash
+class spell_rajaxx_thundercrash : public SpellScript
+{
+    PrepareSpellScript(spell_rajaxx_thundercrash);
+
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = GetHitUnit()->GetHealth() / 2;
+        if (damage < 200)
+            damage = 200;
+
+        SetEffectValue(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_rajaxx_thundercrash::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_boss_rajaxx()
 {
     new boss_rajaxx();
+    RegisterSpellScript(spell_rajaxx_thundercrash);
 }

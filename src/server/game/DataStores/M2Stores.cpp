@@ -16,16 +16,14 @@
  */
 
 #include "M2Stores.h"
-#include "Common.h"
 #include "Containers.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "M2Structure.h"
-#include "World.h"
+#include "Timer.h"
 #include <boost/filesystem/path.hpp>
+#include <G3D/Vector4.h>
 #include <fstream>
-#include <iostream>
-#include <iomanip>
 
 typedef std::vector<FlyByCamera> FlyByCameraCollection;
 std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
@@ -262,6 +260,7 @@ TC_GAME_API void LoadM2Cameras(std::string const& dataPath)
         if (!readCamera(cam, fileSize - m2start, header, cameraEntry))
             TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
     }
+
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " cinematic waypoint sets in %u ms", sFlyByCameraStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 

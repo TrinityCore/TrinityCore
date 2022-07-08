@@ -15,10 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "zulgurub.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Yells
 {
@@ -32,63 +31,53 @@ enum Events
 {
 };
 
-class boss_grilek : public CreatureScript
+struct boss_grilek : public BossAI
 {
-    public:
-        boss_grilek() : CreatureScript("boss_grilek") { }
+    boss_grilek(Creature* creature) : BossAI(creature, DATA_GRILEK)
+    {
+    }
 
-        struct boss_grilekAI : public BossAI
+    void Reset() override
+    {
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+        /*
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_grilekAI(Creature* creature) : BossAI(creature, DATA_GRILEK)
+            switch (eventId)
             {
+                default:
+                    break;
             }
 
-            void Reset() override
-            {
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-                /*
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-                */
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulGurubAI<boss_grilekAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+        */
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_grilek()
 {
-    new boss_grilek();
+    RegisterZulGurubCreatureAI(boss_grilek);
 }

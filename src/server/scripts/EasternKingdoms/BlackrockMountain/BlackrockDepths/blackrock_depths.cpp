@@ -16,10 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "blackrock_depths.h"
-#include "CreatureAIImpl.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -41,7 +40,7 @@ class go_shadowforge_brazier : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
                     instance->SetData(TYPE_LYCEUM, DONE);
@@ -98,7 +97,7 @@ class at_ring_of_law : public AreaTriggerScript
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -106,7 +105,7 @@ public:
                 return false;
 
             instance->SetData(TYPE_RING_OF_LAW, IN_PROGRESS);
-            player->SummonCreature(NPC_GRIMSTONE, 625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN, 0);
+            player->SummonCreature(NPC_GRIMSTONE, 625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN);
 
             return false;
         }
@@ -178,14 +177,12 @@ public:
         void Reset() override
         {
             Initialize();
-
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         /// @todo move them to center
         void SummonRingMob()
         {
-            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN))
                 RingMobGUID[MobCount] = tmp->GetGUID();
 
             ++MobCount;
@@ -197,7 +194,7 @@ public:
         /// @todo move them to center
         void SummonRingBoss()
         {
-            if (Creature* tmp = me->SummonCreature(RingBoss[rand32() % 6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* tmp = me->SummonCreature(RingBoss[rand32() % 6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN))
                 RingBossGUID = tmp->GetGUID();
 
             MobDeath_Timer = 2500;
@@ -318,14 +315,14 @@ public:
                         break;
                     case 6:
                         SummonRingMob();
-                        Event_Timer = 0;
+                        Event_Timer = 5000;
                         break;
                     case 7:
                         me->SetVisible(true);
                         HandleGameObject(DATA_ARENA1, false);
                         Talk(SAY_TEXT6);
                         CanWalk = true;
-                        Event_Timer = 0;
+                        Event_Timer = 5000;
                         break;
                     case 8:
                         HandleGameObject(DATA_ARENA2, true);
@@ -370,7 +367,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_phalanxAI(creature);
+        return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
     struct npc_phalanxAI : public ScriptedAI
@@ -437,11 +434,12 @@ enum Lokhtos
     QUEST_A_BINDING_CONTRACT                               = 7604,
     ITEM_SULFURON_INGOT                                    = 17203,
     ITEM_THRORIUM_BROTHERHOOD_CONTRACT                     = 18628,
-    SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND          = 23059
+    SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND          = 23059,
+    GOSSIP_ITEM_SHOW_ACCESS_MID                            = 4781,       // Show me what I have access to, Lokhtos.
+    GOSSIP_ITEM_SHOW_ACCESS_OID                            = 0,
 };
 
-#define GOSSIP_ITEM_SHOW_ACCESS     "Show me what I have access to, Lothos."
-#define GOSSIP_ITEM_GET_CONTRACT    "Get Thorium Brotherhood Contract"
+#define GOSSIP_ITEM_GET_CONTRACT    "Get Thorium Brotherhood Contract"  // miss in db,maybe wrong
 
 class npc_lokhtos_darkbargainer : public CreatureScript
 {
@@ -452,7 +450,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
         {
             npc_lokhtos_darkbargainerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
 
@@ -468,19 +466,19 @@ class npc_lokhtos_darkbargainer : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
 
                 if (me->IsVendor() && player->GetReputationRank(59) >= REP_FRIENDLY)
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    AddGossipItemFor(player, GOSSIP_ITEM_SHOW_ACCESS_MID, GOSSIP_ITEM_SHOW_ACCESS_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
                 if (!player->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) &&
                     !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
                     player->HasItemCount(ITEM_SULFURON_INGOT))
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
 
                 if (player->GetReputationRank(59) < REP_FRIENDLY)
@@ -494,7 +492,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_lokhtos_darkbargainerAI(creature);
+            return GetBlackrockDepthsAI<npc_lokhtos_darkbargainerAI>(creature);
         }
 };
 
@@ -601,7 +599,7 @@ public:
             EscortAI::UpdateAI(diff);
         }
 
-        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*item*/) override
+        void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*item*/) override
         {
             if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
                 return;

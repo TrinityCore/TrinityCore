@@ -22,19 +22,22 @@ Comment: All ticket related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
-#include "Config.h"
+#include "ChatCommand.h"
 #include "Language.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ScriptMgr.h"
 #include "SupportMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class ticket_commandscript : public CommandScript
 {
@@ -161,8 +164,6 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
     return true;
 }
 
-
-
 template<typename T>
 bool ticket_commandscript::HandleTicketCloseByIdCommand(ChatHandler* handler, char const* args)
 {
@@ -281,7 +282,6 @@ bool ticket_commandscript::HandleTicketDeleteByIdCommand(ChatHandler* handler, c
 
     return true;
 }
-
 
 template<typename T>
 bool ticket_commandscript::HandleTicketResetCommand(ChatHandler* handler, char const* /*args*/)

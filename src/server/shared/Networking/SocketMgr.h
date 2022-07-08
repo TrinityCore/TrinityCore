@@ -53,6 +53,7 @@ public:
         if (!acceptor->Bind())
         {
             TC_LOG_ERROR("network", "StartNetwork failed to bind socket acceptor");
+            delete acceptor;
             return false;
         }
 
@@ -64,6 +65,8 @@ public:
 
         for (int32 i = 0; i < _threadCount; ++i)
             _threads[i].Start();
+
+        _acceptor->SetSocketFactory([this]() { return GetSocketForAccept(); });
 
         return true;
     }

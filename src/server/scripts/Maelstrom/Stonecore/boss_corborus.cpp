@@ -97,9 +97,9 @@ class boss_corborus : public CreatureScript
 
                 countTrashingCharge = 0;
 
-                events.ScheduleEvent(EVENT_DAMPENING_WAVE, 10000);
-                events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 15000);
-                events.ScheduleEvent(EVENT_SUBMERGE, 36000);
+                events.ScheduleEvent(EVENT_DAMPENING_WAVE, 10s);
+                events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 15s);
+                events.ScheduleEvent(EVENT_SUBMERGE, 36s);
             }
 
             void DoAction(int32 action) override
@@ -120,7 +120,7 @@ class boss_corborus : public CreatureScript
                             Millhouse->HandleEmoteCommand(EMOTE_ONESHOT_KNOCKDOWN);
                         }
 
-                        events.ScheduleEvent(EVENT_CORBORUS_CHARGE, 1000);
+                        events.ScheduleEvent(EVENT_CORBORUS_CHARGE, 1s);
                         break;
                     }
                     default:
@@ -154,7 +154,7 @@ class boss_corborus : public CreatureScript
                             // Make Corborus charge
                             DoCast(me, SPELL_RING_WYRM_CHARGE, true);
 
-                            events.ScheduleEvent(EVENT_CORBORUS_KNOCKBACK, 1000);
+                            events.ScheduleEvent(EVENT_CORBORUS_KNOCKBACK, 1s);
                             break;
                         case EVENT_CORBORUS_KNOCKBACK:
                             // Spawn Twilight Documents (quest gameobject)
@@ -164,7 +164,7 @@ class boss_corborus : public CreatureScript
                             // Knockback Millhouse and other mobs
                             instance->SetData(DATA_MILLHOUSE_EVENT_KNOCKBACK, 0);
 
-                            events.ScheduleEvent(EVENT_CORBORUS_FACEPLAYERS, 2000);
+                            events.ScheduleEvent(EVENT_CORBORUS_FACEPLAYERS, 2s);
                             break;
                         case EVENT_CORBORUS_FACEPLAYERS:
                             // Face Corborus to players and set new home position
@@ -179,47 +179,47 @@ class boss_corborus : public CreatureScript
                             break;
                         case EVENT_DAMPENING_WAVE:
                             DoCastVictim(SPELL_DAMPENING_WAVE);
-                            events.ScheduleEvent(EVENT_DAMPENING_WAVE, 15000);
+                            events.ScheduleEvent(EVENT_DAMPENING_WAVE, 15s);
                             break;
                         case EVENT_CRYSTAL_BARRAGE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_BARRAGE);
-                            events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 10000);
+                            events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 10s);
                             break;
                         case EVENT_SUBMERGE:
-                            events.RescheduleEvent(EVENT_DAMPENING_WAVE, 35000);
-                            events.RescheduleEvent(EVENT_CRYSTAL_BARRAGE, 30000);
-                            events.RescheduleEvent(EVENT_SUBMERGE, 100000);
+                            events.RescheduleEvent(EVENT_DAMPENING_WAVE, 35s);
+                            events.RescheduleEvent(EVENT_CRYSTAL_BARRAGE, 30s);
+                            events.RescheduleEvent(EVENT_SUBMERGE, 100s);
 
                             me->SetReactState(REACT_PASSIVE);
-                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                             me->AttackStop();
 
                             DoCast(me, SPELL_SUBMERGE);
 
                             countTrashingCharge = 0;
-                            events.ScheduleEvent(EVENT_TELEPORT, 500);
+                            events.ScheduleEvent(EVENT_TELEPORT, 500ms);
                             break;
                         case EVENT_TELEPORT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_TRASHING_CHARGE_TELEPORT);
                             countTrashingCharge += 1;
                             if (countTrashingCharge <= 4)
-                                events.ScheduleEvent(EVENT_TRASHING_CHARGE, 1000);
+                                events.ScheduleEvent(EVENT_TRASHING_CHARGE, 1s);
                             else
-                                events.ScheduleEvent(EVENT_EMERGE, 2500);
+                                events.ScheduleEvent(EVENT_EMERGE, 2500ms);
                             break;
                         case EVENT_TRASHING_CHARGE:
                             DoCast(me, SPELL_SUMMON_TRASHING_CHARGE);
                             DoCast(me, SPELL_TRASHING_CHARGE_VISUAL);
-                            events.ScheduleEvent(EVENT_TELEPORT, 5000);
+                            events.ScheduleEvent(EVENT_TELEPORT, 5s);
                             break;
                         case EVENT_EMERGE:
                             me->RemoveAllAuras();
-                            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                             DoCast(me, SPELL_EMERGE);
-                            events.ScheduleEvent(EVENT_ATTACK, 2500);
+                            events.ScheduleEvent(EVENT_ATTACK, 2500ms);
                             break;
                         case EVENT_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -238,7 +238,7 @@ class boss_corborus : public CreatureScript
                 {
                     summon->SetReactState(REACT_PASSIVE);
                     summon->CastSpell(summon, SPELL_TRASHING_CHARGE_EFFECT);
-                    summon->DespawnOrUnsummon(6000);
+                    summon->DespawnOrUnsummon(6s);
                 }
 
                 BossAI::JustSummoned(summon);
@@ -267,13 +267,13 @@ class npc_rock_borer : public CreatureScript
             {
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
-                events.ScheduleEvent(EVENT_EMERGED, 1200);
-                events.ScheduleEvent(EVENT_ROCK_BORE, urand(15000, 20000)); // Need sniffs for this timer
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
-                me->SetInCombatState(false, summoner);
+                events.ScheduleEvent(EVENT_EMERGED, 1200ms);
+                events.ScheduleEvent(EVENT_ROCK_BORE, 15s, 20s); // Need sniffs for this timer
+                DoZoneInCombat();
                 DoCast(me, SPELL_ROCK_BORER_EMERGE);
             }
 
@@ -297,7 +297,7 @@ class npc_rock_borer : public CreatureScript
                             break;
                         case EVENT_ROCK_BORE:
                             DoCast(me, SPELL_ROCK_BORE);
-                            events.ScheduleEvent(EVENT_ROCK_BORE, urand(15000, 20000)); // Need sniffs for this timer
+                            events.ScheduleEvent(EVENT_ROCK_BORE, 15s, 20s); // Need sniffs for this timer
                             break;
                         default:
                             break;

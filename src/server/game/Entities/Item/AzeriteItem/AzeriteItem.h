@@ -33,10 +33,10 @@ public:
 
     bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner) override;
 
-    void SaveToDB(CharacterDatabaseTransaction& trans) override;
+    void SaveToDB(CharacterDatabaseTransaction trans) override;
     void LoadAzeriteItemData(Player const* owner, AzeriteItemData& azeriteItem);
-    static void DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid);
-    void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
+    static void DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid);
+    void DeleteFromDB(CharacterDatabaseTransaction trans) override;
 
     uint32 GetLevel() const { return m_azeriteItemData->Level; }
     uint32 GetEffectiveLevel() const
@@ -82,6 +82,18 @@ public:
     void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask, UF::ItemData::Mask const& requestedItemMask,
         UF::AzeriteItemData::Mask const& requestedAzeriteItemMask, Player const* target) const;
+
+    struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+    {
+        explicit ValuesUpdateForPlayerWithMaskSender(AzeriteItem const* owner) : Owner(owner) { }
+
+        AzeriteItem const* Owner;
+        UF::ObjectData::Base ObjectMask;
+        UF::ItemData::Base ItemMask;
+        UF::AzeriteItemData::Base AzeriteItemMask;
+
+        void operator()(Player const* player) const;
+    };
 
     UF::UpdateField<UF::AzeriteItemData, 0, TYPEID_AZERITE_ITEM> m_azeriteItemData;
 

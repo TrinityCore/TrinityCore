@@ -15,218 +15,140 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Laj
-SD%Complete: 90
-SDComment: Immunities are wrong, must be adjusted to use resistance from creature_templates. Most spells require database support.
-SDCategory: Tempest Keep, The Botanica
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
+
+enum Texts
+{
+    EMOTE_SUMMON               = 0
+};
 
 enum Spells
 {
     SPELL_ALLERGIC_REACTION    = 34697,
     SPELL_TELEPORT_SELF        = 34673,
+    SPELL_THRASH               = 3391,     // No aura here
 
     SPELL_SUMMON_LASHER_1      = 34681,
     SPELL_SUMMON_FLAYER_1      = 34682,
     SPELL_SUMMON_LASHER_2      = 34684,
     SPELL_SUMMON_FLAYER_2      = 34685,
-    SPELL_SUMMON_LASHER_3      = 34686,
-    SPELL_SUMMON_FLAYER_4      = 34687,
-    SPELL_SUMMON_LASHER_4      = 34688,
-    SPELL_SUMMON_FLAYER_3      = 34690
-};
-enum Misc
-{
-    EMOTE_SUMMON               = 0,
-    MODEL_DEFAULT              = 13109,
-    MODEL_ARCANE               = 14213,
-    MODEL_FIRE                 = 13110,
-    MODEL_FROST                = 14112,
-    MODEL_NATURE               = 14214
+
+    SPELL_TRANSFORM_ARCANE     = 34703,
+    SPELL_TRANSFORM_FIRE       = 34704,
+    SPELL_TRANSFORM_FROST      = 34705,
+    SPELL_TRANSFORM_NATURE     = 34707,
+    SPELL_TRANSFORM_SHADOW     = 34710
 };
 
-class boss_laj : public CreatureScript
+enum Events
 {
-    public:
+    EVENT_TELEPORT             = 1,
+    EVENT_EMOTE,
+    EVENT_SUMMON,
+    EVENT_ALLERGIC_REACTION,
+    EVENT_TRANSFORM,
+    EVENT_THRASH
+};
 
-        boss_laj()
-            : CreatureScript("boss_laj")
+struct boss_laj : public BossAI
+{
+    boss_laj(Creature* creature) : BossAI(creature, DATA_LAJ), _activeTransformAura(0) { }
+
+    void Reset() override
+    {
+        _Reset();
+        _activeTransformAura = 0;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_TELEPORT, 15s, 25s);
+        events.ScheduleEvent(EVENT_ALLERGIC_REACTION, 10s, 20s);
+        events.ScheduleEvent(EVENT_TRANSFORM, 20s, 30s);
+        events.ScheduleEvent(EVENT_THRASH, 0s, 10s);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        // Not entirely correct, they aggro on their own in a weird way and in general behave weirdly
+        if (me->IsEngaged())
+            DoZoneInCombat(summon);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
+            switch (eventId)
+            {
+                // Teleport sequence
+                case EVENT_TELEPORT:
+                    DoCastSelf(SPELL_TELEPORT_SELF);
+                    me->SetReactState(REACT_PASSIVE);
+                    events.Repeat(25s, 40s);
+                    events.ScheduleEvent(EVENT_EMOTE, 2s);
+                    break;
+                case EVENT_EMOTE:
+                    Talk(EMOTE_SUMMON);
+                    events.ScheduleEvent(EVENT_SUMMON, 1s);
+                    break;
+                case EVENT_SUMMON:
+                    // He can summon 2 creatures of one type or 2 different. He always spawns them at 2 platforms(despite there are 4 in the room)
+                    // Even if he uses other 4 spells, that does not make sense because the only difference between them is spells entries
+                    // Best guess other spells were added on early development stage for second pair of platforms and were never used on live
+                    DoCastSelf(RAND(SPELL_SUMMON_LASHER_1, SPELL_SUMMON_FLAYER_1), true);
+                    DoCastSelf(RAND(SPELL_SUMMON_LASHER_2, SPELL_SUMMON_FLAYER_2), true);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                // Abilities
+                case EVENT_ALLERGIC_REACTION:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 8.f))
+                        DoCast(target, SPELL_ALLERGIC_REACTION);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_TRANSFORM:
+                {
+                    /// @todo: Don't apply same aura twice in a row and don't transform to shadow if the event is executed first time
+                    if (_activeTransformAura)
+                        me->RemoveAurasDueToSpell(_activeTransformAura);
+
+                    uint32 spell = RAND(SPELL_TRANSFORM_ARCANE, SPELL_TRANSFORM_FIRE, SPELL_TRANSFORM_FROST, SPELL_TRANSFORM_NATURE, SPELL_TRANSFORM_SHADOW);
+                    DoCastSelf(spell);
+                    _activeTransformAura = spell;
+                    events.Repeat(25s, 45s);
+                    break;
+                }
+                case EVENT_THRASH:
+                    DoCastSelf(SPELL_THRASH);
+                    events.Repeat(15s, 20s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
-        struct boss_lajAI : public BossAI
-        {
-            boss_lajAI(Creature* creature) : BossAI(creature, DATA_LAJ)
-            {
-                Initialize();
-            }
+        DoMeleeAttackIfReady();
+    }
 
-            void Initialize()
-            {
-                CanSummon = false;
-                Teleport_Timer = 20000;
-                Summon_Timer = 2500;
-                Transform_Timer = 30000;
-                Allergic_Timer = 5000;
-            }
-
-            bool CanSummon;
-            uint32 Teleport_Timer;
-            uint32 Summon_Timer;
-            uint32 Transform_Timer;
-            uint32 Allergic_Timer;
-
-            void Reset() override
-            {
-                me->SetDisplayId(MODEL_DEFAULT);
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
-
-                Initialize();
-            }
-
-            void DoTransform()
-            {
-                switch (rand32() % 5)
-                {
-                    case 0:
-                        me->SetDisplayId(MODEL_DEFAULT);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
-                        break;
-                    case 1:
-                        me->SetDisplayId(MODEL_ARCANE);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
-                        break;
-                    case 2:
-                        me->SetDisplayId(MODEL_FIRE);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
-                        break;
-                    case 3:
-                        me->SetDisplayId(MODEL_FROST);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
-                        break;
-                    case 4:
-                        me->SetDisplayId(MODEL_NATURE);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
-                        break;
-                }
-            }
-
-            void DoSummons()
-            {
-                switch (rand32() % 4)
-                {
-                    case 0:
-                        DoCast(me, SPELL_SUMMON_LASHER_1, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_1, true);
-                        break;
-                    case 1:
-                        DoCast(me, SPELL_SUMMON_LASHER_2, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_2, true);
-                        break;
-                    case 2:
-                        DoCast(me, SPELL_SUMMON_LASHER_3, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_3, true);
-                        break;
-                    case 3:
-                        DoCast(me, SPELL_SUMMON_LASHER_4, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_4, true);
-                        break;
-                }
-                CanSummon = false;
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                if (summon && me->GetVictim())
-                    summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (CanSummon)
-                {
-                    if (Summon_Timer <= diff)
-                    {
-                        Talk(EMOTE_SUMMON);
-                        DoSummons();
-                        Summon_Timer = 2500;
-                    }
-                    else
-                        Summon_Timer -= diff;
-                }
-
-                if (Allergic_Timer <= diff)
-                {
-                    DoCastVictim(SPELL_ALLERGIC_REACTION);
-                    Allergic_Timer = 25000 + rand32() % 15000;
-                }
-                else
-                    Allergic_Timer -= diff;
-
-                if (Teleport_Timer <= diff)
-                {
-                    DoCast(me, SPELL_TELEPORT_SELF);
-                    Teleport_Timer = 30000 + rand32() % 10000;
-                    CanSummon = true;
-                }
-                else
-                    Teleport_Timer -= diff;
-
-                if (Transform_Timer <= diff)
-                {
-                    DoTransform();
-                    Transform_Timer = 25000 + rand32() % 15000;
-                }
-                else
-                    Transform_Timer -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBotanicaAI<boss_lajAI>(creature);
-        }
+private:
+    uint32 _activeTransformAura;
 };
 
 void AddSC_boss_laj()
 {
-    new boss_laj();
+    RegisterBotanicaCreatureAI(boss_laj);
 }

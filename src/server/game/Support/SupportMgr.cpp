@@ -19,20 +19,20 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
 #include <sstream>
 
-inline time_t GetAge(uint64 t) { return (time(nullptr) - t) / DAY; }
+inline time_t GetAge(uint64 t) { return (GameTime::GetGameTime() - t) / DAY; }
 
 Ticket::Ticket() : _id(0), _mapId(0), _createTime(0) { }
 
-Ticket::Ticket(Player* player) : _id(0), _mapId(0), _createTime(time(nullptr))
+Ticket::Ticket(Player* player) : _id(0), _mapId(0), _createTime(GameTime::GetGameTime())
 {
     _playerGuid = player->GetGUID();
 }
@@ -103,7 +103,7 @@ void BugTicket::LoadFromDB(Field* fields)
     _id                 = fields[  idx].GetUInt32();
     _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note               = fields[++idx].GetString();
-    _createTime         = fields[++idx].GetUInt32();
+    _createTime         = fields[++idx].GetInt64();
     _mapId              = fields[++idx].GetUInt16();
     _pos.m_positionX    = fields[++idx].GetFloat();
     _pos.m_positionY    = fields[++idx].GetFloat();
@@ -134,6 +134,7 @@ void BugTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
+    stmt->setInt64(++idx, _createTime);
     stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.GetPositionX());
     stmt->setFloat(++idx, _pos.GetPositionY());
@@ -155,12 +156,12 @@ void BugTicket::DeleteFromDB()
 
 std::string BugTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, TimeFormat::ShortText)).c_str());
 
     if (!_assignedTo.IsEmpty())
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
@@ -174,14 +175,18 @@ std::string BugTicket::FormatViewMessageString(ChatHandler& handler, bool detail
     return ss.str();
 }
 
-ComplaintTicket::ComplaintTicket() : _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE) { }
+ComplaintTicket::ComplaintTicket() : _reportType(ReportType::Chat), _majorCategory(ReportMajorCategory::InappropriateCommunication),
+    _minorCategoryFlags(ReportMinorCategory::TextChat)
+{
+}
 
-ComplaintTicket::ComplaintTicket(Player* player) : Ticket(player), _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE)
+ComplaintTicket::ComplaintTicket(Player* player) : Ticket(player), _reportType(ReportType::Chat), _majorCategory(ReportMajorCategory::InappropriateCommunication),
+    _minorCategoryFlags(ReportMinorCategory::TextChat)
 {
     _id = sSupportMgr->GenerateComplaintId();
 }
 
-ComplaintTicket::~ComplaintTicket() { }
+ComplaintTicket::~ComplaintTicket() = default;
 
 void ComplaintTicket::LoadFromDB(Field* fields)
 {
@@ -189,14 +194,16 @@ void ComplaintTicket::LoadFromDB(Field* fields)
     _id                     = fields[  idx].GetUInt32();
     _playerGuid             = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note                   = fields[++idx].GetString();
-    _createTime             = fields[++idx].GetUInt32();
+    _createTime             = fields[++idx].GetInt64();
     _mapId                  = fields[++idx].GetUInt16();
     _pos.m_positionX        = fields[++idx].GetFloat();
     _pos.m_positionY        = fields[++idx].GetFloat();
     _pos.m_positionZ        = fields[++idx].GetFloat();
     _pos.SetOrientation(fields[++idx].GetFloat());
     _targetCharacterGuid    = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
-    _complaintType          = GMSupportComplaintType(fields[++idx].GetUInt8());
+    _reportType             = ReportType(fields[++idx].GetInt32());
+    _majorCategory          = ReportMajorCategory(fields[++idx].GetInt32());
+    _minorCategoryFlags     = ReportMinorCategory(fields[++idx].GetInt32());
     int32 reportLineIndex = fields[++idx].GetInt32();
     if (reportLineIndex != -1)
         _chatLog.ReportLineIndex = reportLineIndex;
@@ -220,7 +227,7 @@ void ComplaintTicket::LoadFromDB(Field* fields)
 
 void ComplaintTicket::LoadChatLineFromDB(Field* fields)
 {
-    _chatLog.Lines.emplace_back(fields[0].GetUInt32(), fields[1].GetString());
+    _chatLog.Lines.emplace_back(fields[0].GetInt64(), fields[1].GetString());
 }
 
 void ComplaintTicket::SaveToDB() const
@@ -232,13 +239,16 @@ void ComplaintTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
+    stmt->setInt64(++idx, _createTime);
     stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.GetPositionX());
     stmt->setFloat(++idx, _pos.GetPositionY());
     stmt->setFloat(++idx, _pos.GetPositionZ());
     stmt->setFloat(++idx, _pos.GetOrientation());
     stmt->setUInt64(++idx, _targetCharacterGuid.GetCounter());
-    stmt->setUInt8(++idx, _complaintType);
+    stmt->setInt32(++idx, AsUnderlyingType(_reportType));
+    stmt->setInt32(++idx, AsUnderlyingType(_majorCategory));
+    stmt->setInt32(++idx, AsUnderlyingType(_minorCategoryFlags));
     if (_chatLog.ReportLineIndex)
         stmt->setInt32(++idx, *_chatLog.ReportLineIndex);
     else
@@ -255,7 +265,7 @@ void ComplaintTicket::SaveToDB() const
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_COMPLAINT_CHATLINE);
         stmt->setUInt32(idx, _id);
         stmt->setUInt32(++idx, lineIndex);
-        stmt->setUInt32(++idx, c.Timestamp);
+        stmt->setInt64(++idx, c.Timestamp);
         stmt->setString(++idx, c.Text);
 
         trans->Append(stmt);
@@ -278,12 +288,12 @@ void ComplaintTicket::DeleteFromDB()
 
 std::string ComplaintTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, TimeFormat::ShortText)).c_str());
 
     if (!_assignedTo.IsEmpty())
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
@@ -312,7 +322,7 @@ void SuggestionTicket::LoadFromDB(Field* fields)
     _id                 = fields[  idx].GetUInt32();
     _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note               = fields[++idx].GetString();
-    _createTime         = fields[++idx].GetUInt32();
+    _createTime         = fields[++idx].GetInt64();
     _mapId              = fields[++idx].GetUInt16();
     _pos.m_positionX    = fields[++idx].GetFloat();
     _pos.m_positionY    = fields[++idx].GetFloat();
@@ -343,6 +353,7 @@ void SuggestionTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
+    stmt->setInt64(++idx, _createTime);
     stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.GetPositionX());
     stmt->setFloat(++idx, _pos.GetPositionY());
@@ -364,12 +375,12 @@ void SuggestionTicket::DeleteFromDB()
 
 std::string SuggestionTicket::FormatViewMessageString(ChatHandler& handler, bool detailed) const
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, GetPlayerName().c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, TimeFormat::ShortText)).c_str());
 
     if (!_assignedTo.IsEmpty())
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, GetAssignedToName().c_str());
@@ -793,5 +804,5 @@ TC_GAME_API void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handl
 
 void SupportMgr::UpdateLastChange()
 {
-    _lastChange = uint64(time(nullptr));
+    _lastChange = GameTime::GetGameTime();
 }

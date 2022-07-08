@@ -19,6 +19,7 @@
 #define ClientConfigPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "WorldSession.h"
 
 namespace WorldPackets
@@ -28,13 +29,13 @@ namespace WorldPackets
         class AccountDataTimes final : public ServerPacket
         {
         public:
-            AccountDataTimes() : ServerPacket(SMSG_ACCOUNT_DATA_TIMES, 4 + 4 * NUM_ACCOUNT_DATA_TYPES) { }
+            AccountDataTimes() : ServerPacket(SMSG_ACCOUNT_DATA_TIMES, 16 + 8 + 8 * NUM_ACCOUNT_DATA_TYPES) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid PlayerGuid;
-            uint32 ServerTime = 0;
-            uint32 AccountTimes[NUM_ACCOUNT_DATA_TYPES];
+            Timestamp<> ServerTime;
+            std::array<Timestamp<>, NUM_ACCOUNT_DATA_TYPES> AccountTimes = { };
         };
 
         class ClientCacheVersion final : public ServerPacket
@@ -66,7 +67,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Player;
-            uint32 Time    = 0; ///< UnixTime
+            Timestamp<> Time;
             uint32 Size    = 0; ///< decompressed size
             uint8 DataType = 0; ///< @see enum AccountDataType
             ByteBuffer CompressedData;
@@ -80,7 +81,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PlayerGuid;
-            uint32 Time    = 0; ///< UnixTime
+            Timestamp<> Time;
             uint32 Size    = 0; ///< decompressed size
             uint8 DataType = 0; ///< @see enum AccountDataType
             ByteBuffer CompressedData;

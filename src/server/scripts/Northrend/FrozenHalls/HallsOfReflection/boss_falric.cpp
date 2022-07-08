@@ -19,7 +19,6 @@
 #include "boss_horAI.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -73,18 +72,18 @@ class boss_falric : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_FALRIC, IN_PROGRESS);
 
-                events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
-                events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
-                events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(21000, 39000));
+                events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23s);
+                events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9s);
+                events.ScheduleEvent(EVENT_DEFILING_HORROR, 21s, 39s);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if ((_hopelessnessCount < 1 && me->HealthBelowPctDamaged(66, damage))
                     || (_hopelessnessCount < 2 && me->HealthBelowPctDamaged(33, damage))
@@ -124,19 +123,19 @@ class boss_falric : public CreatureScript
                 {
                     case EVENT_QUIVERING_STRIKE:
                         DoCastVictim(SPELL_QUIVERING_STRIKE);
-                        events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 10000);
+                        events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 10s);
                         break;
                     case EVENT_IMPENDING_DESPAIR:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                         {
                             Talk(SAY_IMPENDING_DESPAIR);
                             DoCast(target, SPELL_IMPENDING_DESPAIR);
                         }
-                        events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
+                        events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13s);
                         break;
                     case EVENT_DEFILING_HORROR:
                         DoCastAOE(SPELL_DEFILING_HORROR);
-                        events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(21000, 39000));
+                        events.ScheduleEvent(EVENT_DEFILING_HORROR, 21s, 39s);
                         break;
                     default:
                         break;
