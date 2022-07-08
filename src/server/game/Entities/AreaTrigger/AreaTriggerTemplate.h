@@ -21,10 +21,10 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include "Position.h"
+#include "SpawnData.h"
 #include <vector>
 
-#define MAX_AREATRIGGER_ENTITY_DATA 6
+#define MAX_AREATRIGGER_ENTITY_DATA 8
 #define MAX_AREATRIGGER_SCALE 7
 
 enum AreaTriggerFlags
@@ -50,7 +50,8 @@ enum AreaTriggerTypes
     AREATRIGGER_TYPE_UNK        = 2,
     AREATRIGGER_TYPE_POLYGON    = 3,
     AREATRIGGER_TYPE_CYLINDER   = 4,
-    AREATRIGGER_TYPE_MAX        = 5
+    AREATRIGGER_TYPE_DISK       = 5,
+    AREATRIGGER_TYPE_MAX
 };
 
 enum AreaTriggerActionTypes
@@ -123,6 +124,7 @@ struct AreaTriggerShapeInfo
     bool IsBox()        const { return Type == AREATRIGGER_TYPE_BOX;        }
     bool IsPolygon()    const { return Type == AREATRIGGER_TYPE_POLYGON;    }
     bool IsCylinder()   const { return Type == AREATRIGGER_TYPE_CYLINDER;   }
+    bool IsDisk()       const { return Type == AREATRIGGER_TYPE_DISK;   }
     float GetMaxSearchRadius() const;
 
     AreaTriggerTypes Type;
@@ -165,6 +167,19 @@ struct AreaTriggerShapeInfo
             float LocationZOffset;
             float LocationZOffsetTarget;
         } CylinderDatas;
+
+        // AREATRIGGER_TYPE_DISK
+        struct
+        {
+            float InnerRadius;
+            float InnerRadiusTarget;
+            float OuterRadius;
+            float OuterRadiusTarget;
+            float Height;
+            float HeightTarget;
+            float LocationZOffset;
+            float LocationZOffsetTarget;
+        } DiskDatas;
     };
 };
 
@@ -193,7 +208,6 @@ public:
 
     AreaTriggerId Id;
     uint32 Flags;
-    uint32 ScriptId;
     std::vector<AreaTriggerAction> Actions;
 };
 
@@ -231,16 +245,15 @@ public:
 
     std::vector<Position> SplinePoints;
     Optional<AreaTriggerOrbitInfo> OrbitInfo;
+
+    uint32 ScriptId;
 };
 
-struct AreaTriggerSpawn
+struct AreaTriggerSpawn : SpawnData
 {
-    ObjectGuid::LowType SpawnId = 0;
+    AreaTriggerSpawn() : SpawnData(SPAWN_TYPE_AREATRIGGER) { }
+
     AreaTriggerId Id;
-    WorldLocation Location;
-    uint32 PhaseId = 0;
-    uint32 PhaseGroup = 0;
-    uint8 PhaseUseFlags = 0;
 
     AreaTriggerShapeInfo Shape;
 };

@@ -26,7 +26,6 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include <map>
-#include <set>
 #include <unordered_map>
 
 class Item;
@@ -97,18 +96,19 @@ constexpr std::size_t MAX_FAVORITE_AUCTIONS = 100;
 
 enum class AuctionHouseFilterMask : uint32
 {
-    None                = 0x0,
-    UncollectedOnly     = 0x1,
-    UsableOnly          = 0x2,
-    UpgradesOnly        = 0x4,
-    ExactMatch          = 0x8,
-    PoorQuality         = 0x10,
-    CommonQuality       = 0x20,
-    UncommonQuality     = 0x40,
-    RareQuality         = 0x80,
-    EpicQuality         = 0x100,
-    LegendaryQuality    = 0x200,
-    ArtifactQuality     = 0x400,
+    None                        = 0x0,
+    UncollectedOnly             = 0x1,
+    UsableOnly                  = 0x2,
+    UpgradesOnly                = 0x4,
+    ExactMatch                  = 0x8,
+    PoorQuality                 = 0x10,
+    CommonQuality               = 0x20,
+    UncommonQuality             = 0x40,
+    RareQuality                 = 0x80,
+    EpicQuality                 = 0x100,
+    LegendaryQuality            = 0x200,
+    ArtifactQuality             = 0x400,
+    LegendaryCraftedItemOnly    = 0x800,
 };
 
 DEFINE_ENUM_FLAG(AuctionHouseFilterMask);
@@ -223,6 +223,14 @@ struct AuctionsBucketData
     class Sorter;
 };
 
+enum class AuctionPostingServerFlag : uint8
+{
+    None        = 0x0,
+    GmLogBuyer  = 0x1  // write transaction to gm log file for buyer (optimization flag - avoids querying database for offline player permissions)
+};
+
+DEFINE_ENUM_FLAG(AuctionPostingServerFlag);
+
 // This structure represents the result of a single C_AuctionHouse.PostItem/PostCommodity call
 struct AuctionPosting
 {
@@ -237,8 +245,9 @@ struct AuctionPosting
     uint64 BuyoutOrUnitPrice = 0;
     uint64 Deposit = 0;
     uint64 BidAmount = 0;
-    std::chrono::system_clock::time_point StartTime = std::chrono::system_clock::time_point::min();
-    std::chrono::system_clock::time_point EndTime = std::chrono::system_clock::time_point::min();
+    SystemTimePoint StartTime = SystemTimePoint::min();
+    SystemTimePoint EndTime = SystemTimePoint::min();
+    EnumFlag<AuctionPostingServerFlag> ServerFlags = AuctionPostingServerFlag::None;
 
     GuidUnorderedSet BidderHistory;
 
@@ -255,7 +264,7 @@ struct CommodityQuote
 {
     uint64 TotalPrice = 0;
     uint32 Quantity = 0;
-    std::chrono::steady_clock::time_point ValidTo = std::chrono::steady_clock::time_point::min();
+    TimePoint ValidTo = TimePoint::min();
 };
 
 struct AuctionThrottleResult
@@ -277,7 +286,7 @@ public:
         uint32 Global = 0;
         uint32 Cursor = 0;
         uint32 Tombstone = 0;
-        std::chrono::steady_clock::time_point NextAllowedReplication = std::chrono::steady_clock::time_point::min();
+        TimePoint NextAllowedReplication = TimePoint::min();
 
         bool IsReplicationInProgress() const { return Cursor != Tombstone && Global != 0; }
     };
@@ -407,7 +416,7 @@ class TC_GAME_API AuctionHouseMgr
 
         struct PlayerThrottleObject
         {
-            std::chrono::steady_clock::time_point PeriodEnd;
+            TimePoint PeriodEnd;
             uint8 QueriesRemaining = 100;
         };
 
@@ -418,7 +427,7 @@ class TC_GAME_API AuctionHouseMgr
         uint32 _replicateIdGenerator;
 
         std::unordered_map<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects;
-        std::chrono::steady_clock::time_point _playerThrottleObjectsCleanupTime;
+        TimePoint _playerThrottleObjectsCleanupTime;
 };
 
 #define sAuctionMgr AuctionHouseMgr::instance()

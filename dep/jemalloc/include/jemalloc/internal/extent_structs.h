@@ -2,12 +2,12 @@
 #define JEMALLOC_INTERNAL_EXTENT_STRUCTS_H
 
 #include "jemalloc/internal/atomic.h"
+#include "jemalloc/internal/bit_util.h"
 #include "jemalloc/internal/bitmap.h"
 #include "jemalloc/internal/mutex.h"
 #include "jemalloc/internal/ql.h"
-#include "jemalloc/internal/rb.h"
 #include "jemalloc/internal/ph.h"
-#include "jemalloc/internal/size_classes.h"
+#include "jemalloc/internal/sc.h"
 
 typedef enum {
 	extent_state_active   = 0,
@@ -24,13 +24,15 @@ struct extent_s {
 	 * a: arena_ind
 	 * b: slab
 	 * c: committed
+	 * d: dumpable
 	 * z: zeroed
 	 * t: state
 	 * i: szind
 	 * f: nfree
+	 * s: bin_shard
 	 * n: sn
 	 *
-	 * nnnnnnnn ... nnnnnfff fffffffi iiiiiiit tzcbaaaa aaaaaaaa
+	 * nnnnnnnn ... nnnnnnss ssssffff ffffffii iiiiiitt zdcbaaaa aaaaaaaa
 	 *
 	 * arena_ind: Arena from which this extent came, or all 1 bits if
 	 *            unassociated.
@@ -45,6 +47,23 @@ struct extent_s {
 	 *            as on a system that overcommits and satisfies physical
 	 *            memory needs on demand via soft page faults.
 	 *
+	 * dumpable: The dumpable flag indicates whether or not we've set the
+	 *           memory in question to be dumpable.  Note that this
+	 *           interacts somewhat subtly with user-specified extent hooks,
+	 *           since we don't know if *they* are fiddling with
+	 *           dumpability (in which case, we don't want to undo whatever
+	 *           they're doing).  To deal with this scenario, we:
+	 *             - Make dumpable false only for memory allocated with the
+	 *               default hooks.
+	 *             - Only allow memory to go from non-dumpable to dumpable,
+	 *               and only once.
+	 *             - Never make the OS call to allow dumping when the
+	 *               dumpable bit is already set.
+	 *           These three constraints mean that we will never
+	 *           accidentally dump user memory that the user meant to set
+	 *           nondumpable with their extent hooks.
+	 *
+	 *
 	 * zeroed: The zeroed flag is used by extent recycling code to track
 	 *         whether memory is zero-filled.
 	 *
@@ -58,6 +77,8 @@ struct extent_s {
 	 *
 	 * nfree: Number of free regions in slab.
 	 *
+	 * bin_shard: the shard of the bin from which this extent came.
+	 *
 	 * sn: Serial number (potentially non-unique).
 	 *
 	 *     Serial numbers may wrap around if !opt_retain, but as long as
@@ -69,38 +90,50 @@ struct extent_s {
 	 *     serial number to both resulting adjacent extents.
 	 */
 	uint64_t		e_bits;
-#define EXTENT_BITS_ARENA_SHIFT		0
-#define EXTENT_BITS_ARENA_MASK \
-    (((uint64_t)(1U << MALLOCX_ARENA_BITS) - 1) << EXTENT_BITS_ARENA_SHIFT)
+#define MASK(CURRENT_FIELD_WIDTH, CURRENT_FIELD_SHIFT) ((((((uint64_t)0x1U) << (CURRENT_FIELD_WIDTH)) - 1)) << (CURRENT_FIELD_SHIFT))
 
-#define EXTENT_BITS_SLAB_SHIFT		MALLOCX_ARENA_BITS
-#define EXTENT_BITS_SLAB_MASK \
-    ((uint64_t)0x1U << EXTENT_BITS_SLAB_SHIFT)
+#define EXTENT_BITS_ARENA_WIDTH  MALLOCX_ARENA_BITS
+#define EXTENT_BITS_ARENA_SHIFT  0
+#define EXTENT_BITS_ARENA_MASK  MASK(EXTENT_BITS_ARENA_WIDTH, EXTENT_BITS_ARENA_SHIFT)
 
-#define EXTENT_BITS_COMMITTED_SHIFT	(MALLOCX_ARENA_BITS + 1)
-#define EXTENT_BITS_COMMITTED_MASK \
-    ((uint64_t)0x1U << EXTENT_BITS_COMMITTED_SHIFT)
+#define EXTENT_BITS_SLAB_WIDTH  1
+#define EXTENT_BITS_SLAB_SHIFT  (EXTENT_BITS_ARENA_WIDTH + EXTENT_BITS_ARENA_SHIFT)
+#define EXTENT_BITS_SLAB_MASK  MASK(EXTENT_BITS_SLAB_WIDTH, EXTENT_BITS_SLAB_SHIFT)
 
-#define EXTENT_BITS_ZEROED_SHIFT	(MALLOCX_ARENA_BITS + 2)
-#define EXTENT_BITS_ZEROED_MASK \
-    ((uint64_t)0x1U << EXTENT_BITS_ZEROED_SHIFT)
+#define EXTENT_BITS_COMMITTED_WIDTH  1
+#define EXTENT_BITS_COMMITTED_SHIFT  (EXTENT_BITS_SLAB_WIDTH + EXTENT_BITS_SLAB_SHIFT)
+#define EXTENT_BITS_COMMITTED_MASK  MASK(EXTENT_BITS_COMMITTED_WIDTH, EXTENT_BITS_COMMITTED_SHIFT)
 
-#define EXTENT_BITS_STATE_SHIFT		(MALLOCX_ARENA_BITS + 3)
-#define EXTENT_BITS_STATE_MASK \
-    ((uint64_t)0x3U << EXTENT_BITS_STATE_SHIFT)
+#define EXTENT_BITS_DUMPABLE_WIDTH  1
+#define EXTENT_BITS_DUMPABLE_SHIFT  (EXTENT_BITS_COMMITTED_WIDTH + EXTENT_BITS_COMMITTED_SHIFT)
+#define EXTENT_BITS_DUMPABLE_MASK  MASK(EXTENT_BITS_DUMPABLE_WIDTH, EXTENT_BITS_DUMPABLE_SHIFT)
 
-#define EXTENT_BITS_SZIND_SHIFT		(MALLOCX_ARENA_BITS + 5)
-#define EXTENT_BITS_SZIND_MASK \
-    (((uint64_t)(1U << LG_CEIL_NSIZES) - 1) << EXTENT_BITS_SZIND_SHIFT)
+#define EXTENT_BITS_ZEROED_WIDTH  1
+#define EXTENT_BITS_ZEROED_SHIFT  (EXTENT_BITS_DUMPABLE_WIDTH + EXTENT_BITS_DUMPABLE_SHIFT)
+#define EXTENT_BITS_ZEROED_MASK  MASK(EXTENT_BITS_ZEROED_WIDTH, EXTENT_BITS_ZEROED_SHIFT)
 
-#define EXTENT_BITS_NFREE_SHIFT \
-    (MALLOCX_ARENA_BITS + 5 + LG_CEIL_NSIZES)
-#define EXTENT_BITS_NFREE_MASK \
-    ((uint64_t)((1U << (LG_SLAB_MAXREGS + 1)) - 1) << EXTENT_BITS_NFREE_SHIFT)
+#define EXTENT_BITS_STATE_WIDTH  2
+#define EXTENT_BITS_STATE_SHIFT  (EXTENT_BITS_ZEROED_WIDTH + EXTENT_BITS_ZEROED_SHIFT)
+#define EXTENT_BITS_STATE_MASK  MASK(EXTENT_BITS_STATE_WIDTH, EXTENT_BITS_STATE_SHIFT)
 
-#define EXTENT_BITS_SN_SHIFT \
-    (MALLOCX_ARENA_BITS + 5 + LG_CEIL_NSIZES + (LG_SLAB_MAXREGS + 1))
-#define EXTENT_BITS_SN_MASK		(UINT64_MAX << EXTENT_BITS_SN_SHIFT)
+#define EXTENT_BITS_SZIND_WIDTH  LG_CEIL(SC_NSIZES)
+#define EXTENT_BITS_SZIND_SHIFT  (EXTENT_BITS_STATE_WIDTH + EXTENT_BITS_STATE_SHIFT)
+#define EXTENT_BITS_SZIND_MASK  MASK(EXTENT_BITS_SZIND_WIDTH, EXTENT_BITS_SZIND_SHIFT)
+
+#define EXTENT_BITS_NFREE_WIDTH  (LG_SLAB_MAXREGS + 1)
+#define EXTENT_BITS_NFREE_SHIFT  (EXTENT_BITS_SZIND_WIDTH + EXTENT_BITS_SZIND_SHIFT)
+#define EXTENT_BITS_NFREE_MASK  MASK(EXTENT_BITS_NFREE_WIDTH, EXTENT_BITS_NFREE_SHIFT)
+
+#define EXTENT_BITS_BINSHARD_WIDTH  6
+#define EXTENT_BITS_BINSHARD_SHIFT  (EXTENT_BITS_NFREE_WIDTH + EXTENT_BITS_NFREE_SHIFT)
+#define EXTENT_BITS_BINSHARD_MASK  MASK(EXTENT_BITS_BINSHARD_WIDTH, EXTENT_BITS_BINSHARD_SHIFT)
+
+#define EXTENT_BITS_IS_HEAD_WIDTH 1
+#define EXTENT_BITS_IS_HEAD_SHIFT  (EXTENT_BITS_BINSHARD_WIDTH + EXTENT_BITS_BINSHARD_SHIFT)
+#define EXTENT_BITS_IS_HEAD_MASK  MASK(EXTENT_BITS_IS_HEAD_WIDTH, EXTENT_BITS_IS_HEAD_SHIFT)
+
+#define EXTENT_BITS_SN_SHIFT   (EXTENT_BITS_IS_HEAD_WIDTH + EXTENT_BITS_IS_HEAD_SHIFT)
+#define EXTENT_BITS_SN_MASK  (UINT64_MAX << EXTENT_BITS_SN_SHIFT)
 
 	/* Pointer to the extent that this structure is responsible for. */
 	void			*e_addr;
@@ -120,35 +153,36 @@ struct extent_s {
 		size_t			e_bsize;
 	};
 
-	union {
-		/*
-		 * List linkage, used by a variety of lists:
-		 * - arena_bin_t's slabs_full
-		 * - extents_t's LRU
-		 * - stashed dirty extents
-		 * - arena's large allocations
-		 */
-		ql_elm(extent_t)	ql_link;
-		/* Red-black tree linkage, used by arena's extent_avail. */
-		rb_node(extent_t)	rb_link;
-	};
+	/*
+	 * List linkage, used by a variety of lists:
+	 * - bin_t's slabs_full
+	 * - extents_t's LRU
+	 * - stashed dirty extents
+	 * - arena's large allocations
+	 */
+	ql_elm(extent_t)	ql_link;
 
-	/* Linkage for per size class sn/address-ordered heaps. */
+	/*
+	 * Linkage for per size class sn/address-ordered heaps, and
+	 * for extent_avail
+	 */
 	phn(extent_t)		ph_link;
 
 	union {
 		/* Small region slab metadata. */
 		arena_slab_data_t	e_slab_data;
 
-		/*
-		 * Profile counters, used for large objects.  Points to a
-		 * prof_tctx_t.
-		 */
-		atomic_p_t		e_prof_tctx;
+		/* Profiling data, used for large objects. */
+		struct {
+			/* Time when this was allocated. */
+			nstime_t		e_alloc_time;
+			/* Points to a prof_tctx_t. */
+			atomic_p_t		e_prof_tctx;
+		};
 	};
 };
 typedef ql_head(extent_t) extent_list_t;
-typedef rb_tree(extent_t) extent_tree_t;
+typedef ph(extent_t) extent_tree_t;
 typedef ph(extent_t) extent_heap_t;
 
 /* Quantized collection of extents, with built-in LRU queue. */
@@ -160,14 +194,16 @@ struct extents_s {
 	 *
 	 * Synchronization: mtx.
 	 */
-	extent_heap_t		heaps[NPSIZES+1];
+	extent_heap_t		heaps[SC_NPSIZES + 1];
+	atomic_zu_t		nextents[SC_NPSIZES + 1];
+	atomic_zu_t		nbytes[SC_NPSIZES + 1];
 
 	/*
 	 * Bitmap for which set bits correspond to non-empty heaps.
 	 *
 	 * Synchronization: mtx.
 	 */
-	bitmap_t		bitmap[BITMAP_GROUPS(NPSIZES+1)];
+	bitmap_t		bitmap[BITMAP_GROUPS(SC_NPSIZES + 1)];
 
 	/*
 	 * LRU of all extents in heaps.
@@ -194,6 +230,27 @@ struct extents_s {
 	 * deallocation.
 	 */
 	bool			delay_coalesce;
+};
+
+/*
+ * The following two structs are for experimental purposes. See
+ * experimental_utilization_query_ctl and
+ * experimental_utilization_batch_query_ctl in src/ctl.c.
+ */
+
+struct extent_util_stats_s {
+	size_t nfree;
+	size_t nregs;
+	size_t size;
+};
+
+struct extent_util_stats_verbose_s {
+	void *slabcur_addr;
+	size_t nfree;
+	size_t nregs;
+	size_t size;
+	size_t bin_nfree;
+	size_t bin_nregs;
 };
 
 #endif /* JEMALLOC_INTERNAL_EXTENT_STRUCTS_H */

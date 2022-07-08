@@ -16,27 +16,25 @@
  */
 
 #include "MapManager.h"
-#include "InstanceSaveMgr.h"
-#include "DatabaseEnv.h"
-#include "Log.h"
-#include "ObjectAccessor.h"
-#include "Transport.h"
-#include "GridDefines.h"
-#include "MapInstanced.h"
-#include "InstanceScript.h"
 #include "Config.h"
-#include "World.h"
 #include "Corpse.h"
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GridDefines.h"
 #include "Group.h"
-#include "Player.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
+#include "InstanceSaveMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "MapInstanced.h"
 #include "MiscPackets.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Transport.h"
+#include "World.h"
+#include <boost/dynamic_bitset.hpp>
 
 MapManager::MapManager()
-    : _nextInstanceId(0), _scheduledScripts(0)
+    : _freeInstanceIds(std::make_unique<InstanceIds>()), _nextInstanceId(0), _scheduledScripts(0)
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
@@ -173,6 +171,10 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     if (player->IsGameMaster())
         return Map::CAN_ENTER;
 
+    //Other requirements
+    if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
+        return Map::CANNOT_ENTER_UNSPECIFIED_REASON;
+
     char const* mapName = entry->MapName[sWorld->GetDefaultDbcLocale()];
 
     Group* group = player->GetGroup();
@@ -226,11 +228,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
             return Map::CANNOT_ENTER_TOO_MANY_INSTANCES;
     }
 
-    //Other requirements
-    if (player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
-        return Map::CAN_ENTER;
-    else
-        return Map::CANNOT_ENTER_UNSPECIFIED_REASON;
+    return Map::CAN_ENTER;
 }
 
 void MapManager::Update(uint32 diff)
@@ -338,18 +336,18 @@ void MapManager::InitInstanceIds()
     _nextInstanceId = 1;
 
     if (QueryResult result = CharacterDatabase.Query("SELECT IFNULL(MAX(id), 0) FROM instance"))
-        _freeInstanceIds.resize((*result)[0].GetUInt64() + 2, true); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
+        _freeInstanceIds->resize((*result)[0].GetUInt64() + 2, true); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
     else
-        _freeInstanceIds.resize(_nextInstanceId + 1, true);
+        _freeInstanceIds->resize(_nextInstanceId + 1, true);
 
     // never allow 0 id
-    _freeInstanceIds[0] = false;
+    _freeInstanceIds->set(0, false);
 }
 
 void MapManager::RegisterInstanceId(uint32 instanceId)
 {
     // Allocation and sizing was done in InitInstanceIds()
-    _freeInstanceIds[instanceId] = false;
+    _freeInstanceIds->set(instanceId, false);
 
     // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
     // so if the instance id is used, increment until we find the first unused one for a potential new instance
@@ -367,15 +365,15 @@ uint32 MapManager::GenerateInstanceId()
     }
 
     uint32 newInstanceId = _nextInstanceId;
-    ASSERT(newInstanceId < _freeInstanceIds.size());
-    _freeInstanceIds[newInstanceId] = false;
+    ASSERT(newInstanceId < _freeInstanceIds->size());
+    _freeInstanceIds->set(newInstanceId, false);
 
-    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-    size_t nextFreedId = _freeInstanceIds.find_next(_nextInstanceId++);
+    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId())
+    size_t nextFreedId = _freeInstanceIds->find_next(_nextInstanceId++);
     if (nextFreedId == InstanceIds::npos)
     {
-        _nextInstanceId = uint32(_freeInstanceIds.size());
-        _freeInstanceIds.push_back(true);
+        _nextInstanceId = uint32(_freeInstanceIds->size());
+        _freeInstanceIds->push_back(true);
     }
     else
         _nextInstanceId = uint32(nextFreedId);
@@ -387,5 +385,5 @@ void MapManager::FreeInstanceId(uint32 instanceId)
 {
     // If freed instance id is lower than the next id available for new instances, use the freed one instead
     _nextInstanceId = std::min(instanceId, _nextInstanceId);
-    _freeInstanceIds[instanceId] = true;
+    _freeInstanceIds->set(instanceId, true);
 }

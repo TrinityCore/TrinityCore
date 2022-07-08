@@ -34,7 +34,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fban_2eproto() {
   protobuf_AddDesc_club_5fban_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -111,21 +110,23 @@ void protobuf_AddDesc_club_5fban_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fmember_2eproto();
   ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\016club_ban.proto\022\024bgs.protocol.club.v1\032\021"
-    "club_member.proto\032#api/client/v2/attribu"
-    "te_types.proto\"\201\001\n\rAddBanOptions\0221\n\ttarg"
-    "et_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
-    "rId\022-\n\tattribute\030\002 \003(\0132\032.bgs.protocol.v2"
-    ".Attribute\022\016\n\006reason\030\003 \001(\t\"\331\001\n\007ClubBan\022*"
-    "\n\002id\030\001 \001(\0132\036.bgs.protocol.club.v1.Member"
-    "Id\022\022\n\nbattle_tag\030\002 \001(\t\0228\n\007creator\030\003 \001(\0132"
-    "\'.bgs.protocol.club.v1.MemberDescription"
-    "\022-\n\tattribute\030\004 \003(\0132\032.bgs.protocol.v2.At"
-    "tribute\022\016\n\006reason\030\005 \001(\t\022\025\n\rcreation_time"
-    "\030\006 \001(\004B\002H\001", 450);
+    "\n\016club_ban.proto\022\024bgs.protocol.club.v1\032%"
+    "global_extensions/field_options.proto\032\021c"
+    "lub_member.proto\032#api/client/v2/attribut"
+    "e_types.proto\"\201\001\n\rAddBanOptions\0221\n\ttarge"
+    "t_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Member"
+    "Id\022-\n\tattribute\030\002 \003(\0132\032.bgs.protocol.v2."
+    "Attribute\022\016\n\006reason\030\003 \001(\t\"\341\001\n\007ClubBan\022*\n"
+    "\002id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
+    "d\022\032\n\nbattle_tag\030\002 \001(\tB\006\202\371+\002\010\001\0228\n\007creator"
+    "\030\003 \001(\0132\'.bgs.protocol.club.v1.MemberDesc"
+    "ription\022-\n\tattribute\030\004 \003(\0132\032.bgs.protoco"
+    "l.v2.Attribute\022\016\n\006reason\030\005 \001(\t\022\025\n\rcreati"
+    "on_time\030\006 \001(\004B\002H\001", 497);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_ban.proto", &protobuf_RegisterTypes);
   AddBanOptions::default_instance_ = new AddBanOptions();
@@ -141,7 +142,6 @@ struct StaticDescriptorInitializer_club_5fban_2eproto {
     protobuf_AddDesc_club_5fban_2eproto();
   }
 } static_descriptor_initializer_club_5fban_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -446,7 +446,6 @@ void AddBanOptions::CopyFrom(const AddBanOptions& from) {
 }
 
 bool AddBanOptions::IsInitialized() const {
-
   if (has_target_id()) {
     if (!this->target_id().IsInitialized()) return false;
   }
@@ -471,7 +470,6 @@ void AddBanOptions::Swap(AddBanOptions* other) {
   metadata.reflection = AddBanOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -916,7 +914,6 @@ void ClubBan::CopyFrom(const ClubBan& from) {
 }
 
 bool ClubBan::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -947,7 +944,6 @@ void ClubBan::Swap(ClubBan* other) {
   metadata.reflection = ClubBan_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

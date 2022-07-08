@@ -27,8 +27,7 @@ Using diff:
 - use cmake and compile
 
 After compiling:
-- TrinityCore auto updater should run needed SQLs automatically.
-- If you do not use the auto updater then run files named `*_objscale.sql` from `\sql\custom` to your databases.
+- Run files named `*_objscale.sql` from `src\server\scripts\Custom\objscale\sql` to your databases.
 
 #### Usage
 You can set the sizes in the `creature` and `gameobject` database tables in the world database by changing the `size` column.

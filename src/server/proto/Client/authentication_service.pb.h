@@ -516,6 +516,18 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline ::std::string* release_device_id();
   inline void set_allocated_device_id(::std::string* device_id);
 
+  // optional string phone_number = 16;
+  inline bool has_phone_number() const;
+  inline void clear_phone_number();
+  static const int kPhoneNumberFieldNumber = 16;
+  inline const ::std::string& phone_number() const;
+  inline void set_phone_number(const ::std::string& value);
+  inline void set_phone_number(const char* value);
+  inline void set_phone_number(const char* value, size_t size);
+  inline ::std::string* mutable_phone_number();
+  inline ::std::string* release_phone_number();
+  inline void set_allocated_phone_number(::std::string* phone_number);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.authentication.v1.LogonRequest)
  private:
   inline void set_has_program();
@@ -540,6 +552,8 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline void clear_has_user_agent();
   inline void set_has_device_id();
   inline void clear_has_device_id();
+  inline void set_has_phone_number();
+  inline void clear_has_phone_number();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -556,6 +570,7 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   ::std::string* cached_web_credentials_;
   ::std::string* user_agent_;
   ::std::string* device_id_;
+  ::std::string* phone_number_;
   friend void TC_PROTO_API protobuf_AddDesc_authentication_5fservice_2eproto();
   friend void protobuf_AssignDesc_authentication_5fservice_2eproto();
   friend void protobuf_ShutdownFile_authentication_5fservice_2eproto();
@@ -2220,7 +2235,6 @@ class TC_PROTO_API AuthenticationService : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // ModuleLoadRequest
@@ -3180,6 +3194,82 @@ inline void LogonRequest::set_allocated_device_id(::std::string* device_id) {
     device_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.device_id)
+}
+
+// optional string phone_number = 16;
+inline bool LogonRequest::has_phone_number() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void LogonRequest::set_has_phone_number() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void LogonRequest::clear_has_phone_number() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void LogonRequest::clear_phone_number() {
+  if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_->clear();
+  }
+  clear_has_phone_number();
+}
+inline const ::std::string& LogonRequest::phone_number() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonRequest.phone_number)
+  return *phone_number_;
+}
+inline void LogonRequest::set_phone_number(const ::std::string& value) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.phone_number)
+}
+inline void LogonRequest::set_phone_number(const char* value) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.authentication.v1.LogonRequest.phone_number)
+}
+inline void LogonRequest::set_phone_number(const char* value, size_t size) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.authentication.v1.LogonRequest.phone_number)
+}
+inline ::std::string* LogonRequest::mutable_phone_number() {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.authentication.v1.LogonRequest.phone_number)
+  return phone_number_;
+}
+inline ::std::string* LogonRequest::release_phone_number() {
+  clear_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = phone_number_;
+    phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LogonRequest::set_allocated_phone_number(::std::string* phone_number) {
+  if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete phone_number_;
+  }
+  if (phone_number) {
+    set_has_phone_number();
+    phone_number_ = phone_number;
+  } else {
+    clear_has_phone_number();
+    phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.phone_number)
 }
 
 // -------------------------------------------------------------------
@@ -4985,7 +5075,6 @@ inline void VerifyWebCredentialsRequest::set_allocated_web_credentials(::std::st
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.VerifyWebCredentialsRequest.web_credentials)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -4996,8 +5085,6 @@ inline void VerifyWebCredentialsRequest::set_allocated_web_credentials(::std::st
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

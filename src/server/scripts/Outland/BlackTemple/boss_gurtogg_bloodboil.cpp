@@ -89,7 +89,6 @@ enum Events
     EVENT_CHARGE_PLAYER
 };
 
-
 struct boss_gurtogg_bloodboil : public BossAI
 {
     boss_gurtogg_bloodboil(Creature* creature) : BossAI(creature, DATA_GURTOGG_BLOODBOIL)
@@ -126,12 +125,12 @@ struct boss_gurtogg_bloodboil : public BossAI
         BossAI::AttackStart(who);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(SAY_AGGRO);
-        _JustEngagedWith();
-        events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-        events.ScheduleEvent(EVENT_CHANGE_PHASE, Seconds(60));
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+        events.ScheduleEvent(EVENT_CHANGE_PHASE, 1min);
         ScheduleEvents();
     }
 
@@ -194,7 +193,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                     events.Repeat(Seconds(10));
                     break;
                 case EVENT_FEL_ACID_BREATH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetCombatReach()))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, me->GetCombatReach()))
                         DoCast(target, SPELL_FEL_ACID_BREATH);
                     events.Repeat(Seconds(25), Seconds(30));
                     break;
@@ -209,7 +208,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                     ChangePhase();
                     break;
                 case EVENT_START_PHASE_2:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                     {
                         if (Unit* oldTarget = me->GetVictim())
                         {
@@ -274,14 +273,14 @@ struct boss_gurtogg_bloodboil : public BossAI
         {
             events.SetPhase(PHASE_2);
             events.CancelEventGroup(GROUP_PHASE_1);
-            events.ScheduleEvent(EVENT_CHANGE_PHASE, Seconds(30));
+            events.ScheduleEvent(EVENT_CHANGE_PHASE, 30s);
             ScheduleEvents();
         }
         else if (events.IsInPhase(PHASE_2))
         {
             events.SetPhase(PHASE_1);
             events.CancelEventGroup(GROUP_PHASE_2);
-            events.ScheduleEvent(EVENT_CHANGE_PHASE, Seconds(60));
+            events.ScheduleEvent(EVENT_CHANGE_PHASE, 1min);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             ScheduleEvents();

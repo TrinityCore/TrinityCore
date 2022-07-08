@@ -1664,10 +1664,19 @@ class TC_PROTO_API ClubSettings : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
       mutable_attribute();
 
+  // optional bool push_notification_filter_all = 4;
+  inline bool has_push_notification_filter_all() const;
+  inline void clear_push_notification_filter_all();
+  static const int kPushNotificationFilterAllFieldNumber = 4;
+  inline bool push_notification_filter_all() const;
+  inline void set_push_notification_filter_all(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubSettings)
  private:
   inline void set_has_stream_notification_filter_all();
   inline void clear_has_stream_notification_filter_all();
+  inline void set_has_push_notification_filter_all();
+  inline void clear_has_push_notification_filter_all();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1676,6 +1685,7 @@ class TC_PROTO_API ClubSettings : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::StreamSettings > stream_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > attribute_;
   bool stream_notification_filter_all_;
+  bool push_notification_filter_all_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fcore_2eproto();
   friend void protobuf_AssignDesc_club_5fcore_2eproto();
   friend void protobuf_ShutdownFile_club_5fcore_2eproto();
@@ -1883,9 +1893,7 @@ class TC_PROTO_API ClubSettingsAssignment : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -4758,6 +4766,30 @@ ClubSettings::mutable_attribute() {
   return &attribute_;
 }
 
+// optional bool push_notification_filter_all = 4;
+inline bool ClubSettings::has_push_notification_filter_all() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void ClubSettings::set_has_push_notification_filter_all() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void ClubSettings::clear_has_push_notification_filter_all() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void ClubSettings::clear_push_notification_filter_all() {
+  push_notification_filter_all_ = false;
+  clear_has_push_notification_filter_all();
+}
+inline bool ClubSettings::push_notification_filter_all() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubSettings.push_notification_filter_all)
+  return push_notification_filter_all_;
+}
+inline void ClubSettings::set_push_notification_filter_all(bool value) {
+  set_has_push_notification_filter_all();
+  push_notification_filter_all_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubSettings.push_notification_filter_all)
+}
+
 // -------------------------------------------------------------------
 
 // ClubSettingsOptions
@@ -4932,7 +4964,6 @@ inline void ClubSettingsAssignment::set_allocated_settings(::bgs::protocol::club
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubSettingsAssignment.settings)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -4943,8 +4974,6 @@ inline void ClubSettingsAssignment::set_allocated_settings(::bgs::protocol::club
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

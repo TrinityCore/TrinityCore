@@ -17,13 +17,13 @@
 
 bool DirectoryExists(LPCTSTR szDirectory)
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
 
     DWORD dwAttributes = GetFileAttributes(szDirectory);
     if((dwAttributes != INVALID_FILE_ATTRIBUTES) && (dwAttributes & FILE_ATTRIBUTE_DIRECTORY))
         return true;
 
-#else // PLATFORM_WINDOWS
+#else // CASCLIB_PLATFORM_WINDOWS
 
     DIR * dir = opendir(szDirectory);
 
@@ -40,7 +40,7 @@ bool DirectoryExists(LPCTSTR szDirectory)
 
 bool MakeDirectory(LPCTSTR szDirectory)
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
 
     BOOL bResult = CreateDirectory(szDirectory, NULL);
     return (bResult) ? true : false;
@@ -57,7 +57,7 @@ int ScanIndexDirectory(
     INDEX_FILE_FOUND pfnOnFileFound,
     void * pvContext)
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef CASCLIB_PLATFORM_WINDOWS
 
     WIN32_FIND_DATA wf;
     HANDLE hFind;
@@ -85,7 +85,7 @@ int ScanIndexDirectory(
         FindClose(hFind);
     }
 
-#else // PLATFORM_WINDOWS
+#else // CASCLIB_PLATFORM_WINDOWS
 
     struct dirent * dir_entry;
     DIR * dir;

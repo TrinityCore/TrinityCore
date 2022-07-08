@@ -37,7 +37,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5frole_2eproto() {
   protobuf_AddDesc_club_5frole_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -45,7 +44,7 @@ void protobuf_AssignDesc_club_5frole_2eproto() {
       "club_role.proto");
   GOOGLE_CHECK(file != NULL);
   ClubPrivilegeSet_descriptor_ = file->message_type(0);
-  static const int ClubPrivilegeSet_offsets_[48] = {
+  static const int ClubPrivilegeSet_offsets_[49] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_destroy_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_name_),
@@ -53,6 +52,7 @@ void protobuf_AssignDesc_club_5frole_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_avatar_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_broadcast_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_privacy_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_add_member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_kick_member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_own_member_attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_other_member_attribute_),
@@ -183,52 +183,53 @@ void protobuf_AddDesc_club_5frole_2eproto() {
   ::bgs::protocol::protobuf_AddDesc_role_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\017club_role.proto\022\024bgs.protocol.club.v1\032"
-    "\020role_types.proto\"\257\013\n\020ClubPrivilegeSet\022\023"
+    "\020role_types.proto\"\307\013\n\020ClubPrivilegeSet\022\023"
     "\n\013can_destroy\030\001 \001(\010\022\031\n\021can_set_attribute"
     "\030\n \001(\010\022\024\n\014can_set_name\030\013 \001(\010\022\033\n\023can_set_"
     "description\030\014 \001(\010\022\026\n\016can_set_avatar\030\r \001("
     "\010\022\031\n\021can_set_broadcast\030\016 \001(\010\022\035\n\025can_set_"
-    "privacy_level\030\017 \001(\010\022\027\n\017can_kick_member\030\036"
-    " \001(\010\022$\n\034can_set_own_member_attribute\030\037 \001"
-    "(\010\022&\n\036can_set_other_member_attribute\030  \001"
-    "(\010\022\037\n\027can_set_own_voice_state\030! \001(\010\022\"\n\032c"
-    "an_set_own_presence_level\030\" \001(\010\022!\n\031can_s"
-    "et_own_whisper_level\030# \001(\010\022\037\n\027can_set_ow"
-    "n_member_note\030$ \001(\010\022!\n\031can_set_other_mem"
-    "ber_note\030% \001(\010\022\025\n\rcan_use_voice\0302 \001(\010\022%\n"
-    "\035can_voice_mute_member_for_all\0303 \001(\010\022\032\n\022"
-    "can_get_invitation\030F \001(\010\022\033\n\023can_send_inv"
-    "itation\030G \001(\010\022!\n\031can_send_guest_invitati"
-    "on\030H \001(\010\022!\n\031can_revoke_own_invitation\030I "
-    "\001(\010\022#\n\033can_revoke_other_invitation\030J \001(\010"
-    "\022\032\n\022can_get_suggestion\030Z \001(\010\022\032\n\022can_sugg"
-    "est_member\030[ \001(\010\022\032\n\022can_approve_member\030\\"
-    " \001(\010\022\026\n\016can_get_ticket\030n \001(\010\022\031\n\021can_crea"
-    "te_ticket\030o \001(\010\022\032\n\022can_destroy_ticket\030p "
-    "\001(\010\022\024\n\013can_get_ban\030\202\001 \001(\010\022\024\n\013can_add_ban"
-    "\030\203\001 \001(\010\022\027\n\016can_remove_ban\030\204\001 \001(\010\022\032\n\021can_"
-    "create_stream\030\214\001 \001(\010\022\033\n\022can_destroy_stre"
-    "am\030\215\001 \001(\010\022 \n\027can_set_stream_position\030\216\001 "
-    "\001(\010\022!\n\030can_set_stream_attribute\030\217\001 \001(\010\022\034"
-    "\n\023can_set_stream_name\030\220\001 \001(\010\022\037\n\026can_set_"
-    "stream_subject\030\221\001 \001(\010\022\036\n\025can_set_stream_"
-    "access\030\222\001 \001(\010\022#\n\032can_set_stream_voice_le"
-    "vel\030\223\001 \001(\010\022\033\n\022can_create_message\030\264\001 \001(\010\022"
-    " \n\027can_destroy_own_message\030\265\001 \001(\010\022\"\n\031can"
-    "_destroy_other_message\030\266\001 \001(\010\022\035\n\024can_edi"
-    "t_own_message\030\267\001 \001(\010\022\030\n\017can_pin_message\030"
-    "\270\001 \001(\010\022\030\n\017can_mention_all\030\271\001 \001(\010\022\031\n\020can_"
-    "mention_here\030\272\001 \001(\010\022\033\n\022can_mention_membe"
-    "r\030\273\001 \001(\010\022\031\n\020can_mention_role\030\274\001 \001(\010\"\271\001\n\010"
-    "ClubRole\022\n\n\002id\030\001 \001(\r\022&\n\005state\030\002 \001(\0132\027.bg"
-    "s.protocol.RoleState\0229\n\tprivilege\030\003 \001(\0132"
-    "&.bgs.protocol.club.v1.ClubPrivilegeSet\022"
-    "\"\n\032always_grant_stream_access\030\004 \001(\010\022\032\n\022a"
-    "llow_in_club_slot\030\005 \001(\010\"\224\001\n\013ClubRoleSet\022"
-    ",\n\004role\030\001 \003(\0132\036.bgs.protocol.club.v1.Clu"
-    "bRole\022\030\n\014default_role\030\005 \003(\rB\002\020\001\022,\n$assig"
-    "nment_respects_relegation_chain\030\006 \001(\010\022\017\n"
-    "\007subtype\030\007 \001(\tB\002H\001", 1858);
+    "privacy_level\030\017 \001(\010\022\026\n\016can_add_member\030\035 "
+    "\001(\010\022\027\n\017can_kick_member\030\036 \001(\010\022$\n\034can_set_"
+    "own_member_attribute\030\037 \001(\010\022&\n\036can_set_ot"
+    "her_member_attribute\030  \001(\010\022\037\n\027can_set_ow"
+    "n_voice_state\030! \001(\010\022\"\n\032can_set_own_prese"
+    "nce_level\030\" \001(\010\022!\n\031can_set_own_whisper_l"
+    "evel\030# \001(\010\022\037\n\027can_set_own_member_note\030$ "
+    "\001(\010\022!\n\031can_set_other_member_note\030% \001(\010\022\025"
+    "\n\rcan_use_voice\0302 \001(\010\022%\n\035can_voice_mute_"
+    "member_for_all\0303 \001(\010\022\032\n\022can_get_invitati"
+    "on\030F \001(\010\022\033\n\023can_send_invitation\030G \001(\010\022!\n"
+    "\031can_send_guest_invitation\030H \001(\010\022!\n\031can_"
+    "revoke_own_invitation\030I \001(\010\022#\n\033can_revok"
+    "e_other_invitation\030J \001(\010\022\032\n\022can_get_sugg"
+    "estion\030Z \001(\010\022\032\n\022can_suggest_member\030[ \001(\010"
+    "\022\032\n\022can_approve_member\030\\ \001(\010\022\026\n\016can_get_"
+    "ticket\030n \001(\010\022\031\n\021can_create_ticket\030o \001(\010\022"
+    "\032\n\022can_destroy_ticket\030p \001(\010\022\024\n\013can_get_b"
+    "an\030\202\001 \001(\010\022\024\n\013can_add_ban\030\203\001 \001(\010\022\027\n\016can_r"
+    "emove_ban\030\204\001 \001(\010\022\032\n\021can_create_stream\030\214\001"
+    " \001(\010\022\033\n\022can_destroy_stream\030\215\001 \001(\010\022 \n\027can"
+    "_set_stream_position\030\216\001 \001(\010\022!\n\030can_set_s"
+    "tream_attribute\030\217\001 \001(\010\022\034\n\023can_set_stream"
+    "_name\030\220\001 \001(\010\022\037\n\026can_set_stream_subject\030\221"
+    "\001 \001(\010\022\036\n\025can_set_stream_access\030\222\001 \001(\010\022#\n"
+    "\032can_set_stream_voice_level\030\223\001 \001(\010\022\033\n\022ca"
+    "n_create_message\030\264\001 \001(\010\022 \n\027can_destroy_o"
+    "wn_message\030\265\001 \001(\010\022\"\n\031can_destroy_other_m"
+    "essage\030\266\001 \001(\010\022\035\n\024can_edit_own_message\030\267\001"
+    " \001(\010\022\030\n\017can_pin_message\030\270\001 \001(\010\022\030\n\017can_me"
+    "ntion_all\030\271\001 \001(\010\022\031\n\020can_mention_here\030\272\001 "
+    "\001(\010\022\033\n\022can_mention_member\030\273\001 \001(\010\022\031\n\020can_"
+    "mention_role\030\274\001 \001(\010\"\271\001\n\010ClubRole\022\n\n\002id\030\001"
+    " \001(\r\022&\n\005state\030\002 \001(\0132\027.bgs.protocol.RoleS"
+    "tate\0229\n\tprivilege\030\003 \001(\0132&.bgs.protocol.c"
+    "lub.v1.ClubPrivilegeSet\022\"\n\032always_grant_"
+    "stream_access\030\004 \001(\010\022\032\n\022allow_in_club_slo"
+    "t\030\005 \001(\010\"\224\001\n\013ClubRoleSet\022,\n\004role\030\001 \003(\0132\036."
+    "bgs.protocol.club.v1.ClubRole\022\030\n\014default"
+    "_role\030\005 \003(\rB\002\020\001\022,\n$assignment_respects_r"
+    "elegation_chain\030\006 \001(\010\022\017\n\007subtype\030\007 \001(\tB\002"
+    "H\001", 1882);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_role.proto", &protobuf_RegisterTypes);
   ClubPrivilegeSet::default_instance_ = new ClubPrivilegeSet();
@@ -246,7 +247,6 @@ struct StaticDescriptorInitializer_club_5frole_2eproto {
     protobuf_AddDesc_club_5frole_2eproto();
   }
 } static_descriptor_initializer_club_5frole_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -257,6 +257,7 @@ const int ClubPrivilegeSet::kCanSetDescriptionFieldNumber;
 const int ClubPrivilegeSet::kCanSetAvatarFieldNumber;
 const int ClubPrivilegeSet::kCanSetBroadcastFieldNumber;
 const int ClubPrivilegeSet::kCanSetPrivacyLevelFieldNumber;
+const int ClubPrivilegeSet::kCanAddMemberFieldNumber;
 const int ClubPrivilegeSet::kCanKickMemberFieldNumber;
 const int ClubPrivilegeSet::kCanSetOwnMemberAttributeFieldNumber;
 const int ClubPrivilegeSet::kCanSetOtherMemberAttributeFieldNumber;
@@ -325,6 +326,7 @@ void ClubPrivilegeSet::SharedCtor() {
   can_set_avatar_ = false;
   can_set_broadcast_ = false;
   can_set_privacy_level_ = false;
+  can_add_member_ = false;
   can_kick_member_ = false;
   can_set_own_member_attribute_ = false;
   can_set_other_member_attribute_ = false;
@@ -412,23 +414,24 @@ void ClubPrivilegeSet::Clear() {
   } while (0)
 
   if (_has_bits_[0 / 32] & 255) {
-    ZR_(can_destroy_, can_kick_member_);
+    ZR_(can_destroy_, can_add_member_);
   }
   if (_has_bits_[8 / 32] & 65280) {
-    ZR_(can_set_own_member_attribute_, can_use_voice_);
+    ZR_(can_kick_member_, can_set_other_member_note_);
   }
   if (_has_bits_[16 / 32] & 16711680) {
-    ZR_(can_voice_mute_member_for_all_, can_suggest_member_);
+    ZR_(can_use_voice_, can_get_suggestion_);
   }
   if (_has_bits_[24 / 32] & 4278190080) {
-    ZR_(can_approve_member_, can_create_stream_);
+    ZR_(can_suggest_member_, can_remove_ban_);
   }
   if (_has_bits_[32 / 32] & 255) {
-    ZR_(can_destroy_stream_, can_create_message_);
+    ZR_(can_create_stream_, can_set_stream_voice_level_);
   }
   if (_has_bits_[40 / 32] & 65280) {
-    ZR_(can_destroy_own_message_, can_mention_role_);
+    ZR_(can_create_message_, can_mention_member_);
   }
+  can_mention_role_ = false;
 
 #undef OFFSET_OF_FIELD_
 #undef ZR_
@@ -544,6 +547,21 @@ bool ClubPrivilegeSet::MergePartialFromCodedStream(
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &can_set_privacy_level_)));
           set_has_can_set_privacy_level();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(232)) goto parse_can_add_member;
+        break;
+      }
+
+      // optional bool can_add_member = 29;
+      case 29: {
+        if (tag == 232) {
+         parse_can_add_member:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &can_add_member_)));
+          set_has_can_add_member();
         } else {
           goto handle_unusual;
         }
@@ -1226,6 +1244,11 @@ void ClubPrivilegeSet::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(15, this->can_set_privacy_level(), output);
   }
 
+  // optional bool can_add_member = 29;
+  if (has_can_add_member()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(29, this->can_add_member(), output);
+  }
+
   // optional bool can_kick_member = 30;
   if (has_can_kick_member()) {
     ::google::protobuf::internal::WireFormatLite::WriteBool(30, this->can_kick_member(), output);
@@ -1474,6 +1497,11 @@ void ClubPrivilegeSet::SerializeWithCachedSizes(
   // optional bool can_set_privacy_level = 15;
   if (has_can_set_privacy_level()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(15, this->can_set_privacy_level(), target);
+  }
+
+  // optional bool can_add_member = 29;
+  if (has_can_add_member()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(29, this->can_add_member(), target);
   }
 
   // optional bool can_kick_member = 30;
@@ -1728,13 +1756,18 @@ int ClubPrivilegeSet::ByteSize() const {
       total_size += 1 + 1;
     }
 
-    // optional bool can_kick_member = 30;
-    if (has_can_kick_member()) {
+    // optional bool can_add_member = 29;
+    if (has_can_add_member()) {
       total_size += 2 + 1;
     }
 
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // optional bool can_kick_member = 30;
+    if (has_can_kick_member()) {
+      total_size += 2 + 1;
+    }
+
     // optional bool can_set_own_member_attribute = 31;
     if (has_can_set_own_member_attribute()) {
       total_size += 2 + 1;
@@ -1770,13 +1803,13 @@ int ClubPrivilegeSet::ByteSize() const {
       total_size += 2 + 1;
     }
 
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     // optional bool can_use_voice = 50;
     if (has_can_use_voice()) {
       total_size += 2 + 1;
     }
 
-  }
-  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     // optional bool can_voice_mute_member_for_all = 51;
     if (has_can_voice_mute_member_for_all()) {
       total_size += 2 + 1;
@@ -1812,13 +1845,13 @@ int ClubPrivilegeSet::ByteSize() const {
       total_size += 2 + 1;
     }
 
+  }
+  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     // optional bool can_suggest_member = 91;
     if (has_can_suggest_member()) {
       total_size += 2 + 1;
     }
 
-  }
-  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     // optional bool can_approve_member = 92;
     if (has_can_approve_member()) {
       total_size += 2 + 1;
@@ -1854,13 +1887,13 @@ int ClubPrivilegeSet::ByteSize() const {
       total_size += 2 + 1;
     }
 
+  }
+  if (_has_bits_[32 / 32] & (0xffu << (32 % 32))) {
     // optional bool can_create_stream = 140;
     if (has_can_create_stream()) {
       total_size += 2 + 1;
     }
 
-  }
-  if (_has_bits_[32 / 32] & (0xffu << (32 % 32))) {
     // optional bool can_destroy_stream = 141;
     if (has_can_destroy_stream()) {
       total_size += 2 + 1;
@@ -1896,13 +1929,13 @@ int ClubPrivilegeSet::ByteSize() const {
       total_size += 2 + 1;
     }
 
+  }
+  if (_has_bits_[40 / 32] & (0xffu << (40 % 32))) {
     // optional bool can_create_message = 180;
     if (has_can_create_message()) {
       total_size += 2 + 1;
     }
 
-  }
-  if (_has_bits_[40 / 32] & (0xffu << (40 % 32))) {
     // optional bool can_destroy_own_message = 181;
     if (has_can_destroy_own_message()) {
       total_size += 2 + 1;
@@ -1938,6 +1971,8 @@ int ClubPrivilegeSet::ByteSize() const {
       total_size += 2 + 1;
     }
 
+  }
+  if (_has_bits_[48 / 32] & (0xffu << (48 % 32))) {
     // optional bool can_mention_role = 188;
     if (has_can_mention_role()) {
       total_size += 2 + 1;
@@ -1991,11 +2026,14 @@ void ClubPrivilegeSet::MergeFrom(const ClubPrivilegeSet& from) {
     if (from.has_can_set_privacy_level()) {
       set_can_set_privacy_level(from.can_set_privacy_level());
     }
-    if (from.has_can_kick_member()) {
-      set_can_kick_member(from.can_kick_member());
+    if (from.has_can_add_member()) {
+      set_can_add_member(from.can_add_member());
     }
   }
   if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_can_kick_member()) {
+      set_can_kick_member(from.can_kick_member());
+    }
     if (from.has_can_set_own_member_attribute()) {
       set_can_set_own_member_attribute(from.can_set_own_member_attribute());
     }
@@ -2017,11 +2055,11 @@ void ClubPrivilegeSet::MergeFrom(const ClubPrivilegeSet& from) {
     if (from.has_can_set_other_member_note()) {
       set_can_set_other_member_note(from.can_set_other_member_note());
     }
+  }
+  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (from.has_can_use_voice()) {
       set_can_use_voice(from.can_use_voice());
     }
-  }
-  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (from.has_can_voice_mute_member_for_all()) {
       set_can_voice_mute_member_for_all(from.can_voice_mute_member_for_all());
     }
@@ -2043,11 +2081,11 @@ void ClubPrivilegeSet::MergeFrom(const ClubPrivilegeSet& from) {
     if (from.has_can_get_suggestion()) {
       set_can_get_suggestion(from.can_get_suggestion());
     }
+  }
+  if (from._has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     if (from.has_can_suggest_member()) {
       set_can_suggest_member(from.can_suggest_member());
     }
-  }
-  if (from._has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     if (from.has_can_approve_member()) {
       set_can_approve_member(from.can_approve_member());
     }
@@ -2069,11 +2107,11 @@ void ClubPrivilegeSet::MergeFrom(const ClubPrivilegeSet& from) {
     if (from.has_can_remove_ban()) {
       set_can_remove_ban(from.can_remove_ban());
     }
+  }
+  if (from._has_bits_[32 / 32] & (0xffu << (32 % 32))) {
     if (from.has_can_create_stream()) {
       set_can_create_stream(from.can_create_stream());
     }
-  }
-  if (from._has_bits_[32 / 32] & (0xffu << (32 % 32))) {
     if (from.has_can_destroy_stream()) {
       set_can_destroy_stream(from.can_destroy_stream());
     }
@@ -2095,11 +2133,11 @@ void ClubPrivilegeSet::MergeFrom(const ClubPrivilegeSet& from) {
     if (from.has_can_set_stream_voice_level()) {
       set_can_set_stream_voice_level(from.can_set_stream_voice_level());
     }
+  }
+  if (from._has_bits_[40 / 32] & (0xffu << (40 % 32))) {
     if (from.has_can_create_message()) {
       set_can_create_message(from.can_create_message());
     }
-  }
-  if (from._has_bits_[40 / 32] & (0xffu << (40 % 32))) {
     if (from.has_can_destroy_own_message()) {
       set_can_destroy_own_message(from.can_destroy_own_message());
     }
@@ -2121,6 +2159,8 @@ void ClubPrivilegeSet::MergeFrom(const ClubPrivilegeSet& from) {
     if (from.has_can_mention_member()) {
       set_can_mention_member(from.can_mention_member());
     }
+  }
+  if (from._has_bits_[48 / 32] & (0xffu << (48 % 32))) {
     if (from.has_can_mention_role()) {
       set_can_mention_role(from.can_mention_role());
     }
@@ -2141,7 +2181,6 @@ void ClubPrivilegeSet::CopyFrom(const ClubPrivilegeSet& from) {
 }
 
 bool ClubPrivilegeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -2154,6 +2193,7 @@ void ClubPrivilegeSet::Swap(ClubPrivilegeSet* other) {
     std::swap(can_set_avatar_, other->can_set_avatar_);
     std::swap(can_set_broadcast_, other->can_set_broadcast_);
     std::swap(can_set_privacy_level_, other->can_set_privacy_level_);
+    std::swap(can_add_member_, other->can_add_member_);
     std::swap(can_kick_member_, other->can_kick_member_);
     std::swap(can_set_own_member_attribute_, other->can_set_own_member_attribute_);
     std::swap(can_set_other_member_attribute_, other->can_set_other_member_attribute_);
@@ -2209,7 +2249,6 @@ void ClubPrivilegeSet::Swap(ClubPrivilegeSet* other) {
   metadata.reflection = ClubPrivilegeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2583,7 +2622,6 @@ void ClubRole::CopyFrom(const ClubRole& from) {
 }
 
 bool ClubRole::IsInitialized() const {
-
   return true;
 }
 
@@ -2607,7 +2645,6 @@ void ClubRole::Swap(ClubRole* other) {
   metadata.reflection = ClubRole_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2970,7 +3007,6 @@ void ClubRoleSet::CopyFrom(const ClubRoleSet& from) {
 }
 
 bool ClubRoleSet::IsInitialized() const {
-
   return true;
 }
 
@@ -2993,7 +3029,6 @@ void ClubRoleSet::Swap(ClubRoleSet* other) {
   metadata.reflection = ClubRoleSet_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

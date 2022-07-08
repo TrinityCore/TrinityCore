@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "VoidStoragePackets.h"
-#include "World.h"
 
 void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
 {
@@ -52,7 +51,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPackets::VoidStorage::UnlockVoid
 
 void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidStorage& queryVoidStorage)
 {
-    Creature* unit = _player->GetNPCIfCanInteractWith(queryVoidStorage.Npc, NPCFlags(UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER), UNIT_NPC_FLAG_2_NONE);
+    Creature* unit = _player->GetNPCIfCanInteractWith(queryVoidStorage.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER, UNIT_NPC_FLAG_2_NONE);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleVoidStorageQuery - %s not found or player can't interact with it.", queryVoidStorage.Npc.ToString().c_str());

@@ -34,7 +34,6 @@ const ::google::protobuf::ServiceDescriptor* ResourcesService_descriptor_ = NULL
 
 }  // namespace
 
-
 void protobuf_AssignDesc_resource_5fservice_2eproto() {
   protobuf_AddDesc_resource_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -114,7 +113,6 @@ struct StaticDescriptorInitializer_resource_5fservice_2eproto {
     protobuf_AddDesc_resource_5fservice_2eproto();
   }
 } static_descriptor_initializer_resource_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -401,7 +399,6 @@ void ContentHandleRequest::CopyFrom(const ContentHandleRequest& from) {
 
 bool ContentHandleRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   return true;
 }
 
@@ -423,7 +420,6 @@ void ContentHandleRequest::Swap(ContentHandleRequest* other) {
   metadata.reflection = ContentHandleRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -478,7 +474,6 @@ uint32 ResourcesService::HandleGetContentHandle(::bgs::protocol::resources::v1::
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

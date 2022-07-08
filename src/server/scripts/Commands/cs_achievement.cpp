@@ -23,45 +23,31 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "AchievementMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DB2Stores.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
+
+using namespace Trinity::ChatCommands;
 
 class achievement_commandscript : public CommandScript
 {
 public:
     achievement_commandscript() : CommandScript("achievement_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> achievementCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "" },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, nullptr, "", achievementCommandTable },
+            { "achievement add", HandleAchievementAddCommand, LANG_COMMAND_ACHIEVEMENT_ADD_HELP ,rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, Console::No },
         };
         return commandTable;
     }
 
-    static bool HandleAchievementAddCommand(ChatHandler* handler, char const* args)
+    static bool HandleAchievementAddCommand(ChatHandler* handler, AchievementEntry const* achievementEntry)
     {
-        if (!*args)
-            return false;
-
-        uint32 achievementId = atoi((char*)args);
-        if (!achievementId)
-        {
-            if (char* id = handler->extractKeyFromLink((char*)args, "Hachievement"))
-                achievementId = atoul(id);
-            if (!achievementId)
-                return false;
-        }
-
         Player* target = handler->getSelectedPlayer();
         if (!target)
         {
@@ -69,9 +55,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        if (AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievementId))
-            target->CompletedAchievement(achievementEntry);
+        target->CompletedAchievement(achievementEntry);
 
         return true;
     }

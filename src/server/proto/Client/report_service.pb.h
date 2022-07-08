@@ -110,26 +110,16 @@ class TC_PROTO_API SendReportRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::report::v1::Report* release_report();
   inline void set_allocated_report(::bgs::protocol::report::v1::Report* report);
 
-  // optional uint32 program = 2;
-  inline bool has_program() const;
-  inline void clear_program();
-  static const int kProgramFieldNumber = 2;
-  inline ::google::protobuf::uint32 program() const;
-  inline void set_program(::google::protobuf::uint32 value);
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.report.v1.SendReportRequest)
  private:
   inline void set_has_report();
   inline void clear_has_report();
-  inline void set_has_program();
-  inline void clear_has_program();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::report::v1::Report* report_;
-  ::google::protobuf::uint32 program_;
   friend void TC_PROTO_API protobuf_AddDesc_report_5fservice_2eproto();
   friend void protobuf_AssignDesc_report_5fservice_2eproto();
   friend void protobuf_ShutdownFile_report_5fservice_2eproto();
@@ -210,21 +200,12 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::report::v1::ReportType* release_report_type();
   inline void set_allocated_report_type(::bgs::protocol::report::v1::ReportType* report_type);
 
-  // optional uint32 program = 3;
-  inline bool has_program() const;
-  inline void clear_program();
-  static const int kProgramFieldNumber = 3;
-  inline ::google::protobuf::uint32 program() const;
-  inline void set_program(::google::protobuf::uint32 value);
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.report.v1.SubmitReportRequest)
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
   inline void set_has_report_type();
   inline void clear_has_report_type();
-  inline void set_has_program();
-  inline void clear_has_program();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -232,7 +213,6 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::GameAccountHandle* agent_id_;
   ::bgs::protocol::report::v1::ReportType* report_type_;
-  ::google::protobuf::uint32 program_;
   friend void TC_PROTO_API protobuf_AddDesc_report_5fservice_2eproto();
   friend void protobuf_AssignDesc_report_5fservice_2eproto();
   friend void protobuf_ShutdownFile_report_5fservice_2eproto();
@@ -268,7 +248,6 @@ class TC_PROTO_API ReportService : public ServiceBase
 };
 
 // ===================================================================
-
 
 // ===================================================================
 
@@ -313,30 +292,6 @@ inline void SendReportRequest::set_allocated_report(::bgs::protocol::report::v1:
     clear_has_report();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.SendReportRequest.report)
-}
-
-// optional uint32 program = 2;
-inline bool SendReportRequest::has_program() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void SendReportRequest::set_has_program() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void SendReportRequest::clear_has_program() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void SendReportRequest::clear_program() {
-  program_ = 0u;
-  clear_has_program();
-}
-inline ::google::protobuf::uint32 SendReportRequest::program() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.SendReportRequest.program)
-  return program_;
-}
-inline void SendReportRequest::set_program(::google::protobuf::uint32 value) {
-  set_has_program();
-  program_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.SendReportRequest.program)
 }
 
 // -------------------------------------------------------------------
@@ -425,31 +380,6 @@ inline void SubmitReportRequest::set_allocated_report_type(::bgs::protocol::repo
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.SubmitReportRequest.report_type)
 }
 
-// optional uint32 program = 3;
-inline bool SubmitReportRequest::has_program() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void SubmitReportRequest::set_has_program() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void SubmitReportRequest::clear_has_program() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void SubmitReportRequest::clear_program() {
-  program_ = 0u;
-  clear_has_program();
-}
-inline ::google::protobuf::uint32 SubmitReportRequest::program() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.SubmitReportRequest.program)
-  return program_;
-}
-inline void SubmitReportRequest::set_program(::google::protobuf::uint32 value) {
-  set_has_program();
-  program_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.SubmitReportRequest.program)
-}
-
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -460,8 +390,6 @@ inline void SubmitReportRequest::set_program(::google::protobuf::uint32 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

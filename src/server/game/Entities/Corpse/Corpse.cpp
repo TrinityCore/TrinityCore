@@ -23,11 +23,10 @@
 #include "GameTime.h"
 #include "Log.h"
 #include "Map.h"
-#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "StringConvert.h"
 #include "UpdateData.h"
-#include "World.h"
 #include <sstream>
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
@@ -145,12 +144,12 @@ void Corpse::SaveToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Corpse::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void Corpse::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromDB(GetOwnerGUID(), trans);
 }
 
-void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction& trans)
+void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
     stmt->setUInt64(0, ownerGuid.GetCounter());
@@ -185,16 +184,16 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
-    Tokenizer items(fields[6].GetString(), ' ', EQUIPMENT_SLOT_END);
+    std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     if (items.size() == EQUIPMENT_SLOT_END)
         for (uint32 index = 0; index < EQUIPMENT_SLOT_END; ++index)
-            SetItem(index, atoul(items[index]));
+            SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
 
     SetRace(fields[7].GetUInt8());
     SetClass(fields[8].GetUInt8());
     SetSex(fields[9].GetUInt8());
-    SetFlags(fields[10].GetUInt8());
-    SetCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
+    ReplaceAllFlags(fields[10].GetUInt8());
+    ReplaceAllCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
     SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[15].GetUInt64()));
     SetFactionTemplate(sChrRacesStore.AssertEntry(m_corpseData->RaceID)->FactionID);
 
@@ -281,6 +280,17 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
     data->AddUpdateBlock(buffer);
+}
+
+void Corpse::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), CorpseMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Corpse::ClearUpdateMask(bool remove)

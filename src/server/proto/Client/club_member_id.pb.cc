@@ -31,7 +31,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmember_5fid_2eproto() {
   protobuf_AddDesc_club_5fmember_5fid_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -85,13 +84,14 @@ void protobuf_AddDesc_club_5fmember_5fid_2eproto() {
 
   ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2fmessage_5foptions_2eproto();
   ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\024club_member_id.proto\022\024bgs.protocol.clu"
     "b.v1\032\'global_extensions/message_options."
-    "proto\032\023account_types.proto\"]\n\010MemberId\0226"
-    "\n\naccount_id\030\001 \001(\0132\".bgs.protocol.accoun"
-    "t.v1.AccountId\022\021\n\tunique_id\030\002 \001(\004:\006\202\371+\002\010"
-    "\001B\002H\001", 205);
+    "proto\032\023account_types.proto\032\017rpc_types.pr"
+    "oto\"]\n\010MemberId\0226\n\naccount_id\030\001 \001(\0132\".bg"
+    "s.protocol.account.v1.AccountId\022\021\n\tuniqu"
+    "e_id\030\002 \001(\004:\006\202\371+\002\010\001B\002H\001", 222);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_member_id.proto", &protobuf_RegisterTypes);
   MemberId::default_instance_ = new MemberId();
@@ -105,7 +105,6 @@ struct StaticDescriptorInitializer_club_5fmember_5fid_2eproto {
     protobuf_AddDesc_club_5fmember_5fid_2eproto();
   }
 } static_descriptor_initializer_club_5fmember_5fid_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -351,7 +350,6 @@ void MemberId::CopyFrom(const MemberId& from) {
 }
 
 bool MemberId::IsInitialized() const {
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -375,7 +373,6 @@ void MemberId::Swap(MemberId* other) {
   metadata.reflection = MemberId_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

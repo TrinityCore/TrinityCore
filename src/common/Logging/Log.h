@@ -40,12 +40,12 @@ namespace Trinity
 
 #define LOGGER_ROOT "root"
 
-typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs);
+typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs);
 
 template <class AppenderImpl>
-Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs)
+Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs)
 {
-    return new AppenderImpl(id, name, level, flags, std::forward<std::vector<char const*>>(extraArgs));
+    return new AppenderImpl(id, name, level, flags, extraArgs);
 }
 
 class TC_COMMON_API Log
@@ -65,11 +65,11 @@ class TC_COMMON_API Log
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
-        bool ShouldLog(std::string const& type, LogLevel level) const;
-        bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
+        bool ShouldLog(std::string_view type, LogLevel level) const;
+        bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
         template<typename Format, typename... Args>
-        inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)
+        inline void outMessage(std::string_view filter, LogLevel const level, Format&& fmt, Args&&... args)
         {
             outMessage(filter, level, Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
         }
@@ -90,8 +90,7 @@ class TC_COMMON_API Log
         template<class AppenderImpl>
         void RegisterAppender()
         {
-            using Index = typename AppenderImpl::TypeIndex;
-            RegisterAppender(Index::value, &CreateAppender<AppenderImpl>);
+            RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
         }
 
         std::string const& GetLogsDir() const { return m_logsDir; }
@@ -104,20 +103,20 @@ class TC_COMMON_API Log
         static std::string GetTimestampStr();
         void write(std::unique_ptr<LogMessage>&& msg) const;
 
-        Logger const* GetLoggerByType(std::string const& type) const;
-        Appender* GetAppenderByName(std::string const& name);
+        Logger const* GetLoggerByType(std::string_view type) const;
+        Appender* GetAppenderByName(std::string_view name);
         uint8 NextAppenderId();
         void CreateAppenderFromConfig(std::string const& name);
         void CreateLoggerFromConfig(std::string const& name);
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
         void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
-        void outMessage(std::string const& filter, LogLevel level, std::string&& message);
+        void outMessage(std::string_view filter, LogLevel level, std::string&& message);
         void outCommand(std::string&& message, std::string&& param1);
 
         std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
         std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;
-        std::unordered_map<std::string, std::unique_ptr<Logger>> loggers;
+        std::unordered_map<std::string_view, std::unique_ptr<Logger>> loggers;
         uint8 AppenderId;
         LogLevel lowestLogLevel;
 

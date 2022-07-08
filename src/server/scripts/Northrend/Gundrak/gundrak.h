@@ -88,15 +88,15 @@ enum GDSpellIds
     SPELL_FIRE_BEAM_ELEMENTAL        = 57072
 };
 
-enum GDInstanceMisc
-{
-    TIMER_STATUE_ACTIVATION          = 3500
-};
+inline constexpr Milliseconds TIMER_STATUE_ACTIVATION = 3500ms;
 
 template <class AI, class T>
 inline AI* GetGundrakAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, GundrakScriptName);
 }
+
+#define RegisterGundrakCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetGundrakAI)
+#define RegisterGundrakGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetGundrakAI)
 
 #endif // GUNDRAK_H_

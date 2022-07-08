@@ -16,10 +16,8 @@
 // Neutral resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
-#ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 #pragma code_page(1250)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -45,12 +43,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "http://www.zezula.net/casc.html"
             VALUE "FileDescription", "CascLib library for reading Blizzard CASC storages"
-            VALUE "FileVersion", "1, 50, 0, 205\0"
+            VALUE "FileVersion", "1, 50, 0, 205"
             VALUE "InternalName", "CascLib"
-            VALUE "LegalCopyright", "Copyright (c) 2014 - 2019 Ladislav Zezula"
+            VALUE "LegalCopyright", "Copyright (c) 2014 - 2021 Ladislav Zezula"
             VALUE "OriginalFilename", "CascLib.dll"
             VALUE "ProductName", "CascLib"
-            VALUE "ProductVersion", "1, 50, 0, 205\0"
+            VALUE "ProductVersion", "1, 50, 0, 205"
         END
     END
     BLOCK "VarFileInfo"
@@ -64,13 +62,11 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Czech resources
+// Czech (Czech Republic) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CSY)
-#ifdef _WIN32
 LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
 #pragma code_page(1250)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -97,7 +93,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Czech resources
+#endif    // Czech (Czech Republic) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

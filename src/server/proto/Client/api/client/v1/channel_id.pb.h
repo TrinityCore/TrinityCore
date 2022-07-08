@@ -143,9 +143,7 @@ class TC_PROTO_API ChannelId : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -240,7 +238,6 @@ inline void ChannelId::set_id(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelId.id)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -251,8 +248,6 @@ inline void ChannelId::set_id(::google::protobuf::uint32 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

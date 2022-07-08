@@ -4,6 +4,7 @@
 
 #include "jemalloc/internal/assert.h"
 #include "jemalloc/internal/ctl.h"
+#include "jemalloc/internal/emitter.h"
 #include "jemalloc/internal/mutex.h"
 #include "jemalloc/internal/mutex_prof.h"
 
@@ -51,6 +52,20 @@ char opt_stats_print_opts[stats_print_tot_num_options+1] = "";
 
 /******************************************************************************/
 
+static uint64_t
+rate_per_second(uint64_t value, uint64_t uptime_ns) {
+	uint64_t billion = 1000000000;
+	if (uptime_ns == 0 || value == 0) {
+		return 0;
+	}
+	if (uptime_ns < billion) {
+		return value;
+	} else {
+		uint64_t uptime_s = uptime_ns / billion;
+		return value / uptime_s;
+	}
+}
+
 /* Calculate x.yyy and output a string (takes a fixed sized char array). */
 static bool
 get_rate_str(uint64_t dividend, uint64_t divisor, char str[6]) {
@@ -84,41 +99,175 @@ gen_mutex_ctl_str(char *str, size_t buf_len, const char *prefix,
 }
 
 static void
-read_arena_bin_mutex_stats(unsigned arena_ind, unsigned bin_ind,
-    uint64_t results[mutex_prof_num_counters]) {
+mutex_stats_init_cols(emitter_row_t *row, const char *table_name,
+    emitter_col_t *name,
+    emitter_col_t col_uint64_t[mutex_prof_num_uint64_t_counters],
+    emitter_col_t col_uint32_t[mutex_prof_num_uint32_t_counters]) {
+	mutex_prof_uint64_t_counter_ind_t k_uint64_t = 0;
+	mutex_prof_uint32_t_counter_ind_t k_uint32_t = 0;
+
+	emitter_col_t *col;
+
+	if (name != NULL) {
+		emitter_col_init(name, row);
+		name->justify = emitter_justify_left;
+		name->width = 21;
+		name->type = emitter_type_title;
+		name->str_val = table_name;
+	}
+
+#define WIDTH_uint32_t 12
+#define WIDTH_uint64_t 16
+#define OP(counter, counter_type, human, derived, base_counter)	\
+	col = &col_##counter_type[k_##counter_type];			\
+	++k_##counter_type;						\
+	emitter_col_init(col, row);					\
+	col->justify = emitter_justify_right;				\
+	col->width = derived ? 8 : WIDTH_##counter_type;		\
+	col->type = emitter_type_title;					\
+	col->str_val = human;
+	MUTEX_PROF_COUNTERS
+#undef OP
+#undef WIDTH_uint32_t
+#undef WIDTH_uint64_t
+	col_uint64_t[mutex_counter_total_wait_time_ps].width = 10;
+}
+
+static void
+mutex_stats_read_global(const char *name, emitter_col_t *col_name,
+    emitter_col_t col_uint64_t[mutex_prof_num_uint64_t_counters],
+    emitter_col_t col_uint32_t[mutex_prof_num_uint32_t_counters],
+    uint64_t uptime) {
 	char cmd[MUTEX_CTL_STR_MAX_LENGTH];
-#define OP(c, t)							\
-    gen_mutex_ctl_str(cmd, MUTEX_CTL_STR_MAX_LENGTH,			\
-        "arenas.0.bins.0","mutex", #c);					\
-    CTL_M2_M4_GET(cmd, arena_ind, bin_ind,				\
-        (t *)&results[mutex_counter_##c], t);
-MUTEX_PROF_COUNTERS
+
+	col_name->str_val = name;
+
+	emitter_col_t *dst;
+#define EMITTER_TYPE_uint32_t emitter_type_uint32
+#define EMITTER_TYPE_uint64_t emitter_type_uint64
+#define OP(counter, counter_type, human, derived, base_counter)	\
+	dst = &col_##counter_type[mutex_counter_##counter];		\
+	dst->type = EMITTER_TYPE_##counter_type;			\
+	if (!derived) {							\
+		gen_mutex_ctl_str(cmd, MUTEX_CTL_STR_MAX_LENGTH,	\
+		    "mutexes", name, #counter);				\
+		CTL_GET(cmd, (counter_type *)&dst->bool_val, counter_type);	\
+	} else { \
+	    emitter_col_t *base = &col_##counter_type[mutex_counter_##base_counter];	\
+	    dst->counter_type##_val = rate_per_second(base->counter_type##_val, uptime); \
+	}
+	MUTEX_PROF_COUNTERS
 #undef OP
+#undef EMITTER_TYPE_uint32_t
+#undef EMITTER_TYPE_uint64_t
 }
 
 static void
-mutex_stats_output_json(void (*write_cb)(void *, const char *), void *cbopaque,
-    const char *name, uint64_t stats[mutex_prof_num_counters],
-    const char *json_indent, bool last) {
-	malloc_cprintf(write_cb, cbopaque, "%s\"%s\": {\n", json_indent, name);
+mutex_stats_read_arena(unsigned arena_ind, mutex_prof_arena_ind_t mutex_ind,
+    const char *name, emitter_col_t *col_name,
+    emitter_col_t col_uint64_t[mutex_prof_num_uint64_t_counters],
+    emitter_col_t col_uint32_t[mutex_prof_num_uint32_t_counters],
+    uint64_t uptime) {
+	char cmd[MUTEX_CTL_STR_MAX_LENGTH];
 
-	mutex_prof_counter_ind_t k = 0;
-	char *fmt_str[2] = {"%s\t\"%s\": %"FMTu32"%s\n",
-	    "%s\t\"%s\": %"FMTu64"%s\n"};
-#define OP(c, t)							\
-	malloc_cprintf(write_cb, cbopaque,				\
-	    fmt_str[sizeof(t) / sizeof(uint32_t) - 1], 			\
-	    json_indent, #c, (t)stats[mutex_counter_##c],		\
-	    (++k == mutex_prof_num_counters) ? "" : ",");
-MUTEX_PROF_COUNTERS
+	col_name->str_val = name;
+
+	emitter_col_t *dst;
+#define EMITTER_TYPE_uint32_t emitter_type_uint32
+#define EMITTER_TYPE_uint64_t emitter_type_uint64
+#define OP(counter, counter_type, human, derived, base_counter)	\
+	dst = &col_##counter_type[mutex_counter_##counter];		\
+	dst->type = EMITTER_TYPE_##counter_type;			\
+	if (!derived) {                                   \
+		gen_mutex_ctl_str(cmd, MUTEX_CTL_STR_MAX_LENGTH,        \
+		    "arenas.0.mutexes", arena_mutex_names[mutex_ind], #counter);\
+		CTL_M2_GET(cmd, arena_ind, (counter_type *)&dst->bool_val, counter_type); \
+	} else {                      \
+		emitter_col_t *base = &col_##counter_type[mutex_counter_##base_counter];	\
+		dst->counter_type##_val = rate_per_second(base->counter_type##_val, uptime); \
+	}
+	MUTEX_PROF_COUNTERS
 #undef OP
-	malloc_cprintf(write_cb, cbopaque, "%s}%s\n", json_indent,
-	    last ? "" : ",");
+#undef EMITTER_TYPE_uint32_t
+#undef EMITTER_TYPE_uint64_t
 }
 
 static void
-stats_arena_bins_print(void (*write_cb)(void *, const char *), void *cbopaque,
-    bool json, bool large, bool mutex, unsigned i) {
+mutex_stats_read_arena_bin(unsigned arena_ind, unsigned bin_ind,
+    emitter_col_t col_uint64_t[mutex_prof_num_uint64_t_counters],
+    emitter_col_t col_uint32_t[mutex_prof_num_uint32_t_counters],
+    uint64_t uptime) {
+	char cmd[MUTEX_CTL_STR_MAX_LENGTH];
+	emitter_col_t *dst;
+
+#define EMITTER_TYPE_uint32_t emitter_type_uint32
+#define EMITTER_TYPE_uint64_t emitter_type_uint64
+#define OP(counter, counter_type, human, derived, base_counter)	\
+	dst = &col_##counter_type[mutex_counter_##counter];		\
+	dst->type = EMITTER_TYPE_##counter_type;			\
+	if (!derived) {                                   \
+		gen_mutex_ctl_str(cmd, MUTEX_CTL_STR_MAX_LENGTH,        \
+		    "arenas.0.bins.0","mutex", #counter);            \
+		CTL_M2_M4_GET(cmd, arena_ind, bin_ind,                \
+		    (counter_type *)&dst->bool_val, counter_type);  \
+	} else {                      \
+		emitter_col_t *base = &col_##counter_type[mutex_counter_##base_counter]; \
+		dst->counter_type##_val = rate_per_second(base->counter_type##_val, uptime); \
+	}
+	MUTEX_PROF_COUNTERS
+#undef OP
+#undef EMITTER_TYPE_uint32_t
+#undef EMITTER_TYPE_uint64_t
+}
+
+/* "row" can be NULL to avoid emitting in table mode. */
+static void
+mutex_stats_emit(emitter_t *emitter, emitter_row_t *row,
+    emitter_col_t col_uint64_t[mutex_prof_num_uint64_t_counters],
+    emitter_col_t col_uint32_t[mutex_prof_num_uint32_t_counters]) {
+	if (row != NULL) {
+		emitter_table_row(emitter, row);
+	}
+
+	mutex_prof_uint64_t_counter_ind_t k_uint64_t = 0;
+	mutex_prof_uint32_t_counter_ind_t k_uint32_t = 0;
+
+	emitter_col_t *col;
+
+#define EMITTER_TYPE_uint32_t emitter_type_uint32
+#define EMITTER_TYPE_uint64_t emitter_type_uint64
+#define OP(counter, type, human, derived, base_counter)		\
+	if (!derived) {                    \
+		col = &col_##type[k_##type];                        \
+		++k_##type;                            \
+		emitter_json_kv(emitter, #counter, EMITTER_TYPE_##type,        \
+		    (const void *)&col->bool_val); \
+	}
+	MUTEX_PROF_COUNTERS;
+#undef OP
+#undef EMITTER_TYPE_uint32_t
+#undef EMITTER_TYPE_uint64_t
+}
+
+#define COL(row_name, column_name, left_or_right, col_width, etype)      \
+	emitter_col_t col_##column_name;                                     \
+	emitter_col_init(&col_##column_name, &row_name);                     \
+	col_##column_name.justify = emitter_justify_##left_or_right;         \
+	col_##column_name.width = col_width;                                 \
+	col_##column_name.type = emitter_type_##etype;
+
+#define COL_HDR(row_name, column_name, human, left_or_right, col_width, etype)  \
+	COL(row_name, column_name, left_or_right, col_width, etype)	         \
+	emitter_col_t header_##column_name;                                  \
+	emitter_col_init(&header_##column_name, &header_##row_name);         \
+	header_##column_name.justify = emitter_justify_##left_or_right;      \
+	header_##column_name.width = col_width;                              \
+	header_##column_name.type = emitter_type_title;                      \
+	header_##column_name.str_val = human ? human : #column_name;
+
+
+static void
+stats_arena_bins_print(emitter_t *emitter, bool mutex, unsigned i, uint64_t uptime) {
 	size_t page;
 	bool in_gap, in_gap_prev;
 	unsigned nbins, j;
@@ -126,23 +275,71 @@ stats_arena_bins_print(void (*write_cb)(void *, const char *), void *cbopaque,
 	CTL_GET("arenas.page", &page, size_t);
 
 	CTL_GET("arenas.nbins", &nbins, unsigned);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"bins\": [\n");
-	} else {
-		char *mutex_counters = "   n_lock_ops    n_waiting"
-		    "   n_spin_acq  total_wait_ns  max_wait_ns\n";
-		malloc_cprintf(write_cb, cbopaque,
-		    "bins:           size ind    allocated      nmalloc"
-		    "      ndalloc    nrequests      curregs     curslabs regs"
-		    " pgs  util       nfills     nflushes     newslabs"
-		    "      reslabs%s", mutex ? mutex_counters : "\n");
+
+	emitter_row_t header_row;
+	emitter_row_init(&header_row);
+
+	emitter_row_t row;
+	emitter_row_init(&row);
+
+	COL_HDR(row, size, NULL, right, 20, size)
+	COL_HDR(row, ind, NULL, right, 4, unsigned)
+	COL_HDR(row, allocated, NULL, right, 13, uint64)
+	COL_HDR(row, nmalloc, NULL, right, 13, uint64)
+	COL_HDR(row, nmalloc_ps, "(#/sec)", right, 8, uint64)
+	COL_HDR(row, ndalloc, NULL, right, 13, uint64)
+	COL_HDR(row, ndalloc_ps, "(#/sec)", right, 8, uint64)
+	COL_HDR(row, nrequests, NULL, right, 13, uint64)
+	COL_HDR(row, nrequests_ps, "(#/sec)", right, 10, uint64)
+	COL_HDR(row, nshards, NULL, right, 9, unsigned)
+	COL_HDR(row, curregs, NULL, right, 13, size)
+	COL_HDR(row, curslabs, NULL, right, 13, size)
+	COL_HDR(row, nonfull_slabs, NULL, right, 15, size)
+	COL_HDR(row, regs, NULL, right, 5, unsigned)
+	COL_HDR(row, pgs, NULL, right, 4, size)
+	/* To buffer a right- and left-justified column. */
+	COL_HDR(row, justify_spacer, NULL, right, 1, title)
+	COL_HDR(row, util, NULL, right, 6, title)
+	COL_HDR(row, nfills, NULL, right, 13, uint64)
+	COL_HDR(row, nfills_ps, "(#/sec)", right, 8, uint64)
+	COL_HDR(row, nflushes, NULL, right, 13, uint64)
+	COL_HDR(row, nflushes_ps, "(#/sec)", right, 8, uint64)
+	COL_HDR(row, nslabs, NULL, right, 13, uint64)
+	COL_HDR(row, nreslabs, NULL, right, 13, uint64)
+	COL_HDR(row, nreslabs_ps, "(#/sec)", right, 8, uint64)
+
+	/* Don't want to actually print the name. */
+	header_justify_spacer.str_val = " ";
+	col_justify_spacer.str_val = " ";
+
+	emitter_col_t col_mutex64[mutex_prof_num_uint64_t_counters];
+	emitter_col_t col_mutex32[mutex_prof_num_uint32_t_counters];
+
+	emitter_col_t header_mutex64[mutex_prof_num_uint64_t_counters];
+	emitter_col_t header_mutex32[mutex_prof_num_uint32_t_counters];
+
+	if (mutex) {
+		mutex_stats_init_cols(&row, NULL, NULL, col_mutex64,
+		    col_mutex32);
+		mutex_stats_init_cols(&header_row, NULL, NULL, header_mutex64,
+		    header_mutex32);
 	}
+
+	/*
+	 * We print a "bins:" header as part of the table row; we need to adjust
+	 * the header size column to compensate.
+	 */
+	header_size.width -=5;
+	emitter_table_printf(emitter, "bins:");
+	emitter_table_row(emitter, &header_row);
+	emitter_json_array_kv_begin(emitter, "bins");
+
 	for (j = 0, in_gap = false; j < nbins; j++) {
 		uint64_t nslabs;
 		size_t reg_size, slab_size, curregs;
 		size_t curslabs;
-		uint32_t nregs;
+		size_t nonfull_slabs;
+		uint32_t nregs, nshards;
 		uint64_t nmalloc, ndalloc, nrequests, nfills, nflushes;
 		uint64_t nreslabs;
 
@@ -151,14 +348,15 @@ stats_arena_bins_print(void (*write_cb)(void *, const char *), void *cbopaque,
 		in_gap_prev = in_gap;
 		in_gap = (nslabs == 0);
 
-		if (!json && in_gap_prev && !in_gap) {
-			malloc_cprintf(write_cb, cbopaque,
+		if (in_gap_prev && !in_gap) {
+			emitter_table_printf(emitter,
 			    "                     ---\n");
 		}
 
 		CTL_M2_GET("arenas.bin.0.size", j, &reg_size, size_t);
 		CTL_M2_GET("arenas.bin.0.nregs", j, &nregs, uint32_t);
 		CTL_M2_GET("arenas.bin.0.slab_size", j, &slab_size, size_t);
+		CTL_M2_GET("arenas.bin.0.nshards", j, &nshards, uint32_t);
 
 		CTL_M2_M4_GET("stats.arenas.0.bins.0.nmalloc", i, j, &nmalloc,
 		    uint64_t);
@@ -176,106 +374,128 @@ stats_arena_bins_print(void (*write_cb)(void *, const char *), void *cbopaque,
 		    uint64_t);
 		CTL_M2_M4_GET("stats.arenas.0.bins.0.curslabs", i, j, &curslabs,
 		    size_t);
+		CTL_M2_M4_GET("stats.arenas.0.bins.0.nonfull_slabs", i, j, &nonfull_slabs,
+		    size_t);
 
-		if (json) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t\t{\n"
-			    "\t\t\t\t\t\t\"nmalloc\": %"FMTu64",\n"
-			    "\t\t\t\t\t\t\"ndalloc\": %"FMTu64",\n"
-			    "\t\t\t\t\t\t\"curregs\": %zu,\n"
-			    "\t\t\t\t\t\t\"nrequests\": %"FMTu64",\n"
-			    "\t\t\t\t\t\t\"nfills\": %"FMTu64",\n"
-			    "\t\t\t\t\t\t\"nflushes\": %"FMTu64",\n"
-			    "\t\t\t\t\t\t\"nreslabs\": %"FMTu64",\n"
-			    "\t\t\t\t\t\t\"curslabs\": %zu%s\n",
-			    nmalloc, ndalloc, curregs, nrequests, nfills,
-			    nflushes, nreslabs, curslabs, mutex ? "," : "");
-			if (mutex) {
-				uint64_t mutex_stats[mutex_prof_num_counters];
-				read_arena_bin_mutex_stats(i, j, mutex_stats);
-				mutex_stats_output_json(write_cb, cbopaque,
-				    "mutex", mutex_stats, "\t\t\t\t\t\t", true);
-			}
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t\t}%s\n",
-			    (j + 1 < nbins) ? "," : "");
-		} else if (!in_gap) {
-			size_t availregs = nregs * curslabs;
-			char util[6];
-			if (get_rate_str((uint64_t)curregs, (uint64_t)availregs,
-			    util)) {
-				if (availregs == 0) {
-					malloc_snprintf(util, sizeof(util),
-					    "1");
-				} else if (curregs > availregs) {
-					/*
-					 * Race detected: the counters were read
-					 * in separate mallctl calls and
-					 * concurrent operations happened in
-					 * between. In this case no meaningful
-					 * utilization can be computed.
-					 */
-					malloc_snprintf(util, sizeof(util),
-					    " race");
-				} else {
-					not_reached();
-				}
-			}
-			uint64_t mutex_stats[mutex_prof_num_counters];
-			if (mutex) {
-				read_arena_bin_mutex_stats(i, j, mutex_stats);
-			}
+		if (mutex) {
+			mutex_stats_read_arena_bin(i, j, col_mutex64,
+			    col_mutex32, uptime);
+		}
 
-			malloc_cprintf(write_cb, cbopaque, "%20zu %3u %12zu %12"
-			    FMTu64" %12"FMTu64" %12"FMTu64" %12zu %12zu %4u"
-			    " %3zu %-5s %12"FMTu64" %12"FMTu64" %12"FMTu64
-			    " %12"FMTu64, reg_size, j, curregs * reg_size,
-			    nmalloc, ndalloc, nrequests, curregs, curslabs,
-			    nregs, slab_size / page, util, nfills, nflushes,
-			    nslabs, nreslabs);
+		emitter_json_object_begin(emitter);
+		emitter_json_kv(emitter, "nmalloc", emitter_type_uint64,
+		    &nmalloc);
+		emitter_json_kv(emitter, "ndalloc", emitter_type_uint64,
+		    &ndalloc);
+		emitter_json_kv(emitter, "curregs", emitter_type_size,
+		    &curregs);
+		emitter_json_kv(emitter, "nrequests", emitter_type_uint64,
+		    &nrequests);
+		emitter_json_kv(emitter, "nfills", emitter_type_uint64,
+		    &nfills);
+		emitter_json_kv(emitter, "nflushes", emitter_type_uint64,
+		    &nflushes);
+		emitter_json_kv(emitter, "nreslabs", emitter_type_uint64,
+		    &nreslabs);
+		emitter_json_kv(emitter, "curslabs", emitter_type_size,
+		    &curslabs);
+		emitter_json_kv(emitter, "nonfull_slabs", emitter_type_size,
+		    &nonfull_slabs);
+		if (mutex) {
+			emitter_json_object_kv_begin(emitter, "mutex");
+			mutex_stats_emit(emitter, NULL, col_mutex64,
+			    col_mutex32);
+			emitter_json_object_end(emitter);
+		}
+		emitter_json_object_end(emitter);
 
-			/* Output less info for bin mutexes to save space. */
-			if (mutex) {
-				malloc_cprintf(write_cb, cbopaque,
-				    " %12"FMTu64" %12"FMTu64" %12"FMTu64
-				    " %14"FMTu64" %12"FMTu64"\n",
-				    mutex_stats[mutex_counter_num_ops],
-				    mutex_stats[mutex_counter_num_wait],
-				    mutex_stats[mutex_counter_num_spin_acq],
-				    mutex_stats[mutex_counter_total_wait_time],
-				    mutex_stats[mutex_counter_max_wait_time]);
+		size_t availregs = nregs * curslabs;
+		char util[6];
+		if (get_rate_str((uint64_t)curregs, (uint64_t)availregs, util))
+		{
+			if (availregs == 0) {
+				malloc_snprintf(util, sizeof(util), "1");
+			} else if (curregs > availregs) {
+				/*
+				 * Race detected: the counters were read in
+				 * separate mallctl calls and concurrent
+				 * operations happened in between.  In this case
+				 * no meaningful utilization can be computed.
+				 */
+				malloc_snprintf(util, sizeof(util), " race");
 			} else {
-				malloc_cprintf(write_cb, cbopaque, "\n");
+				not_reached();
 			}
 		}
+
+		col_size.size_val = reg_size;
+		col_ind.unsigned_val = j;
+		col_allocated.size_val = curregs * reg_size;
+		col_nmalloc.uint64_val = nmalloc;
+		col_nmalloc_ps.uint64_val = rate_per_second(nmalloc, uptime);
+		col_ndalloc.uint64_val = ndalloc;
+		col_ndalloc_ps.uint64_val = rate_per_second(ndalloc, uptime);
+		col_nrequests.uint64_val = nrequests;
+		col_nrequests_ps.uint64_val = rate_per_second(nrequests, uptime);
+		col_nshards.unsigned_val = nshards;
+		col_curregs.size_val = curregs;
+		col_curslabs.size_val = curslabs;
+		col_nonfull_slabs.size_val = nonfull_slabs;
+		col_regs.unsigned_val = nregs;
+		col_pgs.size_val = slab_size / page;
+		col_util.str_val = util;
+		col_nfills.uint64_val = nfills;
+		col_nfills_ps.uint64_val = rate_per_second(nfills, uptime);
+		col_nflushes.uint64_val = nflushes;
+		col_nflushes_ps.uint64_val = rate_per_second(nflushes, uptime);
+		col_nslabs.uint64_val = nslabs;
+		col_nreslabs.uint64_val = nreslabs;
+		col_nreslabs_ps.uint64_val = rate_per_second(nreslabs, uptime);
+
+		/*
+		 * Note that mutex columns were initialized above, if mutex ==
+		 * true.
+		 */
+
+		emitter_table_row(emitter, &row);
 	}
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t]%s\n", large ? "," : "");
-	} else {
-		if (in_gap) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "                     ---\n");
-		}
+	emitter_json_array_end(emitter); /* Close "bins". */
+
+	if (in_gap) {
+		emitter_table_printf(emitter, "                     ---\n");
 	}
 }
 
 static void
-stats_arena_lextents_print(void (*write_cb)(void *, const char *),
-    void *cbopaque, bool json, unsigned i) {
+stats_arena_lextents_print(emitter_t *emitter, unsigned i, uint64_t uptime) {
 	unsigned nbins, nlextents, j;
 	bool in_gap, in_gap_prev;
 
 	CTL_GET("arenas.nbins", &nbins, unsigned);
 	CTL_GET("arenas.nlextents", &nlextents, unsigned);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"lextents\": [\n");
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "large:          size ind    allocated      nmalloc"
-		    "      ndalloc    nrequests  curlextents\n");
-	}
+
+	emitter_row_t header_row;
+	emitter_row_init(&header_row);
+	emitter_row_t row;
+	emitter_row_init(&row);
+
+	COL_HDR(row, size, NULL, right, 20, size)
+	COL_HDR(row, ind, NULL, right, 4, unsigned)
+	COL_HDR(row, allocated, NULL, right, 13, size)
+	COL_HDR(row, nmalloc, NULL, right, 13, uint64)
+	COL_HDR(row, nmalloc_ps, "(#/sec)", right, 8, uint64)
+	COL_HDR(row, ndalloc, NULL, right, 13, uint64)
+	COL_HDR(row, ndalloc_ps, "(#/sec)", right, 8, uint64)
+	COL_HDR(row, nrequests, NULL, right, 13, uint64)
+	COL_HDR(row, nrequests_ps, "(#/sec)", right, 8, uint64)
+	COL_HDR(row, curlextents, NULL, right, 13, size)
+
+	/* As with bins, we label the large extents table. */
+	header_size.width -= 6;
+	emitter_table_printf(emitter, "large:");
+	emitter_table_row(emitter, &header_row);
+	emitter_json_array_kv_begin(emitter, "lextents");
+
 	for (j = 0, in_gap = false; j < nlextents; j++) {
 		uint64_t nmalloc, ndalloc, nrequests;
 		size_t lextent_size, curlextents;
@@ -289,156 +509,186 @@ stats_arena_lextents_print(void (*write_cb)(void *, const char *),
 		in_gap_prev = in_gap;
 		in_gap = (nrequests == 0);
 
-		if (!json && in_gap_prev && !in_gap) {
-			malloc_cprintf(write_cb, cbopaque,
+		if (in_gap_prev && !in_gap) {
+			emitter_table_printf(emitter,
 			    "                     ---\n");
 		}
 
 		CTL_M2_GET("arenas.lextent.0.size", j, &lextent_size, size_t);
 		CTL_M2_M4_GET("stats.arenas.0.lextents.0.curlextents", i, j,
 		    &curlextents, size_t);
-		if (json) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t\t{\n"
-			    "\t\t\t\t\t\t\"curlextents\": %zu\n"
-			    "\t\t\t\t\t}%s\n",
-			    curlextents,
-			    (j + 1 < nlextents) ? "," : "");
-		} else if (!in_gap) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "%20zu %3u %12zu %12"FMTu64" %12"FMTu64
-			    " %12"FMTu64" %12zu\n",
-			    lextent_size, nbins + j,
-			    curlextents * lextent_size, nmalloc, ndalloc,
-			    nrequests, curlextents);
+
+		emitter_json_object_begin(emitter);
+		emitter_json_kv(emitter, "curlextents", emitter_type_size,
+		    &curlextents);
+		emitter_json_object_end(emitter);
+
+		col_size.size_val = lextent_size;
+		col_ind.unsigned_val = nbins + j;
+		col_allocated.size_val = curlextents * lextent_size;
+		col_nmalloc.uint64_val = nmalloc;
+		col_nmalloc_ps.uint64_val = rate_per_second(nmalloc, uptime);
+		col_ndalloc.uint64_val = ndalloc;
+		col_ndalloc_ps.uint64_val = rate_per_second(ndalloc, uptime);
+		col_nrequests.uint64_val = nrequests;
+		col_nrequests_ps.uint64_val = rate_per_second(nrequests, uptime);
+		col_curlextents.size_val = curlextents;
+
+		if (!in_gap) {
+			emitter_table_row(emitter, &row);
 		}
 	}
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t]\n");
-	} else {
-		if (in_gap) {
-			malloc_cprintf(write_cb, cbopaque,
+	emitter_json_array_end(emitter); /* Close "lextents". */
+	if (in_gap) {
+		emitter_table_printf(emitter, "                     ---\n");
+	}
+}
+
+static void
+stats_arena_extents_print(emitter_t *emitter, unsigned i) {
+	unsigned j;
+	bool in_gap, in_gap_prev;
+	emitter_row_t header_row;
+	emitter_row_init(&header_row);
+	emitter_row_t row;
+	emitter_row_init(&row);
+
+	COL_HDR(row, size, NULL, right, 20, size)
+	COL_HDR(row, ind, NULL, right, 4, unsigned)
+	COL_HDR(row, ndirty, NULL, right, 13, size)
+	COL_HDR(row, dirty, NULL, right, 13, size)
+	COL_HDR(row, nmuzzy, NULL, right, 13, size)
+	COL_HDR(row, muzzy, NULL, right, 13, size)
+	COL_HDR(row, nretained, NULL, right, 13, size)
+	COL_HDR(row, retained, NULL, right, 13, size)
+	COL_HDR(row, ntotal, NULL, right, 13, size)
+	COL_HDR(row, total, NULL, right, 13, size)
+
+	/* Label this section. */
+	header_size.width -= 8;
+	emitter_table_printf(emitter, "extents:");
+	emitter_table_row(emitter, &header_row);
+	emitter_json_array_kv_begin(emitter, "extents");
+
+	in_gap = false;
+	for (j = 0; j < SC_NPSIZES; j++) {
+		size_t ndirty, nmuzzy, nretained, total, dirty_bytes,
+		    muzzy_bytes, retained_bytes, total_bytes;
+		CTL_M2_M4_GET("stats.arenas.0.extents.0.ndirty", i, j,
+		    &ndirty, size_t);
+		CTL_M2_M4_GET("stats.arenas.0.extents.0.nmuzzy", i, j,
+		    &nmuzzy, size_t);
+		CTL_M2_M4_GET("stats.arenas.0.extents.0.nretained", i, j,
+		    &nretained, size_t);
+		CTL_M2_M4_GET("stats.arenas.0.extents.0.dirty_bytes", i, j,
+		    &dirty_bytes, size_t);
+		CTL_M2_M4_GET("stats.arenas.0.extents.0.muzzy_bytes", i, j,
+		    &muzzy_bytes, size_t);
+		CTL_M2_M4_GET("stats.arenas.0.extents.0.retained_bytes", i, j,
+		    &retained_bytes, size_t);
+		total = ndirty + nmuzzy + nretained;
+		total_bytes = dirty_bytes + muzzy_bytes + retained_bytes;
+
+		in_gap_prev = in_gap;
+		in_gap = (total == 0);
+
+		if (in_gap_prev && !in_gap) {
+			emitter_table_printf(emitter,
 			    "                     ---\n");
 		}
-	}
-}
 
-static void
-read_arena_mutex_stats(unsigned arena_ind,
-    uint64_t results[mutex_prof_num_arena_mutexes][mutex_prof_num_counters]) {
-	char cmd[MUTEX_CTL_STR_MAX_LENGTH];
+		emitter_json_object_begin(emitter);
+		emitter_json_kv(emitter, "ndirty", emitter_type_size, &ndirty);
+		emitter_json_kv(emitter, "nmuzzy", emitter_type_size, &nmuzzy);
+		emitter_json_kv(emitter, "nretained", emitter_type_size,
+		    &nretained);
 
-	mutex_prof_arena_ind_t i;
-	for (i = 0; i < mutex_prof_num_arena_mutexes; i++) {
-#define OP(c, t)							\
-		gen_mutex_ctl_str(cmd, MUTEX_CTL_STR_MAX_LENGTH,	\
-		    "arenas.0.mutexes",	arena_mutex_names[i], #c);	\
-		CTL_M2_GET(cmd, arena_ind,				\
-		    (t *)&results[i][mutex_counter_##c], t);
-MUTEX_PROF_COUNTERS
-#undef OP
-	}
-}
+		emitter_json_kv(emitter, "dirty_bytes", emitter_type_size,
+		    &dirty_bytes);
+		emitter_json_kv(emitter, "muzzy_bytes", emitter_type_size,
+		    &muzzy_bytes);
+		emitter_json_kv(emitter, "retained_bytes", emitter_type_size,
+		    &retained_bytes);
+		emitter_json_object_end(emitter);
 
-static void
-mutex_stats_output(void (*write_cb)(void *, const char *), void *cbopaque,
-    const char *name, uint64_t stats[mutex_prof_num_counters],
-    bool first_mutex) {
-	if (first_mutex) {
-		/* Print title. */
-		malloc_cprintf(write_cb, cbopaque,
-		    "                           n_lock_ops       n_waiting"
-		    "      n_spin_acq  n_owner_switch   total_wait_ns"
-		    "     max_wait_ns  max_n_thds\n");
-	}
+		col_size.size_val = sz_pind2sz(j);
+		col_ind.size_val = j;
+		col_ndirty.size_val = ndirty;
+		col_dirty.size_val = dirty_bytes;
+		col_nmuzzy.size_val = nmuzzy;
+		col_muzzy.size_val = muzzy_bytes;
+		col_nretained.size_val = nretained;
+		col_retained.size_val = retained_bytes;
+		col_ntotal.size_val = total;
+		col_total.size_val = total_bytes;
 
-	malloc_cprintf(write_cb, cbopaque, "%s", name);
-	malloc_cprintf(write_cb, cbopaque, ":%*c",
-	    (int)(20 - strlen(name)), ' ');
-
-	char *fmt_str[2] = {"%12"FMTu32, "%16"FMTu64};
-#define OP(c, t)							\
-	malloc_cprintf(write_cb, cbopaque,				\
-	    fmt_str[sizeof(t) / sizeof(uint32_t) - 1],			\
-	    (t)stats[mutex_counter_##c]);
-MUTEX_PROF_COUNTERS
-#undef OP
-	malloc_cprintf(write_cb, cbopaque, "\n");
-}
-
-static void
-stats_arena_mutexes_print(void (*write_cb)(void *, const char *),
-    void *cbopaque, bool json, bool json_end, unsigned arena_ind) {
-	uint64_t mutex_stats[mutex_prof_num_arena_mutexes][mutex_prof_num_counters];
-	read_arena_mutex_stats(arena_ind, mutex_stats);
-
-	/* Output mutex stats. */
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque, "\t\t\t\t\"mutexes\": {\n");
-		mutex_prof_arena_ind_t i, last_mutex;
-		last_mutex = mutex_prof_num_arena_mutexes - 1;
-		for (i = 0; i < mutex_prof_num_arena_mutexes; i++) {
-			mutex_stats_output_json(write_cb, cbopaque,
-			    arena_mutex_names[i], mutex_stats[i],
-			    "\t\t\t\t\t", (i == last_mutex));
-		}
-		malloc_cprintf(write_cb, cbopaque, "\t\t\t\t}%s\n",
-		    json_end ? "" : ",");
-	} else {
-		mutex_prof_arena_ind_t i;
-		for (i = 0; i < mutex_prof_num_arena_mutexes; i++) {
-			mutex_stats_output(write_cb, cbopaque,
-			    arena_mutex_names[i], mutex_stats[i], i == 0);
+		if (!in_gap) {
+			emitter_table_row(emitter, &row);
 		}
 	}
+	emitter_json_array_end(emitter); /* Close "extents". */
+	if (in_gap) {
+		emitter_table_printf(emitter, "                     ---\n");
+	}
 }
 
 static void
-stats_arena_print(void (*write_cb)(void *, const char *), void *cbopaque,
-    bool json, unsigned i, bool bins, bool large, bool mutex) {
+stats_arena_mutexes_print(emitter_t *emitter, unsigned arena_ind, uint64_t uptime) {
+	emitter_row_t row;
+	emitter_col_t col_name;
+	emitter_col_t col64[mutex_prof_num_uint64_t_counters];
+	emitter_col_t col32[mutex_prof_num_uint32_t_counters];
+
+	emitter_row_init(&row);
+	mutex_stats_init_cols(&row, "", &col_name, col64, col32);
+
+	emitter_json_object_kv_begin(emitter, "mutexes");
+	emitter_table_row(emitter, &row);
+
+	for (mutex_prof_arena_ind_t i = 0; i < mutex_prof_num_arena_mutexes;
+	    i++) {
+		const char *name = arena_mutex_names[i];
+		emitter_json_object_kv_begin(emitter, name);
+		mutex_stats_read_arena(arena_ind, i, name, &col_name, col64,
+		    col32, uptime);
+		mutex_stats_emit(emitter, &row, col64, col32);
+		emitter_json_object_end(emitter); /* Close the mutex dict. */
+	}
+	emitter_json_object_end(emitter); /* End "mutexes". */
+}
+
+static void
+stats_arena_print(emitter_t *emitter, unsigned i, bool bins, bool large,
+    bool mutex, bool extents) {
 	unsigned nthreads;
 	const char *dss;
 	ssize_t dirty_decay_ms, muzzy_decay_ms;
 	size_t page, pactive, pdirty, pmuzzy, mapped, retained;
-	size_t base, internal, resident;
+	size_t base, internal, resident, metadata_thp, extent_avail;
 	uint64_t dirty_npurge, dirty_nmadvise, dirty_purged;
 	uint64_t muzzy_npurge, muzzy_nmadvise, muzzy_purged;
 	size_t small_allocated;
-	uint64_t small_nmalloc, small_ndalloc, small_nrequests;
+	uint64_t small_nmalloc, small_ndalloc, small_nrequests, small_nfills,
+	    small_nflushes;
 	size_t large_allocated;
-	uint64_t large_nmalloc, large_ndalloc, large_nrequests;
-	size_t tcache_bytes;
+	uint64_t large_nmalloc, large_ndalloc, large_nrequests, large_nfills,
+	    large_nflushes;
+	size_t tcache_bytes, abandoned_vm;
 	uint64_t uptime;
 
 	CTL_GET("arenas.page", &page, size_t);
 
 	CTL_M2_GET("stats.arenas.0.nthreads", i, &nthreads, unsigned);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"nthreads\": %u,\n", nthreads);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "assigned threads: %u\n", nthreads);
-	}
+	emitter_kv(emitter, "nthreads", "assigned threads",
+	    emitter_type_unsigned, &nthreads);
 
 	CTL_M2_GET("stats.arenas.0.uptime", i, &uptime, uint64_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"uptime_ns\": %"FMTu64",\n", uptime);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "uptime: %"FMTu64"\n", uptime);
-	}
+	emitter_kv(emitter, "uptime_ns", "uptime", emitter_type_uint64,
+	    &uptime);
 
 	CTL_M2_GET("stats.arenas.0.dss", i, &dss, const char *);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"dss\": \"%s\",\n", dss);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "dss allocation precedence: %s\n", dss);
-	}
+	emitter_kv(emitter, "dss", "dss allocation precedence",
+	    emitter_type_string, &dss);
 
 	CTL_M2_GET("stats.arenas.0.dirty_decay_ms", i, &dirty_decay_ms,
 	    ssize_t);
@@ -455,205 +705,290 @@ stats_arena_print(void (*write_cb)(void *, const char *), void *cbopaque,
 	CTL_M2_GET("stats.arenas.0.muzzy_nmadvise", i, &muzzy_nmadvise,
 	    uint64_t);
 	CTL_M2_GET("stats.arenas.0.muzzy_purged", i, &muzzy_purged, uint64_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"dirty_decay_ms\": %zd,\n", dirty_decay_ms);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"muzzy_decay_ms\": %zd,\n", muzzy_decay_ms);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"pactive\": %zu,\n", pactive);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"pdirty\": %zu,\n", pdirty);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"pmuzzy\": %zu,\n", pmuzzy);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"dirty_npurge\": %"FMTu64",\n", dirty_npurge);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"dirty_nmadvise\": %"FMTu64",\n", dirty_nmadvise);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"dirty_purged\": %"FMTu64",\n", dirty_purged);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"muzzy_npurge\": %"FMTu64",\n", muzzy_npurge);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"muzzy_nmadvise\": %"FMTu64",\n", muzzy_nmadvise);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"muzzy_purged\": %"FMTu64",\n", muzzy_purged);
+
+	emitter_row_t decay_row;
+	emitter_row_init(&decay_row);
+
+	/* JSON-style emission. */
+	emitter_json_kv(emitter, "dirty_decay_ms", emitter_type_ssize,
+	    &dirty_decay_ms);
+	emitter_json_kv(emitter, "muzzy_decay_ms", emitter_type_ssize,
+	    &muzzy_decay_ms);
+
+	emitter_json_kv(emitter, "pactive", emitter_type_size, &pactive);
+	emitter_json_kv(emitter, "pdirty", emitter_type_size, &pdirty);
+	emitter_json_kv(emitter, "pmuzzy", emitter_type_size, &pmuzzy);
+
+	emitter_json_kv(emitter, "dirty_npurge", emitter_type_uint64,
+	    &dirty_npurge);
+	emitter_json_kv(emitter, "dirty_nmadvise", emitter_type_uint64,
+	    &dirty_nmadvise);
+	emitter_json_kv(emitter, "dirty_purged", emitter_type_uint64,
+	    &dirty_purged);
+
+	emitter_json_kv(emitter, "muzzy_npurge", emitter_type_uint64,
+	    &muzzy_npurge);
+	emitter_json_kv(emitter, "muzzy_nmadvise", emitter_type_uint64,
+	    &muzzy_nmadvise);
+	emitter_json_kv(emitter, "muzzy_purged", emitter_type_uint64,
+	    &muzzy_purged);
+
+	/* Table-style emission. */
+	COL(decay_row, decay_type, right, 9, title);
+	col_decay_type.str_val = "decaying:";
+
+	COL(decay_row, decay_time, right, 6, title);
+	col_decay_time.str_val = "time";
+
+	COL(decay_row, decay_npages, right, 13, title);
+	col_decay_npages.str_val = "npages";
+
+	COL(decay_row, decay_sweeps, right, 13, title);
+	col_decay_sweeps.str_val = "sweeps";
+
+	COL(decay_row, decay_madvises, right, 13, title);
+	col_decay_madvises.str_val = "madvises";
+
+	COL(decay_row, decay_purged, right, 13, title);
+	col_decay_purged.str_val = "purged";
+
+	/* Title row. */
+	emitter_table_row(emitter, &decay_row);
+
+	/* Dirty row. */
+	col_decay_type.str_val = "dirty:";
+
+	if (dirty_decay_ms >= 0) {
+		col_decay_time.type = emitter_type_ssize;
+		col_decay_time.ssize_val = dirty_decay_ms;
 	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "decaying:  time       npages       sweeps     madvises"
-		    "       purged\n");
-		if (dirty_decay_ms >= 0) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "   dirty: %5zd %12zu %12"FMTu64" %12"FMTu64" %12"
-			    FMTu64"\n", dirty_decay_ms, pdirty, dirty_npurge,
-			    dirty_nmadvise, dirty_purged);
-		} else {
-			malloc_cprintf(write_cb, cbopaque,
-			    "   dirty:   N/A %12zu %12"FMTu64" %12"FMTu64" %12"
-			    FMTu64"\n", pdirty, dirty_npurge, dirty_nmadvise,
-			    dirty_purged);
-		}
-		if (muzzy_decay_ms >= 0) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "   muzzy: %5zd %12zu %12"FMTu64" %12"FMTu64" %12"
-			    FMTu64"\n", muzzy_decay_ms, pmuzzy, muzzy_npurge,
-			    muzzy_nmadvise, muzzy_purged);
-		} else {
-			malloc_cprintf(write_cb, cbopaque,
-			    "   muzzy:   N/A %12zu %12"FMTu64" %12"FMTu64" %12"
-			    FMTu64"\n", pmuzzy, muzzy_npurge, muzzy_nmadvise,
-			    muzzy_purged);
-		}
+		col_decay_time.type = emitter_type_title;
+		col_decay_time.str_val = "N/A";
 	}
 
-	CTL_M2_GET("stats.arenas.0.small.allocated", i, &small_allocated,
-	    size_t);
-	CTL_M2_GET("stats.arenas.0.small.nmalloc", i, &small_nmalloc, uint64_t);
-	CTL_M2_GET("stats.arenas.0.small.ndalloc", i, &small_ndalloc, uint64_t);
-	CTL_M2_GET("stats.arenas.0.small.nrequests", i, &small_nrequests,
-	    uint64_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"small\": {\n");
+	col_decay_npages.type = emitter_type_size;
+	col_decay_npages.size_val = pdirty;
 
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"allocated\": %zu,\n", small_allocated);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"nmalloc\": %"FMTu64",\n", small_nmalloc);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"ndalloc\": %"FMTu64",\n", small_ndalloc);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"nrequests\": %"FMTu64"\n", small_nrequests);
+	col_decay_sweeps.type = emitter_type_uint64;
+	col_decay_sweeps.uint64_val = dirty_npurge;
 
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t},\n");
+	col_decay_madvises.type = emitter_type_uint64;
+	col_decay_madvises.uint64_val = dirty_nmadvise;
+
+	col_decay_purged.type = emitter_type_uint64;
+	col_decay_purged.uint64_val = dirty_purged;
+
+	emitter_table_row(emitter, &decay_row);
+
+	/* Muzzy row. */
+	col_decay_type.str_val = "muzzy:";
+
+	if (muzzy_decay_ms >= 0) {
+		col_decay_time.type = emitter_type_ssize;
+		col_decay_time.ssize_val = muzzy_decay_ms;
 	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "                            allocated      nmalloc"
-		    "      ndalloc    nrequests\n");
-		malloc_cprintf(write_cb, cbopaque,
-		    "small:                   %12zu %12"FMTu64" %12"FMTu64
-		    " %12"FMTu64"\n",
-		    small_allocated, small_nmalloc, small_ndalloc,
-		    small_nrequests);
+		col_decay_time.type = emitter_type_title;
+		col_decay_time.str_val = "N/A";
 	}
 
-	CTL_M2_GET("stats.arenas.0.large.allocated", i, &large_allocated,
-	    size_t);
-	CTL_M2_GET("stats.arenas.0.large.nmalloc", i, &large_nmalloc, uint64_t);
-	CTL_M2_GET("stats.arenas.0.large.ndalloc", i, &large_ndalloc, uint64_t);
-	CTL_M2_GET("stats.arenas.0.large.nrequests", i, &large_nrequests,
-	    uint64_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"large\": {\n");
+	col_decay_npages.type = emitter_type_size;
+	col_decay_npages.size_val = pmuzzy;
 
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"allocated\": %zu,\n", large_allocated);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"nmalloc\": %"FMTu64",\n", large_nmalloc);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"ndalloc\": %"FMTu64",\n", large_ndalloc);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\t\"nrequests\": %"FMTu64"\n", large_nrequests);
+	col_decay_sweeps.type = emitter_type_uint64;
+	col_decay_sweeps.uint64_val = muzzy_npurge;
 
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t},\n");
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "large:                   %12zu %12"FMTu64" %12"FMTu64
-		    " %12"FMTu64"\n",
-		    large_allocated, large_nmalloc, large_ndalloc,
-		    large_nrequests);
-		malloc_cprintf(write_cb, cbopaque,
-		    "total:                   %12zu %12"FMTu64" %12"FMTu64
-		    " %12"FMTu64"\n",
-		    small_allocated + large_allocated, small_nmalloc +
-		    large_nmalloc, small_ndalloc + large_ndalloc,
-		    small_nrequests + large_nrequests);
-	}
-	if (!json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "active:                  %12zu\n", pactive * page);
-	}
+	col_decay_madvises.type = emitter_type_uint64;
+	col_decay_madvises.uint64_val = muzzy_nmadvise;
 
-	CTL_M2_GET("stats.arenas.0.mapped", i, &mapped, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"mapped\": %zu,\n", mapped);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "mapped:                  %12zu\n", mapped);
-	}
+	col_decay_purged.type = emitter_type_uint64;
+	col_decay_purged.uint64_val = muzzy_purged;
 
-	CTL_M2_GET("stats.arenas.0.retained", i, &retained, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"retained\": %zu,\n", retained);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "retained:                %12zu\n", retained);
-	}
+	emitter_table_row(emitter, &decay_row);
 
-	CTL_M2_GET("stats.arenas.0.base", i, &base, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"base\": %zu,\n", base);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "base:                    %12zu\n", base);
-	}
+	/* Small / large / total allocation counts. */
+	emitter_row_t alloc_count_row;
+	emitter_row_init(&alloc_count_row);
 
-	CTL_M2_GET("stats.arenas.0.internal", i, &internal, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"internal\": %zu,\n", internal);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "internal:                %12zu\n", internal);
-	}
+	COL(alloc_count_row, count_title, left, 21, title);
+	col_count_title.str_val = "";
 
-	CTL_M2_GET("stats.arenas.0.tcache_bytes", i, &tcache_bytes, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"tcache\": %zu,\n", tcache_bytes);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "tcache:                  %12zu\n", tcache_bytes);
-	}
+	COL(alloc_count_row, count_allocated, right, 16, title);
+	col_count_allocated.str_val = "allocated";
 
-	CTL_M2_GET("stats.arenas.0.resident", i, &resident, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"resident\": %zu%s\n", resident,
-		    (bins || large || mutex) ? "," : "");
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "resident:                %12zu\n", resident);
-	}
+	COL(alloc_count_row, count_nmalloc, right, 16, title);
+	col_count_nmalloc.str_val = "nmalloc";
+	COL(alloc_count_row, count_nmalloc_ps, right, 8, title);
+	col_count_nmalloc_ps.str_val = "(#/sec)";
+
+	COL(alloc_count_row, count_ndalloc, right, 16, title);
+	col_count_ndalloc.str_val = "ndalloc";
+	COL(alloc_count_row, count_ndalloc_ps, right, 8, title);
+	col_count_ndalloc_ps.str_val = "(#/sec)";
+
+	COL(alloc_count_row, count_nrequests, right, 16, title);
+	col_count_nrequests.str_val = "nrequests";
+	COL(alloc_count_row, count_nrequests_ps, right, 10, title);
+	col_count_nrequests_ps.str_val = "(#/sec)";
+
+	COL(alloc_count_row, count_nfills, right, 16, title);
+	col_count_nfills.str_val = "nfill";
+	COL(alloc_count_row, count_nfills_ps, right, 10, title);
+	col_count_nfills_ps.str_val = "(#/sec)";
+
+	COL(alloc_count_row, count_nflushes, right, 16, title);
+	col_count_nflushes.str_val = "nflush";
+	COL(alloc_count_row, count_nflushes_ps, right, 10, title);
+	col_count_nflushes_ps.str_val = "(#/sec)";
+
+	emitter_table_row(emitter, &alloc_count_row);
+
+	col_count_nmalloc_ps.type = emitter_type_uint64;
+	col_count_ndalloc_ps.type = emitter_type_uint64;
+	col_count_nrequests_ps.type = emitter_type_uint64;
+	col_count_nfills_ps.type = emitter_type_uint64;
+	col_count_nflushes_ps.type = emitter_type_uint64;
+
+#define GET_AND_EMIT_ALLOC_STAT(small_or_large, name, valtype)		\
+	CTL_M2_GET("stats.arenas.0." #small_or_large "." #name, i,	\
+	    &small_or_large##_##name, valtype##_t);			\
+	emitter_json_kv(emitter, #name, emitter_type_##valtype,		\
+	    &small_or_large##_##name);					\
+	col_count_##name.type = emitter_type_##valtype;		\
+	col_count_##name.valtype##_val = small_or_large##_##name;
+
+	emitter_json_object_kv_begin(emitter, "small");
+	col_count_title.str_val = "small:";
+
+	GET_AND_EMIT_ALLOC_STAT(small, allocated, size)
+	GET_AND_EMIT_ALLOC_STAT(small, nmalloc, uint64)
+	col_count_nmalloc_ps.uint64_val =
+	    rate_per_second(col_count_nmalloc.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(small, ndalloc, uint64)
+	col_count_ndalloc_ps.uint64_val =
+	    rate_per_second(col_count_ndalloc.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(small, nrequests, uint64)
+	col_count_nrequests_ps.uint64_val =
+	    rate_per_second(col_count_nrequests.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(small, nfills, uint64)
+	col_count_nfills_ps.uint64_val =
+	    rate_per_second(col_count_nfills.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(small, nflushes, uint64)
+	col_count_nflushes_ps.uint64_val =
+	    rate_per_second(col_count_nflushes.uint64_val, uptime);
+
+	emitter_table_row(emitter, &alloc_count_row);
+	emitter_json_object_end(emitter); /* Close "small". */
+
+	emitter_json_object_kv_begin(emitter, "large");
+	col_count_title.str_val = "large:";
+
+	GET_AND_EMIT_ALLOC_STAT(large, allocated, size)
+	GET_AND_EMIT_ALLOC_STAT(large, nmalloc, uint64)
+	col_count_nmalloc_ps.uint64_val =
+	    rate_per_second(col_count_nmalloc.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(large, ndalloc, uint64)
+	col_count_ndalloc_ps.uint64_val =
+	    rate_per_second(col_count_ndalloc.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(large, nrequests, uint64)
+	col_count_nrequests_ps.uint64_val =
+	    rate_per_second(col_count_nrequests.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(large, nfills, uint64)
+	col_count_nfills_ps.uint64_val =
+	    rate_per_second(col_count_nfills.uint64_val, uptime);
+	GET_AND_EMIT_ALLOC_STAT(large, nflushes, uint64)
+	col_count_nflushes_ps.uint64_val =
+	    rate_per_second(col_count_nflushes.uint64_val, uptime);
+
+	emitter_table_row(emitter, &alloc_count_row);
+	emitter_json_object_end(emitter); /* Close "large". */
+
+#undef GET_AND_EMIT_ALLOC_STAT
+
+	/* Aggregated small + large stats are emitter only in table mode. */
+	col_count_title.str_val = "total:";
+	col_count_allocated.size_val = small_allocated + large_allocated;
+	col_count_nmalloc.uint64_val = small_nmalloc + large_nmalloc;
+	col_count_ndalloc.uint64_val = small_ndalloc + large_ndalloc;
+	col_count_nrequests.uint64_val = small_nrequests + large_nrequests;
+	col_count_nfills.uint64_val = small_nfills + large_nfills;
+	col_count_nflushes.uint64_val = small_nflushes + large_nflushes;
+	col_count_nmalloc_ps.uint64_val =
+	    rate_per_second(col_count_nmalloc.uint64_val, uptime);
+	col_count_ndalloc_ps.uint64_val =
+	    rate_per_second(col_count_ndalloc.uint64_val, uptime);
+	col_count_nrequests_ps.uint64_val =
+	    rate_per_second(col_count_nrequests.uint64_val, uptime);
+	col_count_nfills_ps.uint64_val =
+	    rate_per_second(col_count_nfills.uint64_val, uptime);
+	col_count_nflushes_ps.uint64_val =
+	    rate_per_second(col_count_nflushes.uint64_val, uptime);
+	emitter_table_row(emitter, &alloc_count_row);
+
+	emitter_row_t mem_count_row;
+	emitter_row_init(&mem_count_row);
+
+	emitter_col_t mem_count_title;
+	emitter_col_init(&mem_count_title, &mem_count_row);
+	mem_count_title.justify = emitter_justify_left;
+	mem_count_title.width = 21;
+	mem_count_title.type = emitter_type_title;
+	mem_count_title.str_val = "";
+
+	emitter_col_t mem_count_val;
+	emitter_col_init(&mem_count_val, &mem_count_row);
+	mem_count_val.justify = emitter_justify_right;
+	mem_count_val.width = 16;
+	mem_count_val.type = emitter_type_title;
+	mem_count_val.str_val = "";
+
+	emitter_table_row(emitter, &mem_count_row);
+	mem_count_val.type = emitter_type_size;
+
+	/* Active count in bytes is emitted only in table mode. */
+	mem_count_title.str_val = "active:";
+	mem_count_val.size_val = pactive * page;
+	emitter_table_row(emitter, &mem_count_row);
+
+#define GET_AND_EMIT_MEM_STAT(stat)					\
+	CTL_M2_GET("stats.arenas.0."#stat, i, &stat, size_t);		\
+	emitter_json_kv(emitter, #stat, emitter_type_size, &stat);	\
+	mem_count_title.str_val = #stat":";				\
+	mem_count_val.size_val = stat;					\
+	emitter_table_row(emitter, &mem_count_row);
+
+	GET_AND_EMIT_MEM_STAT(mapped)
+	GET_AND_EMIT_MEM_STAT(retained)
+	GET_AND_EMIT_MEM_STAT(base)
+	GET_AND_EMIT_MEM_STAT(internal)
+	GET_AND_EMIT_MEM_STAT(metadata_thp)
+	GET_AND_EMIT_MEM_STAT(tcache_bytes)
+	GET_AND_EMIT_MEM_STAT(resident)
+	GET_AND_EMIT_MEM_STAT(abandoned_vm)
+	GET_AND_EMIT_MEM_STAT(extent_avail)
+#undef GET_AND_EMIT_MEM_STAT
 
 	if (mutex) {
-		stats_arena_mutexes_print(write_cb, cbopaque, json,
-		    !(bins || large), i);
+		stats_arena_mutexes_print(emitter, i, uptime);
 	}
 	if (bins) {
-		stats_arena_bins_print(write_cb, cbopaque, json, large, mutex,
-		    i);
+		stats_arena_bins_print(emitter, mutex, i, uptime);
 	}
 	if (large) {
-		stats_arena_lextents_print(write_cb, cbopaque, json, i);
+		stats_arena_lextents_print(emitter, i, uptime);
+	}
+	if (extents) {
+		stats_arena_extents_print(emitter, i);
 	}
 }
 
 static void
-stats_general_print(void (*write_cb)(void *, const char *), void *cbopaque,
-    bool json, bool more) {
+stats_general_print(emitter_t *emitter) {
 	const char *cpv;
-	bool bv;
+	bool bv, bv2;
 	unsigned uv;
 	uint32_t u32v;
 	uint64_t u64v;
-	ssize_t ssv;
+	ssize_t ssv, ssv2;
 	size_t sv, bsz, usz, ssz, sssz, cpsz;
 
 	bsz = sizeof(bool);
@@ -663,364 +998,256 @@ stats_general_print(void (*write_cb)(void *, const char *), void *cbopaque,
 	cpsz = sizeof(const char *);
 
 	CTL_GET("version", &cpv, const char *);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		"\t\t\"version\": \"%s\",\n", cpv);
-	} else {
-		malloc_cprintf(write_cb, cbopaque, "Version: %s\n", cpv);
-	}
+	emitter_kv(emitter, "version", "Version", emitter_type_string, &cpv);
 
 	/* config. */
-#define CONFIG_WRITE_BOOL_JSON(n, c)					\
-	if (json) {							\
-		CTL_GET("config."#n, &bv, bool);			\
-		malloc_cprintf(write_cb, cbopaque,			\
-		    "\t\t\t\""#n"\": %s%s\n", bv ? "true" : "false",	\
-		    (c));						\
-	}
+	emitter_dict_begin(emitter, "config", "Build-time option settings");
+#define CONFIG_WRITE_BOOL(name)						\
+	do {								\
+		CTL_GET("config."#name, &bv, bool);			\
+		emitter_kv(emitter, #name, "config."#name,		\
+		    emitter_type_bool, &bv);				\
+	} while (0)
 
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\"config\": {\n");
-	}
+	CONFIG_WRITE_BOOL(cache_oblivious);
+	CONFIG_WRITE_BOOL(debug);
+	CONFIG_WRITE_BOOL(fill);
+	CONFIG_WRITE_BOOL(lazy_lock);
+	emitter_kv(emitter, "malloc_conf", "config.malloc_conf",
+	    emitter_type_string, &config_malloc_conf);
 
-	CONFIG_WRITE_BOOL_JSON(cache_oblivious, ",")
-
-	CTL_GET("config.debug", &bv, bool);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"debug\": %s,\n", bv ? "true" : "false");
-	} else {
-		malloc_cprintf(write_cb, cbopaque, "Assertions %s\n",
-		    bv ? "enabled" : "disabled");
-	}
-
-	CONFIG_WRITE_BOOL_JSON(fill, ",")
-	CONFIG_WRITE_BOOL_JSON(lazy_lock, ",")
-
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"malloc_conf\": \"%s\",\n",
-		    config_malloc_conf);
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "config.malloc_conf: \"%s\"\n", config_malloc_conf);
-	}
-
-	CONFIG_WRITE_BOOL_JSON(prof, ",")
-	CONFIG_WRITE_BOOL_JSON(prof_libgcc, ",")
-	CONFIG_WRITE_BOOL_JSON(prof_libunwind, ",")
-	CONFIG_WRITE_BOOL_JSON(stats, ",")
-	CONFIG_WRITE_BOOL_JSON(thp, ",")
-	CONFIG_WRITE_BOOL_JSON(utrace, ",")
-	CONFIG_WRITE_BOOL_JSON(xmalloc, "")
-
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t},\n");
-	}
-#undef CONFIG_WRITE_BOOL_JSON
+	CONFIG_WRITE_BOOL(opt_safety_checks);
+	CONFIG_WRITE_BOOL(prof);
+	CONFIG_WRITE_BOOL(prof_libgcc);
+	CONFIG_WRITE_BOOL(prof_libunwind);
+	CONFIG_WRITE_BOOL(stats);
+	CONFIG_WRITE_BOOL(utrace);
+	CONFIG_WRITE_BOOL(xmalloc);
+#undef CONFIG_WRITE_BOOL
+	emitter_dict_end(emitter); /* Close "config" dict. */
 
 	/* opt. */
-#define OPT_WRITE_BOOL(n, c)						\
-	if (je_mallctl("opt."#n, (void *)&bv, &bsz, NULL, 0) == 0) {	\
-		if (json) {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "\t\t\t\""#n"\": %s%s\n", bv ? "true" :	\
-			    "false", (c));				\
-		} else {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "  opt."#n": %s\n", bv ? "true" : "false");	\
-		}							\
-	}
-#define OPT_WRITE_BOOL_MUTABLE(n, m, c) {				\
-	bool bv2;							\
-	if (je_mallctl("opt."#n, (void *)&bv, &bsz, NULL, 0) == 0 &&	\
-	    je_mallctl(#m, (void *)&bv2, &bsz, NULL, 0) == 0) {		\
-		if (json) {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "\t\t\t\""#n"\": %s%s\n", bv ? "true" :	\
-			    "false", (c));				\
-		} else {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "  opt."#n": %s ("#m": %s)\n", bv ? "true"	\
-			    : "false", bv2 ? "true" : "false");		\
-		}							\
-	}								\
-}
-#define OPT_WRITE_UNSIGNED(n, c)					\
-	if (je_mallctl("opt."#n, (void *)&uv, &usz, NULL, 0) == 0) {	\
-		if (json) {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "\t\t\t\""#n"\": %u%s\n", uv, (c));		\
-		} else {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			"  opt."#n": %u\n", uv);			\
-		}							\
-	}
-#define OPT_WRITE_SSIZE_T(n, c)						\
-	if (je_mallctl("opt."#n, (void *)&ssv, &sssz, NULL, 0) == 0) {	\
-		if (json) {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "\t\t\t\""#n"\": %zd%s\n", ssv, (c));	\
-		} else {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "  opt."#n": %zd\n", ssv);			\
-		}							\
-	}
-#define OPT_WRITE_SSIZE_T_MUTABLE(n, m, c) {				\
-	ssize_t ssv2;							\
-	if (je_mallctl("opt."#n, (void *)&ssv, &sssz, NULL, 0) == 0 &&	\
-	    je_mallctl(#m, (void *)&ssv2, &sssz, NULL, 0) == 0) {	\
-		if (json) {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "\t\t\t\""#n"\": %zd%s\n", ssv, (c));	\
-		} else {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "  opt."#n": %zd ("#m": %zd)\n",		\
-			    ssv, ssv2);					\
-		}							\
-	}								\
-}
-#define OPT_WRITE_CHAR_P(n, c)						\
-	if (je_mallctl("opt."#n, (void *)&cpv, &cpsz, NULL, 0) == 0) {	\
-		if (json) {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "\t\t\t\""#n"\": \"%s\"%s\n", cpv, (c));	\
-		} else {						\
-			malloc_cprintf(write_cb, cbopaque,		\
-			    "  opt."#n": \"%s\"\n", cpv);		\
-		}							\
+#define OPT_WRITE(name, var, size, emitter_type)			\
+	if (je_mallctl("opt."name, (void *)&var, &size, NULL, 0) ==	\
+	    0) {							\
+		emitter_kv(emitter, name, "opt."name, emitter_type,	\
+		    &var);						\
 	}
 
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\"opt\": {\n");
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "Run-time option settings:\n");
-	}
-	OPT_WRITE_BOOL(abort, ",")
-	OPT_WRITE_BOOL(abort_conf, ",")
-	OPT_WRITE_BOOL(retain, ",")
-	OPT_WRITE_CHAR_P(dss, ",")
-	OPT_WRITE_UNSIGNED(narenas, ",")
-	OPT_WRITE_CHAR_P(percpu_arena, ",")
-	OPT_WRITE_BOOL_MUTABLE(background_thread, background_thread, ",")
-	OPT_WRITE_SSIZE_T_MUTABLE(dirty_decay_ms, arenas.dirty_decay_ms, ",")
-	OPT_WRITE_SSIZE_T_MUTABLE(muzzy_decay_ms, arenas.muzzy_decay_ms, ",")
-	OPT_WRITE_CHAR_P(junk, ",")
-	OPT_WRITE_BOOL(zero, ",")
-	OPT_WRITE_BOOL(utrace, ",")
-	OPT_WRITE_BOOL(xmalloc, ",")
-	OPT_WRITE_BOOL(tcache, ",")
-	OPT_WRITE_SSIZE_T(lg_tcache_max, ",")
-	OPT_WRITE_BOOL(prof, ",")
-	OPT_WRITE_CHAR_P(prof_prefix, ",")
-	OPT_WRITE_BOOL_MUTABLE(prof_active, prof.active, ",")
-	OPT_WRITE_BOOL_MUTABLE(prof_thread_active_init, prof.thread_active_init,
-	    ",")
-	OPT_WRITE_SSIZE_T_MUTABLE(lg_prof_sample, prof.lg_sample, ",")
-	OPT_WRITE_BOOL(prof_accum, ",")
-	OPT_WRITE_SSIZE_T(lg_prof_interval, ",")
-	OPT_WRITE_BOOL(prof_gdump, ",")
-	OPT_WRITE_BOOL(prof_final, ",")
-	OPT_WRITE_BOOL(prof_leak, ",")
-	OPT_WRITE_BOOL(stats_print, ",")
-	if (json || opt_stats_print) {
-		/*
-		 * stats_print_opts is always emitted for JSON, so as long as it
-		 * comes last it's safe to unconditionally omit the comma here
-		 * (rather than having to conditionally omit it elsewhere
-		 * depending on configuration).
-		 */
-		OPT_WRITE_CHAR_P(stats_print_opts, "")
-	}
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t},\n");
+#define OPT_WRITE_MUTABLE(name, var1, var2, size, emitter_type,		\
+    altname)								\
+	if (je_mallctl("opt."name, (void *)&var1, &size, NULL, 0) ==	\
+	    0 && je_mallctl(altname, (void *)&var2, &size, NULL, 0)	\
+	    == 0) {							\
+		emitter_kv_note(emitter, name, "opt."name,		\
+		    emitter_type, &var1, altname, emitter_type,		\
+		    &var2);						\
 	}
 
+#define OPT_WRITE_BOOL(name) OPT_WRITE(name, bv, bsz, emitter_type_bool)
+#define OPT_WRITE_BOOL_MUTABLE(name, altname)				\
+	OPT_WRITE_MUTABLE(name, bv, bv2, bsz, emitter_type_bool, altname)
+
+#define OPT_WRITE_UNSIGNED(name)					\
+	OPT_WRITE(name, uv, usz, emitter_type_unsigned)
+
+#define OPT_WRITE_SIZE_T(name)						\
+	OPT_WRITE(name, sv, ssz, emitter_type_size)
+#define OPT_WRITE_SSIZE_T(name)						\
+	OPT_WRITE(name, ssv, sssz, emitter_type_ssize)
+#define OPT_WRITE_SSIZE_T_MUTABLE(name, altname)			\
+	OPT_WRITE_MUTABLE(name, ssv, ssv2, sssz, emitter_type_ssize,	\
+	    altname)
+
+#define OPT_WRITE_CHAR_P(name)						\
+	OPT_WRITE(name, cpv, cpsz, emitter_type_string)
+
+	emitter_dict_begin(emitter, "opt", "Run-time option settings");
+
+	OPT_WRITE_BOOL("abort")
+	OPT_WRITE_BOOL("abort_conf")
+	OPT_WRITE_BOOL("confirm_conf")
+	OPT_WRITE_BOOL("retain")
+	OPT_WRITE_CHAR_P("dss")
+	OPT_WRITE_UNSIGNED("narenas")
+	OPT_WRITE_CHAR_P("percpu_arena")
+	OPT_WRITE_SIZE_T("oversize_threshold")
+	OPT_WRITE_CHAR_P("metadata_thp")
+	OPT_WRITE_BOOL_MUTABLE("background_thread", "background_thread")
+	OPT_WRITE_SSIZE_T_MUTABLE("dirty_decay_ms", "arenas.dirty_decay_ms")
+	OPT_WRITE_SSIZE_T_MUTABLE("muzzy_decay_ms", "arenas.muzzy_decay_ms")
+	OPT_WRITE_SIZE_T("lg_extent_max_active_fit")
+	OPT_WRITE_CHAR_P("junk")
+	OPT_WRITE_BOOL("zero")
+	OPT_WRITE_BOOL("utrace")
+	OPT_WRITE_BOOL("xmalloc")
+	OPT_WRITE_BOOL("tcache")
+	OPT_WRITE_SSIZE_T("lg_tcache_max")
+	OPT_WRITE_CHAR_P("thp")
+	OPT_WRITE_BOOL("prof")
+	OPT_WRITE_CHAR_P("prof_prefix")
+	OPT_WRITE_BOOL_MUTABLE("prof_active", "prof.active")
+	OPT_WRITE_BOOL_MUTABLE("prof_thread_active_init",
+	    "prof.thread_active_init")
+	OPT_WRITE_SSIZE_T_MUTABLE("lg_prof_sample", "prof.lg_sample")
+	OPT_WRITE_BOOL("prof_accum")
+	OPT_WRITE_SSIZE_T("lg_prof_interval")
+	OPT_WRITE_BOOL("prof_gdump")
+	OPT_WRITE_BOOL("prof_final")
+	OPT_WRITE_BOOL("prof_leak")
+	OPT_WRITE_BOOL("stats_print")
+	OPT_WRITE_CHAR_P("stats_print_opts")
+
+	emitter_dict_end(emitter);
+
+#undef OPT_WRITE
+#undef OPT_WRITE_MUTABLE
 #undef OPT_WRITE_BOOL
 #undef OPT_WRITE_BOOL_MUTABLE
+#undef OPT_WRITE_UNSIGNED
 #undef OPT_WRITE_SSIZE_T
+#undef OPT_WRITE_SSIZE_T_MUTABLE
 #undef OPT_WRITE_CHAR_P
 
-	/* arenas. */
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\"arenas\": {\n");
-	}
-
-	CTL_GET("arenas.narenas", &uv, unsigned);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"narenas\": %u,\n", uv);
-	} else {
-		malloc_cprintf(write_cb, cbopaque, "Arenas: %u\n", uv);
-	}
-
-	if (json) {
-		CTL_GET("arenas.dirty_decay_ms", &ssv, ssize_t);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"dirty_decay_ms\": %zd,\n", ssv);
-
-		CTL_GET("arenas.muzzy_decay_ms", &ssv, ssize_t);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"muzzy_decay_ms\": %zd,\n", ssv);
-	}
-
-	CTL_GET("arenas.quantum", &sv, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"quantum\": %zu,\n", sv);
-	} else {
-		malloc_cprintf(write_cb, cbopaque, "Quantum size: %zu\n", sv);
-	}
-
-	CTL_GET("arenas.page", &sv, size_t);
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"page\": %zu,\n", sv);
-	} else {
-		malloc_cprintf(write_cb, cbopaque, "Page size: %zu\n", sv);
-	}
-
-	if (je_mallctl("arenas.tcache_max", (void *)&sv, &ssz, NULL, 0) == 0) {
-		if (json) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\"tcache_max\": %zu,\n", sv);
-		} else {
-			malloc_cprintf(write_cb, cbopaque,
-			    "Maximum thread-cached size class: %zu\n", sv);
-		}
-	}
-
-	if (json) {
-		unsigned nbins, nlextents, i;
-
-		CTL_GET("arenas.nbins", &nbins, unsigned);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"nbins\": %u,\n", nbins);
-
-		CTL_GET("arenas.nhbins", &uv, unsigned);
-		malloc_cprintf(write_cb, cbopaque, "\t\t\t\"nhbins\": %u,\n",
-		    uv);
-
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"bin\": [\n");
-		for (i = 0; i < nbins; i++) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t{\n");
-
-			CTL_M2_GET("arenas.bin.0.size", i, &sv, size_t);
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t\t\"size\": %zu,\n", sv);
-
-			CTL_M2_GET("arenas.bin.0.nregs", i, &u32v, uint32_t);
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t\t\"nregs\": %"FMTu32",\n", u32v);
-
-			CTL_M2_GET("arenas.bin.0.slab_size", i, &sv, size_t);
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t\t\"slab_size\": %zu\n", sv);
-
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t}%s\n", (i + 1 < nbins) ? "," : "");
-		}
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t],\n");
-
-		CTL_GET("arenas.nlextents", &nlextents, unsigned);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"nlextents\": %u,\n", nlextents);
-
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"lextent\": [\n");
-		for (i = 0; i < nlextents; i++) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t{\n");
-
-			CTL_M2_GET("arenas.lextent.0.size", i, &sv, size_t);
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t\t\"size\": %zu\n", sv);
-
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\t}%s\n", (i + 1 < nlextents) ? "," : "");
-		}
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t]\n");
-
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t}%s\n", (config_prof || more) ? "," : "");
-	}
-
 	/* prof. */
-	if (config_prof && json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\"prof\": {\n");
+	if (config_prof) {
+		emitter_dict_begin(emitter, "prof", "Profiling settings");
 
 		CTL_GET("prof.thread_active_init", &bv, bool);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"thread_active_init\": %s,\n", bv ? "true" :
-		    "false");
+		emitter_kv(emitter, "thread_active_init",
+		    "prof.thread_active_init", emitter_type_bool, &bv);
 
 		CTL_GET("prof.active", &bv, bool);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"active\": %s,\n", bv ? "true" : "false");
+		emitter_kv(emitter, "active", "prof.active", emitter_type_bool,
+		    &bv);
 
 		CTL_GET("prof.gdump", &bv, bool);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"gdump\": %s,\n", bv ? "true" : "false");
+		emitter_kv(emitter, "gdump", "prof.gdump", emitter_type_bool,
+		    &bv);
 
 		CTL_GET("prof.interval", &u64v, uint64_t);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"interval\": %"FMTu64",\n", u64v);
+		emitter_kv(emitter, "interval", "prof.interval",
+		    emitter_type_uint64, &u64v);
 
 		CTL_GET("prof.lg_sample", &ssv, ssize_t);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"lg_sample\": %zd\n", ssv);
+		emitter_kv(emitter, "lg_sample", "prof.lg_sample",
+		    emitter_type_ssize, &ssv);
 
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t}%s\n", more ? "," : "");
+		emitter_dict_end(emitter); /* Close "prof". */
 	}
+
+	/* arenas. */
+	/*
+	 * The json output sticks arena info into an "arenas" dict; the table
+	 * output puts them at the top-level.
+	 */
+	emitter_json_object_kv_begin(emitter, "arenas");
+
+	CTL_GET("arenas.narenas", &uv, unsigned);
+	emitter_kv(emitter, "narenas", "Arenas", emitter_type_unsigned, &uv);
+
+	/*
+	 * Decay settings are emitted only in json mode; in table mode, they're
+	 * emitted as notes with the opt output, above.
+	 */
+	CTL_GET("arenas.dirty_decay_ms", &ssv, ssize_t);
+	emitter_json_kv(emitter, "dirty_decay_ms", emitter_type_ssize, &ssv);
+
+	CTL_GET("arenas.muzzy_decay_ms", &ssv, ssize_t);
+	emitter_json_kv(emitter, "muzzy_decay_ms", emitter_type_ssize, &ssv);
+
+	CTL_GET("arenas.quantum", &sv, size_t);
+	emitter_kv(emitter, "quantum", "Quantum size", emitter_type_size, &sv);
+
+	CTL_GET("arenas.page", &sv, size_t);
+	emitter_kv(emitter, "page", "Page size", emitter_type_size, &sv);
+
+	if (je_mallctl("arenas.tcache_max", (void *)&sv, &ssz, NULL, 0) == 0) {
+		emitter_kv(emitter, "tcache_max",
+		    "Maximum thread-cached size class", emitter_type_size, &sv);
+	}
+
+	unsigned nbins;
+	CTL_GET("arenas.nbins", &nbins, unsigned);
+	emitter_kv(emitter, "nbins", "Number of bin size classes",
+	    emitter_type_unsigned, &nbins);
+
+	unsigned nhbins;
+	CTL_GET("arenas.nhbins", &nhbins, unsigned);
+	emitter_kv(emitter, "nhbins", "Number of thread-cache bin size classes",
+	    emitter_type_unsigned, &nhbins);
+
+	/*
+	 * We do enough mallctls in a loop that we actually want to omit them
+	 * (not just omit the printing).
+	 */
+	if (emitter->output == emitter_output_json) {
+		emitter_json_array_kv_begin(emitter, "bin");
+		for (unsigned i = 0; i < nbins; i++) {
+			emitter_json_object_begin(emitter);
+
+			CTL_M2_GET("arenas.bin.0.size", i, &sv, size_t);
+			emitter_json_kv(emitter, "size", emitter_type_size,
+			    &sv);
+
+			CTL_M2_GET("arenas.bin.0.nregs", i, &u32v, uint32_t);
+			emitter_json_kv(emitter, "nregs", emitter_type_uint32,
+			    &u32v);
+
+			CTL_M2_GET("arenas.bin.0.slab_size", i, &sv, size_t);
+			emitter_json_kv(emitter, "slab_size", emitter_type_size,
+			    &sv);
+
+			CTL_M2_GET("arenas.bin.0.nshards", i, &u32v, uint32_t);
+			emitter_json_kv(emitter, "nshards", emitter_type_uint32,
+			    &u32v);
+
+			emitter_json_object_end(emitter);
+		}
+		emitter_json_array_end(emitter); /* Close "bin". */
+	}
+
+	unsigned nlextents;
+	CTL_GET("arenas.nlextents", &nlextents, unsigned);
+	emitter_kv(emitter, "nlextents", "Number of large size classes",
+	    emitter_type_unsigned, &nlextents);
+
+	if (emitter->output == emitter_output_json) {
+		emitter_json_array_kv_begin(emitter, "lextent");
+		for (unsigned i = 0; i < nlextents; i++) {
+			emitter_json_object_begin(emitter);
+
+			CTL_M2_GET("arenas.lextent.0.size", i, &sv, size_t);
+			emitter_json_kv(emitter, "size", emitter_type_size,
+			    &sv);
+
+			emitter_json_object_end(emitter);
+		}
+		emitter_json_array_end(emitter); /* Close "lextent". */
+	}
+
+	emitter_json_object_end(emitter); /* Close "arenas" */
 }
 
 static void
-read_global_mutex_stats(
-    uint64_t results[mutex_prof_num_global_mutexes][mutex_prof_num_counters]) {
-	char cmd[MUTEX_CTL_STR_MAX_LENGTH];
-
-	mutex_prof_global_ind_t i;
-	for (i = 0; i < mutex_prof_num_global_mutexes; i++) {
-#define OP(c, t)							\
-		gen_mutex_ctl_str(cmd, MUTEX_CTL_STR_MAX_LENGTH,	\
-		    "mutexes", global_mutex_names[i], #c);		\
-		CTL_GET(cmd, (t *)&results[i][mutex_counter_##c], t);
-MUTEX_PROF_COUNTERS
-#undef OP
-	}
-}
-
-static void
-stats_print_helper(void (*write_cb)(void *, const char *), void *cbopaque,
-    bool json, bool merged, bool destroyed, bool unmerged, bool bins,
-    bool large, bool mutex) {
-	size_t allocated, active, metadata, resident, mapped, retained;
+stats_print_helper(emitter_t *emitter, bool merged, bool destroyed,
+    bool unmerged, bool bins, bool large, bool mutex, bool extents) {
+	/*
+	 * These should be deleted.  We keep them around for a while, to aid in
+	 * the transition to the emitter code.
+	 */
+	size_t allocated, active, metadata, metadata_thp, resident, mapped,
+	    retained;
 	size_t num_background_threads;
 	uint64_t background_thread_num_runs, background_thread_run_interval;
 
 	CTL_GET("stats.allocated", &allocated, size_t);
 	CTL_GET("stats.active", &active, size_t);
 	CTL_GET("stats.metadata", &metadata, size_t);
+	CTL_GET("stats.metadata_thp", &metadata_thp, size_t);
 	CTL_GET("stats.resident", &resident, size_t);
 	CTL_GET("stats.mapped", &mapped, size_t);
 	CTL_GET("stats.retained", &retained, size_t);
-
-	uint64_t mutex_stats[mutex_prof_num_global_mutexes][mutex_prof_num_counters];
-	if (mutex) {
-		read_global_mutex_stats(mutex_stats);
-	}
 
 	if (have_background_thread) {
 		CTL_GET("stats.background_thread.num_threads",
@@ -1035,182 +1262,133 @@ stats_print_helper(void (*write_cb)(void *, const char *), void *cbopaque,
 		background_thread_run_interval = 0;
 	}
 
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\"stats\": {\n");
+	/* Generic global stats. */
+	emitter_json_object_kv_begin(emitter, "stats");
+	emitter_json_kv(emitter, "allocated", emitter_type_size, &allocated);
+	emitter_json_kv(emitter, "active", emitter_type_size, &active);
+	emitter_json_kv(emitter, "metadata", emitter_type_size, &metadata);
+	emitter_json_kv(emitter, "metadata_thp", emitter_type_size,
+	    &metadata_thp);
+	emitter_json_kv(emitter, "resident", emitter_type_size, &resident);
+	emitter_json_kv(emitter, "mapped", emitter_type_size, &mapped);
+	emitter_json_kv(emitter, "retained", emitter_type_size, &retained);
 
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"allocated\": %zu,\n", allocated);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"active\": %zu,\n", active);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"metadata\": %zu,\n", metadata);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"resident\": %zu,\n", resident);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"mapped\": %zu,\n", mapped);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"retained\": %zu,\n", retained);
+	emitter_table_printf(emitter, "Allocated: %zu, active: %zu, "
+	    "metadata: %zu (n_thp %zu), resident: %zu, mapped: %zu, "
+	    "retained: %zu\n", allocated, active, metadata, metadata_thp,
+	    resident, mapped, retained);
 
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\"background_thread\": {\n");
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"num_threads\": %zu,\n", num_background_threads);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"num_runs\": %"FMTu64",\n",
-		    background_thread_num_runs);
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t\t\t\"run_interval\": %"FMTu64"\n",
-		    background_thread_run_interval);
-		malloc_cprintf(write_cb, cbopaque, "\t\t\t}%s\n",
-		    mutex ? "," : "");
+	/* Background thread stats. */
+	emitter_json_object_kv_begin(emitter, "background_thread");
+	emitter_json_kv(emitter, "num_threads", emitter_type_size,
+	    &num_background_threads);
+	emitter_json_kv(emitter, "num_runs", emitter_type_uint64,
+	    &background_thread_num_runs);
+	emitter_json_kv(emitter, "run_interval", emitter_type_uint64,
+	    &background_thread_run_interval);
+	emitter_json_object_end(emitter); /* Close "background_thread". */
 
-		if (mutex) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\t\"mutexes\": {\n");
-			mutex_prof_global_ind_t i;
-			for (i = 0; i < mutex_prof_num_global_mutexes; i++) {
-				mutex_stats_output_json(write_cb, cbopaque,
-				    global_mutex_names[i], mutex_stats[i],
-				    "\t\t\t\t",
-				    i == mutex_prof_num_global_mutexes - 1);
-			}
-			malloc_cprintf(write_cb, cbopaque, "\t\t\t}\n");
+	emitter_table_printf(emitter, "Background threads: %zu, "
+	    "num_runs: %"FMTu64", run_interval: %"FMTu64" ns\n",
+	    num_background_threads, background_thread_num_runs,
+	    background_thread_run_interval);
+
+	if (mutex) {
+		emitter_row_t row;
+		emitter_col_t name;
+		emitter_col_t col64[mutex_prof_num_uint64_t_counters];
+		emitter_col_t col32[mutex_prof_num_uint32_t_counters];
+		uint64_t uptime;
+
+		emitter_row_init(&row);
+		mutex_stats_init_cols(&row, "", &name, col64, col32);
+
+		emitter_table_row(emitter, &row);
+		emitter_json_object_kv_begin(emitter, "mutexes");
+
+		CTL_M2_GET("stats.arenas.0.uptime", 0, &uptime, uint64_t);
+
+		for (int i = 0; i < mutex_prof_num_global_mutexes; i++) {
+			mutex_stats_read_global(global_mutex_names[i], &name,
+			    col64, col32, uptime);
+			emitter_json_object_kv_begin(emitter, global_mutex_names[i]);
+			mutex_stats_emit(emitter, &row, col64, col32);
+			emitter_json_object_end(emitter);
 		}
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t\t}%s\n", (merged || unmerged || destroyed) ? "," : "");
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "Allocated: %zu, active: %zu, metadata: %zu,"
-		    " resident: %zu, mapped: %zu, retained: %zu\n",
-		    allocated, active, metadata, resident, mapped, retained);
 
-		if (have_background_thread && num_background_threads > 0) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "Background threads: %zu, num_runs: %"FMTu64", "
-			    "run_interval: %"FMTu64" ns\n",
-			    num_background_threads,
-			    background_thread_num_runs,
-			    background_thread_run_interval);
-		}
-		if (mutex) {
-			mutex_prof_global_ind_t i;
-			for (i = 0; i < mutex_prof_num_global_mutexes; i++) {
-				mutex_stats_output(write_cb, cbopaque,
-				    global_mutex_names[i], mutex_stats[i],
-				    i == 0);
-			}
-		}
+		emitter_json_object_end(emitter); /* Close "mutexes". */
 	}
+
+	emitter_json_object_end(emitter); /* Close "stats". */
 
 	if (merged || destroyed || unmerged) {
 		unsigned narenas;
 
-		if (json) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t\"stats.arenas\": {\n");
-		}
+		emitter_json_object_kv_begin(emitter, "stats.arenas");
 
 		CTL_GET("arenas.narenas", &narenas, unsigned);
-		{
-			size_t mib[3];
-			size_t miblen = sizeof(mib) / sizeof(size_t);
-			size_t sz;
-			VARIABLE_ARRAY(bool, initialized, narenas);
-			bool destroyed_initialized;
-			unsigned i, j, ninitialized;
+		size_t mib[3];
+		size_t miblen = sizeof(mib) / sizeof(size_t);
+		size_t sz;
+		VARIABLE_ARRAY(bool, initialized, narenas);
+		bool destroyed_initialized;
+		unsigned i, j, ninitialized;
 
-			xmallctlnametomib("arena.0.initialized", mib, &miblen);
-			for (i = ninitialized = 0; i < narenas; i++) {
-				mib[1] = i;
-				sz = sizeof(bool);
-				xmallctlbymib(mib, miblen, &initialized[i], &sz,
-				    NULL, 0);
-				if (initialized[i]) {
-					ninitialized++;
-				}
-			}
-			mib[1] = MALLCTL_ARENAS_DESTROYED;
+		xmallctlnametomib("arena.0.initialized", mib, &miblen);
+		for (i = ninitialized = 0; i < narenas; i++) {
+			mib[1] = i;
 			sz = sizeof(bool);
-			xmallctlbymib(mib, miblen, &destroyed_initialized, &sz,
+			xmallctlbymib(mib, miblen, &initialized[i], &sz,
 			    NULL, 0);
-
-			/* Merged stats. */
-			if (merged && (ninitialized > 1 || !unmerged)) {
-				/* Print merged arena stats. */
-				if (json) {
-					malloc_cprintf(write_cb, cbopaque,
-					    "\t\t\t\"merged\": {\n");
-				} else {
-					malloc_cprintf(write_cb, cbopaque,
-					    "\nMerged arenas stats:\n");
-				}
-				stats_arena_print(write_cb, cbopaque, json,
-				    MALLCTL_ARENAS_ALL, bins, large, mutex);
-				if (json) {
-					malloc_cprintf(write_cb, cbopaque,
-					    "\t\t\t}%s\n",
-					    ((destroyed_initialized &&
-					    destroyed) || unmerged) ?  "," :
-					    "");
-				}
+			if (initialized[i]) {
+				ninitialized++;
 			}
+		}
+		mib[1] = MALLCTL_ARENAS_DESTROYED;
+		sz = sizeof(bool);
+		xmallctlbymib(mib, miblen, &destroyed_initialized, &sz,
+		    NULL, 0);
 
-			/* Destroyed stats. */
-			if (destroyed_initialized && destroyed) {
-				/* Print destroyed arena stats. */
-				if (json) {
-					malloc_cprintf(write_cb, cbopaque,
-					    "\t\t\t\"destroyed\": {\n");
-				} else {
-					malloc_cprintf(write_cb, cbopaque,
-					    "\nDestroyed arenas stats:\n");
-				}
-				stats_arena_print(write_cb, cbopaque, json,
-				    MALLCTL_ARENAS_DESTROYED, bins, large,
-				    mutex);
-				if (json) {
-					malloc_cprintf(write_cb, cbopaque,
-					    "\t\t\t}%s\n", unmerged ?  "," :
-					    "");
-				}
-			}
+		/* Merged stats. */
+		if (merged && (ninitialized > 1 || !unmerged)) {
+			/* Print merged arena stats. */
+			emitter_table_printf(emitter, "Merged arenas stats:\n");
+			emitter_json_object_kv_begin(emitter, "merged");
+			stats_arena_print(emitter, MALLCTL_ARENAS_ALL, bins,
+			    large, mutex, extents);
+			emitter_json_object_end(emitter); /* Close "merged". */
+		}
 
-			/* Unmerged stats. */
-			if (unmerged) {
-				for (i = j = 0; i < narenas; i++) {
-					if (initialized[i]) {
-						if (json) {
-							j++;
-							malloc_cprintf(write_cb,
-							    cbopaque,
-							    "\t\t\t\"%u\": {\n",
-							    i);
-						} else {
-							malloc_cprintf(write_cb,
-							    cbopaque,
-							    "\narenas[%u]:\n",
-							    i);
-						}
-						stats_arena_print(write_cb,
-						    cbopaque, json, i, bins,
-						    large, mutex);
-						if (json) {
-							malloc_cprintf(write_cb,
-							    cbopaque,
-							    "\t\t\t}%s\n", (j <
-							    ninitialized) ? ","
-							    : "");
-						}
-					}
+		/* Destroyed stats. */
+		if (destroyed_initialized && destroyed) {
+			/* Print destroyed arena stats. */
+			emitter_table_printf(emitter,
+			    "Destroyed arenas stats:\n");
+			emitter_json_object_kv_begin(emitter, "destroyed");
+			stats_arena_print(emitter, MALLCTL_ARENAS_DESTROYED,
+			    bins, large, mutex, extents);
+			emitter_json_object_end(emitter); /* Close "destroyed". */
+		}
+
+		/* Unmerged stats. */
+		if (unmerged) {
+			for (i = j = 0; i < narenas; i++) {
+				if (initialized[i]) {
+					char arena_ind_str[20];
+					malloc_snprintf(arena_ind_str,
+					    sizeof(arena_ind_str), "%u", i);
+					emitter_json_object_kv_begin(emitter,
+					    arena_ind_str);
+					emitter_table_printf(emitter,
+					    "arenas[%s]:\n", arena_ind_str);
+					stats_arena_print(emitter, i, bins,
+					    large, mutex, extents);
+					/* Close "<arena-ind>". */
+					emitter_json_object_end(emitter);
 				}
 			}
 		}
-
-		if (json) {
-			malloc_cprintf(write_cb, cbopaque,
-			    "\t\t}\n");
-		}
+		emitter_json_object_end(emitter); /* Close "stats.arenas". */
 	}
 }
 
@@ -1257,29 +1435,23 @@ stats_print(void (*write_cb)(void *, const char *), void *cbopaque,
 		}
 	}
 
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "{\n"
-		    "\t\"jemalloc\": {\n");
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "___ Begin jemalloc statistics ___\n");
-	}
+	emitter_t emitter;
+	emitter_init(&emitter,
+	    json ? emitter_output_json : emitter_output_table, write_cb,
+	    cbopaque);
+	emitter_begin(&emitter);
+	emitter_table_printf(&emitter, "___ Begin jemalloc statistics ___\n");
+	emitter_json_object_kv_begin(&emitter, "jemalloc");
 
 	if (general) {
-		stats_general_print(write_cb, cbopaque, json, config_stats);
+		stats_general_print(&emitter);
 	}
 	if (config_stats) {
-		stats_print_helper(write_cb, cbopaque, json, merged, destroyed,
-		    unmerged, bins, large, mutex);
+		stats_print_helper(&emitter, merged, destroyed, unmerged,
+		    bins, large, mutex, extents);
 	}
 
-	if (json) {
-		malloc_cprintf(write_cb, cbopaque,
-		    "\t}\n"
-		    "}\n");
-	} else {
-		malloc_cprintf(write_cb, cbopaque,
-		    "--- End jemalloc statistics ---\n");
-	}
+	emitter_json_object_end(&emitter); /* Closes the "jemalloc" dict. */
+	emitter_table_printf(&emitter, "--- End jemalloc statistics ---\n");
+	emitter_end(&emitter);
 }

@@ -21,6 +21,7 @@
 #include "DB2Meta.h"
 #include "Errors.h"
 #include "Log.h"
+#include <cstring>
 
 DB2LoadInfo::DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement)
     : DB2FileLoadInfo(fields, fieldCount, meta), Statement(statement)
@@ -29,7 +30,7 @@ DB2LoadInfo::DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2
 
 static char const* nullStr = "";
 
-char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, char*& stringHolders, std::vector<char*>& stringPool)
+char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, std::vector<char*>& stringPool)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
     HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(_loadInfo->Statement);
@@ -47,22 +48,6 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
 
     // we store flat holders pool as single memory block
     std::size_t stringFields = _loadInfo->GetStringFieldCount(false);
-    std::size_t localizedStringFields = _loadInfo->GetStringFieldCount(true);
-
-    // each string field at load have array of string for each locale
-    std::size_t stringHoldersRecordPoolSize = localizedStringFields * sizeof(LocalizedString) + (stringFields - localizedStringFields) * sizeof(char*);
-
-    if (stringFields)
-    {
-        std::size_t stringHoldersPoolSize = stringHoldersRecordPoolSize * result->GetRowCount();
-        stringHolders = new char[stringHoldersPoolSize];
-
-        // DB2 strings expected to have at least empty string
-        for (std::size_t i = 0; i < stringHoldersPoolSize / sizeof(char*); ++i)
-            ((char const**)stringHolders)[i] = nullStr;
-    }
-    else
-        stringHolders = nullptr;
 
     // Resize index table
     uint32 indexTableSize = records;
@@ -83,7 +68,7 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
     memset(tempDataTable, 0, result->GetRowCount() * recordSize);
     uint32* newIndexes = new uint32[result->GetRowCount()];
     if (stringFields)
-        stringPool.reserve(std::max(stringPool.capacity(), stringPool.size() + stringFields * result->GetRowCount() + 1));
+        stringPool.reserve(std::max<uint64>(stringPool.capacity(), stringPool.size() + stringFields * result->GetRowCount() + 1));
 
     uint32 rec = 0;
     uint32 newRecords = 0;
@@ -167,7 +152,7 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                        ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                             _loadInfo->TypesString[f], _storageName.c_str(), _loadInfo->Fields[f].Name);
                         break;
                 }
@@ -218,7 +203,7 @@ void DB2DatabaseLoader::LoadStrings(bool custom, LocaleConstant locale, uint32 r
     uint32 fieldCount = _loadInfo->Meta->FieldCount;
     uint32 recordSize = _loadInfo->Meta->GetRecordSize();
 
-    stringPool.reserve(std::max(stringPool.capacity(), stringPool.size() + stringFields * result->GetRowCount() + 1));
+    stringPool.reserve(std::max<uint64>(stringPool.capacity(), stringPool.size() + stringFields * result->GetRowCount() + 1));
 
     do
     {
@@ -274,7 +259,7 @@ void DB2DatabaseLoader::LoadStrings(bool custom, LocaleConstant locale, uint32 r
                             offset += sizeof(char*);
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                            ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->TypesString[fieldIndex], _storageName.c_str(), _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }

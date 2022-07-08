@@ -27,6 +27,7 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "QueryPackets.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "WorldSession.h"
@@ -86,15 +87,17 @@ void LFGPlayerScript::OnMapChanged(Player* player)
         {
             sLFGMgr->LeaveLfg(player->GetGUID());
             player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
-            player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, 0.0f);
-            TC_LOG_ERROR("lfg", "LFGPlayerScript::OnMapChanged, Player %s (%s) is in LFG dungeon map but does not have a valid group! "
+            player->TeleportTo(player->m_homebind);
+            TC_LOG_ERROR("lfg", "LFGPlayerScript::OnMapChanged, Player %s %s is in LFG dungeon map but does not have a valid group! "
                 "Teleporting to homebind.", player->GetName().c_str(), player->GetGUID().ToString().c_str());
             return;
         }
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-            if (Player* member = itr->GetSource())
-                player->GetSession()->SendNameQueryOpcode(member->GetGUID());
+        WorldPackets::Query::QueryPlayerNamesResponse response;
+        for (Group::MemberSlot const& memberSlot : group->GetMemberSlots())
+            player->GetSession()->BuildNameQueryData(memberSlot.guid, response.Players.emplace_back());
+
+        player->SendDirectMessage(response.Write());
 
         if (sLFGMgr->selectedRandomLfgDungeon(player->GetGUID()))
             player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
@@ -186,6 +189,8 @@ void LFGGroupScript::OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod 
         if (method == GROUP_REMOVEMETHOD_LEAVE && state == LFG_STATE_DUNGEON &&
             players >= LFG_GROUP_KICK_VOTES_NEEDED)
             player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
+        else if (method == GROUP_REMOVEMETHOD_KICK_LFG)
+            player->RemoveAurasDueToSpell(LFG_SPELL_DUNGEON_COOLDOWN);
         //else if (state == LFG_STATE_BOOT)
             // Update internal kick cooldown of kicked
 

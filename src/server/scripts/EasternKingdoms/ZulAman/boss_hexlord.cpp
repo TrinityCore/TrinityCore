@@ -56,10 +56,10 @@ class boss_hexlord_malacrass : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -104,6 +104,7 @@ class boss_hexlord_malacrass : public CreatureScript
         }
 };
 
+// 43522 - Unstable Affliction
 class spell_hexlord_unstable_affliction : public SpellScriptLoader
 {
     public:

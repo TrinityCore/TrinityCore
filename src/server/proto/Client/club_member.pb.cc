@@ -73,7 +73,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmember_2eproto() {
   protobuf_AddDesc_club_5fmember_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -436,64 +435,64 @@ void protobuf_AddDesc_club_5fmember_2eproto() {
     "1\032\024club_member_id.proto\032\'global_extensio"
     "ns/message_options.proto\032#api/client/v2/"
     "attribute_types.proto\032\017club_enum.proto\032\017"
-    "rpc_types.proto\"\201\003\n\006Member\022*\n\002id\030\001 \001(\0132\036"
-    ".bgs.protocol.club.v1.MemberId\022\022\n\nbattle"
-    "_tag\030\002 \001(\t\022\020\n\004role\030\003 \003(\rB\002\020\001\022-\n\tattribut"
-    "e\030\004 \003(\0132\032.bgs.protocol.v2.Attribute\022\021\n\tj"
-    "oin_time\030\005 \001(\004\022;\n\016presence_level\030\006 \001(\0162#"
-    ".bgs.protocol.club.v1.PresenceLevel\022\026\n\016m"
-    "oderator_mute\030\007 \001(\010\0229\n\rwhisper_level\030\010 \001"
-    "(\0162\".bgs.protocol.club.v1.WhisperLevel\022\014"
-    "\n\004note\030\t \001(\t\022\016\n\006active\0302 \001(\010\0225\n\005voice\0303 "
-    "\001(\0132&.bgs.protocol.club.v1.MemberVoiceSt"
-    "ate\"Q\n\014MemberResult\0221\n\tmember_id\030\001 \001(\0132\036"
-    ".bgs.protocol.club.v1.MemberId\022\016\n\006status"
-    "\030\002 \001(\r\"z\n\023RemoveMemberOptions\022*\n\002id\030\001 \001("
-    "\0132\036.bgs.protocol.club.v1.MemberId\0227\n\006rea"
-    "son\030\002 \001(\0162\'.bgs.protocol.club.v1.ClubRem"
-    "ovedReason\"~\n\027MemberRemovedAssignment\022*\n"
+    "rpc_types.proto\"\211\003\n\006Member\022*\n\002id\030\001 \001(\0132\036"
+    ".bgs.protocol.club.v1.MemberId\022\032\n\nbattle"
+    "_tag\030\002 \001(\tB\006\202\371+\002\010\001\022\020\n\004role\030\003 \003(\rB\002\020\001\022-\n\t"
+    "attribute\030\004 \003(\0132\032.bgs.protocol.v2.Attrib"
+    "ute\022\021\n\tjoin_time\030\005 \001(\004\022;\n\016presence_level"
+    "\030\006 \001(\0162#.bgs.protocol.club.v1.PresenceLe"
+    "vel\022\026\n\016moderator_mute\030\007 \001(\010\0229\n\rwhisper_l"
+    "evel\030\010 \001(\0162\".bgs.protocol.club.v1.Whispe"
+    "rLevel\022\014\n\004note\030\t \001(\t\022\016\n\006active\0302 \001(\010\0225\n\005"
+    "voice\0303 \001(\0132&.bgs.protocol.club.v1.Membe"
+    "rVoiceState\"Q\n\014MemberResult\0221\n\tmember_id"
+    "\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\016"
+    "\n\006status\030\002 \001(\r\"z\n\023RemoveMemberOptions\022*\n"
     "\002id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
     "d\0227\n\006reason\030\002 \001(\0162\'.bgs.protocol.club.v1"
-    ".ClubRemovedReason\"\207\001\n\022MemberVoiceOption"
-    "s\022\021\n\tstream_id\030\001 \001(\004\022\016\n\006joined\030\002 \001(\010\022>\n\n"
-    "microphone\030\003 \001(\0162*.bgs.protocol.club.v1."
-    "VoiceMicrophoneState\022\016\n\006active\030\004 \001(\010\"\221\001\n"
-    "\020MemberVoiceState\022\n\n\002id\030\001 \001(\t\022\021\n\tstream_"
-    "id\030\002 \001(\004\022\016\n\006joined\030\003 \001(\010\022>\n\nmicrophone\030\004"
-    " \001(\0162*.bgs.protocol.club.v1.VoiceMicroph"
-    "oneState\022\016\n\006active\030\005 \001(\010\"p\n\023CreateMember"
-    "Options\022*\n\002id\030\001 \001(\0132\036.bgs.protocol.club."
-    "v1.MemberId\022-\n\tattribute\030\002 \003(\0132\032.bgs.pro"
-    "tocol.v2.Attribute\"S\n\021MemberDescription\022"
-    "*\n\002id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
-    "rId\022\022\n\nbattle_tag\030\002 \001(\t\"^\n\013RoleOptions\0221"
+    ".ClubRemovedReason\"~\n\027MemberRemovedAssig"
+    "nment\022*\n\002id\030\001 \001(\0132\036.bgs.protocol.club.v1"
+    ".MemberId\0227\n\006reason\030\002 \001(\0162\'.bgs.protocol"
+    ".club.v1.ClubRemovedReason\"\207\001\n\022MemberVoi"
+    "ceOptions\022\021\n\tstream_id\030\001 \001(\004\022\016\n\006joined\030\002"
+    " \001(\010\022>\n\nmicrophone\030\003 \001(\0162*.bgs.protocol."
+    "club.v1.VoiceMicrophoneState\022\016\n\006active\030\004"
+    " \001(\010\"\221\001\n\020MemberVoiceState\022\n\n\002id\030\001 \001(\t\022\021\n"
+    "\tstream_id\030\002 \001(\004\022\016\n\006joined\030\003 \001(\010\022>\n\nmicr"
+    "ophone\030\004 \001(\0162*.bgs.protocol.club.v1.Voic"
+    "eMicrophoneState\022\016\n\006active\030\005 \001(\010\"p\n\023Crea"
+    "teMemberOptions\022*\n\002id\030\001 \001(\0132\036.bgs.protoc"
+    "ol.club.v1.MemberId\022-\n\tattribute\030\002 \003(\0132\032"
+    ".bgs.protocol.v2.Attribute\"[\n\021MemberDesc"
+    "ription\022*\n\002id\030\001 \001(\0132\036.bgs.protocol.club."
+    "v1.MemberId\022\032\n\nbattle_tag\030\002 \001(\tB\006\202\371+\002\010\001\""
+    "^\n\013RoleOptions\0221\n\tmember_id\030\001 \001(\0132\036.bgs."
+    "protocol.club.v1.MemberId\022\034\n\004role\030\002 \003(\rB"
+    "\016\020\001\212\371+\010*\006\n\004\010\001\020\001\"U\n\016RoleAssignment\0221\n\tmem"
+    "ber_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Memb"
+    "erId\022\020\n\004role\030\002 \003(\rB\002\020\001\"}\n\031MemberAttribut"
+    "eAssignment\0221\n\tmember_id\030\001 \001(\0132\036.bgs.pro"
+    "tocol.club.v1.MemberId\022-\n\tattribute\030\002 \003("
+    "\0132\032.bgs.protocol.v2.Attribute\"Q\n\026Subscri"
+    "berStateOptions\0227\n\005voice\030\001 \001(\0132(.bgs.pro"
+    "tocol.club.v1.MemberVoiceOptions\"\225\001\n\031Sub"
+    "scriberStateAssignment\0221\n\tmember_id\030\001 \001("
+    "\0132\036.bgs.protocol.club.v1.MemberId\022\016\n\006act"
+    "ive\030\002 \001(\010\0225\n\005voice\030\003 \001(\0132&.bgs.protocol."
+    "club.v1.MemberVoiceState\"\341\001\n\022MemberState"
+    "Options\022-\n\tattribute\030\001 \003(\0132\032.bgs.protoco"
+    "l.v2.Attribute\022;\n\016presence_level\030\002 \001(\0162#"
+    ".bgs.protocol.club.v1.PresenceLevel\022\026\n\016m"
+    "oderator_mute\030\003 \001(\010\0229\n\rwhisper_level\030\004 \001"
+    "(\0162\".bgs.protocol.club.v1.WhisperLevel\022\014"
+    "\n\004note\030\005 \001(\t\"\227\002\n\025MemberStateAssignment\0221"
     "\n\tmember_id\030\001 \001(\0132\036.bgs.protocol.club.v1"
-    ".MemberId\022\034\n\004role\030\002 \003(\rB\016\020\001\212\371+\010*\006\n\004\010\001\020\001\""
-    "U\n\016RoleAssignment\0221\n\tmember_id\030\001 \001(\0132\036.b"
-    "gs.protocol.club.v1.MemberId\022\020\n\004role\030\002 \003"
-    "(\rB\002\020\001\"}\n\031MemberAttributeAssignment\0221\n\tm"
-    "ember_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Me"
-    "mberId\022-\n\tattribute\030\002 \003(\0132\032.bgs.protocol"
-    ".v2.Attribute\"Q\n\026SubscriberStateOptions\022"
-    "7\n\005voice\030\001 \001(\0132(.bgs.protocol.club.v1.Me"
-    "mberVoiceOptions\"\225\001\n\031SubscriberStateAssi"
-    "gnment\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol"
-    ".club.v1.MemberId\022\016\n\006active\030\002 \001(\010\0225\n\005voi"
-    "ce\030\003 \001(\0132&.bgs.protocol.club.v1.MemberVo"
-    "iceState\"\341\001\n\022MemberStateOptions\022-\n\tattri"
-    "bute\030\001 \003(\0132\032.bgs.protocol.v2.Attribute\022;"
-    "\n\016presence_level\030\002 \001(\0162#.bgs.protocol.cl"
-    "ub.v1.PresenceLevel\022\026\n\016moderator_mute\030\003 "
-    "\001(\010\0229\n\rwhisper_level\030\004 \001(\0162\".bgs.protoco"
-    "l.club.v1.WhisperLevel\022\014\n\004note\030\005 \001(\t\"\227\002\n"
-    "\025MemberStateAssignment\0221\n\tmember_id\030\001 \001("
-    "\0132\036.bgs.protocol.club.v1.MemberId\022-\n\tatt"
-    "ribute\030\002 \003(\0132\032.bgs.protocol.v2.Attribute"
-    "\022;\n\016presence_level\030\003 \001(\0162#.bgs.protocol."
-    "club.v1.PresenceLevel\022\026\n\016moderator_mute\030"
-    "\004 \001(\010\0229\n\rwhisper_level\030\005 \001(\0162\".bgs.proto"
-    "col.club.v1.WhisperLevel\022\014\n\004note\030\006 \001(\tB\002"
-    "H\001P\000", 2444);
+    ".MemberId\022-\n\tattribute\030\002 \003(\0132\032.bgs.proto"
+    "col.v2.Attribute\022;\n\016presence_level\030\003 \001(\016"
+    "2#.bgs.protocol.club.v1.PresenceLevel\022\026\n"
+    "\016moderator_mute\030\004 \001(\010\0229\n\rwhisper_level\030\005"
+    " \001(\0162\".bgs.protocol.club.v1.WhisperLevel"
+    "\022\014\n\004note\030\006 \001(\tB\002H\001P\000", 2460);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_member.proto", &protobuf_RegisterTypes);
   Member::default_instance_ = new Member();
@@ -535,7 +534,6 @@ struct StaticDescriptorInitializer_club_5fmember_2eproto {
     protobuf_AddDesc_club_5fmember_2eproto();
   }
 } static_descriptor_initializer_club_5fmember_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -1220,7 +1218,6 @@ void Member::CopyFrom(const Member& from) {
 }
 
 bool Member::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -1253,7 +1250,6 @@ void Member::Swap(Member* other) {
   metadata.reflection = Member_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1500,7 +1496,6 @@ void MemberResult::CopyFrom(const MemberResult& from) {
 }
 
 bool MemberResult::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -1524,7 +1519,6 @@ void MemberResult::Swap(MemberResult* other) {
   metadata.reflection = MemberResult_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1777,7 +1771,6 @@ void RemoveMemberOptions::CopyFrom(const RemoveMemberOptions& from) {
 }
 
 bool RemoveMemberOptions::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -1801,7 +1794,6 @@ void RemoveMemberOptions::Swap(RemoveMemberOptions* other) {
   metadata.reflection = RemoveMemberOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2054,7 +2046,6 @@ void MemberRemovedAssignment::CopyFrom(const MemberRemovedAssignment& from) {
 }
 
 bool MemberRemovedAssignment::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -2078,7 +2069,6 @@ void MemberRemovedAssignment::Swap(MemberRemovedAssignment* other) {
   metadata.reflection = MemberRemovedAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2407,7 +2397,6 @@ void MemberVoiceOptions::CopyFrom(const MemberVoiceOptions& from) {
 }
 
 bool MemberVoiceOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -2430,7 +2419,6 @@ void MemberVoiceOptions::Swap(MemberVoiceOptions* other) {
   metadata.reflection = MemberVoiceOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2820,7 +2808,6 @@ void MemberVoiceState::CopyFrom(const MemberVoiceState& from) {
 }
 
 bool MemberVoiceState::IsInitialized() const {
-
   return true;
 }
 
@@ -2844,7 +2831,6 @@ void MemberVoiceState::Swap(MemberVoiceState* other) {
   metadata.reflection = MemberVoiceState_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3089,7 +3075,6 @@ void CreateMemberOptions::CopyFrom(const CreateMemberOptions& from) {
 }
 
 bool CreateMemberOptions::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -3113,7 +3098,6 @@ void CreateMemberOptions::Swap(CreateMemberOptions* other) {
   metadata.reflection = CreateMemberOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3381,7 +3365,6 @@ void MemberDescription::CopyFrom(const MemberDescription& from) {
 }
 
 bool MemberDescription::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -3405,7 +3388,6 @@ void MemberDescription::Swap(MemberDescription* other) {
   metadata.reflection = MemberDescription_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3675,7 +3657,6 @@ void RoleOptions::CopyFrom(const RoleOptions& from) {
 }
 
 bool RoleOptions::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -3699,7 +3680,6 @@ void RoleOptions::Swap(RoleOptions* other) {
   metadata.reflection = RoleOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3969,7 +3949,6 @@ void RoleAssignment::CopyFrom(const RoleAssignment& from) {
 }
 
 bool RoleAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -3993,7 +3972,6 @@ void RoleAssignment::Swap(RoleAssignment* other) {
   metadata.reflection = RoleAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4238,7 +4216,6 @@ void MemberAttributeAssignment::CopyFrom(const MemberAttributeAssignment& from) 
 }
 
 bool MemberAttributeAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -4262,7 +4239,6 @@ void MemberAttributeAssignment::Swap(MemberAttributeAssignment* other) {
   metadata.reflection = MemberAttributeAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4469,7 +4445,6 @@ void SubscriberStateOptions::CopyFrom(const SubscriberStateOptions& from) {
 }
 
 bool SubscriberStateOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -4489,7 +4464,6 @@ void SubscriberStateOptions::Swap(SubscriberStateOptions* other) {
   metadata.reflection = SubscriberStateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4777,7 +4751,6 @@ void SubscriberStateAssignment::CopyFrom(const SubscriberStateAssignment& from) 
 }
 
 bool SubscriberStateAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -4802,7 +4775,6 @@ void SubscriberStateAssignment::Swap(SubscriberStateAssignment* other) {
   metadata.reflection = SubscriberStateAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5203,7 +5175,6 @@ void MemberStateOptions::CopyFrom(const MemberStateOptions& from) {
 }
 
 bool MemberStateOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -5227,7 +5198,6 @@ void MemberStateOptions::Swap(MemberStateOptions* other) {
   metadata.reflection = MemberStateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5670,7 +5640,6 @@ void MemberStateAssignment::CopyFrom(const MemberStateAssignment& from) {
 }
 
 bool MemberStateAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -5698,7 +5667,6 @@ void MemberStateAssignment::Swap(MemberStateAssignment* other) {
   metadata.reflection = MemberStateAssignment_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

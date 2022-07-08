@@ -24,7 +24,7 @@
 
 void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest)
 {
-    if (ChrClassUIDisplayEntry const* uiDisplay = sDB2Manager.GetUiDisplayForClass(Classes(_player->getClass())))
+    if (ChrClassUIDisplayEntry const* uiDisplay = sDB2Manager.GetUiDisplayForClass(Classes(_player->GetClass())))
         if (!_player->MeetPlayerCondition(uiDisplay->AdvGuidePlayerConditionID))
             return;
 
@@ -45,7 +45,7 @@ void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::AdventureJourna
 
 void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::AdventureJournal::AdventureJournalUpdateSuggestions& updateSuggestions)
 {
-    if (ChrClassUIDisplayEntry const* uiDisplay = sDB2Manager.GetUiDisplayForClass(Classes(_player->getClass())))
+    if (ChrClassUIDisplayEntry const* uiDisplay = sDB2Manager.GetUiDisplayForClass(Classes(_player->GetClass())))
         if (!_player->MeetPlayerCondition(uiDisplay->AdvGuidePlayerConditionID))
             return;
 

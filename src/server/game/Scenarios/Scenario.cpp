@@ -175,36 +175,39 @@ bool Scenario::CanUpdateCriteriaTree(Criteria const * /*criteria*/, CriteriaTree
 
 bool Scenario::CanCompleteCriteriaTree(CriteriaTree const* tree)
 {
-    ScenarioStepEntry const* step = tree->ScenarioStep;
-    if (!step)
+    ScenarioStepEntry const* step = ASSERT_NOTNULL(tree->ScenarioStep);
+    ScenarioStepState const state = GetStepState(step);
+    if (state == SCENARIO_STEP_DONE)
         return false;
 
-    if (step->ScenarioID != _data->Entry->ID)
+    ScenarioStepEntry const* currentStep = GetStep();
+    if (!currentStep)
         return false;
 
-    if (step->IsBonusObjective())
-        return !IsComplete();
+    if (!step->IsBonusObjective())
+        if (step != currentStep)
+            return false;
 
-    if (step != GetStep())
-        return false;
-
-    return true;
+    return CriteriaHandler::CanCompleteCriteriaTree(tree);
 }
 
 void Scenario::CompletedCriteriaTree(CriteriaTree const* tree, Player* /*referencePlayer*/)
 {
-    ScenarioStepEntry const* step = tree->ScenarioStep;
-    if (!step)
-        return;
-
-    if (!step->IsBonusObjective() && step != GetStep())
-        return;
-
-    if (GetStepState(step) == SCENARIO_STEP_DONE)
+    ScenarioStepEntry const* step = ASSERT_NOTNULL(tree->ScenarioStep);
+    if (!IsCompletedStep(step))
         return;
 
     SetStepState(step, SCENARIO_STEP_DONE);
     CompleteStep(step);
+}
+
+bool Scenario::IsCompletedStep(ScenarioStepEntry const* step)
+{
+    CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(step->Criteriatreeid);
+    if (!tree)
+        return false;
+
+    return IsCompletedCriteriaTree(tree);
 }
 
 void Scenario::SendPacket(WorldPacket const* data) const

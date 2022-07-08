@@ -55,6 +55,7 @@ class SubscriberReference;
 class AccountLevelInfo;
 class PrivacyInfo;
 class ParentalControlInfo;
+class PlayScheduleRestriction;
 class GameLevelInfo;
 class GameTimeInfo;
 class GameTimeRemainingInfo;
@@ -65,6 +66,7 @@ class GameSessionUpdateInfo;
 class GameSessionLocation;
 class CAIS;
 class GameAccountList;
+class SecurityStatus;
 class AccountState;
 class AccountStateTagged;
 class GameAccountState;
@@ -480,6 +482,18 @@ class TC_PROTO_API AccountReference : public ::google::protobuf::Message {
   inline ::std::string* release_battle_tag();
   inline void set_allocated_battle_tag(::std::string* battle_tag);
 
+  // optional string phone_number = 5;
+  inline bool has_phone_number() const;
+  inline void clear_phone_number();
+  static const int kPhoneNumberFieldNumber = 5;
+  inline const ::std::string& phone_number() const;
+  inline void set_phone_number(const ::std::string& value);
+  inline void set_phone_number(const char* value);
+  inline void set_phone_number(const char* value, size_t size);
+  inline ::std::string* mutable_phone_number();
+  inline ::std::string* release_phone_number();
+  inline void set_allocated_phone_number(::std::string* phone_number);
+
   // optional uint32 region = 10 [default = 0];
   inline bool has_region() const;
   inline void clear_region();
@@ -497,6 +511,8 @@ class TC_PROTO_API AccountReference : public ::google::protobuf::Message {
   inline void clear_has_handle();
   inline void set_has_battle_tag();
   inline void clear_has_battle_tag();
+  inline void set_has_phone_number();
+  inline void clear_has_phone_number();
   inline void set_has_region();
   inline void clear_has_region();
 
@@ -509,6 +525,7 @@ class TC_PROTO_API AccountReference : public ::google::protobuf::Message {
   ::google::protobuf::uint32 id_;
   ::google::protobuf::uint32 region_;
   ::std::string* battle_tag_;
+  ::std::string* phone_number_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -899,6 +916,13 @@ class TC_PROTO_API AccountFieldTags : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::RegionTag >*
       mutable_game_account_tags();
 
+  // optional fixed32 security_status_tag = 12;
+  inline bool has_security_status_tag() const;
+  inline void clear_security_status_tag();
+  static const int kSecurityStatusTagFieldNumber = 12;
+  inline ::google::protobuf::uint32 security_status_tag() const;
+  inline void set_security_status_tag(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountFieldTags)
  private:
   inline void set_has_account_level_info_tag();
@@ -907,6 +931,8 @@ class TC_PROTO_API AccountFieldTags : public ::google::protobuf::Message {
   inline void clear_has_privacy_info_tag();
   inline void set_has_parental_control_info_tag();
   inline void clear_has_parental_control_info_tag();
+  inline void set_has_security_status_tag();
+  inline void clear_has_security_status_tag();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -916,8 +942,9 @@ class TC_PROTO_API AccountFieldTags : public ::google::protobuf::Message {
   ::google::protobuf::uint32 privacy_info_tag_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::ProgramTag > game_level_info_tags_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::ProgramTag > game_status_tags_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::RegionTag > game_account_tags_;
   ::google::protobuf::uint32 parental_control_info_tag_;
+  ::google::protobuf::uint32 security_status_tag_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::RegionTag > game_account_tags_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -1138,6 +1165,13 @@ class TC_PROTO_API AccountFieldOptions : public ::google::protobuf::Message {
   inline bool field_game_accounts() const;
   inline void set_field_game_accounts(bool value);
 
+  // optional bool field_security_status = 9;
+  inline bool has_field_security_status() const;
+  inline void clear_field_security_status();
+  static const int kFieldSecurityStatusFieldNumber = 9;
+  inline bool field_security_status() const;
+  inline void set_field_security_status(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountFieldOptions)
  private:
   inline void set_has_all_fields();
@@ -1154,6 +1188,8 @@ class TC_PROTO_API AccountFieldOptions : public ::google::protobuf::Message {
   inline void clear_has_field_game_status();
   inline void set_has_field_game_accounts();
   inline void clear_has_field_game_accounts();
+  inline void set_has_field_security_status();
+  inline void clear_has_field_security_status();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1166,6 +1202,7 @@ class TC_PROTO_API AccountFieldOptions : public ::google::protobuf::Message {
   bool field_game_level_info_;
   bool field_game_status_;
   bool field_game_accounts_;
+  bool field_security_status_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -1626,6 +1663,18 @@ class TC_PROTO_API AccountLevelInfo : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 ratings_board_minimum_age() const;
   inline void set_ratings_board_minimum_age(::google::protobuf::uint32 value);
 
+  // optional string phone_number = 19;
+  inline bool has_phone_number() const;
+  inline void clear_phone_number();
+  static const int kPhoneNumberFieldNumber = 19;
+  inline const ::std::string& phone_number() const;
+  inline void set_phone_number(const ::std::string& value);
+  inline void set_phone_number(const char* value);
+  inline void set_phone_number(const char* value, size_t size);
+  inline ::std::string* mutable_phone_number();
+  inline ::std::string* release_phone_number();
+  inline void set_allocated_phone_number(::std::string* phone_number);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountLevelInfo)
  private:
   inline void set_has_default_currency();
@@ -1656,6 +1705,8 @@ class TC_PROTO_API AccountLevelInfo : public ::google::protobuf::Message {
   inline void clear_has_is_sms_protected();
   inline void set_has_ratings_board_minimum_age();
   inline void clear_has_ratings_board_minimum_age();
+  inline void set_has_phone_number();
+  inline void clear_has_phone_number();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1676,6 +1727,7 @@ class TC_PROTO_API AccountLevelInfo : public ::google::protobuf::Message {
   bool test_account_;
   bool is_sms_protected_;
   ::google::protobuf::uint32 ratings_board_minimum_age_;
+  ::std::string* phone_number_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -1986,6 +2038,103 @@ class TC_PROTO_API ParentalControlInfo : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class TC_PROTO_API PlayScheduleRestriction : public ::google::protobuf::Message {
+ public:
+  PlayScheduleRestriction();
+  virtual ~PlayScheduleRestriction();
+
+  PlayScheduleRestriction(const PlayScheduleRestriction& from);
+
+  inline PlayScheduleRestriction& operator=(const PlayScheduleRestriction& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PlayScheduleRestriction& default_instance();
+
+  void Swap(PlayScheduleRestriction* other);
+
+  // implements Message ----------------------------------------------
+
+  PlayScheduleRestriction* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const PlayScheduleRestriction& from);
+  void MergeFrom(const PlayScheduleRestriction& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated bool play_schedule = 1;
+  inline int play_schedule_size() const;
+  inline void clear_play_schedule();
+  static const int kPlayScheduleFieldNumber = 1;
+  inline bool play_schedule(int index) const;
+  inline void set_play_schedule(int index, bool value);
+  inline void add_play_schedule(bool value);
+  inline const ::google::protobuf::RepeatedField< bool >&
+      play_schedule() const;
+  inline ::google::protobuf::RepeatedField< bool >*
+      mutable_play_schedule();
+
+  // optional string timezone = 2;
+  inline bool has_timezone() const;
+  inline void clear_timezone();
+  static const int kTimezoneFieldNumber = 2;
+  inline const ::std::string& timezone() const;
+  inline void set_timezone(const ::std::string& value);
+  inline void set_timezone(const char* value);
+  inline void set_timezone(const char* value, size_t size);
+  inline ::std::string* mutable_timezone();
+  inline ::std::string* release_timezone();
+  inline void set_allocated_timezone(::std::string* timezone);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.PlayScheduleRestriction)
+ private:
+  inline void set_has_timezone();
+  inline void clear_has_timezone();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedField< bool > play_schedule_;
+  ::std::string* timezone_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static PlayScheduleRestriction* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class TC_PROTO_API GameLevelInfo : public ::google::protobuf::Message {
  public:
   GameLevelInfo();
@@ -2105,6 +2254,13 @@ class TC_PROTO_API GameLevelInfo : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 realm_permissions() const;
   inline void set_realm_permissions(::google::protobuf::uint32 value);
 
+  // optional uint64 last_logout_time_ms = 12;
+  inline bool has_last_logout_time_ms() const;
+  inline void clear_last_logout_time_ms();
+  static const int kLastLogoutTimeMsFieldNumber = 12;
+  inline ::google::protobuf::uint64 last_logout_time_ms() const;
+  inline void set_last_logout_time_ms(::google::protobuf::uint64 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.GameLevelInfo)
  private:
   inline void set_has_is_trial();
@@ -2121,6 +2277,8 @@ class TC_PROTO_API GameLevelInfo : public ::google::protobuf::Message {
   inline void clear_has_program();
   inline void set_has_realm_permissions();
   inline void clear_has_realm_permissions();
+  inline void set_has_last_logout_time_ms();
+  inline void clear_has_last_logout_time_ms();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -2133,6 +2291,7 @@ class TC_PROTO_API GameLevelInfo : public ::google::protobuf::Message {
   ::google::protobuf::uint32 program_;
   ::std::string* name_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::AccountLicense > licenses_;
+  ::google::protobuf::uint64 last_logout_time_ms_;
   ::google::protobuf::uint32 realm_permissions_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
@@ -3098,6 +3257,125 @@ class TC_PROTO_API GameAccountList : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class TC_PROTO_API SecurityStatus : public ::google::protobuf::Message {
+ public:
+  SecurityStatus();
+  virtual ~SecurityStatus();
+
+  SecurityStatus(const SecurityStatus& from);
+
+  inline SecurityStatus& operator=(const SecurityStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SecurityStatus& default_instance();
+
+  void Swap(SecurityStatus* other);
+
+  // implements Message ----------------------------------------------
+
+  SecurityStatus* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SecurityStatus& from);
+  void MergeFrom(const SecurityStatus& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional bool sms_protect_enabled = 1;
+  inline bool has_sms_protect_enabled() const;
+  inline void clear_sms_protect_enabled();
+  static const int kSmsProtectEnabledFieldNumber = 1;
+  inline bool sms_protect_enabled() const;
+  inline void set_sms_protect_enabled(bool value);
+
+  // optional bool email_verified = 2;
+  inline bool has_email_verified() const;
+  inline void clear_email_verified();
+  static const int kEmailVerifiedFieldNumber = 2;
+  inline bool email_verified() const;
+  inline void set_email_verified(bool value);
+
+  // optional bool authenticator_enabled = 3;
+  inline bool has_authenticator_enabled() const;
+  inline void clear_authenticator_enabled();
+  static const int kAuthenticatorEnabledFieldNumber = 3;
+  inline bool authenticator_enabled() const;
+  inline void set_authenticator_enabled(bool value);
+
+  // optional bool sqa_enabled = 4;
+  inline bool has_sqa_enabled() const;
+  inline void clear_sqa_enabled();
+  static const int kSqaEnabledFieldNumber = 4;
+  inline bool sqa_enabled() const;
+  inline void set_sqa_enabled(bool value);
+
+  // optional bool authenticator_required = 5;
+  inline bool has_authenticator_required() const;
+  inline void clear_authenticator_required();
+  static const int kAuthenticatorRequiredFieldNumber = 5;
+  inline bool authenticator_required() const;
+  inline void set_authenticator_required(bool value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.SecurityStatus)
+ private:
+  inline void set_has_sms_protect_enabled();
+  inline void clear_has_sms_protect_enabled();
+  inline void set_has_email_verified();
+  inline void clear_has_email_verified();
+  inline void set_has_authenticator_enabled();
+  inline void clear_has_authenticator_enabled();
+  inline void set_has_sqa_enabled();
+  inline void clear_has_sqa_enabled();
+  inline void set_has_authenticator_required();
+  inline void clear_has_authenticator_required();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  bool sms_protect_enabled_;
+  bool email_verified_;
+  bool authenticator_enabled_;
+  bool sqa_enabled_;
+  bool authenticator_required_;
+  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static SecurityStatus* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class TC_PROTO_API AccountState : public ::google::protobuf::Message {
  public:
   AccountState();
@@ -3214,6 +3492,24 @@ class TC_PROTO_API AccountState : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::GameAccountList >*
       mutable_game_accounts();
 
+  // optional .bgs.protocol.account.v1.SecurityStatus security_status = 8;
+  inline bool has_security_status() const;
+  inline void clear_security_status();
+  static const int kSecurityStatusFieldNumber = 8;
+  inline const ::bgs::protocol::account::v1::SecurityStatus& security_status() const;
+  inline ::bgs::protocol::account::v1::SecurityStatus* mutable_security_status();
+  inline ::bgs::protocol::account::v1::SecurityStatus* release_security_status();
+  inline void set_allocated_security_status(::bgs::protocol::account::v1::SecurityStatus* security_status);
+
+  // optional .bgs.protocol.account.v1.PlayScheduleRestriction government_curfew = 9;
+  inline bool has_government_curfew() const;
+  inline void clear_government_curfew();
+  static const int kGovernmentCurfewFieldNumber = 9;
+  inline const ::bgs::protocol::account::v1::PlayScheduleRestriction& government_curfew() const;
+  inline ::bgs::protocol::account::v1::PlayScheduleRestriction* mutable_government_curfew();
+  inline ::bgs::protocol::account::v1::PlayScheduleRestriction* release_government_curfew();
+  inline void set_allocated_government_curfew(::bgs::protocol::account::v1::PlayScheduleRestriction* government_curfew);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountState)
  private:
   inline void set_has_account_level_info();
@@ -3222,6 +3518,10 @@ class TC_PROTO_API AccountState : public ::google::protobuf::Message {
   inline void clear_has_privacy_info();
   inline void set_has_parental_control_info();
   inline void clear_has_parental_control_info();
+  inline void set_has_security_status();
+  inline void clear_has_security_status();
+  inline void set_has_government_curfew();
+  inline void clear_has_government_curfew();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -3233,6 +3533,8 @@ class TC_PROTO_API AccountState : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::GameLevelInfo > game_level_info_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::GameStatus > game_status_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::GameAccountList > game_accounts_;
+  ::bgs::protocol::account::v1::SecurityStatus* security_status_;
+  ::bgs::protocol::account::v1::PlayScheduleRestriction* government_curfew_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -3668,6 +3970,7 @@ class TC_PROTO_API IgrId : public ::google::protobuf::Message {
   enum TypeCase {
     kGameAccount = 1,
     kExternalId = 2,
+    kUuid = 3,
     TYPE_NOT_SET = 0,
   };
 
@@ -3717,11 +4020,24 @@ class TC_PROTO_API IgrId : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 external_id() const;
   inline void set_external_id(::google::protobuf::uint32 value);
 
+  // optional string uuid = 3;
+  inline bool has_uuid() const;
+  inline void clear_uuid();
+  static const int kUuidFieldNumber = 3;
+  inline const ::std::string& uuid() const;
+  inline void set_uuid(const ::std::string& value);
+  inline void set_uuid(const char* value);
+  inline void set_uuid(const char* value, size_t size);
+  inline ::std::string* mutable_uuid();
+  inline ::std::string* release_uuid();
+  inline void set_allocated_uuid(::std::string* uuid);
+
   inline TypeCase type_case() const;
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.IgrId)
  private:
   inline void set_has_game_account();
   inline void set_has_external_id();
+  inline void set_has_uuid();
 
   inline bool has_type();
   void clear_type();
@@ -3734,6 +4050,7 @@ class TC_PROTO_API IgrId : public ::google::protobuf::Message {
   union TypeUnion {
     ::bgs::protocol::account::v1::GameAccountHandle* game_account_;
     ::google::protobuf::uint32 external_id_;
+    ::std::string* uuid_;
   } type_;
   ::google::protobuf::uint32 _oneof_case_[1];
 
@@ -3840,9 +4157,7 @@ class TC_PROTO_API IgrAddress : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -4221,15 +4536,91 @@ inline void AccountReference::set_allocated_battle_tag(::std::string* battle_tag
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountReference.battle_tag)
 }
 
-// optional uint32 region = 10 [default = 0];
-inline bool AccountReference::has_region() const {
+// optional string phone_number = 5;
+inline bool AccountReference::has_phone_number() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
-inline void AccountReference::set_has_region() {
+inline void AccountReference::set_has_phone_number() {
   _has_bits_[0] |= 0x00000010u;
 }
-inline void AccountReference::clear_has_region() {
+inline void AccountReference::clear_has_phone_number() {
   _has_bits_[0] &= ~0x00000010u;
+}
+inline void AccountReference::clear_phone_number() {
+  if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_->clear();
+  }
+  clear_has_phone_number();
+}
+inline const ::std::string& AccountReference::phone_number() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountReference.phone_number)
+  return *phone_number_;
+}
+inline void AccountReference::set_phone_number(const ::std::string& value) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountReference.phone_number)
+}
+inline void AccountReference::set_phone_number(const char* value) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.AccountReference.phone_number)
+}
+inline void AccountReference::set_phone_number(const char* value, size_t size) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.AccountReference.phone_number)
+}
+inline ::std::string* AccountReference::mutable_phone_number() {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountReference.phone_number)
+  return phone_number_;
+}
+inline ::std::string* AccountReference::release_phone_number() {
+  clear_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = phone_number_;
+    phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void AccountReference::set_allocated_phone_number(::std::string* phone_number) {
+  if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete phone_number_;
+  }
+  if (phone_number) {
+    set_has_phone_number();
+    phone_number_ = phone_number;
+  } else {
+    clear_has_phone_number();
+    phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountReference.phone_number)
+}
+
+// optional uint32 region = 10 [default = 0];
+inline bool AccountReference::has_region() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void AccountReference::set_has_region() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void AccountReference::clear_has_region() {
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void AccountReference::clear_region() {
   region_ = 0u;
@@ -4601,6 +4992,30 @@ AccountFieldTags::mutable_game_account_tags() {
   return &game_account_tags_;
 }
 
+// optional fixed32 security_status_tag = 12;
+inline bool AccountFieldTags::has_security_status_tag() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void AccountFieldTags::set_has_security_status_tag() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void AccountFieldTags::clear_has_security_status_tag() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void AccountFieldTags::clear_security_status_tag() {
+  security_status_tag_ = 0u;
+  clear_has_security_status_tag();
+}
+inline ::google::protobuf::uint32 AccountFieldTags::security_status_tag() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountFieldTags.security_status_tag)
+  return security_status_tag_;
+}
+inline void AccountFieldTags::set_security_status_tag(::google::protobuf::uint32 value) {
+  set_has_security_status_tag();
+  security_status_tag_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountFieldTags.security_status_tag)
+}
+
 // -------------------------------------------------------------------
 
 // GameAccountFieldTags
@@ -4871,6 +5286,30 @@ inline void AccountFieldOptions::set_field_game_accounts(bool value) {
   set_has_field_game_accounts();
   field_game_accounts_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountFieldOptions.field_game_accounts)
+}
+
+// optional bool field_security_status = 9;
+inline bool AccountFieldOptions::has_field_security_status() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void AccountFieldOptions::set_has_field_security_status() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void AccountFieldOptions::clear_has_field_security_status() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void AccountFieldOptions::clear_field_security_status() {
+  field_security_status_ = false;
+  clear_has_field_security_status();
+}
+inline bool AccountFieldOptions::field_security_status() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountFieldOptions.field_security_status)
+  return field_security_status_;
+}
+inline void AccountFieldOptions::set_field_security_status(bool value) {
+  set_has_field_security_status();
+  field_security_status_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountFieldOptions.field_security_status)
 }
 
 // -------------------------------------------------------------------
@@ -5833,6 +6272,82 @@ inline void AccountLevelInfo::set_ratings_board_minimum_age(::google::protobuf::
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountLevelInfo.ratings_board_minimum_age)
 }
 
+// optional string phone_number = 19;
+inline bool AccountLevelInfo::has_phone_number() const {
+  return (_has_bits_[0] & 0x00008000u) != 0;
+}
+inline void AccountLevelInfo::set_has_phone_number() {
+  _has_bits_[0] |= 0x00008000u;
+}
+inline void AccountLevelInfo::clear_has_phone_number() {
+  _has_bits_[0] &= ~0x00008000u;
+}
+inline void AccountLevelInfo::clear_phone_number() {
+  if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_->clear();
+  }
+  clear_has_phone_number();
+}
+inline const ::std::string& AccountLevelInfo::phone_number() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountLevelInfo.phone_number)
+  return *phone_number_;
+}
+inline void AccountLevelInfo::set_phone_number(const ::std::string& value) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountLevelInfo.phone_number)
+}
+inline void AccountLevelInfo::set_phone_number(const char* value) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.AccountLevelInfo.phone_number)
+}
+inline void AccountLevelInfo::set_phone_number(const char* value, size_t size) {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  phone_number_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.AccountLevelInfo.phone_number)
+}
+inline ::std::string* AccountLevelInfo::mutable_phone_number() {
+  set_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    phone_number_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountLevelInfo.phone_number)
+  return phone_number_;
+}
+inline ::std::string* AccountLevelInfo::release_phone_number() {
+  clear_has_phone_number();
+  if (phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = phone_number_;
+    phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void AccountLevelInfo::set_allocated_phone_number(::std::string* phone_number) {
+  if (phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete phone_number_;
+  }
+  if (phone_number) {
+    set_has_phone_number();
+    phone_number_ = phone_number;
+  } else {
+    clear_has_phone_number();
+    phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountLevelInfo.phone_number)
+}
+
 // -------------------------------------------------------------------
 
 // PrivacyInfo
@@ -6214,6 +6729,116 @@ inline void ParentalControlInfo::set_can_use_profile(bool value) {
 
 // -------------------------------------------------------------------
 
+// PlayScheduleRestriction
+
+// repeated bool play_schedule = 1;
+inline int PlayScheduleRestriction::play_schedule_size() const {
+  return play_schedule_.size();
+}
+inline void PlayScheduleRestriction::clear_play_schedule() {
+  play_schedule_.Clear();
+}
+inline bool PlayScheduleRestriction::play_schedule(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.PlayScheduleRestriction.play_schedule)
+  return play_schedule_.Get(index);
+}
+inline void PlayScheduleRestriction::set_play_schedule(int index, bool value) {
+  play_schedule_.Set(index, value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.PlayScheduleRestriction.play_schedule)
+}
+inline void PlayScheduleRestriction::add_play_schedule(bool value) {
+  play_schedule_.Add(value);
+  // @@protoc_insertion_point(field_add:bgs.protocol.account.v1.PlayScheduleRestriction.play_schedule)
+}
+inline const ::google::protobuf::RepeatedField< bool >&
+PlayScheduleRestriction::play_schedule() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.account.v1.PlayScheduleRestriction.play_schedule)
+  return play_schedule_;
+}
+inline ::google::protobuf::RepeatedField< bool >*
+PlayScheduleRestriction::mutable_play_schedule() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.account.v1.PlayScheduleRestriction.play_schedule)
+  return &play_schedule_;
+}
+
+// optional string timezone = 2;
+inline bool PlayScheduleRestriction::has_timezone() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void PlayScheduleRestriction::set_has_timezone() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void PlayScheduleRestriction::clear_has_timezone() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void PlayScheduleRestriction::clear_timezone() {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_->clear();
+  }
+  clear_has_timezone();
+}
+inline const ::std::string& PlayScheduleRestriction::timezone() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.PlayScheduleRestriction.timezone)
+  return *timezone_;
+}
+inline void PlayScheduleRestriction::set_timezone(const ::std::string& value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.PlayScheduleRestriction.timezone)
+}
+inline void PlayScheduleRestriction::set_timezone(const char* value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.account.v1.PlayScheduleRestriction.timezone)
+}
+inline void PlayScheduleRestriction::set_timezone(const char* value, size_t size) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.account.v1.PlayScheduleRestriction.timezone)
+}
+inline ::std::string* PlayScheduleRestriction::mutable_timezone() {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.PlayScheduleRestriction.timezone)
+  return timezone_;
+}
+inline ::std::string* PlayScheduleRestriction::release_timezone() {
+  clear_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = timezone_;
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void PlayScheduleRestriction::set_allocated_timezone(::std::string* timezone) {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
+  if (timezone) {
+    set_has_timezone();
+    timezone_ = timezone;
+  } else {
+    clear_has_timezone();
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.PlayScheduleRestriction.timezone)
+}
+
+// -------------------------------------------------------------------
+
 // GameLevelInfo
 
 // optional bool is_trial = 4;
@@ -6464,6 +7089,30 @@ inline void GameLevelInfo::set_realm_permissions(::google::protobuf::uint32 valu
   set_has_realm_permissions();
   realm_permissions_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GameLevelInfo.realm_permissions)
+}
+
+// optional uint64 last_logout_time_ms = 12;
+inline bool GameLevelInfo::has_last_logout_time_ms() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void GameLevelInfo::set_has_last_logout_time_ms() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void GameLevelInfo::clear_has_last_logout_time_ms() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void GameLevelInfo::clear_last_logout_time_ms() {
+  last_logout_time_ms_ = GOOGLE_ULONGLONG(0);
+  clear_has_last_logout_time_ms();
+}
+inline ::google::protobuf::uint64 GameLevelInfo::last_logout_time_ms() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.GameLevelInfo.last_logout_time_ms)
+  return last_logout_time_ms_;
+}
+inline void GameLevelInfo::set_last_logout_time_ms(::google::protobuf::uint64 value) {
+  set_has_last_logout_time_ms();
+  last_logout_time_ms_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.GameLevelInfo.last_logout_time_ms)
 }
 
 // -------------------------------------------------------------------
@@ -7461,6 +8110,130 @@ GameAccountList::mutable_handle() {
 
 // -------------------------------------------------------------------
 
+// SecurityStatus
+
+// optional bool sms_protect_enabled = 1;
+inline bool SecurityStatus::has_sms_protect_enabled() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SecurityStatus::set_has_sms_protect_enabled() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SecurityStatus::clear_has_sms_protect_enabled() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SecurityStatus::clear_sms_protect_enabled() {
+  sms_protect_enabled_ = false;
+  clear_has_sms_protect_enabled();
+}
+inline bool SecurityStatus::sms_protect_enabled() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.SecurityStatus.sms_protect_enabled)
+  return sms_protect_enabled_;
+}
+inline void SecurityStatus::set_sms_protect_enabled(bool value) {
+  set_has_sms_protect_enabled();
+  sms_protect_enabled_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.SecurityStatus.sms_protect_enabled)
+}
+
+// optional bool email_verified = 2;
+inline bool SecurityStatus::has_email_verified() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SecurityStatus::set_has_email_verified() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SecurityStatus::clear_has_email_verified() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SecurityStatus::clear_email_verified() {
+  email_verified_ = false;
+  clear_has_email_verified();
+}
+inline bool SecurityStatus::email_verified() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.SecurityStatus.email_verified)
+  return email_verified_;
+}
+inline void SecurityStatus::set_email_verified(bool value) {
+  set_has_email_verified();
+  email_verified_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.SecurityStatus.email_verified)
+}
+
+// optional bool authenticator_enabled = 3;
+inline bool SecurityStatus::has_authenticator_enabled() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void SecurityStatus::set_has_authenticator_enabled() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void SecurityStatus::clear_has_authenticator_enabled() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void SecurityStatus::clear_authenticator_enabled() {
+  authenticator_enabled_ = false;
+  clear_has_authenticator_enabled();
+}
+inline bool SecurityStatus::authenticator_enabled() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.SecurityStatus.authenticator_enabled)
+  return authenticator_enabled_;
+}
+inline void SecurityStatus::set_authenticator_enabled(bool value) {
+  set_has_authenticator_enabled();
+  authenticator_enabled_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.SecurityStatus.authenticator_enabled)
+}
+
+// optional bool sqa_enabled = 4;
+inline bool SecurityStatus::has_sqa_enabled() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void SecurityStatus::set_has_sqa_enabled() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void SecurityStatus::clear_has_sqa_enabled() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void SecurityStatus::clear_sqa_enabled() {
+  sqa_enabled_ = false;
+  clear_has_sqa_enabled();
+}
+inline bool SecurityStatus::sqa_enabled() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.SecurityStatus.sqa_enabled)
+  return sqa_enabled_;
+}
+inline void SecurityStatus::set_sqa_enabled(bool value) {
+  set_has_sqa_enabled();
+  sqa_enabled_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.SecurityStatus.sqa_enabled)
+}
+
+// optional bool authenticator_required = 5;
+inline bool SecurityStatus::has_authenticator_required() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void SecurityStatus::set_has_authenticator_required() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void SecurityStatus::clear_has_authenticator_required() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void SecurityStatus::clear_authenticator_required() {
+  authenticator_required_ = false;
+  clear_has_authenticator_required();
+}
+inline bool SecurityStatus::authenticator_required() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.SecurityStatus.authenticator_required)
+  return authenticator_required_;
+}
+inline void SecurityStatus::set_authenticator_required(bool value) {
+  set_has_authenticator_required();
+  authenticator_required_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.SecurityStatus.authenticator_required)
+}
+
+// -------------------------------------------------------------------
+
 // AccountState
 
 // optional .bgs.protocol.account.v1.AccountLevelInfo account_level_info = 1;
@@ -7674,6 +8447,88 @@ inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::GameA
 AccountState::mutable_game_accounts() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.account.v1.AccountState.game_accounts)
   return &game_accounts_;
+}
+
+// optional .bgs.protocol.account.v1.SecurityStatus security_status = 8;
+inline bool AccountState::has_security_status() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void AccountState::set_has_security_status() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void AccountState::clear_has_security_status() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void AccountState::clear_security_status() {
+  if (security_status_ != NULL) security_status_->::bgs::protocol::account::v1::SecurityStatus::Clear();
+  clear_has_security_status();
+}
+inline const ::bgs::protocol::account::v1::SecurityStatus& AccountState::security_status() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountState.security_status)
+  return security_status_ != NULL ? *security_status_ : *default_instance_->security_status_;
+}
+inline ::bgs::protocol::account::v1::SecurityStatus* AccountState::mutable_security_status() {
+  set_has_security_status();
+  if (security_status_ == NULL) security_status_ = new ::bgs::protocol::account::v1::SecurityStatus;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountState.security_status)
+  return security_status_;
+}
+inline ::bgs::protocol::account::v1::SecurityStatus* AccountState::release_security_status() {
+  clear_has_security_status();
+  ::bgs::protocol::account::v1::SecurityStatus* temp = security_status_;
+  security_status_ = NULL;
+  return temp;
+}
+inline void AccountState::set_allocated_security_status(::bgs::protocol::account::v1::SecurityStatus* security_status) {
+  delete security_status_;
+  security_status_ = security_status;
+  if (security_status) {
+    set_has_security_status();
+  } else {
+    clear_has_security_status();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountState.security_status)
+}
+
+// optional .bgs.protocol.account.v1.PlayScheduleRestriction government_curfew = 9;
+inline bool AccountState::has_government_curfew() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void AccountState::set_has_government_curfew() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void AccountState::clear_has_government_curfew() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void AccountState::clear_government_curfew() {
+  if (government_curfew_ != NULL) government_curfew_->::bgs::protocol::account::v1::PlayScheduleRestriction::Clear();
+  clear_has_government_curfew();
+}
+inline const ::bgs::protocol::account::v1::PlayScheduleRestriction& AccountState::government_curfew() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountState.government_curfew)
+  return government_curfew_ != NULL ? *government_curfew_ : *default_instance_->government_curfew_;
+}
+inline ::bgs::protocol::account::v1::PlayScheduleRestriction* AccountState::mutable_government_curfew() {
+  set_has_government_curfew();
+  if (government_curfew_ == NULL) government_curfew_ = new ::bgs::protocol::account::v1::PlayScheduleRestriction;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountState.government_curfew)
+  return government_curfew_;
+}
+inline ::bgs::protocol::account::v1::PlayScheduleRestriction* AccountState::release_government_curfew() {
+  clear_has_government_curfew();
+  ::bgs::protocol::account::v1::PlayScheduleRestriction* temp = government_curfew_;
+  government_curfew_ = NULL;
+  return temp;
+}
+inline void AccountState::set_allocated_government_curfew(::bgs::protocol::account::v1::PlayScheduleRestriction* government_curfew) {
+  delete government_curfew_;
+  government_curfew_ = government_curfew;
+  if (government_curfew) {
+    set_has_government_curfew();
+  } else {
+    clear_has_government_curfew();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.AccountState.government_curfew)
 }
 
 // -------------------------------------------------------------------
@@ -8200,6 +9055,76 @@ inline void IgrId::set_external_id(::google::protobuf::uint32 value) {
   type_.external_id_ = value;
 }
 
+// optional string uuid = 3;
+inline bool IgrId::has_uuid() const {
+  return type_case() == kUuid;
+}
+inline void IgrId::set_has_uuid() {
+  _oneof_case_[0] = kUuid;
+}
+inline void IgrId::clear_uuid() {
+  if (has_uuid()) {
+    delete type_.uuid_;
+    clear_has_type();
+  }
+}
+inline const ::std::string& IgrId::uuid() const {
+  if (has_uuid()) {
+    return *type_.uuid_;
+  }
+  return ::google::protobuf::internal::GetEmptyStringAlreadyInited();
+}
+inline void IgrId::set_uuid(const ::std::string& value) {
+  if (!has_uuid()) {
+    clear_type();
+    set_has_uuid();
+    type_.uuid_ = new ::std::string;
+  }
+  type_.uuid_->assign(value);
+}
+inline void IgrId::set_uuid(const char* value) {
+  if (!has_uuid()) {
+    clear_type();
+    set_has_uuid();
+    type_.uuid_ = new ::std::string;
+  }
+  type_.uuid_->assign(value);
+}
+inline void IgrId::set_uuid(const char* value, size_t size) {
+  if (!has_uuid()) {
+    clear_type();
+    set_has_uuid();
+    type_.uuid_ = new ::std::string;
+  }
+  type_.uuid_->assign(
+      reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* IgrId::mutable_uuid() {
+  if (!has_uuid()) {
+    clear_type();
+    set_has_uuid();
+    type_.uuid_ = new ::std::string;
+  }
+  return type_.uuid_;
+}
+inline ::std::string* IgrId::release_uuid() {
+  if (has_uuid()) {
+    clear_has_type();
+    ::std::string* temp = type_.uuid_;
+    type_.uuid_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void IgrId::set_allocated_uuid(::std::string* uuid) {
+  clear_type();
+  if (uuid) {
+    set_has_uuid();
+    type_.uuid_ = uuid;
+  }
+}
+
 inline bool IgrId::has_type() {
   return type_case() != TYPE_NOT_SET;
 }
@@ -8313,7 +9238,6 @@ inline void IgrAddress::set_region(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.IgrAddress.region)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -8324,7 +9248,6 @@ inline void IgrAddress::set_region(::google::protobuf::uint32 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::account::v1::PrivacyInfo_GameInfoPrivacy> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::account::v1::PrivacyInfo_GameInfoPrivacy>() {
@@ -8335,7 +9258,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::account::v1::IdentityVerificationStatus>() {
   return ::bgs::protocol::account::v1::IdentityVerificationStatus_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

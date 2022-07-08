@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,13 +14,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef TRINITY_CHASEMOVEMENTGENERATOR_H
 #define TRINITY_CHASEMOVEMENTGENERATOR_H
 
 #include "AbstractFollower.h"
+#include "MovementDefines.h"
 #include "MovementGenerator.h"
 #include "Optional.h"
+#include "Position.h"
+#include "Timer.h"
 
 class PathGenerator;
 class Unit;
@@ -28,17 +31,17 @@ class Unit;
 class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
 {
     public:
-        MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
-
-        ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {});
+        explicit ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {});
         ~ChaseMovementGenerator();
 
-        void Initialize(Unit* owner) override;
-        void Reset(Unit* owner) override { Initialize(owner); }
-        bool Update(Unit* owner, uint32 diff) override;
-        void Finalize(Unit* owner) override;
+        void Initialize(Unit*) override;
+        void Reset(Unit*) override;
+        bool Update(Unit*, uint32) override;
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
-        void UnitSpeedChanged() override { _lastTargetPosition.Relocate(0.0f,0.0f,0.0f); }
+        void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
 
     private:
         static constexpr uint32 RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
@@ -47,8 +50,8 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         Optional<ChaseAngle> const _angle;
 
         std::unique_ptr<PathGenerator> _path;
-        Position _lastTargetPosition;
-        uint32 _rangeCheckTimer = RANGE_CHECK_INTERVAL;
+        Optional<Position> _lastTargetPosition;
+        TimeTracker _rangeCheckTimer;
         bool _movingTowards = true;
         bool _mutualChase = true;
 };

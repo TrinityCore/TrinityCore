@@ -41,7 +41,7 @@ class instance_firelands : public InstanceMapScript
                 {
                     case NPC_SMOULDERING_HATCHLING:
                         // Cannot directly start attacking here as the creature is not yet on map
-                        creature->m_Events.AddEvent(new DelayedAttackStartEvent(creature), creature->m_Events.CalculateTime(500));
+                        creature->m_Events.AddEventAtOffset(new DelayedAttackStartEvent(creature), 500ms);
                         break;
                     case NPC_BALEROC:
                         BalerocGUID = creature->GetGUID();

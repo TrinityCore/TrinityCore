@@ -128,8 +128,8 @@ Garrison* GarrisonMap::GetGarrison()
 void GarrisonMap::InitVisibilityDistance()
 {
     //init visibility distance for instances
-    m_VisibleDistance = World::GetMaxVisibleDistanceInBGArenas();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInBGArenas();
+    m_VisibleDistance = World::GetMaxVisibleDistanceInInstances();
+    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInInstances();
 }
 
 bool GarrisonMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)

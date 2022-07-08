@@ -65,7 +65,6 @@ const ::google::protobuf::ServiceDescriptor* UserManagerListener_descriptor_ = N
 
 }  // namespace
 
-
 void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
   protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -89,10 +88,9 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SubscribeRequest));
   SubscribeResponse_descriptor_ = file->message_type(1);
-  static const int SubscribeResponse_offsets_[3] = {
+  static const int SubscribeResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeResponse, blocked_players_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeResponse, recent_players_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeResponse, role_),
   };
   SubscribeResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -155,10 +153,9 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClearRecentPlayersRequest));
   BlockPlayerRequest_descriptor_ = file->message_type(5);
-  static const int BlockPlayerRequest_offsets_[3] = {
+  static const int BlockPlayerRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockPlayerRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockPlayerRequest, target_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockPlayerRequest, role_),
   };
   BlockPlayerRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -324,83 +321,82 @@ void protobuf_AddDesc_user_5fmanager_5fservice_2eproto() {
 
   ::bgs::protocol::user_manager::v1::protobuf_AddDesc_user_5fmanager_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
-  ::bgs::protocol::protobuf_AddDesc_role_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\032user_manager_service.proto\022\034bgs.protoc"
     "ol.user_manager.v1\032\030user_manager_types.p"
-    "roto\032\022entity_types.proto\032\020role_types.pro"
-    "to\032\017rpc_types.proto\"O\n\020SubscribeRequest\022"
-    "(\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.EntityI"
-    "d\022\021\n\tobject_id\030\002 \002(\004\"\277\001\n\021SubscribeRespon"
-    "se\022D\n\017blocked_players\030\001 \003(\0132+.bgs.protoc"
-    "ol.user_manager.v1.BlockedPlayer\022B\n\016rece"
-    "nt_players\030\002 \003(\0132*.bgs.protocol.user_man"
-    "ager.v1.RecentPlayer\022 \n\004role\030\003 \003(\0132\022.bgs"
-    ".protocol.Role\"Q\n\022UnsubscribeRequest\022(\n\010"
-    "agent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022\021"
-    "\n\tobject_id\030\002 \001(\004\"\221\001\n\027AddRecentPlayersRe"
-    "quest\022;\n\007players\030\001 \003(\0132*.bgs.protocol.us"
-    "er_manager.v1.RecentPlayer\022(\n\010agent_id\030\002"
-    " \001(\0132\026.bgs.protocol.EntityId\022\017\n\007program\030"
-    "\003 \001(\r\"V\n\031ClearRecentPlayersRequest\022(\n\010ag"
-    "ent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022\017\n\007"
-    "program\030\002 \001(\r\"w\n\022BlockPlayerRequest\022(\n\010a"
-    "gent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022)\n"
-    "\ttarget_id\030\002 \002(\0132\026.bgs.protocol.EntityId"
-    "\022\014\n\004role\030\003 \001(\r\"k\n\024UnblockPlayerRequest\022("
-    "\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.EntityId"
-    "\022)\n\ttarget_id\030\002 \002(\0132\026.bgs.protocol.Entit"
-    "yId\"\272\001\n\036BlockedPlayerAddedNotification\022;"
-    "\n\006player\030\001 \002(\0132+.bgs.protocol.user_manag"
-    "er.v1.BlockedPlayer\022/\n\017game_account_id\030\002"
-    " \001(\0132\026.bgs.protocol.EntityId\022*\n\naccount_"
-    "id\030\003 \001(\0132\026.bgs.protocol.EntityId\"\274\001\n Blo"
-    "ckedPlayerRemovedNotification\022;\n\006player\030"
-    "\001 \002(\0132+.bgs.protocol.user_manager.v1.Blo"
-    "ckedPlayer\022/\n\017game_account_id\030\002 \001(\0132\026.bg"
-    "s.protocol.EntityId\022*\n\naccount_id\030\003 \001(\0132"
-    "\026.bgs.protocol.EntityId\"\\\n\036RecentPlayers"
-    "AddedNotification\022:\n\006player\030\001 \003(\0132*.bgs."
-    "protocol.user_manager.v1.RecentPlayer\"^\n"
-    " RecentPlayersRemovedNotification\022:\n\006pla"
-    "yer\030\001 \003(\0132*.bgs.protocol.user_manager.v1"
-    ".RecentPlayer2\263\006\n\022UserManagerService\022t\n\t"
-    "Subscribe\022..bgs.protocol.user_manager.v1"
-    ".SubscribeRequest\032/.bgs.protocol.user_ma"
-    "nager.v1.SubscribeResponse\"\006\202\371+\002\010\001\022g\n\020Ad"
-    "dRecentPlayers\0225.bgs.protocol.user_manag"
-    "er.v1.AddRecentPlayersRequest\032\024.bgs.prot"
-    "ocol.NoData\"\006\202\371+\002\010\n\022k\n\022ClearRecentPlayer"
-    "s\0227.bgs.protocol.user_manager.v1.ClearRe"
-    "centPlayersRequest\032\024.bgs.protocol.NoData"
-    "\"\006\202\371+\002\010\013\022]\n\013BlockPlayer\0220.bgs.protocol.u"
-    "ser_manager.v1.BlockPlayerRequest\032\024.bgs."
-    "protocol.NoData\"\006\202\371+\002\010\024\022a\n\rUnblockPlayer"
-    "\0222.bgs.protocol.user_manager.v1.UnblockP"
-    "layerRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002"
-    "\010\025\022g\n\025BlockPlayerForSession\0220.bgs.protoc"
-    "ol.user_manager.v1.BlockPlayerRequest\032\024."
-    "bgs.protocol.NoData\"\006\202\371+\002\010(\022]\n\013Unsubscri"
-    "be\0220.bgs.protocol.user_manager.v1.Unsubs"
-    "cribeRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002"
-    "\0103\032G\202\371+=\n-bnet.protocol.user_manager.Use"
-    "rManagerService*\014user_manager\212\371+\002\020\0012\273\004\n\023"
-    "UserManagerListener\022w\n\024OnBlockedPlayerAd"
-    "ded\022<.bgs.protocol.user_manager.v1.Block"
-    "edPlayerAddedNotification\032\031.bgs.protocol"
-    ".NO_RESPONSE\"\006\202\371+\002\010\001\022{\n\026OnBlockedPlayerR"
-    "emoved\022>.bgs.protocol.user_manager.v1.Bl"
-    "ockedPlayerRemovedNotification\032\031.bgs.pro"
-    "tocol.NO_RESPONSE\"\006\202\371+\002\010\002\022w\n\024OnRecentPla"
-    "yersAdded\022<.bgs.protocol.user_manager.v1"
-    ".RecentPlayersAddedNotification\032\031.bgs.pr"
-    "otocol.NO_RESPONSE\"\006\202\371+\002\010\013\022{\n\026OnRecentPl"
-    "ayersRemoved\022>.bgs.protocol.user_manager"
-    ".v1.RecentPlayersRemovedNotification\032\031.b"
-    "gs.protocol.NO_RESPONSE\"\006\202\371+\002\010\014\0328\202\371+.\n,b"
-    "net.protocol.user_manager.UserManagerNot"
-    "ify\212\371+\002\010\001B\005H\001\200\001\000", 2936);
+    "roto\032\022entity_types.proto\032\017rpc_types.prot"
+    "o\"W\n\020SubscribeRequest\0220\n\010agent_id\030\001 \001(\0132"
+    "\026.bgs.protocol.EntityIdB\006\202\371+\002 \001\022\021\n\tobjec"
+    "t_id\030\002 \002(\004\"\235\001\n\021SubscribeResponse\022D\n\017bloc"
+    "ked_players\030\001 \003(\0132+.bgs.protocol.user_ma"
+    "nager.v1.BlockedPlayer\022B\n\016recent_players"
+    "\030\002 \003(\0132*.bgs.protocol.user_manager.v1.Re"
+    "centPlayer\"Y\n\022UnsubscribeRequest\0220\n\010agen"
+    "t_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB\006\202\371+\002"
+    " \001\022\021\n\tobject_id\030\002 \001(\004\"\257\001\n\027AddRecentPlaye"
+    "rsRequest\022I\n\007players\030\001 \003(\0132*.bgs.protoco"
+    "l.user_manager.v1.RecentPlayerB\014\212\371+\010*\006\n\004"
+    "\010\001\020\024\0220\n\010agent_id\030\002 \001(\0132\026.bgs.protocol.En"
+    "tityIdB\006\202\371+\002 \001\022\017\n\007program\030\003 \001(\r:\006\202\371+\002\020\001\""
+    "^\n\031ClearRecentPlayersRequest\0220\n\010agent_id"
+    "\030\001 \001(\0132\026.bgs.protocol.EntityIdB\006\202\371+\002 \001\022\017"
+    "\n\007program\030\002 \001(\r\"y\n\022BlockPlayerRequest\0220\n"
+    "\010agent_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB"
+    "\006\202\371+\002 \001\022)\n\ttarget_id\030\002 \002(\0132\026.bgs.protoco"
+    "l.EntityId:\006\202\371+\002\020\001\"{\n\024UnblockPlayerReque"
+    "st\0220\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.Enti"
+    "tyIdB\006\202\371+\002 \001\022)\n\ttarget_id\030\002 \002(\0132\026.bgs.pr"
+    "otocol.EntityId:\006\202\371+\002\020\001\"\272\001\n\036BlockedPlaye"
+    "rAddedNotification\022;\n\006player\030\001 \002(\0132+.bgs"
+    ".protocol.user_manager.v1.BlockedPlayer\022"
+    "/\n\017game_account_id\030\002 \001(\0132\026.bgs.protocol."
+    "EntityId\022*\n\naccount_id\030\003 \001(\0132\026.bgs.proto"
+    "col.EntityId\"\274\001\n BlockedPlayerRemovedNot"
+    "ification\022;\n\006player\030\001 \002(\0132+.bgs.protocol"
+    ".user_manager.v1.BlockedPlayer\022/\n\017game_a"
+    "ccount_id\030\002 \001(\0132\026.bgs.protocol.EntityId\022"
+    "*\n\naccount_id\030\003 \001(\0132\026.bgs.protocol.Entit"
+    "yId\"\\\n\036RecentPlayersAddedNotification\022:\n"
+    "\006player\030\001 \003(\0132*.bgs.protocol.user_manage"
+    "r.v1.RecentPlayer\"^\n RecentPlayersRemove"
+    "dNotification\022:\n\006player\030\001 \003(\0132*.bgs.prot"
+    "ocol.user_manager.v1.RecentPlayer2\265\006\n\022Us"
+    "erManagerService\022t\n\tSubscribe\022..bgs.prot"
+    "ocol.user_manager.v1.SubscribeRequest\032/."
+    "bgs.protocol.user_manager.v1.SubscribeRe"
+    "sponse\"\006\202\371+\002\010\001\022g\n\020AddRecentPlayers\0225.bgs"
+    ".protocol.user_manager.v1.AddRecentPlaye"
+    "rsRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\n\022"
+    "k\n\022ClearRecentPlayers\0227.bgs.protocol.use"
+    "r_manager.v1.ClearRecentPlayersRequest\032\024"
+    ".bgs.protocol.NoData\"\006\202\371+\002\010\013\022]\n\013BlockPla"
+    "yer\0220.bgs.protocol.user_manager.v1.Block"
+    "PlayerRequest\032\024.bgs.protocol.NoData\"\006\202\371+"
+    "\002\010\024\022a\n\rUnblockPlayer\0222.bgs.protocol.user"
+    "_manager.v1.UnblockPlayerRequest\032\024.bgs.p"
+    "rotocol.NoData\"\006\202\371+\002\010\025\022g\n\025BlockPlayerFor"
+    "Session\0220.bgs.protocol.user_manager.v1.B"
+    "lockPlayerRequest\032\024.bgs.protocol.NoData\""
+    "\006\202\371+\002\010(\022]\n\013Unsubscribe\0220.bgs.protocol.us"
+    "er_manager.v1.UnsubscribeRequest\032\024.bgs.p"
+    "rotocol.NoData\"\006\202\371+\002\0103\032I\202\371+\?\n-bnet.proto"
+    "col.user_manager.UserManagerService*\014use"
+    "r_manager0\001\212\371+\002\020\0012\273\004\n\023UserManagerListene"
+    "r\022w\n\024OnBlockedPlayerAdded\022<.bgs.protocol"
+    ".user_manager.v1.BlockedPlayerAddedNotif"
+    "ication\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002"
+    "\010\001\022{\n\026OnBlockedPlayerRemoved\022>.bgs.proto"
+    "col.user_manager.v1.BlockedPlayerRemoved"
+    "Notification\032\031.bgs.protocol.NO_RESPONSE\""
+    "\006\202\371+\002\010\002\022w\n\024OnRecentPlayersAdded\022<.bgs.pr"
+    "otocol.user_manager.v1.RecentPlayersAdde"
+    "dNotification\032\031.bgs.protocol.NO_RESPONSE"
+    "\"\006\202\371+\002\010\013\022{\n\026OnRecentPlayersRemoved\022>.bgs"
+    ".protocol.user_manager.v1.RecentPlayersR"
+    "emovedNotification\032\031.bgs.protocol.NO_RES"
+    "PONSE\"\006\202\371+\002\010\014\0328\202\371+.\n,bnet.protocol.user_"
+    "manager.UserManagerNotify\212\371+\002\010\001B\005H\001\200\001\000", 2958);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "user_manager_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -434,7 +430,6 @@ struct StaticDescriptorInitializer_user_5fmanager_5fservice_2eproto {
     protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   }
 } static_descriptor_initializer_user_5fmanager_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -681,7 +676,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 
 bool SubscribeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -706,13 +700,11 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   return metadata;
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
 const int SubscribeResponse::kBlockedPlayersFieldNumber;
 const int SubscribeResponse::kRecentPlayersFieldNumber;
-const int SubscribeResponse::kRoleFieldNumber;
 #endif  // !_MSC_VER
 
 SubscribeResponse::SubscribeResponse()
@@ -770,7 +762,6 @@ SubscribeResponse* SubscribeResponse::New() const {
 void SubscribeResponse::Clear() {
   blocked_players_.Clear();
   recent_players_.Clear();
-  role_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -809,20 +800,6 @@ bool SubscribeResponse::MergePartialFromCodedStream(
           goto handle_unusual;
         }
         if (input->ExpectTag(18)) goto parse_recent_players;
-        if (input->ExpectTag(26)) goto parse_role;
-        break;
-      }
-
-      // repeated .bgs.protocol.Role role = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_role:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_role()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_role;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -864,12 +841,6 @@ void SubscribeResponse::SerializeWithCachedSizes(
       2, this->recent_players(i), output);
   }
 
-  // repeated .bgs.protocol.Role role = 3;
-  for (int i = 0; i < this->role_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->role(i), output);
-  }
-
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -892,13 +863,6 @@ void SubscribeResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         2, this->recent_players(i), target);
-  }
-
-  // repeated .bgs.protocol.Role role = 3;
-  for (int i = 0; i < this->role_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->role(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -928,14 +892,6 @@ int SubscribeResponse::ByteSize() const {
         this->recent_players(i));
   }
 
-  // repeated .bgs.protocol.Role role = 3;
-  total_size += 1 * this->role_size();
-  for (int i = 0; i < this->role_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->role(i));
-  }
-
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -963,7 +919,6 @@ void SubscribeResponse::MergeFrom(const SubscribeResponse& from) {
   GOOGLE_CHECK_NE(&from, this);
   blocked_players_.MergeFrom(from.blocked_players_);
   recent_players_.MergeFrom(from.recent_players_);
-  role_.MergeFrom(from.role_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -980,10 +935,8 @@ void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
 }
 
 bool SubscribeResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->blocked_players())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->recent_players())) return false;
-  if (!::google::protobuf::internal::AllAreInitialized(this->role())) return false;
   return true;
 }
 
@@ -991,7 +944,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
   if (other != this) {
     blocked_players_.Swap(&other->blocked_players_);
     recent_players_.Swap(&other->recent_players_);
-    role_.Swap(&other->role_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1005,7 +957,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
   metadata.reflection = SubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1252,7 +1203,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 }
 
 bool UnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1276,7 +1226,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1562,7 +1511,6 @@ void AddRecentPlayersRequest::CopyFrom(const AddRecentPlayersRequest& from) {
 }
 
 bool AddRecentPlayersRequest::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->players())) return false;
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
@@ -1588,7 +1536,6 @@ void AddRecentPlayersRequest::Swap(AddRecentPlayersRequest* other) {
   metadata.reflection = AddRecentPlayersRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1835,7 +1782,6 @@ void ClearRecentPlayersRequest::CopyFrom(const ClearRecentPlayersRequest& from) 
 }
 
 bool ClearRecentPlayersRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1860,13 +1806,11 @@ void ClearRecentPlayersRequest::Swap(ClearRecentPlayersRequest* other) {
   return metadata;
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
 const int BlockPlayerRequest::kAgentIdFieldNumber;
 const int BlockPlayerRequest::kTargetIdFieldNumber;
-const int BlockPlayerRequest::kRoleFieldNumber;
 #endif  // !_MSC_VER
 
 BlockPlayerRequest::BlockPlayerRequest()
@@ -1891,7 +1835,6 @@ void BlockPlayerRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
   target_id_ = NULL;
-  role_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1929,14 +1872,13 @@ BlockPlayerRequest* BlockPlayerRequest::New() const {
 }
 
 void BlockPlayerRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
     }
     if (has_target_id()) {
       if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
     }
-    role_ = 0u;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1970,21 +1912,6 @@ bool BlockPlayerRequest::MergePartialFromCodedStream(
          parse_target_id:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_role;
-        break;
-      }
-
-      // optional uint32 role = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_role:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &role_)));
-          set_has_role();
         } else {
           goto handle_unusual;
         }
@@ -2029,11 +1956,6 @@ void BlockPlayerRequest::SerializeWithCachedSizes(
       2, this->target_id(), output);
   }
 
-  // optional uint32 role = 3;
-  if (has_role()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->role(), output);
-  }
-
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2056,11 +1978,6 @@ void BlockPlayerRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         2, this->target_id(), target);
-  }
-
-  // optional uint32 role = 3;
-  if (has_role()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->role(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2087,13 +2004,6 @@ int BlockPlayerRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->target_id());
-    }
-
-    // optional uint32 role = 3;
-    if (has_role()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->role());
     }
 
   }
@@ -2129,9 +2039,6 @@ void BlockPlayerRequest::MergeFrom(const BlockPlayerRequest& from) {
     if (from.has_target_id()) {
       mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
     }
-    if (from.has_role()) {
-      set_role(from.role());
-    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2150,7 +2057,6 @@ void BlockPlayerRequest::CopyFrom(const BlockPlayerRequest& from) {
 
 bool BlockPlayerRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2164,7 +2070,6 @@ void BlockPlayerRequest::Swap(BlockPlayerRequest* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
     std::swap(target_id_, other->target_id_);
-    std::swap(role_, other->role_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -2178,7 +2083,6 @@ void BlockPlayerRequest::Swap(BlockPlayerRequest* other) {
   metadata.reflection = BlockPlayerRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2431,7 +2335,6 @@ void UnblockPlayerRequest::CopyFrom(const UnblockPlayerRequest& from) {
 
 bool UnblockPlayerRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2458,7 +2361,6 @@ void UnblockPlayerRequest::Swap(UnblockPlayerRequest* other) {
   metadata.reflection = UnblockPlayerRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2754,7 +2656,6 @@ void BlockedPlayerAddedNotification::CopyFrom(const BlockedPlayerAddedNotificati
 
 bool BlockedPlayerAddedNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_player()) {
     if (!this->player().IsInitialized()) return false;
   }
@@ -2785,7 +2686,6 @@ void BlockedPlayerAddedNotification::Swap(BlockedPlayerAddedNotification* other)
   metadata.reflection = BlockedPlayerAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3081,7 +2981,6 @@ void BlockedPlayerRemovedNotification::CopyFrom(const BlockedPlayerRemovedNotifi
 
 bool BlockedPlayerRemovedNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_player()) {
     if (!this->player().IsInitialized()) return false;
   }
@@ -3112,7 +3011,6 @@ void BlockedPlayerRemovedNotification::Swap(BlockedPlayerRemovedNotification* ot
   metadata.reflection = BlockedPlayerRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3311,7 +3209,6 @@ void RecentPlayersAddedNotification::CopyFrom(const RecentPlayersAddedNotificati
 }
 
 bool RecentPlayersAddedNotification::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->player())) return false;
   return true;
 }
@@ -3332,7 +3229,6 @@ void RecentPlayersAddedNotification::Swap(RecentPlayersAddedNotification* other)
   metadata.reflection = RecentPlayersAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3531,7 +3427,6 @@ void RecentPlayersRemovedNotification::CopyFrom(const RecentPlayersRemovedNotifi
 }
 
 bool RecentPlayersRemovedNotification::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->player())) return false;
   return true;
 }
@@ -3552,7 +3447,6 @@ void RecentPlayersRemovedNotification::Swap(RecentPlayersRemovedNotification* ot
   metadata.reflection = RecentPlayersRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3841,7 +3735,6 @@ void UserManagerListener::CallServerMethod(uint32 token, uint32 methodId, Messag
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

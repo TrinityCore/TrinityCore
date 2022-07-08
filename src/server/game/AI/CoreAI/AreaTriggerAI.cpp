@@ -15,10 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 
-AreaTriggerAI::AreaTriggerAI(AreaTrigger* a) : at(a)
+AreaTriggerAI::AreaTriggerAI(AreaTrigger* a, uint32 scriptId) : _scriptId(scriptId ? scriptId : a->GetScriptId()), at(a)
 {
+    ASSERT(_scriptId, "A AreaTriggerAI was initialized with an invalid scriptId!");
 }
 
 AreaTriggerAI::~AreaTriggerAI()

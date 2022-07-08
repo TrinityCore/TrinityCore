@@ -28,12 +28,15 @@
 #include "BattlenetPackets.h"
 #include "CharacterPackets.h"
 #include "ChatPackets.h"
+#include "ClientConfigPackets.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Hyperlinks.h"
 #include "IpAddress.h"
+#include "Log.h"
 #include "Map.h"
 #include "Metric.h"
 #include "MiscPackets.h"
@@ -116,7 +119,6 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     m_expansion(std::min<uint8>(expansion, sWorld->getIntConfig(CONFIG_EXPANSION))),
     _os(os),
     _battlenetRequestToken(0),
-    _warden(nullptr),
     _logoutTime(0),
     m_inQueue(false),
     m_playerLogout(false),
@@ -125,7 +127,6 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
-    m_clientTimeDelay(0),
     _tutorialsChanged(TUTORIALS_FLAG_NONE),
     _filterAddonMessages(false),
     recruiterId(recruiter),
@@ -134,7 +135,13 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
     m_currentBankerGUID(),
-    _battlePetMgr(std::make_unique<BattlePetMgr>(this)),
+    _timeSyncClockDeltaQueue(6),
+    _timeSyncClockDelta(0),
+    _pendingTimeSyncRequests(),
+    _timeSyncNextCounter(0),
+    _timeSyncTimer(0),
+    _calendarEventCreationCooldown(0),
+    _battlePetMgr(std::make_unique<BattlePets::BattlePetMgr>(this)),
     _collectionMgr(std::make_unique<CollectionMgr>(this))
 {
     memset(_tutorials, 0, sizeof(_tutorials));
@@ -167,7 +174,6 @@ WorldSession::~WorldSession()
         }
     }
 
-    delete _warden;
     delete _RBACData;
 
     ///- empty incoming packet queue
@@ -338,9 +344,14 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     uint32 processedPackets = 0;
     time_t currentTime = GameTime::GetGameTime();
 
+    constexpr uint32 MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE = 100;
+
     while (m_Socket[CONNECTION_TYPE_REALM] && _recvQueue.next(packet, updater))
     {
-        ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+        OpcodeClient opcode = static_cast<OpcodeClient>(packet->GetOpcode());
+        ClientOpcodeHandler const* opHandle = opcodeTable[opcode];
+        TC_METRIC_DETAILED_TIMER("worldsession_update_opcode_time", TC_METRIC_TAG("opcode", opHandle->Name));
+
         try
         {
             switch (opHandle->Status)
@@ -359,10 +370,15 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                                 "Player is currently not in world yet.", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str());
                         }
                     }
-                    else if (_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
+                    else if (_player->IsInWorld())
                     {
-                        sScriptMgr->OnPacketReceive(this, *packet);
-                        opHandle->Call(this, *packet);
+                        if(AntiDOS.EvaluateOpcode(*packet, currentTime))
+                        {
+                            sScriptMgr->OnPacketReceive(this, *packet);
+                            opHandle->Call(this, *packet);
+                        }
+                        else
+                            processedPackets = MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE;   // break out of packet processing loop
                     }
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                     break;
@@ -376,6 +392,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
                     }
+                    else
+                        processedPackets = MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE;   // break out of packet processing loop
                     break;
                 case STATUS_TRANSFER:
                     if (!_player)
@@ -387,6 +405,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
                     }
+                    else
+                        processedPackets = MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE;   // break out of packet processing loop
                     break;
                 case STATUS_AUTHED:
                     // prevent cheating with skip queue wait
@@ -406,6 +426,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         sScriptMgr->OnPacketReceive(this, *packet);
                         opHandle->Call(this, *packet);
                     }
+                    else
+                        processedPackets = MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE;   // break out of packet processing loop
                     break;
                 case STATUS_NEVER:
                     TC_LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str()
@@ -416,6 +438,22 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         , GetPlayerInfo().c_str());
                     break;
             }
+        }
+        catch (WorldPackets::InvalidHyperlinkException const& ihe)
+        {
+            TC_LOG_ERROR("network", "%s sent %s with an invalid link:\n%s", GetPlayerInfo().c_str(),
+                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), ihe.GetInvalidValue().c_str());
+
+            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+                KickPlayer("WorldSession::Update Invalid chat link");
+        }
+        catch (WorldPackets::IllegalHyperlinkException const& ihe)
+        {
+            TC_LOG_ERROR("network", "%s sent %s which illegally contained a hyperlink:\n%s", GetPlayerInfo().c_str(),
+                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), ihe.GetInvalidValue().c_str());
+
+            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+                KickPlayer("WorldSession::Update Illegal chat link");
         }
         catch (WorldPackets::PacketArrayMaxCapacityException const& pamce)
         {
@@ -434,7 +472,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
         deletePacket = true;
 
-#define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 100
         processedPackets++;
 
         //process only a max amout of packets in 1 Update() call.
@@ -447,8 +484,17 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
-    if (m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() && _warden)
-        _warden->Update();
+    if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
+    {
+        // Send time sync packet every 10s.
+        if (_timeSyncTimer > 0)
+        {
+            if (diff >= _timeSyncTimer)
+                SendTimeSync();
+            else
+                _timeSyncTimer -= diff;
+        }
+    }
 
     ProcessQueryCallbacks();
 
@@ -456,17 +502,20 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessUnsafe())
     {
+        if (m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() && _warden)
+            _warden->Update(diff);
+
         ///- If necessary, log the player out
         if (ShouldLogOut(currentTime) && m_playerLoading.IsEmpty())
             LogoutPlayer(true);
-
-        if (m_Socket[CONNECTION_TYPE_REALM] && GetPlayer() && _warden)
-            _warden->Update();
 
         ///- Cleanup socket pointer if need
         if ((m_Socket[CONNECTION_TYPE_REALM] && !m_Socket[CONNECTION_TYPE_REALM]->IsOpen()) ||
             (m_Socket[CONNECTION_TYPE_INSTANCE] && !m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen()))
         {
+            if (GetPlayer() && _warden)
+                _warden->Update(diff);
+
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
@@ -532,7 +581,7 @@ void WorldSession::LogoutPlayer(bool save)
 
         ///- Teleport to home if the player is in an invalid instance
         if (!_player->m_InstanceValid && !_player->IsGameMaster())
-            _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
+            _player->TeleportTo(_player->m_homebind);
 
         sOutdoorPvPMgr->HandlePlayerLeaveZone(_player, _player->GetZoneId());
 
@@ -559,6 +608,10 @@ void WorldSession::LogoutPlayer(bool save)
         ///- Remove pet
         _player->RemovePet(nullptr, PET_SAVE_AS_CURRENT, true);
 
+        ///- Release battle pet journal lock
+        if (_battlePetMgr->HasJournalLock())
+            _battlePetMgr->ToggleJournalLock(false);
+
         ///- Clear whisper whitelist
         _player->ClearWhisperWhiteList();
 
@@ -583,16 +636,13 @@ void WorldSession::LogoutPlayer(bool save)
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         _player->UninviteFromGroup();
 
-        // remove player from the group if he is:
-        // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
-        if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket[CONNECTION_TYPE_REALM])
-            _player->RemoveFromGroup();
-
         //! Send update to group and reset stored max enchanting level
-        if (_player->GetGroup())
+        if (Group* group = _player->GetGroup())
         {
-            _player->GetGroup()->SendUpdate();
-            _player->GetGroup()->ResetMaxEnchantingLevel();
+            group->SendUpdate();
+            group->ResetMaxEnchantingLevel();
+            if (group->GetLeaderGUID() == _player->GetGUID())
+                group->StartLeaderOfflineTimer();
         }
 
         //! Broadcast a logout message to the player's friends
@@ -608,9 +658,10 @@ void WorldSession::LogoutPlayer(bool save)
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
+        _player->SetDestroyedObject(true);
         _player->CleanupsBeforeDelete();
-        TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Logout Character:[%s] (%s) Level: %d, XP: %u/%u (%u left)",
-            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->getLevel(),
+        TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Logout Character:[%s] %s Level: %d, XP: %u/%u (%u left)",
+            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->GetLevel(),
             _player->GetXP(), _player->GetXPForNextLevel(), std::max(0, (int32)_player->GetXPForNextLevel() - (int32)_player->GetXP()));
 
         if (Map* _map = _player->FindMap())
@@ -642,8 +693,11 @@ void WorldSession::LogoutPlayer(bool save)
 }
 
 /// Kick a player out of the World
-void WorldSession::KickPlayer()
+void WorldSession::KickPlayer(std::string const& reason)
 {
+    TC_LOG_INFO("network.kick", "Account: %u Character: '%s' %s kicked with reason: %s", GetAccountId(), _player ? _player->GetName().c_str() : "<none>",
+        _player ? _player->GetGUID().ToString().c_str() : "", reason.c_str());
+
     for (uint8 i = 0; i < 2; ++i)
     {
         if (m_Socket[i])
@@ -652,6 +706,34 @@ void WorldSession::KickPlayer()
             forceExit = true;
         }
     }
+}
+
+bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
+{
+    if (Trinity::Hyperlinks::CheckAllLinks(str))
+        return true;
+
+    TC_LOG_ERROR("network", "Player %s%s sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
+        GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
+
+    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+        KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
+
+    return false;
+}
+
+bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string const& str)
+{
+    if (str.find('|') == std::string::npos)
+        return true;
+
+    TC_LOG_ERROR("network", "Player %s %s sent a message which illegally contained a hyperlink:\n%s", GetPlayer()->GetName().c_str(),
+                 GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
+
+    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+        KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
+
+    return false;
 }
 
 void WorldSession::SendNotification(char const* format, ...)
@@ -715,7 +797,7 @@ void WorldSession::Handle_NULL(WorldPackets::Null& null)
 
 void WorldSession::Handle_EarlyProccess(WorldPackets::Null& null)
 {
-    TC_LOG_ERROR("network.opcode", "Received opcode %s that must be processed in WorldSocket::OnRead from %s"
+    TC_LOG_ERROR("network.opcode", "Received opcode %s that must be processed in WorldSocket::ReadDataHandler from %s"
         , GetOpcodeNameForLogging(null.GetOpcode()).c_str(), GetPlayerInfo().c_str());
 }
 
@@ -769,7 +851,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
         if ((mask & (1 << type)) == 0)
         {
-            TC_LOG_ERROR("misc", "Table `%s` have non appropriate for table  account data type (%u), ignore.",
+            TC_LOG_ERROR("misc", "Table `%s` have non appropriate for table account data type (%u), ignore.",
                 mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
             continue;
         }
@@ -809,6 +891,18 @@ void WorldSession::SetAccountData(AccountDataType type, time_t time, std::string
     _accountData[type].Data = data;
 }
 
+void WorldSession::SendAccountDataTimes(ObjectGuid playerGuid, uint32 mask)
+{
+    WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
+    accountDataTimes.PlayerGuid = playerGuid;
+    accountDataTimes.ServerTime = GameTime::GetSystemTime();
+    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        if (mask & (1 << i))
+            accountDataTimes.AccountTimes[i] = GetAccountData(AccountDataType(i))->Time;
+
+    SendPacket(accountDataTimes.Write());
+}
+
 void WorldSession::LoadTutorialsData(PreparedQueryResult result)
 {
     memset(_tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
@@ -830,7 +924,7 @@ void WorldSession::SendTutorialsData()
     SendPacket(packet.Write());
 }
 
-void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction& trans)
+void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
 {
     if (!(_tutorialsChanged & TUTORIALS_FLAG_CHANGED))
         return;
@@ -849,7 +943,7 @@ void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction& trans)
     _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
 }
 
-bool WorldSession::IsAddonRegistered(const std::string& prefix) const
+bool WorldSession::IsAddonRegistered(std::string_view prefix) const
 {
     if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
         return true;
@@ -892,23 +986,17 @@ void WorldSession::ProcessQueryCallbacks()
 {
     _queryProcessor.ProcessReadyCallbacks();
     _transactionCallbacks.ProcessReadyCallbacks();
-
-    if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready &&
-        _accountLoginCallback.valid() && _accountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        InitializeSessionCallback(static_cast<LoginDatabaseQueryHolder*>(_realmAccountLoginCallback.get()),
-            static_cast<CharacterDatabaseQueryHolder*>(_accountLoginCallback.get()));
-
-    //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        HandlePlayerLogin(reinterpret_cast<LoginQueryHolder*>(_charLoginCallback.get()));
-
-    if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-        HandleCharEnum(static_cast<CharacterDatabaseQueryHolder*>(_charEnumCallback.get()));
+    _queryHolderProcessor.ProcessReadyCallbacks();
 }
 
 TransactionCallback& WorldSession::AddTransactionCallback(TransactionCallback&& callback)
 {
     return _transactionCallbacks.AddCallback(std::move(callback));
+}
+
+SQLQueryHolderCallback& WorldSession::AddQueryHolderCallback(SQLQueryHolderCallback&& callback)
+{
+    return _queryHolderProcessor.AddCallback(std::move(callback));
 }
 
 bool WorldSession::CanAccessAlliedRaces() const
@@ -920,7 +1008,7 @@ void WorldSession::InitWarden(SessionKey const& k)
 {
     if (_os == "Win")
     {
-        _warden = new WardenWin();
+        _warden = std::make_unique<WardenWin>();
         _warden->Init(this, k);
     }
     else if (_os == "Wn64")
@@ -999,6 +1087,7 @@ public:
         MOUNTS,
         ITEM_APPEARANCES,
         ITEM_FAVORITE_APPEARANCES,
+        TRANSMOG_ILLUSIONS,
 
         MAX_QUERIES
     };
@@ -1015,6 +1104,7 @@ public:
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PETS);
         stmt->setUInt32(0, battlenetAccountId);
+        stmt->setInt32(1, realm.Id.Realm);
         ok = SetPreparedQuery(BATTLE_PETS, stmt) && ok;
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PET_SLOTS);
@@ -1041,46 +1131,67 @@ public:
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(ITEM_FAVORITE_APPEARANCES, stmt) && ok;
 
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_TRANSMOG_ILLUSIONS);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(TRANSMOG_ILLUSIONS, stmt) && ok;
+
         return ok;
     }
 };
 
 void WorldSession::InitializeSession()
 {
-    AccountInfoQueryHolderPerRealm* realmHolder = new AccountInfoQueryHolderPerRealm();
+    std::shared_ptr<AccountInfoQueryHolderPerRealm> realmHolder = std::make_shared<AccountInfoQueryHolderPerRealm>();
     if (!realmHolder->Initialize(GetAccountId(), GetBattlenetAccountId()))
     {
-        delete realmHolder;
         SendAuthResponse(ERROR_INTERNAL, false);
         return;
     }
 
-    AccountInfoQueryHolder* holder = new AccountInfoQueryHolder();
+    std::shared_ptr<AccountInfoQueryHolder> holder = std::make_shared<AccountInfoQueryHolder>();
     if (!holder->Initialize(GetAccountId(), GetBattlenetAccountId()))
     {
-        delete realmHolder;
-        delete holder;
         SendAuthResponse(ERROR_INTERNAL, false);
         return;
     }
 
-    _realmAccountLoginCallback = CharacterDatabase.DelayQueryHolder(realmHolder);
-    _accountLoginCallback = LoginDatabase.DelayQueryHolder(holder);
+    struct ForkJoinState
+    {
+        std::shared_ptr<AccountInfoQueryHolderPerRealm> Character;
+        std::shared_ptr<AccountInfoQueryHolder> Login;
+    };
+
+    std::shared_ptr<ForkJoinState> state = std::make_shared<ForkJoinState>();
+
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this, state, realmHolder](SQLQueryHolderBase const& /*result*/)
+    {
+        state->Character = realmHolder;
+        if (state->Login && state->Character)
+            InitializeSessionCallback(*state->Login, *state->Character);
+    });
+
+    AddQueryHolderCallback(LoginDatabase.DelayQueryHolder(holder)).AfterComplete([this, state, holder](SQLQueryHolderBase const& /*result*/)
+    {
+        state->Login = holder;
+        if (state->Login && state->Character)
+            InitializeSessionCallback(*state->Login, *state->Character);
+    });
 }
 
-void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* realmHolder, CharacterDatabaseQueryHolder* holder)
+void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& holder, CharacterDatabaseQueryHolder const& realmHolder)
 {
-    LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
-    LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
-    _collectionMgr->LoadAccountToys(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
-    _collectionMgr->LoadAccountHeirlooms(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
-    _collectionMgr->LoadAccountMounts(holder->GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
-    _collectionMgr->LoadAccountItemAppearances(holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
+    LoadAccountData(realmHolder.GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
+    LoadTutorialsData(realmHolder.GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
+    _collectionMgr->LoadAccountToys(holder.GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
+    _collectionMgr->LoadAccountHeirlooms(holder.GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
+    _collectionMgr->LoadAccountMounts(holder.GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
+    _collectionMgr->LoadAccountItemAppearances(holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
+    _collectionMgr->LoadAccountTransmogIllusions(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_ILLUSIONS));
 
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);
     else
-        SendAuthWaitQue(0);
+        SendAuthWaitQueue(0);
 
     SetInQueue(false);
     ResetTimeOutTime(false);
@@ -1089,9 +1200,10 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* realmHold
     SendFeatureSystemStatusGlueScreen();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendAvailableHotfixes();
+    SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
     SendTutorialsData();
 
-    if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
+    if (PreparedQueryResult characterCountsResult = holder.GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
     {
         do
         {
@@ -1105,11 +1217,8 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* realmHold
     bnetConnected.State = 1;
     SendPacket(bnetConnected.Write());
 
-    _battlePetMgr->LoadFromDB(holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
-                              holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));
-
-    delete realmHolder;
-    delete holder;
+    _battlePetMgr->LoadFromDB(holder.GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
+                              holder.GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));
 }
 
 rbac::RBACData* WorldSession::GetRBACData()
@@ -1167,7 +1276,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
         case POLICY_KICK:
         {
             TC_LOG_WARN("network", "AntiDOS: Player kicked!");
-            Session->KickPlayer();
+            Session->KickPlayer("WorldSession::DosProtection::EvaluateOpcode AntiDOS");
             return false;
         }
         case POLICY_BAN:
@@ -1183,14 +1292,13 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             }
             sWorld->BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
             TC_LOG_WARN("network", "AntiDOS: Player automatically banned for %u seconds.", duration);
-            Session->KickPlayer();
+            Session->KickPlayer("WorldSession::DosProtection::EvaluateOpcode AntiDOS");
             return false;
         }
         default: // invalid policy
             return true;
     }
 }
-
 
 uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) const
 {
@@ -1200,7 +1308,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         // CPU usage sending 2000 packets/second on a 3.70 GHz 4 cores on Win x64
         //                                              [% CPU mysqld]   [%CPU worldserver RelWithDebInfo]
         case CMSG_PLAYER_LOGIN:                         //   0               0.5
-        case CMSG_QUERY_PLAYER_NAME:                    //   0               1
+        case CMSG_QUERY_PLAYER_NAMES:                   //   0               1
         case CMSG_QUERY_PET_NAME:                       //   0               1
         case CMSG_QUERY_NPC_TEXT:                       //   0               1
         case CMSG_ATTACK_STOP:                          //   0               1
@@ -1231,9 +1339,12 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_BANK_TEXT_QUERY:                //   0               1.5
         case CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT:    //   0               1.5
         case CMSG_MOVE_SET_FACING:                      //   0               1.5
+        case CMSG_MOVE_SET_FACING_HEARTBEAT:            //   0               1.5
+        case CMSG_MOVE_SET_PITCH:                       //   0               1.5
         case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
         case CMSG_QUEST_GIVER_COMPLETE_QUEST:           //   0               1.5
         case CMSG_SET_ACTION_BUTTON:                    //   0               1.5
+        case CMSG_SET_ACTION_BAR_TOGGLES:               // not profiled
         case CMSG_RESET_INSTANCES:                      //   0               1.5
         case CMSG_HEARTH_AND_RESURRECT:                 //   0               1.5
         case CMSG_TOGGLE_PVP:                           //   0               1.5
@@ -1279,6 +1390,14 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_RANDOM_ROLL:                          // not profiled
         case CMSG_TIME_SYNC_RESPONSE:                   // not profiled
         case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:      // not profiled
+        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:     // not profiled
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:// not profiled
+        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK: // not profiled
+        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:   // not profiled
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:// not profiled
+        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:     // not profiled
+        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:      // not profiled
+        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:     // not profiled
         {
             // "0" is a magic number meaning there's no limit for the opcode.
             // All the opcodes above must cause little CPU usage and no sync/async database queries at all
@@ -1340,7 +1459,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_SET_PARTY_LEADER:                     //   1               2         1 async db query
         case CMSG_CONVERT_RAID:                         //   1               5         1 async db query
         case CMSG_SET_ASSISTANT_LEADER:                 //   1               2         1 async db query
-        case CMSG_CALENDAR_ADD_EVENT:                   //  21              10         2 async db query
         case CMSG_MOVE_CHANGE_VEHICLE_SEATS:            // not profiled
         case CMSG_PETITION_BUY:                         // not profiled                1 sync 1 async db queries
         case CMSG_REQUEST_VEHICLE_PREV_SEAT:            // not profiled
@@ -1362,6 +1480,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT:    //  22               3         2 async db queries
         case CMSG_SUBMIT_USER_FEEDBACK:                 // not profiled                1 async db query
         case CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT:      // not profiled                1 async db query
+        case CMSG_CALENDAR_ADD_EVENT:                   //  21              10         2 async db query
         case CMSG_CALENDAR_UPDATE_EVENT:                // not profiled
         case CMSG_CALENDAR_REMOVE_EVENT:                // not profiled
         case CMSG_CALENDAR_COPY_EVENT:                  // not profiled
@@ -1421,4 +1540,35 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
 WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY))
 {
+}
+
+void WorldSession::ResetTimeSync()
+{
+    _timeSyncNextCounter = 0;
+    _pendingTimeSyncRequests.clear();
+}
+
+void WorldSession::SendTimeSync()
+{
+    WorldPackets::Misc::TimeSyncRequest timeSyncRequest;
+    timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
+    SendPacket(timeSyncRequest.Write());
+
+    _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
+
+    // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
+    _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
+    _timeSyncNextCounter++;
+}
+
+uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
+{
+    int64 movementTime = int64(time) + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        return GameTime::GetGameTimeMS();
+    }
+    else
+        return uint32(movementTime);
 }

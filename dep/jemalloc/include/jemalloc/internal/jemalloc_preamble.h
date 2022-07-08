@@ -21,7 +21,7 @@
 #  include "../jemalloc.h"
 #endif
 
-#if (defined(JEMALLOC_OSATOMIC) || defined(JEMALLOC_OSSPIN))
+#if defined(JEMALLOC_OSATOMIC)
 #include <libkern/OSAtomic.h>
 #endif
 
@@ -45,7 +45,11 @@
 #    include "jemalloc/internal/private_namespace_jet.h"
 #  endif
 #endif
-#include "jemalloc/internal/hooks.h"
+#include "jemalloc/internal/test_hooks.h"
+
+#ifdef JEMALLOC_DEFINE_MADVISE_FREE
+#  define JEMALLOC_MADV_FREE 8
+#endif
 
 static const bool config_debug =
 #ifdef JEMALLOC_DEBUG
@@ -56,6 +60,13 @@ static const bool config_debug =
     ;
 static const bool have_dss =
 #ifdef JEMALLOC_DSS
+    true
+#else
+    false
+#endif
+    ;
+static const bool have_madvise_huge =
+#ifdef JEMALLOC_HAVE_MADVISE_HUGE
     true
 #else
     false
@@ -111,13 +122,6 @@ static const bool config_stats =
     false
 #endif
     ;
-static const bool config_thp =
-#ifdef JEMALLOC_THP
-    true
-#else
-    false
-#endif
-    ;
 static const bool config_tls =
 #ifdef JEMALLOC_TLS
     true
@@ -146,7 +150,37 @@ static const bool config_cache_oblivious =
     false
 #endif
     ;
-#ifdef JEMALLOC_HAVE_SCHED_GETCPU
+/*
+ * Undocumented, for jemalloc development use only at the moment.  See the note
+ * in jemalloc/internal/log.h.
+ */
+static const bool config_log =
+#ifdef JEMALLOC_LOG
+    true
+#else
+    false
+#endif
+    ;
+/*
+ * Are extra safety checks enabled; things like checking the size of sized
+ * deallocations, double-frees, etc.
+ */
+static const bool config_opt_safety_checks =
+#ifdef JEMALLOC_OPT_SAFETY_CHECKS
+    true
+#elif defined(JEMALLOC_DEBUG)
+    /*
+     * This lets us only guard safety checks by one flag instead of two; fast
+     * checks can guard solely by config_opt_safety_checks and run in debug mode
+     * too.
+     */
+    true
+#else
+    false
+#endif
+    ;
+
+#if defined(_WIN32) || defined(JEMALLOC_HAVE_SCHED_GETCPU)
 /* Currently percpu_arena depends on sched_getcpu. */
 #define JEMALLOC_PERCPU_ARENA
 #endif

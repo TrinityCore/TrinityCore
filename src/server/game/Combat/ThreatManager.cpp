@@ -19,11 +19,13 @@
 #include "Creature.h"
 #include "CombatPackets.h"
 #include "CreatureAI.h"
+#include "CreatureGroups.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::threat_list_heap::value_type)
@@ -39,6 +41,7 @@ void ThreatReference::AddThreat(float amount)
         HeapNotifyIncreased();
     else
         HeapNotifyDecreased();
+    _mgr._needClientUpdate = true;
 }
 
 void ThreatReference::ScaleThreat(float factor)
@@ -50,29 +53,34 @@ void ThreatReference::ScaleThreat(float factor)
         HeapNotifyIncreased();
     else
         HeapNotifyDecreased();
+    _mgr._needClientUpdate = true;
 }
 
-void ThreatReference::UpdateOnlineState()
+void ThreatReference::UpdateOffline()
 {
-    OnlineState onlineState = SelectOnlineState();
-    if (onlineState == _online)
+    bool const shouldBeOffline = ShouldBeOffline();
+    if (shouldBeOffline == IsOffline())
         return;
-    bool increase = (onlineState > _online);
-    _online = onlineState;
-    if (increase)
-        HeapNotifyIncreased();
-    else
-        HeapNotifyDecreased();
 
-    if (!IsAvailable())
-        _owner->GetThreatManager().SendRemoveToClients(_victim);
+    if (shouldBeOffline)
+    {
+        _online = ONLINE_STATE_OFFLINE;
+        HeapNotifyDecreased();
+        _mgr.SendRemoveToClients(_victim);
+    }
+    else
+    {
+        _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
+        HeapNotifyIncreased();
+        _mgr.RegisterForAIUpdate(this);
+    }
 }
 
 /*static*/ bool ThreatReference::FlagsAllowFighting(Unit const* a, Unit const* b)
 {
     if (a->GetTypeId() == TYPEID_UNIT && a->ToCreature()->IsTrigger())
         return false;
-    if (a->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+    if (a->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
     {
         if (b->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC))
             return false;
@@ -85,52 +93,57 @@ void ThreatReference::UpdateOnlineState()
     return true;
 }
 
-ThreatReference::OnlineState ThreatReference::SelectOnlineState()
+bool ThreatReference::ShouldBeOffline() const
 {
-    // first, check all offline conditions
-    if (!_owner->CanSeeOrDetect(_victim)) // not in map/phase, or stealth/invis
-        return ONLINE_STATE_OFFLINE;
-    if (_victim->HasUnitState(UNIT_STATE_DIED)) // feign death
-        return ONLINE_STATE_OFFLINE;
+    if (!_owner->CanSeeOrDetect(_victim))
+        return true;
+    if (!_owner->_IsTargetAcceptable(_victim) || !_owner->CanCreatureAttack(_victim))
+        return true;
     if (!FlagsAllowFighting(_owner, _victim) || !FlagsAllowFighting(_victim, _owner))
-        return ONLINE_STATE_OFFLINE;
-    if (_owner->IsAIEnabled && !_owner->GetAI()->CanAIAttack(_victim))
-        return ONLINE_STATE_OFFLINE;
-    // next, check suppression (immunity to chosen melee attack school)
+        return true;
+    return false;
+}
+
+bool ThreatReference::ShouldBeSuppressed() const
+{
+    if (IsTaunting()) // a taunting victim can never be suppressed
+        return false;
     if (_victim->IsImmunedToDamage(_owner->GetMeleeDamageSchoolMask()))
-        return ONLINE_STATE_SUPPRESSED;
-    // or any form of CC that will break on damage - disorient, polymorph, blind etc
-    if (_victim->HasBreakableByDamageCrowdControlAura())
-        return ONLINE_STATE_SUPPRESSED;
-    // no suppression - we're online
-    return ONLINE_STATE_ONLINE;
+        return true;
+    if (_victim->HasAuraType(SPELL_AURA_MOD_CONFUSE))
+        return true;
+    if (_victim->HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN))
+        return true;
+    return false;
 }
 
-void ThreatReference::UpdateTauntState(bool victimIsTaunting)
+void ThreatReference::UpdateTauntState(TauntState state)
 {
-    if (victimIsTaunting)
-    {
-        _taunted = TAUNT_STATE_TAUNT;
-        HeapNotifyIncreased();
-        return;
-    }
-
     // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
-    for (AuraEffect const* eff : _victim->GetAuraEffectsByType(SPELL_AURA_MOD_DETAUNT))
-        if (eff->GetCasterGUID() == _owner->GetGUID())
-        {
-            _taunted = TAUNT_STATE_DETAUNT;
-            HeapNotifyDecreased();
-            return;
-        }
+    if (state < TAUNT_STATE_TAUNT && _victim->HasAuraTypeWithCaster(SPELL_AURA_MOD_DETAUNT, _owner->GetGUID()))
+        state = TAUNT_STATE_DETAUNT;
 
-    _taunted = TAUNT_STATE_NONE;
-    HeapNotifyChanged();
+    if (state == _taunted)
+        return;
+
+    std::swap(state, _taunted);
+
+    if (_taunted < state)
+        HeapNotifyDecreased();
+    else
+        HeapNotifyIncreased();
+
+    _mgr._needClientUpdate = true;
 }
 
-void ThreatReference::ClearThreat(bool sendRemove)
+void ThreatReference::ClearThreat()
 {
-    _owner->GetThreatManager().PurgeThreatListRef(_victim->GetGUID(), sendRemove);
+    _mgr.ClearThreat(this);
+}
+
+void ThreatReference::UnregisterAndFree()
+{
+    _owner->GetThreatManager().PurgeThreatListRef(_victim->GetGUID());
     _victim->GetThreatManager().PurgeThreatenedByMeRef(_owner->GetGUID());
     delete this;
 }
@@ -146,14 +159,16 @@ void ThreatReference::ClearThreat(bool sendRemove)
     if (cWho->IsPet() || cWho->IsTotem() || cWho->IsTrigger())
         return false;
 
-    // summons cannot have a threat list, unless they are controlled by a creature
-    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && !cWho->GetOwnerGUID().IsCreature())
-        return false;
+    // summons cannot have a threat list if they were summoned by a player
+    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN))
+        if (TempSummon const* tWho = cWho->ToTempSummon())
+            if (tWho->GetSummonerGUID().IsPlayer())
+                return false;
 
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _ownerEngaged(false), _updateClientTimer(CLIENT_THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr)
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         _singleSchoolModifiers[i] = 1.0f;
@@ -173,20 +188,28 @@ void ThreatManager::Initialize()
 
 void ThreatManager::Update(uint32 tdiff)
 {
-    if (!CanHaveThreatList() || !IsEngaged())
+    if (!CanHaveThreatList() || IsThreatListEmpty(true))
         return;
-    if (_updateClientTimer <= tdiff)
+    if (_updateTimer <= tdiff)
     {
-        _updateClientTimer = CLIENT_THREAT_UPDATE_INTERVAL;
-        SendThreatListToClients();
+        UpdateVictim();
+        _updateTimer = THREAT_UPDATE_INTERVAL;
     }
     else
-        _updateClientTimer -= tdiff;
+        _updateTimer -= tdiff;
 }
 
-Unit* ThreatManager::GetCurrentVictim() const
+Unit* ThreatManager::GetCurrentVictim()
 {
-    if (_currentVictimRef)
+    if (!_currentVictimRef || _currentVictimRef->ShouldBeOffline())
+        UpdateVictim();
+    ASSERT(!_currentVictimRef || _currentVictimRef->IsAvailable());
+    return _currentVictimRef ? _currentVictimRef->GetVictim() : nullptr;
+}
+
+Unit* ThreatManager::GetLastVictim() const
+{
+    if (_currentVictimRef && !_currentVictimRef->ShouldBeOffline())
         return _currentVictimRef->GetVictim();
     return nullptr;
 }
@@ -197,22 +220,6 @@ Unit* ThreatManager::GetAnyTarget() const
         if (!ref->IsOffline())
             return ref->GetVictim();
     return nullptr;
-}
-
-Unit* ThreatManager::SelectVictim()
-{
-    if (_sortedThreatList.empty())
-        return nullptr;
-
-    ThreatReference const* newVictimRef = ReselectVictim();
-    if (newVictimRef != _currentVictimRef)
-    {
-        if (newVictimRef)
-            SendNewVictimToClients(newVictimRef);
-
-        _currentVictimRef = newVictimRef;
-    }
-    return newVictimRef ? newVictimRef->GetVictim() : nullptr;
 }
 
 bool ThreatManager::IsThreatListEmpty(bool includeOffline) const
@@ -242,7 +249,7 @@ float ThreatManager::GetThreat(Unit const* who, bool includeOffline) const
     return (includeOffline || it->second->IsAvailable()) ? it->second->GetThreat() : 0.0f;
 }
 
-std::vector<ThreatReference*> ThreatManager::GetModifiableThreatList() const
+std::vector<ThreatReference*> ThreatManager::GetModifiableThreatList()
 {
     std::vector<ThreatReference*> list;
     list.reserve(_myThreatListEntries.size());
@@ -270,21 +277,22 @@ bool ThreatManager::IsThreateningTo(ObjectGuid const& who, bool includeOffline) 
 }
 bool ThreatManager::IsThreateningTo(Unit const* who, bool includeOffline) const { return IsThreateningTo(who->GetGUID(), includeOffline); }
 
-void ThreatManager::UpdateOnlineStates(bool meThreateningOthers, bool othersThreateningMe)
+void ThreatManager::EvaluateSuppressed(bool canExpire)
 {
-    if (othersThreateningMe)
-        for (auto const& pair : _myThreatListEntries)
-            pair.second->UpdateOnlineState();
-    if (meThreateningOthers)
-        for (auto const& pair : _threatenedByMe)
-            pair.second->UpdateOnlineState();
-}
-
-static void SaveCreatureHomePositionIfNeed(Creature* c)
-{
-    MovementGeneratorType const movetype = c->GetMotionMaster()->GetCurrentMovementGeneratorType();
-    if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (c->IsAIEnabled && c->AI()->IsEscorted()))
-        c->SetHomePosition(c->GetPosition());
+    for (auto const& pair : _threatenedByMe)
+    {
+        bool const shouldBeSuppressed = pair.second->ShouldBeSuppressed();
+        if (pair.second->IsOnline() && shouldBeSuppressed)
+        {
+            pair.second->_online = ThreatReference::ONLINE_STATE_SUPPRESSED;
+            pair.second->HeapNotifyDecreased();
+        }
+        else if (canExpire && pair.second->IsSuppressed() && !shouldBeSuppressed)
+        {
+            pair.second->_online = ThreatReference::ONLINE_STATE_ONLINE;
+            pair.second->HeapNotifyIncreased();
+        }
+    }
 }
 
 void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects)
@@ -294,7 +302,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     {
         if (spell->HasAttribute(SPELL_ATTR1_NO_THREAT))
             return;
-        if (!_owner->IsEngaged() && spell->HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO))
+        if (!_owner->IsEngaged() && spell->HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT))
             return;
     }
 
@@ -372,24 +380,33 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     auto it = _myThreatListEntries.find(target->GetGUID());
     if (it != _myThreatListEntries.end())
     {
-        it->second->AddThreat(amount);
+        ThreatReference* const ref = it->second;
+        // SUPPRESSED threat states don't go back to ONLINE until threat is caused by them (retail behavior)
+        if (ref->GetOnlineState() == ThreatReference::ONLINE_STATE_SUPPRESSED)
+            if (!ref->ShouldBeSuppressed())
+            {
+                ref->_online = ThreatReference::ONLINE_STATE_ONLINE;
+                ref->HeapNotifyIncreased();
+            }
+
+        if (ref->IsOnline())
+            ref->AddThreat(amount);
         return;
     }
 
     // ok, we're now in combat - create the threat list reference and push it to the respective managers
-    ThreatReference* ref = new ThreatReference(this, target, amount);
+    ThreatReference* ref = new ThreatReference(this, target);
     PutThreatListRef(target->GetGUID(), ref);
     target->GetThreatManager().PutThreatenedByMeRef(_owner->GetGUID(), ref);
-    if (!_ownerEngaged)
-    {
-        _ownerEngaged = true;
 
-        Creature* cOwner = _owner->ToCreature();
-        ASSERT(cOwner); // if we got here the owner can have a threat list, and must be a creature!
-        SaveCreatureHomePositionIfNeed(cOwner);
-        if (cOwner->IsAIEnabled)
-            cOwner->AI()->JustEngagedWith(target);
-    }
+    ref->UpdateOffline();
+    if (ref->IsOnline()) // we only add the threat if the ref is currently available
+        ref->AddThreat(amount);
+
+    if (!_currentVictimRef)
+        UpdateVictim();
+    else
+        ProcessAIUpdates();
 }
 
 void ThreatManager::ScaleThreat(Unit* target, float factor)
@@ -422,52 +439,109 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
 void ThreatManager::TauntUpdate()
 {
     std::list<AuraEffect*> const& tauntEffects = _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
-    auto threatEnd = _myThreatListEntries.end();
-    ThreatReference* tauntRef = nullptr;
+
+    uint32 state = ThreatReference::TAUNT_STATE_TAUNT;
+    std::unordered_map<ObjectGuid, ThreatReference::TauntState> tauntStates;
     // Only the last taunt effect applied by something still on our threat list is considered
-    for (auto it = tauntEffects.rbegin(), end = tauntEffects.rend(); it != end; ++it)
-    {
-        auto threatIt = _myThreatListEntries.find((*it)->GetCasterGUID());
-        if (threatIt == threatEnd)
-            continue;
-        if (!threatIt->second->IsAvailable())
-            continue;
-        tauntRef = threatIt->second;
-        break;
-    }
+    for (auto it = tauntEffects.begin(), end = tauntEffects.end(); it != end; ++it)
+        tauntStates[(*it)->GetCasterGUID()] = ThreatReference::TauntState(state++);
+
     for (auto const& pair : _myThreatListEntries)
-        pair.second->UpdateTauntState(pair.second == tauntRef);
+    {
+        auto it = tauntStates.find(pair.first);
+        if (it != tauntStates.end())
+            pair.second->UpdateTauntState(it->second);
+        else
+            pair.second->UpdateTauntState();
+    }
+
+    // taunt aura update also re-evaluates all suppressed states (retail behavior)
+    EvaluateSuppressed(true);
 }
 
 void ThreatManager::ResetAllThreat()
 {
     for (auto const& pair : _myThreatListEntries)
-        pair.second->SetThreat(0.0f);
+        pair.second->ScaleThreat(0.0f);
 }
 
 void ThreatManager::ClearThreat(Unit* target)
 {
     auto it = _myThreatListEntries.find(target->GetGUID());
     if (it != _myThreatListEntries.end())
-        it->second->ClearThreat();
+        ClearThreat(it->second);
+}
+
+void ThreatManager::ClearThreat(ThreatReference* ref)
+{
+    SendRemoveToClients(ref->_victim);
+    ref->UnregisterAndFree();
+    if (!_currentVictimRef)
+        UpdateVictim();
 }
 
 void ThreatManager::ClearAllThreat()
 {
-    _ownerEngaged = false;
-    if (_myThreatListEntries.empty())
-        return;
+    if (!_myThreatListEntries.empty())
+    {
+        SendClearAllThreatToClients();
+        do
+            _myThreatListEntries.begin()->second->UnregisterAndFree();
+        while (!_myThreatListEntries.empty());
+    }
+}
 
-    SendClearAllThreatToClients();
-    do
-        _myThreatListEntries.begin()->second->ClearThreat(false);
-    while (!_myThreatListEntries.empty());
+void ThreatManager::FixateTarget(Unit* target)
+{
+    if (target)
+    {
+        auto it = _myThreatListEntries.find(target->GetGUID());
+        if (it != _myThreatListEntries.end())
+        {
+            _fixateRef = it->second;
+            return;
+        }
+    }
+    _fixateRef = nullptr;
+}
+
+Unit* ThreatManager::GetFixateTarget() const
+{
+    if (_fixateRef)
+        return _fixateRef->GetVictim();
+    else
+        return nullptr;
+}
+
+void ThreatManager::UpdateVictim()
+{
+    ThreatReference const* const newVictim = ReselectVictim();
+    bool const newHighest = newVictim && (newVictim != _currentVictimRef);
+
+    _currentVictimRef = newVictim;
+    if (newHighest || _needClientUpdate)
+    {
+        SendThreatListToClients(newHighest);
+        _needClientUpdate = false;
+    }
+
+    ProcessAIUpdates();
 }
 
 ThreatReference const* ThreatManager::ReselectVictim()
 {
+    if (_sortedThreatList.empty())
+        return nullptr;
+
+    for (auto const& pair : _myThreatListEntries)
+        pair.second->UpdateOffline(); // AI notifies are processed in ::UpdateVictim caller
+
+    // fixated target is always preferred
+    if (_fixateRef && _fixateRef->IsAvailable())
+        return _fixateRef;
+
     ThreatReference const* oldVictimRef = _currentVictimRef;
-    if (oldVictimRef && !oldVictimRef->IsAvailable())
+    if (oldVictimRef && oldVictimRef->IsOffline())
         oldVictimRef = nullptr;
     // in 99% of cases - we won't need to actually look at anything beyond the first element
     ThreatReference const* highest = _sortedThreatList.top();
@@ -505,8 +579,18 @@ ThreatReference const* ThreatManager::ReselectVictim()
         ++it;
     }
     // we should have found the old victim at some point in the loop above, so execution should never get to this point
-    ASSERT(false && "Current victim not found in sorted threat list even though it has a reference - manager desync!");
+    ABORT_MSG("Current victim not found in sorted threat list even though it has a reference - manager desync!");
     return nullptr;
+}
+
+void ThreatManager::ProcessAIUpdates()
+{
+    CreatureAI* ai = ASSERT_NOTNULL(_owner->ToCreature())->AI();
+    std::vector<ThreatReference const*> v(std::move(_needsAIUpdate)); // _needsAIUpdate is now empty in case this triggers a recursive call
+    if (!ai)
+        return;
+    for (ThreatReference const* ref : v)
+        ai->JustStartedThreateningMe(ref->GetVictim());
 }
 
 // returns true if a is LOWER on the threat list than b
@@ -575,46 +659,41 @@ ThreatReference const* ThreatManager::ReselectVictim()
     return threat;
 }
 
-void ThreatManager::SendClearAllThreatToClients() const
-{
-    WorldPackets::Combat::ThreatClear threatClear;
-    threatClear.UnitGUID = _owner->GetGUID();
-    _owner->SendMessageToSet(threatClear.Write(), false);
-}
-
-void ThreatManager::SendThreatListToClients() const
-{
-    WorldPackets::Combat::ThreatUpdate threatUpdate;
-    threatUpdate.UnitGUID = _owner->GetGUID();
-    threatUpdate.ThreatList.reserve(_sortedThreatList.size());
-    for (ThreatReference const* ref : _sortedThreatList)
-    {
-        if (!ref->IsAvailable()) // @todo check if suppressed threat should get sent for bubble/iceblock/hop etc
-            continue;
-
-        WorldPackets::Combat::ThreatInfo threatInfo;
-        threatInfo.UnitGUID = ref->GetVictim()->GetGUID();
-        threatInfo.Threat = int64(ref->GetThreat() * 100);
-        threatUpdate.ThreatList.push_back(threatInfo);
-    }
-    _owner->SendMessageToSet(threatUpdate.Write(), false);
-}
-
 void ThreatManager::ForwardThreatForAssistingMe(Unit* assistant, float baseAmount, SpellInfo const* spell, bool ignoreModifiers)
 {
-    if (spell && spell->HasAttribute(SPELL_ATTR1_NO_THREAT)) // shortcut, none of the calls would do anything
+    if (spell && (spell->HasAttribute(SPELL_ATTR1_NO_THREAT) || spell->HasAttribute(SPELL_ATTR4_NO_HELPFUL_THREAT))) // shortcut, none of the calls would do anything
         return;
     if (_threatenedByMe.empty())
         return;
-    float const perTarget = baseAmount / _threatenedByMe.size(); // Threat is divided evenly among all targets (LibThreat sourced)
+
+    std::vector<Creature*> canBeThreatened, cannotBeThreatened;
     for (auto const& pair : _threatenedByMe)
-        pair.second->GetOwner()->GetThreatManager().AddThreat(assistant, perTarget, spell, ignoreModifiers);
+    {
+        Creature* owner = pair.second->GetOwner();
+        if (!owner->HasUnitState(UNIT_STATE_CONTROLLED))
+            canBeThreatened.push_back(owner);
+        else
+            cannotBeThreatened.push_back(owner);
+    }
+
+    if (!canBeThreatened.empty()) // targets under CC cannot gain assist threat - split evenly among the rest
+    {
+        float const perTarget = baseAmount / canBeThreatened.size();
+        for (Creature* threatened : canBeThreatened)
+            threatened->GetThreatManager().AddThreat(assistant, perTarget, spell, ignoreModifiers);
+    }
+
+    for (Creature* threatened : cannotBeThreatened)
+        threatened->GetThreatManager().AddThreat(assistant, 0.0f, spell, true);
 }
 
 void ThreatManager::RemoveMeFromThreatLists()
 {
     while (!_threatenedByMe.empty())
-        _threatenedByMe.begin()->second->ClearThreat();
+    {
+        auto& ref = _threatenedByMe.begin()->second;
+        ref->_mgr.ClearThreat(_owner);
+    }
 }
 
 void ThreatManager::UpdateMyTempModifiers()
@@ -623,11 +702,19 @@ void ThreatManager::UpdateMyTempModifiers()
     for (AuraEffect const* eff : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_THREAT))
         mod += eff->GetAmount();
 
-    for (auto const& pair : _threatenedByMe)
+    if (_threatenedByMe.empty())
+        return;
+
+    auto it = _threatenedByMe.begin();
+    bool const isIncrease = (it->second->_tempModifier < mod);
+    do
     {
-        pair.second->_tempModifier = mod;
-        pair.second->HeapNotifyChanged();
-    }
+        it->second->_tempModifier = mod;
+        if (isIncrease)
+            it->second->HeapNotifyIncreased();
+        else
+            it->second->HeapNotifyDecreased();
+    } while ((++it) != _threatenedByMe.end());
 }
 
 void ThreatManager::UpdateMySpellSchoolModifiers()
@@ -665,6 +752,13 @@ void ThreatManager::UnregisterRedirectThreat(uint32 spellId, ObjectGuid const& v
     UpdateRedirectInfo();
 }
 
+void ThreatManager::SendClearAllThreatToClients() const
+{
+    WorldPackets::Combat::ThreatClear threatClear;
+    threatClear.UnitGUID = _owner->GetGUID();
+    _owner->SendMessageToSet(threatClear.Write(), false);
+}
+
 void ThreatManager::SendRemoveToClients(Unit const* victim) const
 {
     WorldPackets::Combat::ThreatRemove threatRemove;
@@ -673,47 +767,60 @@ void ThreatManager::SendRemoveToClients(Unit const* victim) const
     _owner->SendMessageToSet(threatRemove.Write(), false);
 }
 
-void ThreatManager::SendNewVictimToClients(ThreatReference const* victimRef) const
+void ThreatManager::SendThreatListToClients(bool newHighest) const
 {
-    WorldPackets::Combat::HighestThreatUpdate highestThreatUpdate;
-    highestThreatUpdate.UnitGUID = _owner->GetGUID();
-    highestThreatUpdate.HighestThreatGUID = victimRef->_victim->GetGUID();
-    highestThreatUpdate.ThreatList.reserve(_sortedThreatList.size());
-    for (ThreatReference const* ref : _sortedThreatList)
+    auto fillSharedPacketDataAndSend = [&](auto& packet)
     {
-        if (!ref->IsAvailable())
-            continue;
+        packet.UnitGUID = _owner->GetGUID();
+        packet.ThreatList.reserve(_sortedThreatList.size());
+        for (ThreatReference const* ref : _sortedThreatList)
+        {
+            if (!ref->IsAvailable())
+                continue;
 
-        WorldPackets::Combat::ThreatInfo threatInfo;
-        threatInfo.UnitGUID = ref->GetVictim()->GetGUID();
-        threatInfo.Threat = int64(ref->GetThreat() * 100);
-        highestThreatUpdate.ThreatList.push_back(threatInfo);
+            WorldPackets::Combat::ThreatInfo threatInfo;
+            threatInfo.UnitGUID = ref->GetVictim()->GetGUID();
+            threatInfo.Threat = int64(ref->GetThreat() * 100);
+            packet.ThreatList.push_back(threatInfo);
+        }
+        _owner->SendMessageToSet(packet.Write(), false);
+    };
+
+    if (newHighest)
+    {
+        WorldPackets::Combat::HighestThreatUpdate highestThreatUpdate;
+        highestThreatUpdate.HighestThreatGUID = _currentVictimRef->GetVictim()->GetGUID();
+        fillSharedPacketDataAndSend(highestThreatUpdate);
     }
-    _owner->SendMessageToSet(highestThreatUpdate.Write(), false);
+    else
+    {
+        WorldPackets::Combat::ThreatUpdate threatUpdate;
+        fillSharedPacketDataAndSend(threatUpdate);
+    }
 }
 
 void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref)
 {
+    _needClientUpdate = true;
     auto& inMap = _myThreatListEntries[guid];
     ASSERT(!inMap, "Duplicate threat reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
     ref->_handle = _sortedThreatList.push(ref);
 }
 
-void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid, bool sendRemove)
+void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid)
 {
     auto it = _myThreatListEntries.find(guid);
     if (it == _myThreatListEntries.end())
         return;
     ThreatReference* ref = it->second;
     _myThreatListEntries.erase(it);
+    _sortedThreatList.erase(ref->_handle);
 
+    if (_fixateRef == ref)
+        _fixateRef = nullptr;
     if (_currentVictimRef == ref)
         _currentVictimRef = nullptr;
-
-    _sortedThreatList.erase(ref->_handle);
-    if (sendRemove && ref->IsAvailable())
-        SendRemoveToClients(ref->_victim);
 }
 
 void ThreatManager::PutThreatenedByMeRef(ObjectGuid const& guid, ThreatReference* ref)

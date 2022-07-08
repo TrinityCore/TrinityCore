@@ -74,9 +74,11 @@ enum OLAchievementData
 };
 
 template <class AI, class T>
-inline AI* GetOnyxiaAI(T* obj)
+inline AI* GetOnyxiasLairAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, OnyxiaScriptName);
 }
+
+#define RegisterOnyxiasLairCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetOnyxiasLairAI)
 
 #endif

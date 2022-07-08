@@ -52,7 +52,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_friends_5ftypes_2eproto() {
   protobuf_AddDesc_friends_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -269,56 +268,60 @@ void protobuf_AddDesc_friends_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::bgs::protocol::protobuf_AddDesc_attribute_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_invitation_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_role_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023friends_types.proto\022\027bgs.protocol.frie"
-    "nds.v1\032\025attribute_types.proto\032\022entity_ty"
-    "pes.proto\032\026invitation_types.proto\032\020role_"
-    "types.proto\"\273\001\n\006Friend\022*\n\naccount_id\030\001 \002"
-    "(\0132\026.bgs.protocol.EntityId\022*\n\tattribute\030"
-    "\002 \003(\0132\027.bgs.protocol.Attribute\022\020\n\004role\030\003"
-    " \003(\rB\002\020\001\022\022\n\nprivileges\030\004 \001(\004\022\034\n\020attribut"
-    "es_epoch\030\005 \001(\004B\002\030\001\022\025\n\rcreation_time\030\006 \001("
-    "\004\"\211\001\n\016FriendOfFriend\022*\n\naccount_id\030\001 \001(\013"
-    "2\026.bgs.protocol.EntityId\022\020\n\004role\030\003 \003(\rB\002"
-    "\020\001\022\022\n\nprivileges\030\004 \001(\004\022\021\n\tfull_name\030\006 \001("
-    "\t\022\022\n\nbattle_tag\030\007 \001(\t\"\337\001\n\022ReceivedInvita"
-    "tion\022\n\n\002id\030\001 \002(\006\0220\n\020inviter_identity\030\002 \002"
-    "(\0132\026.bgs.protocol.Identity\0220\n\020invitee_id"
-    "entity\030\003 \002(\0132\026.bgs.protocol.Identity\022\024\n\014"
-    "inviter_name\030\004 \001(\t\022\024\n\014invitee_name\030\005 \001(\t"
-    "\022\025\n\rcreation_time\030\007 \001(\004\022\017\n\007program\030\t \001(\007"
-    "*\005\010d\020\220N\"\303\001\n\020FriendInvitation\022\020\n\004role\030\002 \003"
-    "(\rB\002\020\001\022*\n\tattribute\030\003 \003(\0132\027.bgs.protocol"
-    ".Attribute2q\n\021friend_invitation\022+.bgs.pr"
-    "otocol.friends.v1.ReceivedInvitation\030g \001"
-    "(\0132).bgs.protocol.friends.v1.FriendInvit"
-    "ation\"\223\001\n\016SentInvitation\022\n\n\002id\030\001 \001(\006\022\023\n\013"
-    "target_name\030\002 \001(\t\022\014\n\004role\030\003 \001(\r\022*\n\tattri"
-    "bute\030\004 \003(\0132\027.bgs.protocol.Attribute\022\025\n\rc"
-    "reation_time\030\005 \001(\004\022\017\n\007program\030\006 \001(\007\"\231\002\n\026"
-    "FriendInvitationParams\022\024\n\014target_email\030\001"
-    " \001(\t\022\031\n\021target_battle_tag\030\002 \001(\t\022\020\n\004role\030"
-    "\006 \003(\rB\002\020\001\022*\n\tattribute\030\010 \003(\0132\027.bgs.proto"
-    "col.Attribute\022\023\n\013target_name\030\t \001(\t\022\023\n\007pr"
-    "ogram\030\n \001(\007B\002\030\0012f\n\rfriend_params\022\036.bgs.p"
-    "rotocol.InvitationParams\030g \001(\0132/.bgs.pro"
-    "tocol.friends.v1.FriendInvitationParams\""
-    "\326\002\n\021SubscribeResponse\022\027\n\013max_friends\030\001 \001"
-    "(\rB\002\030\001\022$\n\030max_received_invitations\030\002 \001(\r"
-    "B\002\030\001\022 \n\024max_sent_invitations\030\003 \001(\rB\002\030\001\022 "
-    "\n\004role\030\004 \003(\0132\022.bgs.protocol.Role\0220\n\007frie"
-    "nds\030\005 \003(\0132\037.bgs.protocol.friends.v1.Frie"
-    "nd\022I\n\024received_invitations\030\007 \003(\0132+.bgs.p"
-    "rotocol.friends.v1.ReceivedInvitation\022A\n"
-    "\020sent_invitations\030\010 \003(\0132\'.bgs.protocol.f"
-    "riends.v1.SentInvitation\"8\n\027AcceptInvita"
-    "tionOptions\022\014\n\004role\030\001 \001(\r\022\017\n\007program\030\002 \001"
-    "(\007B/\n\030bnet.protocol.friends.v1B\021FriendsT"
-    "ypesProtoH\001", 1771);
+    "nds.v1\032%global_extensions/field_options."
+    "proto\032\025attribute_types.proto\032\022entity_typ"
+    "es.proto\032\026invitation_types.proto\032\020role_t"
+    "ypes.proto\"\273\001\n\006Friend\022*\n\naccount_id\030\001 \002("
+    "\0132\026.bgs.protocol.EntityId\022*\n\tattribute\030\002"
+    " \003(\0132\027.bgs.protocol.Attribute\022\020\n\004role\030\003 "
+    "\003(\rB\002\020\001\022\022\n\nprivileges\030\004 \001(\004\022\034\n\020attribute"
+    "s_epoch\030\005 \001(\004B\002\030\001\022\025\n\rcreation_time\030\006 \001(\004"
+    "\"\245\001\n\016FriendOfFriend\022*\n\naccount_id\030\001 \001(\0132"
+    "\026.bgs.protocol.EntityId\022\034\n\004role\030\003 \003(\rB\016\020"
+    "\001\212\371+\010*\006\n\004\010\001\020\001\022\022\n\nprivileges\030\004 \001(\004\022\031\n\tful"
+    "l_name\030\006 \001(\tB\006\202\371+\002\010\001\022\032\n\nbattle_tag\030\007 \001(\t"
+    "B\006\202\371+\002\010\001\"\337\001\n\022ReceivedInvitation\022\n\n\002id\030\001 "
+    "\002(\006\0220\n\020inviter_identity\030\002 \002(\0132\026.bgs.prot"
+    "ocol.Identity\0220\n\020invitee_identity\030\003 \002(\0132"
+    "\026.bgs.protocol.Identity\022\024\n\014inviter_name\030"
+    "\004 \001(\t\022\024\n\014invitee_name\030\005 \001(\t\022\025\n\rcreation_"
+    "time\030\007 \001(\004\022\017\n\007program\030\t \001(\007*\005\010d\020\220N\"\317\001\n\020F"
+    "riendInvitation\022\034\n\004role\030\002 \003(\rB\016\020\001\212\371+\010*\006\n"
+    "\004\010\001\020\001\022*\n\tattribute\030\003 \003(\0132\027.bgs.protocol."
+    "Attribute2q\n\021friend_invitation\022+.bgs.pro"
+    "tocol.friends.v1.ReceivedInvitation\030g \001("
+    "\0132).bgs.protocol.friends.v1.FriendInvita"
+    "tion\"\223\001\n\016SentInvitation\022\n\n\002id\030\001 \001(\006\022\023\n\013t"
+    "arget_name\030\002 \001(\t\022\014\n\004role\030\003 \001(\r\022*\n\tattrib"
+    "ute\030\004 \003(\0132\027.bgs.protocol.Attribute\022\025\n\rcr"
+    "eation_time\030\005 \001(\004\022\017\n\007program\030\006 \001(\007\"\265\002\n\026F"
+    "riendInvitationParams\022\034\n\014target_email\030\001 "
+    "\001(\tB\006\202\371+\002\010\001\022!\n\021target_battle_tag\030\002 \001(\tB\006"
+    "\202\371+\002\010\001\022\034\n\004role\030\006 \003(\rB\016\020\001\212\371+\010*\006\n\004\010\001\020\001\022*\n\t"
+    "attribute\030\010 \003(\0132\027.bgs.protocol.Attribute"
+    "\022\023\n\013target_name\030\t \001(\t\022\023\n\007program\030\n \001(\007B\002"
+    "\030\0012f\n\rfriend_params\022\036.bgs.protocol.Invit"
+    "ationParams\030g \001(\0132/.bgs.protocol.friends"
+    ".v1.FriendInvitationParams\"\326\002\n\021Subscribe"
+    "Response\022\027\n\013max_friends\030\001 \001(\rB\002\030\001\022$\n\030max"
+    "_received_invitations\030\002 \001(\rB\002\030\001\022 \n\024max_s"
+    "ent_invitations\030\003 \001(\rB\002\030\001\022 \n\004role\030\004 \003(\0132"
+    "\022.bgs.protocol.Role\0220\n\007friends\030\005 \003(\0132\037.b"
+    "gs.protocol.friends.v1.Friend\022I\n\024receive"
+    "d_invitations\030\007 \003(\0132+.bgs.protocol.frien"
+    "ds.v1.ReceivedInvitation\022A\n\020sent_invitat"
+    "ions\030\010 \003(\0132\'.bgs.protocol.friends.v1.Sen"
+    "tInvitation\"F\n\027AcceptInvitationOptions\022\032"
+    "\n\004role\030\001 \001(\rB\014\212\371+\010\022\006\n\004\010\000\020\002\022\017\n\007program\030\002 "
+    "\001(\007B/\n\030bnet.protocol.friends.v1B\021Friends"
+    "TypesProtoH\001P\000", 1894);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "friends_types.proto", &protobuf_RegisterTypes);
   Friend::default_instance_ = new Friend();
@@ -354,7 +357,6 @@ struct StaticDescriptorInitializer_friends_5ftypes_2eproto {
     protobuf_AddDesc_friends_5ftypes_2eproto();
   }
 } static_descriptor_initializer_friends_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -790,7 +792,6 @@ void Friend::CopyFrom(const Friend& from) {
 
 bool Friend::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -819,7 +820,6 @@ void Friend::Swap(Friend* other) {
   metadata.reflection = Friend_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1246,7 +1246,6 @@ void FriendOfFriend::CopyFrom(const FriendOfFriend& from) {
 }
 
 bool FriendOfFriend::IsInitialized() const {
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -1273,7 +1272,6 @@ void FriendOfFriend::Swap(FriendOfFriend* other) {
   metadata.reflection = FriendOfFriend_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1783,7 +1781,6 @@ void ReceivedInvitation::CopyFrom(const ReceivedInvitation& from) {
 
 bool ReceivedInvitation::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   if (has_inviter_identity()) {
     if (!this->inviter_identity().IsInitialized()) return false;
   }
@@ -1817,7 +1814,6 @@ void ReceivedInvitation::Swap(ReceivedInvitation* other) {
   metadata.reflection = ReceivedInvitation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2084,7 +2080,6 @@ void FriendInvitation::CopyFrom(const FriendInvitation& from) {
 }
 
 bool FriendInvitation::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -2106,7 +2101,6 @@ void FriendInvitation::Swap(FriendInvitation* other) {
   metadata.reflection = FriendInvitation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2529,7 +2523,6 @@ void SentInvitation::CopyFrom(const SentInvitation& from) {
 }
 
 bool SentInvitation::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -2555,7 +2548,6 @@ void SentInvitation::Swap(SentInvitation* other) {
   metadata.reflection = SentInvitation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3039,7 +3031,6 @@ void FriendInvitationParams::CopyFrom(const FriendInvitationParams& from) {
 }
 
 bool FriendInvitationParams::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -3065,7 +3056,6 @@ void FriendInvitationParams::Swap(FriendInvitationParams* other) {
   metadata.reflection = FriendInvitationParams_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3510,7 +3500,6 @@ void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
 }
 
 bool SubscribeResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->role())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->friends())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->received_invitations())) return false;
@@ -3540,7 +3529,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
   metadata.reflection = SubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3791,7 +3779,6 @@ void AcceptInvitationOptions::CopyFrom(const AcceptInvitationOptions& from) {
 }
 
 bool AcceptInvitationOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -3812,7 +3799,6 @@ void AcceptInvitationOptions::Swap(AcceptInvitationOptions* other) {
   metadata.reflection = AcceptInvitationOptions_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

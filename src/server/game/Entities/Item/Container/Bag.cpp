@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "UpdateData.h"
 #include "Player.h"
+#include <sstream>
 
 Bag::Bag(): Item()
 {
@@ -104,7 +105,7 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, ItemContext context
     return true;
 }
 
-void Bag::SaveToDB(CharacterDatabaseTransaction& trans)
+void Bag::SaveToDB(CharacterDatabaseTransaction trans)
 {
     Item::SaveToDB(trans);
 }
@@ -127,7 +128,7 @@ bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fie
     return true;
 }
 
-void Bag::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void Bag::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
         if (m_bagslot[i])
@@ -247,6 +248,17 @@ void Bag::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::M
     data->AddUpdateBlock(buffer);
 }
 
+void Bag::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(player->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), ContainerMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
 void Bag::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Bag::m_containerData);
@@ -279,6 +291,13 @@ Item* Bag::GetItemByPos(uint8 slot) const
         return m_bagslot[slot];
 
     return nullptr;
+}
+
+std::string Bag::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Item::GetDebugInfo();
+    return sstr.str();
 }
 
 uint32 GetBagSize(Bag const* bag)

@@ -849,9 +849,7 @@ class TC_PROTO_API ClubSharedSettingsAssignment : public ::google::protobuf::Mes
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -1408,7 +1406,6 @@ inline void ClubSharedSettingsAssignment::set_allocated_club_position(::bgs::pro
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubSharedSettingsAssignment.club_position)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -1419,8 +1416,6 @@ inline void ClubSharedSettingsAssignment::set_allocated_club_position(::bgs::pro
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

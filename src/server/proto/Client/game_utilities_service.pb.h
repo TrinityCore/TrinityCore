@@ -25,7 +25,6 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "attribute_types.pb.h"
-#include "content_handle_types.pb.h"
 #include "entity_types.pb.h"
 #include "game_utilities_types.pb.h"
 #include "rpc_types.pb.h"
@@ -50,12 +49,8 @@ class ClientResponse;
 class ServerRequest;
 class ServerResponse;
 class PresenceChannelCreatedRequest;
-class GetPlayerVariablesRequest;
-class GetPlayerVariablesResponse;
 class GameAccountOnlineNotification;
 class GameAccountOfflineNotification;
-class GetAchievementsFileRequest;
-class GetAchievementsFileResponse;
 class GetAllValuesForAttributeRequest;
 class GetAllValuesForAttributeResponse;
 class RegisterUtilitiesRequest;
@@ -129,14 +124,14 @@ class TC_PROTO_API ClientRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
       mutable_attribute();
 
-  // optional .bgs.protocol.ProcessId host = 2;
-  inline bool has_host() const;
-  inline void clear_host();
+  // optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
+  inline bool has_host() const PROTOBUF_DEPRECATED;
+  inline void clear_host() PROTOBUF_DEPRECATED;
   static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
+  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
+  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
 
   // optional .bgs.protocol.EntityId account_id = 3;
   inline bool has_account_id() const;
@@ -358,14 +353,14 @@ class TC_PROTO_API ServerRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 program() const;
   inline void set_program(::google::protobuf::uint32 value);
 
-  // optional .bgs.protocol.ProcessId host = 3;
-  inline bool has_host() const;
-  inline void clear_host();
+  // optional .bgs.protocol.ProcessId host = 3 [deprecated = true];
+  inline bool has_host() const PROTOBUF_DEPRECATED;
+  inline void clear_host() PROTOBUF_DEPRECATED;
   static const int kHostFieldNumber = 3;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
+  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
+  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.ServerRequest)
  private:
@@ -552,14 +547,14 @@ class TC_PROTO_API PresenceChannelCreatedRequest : public ::google::protobuf::Me
   inline ::bgs::protocol::EntityId* release_account_id();
   inline void set_allocated_account_id(::bgs::protocol::EntityId* account_id);
 
-  // optional .bgs.protocol.ProcessId host = 5;
-  inline bool has_host() const;
-  inline void clear_host();
+  // optional .bgs.protocol.ProcessId host = 5 [deprecated = true];
+  inline bool has_host() const PROTOBUF_DEPRECATED;
+  inline void clear_host() PROTOBUF_DEPRECATED;
   static const int kHostFieldNumber = 5;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
+  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
+  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest)
  private:
@@ -586,182 +581,6 @@ class TC_PROTO_API PresenceChannelCreatedRequest : public ::google::protobuf::Me
 
   void InitAsDefaultInstance();
   static PresenceChannelCreatedRequest* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API GetPlayerVariablesRequest : public ::google::protobuf::Message {
- public:
-  GetPlayerVariablesRequest();
-  virtual ~GetPlayerVariablesRequest();
-
-  GetPlayerVariablesRequest(const GetPlayerVariablesRequest& from);
-
-  inline GetPlayerVariablesRequest& operator=(const GetPlayerVariablesRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const GetPlayerVariablesRequest& default_instance();
-
-  void Swap(GetPlayerVariablesRequest* other);
-
-  // implements Message ----------------------------------------------
-
-  GetPlayerVariablesRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GetPlayerVariablesRequest& from);
-  void MergeFrom(const GetPlayerVariablesRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // repeated .bgs.protocol.game_utilities.v1.PlayerVariables player_variables = 1;
-  inline int player_variables_size() const;
-  inline void clear_player_variables();
-  static const int kPlayerVariablesFieldNumber = 1;
-  inline const ::bgs::protocol::game_utilities::v1::PlayerVariables& player_variables(int index) const;
-  inline ::bgs::protocol::game_utilities::v1::PlayerVariables* mutable_player_variables(int index);
-  inline ::bgs::protocol::game_utilities::v1::PlayerVariables* add_player_variables();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >&
-      player_variables() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >*
-      mutable_player_variables();
-
-  // optional .bgs.protocol.ProcessId host = 2;
-  inline bool has_host() const;
-  inline void clear_host();
-  static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest)
- private:
-  inline void set_has_host();
-  inline void clear_has_host();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables > player_variables_;
-  ::bgs::protocol::ProcessId* host_;
-  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static GetPlayerVariablesRequest* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API GetPlayerVariablesResponse : public ::google::protobuf::Message {
- public:
-  GetPlayerVariablesResponse();
-  virtual ~GetPlayerVariablesResponse();
-
-  GetPlayerVariablesResponse(const GetPlayerVariablesResponse& from);
-
-  inline GetPlayerVariablesResponse& operator=(const GetPlayerVariablesResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const GetPlayerVariablesResponse& default_instance();
-
-  void Swap(GetPlayerVariablesResponse* other);
-
-  // implements Message ----------------------------------------------
-
-  GetPlayerVariablesResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GetPlayerVariablesResponse& from);
-  void MergeFrom(const GetPlayerVariablesResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // repeated .bgs.protocol.game_utilities.v1.PlayerVariables player_variables = 1;
-  inline int player_variables_size() const;
-  inline void clear_player_variables();
-  static const int kPlayerVariablesFieldNumber = 1;
-  inline const ::bgs::protocol::game_utilities::v1::PlayerVariables& player_variables(int index) const;
-  inline ::bgs::protocol::game_utilities::v1::PlayerVariables* mutable_player_variables(int index);
-  inline ::bgs::protocol::game_utilities::v1::PlayerVariables* add_player_variables();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >&
-      player_variables() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >*
-      mutable_player_variables();
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.GetPlayerVariablesResponse)
- private:
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables > player_variables_;
-  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static GetPlayerVariablesResponse* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -827,14 +646,14 @@ class TC_PROTO_API GameAccountOnlineNotification : public ::google::protobuf::Me
   inline ::bgs::protocol::EntityId* release_game_account_id();
   inline void set_allocated_game_account_id(::bgs::protocol::EntityId* game_account_id);
 
-  // optional .bgs.protocol.ProcessId host = 2;
-  inline bool has_host() const;
-  inline void clear_host();
+  // optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
+  inline bool has_host() const PROTOBUF_DEPRECATED;
+  inline void clear_host() PROTOBUF_DEPRECATED;
   static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
+  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
+  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
 
   // optional string session_id = 3;
   inline bool has_session_id() const;
@@ -935,14 +754,14 @@ class TC_PROTO_API GameAccountOfflineNotification : public ::google::protobuf::M
   inline ::bgs::protocol::EntityId* release_game_account_id();
   inline void set_allocated_game_account_id(::bgs::protocol::EntityId* game_account_id);
 
-  // optional .bgs.protocol.ProcessId host = 2;
-  inline bool has_host() const;
-  inline void clear_host();
+  // optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
+  inline bool has_host() const PROTOBUF_DEPRECATED;
+  inline void clear_host() PROTOBUF_DEPRECATED;
   static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
+  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
+  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
 
   // optional string session_id = 3;
   inline bool has_session_id() const;
@@ -978,168 +797,6 @@ class TC_PROTO_API GameAccountOfflineNotification : public ::google::protobuf::M
 
   void InitAsDefaultInstance();
   static GameAccountOfflineNotification* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API GetAchievementsFileRequest : public ::google::protobuf::Message {
- public:
-  GetAchievementsFileRequest();
-  virtual ~GetAchievementsFileRequest();
-
-  GetAchievementsFileRequest(const GetAchievementsFileRequest& from);
-
-  inline GetAchievementsFileRequest& operator=(const GetAchievementsFileRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const GetAchievementsFileRequest& default_instance();
-
-  void Swap(GetAchievementsFileRequest* other);
-
-  // implements Message ----------------------------------------------
-
-  GetAchievementsFileRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GetAchievementsFileRequest& from);
-  void MergeFrom(const GetAchievementsFileRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional .bgs.protocol.ProcessId host = 1;
-  inline bool has_host() const;
-  inline void clear_host();
-  static const int kHostFieldNumber = 1;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.GetAchievementsFileRequest)
- private:
-  inline void set_has_host();
-  inline void clear_has_host();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::bgs::protocol::ProcessId* host_;
-  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static GetAchievementsFileRequest* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API GetAchievementsFileResponse : public ::google::protobuf::Message {
- public:
-  GetAchievementsFileResponse();
-  virtual ~GetAchievementsFileResponse();
-
-  GetAchievementsFileResponse(const GetAchievementsFileResponse& from);
-
-  inline GetAchievementsFileResponse& operator=(const GetAchievementsFileResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const GetAchievementsFileResponse& default_instance();
-
-  void Swap(GetAchievementsFileResponse* other);
-
-  // implements Message ----------------------------------------------
-
-  GetAchievementsFileResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GetAchievementsFileResponse& from);
-  void MergeFrom(const GetAchievementsFileResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional .bgs.protocol.ContentHandle content_handle = 1;
-  inline bool has_content_handle() const;
-  inline void clear_content_handle();
-  static const int kContentHandleFieldNumber = 1;
-  inline const ::bgs::protocol::ContentHandle& content_handle() const;
-  inline ::bgs::protocol::ContentHandle* mutable_content_handle();
-  inline ::bgs::protocol::ContentHandle* release_content_handle();
-  inline void set_allocated_content_handle(::bgs::protocol::ContentHandle* content_handle);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.GetAchievementsFileResponse)
- private:
-  inline void set_has_content_handle();
-  inline void clear_has_content_handle();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::bgs::protocol::ContentHandle* content_handle_;
-  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static GetAchievementsFileResponse* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1591,11 +1248,9 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
   // client methods --------------------------------------------------
   void ProcessClientRequest(::bgs::protocol::game_utilities::v1::ClientRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::ClientResponse const*)> responseCallback, bool client = false, bool server = false);
   void PresenceChannelCreated(::bgs::protocol::game_utilities::v1::PresenceChannelCreatedRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback, bool client = false, bool server = false);
-  void GetPlayerVariables(::bgs::protocol::game_utilities::v1::GetPlayerVariablesRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetPlayerVariablesResponse const*)> responseCallback, bool client = false, bool server = false);
   void ProcessServerRequest(::bgs::protocol::game_utilities::v1::ServerRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::ServerResponse const*)> responseCallback, bool client = false, bool server = false);
   void OnGameAccountOnline(::bgs::protocol::game_utilities::v1::GameAccountOnlineNotification const* request, bool client = false, bool server = false);
   void OnGameAccountOffline(::bgs::protocol::game_utilities::v1::GameAccountOfflineNotification const* request, bool client = false, bool server = false);
-  void GetAchievementsFile(::bgs::protocol::game_utilities::v1::GetAchievementsFileRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAchievementsFileResponse const*)> responseCallback, bool client = false, bool server = false);
   void GetAllValuesForAttribute(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse const*)> responseCallback, bool client = false, bool server = false);
   void RegisterUtilities(::bgs::protocol::game_utilities::v1::RegisterUtilitiesRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse const*)> responseCallback, bool client = false, bool server = false);
   void UnregisterUtilities(::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest const* request, bool client = false, bool server = false);
@@ -1606,11 +1261,9 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
   // server methods --------------------------------------------------
   virtual uint32 HandleProcessClientRequest(::bgs::protocol::game_utilities::v1::ClientRequest const* request, ::bgs::protocol::game_utilities::v1::ClientResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandlePresenceChannelCreated(::bgs::protocol::game_utilities::v1::PresenceChannelCreatedRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-  virtual uint32 HandleGetPlayerVariables(::bgs::protocol::game_utilities::v1::GetPlayerVariablesRequest const* request, ::bgs::protocol::game_utilities::v1::GetPlayerVariablesResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleProcessServerRequest(::bgs::protocol::game_utilities::v1::ServerRequest const* request, ::bgs::protocol::game_utilities::v1::ServerResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleOnGameAccountOnline(::bgs::protocol::game_utilities::v1::GameAccountOnlineNotification const* request);
   virtual uint32 HandleOnGameAccountOffline(::bgs::protocol::game_utilities::v1::GameAccountOfflineNotification const* request);
-  virtual uint32 HandleGetAchievementsFile(::bgs::protocol::game_utilities::v1::GetAchievementsFileRequest const* request, ::bgs::protocol::game_utilities::v1::GetAchievementsFileResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleGetAllValuesForAttribute(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeRequest const* request, ::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleRegisterUtilities(::bgs::protocol::game_utilities::v1::RegisterUtilitiesRequest const* request, ::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleUnregisterUtilities(::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest const* request);
@@ -1622,7 +1275,6 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
 };
 
 // ===================================================================
-
 
 // ===================================================================
 
@@ -1658,7 +1310,7 @@ ClientRequest::mutable_attribute() {
   return &attribute_;
 }
 
-// optional .bgs.protocol.ProcessId host = 2;
+// optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
 inline bool ClientRequest::has_host() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -1938,7 +1590,7 @@ inline void ServerRequest::set_program(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.game_utilities.v1.ServerRequest.program)
 }
 
-// optional .bgs.protocol.ProcessId host = 3;
+// optional .bgs.protocol.ProcessId host = 3 [deprecated = true];
 inline bool ServerRequest::has_host() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -2140,7 +1792,7 @@ inline void PresenceChannelCreatedRequest::set_allocated_account_id(::bgs::proto
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest.account_id)
 }
 
-// optional .bgs.protocol.ProcessId host = 5;
+// optional .bgs.protocol.ProcessId host = 5 [deprecated = true];
 inline bool PresenceChannelCreatedRequest::has_host() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -2179,115 +1831,6 @@ inline void PresenceChannelCreatedRequest::set_allocated_host(::bgs::protocol::P
     clear_has_host();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest.host)
-}
-
-// -------------------------------------------------------------------
-
-// GetPlayerVariablesRequest
-
-// repeated .bgs.protocol.game_utilities.v1.PlayerVariables player_variables = 1;
-inline int GetPlayerVariablesRequest::player_variables_size() const {
-  return player_variables_.size();
-}
-inline void GetPlayerVariablesRequest::clear_player_variables() {
-  player_variables_.Clear();
-}
-inline const ::bgs::protocol::game_utilities::v1::PlayerVariables& GetPlayerVariablesRequest::player_variables(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.player_variables)
-  return player_variables_.Get(index);
-}
-inline ::bgs::protocol::game_utilities::v1::PlayerVariables* GetPlayerVariablesRequest::mutable_player_variables(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.player_variables)
-  return player_variables_.Mutable(index);
-}
-inline ::bgs::protocol::game_utilities::v1::PlayerVariables* GetPlayerVariablesRequest::add_player_variables() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.player_variables)
-  return player_variables_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >&
-GetPlayerVariablesRequest::player_variables() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.player_variables)
-  return player_variables_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >*
-GetPlayerVariablesRequest::mutable_player_variables() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.player_variables)
-  return &player_variables_;
-}
-
-// optional .bgs.protocol.ProcessId host = 2;
-inline bool GetPlayerVariablesRequest::has_host() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void GetPlayerVariablesRequest::set_has_host() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void GetPlayerVariablesRequest::clear_has_host() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void GetPlayerVariablesRequest::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& GetPlayerVariablesRequest::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* GetPlayerVariablesRequest::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* GetPlayerVariablesRequest::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void GetPlayerVariablesRequest::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GetPlayerVariablesRequest.host)
-}
-
-// -------------------------------------------------------------------
-
-// GetPlayerVariablesResponse
-
-// repeated .bgs.protocol.game_utilities.v1.PlayerVariables player_variables = 1;
-inline int GetPlayerVariablesResponse::player_variables_size() const {
-  return player_variables_.size();
-}
-inline void GetPlayerVariablesResponse::clear_player_variables() {
-  player_variables_.Clear();
-}
-inline const ::bgs::protocol::game_utilities::v1::PlayerVariables& GetPlayerVariablesResponse::player_variables(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.GetPlayerVariablesResponse.player_variables)
-  return player_variables_.Get(index);
-}
-inline ::bgs::protocol::game_utilities::v1::PlayerVariables* GetPlayerVariablesResponse::mutable_player_variables(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.GetPlayerVariablesResponse.player_variables)
-  return player_variables_.Mutable(index);
-}
-inline ::bgs::protocol::game_utilities::v1::PlayerVariables* GetPlayerVariablesResponse::add_player_variables() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.game_utilities.v1.GetPlayerVariablesResponse.player_variables)
-  return player_variables_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >&
-GetPlayerVariablesResponse::player_variables() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.game_utilities.v1.GetPlayerVariablesResponse.player_variables)
-  return player_variables_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::game_utilities::v1::PlayerVariables >*
-GetPlayerVariablesResponse::mutable_player_variables() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.game_utilities.v1.GetPlayerVariablesResponse.player_variables)
-  return &player_variables_;
 }
 
 // -------------------------------------------------------------------
@@ -2335,7 +1878,7 @@ inline void GameAccountOnlineNotification::set_allocated_game_account_id(::bgs::
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GameAccountOnlineNotification.game_account_id)
 }
 
-// optional .bgs.protocol.ProcessId host = 2;
+// optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
 inline bool GameAccountOnlineNotification::has_host() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -2497,7 +2040,7 @@ inline void GameAccountOfflineNotification::set_allocated_game_account_id(::bgs:
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GameAccountOfflineNotification.game_account_id)
 }
 
-// optional .bgs.protocol.ProcessId host = 2;
+// optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
 inline bool GameAccountOfflineNotification::has_host() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -2612,96 +2155,6 @@ inline void GameAccountOfflineNotification::set_allocated_session_id(::std::stri
     session_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GameAccountOfflineNotification.session_id)
-}
-
-// -------------------------------------------------------------------
-
-// GetAchievementsFileRequest
-
-// optional .bgs.protocol.ProcessId host = 1;
-inline bool GetAchievementsFileRequest::has_host() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void GetAchievementsFileRequest::set_has_host() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void GetAchievementsFileRequest::clear_has_host() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void GetAchievementsFileRequest::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& GetAchievementsFileRequest::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.GetAchievementsFileRequest.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* GetAchievementsFileRequest::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.GetAchievementsFileRequest.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* GetAchievementsFileRequest::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void GetAchievementsFileRequest::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GetAchievementsFileRequest.host)
-}
-
-// -------------------------------------------------------------------
-
-// GetAchievementsFileResponse
-
-// optional .bgs.protocol.ContentHandle content_handle = 1;
-inline bool GetAchievementsFileResponse::has_content_handle() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void GetAchievementsFileResponse::set_has_content_handle() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void GetAchievementsFileResponse::clear_has_content_handle() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void GetAchievementsFileResponse::clear_content_handle() {
-  if (content_handle_ != NULL) content_handle_->::bgs::protocol::ContentHandle::Clear();
-  clear_has_content_handle();
-}
-inline const ::bgs::protocol::ContentHandle& GetAchievementsFileResponse::content_handle() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.GetAchievementsFileResponse.content_handle)
-  return content_handle_ != NULL ? *content_handle_ : *default_instance_->content_handle_;
-}
-inline ::bgs::protocol::ContentHandle* GetAchievementsFileResponse::mutable_content_handle() {
-  set_has_content_handle();
-  if (content_handle_ == NULL) content_handle_ = new ::bgs::protocol::ContentHandle;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.GetAchievementsFileResponse.content_handle)
-  return content_handle_;
-}
-inline ::bgs::protocol::ContentHandle* GetAchievementsFileResponse::release_content_handle() {
-  clear_has_content_handle();
-  ::bgs::protocol::ContentHandle* temp = content_handle_;
-  content_handle_ = NULL;
-  return temp;
-}
-inline void GetAchievementsFileResponse::set_allocated_content_handle(::bgs::protocol::ContentHandle* content_handle) {
-  delete content_handle_;
-  content_handle_ = content_handle;
-  if (content_handle) {
-    set_has_content_handle();
-  } else {
-    clear_has_content_handle();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GetAchievementsFileResponse.content_handle)
 }
 
 // -------------------------------------------------------------------
@@ -3025,7 +2478,6 @@ inline void RegisterUtilitiesResponse::set_allocated_client_id(::std::string* cl
 
 // UnregisterUtilitiesRequest
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -3036,8 +2488,6 @@ inline void RegisterUtilitiesResponse::set_allocated_client_id(::std::string* cl
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

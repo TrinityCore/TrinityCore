@@ -55,6 +55,10 @@ class TC_GAME_API LfgPlayerData
         uint8 GetRoles() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
 
+        // Achievement-related
+        void SetNumberOfPartyMembersAtJoin(uint8 count);
+        uint8 GetNumberOfPartyMembersAtJoin();
+
     private:
         // General
         WorldPackets::LFG::RideTicket m_Ticket;            ///< Join ticket
@@ -67,6 +71,9 @@ class TC_GAME_API LfgPlayerData
         // Queue
         uint8 m_Roles;                                     ///< Roles the player selected when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
+
+        // Achievement-related
+        uint8 m_NumberOfPartyMembersAtJoin;
 };
 
 } // namespace lfg

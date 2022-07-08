@@ -25,6 +25,8 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "sunwell_plateau.h"
 
 enum Quotes
@@ -134,7 +136,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, DONE);
             float x, y, z;
             me->GetPosition(x, y, z);
-            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -156,7 +158,7 @@ public:
                 IsIntro = true;
                 Madrigosa->SetMaxHealth(me->GetMaxHealth());
                 Madrigosa->SetHealth(me->GetMaxHealth());
-                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->Attack(Madrigosa, true);
                 Madrigosa->Attack(me, true);
             }
@@ -321,7 +323,7 @@ public:
 
             if (BurnTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_BURN))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_BURN))
                     target->CastSpell(target, SPELL_BURN, true);
                 BurnTimer = urand(60000, 180000);
             } else BurnTimer -= diff;
@@ -343,7 +345,25 @@ public:
     }
 };
 
+// 46394 - Burn
+class spell_brutallus_burn : public AuraScript
+{
+    PrepareAuraScript(spell_brutallus_burn);
+
+    void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
+    {
+        if (aurEff->GetTickNumber() % 11 == 0)
+            aurEff->SetAmount(aurEff->GetAmount() * 2);
+    }
+
+    void Register() override
+    {
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_brutallus_burn::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 void AddSC_boss_brutallus()
 {
     new boss_brutallus();
+    RegisterSpellScript(spell_brutallus_burn);
 }
