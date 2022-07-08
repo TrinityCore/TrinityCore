@@ -3042,6 +3042,18 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         }
     }
 
+    if (condition->CurrentPvpFaction)
+    {
+        int8 team;
+        if (player->GetMap()->IsBattlegroundOrArena())
+            team = player->m_playerData->ArenaFaction;
+        else
+            team = player->GetTeamId();
+
+        if (condition->CurrentPvpFaction - 1 != team)
+            return false;
+    }
+
     if (condition->PvpMedal && !((1 << (condition->PvpMedal - 1)) & *player->m_activePlayerData->PvpMedals))
         return false;
 

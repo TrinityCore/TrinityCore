@@ -925,7 +925,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         /*********************************************************/
     public:
         int32 GetWorldStateValue(int32 worldStateId) const;
-        void SetWorldStateValue(int32 worldStateId, int32 value);
+        void SetWorldStateValue(int32 worldStateId, int32 value, bool hidden);
         WorldStateValueContainer const& GetWorldStateValues() const { return _worldStateValues; }
 
     private:

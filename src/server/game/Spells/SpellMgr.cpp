@@ -3203,6 +3203,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 }
             }
         }
+
+        // Saving to DB happens before removing from world - skip saving these auras
+        if (spellInfoMutable->HasAuraInterruptFlag(SpellAuraInterruptFlags::LeaveWorld))
+            spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
     }
 
     // addition for binary spells, omit spells triggering other spells
