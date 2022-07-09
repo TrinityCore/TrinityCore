@@ -2246,8 +2246,8 @@ void World::SetInitialWorldSettings()
     LoadWorldStates();
 
     // TODO: this is temporary until custom world states are purged from old world state saved values
-    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, getWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE), nullptr);
-    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, getWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE), nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, getWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE), false, nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, getWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE), false, nullptr);
 
     sObjectMgr->LoadPhases();
 
@@ -2495,8 +2495,8 @@ void World::SetInitialWorldSettings()
 
 void World::SetForcedWarModeFactionBalanceState(TeamId team, int32 reward)
 {
-    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (team == TEAM_ALLIANCE ? reward : 0), nullptr);
-    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (team == TEAM_HORDE ? reward : 0), nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (team == TEAM_ALLIANCE ? reward : 0), false, nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (team == TEAM_HORDE ? reward : 0), false, nullptr);
 
     // save to db
     setWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, nullptr));
@@ -3948,8 +3948,8 @@ void World::UpdateWarModeRewardValues()
             outnumberedFactionReward = 5;
     }
 
-    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (dominantFaction == TEAM_ALLIANCE ? outnumberedFactionReward : 0), nullptr);
-    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (dominantFaction == TEAM_HORDE ? outnumberedFactionReward : 0), nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (dominantFaction == TEAM_ALLIANCE ? outnumberedFactionReward : 0), false, nullptr);
+    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (dominantFaction == TEAM_HORDE ? outnumberedFactionReward : 0), false, nullptr);
 
     // save to db
     setWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, nullptr));
