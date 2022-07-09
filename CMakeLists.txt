@@ -21,7 +21,12 @@ project(TrinityCore)
 
 include(FetchContent)
 
-SET(LUA_ROOT ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src)
+FetchContent_Declare(lua
+  URL https://www.lua.org/ftp/lua-5.4.4.tar.gz
+  URL_HASH MD5=bd8ce7069ff99a400efd14cf339a727b
+)
+FetchContent_MakeAvailable(lua)
+SET(LUA_ROOT ${lua_SOURCE_DIR}/src)
 file(GLOB SRC_LUA ${LUA_ROOT}/*.h ${LUA_ROOT}/*.c)
 LIST(REMOVE_ITEM SRC_LUA ${CMAKE_SOURCE_DIR}/../../misc/client-extensions/lua-5.1/src/lua.c)
 add_library ( liblua STATIC ${SRC_LUA} )
