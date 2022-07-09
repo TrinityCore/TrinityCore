@@ -1221,7 +1221,8 @@ void GameObject::Delete()
 
     SendGameObjectDespawn();
 
-    SetGoState(GO_STATE_READY);
+    if (m_goInfo->type != GAMEOBJECT_TYPE_TRANSPORT)
+        SetGoState(GO_STATE_READY);
 
     if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
         SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
