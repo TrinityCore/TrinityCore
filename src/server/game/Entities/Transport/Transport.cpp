@@ -41,12 +41,6 @@ void TransportBase::UpdatePassengerPosition(Map* map, WorldObject* passenger, fl
     if (passenger->GetMap() != map)
         return;
 
-    // if passenger is on vehicle we have to assume the vehicle is also on transport
-    // and its the vehicle that will be updating its passengers
-    if (Unit* unit = passenger->ToUnit())
-        if (unit->GetVehicle())
-            return;
-
     // Do not use Unit::UpdatePosition here, we don't want to remove auras
     // as if regular movement occurred
     switch (passenger->GetTypeId())
