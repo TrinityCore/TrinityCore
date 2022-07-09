@@ -4104,16 +4104,28 @@ void Unit::RemoveMovementImpairingAuras(bool withRoot)
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         Aura const* aura = iter->second->GetBase();
+
         if (aura->GetSpellInfo()->Mechanic == MECHANIC_SNARE)
         {
             RemoveAura(iter);
             continue;
         }
 
-        // turn off snare auras by setting amount to 0
+        // turn off snare effects by setting amount to 0
         for (SpellEffectInfo const& spellEffectInfo : aura->GetSpellInfo()->GetEffects())
-            if (iter->second->HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.Mechanic == MECHANIC_SNARE)
-                aura->GetEffect(spellEffectInfo.EffectIndex)->ChangeAmount(0);
+        {
+            if (!iter->second->HasEffect(spellEffectInfo.EffectIndex))
+            {
+                continue;
+            }
+
+            if (spellEffectInfo.Mechanic != MECHANIC_SNARE)
+            {
+                continue;
+            }
+
+            aura->GetEffect(spellEffectInfo.EffectIndex)->ChangeAmount(0);
+        }
 
         ++iter;
     }
@@ -4351,6 +4363,36 @@ void Unit::RemoveAllGroupBuffsFromCaster(ObjectGuid casterGUID)
             RemoveOwnedAura(iter);
             continue;
         }
+        ++iter;
+    }
+}
+
+void Unit::RestoreMovementImpairingAuras()
+{
+    // Snares
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        Aura const* aura = iter->second->GetBase();
+
+        // restore surviving snare effects
+        for (SpellEffectInfo const& spellEffectInfo : aura->GetSpellInfo()->GetEffects())
+        {
+            if (!iter->second->HasEffect(spellEffectInfo.EffectIndex))
+            {
+                continue;
+            }
+
+            if (spellEffectInfo.Mechanic != MECHANIC_SNARE)
+            {
+                continue;
+            }
+
+            AuraEffect* auraEffect = aura->GetEffect(spellEffectInfo.EffectIndex);
+            if (auraEffect->GetAmount() == 0 && auraEffect->GetCaster())
+                auraEffect->ChangeAmount(auraEffect->CalculateAmount(auraEffect->GetCaster()), false);
+
+        }
+
         ++iter;
     }
 }

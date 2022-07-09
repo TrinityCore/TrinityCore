@@ -1377,6 +1377,8 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAllGroupBuffsFromCaster(ObjectGuid casterGUID);
         void DelayOwnedAuras(uint32 spellId, ObjectGuid caster, int32 delaytime);
 
+        void RestoreMovementImpairingAuras();
+
         void _RemoveAllAuraStatMods();
         void _ApplyAllAuraStatMods();
 
