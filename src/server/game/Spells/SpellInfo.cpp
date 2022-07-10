@@ -2906,7 +2906,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
                     return true;
                 });
             } else if (mechanicImmunity == (1 << MECHANIC_SNARE))
-                // When immunity is removed, restore snares that were set to 0.
+                // When immunity is removed, restore snare effects that were set to 0.
                 target->RestoreMovementImpairingAuras();
         }
     }
