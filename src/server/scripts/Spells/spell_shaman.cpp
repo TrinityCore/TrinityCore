@@ -419,7 +419,7 @@ class spell_sha_earthen_rage_passive : public AuraScript
 
     bool CheckProc(ProcEventInfo& procInfo)
     {
-        return !(procInfo.GetSpellInfo()->Id == SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE);
+        return procInfo.GetSpellInfo() && procInfo.GetSpellInfo()->Id != SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE;
     }
 
     void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
