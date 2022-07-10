@@ -197,7 +197,7 @@ public:
     // todo: remove, use reload livescripts instead
     static bool HandleReloadLua(ChatHandler* handler, char const* args)
     {
-        if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false))
+        if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", true))
         {
             LoadTSLibraries();
             if (handler)

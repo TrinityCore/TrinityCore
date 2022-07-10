@@ -499,7 +499,7 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Should lua be enabled?
     // @tswow-begin
-    m_bool_configs[CONFIG_TSWOW_LUA_ENABLED] = sConfigMgr->GetBoolDefault("TSWoW.EnableLua", false);
+    m_bool_configs[CONFIG_TSWOW_LUA_ENABLED] = sConfigMgr->GetBoolDefault("TSWoW.EnableLua", true);
     // @tswow-en
 
     ///- Read the player limit and the Message of the day from the config file
