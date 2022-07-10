@@ -496,6 +496,20 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MANA_SHIELD:
             m_canBeRecalculated = false;
             break;
+        case SPELL_AURA_MOD_DECREASE_SPEED:
+            // snare
+            if (GetBase()->GetType() != UNIT_AURA_TYPE)
+                break;
+
+            if (GetBase()->GetUnitOwner()->GetMechanicImmunityMask() & (1 << MECHANIC_SNARE))
+            {
+                // A speed decrease is being applied, but the target is currently immune to snares
+                amount = 0;
+                m_canBeRecalculated = false;
+            }
+
+            break;
+
         default:
             break;
     }

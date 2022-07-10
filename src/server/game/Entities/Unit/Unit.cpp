@@ -4377,20 +4377,12 @@ void Unit::RestoreMovementImpairingAuras()
         // restore surviving snare effects
         for (SpellEffectInfo const& spellEffectInfo : aura->GetSpellInfo()->GetEffects())
         {
-            if (!iter->second->HasEffect(spellEffectInfo.EffectIndex))
-            {
-                continue;
-            }
-
             if (spellEffectInfo.Mechanic != MECHANIC_SNARE)
-            {
                 continue;
-            }
 
             AuraEffect* auraEffect = aura->GetEffect(spellEffectInfo.EffectIndex);
             if (auraEffect->GetAmount() == 0 && auraEffect->GetCaster())
                 auraEffect->ChangeAmount(auraEffect->CalculateAmount(auraEffect->GetCaster()), false);
-
         }
 
         ++iter;
