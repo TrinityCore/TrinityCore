@@ -2859,11 +2859,52 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
         {
             if(apply)
             {
-                // exception for purely snare mechanic (eg. hands of freedom)!
-                if (mechanicImmunity == (1 << MECHANIC_SNARE))
-                    target->RemoveMovementImpairingAuras(false);
-                else
-                    target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
+                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id, [](AuraApplication const* aurApp, uint32 mechanicImmunity) -> bool
+                {
+                    Aura const* aura = aurApp->GetBase();
+
+                    // exception for purely snare mechanic (eg. Hand Of Free)!
+                    if(mechanicImmunity == (1 << MECHANIC_SNARE))
+                    {
+                        // Special handling for auras when snare immunity is the only subject (e.g. Hand of Freedom)
+                        // If the aura has only a snare (e.g. Hamstring, Earthbind Totem, Blast Wave), then the aura should be removed.
+                        // If the aura has a secondary effect (e.g. Frost Armour, Infected Wounds), then the snare effect should be neutralized.
+
+                        uint8 countEffects = 0;
+                        uint8 countEffectsSnare = 0;
+
+                        for (SpellEffectInfo const& spellEffectInfo : aura->GetSpellInfo()->GetEffects())
+                        {
+                            if (!aurApp->HasEffect(spellEffectInfo.EffectIndex))
+                            {
+                                continue;
+                            }
+
+                            countEffects++;
+
+                            if (spellEffectInfo.Mechanic != MECHANIC_SNARE)
+                            {
+                                continue;
+                            }
+
+                            countEffectsSnare++;
+                            // Set amount here, even if we end up removing the aura the moment this expression finishes
+                            // Preferable to looping through effects twice.
+                            aura->GetEffect(spellEffectInfo.EffectIndex)->ChangeAmount(0);
+                        }
+
+                        if(countEffectsSnare < countEffects)
+                        {
+                            // Spell has some non-snare mechanics.
+                            // Do not remove the aura and settle with setting the amount to 0.
+                            return false;
+                        }
+                    }
+
+                    // If we have not found a reason to keep the aura, then remove it.
+                    // This callback is already pre-filtered to items that have some flavour of snare.
+                    return true;
+                });
             } else if (mechanicImmunity == (1 << MECHANIC_SNARE))
                 target->RestoreMovementImpairingAuras();
         }

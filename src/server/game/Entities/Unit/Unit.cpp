@@ -4131,14 +4131,15 @@ void Unit::RemoveMovementImpairingAuras(bool withRoot)
     }
 }
 
-void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except)
+void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except, std::function<bool(AuraApplication const*, uint32)> const& check)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         Aura const* aura = iter->second->GetBase();
         if (!except || aura->GetId() != except)
         {
-            if (aura->GetSpellInfo()->GetAllEffectsMechanicMask() & mechanic_mask)
+            if ((aura->GetSpellInfo()->Mechanic == mechanic_mask || aura->GetSpellInfo()->GetAllEffectsMechanicMask() & mechanic_mask) &&
+                (!check || check(iter->second, mechanic_mask)))
             {
                 RemoveAura(iter, removemode);
                 continue;
@@ -4381,7 +4382,7 @@ void Unit::RestoreMovementImpairingAuras()
                 continue;
 
             AuraEffect* auraEffect = aura->GetEffect(spellEffectInfo.EffectIndex);
-            if (auraEffect->GetAmount() == 0 && auraEffect->GetCaster())
+            if (auraEffect && auraEffect->GetAmount() == 0 && auraEffect->GetCaster())
                 auraEffect->ChangeAmount(auraEffect->CalculateAmount(auraEffect->GetCaster()), false);
         }
 
