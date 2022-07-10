@@ -85,8 +85,6 @@ enum BattlegroundRVData
     BG_RV_FIRE_TO_PILLAR_TIMER                   = 20000,
     BG_RV_CLOSE_FIRE_TIMER                       =  5000,
     BG_RV_FIRST_TIMER                            = 20133,
-
-    BG_RV_WORLD_STATE                            = 0xe1a
 };
 
 class BattlegroundRV : public Arena
@@ -96,7 +94,6 @@ class BattlegroundRV : public Arena
 
         /* inherited from BattlegroundClass */
         void StartingEventOpenDoors() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
