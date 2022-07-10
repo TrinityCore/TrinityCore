@@ -2895,8 +2895,8 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
 
                         if(countEffectsSnare < countEffects)
                         {
-                            // Spell has some non-snare mechanics.
-                            // Do not remove the aura and settle with setting the amount to 0.
+                            // The aura has some non-snare effects.
+                            // Do not remove the aura and settle with the setting of the snare amount to 0 as we've already done.
                             return false;
                         }
                     }
