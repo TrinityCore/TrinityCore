@@ -50,7 +50,6 @@ class BattlegroundRL : public Arena
         BattlegroundRL(BattlegroundTemplate const* battlegroundTemplate);
 
         /* inherited from BattlegroundClass */
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 

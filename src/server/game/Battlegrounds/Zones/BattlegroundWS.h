@@ -72,17 +72,24 @@ enum BG_WS_SpellId
 
 enum BG_WS_WorldStates
 {
-    BG_WS_FLAG_UNK_ALLIANCE       = 1545,
-    BG_WS_FLAG_UNK_HORDE          = 1546,
-//    FLAG_UNK                      = 1547,
-    BG_WS_FLAG_CAPTURES_ALLIANCE  = 1581,
-    BG_WS_FLAG_CAPTURES_HORDE     = 1582,
-    BG_WS_FLAG_CAPTURES_MAX       = 1601,
-    BG_WS_FLAG_STATE_HORDE        = 2338,
-    BG_WS_FLAG_STATE_ALLIANCE     = 2339,
-    BG_WS_STATE_TIMER             = 4248,
-    BG_WS_STATE_TIMER_ACTIVE      = 4247
+    BG_WS_FLAG_STATE_ALLIANCE           = 1545,
+    BG_WS_FLAG_STATE_HORDE              = 1546,
+    BG_WS_FLAG_STATE_NEUTRAL            = 1547,     // unused
+    BG_WS_HORDE_FLAG_COUNT_PICKED_UP    = 17712,    // brawl
+    BG_WS_ALLIANCE_FLAG_COUNT_PICKED_UP = 17713,    // brawl
+    BG_WS_FLAG_CAPTURES_ALLIANCE        = 1581,
+    BG_WS_FLAG_CAPTURES_HORDE           = 1582,
+    BG_WS_FLAG_CAPTURES_MAX             = 1601,
+    BG_WS_FLAG_CAPTURES_MAX_NEW         = 17303,
+    BG_WS_FLAG_CONTROL_HORDE            = 2338,
+    BG_WS_FLAG_CONTROL_ALLIANCE         = 2339,
+    BG_WS_STATE_TIMER                   = 4248,
+    BG_WS_STATE_TIMER_ACTIVE            = 4247
 };
+
+// save the day
+// alliance criteria: BG_WS_FLAG_STATE_HORDE == 1 && BG_WS_FLAG_STATE_NEUTRAL == 0 && WS(1664) > 0
+// horde criteria: BG_WS_FLAG_STATE_ALLIANCE == 1 && BG_WS_FLAG_STATE_NEUTRAL == 0 && WS(1664) > 0
 
 enum BG_WS_ObjectTypes
 {
@@ -127,10 +134,10 @@ enum BG_WS_ObjectEntry
 
 enum BG_WS_FlagState
 {
-    BG_WS_FLAG_STATE_ON_BASE      = 0,
-    BG_WS_FLAG_STATE_WAIT_RESPAWN = 1,
+    BG_WS_FLAG_STATE_ON_BASE      = 1,
     BG_WS_FLAG_STATE_ON_PLAYER    = 2,
-    BG_WS_FLAG_STATE_ON_GROUND    = 3
+    BG_WS_FLAG_STATE_ON_GROUND    = 3,
+    BG_WS_FLAG_STATE_WAIT_RESPAWN = 4,
 };
 
 enum BG_WS_Graveyards
@@ -259,7 +266,6 @@ class BattlegroundWS : public Battleground
         }
 
         ObjectGuid GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)]; }
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         /* Scorekeeping */
         void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
@@ -267,9 +273,6 @@ class BattlegroundWS : public Battleground
         void RemovePoint(uint32 TeamID, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
 
         uint32 GetPrematureWinner() override;
-
-        /* Achievements*/
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
 
     protected:
         void PostUpdateImpl(uint32 diff) override;
@@ -288,6 +291,5 @@ class BattlegroundWS : public Battleground
         int32 _flagSpellForceTimer;
         bool _bothFlagsKept;
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
-        uint8 _minutesElapsed;
 };
 #endif
