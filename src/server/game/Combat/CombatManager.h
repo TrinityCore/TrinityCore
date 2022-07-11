@@ -114,7 +114,7 @@ class TC_GAME_API CombatManager
         Unit* GetAnyTarget() const;
 
         // return value is the same as calling IsInCombatWith immediately after this returns
-        bool SetInCombatWith(Unit* who);
+        bool SetInCombatWith(Unit* who, bool suppressPvpSecond = false);
         bool IsInCombatWith(ObjectGuid const& who) const;
         bool IsInCombatWith(Unit const* who) const;
         void InheritCombatStatesFrom(Unit const* who);

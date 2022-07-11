@@ -1150,7 +1150,7 @@ class TC_GAME_API Unit : public WorldObject
 
         bool IsInCombat() const { return HasUnitFlag(UNIT_FLAG_IN_COMBAT); }
         bool IsInCombatWith(Unit const* who) const { return who && m_combatManager.IsInCombatWith(who); }
-        void SetInCombatWith(Unit* enemy) { if (enemy) m_combatManager.SetInCombatWith(enemy); }
+        void SetInCombatWith(Unit* enemy, bool suppressPvpTargetCombat = false) { if (enemy) m_combatManager.SetInCombatWith(enemy, suppressPvpTargetCombat); }
         void ClearInCombat() { m_combatManager.EndAllCombat(); }
         void UpdatePetCombatState();
         // Threat handling

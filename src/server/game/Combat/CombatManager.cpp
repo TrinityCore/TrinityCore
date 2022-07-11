@@ -171,7 +171,7 @@ Unit* CombatManager::GetAnyTarget() const
     return nullptr;
 }
 
-bool CombatManager::SetInCombatWith(Unit* who)
+bool CombatManager::SetInCombatWith(Unit* who, bool suppressPvpSecond)
 {
     // Are we already in combat? If yes, refresh pvp combat
     auto it = _pvpRefs.find(who->GetGUID());
@@ -190,7 +190,12 @@ bool CombatManager::SetInCombatWith(Unit* who)
     // ...then create new reference
     CombatReference* ref;
     if (_owner->IsControlledByPlayer() && who->IsControlledByPlayer())
-        ref = new PvPCombatReference(_owner, who);
+    {
+        PvPCombatReference* refPvp = new PvPCombatReference(_owner, who);
+        if (suppressPvpSecond)
+            refPvp->SuppressFor(who);
+        ref = refPvp;
+    }
     else
         ref = new CombatReference(_owner, who);
 
