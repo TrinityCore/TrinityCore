@@ -41,8 +41,16 @@ enum ArenaSpellIds
 
 enum ArenaWorldStates
 {
-    ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN   = 3600,
-    ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD    = 3601
+    ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN       = 3600,
+    ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD        = 3601,
+    ARENA_WORLD_STATE_SHOW_ALIVE_PLAYERS        = 3610,
+    ARENA_WORLD_STATE_TIME_REMAINING            = 8529,
+    ARENA_WORLD_STATE_SHOW_TIME_REMAINING       = 8524,
+    ARENA_WORLD_STATE_GREEN_TEAM_EXTRA_LIVES    = 15480,
+    ARENA_WORLD_STATE_GOLD_TEAM_EXTRA_LIVES     = 15481,
+    ARENA_WORLD_STATE_SHOW_EXTRA_LIVES          = 13401,
+    ARENA_WORLD_STATE_SOLO_SHUFFLE_ROUND        = 21427,
+    ARENA_WORLD_STATE_SHOW_SOLO_SHUFFLE_ROUND   = 21322,
 };
 
 class TC_GAME_API Arena : public Battleground
@@ -53,7 +61,6 @@ class TC_GAME_API Arena : public Battleground
         void AddPlayer(Player* player) override;
         void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) override;
 
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void UpdateArenaWorldState();
 
         void HandleKillPlayer(Player* player, Player* killer) override;
