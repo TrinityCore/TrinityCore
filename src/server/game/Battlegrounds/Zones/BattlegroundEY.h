@@ -51,7 +51,7 @@ enum BG_EY_WorldStates
     PROGRESS_BAR_PERCENT_GREY       = 2720,                 //100 = empty (only grey), 0 = blue|red (no grey)
     PROGRESS_BAR_STATUS             = 2719,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky, 100 = full alliance
     PROGRESS_BAR_SHOW               = 2718,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
-    NETHERSTORM_FLAG                = 2757,
+    NETHERSTORM_FLAG                = 8863,
     //set to 2 when flag is picked up, and to 1 if it is dropped
     NETHERSTORM_FLAG_STATE_ALLIANCE = 9808,
     NETHERSTORM_FLAG_STATE_HORDE    = 9809,
@@ -244,7 +244,7 @@ enum EYBattlegroundObjectTypes
 enum BG_EY_Score
 {
     BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1400,
-    BG_EY_MAX_TEAM_SCORE                = 1600
+    BG_EY_MAX_TEAM_SCORE                = 1500
 };
 
 enum BG_EY_FlagState
@@ -442,16 +442,12 @@ class BattlegroundEY : public Battleground
         void UpdateTeamScore(uint32 Team);
         void EndBattleground(uint32 winner) override;
         bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SetDroppedFlagGUID(ObjectGuid guid, int32 /*TeamID*/ = -1) override  { m_DroppedFlagGUID = guid; }
         ObjectGuid GetDroppedFlagGUID() const { return m_DroppedFlagGUID; }
 
         /* Battleground Events */
         void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj) override;
         void EventPlayerDroppedFlag(Player* Source) override;
-
-        /* achievement req. */
-        bool IsAllNodesControlledByTeam(uint32 team) const override;
 
         uint32 GetPrematureWinner() override;
 protected:

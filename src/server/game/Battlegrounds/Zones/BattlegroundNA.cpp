@@ -18,7 +18,6 @@
 #include "BattlegroundNA.h"
 #include "Log.h"
 #include "Player.h"
-#include "WorldStatePackets.h"
 
 BattlegroundNA::BattlegroundNA(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
 {
@@ -76,13 +75,6 @@ void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
-}
-
-void BattlegroundNA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(2577, 1); // BATTLEGROUND_NAGRAND_ARENA_SHOW
-
-    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundNA::SetupBattleground()

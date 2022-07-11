@@ -19,7 +19,6 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
 #include "Creature.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
@@ -29,7 +28,6 @@
 #include "Random.h"
 #include "SpellInfo.h"
 #include "Util.h"
-#include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here
 uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
@@ -549,6 +547,8 @@ bool BattlegroundEY::SetupBattleground()
         return false;
     }
 
+    UpdateWorldState(EY_MAX_RESOURCES, BG_EY_MAX_TEAM_SCORE);
+
     return true;
 }
 
@@ -856,52 +856,6 @@ bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     return true;
 }
 
-void BattlegroundEY::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(EY_HORDE_BASE, m_TeamPointsCount[TEAM_HORDE]);
-    packet.Worldstates.emplace_back(EY_ALLIANCE_BASE, m_TeamPointsCount[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(2742, 0); // Mage Tower - Horde conflict
-    packet.Worldstates.emplace_back(2741, 0); // Mage Tower - Alliance conflict
-    packet.Worldstates.emplace_back(2740, 0); // Fel Reaver - Horde conflict
-    packet.Worldstates.emplace_back(2739, 0); // Fel Reaver - Alliance conflict
-    packet.Worldstates.emplace_back(2738, 0); // Draenei - Alliance conflict
-    packet.Worldstates.emplace_back(2737, 0); // Draenei - Horde conflict
-    packet.Worldstates.emplace_back(2736, 0); // unk (0 at start)
-    packet.Worldstates.emplace_back(2735, 0); // unk (0 at start)
-
-    packet.Worldstates.emplace_back(DRAENEI_RUINS_HORDE_CONTROL, (m_PointOwnedByTeam[DRAENEI_RUINS] == HORDE && m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(DRAENEI_RUINS_ALLIANCE_CONTROL, (m_PointOwnedByTeam[DRAENEI_RUINS] == ALLIANCE && m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(DRAENEI_RUINS_UNCONTROL, (m_PointState[DRAENEI_RUINS] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(MAGE_TOWER_ALLIANCE_CONTROL, (m_PointOwnedByTeam[MAGE_TOWER] == ALLIANCE && m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(MAGE_TOWER_HORDE_CONTROL, (m_PointOwnedByTeam[MAGE_TOWER] == HORDE && m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(MAGE_TOWER_UNCONTROL, (m_PointState[MAGE_TOWER] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(FEL_REAVER_HORDE_CONTROL, (m_PointOwnedByTeam[FEL_REAVER] == HORDE && m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(FEL_REAVER_ALLIANCE_CONTROL, (m_PointOwnedByTeam[FEL_REAVER] == ALLIANCE && m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(FEL_REAVER_UNCONTROL, (m_PointState[FEL_REAVER] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(BLOOD_ELF_HORDE_CONTROL, (m_PointOwnedByTeam[BLOOD_ELF] == HORDE && m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(BLOOD_ELF_ALLIANCE_CONTROL, (m_PointOwnedByTeam[BLOOD_ELF] == ALLIANCE && m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(BLOOD_ELF_UNCONTROL, (m_PointState[BLOOD_ELF] != EY_POINT_UNDER_CONTROL) ? 1 : 0);
-    packet.Worldstates.emplace_back(NETHERSTORM_FLAG, (m_FlagState == BG_EY_FLAG_STATE_ON_BASE) ? 1 : 0);
-
-    packet.Worldstates.emplace_back(NETHERSTORM_FLAG_STATE_HORDE, 1); // Horde top-stats (1 - show, 0 - hide) // 02 -> horde picked up the flag
-    packet.Worldstates.emplace_back(NETHERSTORM_FLAG_STATE_ALLIANCE, 1); // Alliance top-stats (1 - show, 0 - hide) // 02 -> alliance picked up the flag
-    packet.Worldstates.emplace_back(EY_HORDE_RESOURCES, GetTeamScore(TEAM_HORDE)); // Horde resources
-    packet.Worldstates.emplace_back(EY_ALLIANCE_RESOURCES, GetTeamScore(TEAM_ALLIANCE)); // Alliance resources
-    packet.Worldstates.emplace_back(EY_MAX_RESOURCES, BG_EY_MAX_TEAM_SCORE); // Max resources
-    packet.Worldstates.emplace_back(2565, 142); // unk, constant?
-    packet.Worldstates.emplace_back(PROGRESS_BAR_PERCENT_GREY, 0); // Capturing progress-bar (100 -> empty (only grey), 0 -> blue|red (no grey), default 0)
-    packet.Worldstates.emplace_back(PROGRESS_BAR_STATUS, 0); // Capturing progress-bar (0 - left, 100 - right)
-    packet.Worldstates.emplace_back(PROGRESS_BAR_SHOW, 0); // Capturing progress-bar (1 - show, 0 - hide)
-    packet.Worldstates.emplace_back(3085, 379); // unk, constant?
-
-    for (uint8 point = 0; point < EY_POINTS_MAX; ++point)
-    {
-        BattlegroundPointCaptureStatus captureStatus = GetPointCaptureStatus(point);
-        packet.Worldstates.emplace_back(m_PointsIconStruct[point].WorldStateAllianceStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus::AllianceControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus::AllianceCapturing ? 1 : 0));
-        packet.Worldstates.emplace_back(m_PointsIconStruct[point].WorldStateHordeStatusBarIcon, captureStatus == BattlegroundPointCaptureStatus::HordeControlled ? 2 : (captureStatus == BattlegroundPointCaptureStatus::HordeCapturing ? 1 : 0));
-    }
-}
-
 WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveyard(Player* player)
 {
     uint32 g_id = 0;
@@ -963,16 +917,6 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveyard(Player* player)
 WorldSafeLocsEntry const* BattlegroundEY::GetExploitTeleportLocation(Team team)
 {
     return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? EY_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : EY_EXPLOIT_TELEPORT_LOCATION_HORDE);
-}
-
-bool BattlegroundEY::IsAllNodesControlledByTeam(uint32 team) const
-{
-    uint32 count = 0;
-    for (int i = 0; i < EY_POINTS_MAX; ++i)
-        if (m_PointOwnedByTeam[i] == team && m_PointState[i] == EY_POINT_UNDER_CONTROL)
-            ++count;
-
-    return count == EY_POINTS_MAX;
 }
 
 uint32 BattlegroundEY::GetPrematureWinner()
