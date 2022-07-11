@@ -24,7 +24,7 @@ namespace WorldPackets
 {
     namespace WorldState
     {
-        class InitWorldStates final : public ServerPacket
+        class TC_GAME_API InitWorldStates final : public ServerPacket
         {
         public:
             struct WorldStateInfo
