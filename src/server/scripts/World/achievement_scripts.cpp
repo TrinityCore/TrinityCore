@@ -16,119 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "BattlegroundSA.h"
-#include "BattlegroundIC.h"
+#include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "Creature.h"
 #include "Player.h"
 #include "WorldSession.h"
-
-class achievement_resilient_victory : public AchievementCriteriaScript
-{
-    public:
-        achievement_resilient_victory() : AchievementCriteriaScript("achievement_resilient_victory") { }
-
-        bool OnCheck(Player* source, Unit* target) override
-        {
-            if (Battleground* bg = source->GetBattleground())
-                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_RESILIENT_VICTORY, source, target);
-
-            return false;
-        }
-};
-
-class achievement_bg_control_all_nodes : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_control_all_nodes() : AchievementCriteriaScript("achievement_bg_control_all_nodes") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/) override
-        {
-            if (Battleground* bg = source->GetBattleground())
-                return bg->IsAllNodesControlledByTeam(bg->GetPlayerTeam(source->GetGUID()));
-
-            return false;
-        }
-};
-
-class achievement_save_the_day : public AchievementCriteriaScript
-{
-    public:
-        achievement_save_the_day() : AchievementCriteriaScript("achievement_save_the_day") { }
-
-        bool OnCheck(Player* source, Unit* target) override
-        {
-            if (Battleground* bg = source->GetBattleground())
-                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_SAVE_THE_DAY, source, target);
-
-            return false;
-        }
-};
-
-class achievement_bg_ic_resource_glut : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_ic_resource_glut() : AchievementCriteriaScript("achievement_bg_ic_resource_glut") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/) override
-        {
-            if (source->HasAura(SPELL_OIL_REFINERY) && source->HasAura(SPELL_QUARRY))
-                return true;
-
-            return false;
-        }
-};
-
-class achievement_bg_ic_glaive_grave : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_ic_glaive_grave() : AchievementCriteriaScript("achievement_bg_ic_glaive_grave") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/) override
-        {
-            if (Creature* vehicle = source->GetVehicleCreatureBase())
-            {
-                if (vehicle->GetEntry() == NPC_GLAIVE_THROWER_H ||  vehicle->GetEntry() == NPC_GLAIVE_THROWER_A)
-                    return true;
-            }
-
-            return false;
-        }
-};
-
-class achievement_bg_ic_mowed_down : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_ic_mowed_down() : AchievementCriteriaScript("achievement_bg_ic_mowed_down") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/) override
-        {
-            if (Creature* vehicle = source->GetVehicleCreatureBase())
-            {
-                if (vehicle->GetEntry() == NPC_KEEP_CANNON)
-                    return true;
-            }
-
-            return false;
-        }
-};
-
-class achievement_bg_sa_artillery : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_sa_artillery() : AchievementCriteriaScript("achievement_bg_sa_artillery") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/) override
-        {
-            if (Creature* vehicle = source->GetVehicleCreatureBase())
-            {
-                if (vehicle->GetEntry() == NPC_ANTI_PERSONNAL_CANNON)
-                    return true;
-            }
-
-            return false;
-        }
-};
 
 class achievement_arena_kills : public AchievementCriteriaScript
 {
@@ -149,66 +41,6 @@ class achievement_arena_kills : public AchievementCriteriaScript
 
     private:
         uint8 const _arenaType;
-};
-
-class achievement_sickly_gazelle : public AchievementCriteriaScript
-{
-public:
-    achievement_sickly_gazelle() : AchievementCriteriaScript("achievement_sickly_gazelle") { }
-
-    bool OnCheck(Player* /*source*/, Unit* target) override
-    {
-        if (!target)
-            return false;
-
-        if (Player* victim = target->ToPlayer())
-            if (victim->IsMounted())
-                return true;
-
-        return false;
-    }
-};
-
-class achievement_everything_counts : public AchievementCriteriaScript
-{
-    public:
-        achievement_everything_counts() : AchievementCriteriaScript("achievement_everything_counts") { }
-
-        bool OnCheck(Player* source, Unit* target) override
-        {
-            if (Battleground* bg = source->GetBattleground())
-                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_EVERYTHING_COUNTS, source, target);
-
-            return false;
-        }
-};
-
-class achievement_bg_av_perfection : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_av_perfection() : AchievementCriteriaScript("achievement_bg_av_perfection") { }
-
-        bool OnCheck(Player* source, Unit* target) override
-        {
-            if (Battleground* bg = source->GetBattleground())
-                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_AV_PERFECTION, source, target);
-
-            return false;
-        }
-};
-
-class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients") { }
-
-        bool OnCheck(Player* source, Unit* target) override
-        {
-            if (Battleground* bg = source->GetBattleground())
-                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_DEFENSE_OF_THE_ANCIENTS, source, target);
-
-            return false;
-        }
 };
 
 enum ArgentTournamentAreas
@@ -239,20 +71,6 @@ class achievement_tilted : public AchievementCriteriaScript
                                 player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
 
             return checkArea && player->duel && player->duel->IsMounted;
-        }
-};
-
-class achievement_not_even_a_scratch : public AchievementCriteriaScript
-{
-    public:
-        achievement_not_even_a_scratch() : AchievementCriteriaScript("achievement_not_even_a_scratch") { }
-
-        bool OnCheck(Player* source, Unit* target) override
-        {
-            if (Battleground* bg = source->GetBattleground())
-                return bg->CheckAchievementCriteriaMeet(BG_CRITERIA_CHECK_NOT_EVEN_A_SCRATCH, source, target);
-
-            return false;
         }
 };
 
@@ -318,22 +136,10 @@ public:
 
 void AddSC_achievement_scripts()
 {
-    new achievement_resilient_victory();
-    new achievement_bg_control_all_nodes();
-    new achievement_save_the_day();
-    new achievement_bg_ic_resource_glut();
-    new achievement_bg_ic_glaive_grave();
-    new achievement_bg_ic_mowed_down();
-    new achievement_bg_sa_artillery();
-    new achievement_sickly_gazelle();
-    new achievement_everything_counts();
-    new achievement_bg_av_perfection();
     new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
-    new achievement_bg_sa_defense_of_ancients();
     new achievement_tilted();
-    new achievement_not_even_a_scratch();
     new achievement_flirt_with_disaster_perf_check();
     new achievement_killed_exp_or_honor_target();
     new achievement_newbie();

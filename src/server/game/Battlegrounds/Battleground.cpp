@@ -43,6 +43,7 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Util.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 #include <cstdarg>
 
@@ -686,13 +687,9 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     }
 }
 
-void Battleground::UpdateWorldState(uint32 variable, uint32 value, bool hidden /*= false*/)
+void Battleground::UpdateWorldState(int32 worldStateId, int32 value, bool hidden /*= false*/)
 {
-    WorldPackets::WorldState::UpdateWorldState worldstate;
-    worldstate.VariableID = variable;
-    worldstate.Value = value;
-    worldstate.Hidden = hidden;
-    SendPacketToAll(worldstate.Write());
+    sWorldStateMgr->SetValue(worldStateId, value, hidden, GetBgMap());
 }
 
 void Battleground::EndBattleground(uint32 winner)
@@ -1013,8 +1010,6 @@ void Battleground::Reset()
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
     PlayerScores.clear();
-
-    ResetBGSubclass();
 
     _playerPositions.clear();
 }
@@ -1966,12 +1961,6 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger, bool /*ente
 {
     TC_LOG_DEBUG("bg.battleground", "Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
-}
-
-bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
-{
-    TC_LOG_ERROR("bg.battleground", "Battleground::CheckAchievementCriteriaMeet: No implementation for criteria %u", criteriaId);
-    return false;
 }
 
 char const* Battleground::GetName() const
