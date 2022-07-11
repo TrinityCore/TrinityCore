@@ -9232,22 +9232,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     packet.Worldstates.emplace_back(3901, previousArenaSeason);
 
     SendDirectMessage(packet.Write());
-    SendBGWeekendWorldStates();
-}
-
-void Player::SendBGWeekendWorldStates() const
-{
-    for (uint32 i = 1; i < sBattlemasterListStore.GetNumRows(); ++i)
-    {
-        BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
-        if (bl && bl->HolidayWorldState)
-        {
-            if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->ID))
-                SendUpdateWorldState(bl->HolidayWorldState, 1);
-            else
-                SendUpdateWorldState(bl->HolidayWorldState, 0);
-        }
-    }
 }
 
 void Player::SetBindPoint(ObjectGuid guid) const
