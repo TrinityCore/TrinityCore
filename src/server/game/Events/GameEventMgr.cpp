@@ -32,7 +32,7 @@
 #include "PoolMgr.h"
 #include "StringConvert.h"
 #include "World.h"
-#include "WorldStatePackets.h"
+#include "WorldStateMgr.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -1550,21 +1550,9 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
 {
     GameEventData const& event = mGameEvent[event_id];
     if (event.holiday_id != HOLIDAY_NONE)
-    {
-        BattlegroundTypeId bgTypeId = BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
-        if (bgTypeId != BATTLEGROUND_TYPE_NONE)
-        {
-            BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldState)
-            {
-                WorldPackets::WorldState::UpdateWorldState worldstate;
-                worldstate.VariableID = bl->HolidayWorldState;
-                worldstate.Value = Activate;
-                //worldstate.Hidden = false;
-                sWorld->SendGlobalMessage(worldstate.Write());
-            }
-        }
-    }
+        if (BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id)))
+            if (bl->HolidayWorldState)
+                sWorldStateMgr->SetValue(bl->HolidayWorldState, Activate ? 1 : 0, false, nullptr);
 }
 
 GameEventMgr::GameEventMgr() : isSystemInit(false)
