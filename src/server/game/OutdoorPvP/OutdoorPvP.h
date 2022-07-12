@@ -74,14 +74,6 @@ class Unit;
 class WorldPacket;
 struct GossipMenuItems;
 
-namespace WorldPackets
-{
-    namespace WorldState
-    {
-        class InitWorldStates;
-    }
-}
-
 class TC_GAME_API OPvPCapturePoint
 {
     public:
@@ -94,8 +86,6 @@ class TC_GAME_API OPvPCapturePoint
         OPvPCapturePoint(OPvPCapturePoint&& right) = delete;
         OPvPCapturePoint& operator=(OPvPCapturePoint const& right) = delete;
         OPvPCapturePoint& operator=(OPvPCapturePoint&& right) = delete;
-
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -203,8 +193,6 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         typedef std::map<ObjectGuid::LowType/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
-
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/, bool /*entered*/) { return false; }
 
@@ -222,7 +210,8 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
         void OnCreatureCreate(Creature*) override { }
 
         // send world state update to all players present
-        void SendUpdateWorldState(uint32 field, uint32 value);
+        int32 GetWorldState(int32 worldStateId) const;
+        void SetWorldState(int32 worldStateId, int32 value);
 
         // called by OutdoorPvPMgr, updates the objectives and if needed, sends new worldstateui information
         virtual bool Update(uint32 diff);
@@ -272,8 +261,6 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
         GuidSet m_players[2];
 
         uint32 m_TypeId;
-
-        bool m_sendUpdate;
 
         // world state stuff
         virtual void SendRemoveWorldStates(Player* /*player*/) { }
