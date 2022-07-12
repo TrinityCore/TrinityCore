@@ -27,9 +27,9 @@ uint32 const OutdoorPvPHPBuffZones[OutdoorPvPHPBuffZonesNum] = { 3483, 3563, 356
 uint32 const HP_CREDITMARKER[HP_TOWER_NUM] = { 19032, 19028, 19029 };
 //uint32 const HP_CapturePointEvent_Enter[HP_TOWER_NUM] = { 11404, 11396, 11388 };
 //uint32 const HP_CapturePointEvent_Leave[HP_TOWER_NUM] = { 11403, 11395, 11387 };
-uint32 const HP_MAP_N[HP_TOWER_NUM] = { 0x9b5, 0x9b2, 0x9a8 };
-uint32 const HP_MAP_A[HP_TOWER_NUM] = { 0x9b3, 0x9b0, 0x9a7 };
-uint32 const HP_MAP_H[HP_TOWER_NUM] = { 0x9b4, 0x9b1, 0x9a6 };
+uint32 const HP_MAP_N[HP_TOWER_NUM] = { 2485, 2482, 2472 };
+uint32 const HP_MAP_A[HP_TOWER_NUM] = { 2483, 2480, 2471 };
+uint32 const HP_MAP_H[HP_TOWER_NUM] = { 2484, 2481, 2470 };
 uint32 const HP_TowerArtKit_A[HP_TOWER_NUM] = { 65, 62, 67 };
 uint32 const HP_TowerArtKit_H[HP_TOWER_NUM] = { 64, 61, 68 };
 uint32 const HP_TowerArtKit_N[HP_TOWER_NUM] = { 66, 63, 69 };
@@ -126,36 +126,31 @@ bool OutdoorPvPHP::Update(uint32 diff)
             TeamCastSpell(TEAM_ALLIANCE, -AllianceBuff);
             TeamCastSpell(TEAM_HORDE, -HordeBuff);
         }
-        SendUpdateWorldState(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
-        SendUpdateWorldState(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
+        SetWorldState(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
+        SetWorldState(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
     }
     return changed;
 }
 
 void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
 {
-    player->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_A, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_H, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_COUNT_H, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_COUNT_A, 0);
+    WorldPackets::WorldState::InitWorldStates initWorldStates;
+    initWorldStates.MapID = player->GetMapId();
+    initWorldStates.AreaID = player->GetZoneId();
+    initWorldStates.SubareaID = player->GetAreaId();
+    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_DISPLAY_A, 0);
+    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_DISPLAY_H, 0);
+    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_COUNT_H, 0);
+    initWorldStates.Worldstates.emplace_back(HP_UI_TOWER_COUNT_A, 0);
 
-    for (int i = 0; i < HP_TOWER_NUM; ++i)
+    for (size_t i = 0; i < HP_TOWER_NUM; ++i)
     {
-        player->SendUpdateWorldState(HP_MAP_N[i], 0);
-        player->SendUpdateWorldState(HP_MAP_A[i], 0);
-        player->SendUpdateWorldState(HP_MAP_H[i], 0);
+        initWorldStates.Worldstates.emplace_back(HP_MAP_N[i], 0);
+        initWorldStates.Worldstates.emplace_back(HP_MAP_A[i], 0);
+        initWorldStates.Worldstates.emplace_back(HP_MAP_H[i], 0);
     }
-}
 
-void OutdoorPvPHP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(HP_UI_TOWER_DISPLAY_A, 1);
-    packet.Worldstates.emplace_back(HP_UI_TOWER_DISPLAY_H, 1);
-    packet.Worldstates.emplace_back(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
-    packet.Worldstates.emplace_back(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
-
-    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        itr->second->FillInitialWorldStates(packet);
+    player->SendDirectMessage(initWorldStates.Write());
 }
 
 void OPvPCapturePointHP::ChangeState()
@@ -193,7 +188,7 @@ void OPvPCapturePointHP::ChangeState()
     // send world state update
     if (field)
     {
-        m_PvP->SendUpdateWorldState(field, 0);
+        m_PvP->SetWorldState(field, 0);
         field = 0;
     }
     uint32 artkit = 21;
@@ -254,38 +249,11 @@ void OPvPCapturePointHP::ChangeState()
 
     // send world state update
     if (field)
-        m_PvP->SendUpdateWorldState(field, 1);
+        m_PvP->SetWorldState(field, 1);
 
     // complete quest objective
     if (m_State == OBJECTIVESTATE_ALLIANCE || m_State == OBJECTIVESTATE_HORDE)
         SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], ObjectGuid::Empty);
-}
-
-void OPvPCapturePointHP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    switch (m_State)
-    {
-        case OBJECTIVESTATE_ALLIANCE:
-        case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-            packet.Worldstates.emplace_back(HP_MAP_N[m_TowerType], 0);
-            packet.Worldstates.emplace_back(HP_MAP_A[m_TowerType], 1);
-            packet.Worldstates.emplace_back(HP_MAP_H[m_TowerType], 0);
-            break;
-        case OBJECTIVESTATE_HORDE:
-        case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-            packet.Worldstates.emplace_back(HP_MAP_N[m_TowerType], 0);
-            packet.Worldstates.emplace_back(HP_MAP_A[m_TowerType], 0);
-            packet.Worldstates.emplace_back(HP_MAP_H[m_TowerType], 1);
-            break;
-        case OBJECTIVESTATE_NEUTRAL:
-        case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
-        case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
-        default:
-            packet.Worldstates.emplace_back(HP_MAP_N[m_TowerType], 1);
-            packet.Worldstates.emplace_back(HP_MAP_A[m_TowerType], 0);
-            packet.Worldstates.emplace_back(HP_MAP_H[m_TowerType], 0);
-            break;
-    }
 }
 
 void OutdoorPvPHP::HandleKillImpl(Player* player, Unit* killed)
