@@ -4998,31 +4998,40 @@ class spell_gen_mount_check_aura : public AuraScript
 {
     PrepareAuraScript(spell_gen_mount_check_aura);
 
-    void HandleMount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
+        uint32 mountDisplayId = 0;
 
-        if (TempSummon* tempSummon = target->ToTempSummon())
+        TempSummon* tempSummon = target->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        WorldObject* summoner = tempSummon->GetSummoner();
+        if (!summoner)
+            return;
+
+        if (!summoner->IsPlayer())
+            return;
+
+        if (summoner->ToPlayer()->IsMounted() && (!summoner->ToUnit()->IsInCombat() || summoner->ToPlayer()->IsFlying()))
         {
-            if (WorldObject* summoner = tempSummon->GetSummoner())
+            if (CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(tempSummon->GetEntry()))
             {
-                if (summoner->IsPlayer() && !summoner->ToUnit()->IsInCombat())
-                {
-                    if (CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(tempSummon->GetEntry()))
-                    {
-                        if (summoner->ToPlayer()->IsFlying() && summonedData->FlyingMountDisplayID)
-                            target->SetMountDisplayId(*summonedData->FlyingMountDisplayID);
-                        else if (summonedData->GroundMountDisplayID)
-                            target->SetMountDisplayId(*summonedData->GroundMountDisplayID);
-                    }
-                }
+                if (summoner->ToPlayer()->IsFlying() && summonedData->FlyingMountDisplayID)
+                    mountDisplayId = *summonedData->FlyingMountDisplayID;
+                else if (summonedData->GroundMountDisplayID)
+                    mountDisplayId = *summonedData->GroundMountDisplayID;
             }
         }
+
+        if (mountDisplayId != target->GetMountDisplayId())
+            target->SetMountDisplayId(mountDisplayId);
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_gen_mount_check_aura::HandleMount, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_mount_check_aura::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 

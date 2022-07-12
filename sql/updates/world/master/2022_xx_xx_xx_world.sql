@@ -5,9 +5,23 @@ INSERT INTO `serverside_spell` (`Id`, `DifficultyID`, `CategoryId`, `Dispel`, `M
 
 DELETE FROM `serverside_spell_effect` WHERE `SpellID` = 147066;
 INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `DifficultyID`, `Effect`, `EffectAura`, `EffectAmplitude`, `EffectAttributes`, `EffectAuraPeriod`, `EffectBonusCoefficient`, `EffectChainAmplitude`, `EffectChainTargets`, `EffectItemType`, `EffectMechanic`, `EffectPointsPerResource`, `EffectPosFacing`, `EffectRealPointsPerLevel`, `EffectTriggerSpell`, `BonusCoefficientFromAP`, `PvpMultiplier`, `Coefficient`, `Variance`, `ResourceCoefficient`, `GroupSizeBasePointsCoefficient`, `EffectBasePoints`, `EffectMiscValue1`, `EffectMiscValue2`, `EffectRadiusIndex1`, `EffectRadiusIndex2`, `EffectSpellClassMask1`, `EffectSpellClassMask2`, `EffectSpellClassMask3`, `EffectSpellClassMask4`, `ImplicitTarget1`, `ImplicitTarget2`) VALUES
-(147066, 0, 0, 6, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+(147066, 0, 0, 6, 226, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- Spell Script
 DELETE FROM `spell_script_names` WHERE `spell_id`= 147066;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (147066, 'spell_gen_mount_check_aura');
+
+-- Creature Summoned
+DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (182084, 182088);
+INSERT INTO `creature_summoned_data` (`CreatureID`, `CreatureIDVisibleToSummoner`, `GroundMountDisplayID`, `FlyingMountDisplayID`) VALUES 
+(182084, 182085, 103104, 103104),
+(182088, 182089, 103104, 103104);
+
+-- Creature Addon
+DELETE FROM `creature_template_addon` WHERE `entry` IN (90382, 91911, 182084, 182088);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(90382, 0, 0, 0, 1, 0, 0, 0, 0, 0, '147066'),
+(91911, 0, 0, 0, 1, 0, 0, 0, 0, 0, '147066'),
+(182084, 0, 0, 0, 1, 0, 0, 0, 0, 0, '147066'),
+(182088, 0, 0, 0, 1, 0, 0, 0, 0, 0, '147066');
