@@ -1636,7 +1636,7 @@ class spell_gen_feast : public SpellScript
             SPELL_FEAST_DRINK,
             SPELL_BOUNTIFUL_FEAST_DRINK,
             SPELL_BOUNTIFUL_FEAST_FOOD,
-            
+
             SPELL_GREAT_FEAST_REFRESHMENT,
             SPELL_FISH_FEAST_REFRESHMENT,
             SPELL_GIGANTIC_FEAST_REFRESHMENT,
