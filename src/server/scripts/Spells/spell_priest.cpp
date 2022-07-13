@@ -21,16 +21,18 @@
  * Scriptnames of files in this file should be prefixed with "spell_pri_".
  */
 
-#include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
 #include "GridNotifiers.h"
-#include "ObjectAccessor.h"
 #include "Log.h"
+#include "MoveSplineInitArgs.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "ScriptMgr.h"
+#include <G3D/Vector3.h>
 
 enum PriestSpells
 {
@@ -45,6 +47,8 @@ enum PriestSpells
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
+    SPELL_PRIEST_DIVINE_STAR_HEAL                   = 110745,
+    SPELL_PRIEST_DIVINE_STAR_DAMAGE                 = 122128,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
@@ -343,6 +347,78 @@ class spell_pri_divine_hymn : public SpellScript
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_hymn::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
     }
+};
+
+// 110744 - Divine Star
+struct areatrigger_pri_divine_star : AreaTriggerAI
+{
+    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
+            {
+                if (caster->IsValidAttackTarget(unit))
+                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                else if (caster->IsValidAssistTarget(unit))
+                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+
+                _affectedUnits.push_back(unit->GetGUID());
+            }
+        }
+    }
+
+    void OnDestinationReached() override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            _affectedUnits.clear();
+
+            if (!_returningToCaster)
+            {
+                _scheduler.Schedule(Milliseconds(), [this, caster](TaskContext task)
+                {
+                    if (!_returningToCaster || caster->GetDistance(_casterCurrentPosition) > 1.0f)
+                    {
+                        _returningToCaster = true;
+                        _casterCurrentPosition = caster->GetPosition();
+
+                        Movement::PointsArray returnSplinePoints;
+
+                        for (uint8 i = 0; i < 4; i++)
+                        {
+                            G3D::Vector3 returnPoint;
+                            returnPoint.x = (i < 2) ? at->GetPositionX() : caster->GetPositionX();
+                            returnPoint.y = (i < 2) ? at->GetPositionY() : caster->GetPositionY();
+                            returnPoint.z = (i < 2) ? at->GetPositionZ() : caster->GetPositionZ();
+
+                            returnSplinePoints.push_back(returnPoint);
+                        }
+
+                        at->InitSplines(returnSplinePoints, (at->GetDistance(caster) / 24) * 1000);
+                    }
+
+                    // NOTE: this can be adjusted, 100-150 was the closest the AT seems to update its spline to the caster's current position.
+                    task.Repeat(Milliseconds(100));
+                });
+            }
+            else
+                at->Remove();
+        }
+    }
+
+private:
+    TaskScheduler _scheduler;
+    Position _casterCurrentPosition;
+    std::vector<ObjectGuid> _affectedUnits;
+    bool _returningToCaster = false;
 };
 
 // 47788 - Guardian Spirit
@@ -1494,6 +1570,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_divine_hymn);
+    RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_guardian_spirit);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
