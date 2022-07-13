@@ -32,6 +32,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "ScriptMgr.h"
+#include "TaskScheduler.h"
 #include <G3D/Vector3.h>
 
 enum PriestSpells
