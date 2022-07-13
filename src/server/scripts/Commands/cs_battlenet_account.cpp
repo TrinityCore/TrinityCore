@@ -82,7 +82,7 @@ public:
         {
             case AccountOpResult::AOR_OK:
             {
-                if (createGameAccount == true)
+                if (createGameAccount != false)
                     handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET_WITH_GAME, accountName.c_str(), gameAccountName.c_str());
                 else
                     handler->PSendSysMessage(LANG_ACCOUNT_CREATED_BNET, accountName.c_str());
@@ -92,7 +92,7 @@ public:
                     TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] (%s) created Battle.net account %s%s%s",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                        accountName.c_str(), createGameAccount == true ? " with game account " : "", createGameAccount == true ? gameAccountName.c_str() : "");
+                        accountName.c_str(), createGameAccount != false ? " with game account " : "", createGameAccount != false ? gameAccountName.c_str() : "");
                 }
                 break;
             }
