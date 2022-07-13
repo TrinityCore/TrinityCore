@@ -1117,6 +1117,47 @@ class spell_item_fate_rune_of_unsurpassed_vigor : public AuraScript
     }
 };
 
+enum Feast
+{
+    TEXT_GREAT_FEAST        = 31843,
+    TEXT_FISH_FEAST         = 31844,
+    TEXT_GIGANTIC_FEAST     = 31846,
+    TEXT_SMALL_FEAST        = 31845,
+    TEXT_BOUNTIFUL_FEAST    = 35153
+};
+
+/* 57301 - Great Feast
+   57426 - Fish Feast
+   58465 - Gigantic Feast
+   58474 - Small Feast
+   66476 - Bountiful Feast */
+class spell_item_feast : public SpellScript
+{
+    PrepareSpellScript(spell_item_feast);
+
+public:
+    spell_item_feast(uint32 text) : SpellScript(), _text(text) { }
+
+private:
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return sBroadcastTextStore.LookupEntry(_text);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->Unit::TextEmote(_text, caster, false);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_item_feast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    uint32 _text;
+};
+
 // http://www.wowhead.com/item=47499 Flask of the North
 // 67019 Flask of the North
 enum FlaskOfTheNorthSpells
@@ -4512,6 +4553,11 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_echoes_of_light);
     RegisterSpellScript(spell_item_extract_gas);
     RegisterSpellScript(spell_item_fate_rune_of_unsurpassed_vigor);
+    RegisterSpellScriptWithArgs(spell_item_feast, "spell_item_great_feast", TEXT_GREAT_FEAST);
+    RegisterSpellScriptWithArgs(spell_item_feast, "spell_item_fish_feast", TEXT_FISH_FEAST);
+    RegisterSpellScriptWithArgs(spell_item_feast, "spell_item_gigantic_feast", TEXT_GIGANTIC_FEAST);
+    RegisterSpellScriptWithArgs(spell_item_feast, "spell_item_small_feast", TEXT_SMALL_FEAST);
+    RegisterSpellScriptWithArgs(spell_item_feast, "spell_item_bountiful_feast", TEXT_BOUNTIFUL_FEAST);
     RegisterSpellScript(spell_item_flask_of_the_north);
     RegisterSpellScript(spell_item_frozen_shadoweave);
     RegisterSpellScript(spell_item_gnomish_death_ray);

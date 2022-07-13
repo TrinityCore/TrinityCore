@@ -1632,6 +1632,94 @@ class spell_steal_essence_visual : public AuraScript
     }
 };
 
+enum Feast
+{
+    SPELL_GREAT_FEAST                   = 57337,
+    SPELL_FISH_FEAST                    = 57397,
+    SPELL_GIGANTIC_FEAST                = 58466,
+    SPELL_SMALL_FEAST                   = 58475,
+    SPELL_BOUNTIFUL_FEAST               = 66477,
+
+    SPELL_FEAST_FOOD                    = 45548,
+    SPELL_FEAST_DRINK                   = 57073,
+    SPELL_BOUNTIFUL_FEAST_DRINK         = 66041,
+    SPELL_BOUNTIFUL_FEAST_FOOD          = 66478,
+
+    SPELL_GREAT_FEAST_REFRESHMENT       = 57338,
+    SPELL_FISH_FEAST_REFRESHMENT        = 57398,
+    SPELL_GIGANTIC_FEAST_REFRESHMENT    = 58467,
+    SPELL_SMALL_FEAST_REFRESHMENT       = 58477,
+    SPELL_BOUNTIFUL_FEAST_REFRESHMENT   = 66622
+};
+
+/* 57337 - Great Feast
+   57397 - Fish Feast
+   58466 - Gigantic Feast
+   58475 - Small Feast
+   66477 - Bountiful Feast */
+class spell_gen_feast : public SpellScript
+{
+    PrepareSpellScript(spell_gen_feast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_FEAST_FOOD,
+            SPELL_FEAST_DRINK,
+            SPELL_BOUNTIFUL_FEAST_DRINK,
+            SPELL_BOUNTIFUL_FEAST_FOOD,
+
+            SPELL_GREAT_FEAST_REFRESHMENT,
+            SPELL_FISH_FEAST_REFRESHMENT,
+            SPELL_GIGANTIC_FEAST_REFRESHMENT,
+            SPELL_SMALL_FEAST_REFRESHMENT,
+            SPELL_BOUNTIFUL_FEAST_REFRESHMENT
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_GREAT_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_GREAT_FEAST_REFRESHMENT);
+                break;
+            case SPELL_FISH_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_FISH_FEAST_REFRESHMENT);
+                break;
+            case SPELL_GIGANTIC_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_GIGANTIC_FEAST_REFRESHMENT);
+                break;
+            case SPELL_SMALL_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_SMALL_FEAST_REFRESHMENT);
+                break;
+            case SPELL_BOUNTIFUL_FEAST:
+                target->CastSpell(target, SPELL_BOUNTIFUL_FEAST_REFRESHMENT);
+                target->CastSpell(target, SPELL_BOUNTIFUL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_BOUNTIFUL_FEAST_FOOD);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_feast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 /*
 There are only 3 possible flags Feign Death auras can apply: UNIT_DYNFLAG_DEAD, UNIT_FLAG2_FEIGN_DEATH
 and UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT. Some auras can apply only 2 flags
@@ -4995,6 +5083,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_ethereal_pet_onsummon);
     RegisterSpellScript(spell_ethereal_pet_aura_remove);
     RegisterSpellScript(spell_steal_essence_visual);
+    RegisterSpellScript(spell_gen_feast);
     RegisterSpellScript(spell_gen_feign_death_all_flags);
     RegisterSpellScript(spell_gen_feign_death_no_dyn_flag);
     RegisterSpellScript(spell_gen_feign_death_no_prevent_emotes);
