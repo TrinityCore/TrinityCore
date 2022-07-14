@@ -27,11 +27,11 @@
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "ScriptMgr.h"
 #include "TaskScheduler.h"
 #include <G3D/Vector3.h>
 
@@ -366,9 +366,9 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         {
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
-                if (caster->IsValidAttackTarget(unit))
+                if (!caster->IsFriendlyTo(unit))
                     caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                else if (caster->IsValidAssistTarget(unit))
+                else
                     caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
@@ -378,40 +378,38 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void OnDestinationReached() override
     {
+        _affectedUnits.clear();
+
+        ReturnToCaster();
+    }
+
+    void ReturnToCaster()
+    {
         if (Unit* caster = at->GetCaster())
         {
-            _affectedUnits.clear();
-
-            if (!_returningToCaster)
+            _scheduler.Schedule(0ms, [this, caster](TaskContext task)
             {
-                _scheduler.Schedule(Milliseconds(), [this, caster](TaskContext task)
+                _casterCurrentPosition = caster->GetPosition();
+
+                Movement::PointsArray returnSplinePoints;
+
+                for (uint8 i = 0; i < 4; i++)
                 {
-                    if (!_returningToCaster || caster->GetDistance(_casterCurrentPosition) > 1.0f)
-                    {
-                        _returningToCaster = true;
-                        _casterCurrentPosition = caster->GetPosition();
+                    G3D::Vector3 returnPoint;
+                    returnPoint.x = (i < 2) ? at->GetPositionX() : caster->GetPositionX();
+                    returnPoint.y = (i < 2) ? at->GetPositionY() : caster->GetPositionY();
+                    returnPoint.z = (i < 2) ? at->GetPositionZ() : caster->GetPositionZ();
 
-                        Movement::PointsArray returnSplinePoints;
+                    returnSplinePoints.push_back(returnPoint);
+                }
 
-                        for (uint8 i = 0; i < 4; i++)
-                        {
-                            G3D::Vector3 returnPoint;
-                            returnPoint.x = (i < 2) ? at->GetPositionX() : caster->GetPositionX();
-                            returnPoint.y = (i < 2) ? at->GetPositionY() : caster->GetPositionY();
-                            returnPoint.z = (i < 2) ? at->GetPositionZ() : caster->GetPositionZ();
+                at->InitSplines(returnSplinePoints, (at->GetDistance(caster) / 24) * 1000);
 
-                            returnSplinePoints.push_back(returnPoint);
-                        }
-
-                        at->InitSplines(returnSplinePoints, (at->GetDistance(caster) / 24) * 1000);
-                    }
-
-                    // NOTE: this can be adjusted, 100-150 was the closest the AT seems to update its spline to the caster's current position.
-                    task.Repeat(Milliseconds(100));
-                });
-            }
-            else
-                at->Remove();
+                if (at->GetDistance(_casterCurrentPosition) > 1.0f)
+                    task.Repeat(250ms);
+                else
+                    at->Remove();
+            });
         }
     }
 
@@ -419,7 +417,6 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
-    bool _returningToCaster = false;
 };
 
 // 47788 - Guardian Spirit
