@@ -378,9 +378,30 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void OnDestinationReached() override
     {
-        _affectedUnits.clear();
+        if (Unit* caster = at->GetCaster())
+        {
+            _affectedUnits.clear();
 
-        ReturnToCaster();
+            // NOTE: this ensures any unit receives a second hit if they happen to be inside the AT at its last point right before it returns.
+            GuidUnorderedSet unitsInDivineStar;
+            GuidUnorderedSet const& insideTargets = at->GetInsideUnits();
+            unitsInDivineStar.insert(insideTargets.begin(), insideTargets.end());
+
+            for (ObjectGuid insideTargetGuid : unitsInDivineStar)
+            {
+                if (Unit* insideTarget = ObjectAccessor::GetUnit(*at, insideTargetGuid))
+                {
+                    if (!caster->IsFriendlyTo(insideTarget))
+                        caster->CastSpell(insideTarget, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                    else
+                        caster->CastSpell(insideTarget, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+
+                    _affectedUnits.push_back(insideTarget->GetGUID());
+                }
+            }
+
+            ReturnToCaster();
+        }
     }
 
     void ReturnToCaster()
