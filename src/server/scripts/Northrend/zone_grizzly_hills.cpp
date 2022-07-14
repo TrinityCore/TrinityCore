@@ -334,7 +334,7 @@ struct npc_tallhorn_stag : public ScriptedAI
             {
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
                 me->SetImmuneToPC(true);
-                me->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
+                me->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
             }
             _phase = 0;
         }
