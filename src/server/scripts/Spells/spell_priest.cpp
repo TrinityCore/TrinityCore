@@ -365,9 +365,11 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
             // Note: max. distance at which the Divine Star can travel to is 24 yards.
             float divineStarXOffSet = 24.0f;
 
+            Position destPos = _casterCurrentPosition;
+            at->MovePositionToFirstCollision(destPos, divineStarXOffSet, 0.0f);
+
             PathGenerator firstPath(at);
-            firstPath.CalculatePath(_casterCurrentPosition.GetPositionX() + (divineStarXOffSet * std::cos(caster->GetOrientation())),
-                _casterCurrentPosition.GetPositionY() + (divineStarXOffSet * std::sin(caster->GetOrientation())), _casterCurrentPosition.GetPositionZ(), false);
+            firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
             G3D::Vector3 endPoint = firstPath.GetPath().back();
 
