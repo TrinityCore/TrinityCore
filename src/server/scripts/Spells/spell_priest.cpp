@@ -420,17 +420,18 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void OnDestinationReached() override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            if (at->GetDistance(_casterCurrentPosition) > 1.0f)
-            {
-                _affectedUnits.clear();
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
 
-                ReturnToCaster();
-            }
-            else
-                at->Remove();
+        if (at->GetDistance(_casterCurrentPosition) > 1.0f)
+        {
+            _affectedUnits.clear();
+
+            ReturnToCaster();
         }
+        else
+            at->Remove();
     }
 
     void ReturnToCaster()
