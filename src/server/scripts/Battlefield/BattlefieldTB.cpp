@@ -71,35 +71,34 @@ bool BattlefieldTB::SetupBattlefield()
 
     m_Data32.resize(BATTLEFIELD_TB_DATA_MAX);
 
-    m_saveTimer = 5 * MINUTE * IN_MILLISECONDS;
-
     updatedNPCAndObjects = true;
     m_updateObjectsTimer = 0;
 
     // Was there a battle going on or time isn't set yet? Then use m_RestartAfterCrash
-    if (sWorld->getWorldState(WS_BATTLEFIELD_TB_STATE_BATTLE) == 1 || sWorld->getWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE) == 0)
-        sWorld->setWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, m_RestartAfterCrash);
+    if (sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_STATE_BATTLE, m_Map) == 1 || sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, m_Map) < GameTime::GetGameTime())
+    {
+        sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_STATE_BATTLE, 0, false, m_Map);
+        sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, GameTime::GetGameTime() + m_RestartAfterCrash / IN_MILLISECONDS, false, m_Map);
+    }
 
     // Set timer
-    m_Timer = sWorld->getWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE);
+    m_Timer = sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, m_Map) - GameTime::GetGameTime();
 
     // Defending team isn't set yet? Choose randomly.
-    if (sWorld->getWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING) == 0)
-        sWorld->setWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, uint32(urand(1, 2)));
+    if (sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, m_Map) == 0)
+        sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, uint32(urand(1, 2)), false, m_Map);
 
     // Set defender team
-    SetDefenderTeam(TeamId(sWorld->getWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING) - 1));
+    SetDefenderTeam(TeamId(sWorldStateMgr->GetValue(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, m_Map) - 1));
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW, 1, false, m_Map);
-    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, GameTime::GetGameTime() + m_Timer / IN_MILLISECONDS, false, m_Map);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, GameTime::GetGameTime() + m_Timer / IN_MILLISECONDS, false, m_Map);
 
-    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, GetDefenderTeam() + 1, false, m_Map);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, GetDefenderTeam() + 1, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW, GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW, GetDefenderTeam() == TEAM_HORDE ? 1 : 0, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_KEEP_ALLIANCE, GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_KEEP_HORDE, GetDefenderTeam() == TEAM_HORDE ? 1 : 0, false, m_Map);
-
-    SaveWorldStateValues();
 
     // Create capture points
     for (uint8 i = 0; i < TB_BASE_COUNT; i++)
@@ -186,14 +185,6 @@ bool BattlefieldTB::Update(uint32 diff)
             m_updateObjectsTimer -= diff;
     }
 
-    if (m_saveTimer <= diff)
-    {
-        SaveWorldStateValues();
-        m_saveTimer = 60 * IN_MILLISECONDS;
-    }
-    else
-        m_saveTimer -= diff;
-
     return m_return;
 }
 
@@ -237,13 +228,6 @@ void BattlefieldTB::RemoveAurasFromPlayer(Player* player)
     player->RemoveAurasDueToSpell(SPELL_TB_SPIRITUAL_IMMUNITY);
 }
 
-void BattlefieldTB::SaveWorldStateValues()
-{
-    sWorld->setWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, uint32(GetDefenderTeam()));
-    sWorld->setWorldState(WS_BATTLEFIELD_TB_STATE_BATTLE, uint32(IsWarTime() ? 1 : 0));
-    sWorld->setWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, uint32(!IsWarTime() ? m_Timer : 0));
-}
-
 void BattlefieldTB::OnStartGrouping()
 {
     UpdateNPCsAndGameObjects();
@@ -270,7 +254,7 @@ void BattlefieldTB::OnBattleStart()
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_BATTLE_END, GameTime::GetGameTime() + m_Timer / IN_MILLISECONDS, false, m_Map);
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW, 0, false, m_Map);
-    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, 0, false, m_Map);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, 0, false, m_Map);
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW, GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW, GetAttackerTeam() == TEAM_HORDE ? 1 : 0, false, m_Map);
@@ -285,7 +269,7 @@ void BattlefieldTB::OnBattleStart()
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TOWERS_DESTROYED, 0, false, m_Map);
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_STATE_PREPARATIONS, 0, false, m_Map);
-    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_STATE_BATTLE, 1, false, m_Map);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_STATE_BATTLE, 1, false, m_Map);
 
     // Towers/spires
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
@@ -336,12 +320,12 @@ void BattlefieldTB::OnBattleEnd(bool endByTimer)
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_BATTLE_END, 0, false, m_Map);
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW, 1, false, m_Map);
-    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, GameTime::GetGameTime() + m_NoWarBattleTime / IN_MILLISECONDS, false, m_Map);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, GameTime::GetGameTime() + m_NoWarBattleTime / IN_MILLISECONDS, false, m_Map);
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW, 0, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW, 0, false, m_Map);
 
-    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, GetDefenderTeam() + 1, false, m_Map);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, GetDefenderTeam() + 1, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW, GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW, GetDefenderTeam() == TEAM_HORDE ? 1 : 0, false, m_Map);
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_KEEP_ALLIANCE, GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0, false, m_Map);
@@ -349,7 +333,7 @@ void BattlefieldTB::OnBattleEnd(bool endByTimer)
 
     sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_BUILDINGS_CAPTURED_SHOW, 0, false, m_Map);
 
-    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_STATE_BATTLE, 0, false, m_Map);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_BATTLEFIELD_TB_STATE_BATTLE, 0, false, m_Map);
 }
 
 void BattlefieldTB::UpdateNPCsAndGameObjects()

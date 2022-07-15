@@ -521,8 +521,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME, "UPDATE instance_reset SET resettime = ? WHERE mapid = ? AND difficulty = ?", CONNECTION_BOTH);
     PrepareStatement(CHAR_UPD_CHAR_ONLINE, "UPDATE characters SET online = 1 WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN, "UPDATE characters SET name = ?, at_login = ? WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_UPD_WORLDSTATE, "UPDATE worldstates SET value = ? WHERE entry = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_WORLDSTATE, "INSERT INTO worldstates (entry, value) VALUES (?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_WORLD_STATE, "REPLACE INTO world_state_value (Id, Value) VALUES (?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_WORLD_VARIABLE, "REPLACE INTO world_variable (Id, Value) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID, "DELETE FROM character_instance WHERE guid = ? AND instance = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_CHAR_INSTANCE, "UPDATE character_instance SET instance = ?, permanent = ?, extendState = ? WHERE guid = ? AND instance = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_INSTANCE, "INSERT INTO character_instance (guid, instance, permanent, extendState) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);

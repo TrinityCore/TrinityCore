@@ -119,6 +119,21 @@ TC_GAME_API int32 World::m_visibility_notify_periodInInstances  = DEFAULT_VISIBI
 TC_GAME_API int32 World::m_visibility_notify_periodInBG         = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 TC_GAME_API int32 World::m_visibility_notify_periodInArenas     = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 
+struct PersistentWorldVariable
+{
+    std::string Id;
+};
+
+PersistentWorldVariable const World::NextCurrencyResetTimeVarId{ "NextCurrencyResetTime" };
+PersistentWorldVariable const World::NextWeeklyQuestResetTimeVarId{ "NextWeeklyQuestResetTime" };
+PersistentWorldVariable const World::NextBGRandomDailyResetTimeVarId{ "NextBGRandomDailyResetTime" };
+PersistentWorldVariable const World::CharacterDatabaseCleaningFlagsVarId{ "PersistentCharacterCleanFlags" };
+PersistentWorldVariable const World::NextGuildDailyResetTimeVarId{ "NextGuildDailyResetTime" };
+PersistentWorldVariable const World::NextMonthlyQuestResetTimeVarId{ "NextMonthlyQuestResetTime" };
+PersistentWorldVariable const World::NextDailyQuestResetTimeVarId{ "NextDailyQuestResetTime" };
+PersistentWorldVariable const World::NextOldCalendarEventDeletionTimeVarId{ "NextOldCalendarEventDeletionTime" };
+PersistentWorldVariable const World::NextGuildWeeklyResetTimeVarId{ "NextGuildWeeklyResetTime" };
+
 /// World constructor
 World::World()
 {
@@ -145,6 +160,7 @@ World::World()
 
     mail_timer = 0;
     mail_timer_expires = 0;
+    blackmarket_timer = 0;
 
     m_isClosed = false;
 
@@ -2246,16 +2262,13 @@ void World::SetInitialWorldSettings()
     sFormationMgr->LoadCreatureFormations();
 
     TC_LOG_INFO("server.loading", "Loading World State templates...");
-    sWorldStateMgr->LoadFromDB();
+    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP and conditions
 
-    TC_LOG_INFO("server.loading", "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
-    LoadWorldStates();
+    TC_LOG_INFO("server.loading", "Loading Persistend World Variables...");
+    LoadPersistentWorldVariables();
 
     sWorldStateMgr->SetValue(WS_CURRENT_PVP_SEASON_ID, getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS) ? getIntConfig(CONFIG_ARENA_SEASON_ID) : 0, false, nullptr);
     sWorldStateMgr->SetValue(WS_PREVIOUS_PVP_SEASON_ID, getIntConfig(CONFIG_ARENA_SEASON_ID) - getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS), false, nullptr);
-    // TODO: this is temporary until custom world states are purged from old world state saved values
-    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, getWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE), false, nullptr);
-    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, getWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE), false, nullptr);
 
     sObjectMgr->LoadPhases();
 
@@ -2373,8 +2386,6 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(10 * IN_MILLISECONDS);
-
-    blackmarket_timer = 0;
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
 
@@ -2503,12 +2514,8 @@ void World::SetInitialWorldSettings()
 
 void World::SetForcedWarModeFactionBalanceState(TeamId team, int32 reward)
 {
-    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (team == TEAM_ALLIANCE ? reward : 0), false, nullptr);
-    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (team == TEAM_HORDE ? reward : 0), false, nullptr);
-
-    // save to db
-    setWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, nullptr));
-    setWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, nullptr));
+    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (team == TEAM_ALLIANCE ? reward : 0), false, nullptr);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (team == TEAM_HORDE ? reward : 0), false, nullptr);
 }
 
 void World::DisableForcedWarModeFactionBalanceState()
@@ -3484,9 +3491,9 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 
 void World::InitQuestResetTimes()
 {
-    m_NextDailyQuestReset = sWorld->getWorldState(WS_DAILY_QUEST_RESET_TIME);
-    m_NextWeeklyQuestReset = sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME);
-    m_NextMonthlyQuestReset = sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME);
+    m_NextDailyQuestReset = sWorld->GetPersistentWorldVariable(NextDailyQuestResetTimeVarId);
+    m_NextWeeklyQuestReset = sWorld->GetPersistentWorldVariable(NextWeeklyQuestResetTimeVarId);
+    m_NextMonthlyQuestReset = sWorld->GetPersistentWorldVariable(NextMonthlyQuestResetTimeVarId);
 }
 
 static time_t GetNextDailyResetTime(time_t t)
@@ -3518,7 +3525,7 @@ void World::DailyReset()
     ASSERT(now < next);
 
     m_NextDailyQuestReset = next;
-    sWorld->setWorldState(WS_DAILY_QUEST_RESET_TIME, uint64(next));
+    sWorld->SetPersistentWorldVariable(NextDailyQuestResetTimeVarId, uint64(next));
 
     TC_LOG_INFO("misc", "Daily quests for all characters have been reset.");
 }
@@ -3557,7 +3564,7 @@ void World::ResetWeeklyQuests()
     ASSERT(now < next);
 
     m_NextWeeklyQuestReset = next;
-    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(next));
+    sWorld->SetPersistentWorldVariable(NextWeeklyQuestResetTimeVarId, uint64(next));
 
     TC_LOG_INFO("misc", "Weekly quests for all characters have been reset.");
 }
@@ -3593,7 +3600,7 @@ void World::ResetMonthlyQuests()
     ASSERT(now < next);
 
     m_NextMonthlyQuestReset = next;
-    sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint64(next));
+    sWorld->SetPersistentWorldVariable(NextMonthlyQuestResetTimeVarId, uint64(next));
 
     TC_LOG_INFO("misc", "Monthly quests for all characters have been reset.");
 }
@@ -3611,7 +3618,7 @@ void World::CheckScheduledResetTimes()
 
 void World::InitRandomBGResetTime()
 {
-    time_t bgtime = sWorld->getWorldState(WS_BG_DAILY_RESET_TIME);
+    time_t bgtime = sWorld->GetPersistentWorldVariable(NextBGRandomDailyResetTimeVarId);
     if (!bgtime)
         m_NextRandomBGReset = GameTime::GetGameTime();         // game time not yet init
 
@@ -3634,14 +3641,14 @@ void World::InitRandomBGResetTime()
     m_NextRandomBGReset = bgtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
 
     if (!bgtime)
-        sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint32(m_NextRandomBGReset));
+        sWorld->SetPersistentWorldVariable(NextBGRandomDailyResetTimeVarId, uint32(m_NextRandomBGReset));
 }
 
 void World::InitCalendarOldEventsDeletionTime()
 {
     time_t now = GameTime::GetGameTime();
     time_t nextDeletionTime = GetLocalHourTimestamp(now, getIntConfig(CONFIG_CALENDAR_DELETE_OLD_EVENTS_HOUR));
-    time_t currentDeletionTime = getWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME);
+    time_t currentDeletionTime = GetPersistentWorldVariable(NextOldCalendarEventDeletionTimeVarId);
 
     // If the reset time saved in the worldstate is before now it means the server was offline when the reset was supposed to occur.
     // In this case we set the reset time in the past and next world update will do the reset and schedule next one in the future.
@@ -3651,12 +3658,12 @@ void World::InitCalendarOldEventsDeletionTime()
         m_NextCalendarOldEventsDeletionTime = nextDeletionTime;
 
     if (!currentDeletionTime)
-        sWorld->setWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME, uint64(m_NextCalendarOldEventsDeletionTime));
+        sWorld->SetPersistentWorldVariable(NextOldCalendarEventDeletionTimeVarId, uint64(m_NextCalendarOldEventsDeletionTime));
 }
 
 void World::InitGuildResetTime()
 {
-    time_t gtime = getWorldState(WS_GUILD_DAILY_RESET_TIME);
+    time_t gtime = GetPersistentWorldVariable(NextGuildDailyResetTimeVarId);
     if (!gtime)
         m_NextGuildReset = GameTime::GetGameTime();         // game time not yet init
 
@@ -3679,12 +3686,12 @@ void World::InitGuildResetTime()
     m_NextGuildReset = gtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
 
     if (!gtime)
-        sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint32(m_NextGuildReset));
+        sWorld->SetPersistentWorldVariable(NextGuildDailyResetTimeVarId, uint32(m_NextGuildReset));
 }
 
 void World::InitCurrencyResetTime()
 {
-    time_t currencytime = sWorld->getWorldState(WS_CURRENCY_RESET_TIME);
+    time_t currencytime = sWorld->GetPersistentWorldVariable(NextCurrencyResetTimeVarId);
     if (!currencytime)
         m_NextCurrencyReset = GameTime::GetGameTime();         // game time not yet init
 
@@ -3709,7 +3716,7 @@ void World::InitCurrencyResetTime()
     m_NextCurrencyReset = currencytime < curTime ? nextWeekResetTime - getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY : nextWeekResetTime;
 
     if (!currencytime)
-        sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint32(m_NextCurrencyReset));
+        sWorld->SetPersistentWorldVariable(NextCurrencyResetTimeVarId, uint32(m_NextCurrencyReset));
 }
 
 void World::ResetCurrencyWeekCap()
@@ -3721,7 +3728,7 @@ void World::ResetCurrencyWeekCap()
             itr->second->GetPlayer()->ResetCurrencyWeekCap();
 
     m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL));
-    sWorld->setWorldState(WS_CURRENCY_RESET_TIME, uint32(m_NextCurrencyReset));
+    sWorld->SetPersistentWorldVariable(NextCurrencyResetTimeVarId, uint32(m_NextCurrencyReset));
 }
 
 void World::ResetEventSeasonalQuests(uint16 event_id, time_t eventStartTime)
@@ -3750,7 +3757,7 @@ void World::ResetRandomBG()
             itr->second->GetPlayer()->SetRandomWinner(false);
 
     m_NextRandomBGReset = time_t(m_NextRandomBGReset + DAY);
-    sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint32(m_NextRandomBGReset));
+    sWorld->SetPersistentWorldVariable(NextBGRandomDailyResetTimeVarId, uint32(m_NextRandomBGReset));
 }
 
 void World::CalendarDeleteOldEvents()
@@ -3758,19 +3765,19 @@ void World::CalendarDeleteOldEvents()
     TC_LOG_INFO("misc", "Calendar deletion of old events.");
 
     m_NextCalendarOldEventsDeletionTime = time_t(m_NextCalendarOldEventsDeletionTime + DAY);
-    sWorld->setWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME, uint64(m_NextCalendarOldEventsDeletionTime));
+    sWorld->SetPersistentWorldVariable(NextOldCalendarEventDeletionTimeVarId, uint64(m_NextCalendarOldEventsDeletionTime));
     sCalendarMgr->DeleteOldEvents();
 }
 
 void World::ResetGuildCap()
 {
     m_NextGuildReset = time_t(m_NextGuildReset + DAY);
-    sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint32(m_NextGuildReset));
-    uint32 week = getWorldState(WS_GUILD_WEEKLY_RESET_TIME);
+    sWorld->SetPersistentWorldVariable(NextGuildDailyResetTimeVarId, uint32(m_NextGuildReset));
+    uint32 week = GetPersistentWorldVariable(NextGuildWeeklyResetTimeVarId);
     week = week < 7 ? week + 1 : 1;
 
     TC_LOG_INFO("misc", "Guild Daily Cap reset. Week: %u", week == 1);
-    sWorld->setWorldState(WS_GUILD_WEEKLY_RESET_TIME, week);
+    sWorld->SetPersistentWorldVariable(NextGuildWeeklyResetTimeVarId, week);
     sGuildMgr->ResetTimes(week == 1);
 }
 
@@ -3815,33 +3822,6 @@ bool World::IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid)
     return false;
 }
 
-void World::LoadWorldStates()
-{
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = CharacterDatabase.Query("SELECT entry, value FROM worldstates");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 world states. DB table `worldstates` is empty!");
-
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-        m_worldstates[fields[0].GetUInt32()] = fields[1].GetUInt32();
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
-}
-
 bool World::IsPvPRealm() const
 {
     return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP);
@@ -3852,38 +3832,38 @@ bool World::IsFFAPvPRealm() const
     return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP;
 }
 
-// Setting a worldstate will save it to DB
-void World::setWorldState(uint32 index, uint32 value)
+int32 World::GetPersistentWorldVariable(PersistentWorldVariable const& var) const
 {
-    WorldStatesMap::const_iterator it = m_worldstates.find(index);
-    if (it != m_worldstates.end())
-    {
-        if (it->second == value)
-            return;
+    if (int32 const* value = Trinity::Containers::MapGetValuePtr(m_worldVariables, var.Id))
+        return *value;
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
-
-        stmt->setUInt32(0, uint32(value));
-        stmt->setUInt32(1, index);
-
-        CharacterDatabase.Execute(stmt);
-    }
-    else
-    {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
-
-        stmt->setUInt32(0, index);
-        stmt->setUInt32(1, uint32(value));
-
-        CharacterDatabase.Execute(stmt);
-    }
-    m_worldstates[index] = value;
+    return 0;
 }
 
-uint32 World::getWorldState(uint32 index) const
+void World::SetPersistentWorldVariable(PersistentWorldVariable const& var, int32 value)
 {
-    WorldStatesMap::const_iterator it = m_worldstates.find(index);
-    return it != m_worldstates.end() ? it->second : 0;
+    m_worldVariables[var.Id] = value;
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_VARIABLE);
+    stmt->setStringView(0, var.Id);
+    stmt->setInt32(1, value);
+    CharacterDatabase.Execute(stmt);
+}
+
+void World::LoadPersistentWorldVariables()
+{
+    uint32 oldMSTime = getMSTime();
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT ID, Value FROM world_variable"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            m_worldVariables[fields[0].GetString()] = fields[1].GetInt32();
+        } while (result->NextRow());
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " world variables in %u ms", m_worldVariables.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void World::ProcessQueryCallbacks()
@@ -3956,12 +3936,8 @@ void World::UpdateWarModeRewardValues()
             outnumberedFactionReward = 5;
     }
 
-    sWorldStateMgr->SetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (dominantFaction == TEAM_ALLIANCE ? outnumberedFactionReward : 0), false, nullptr);
-    sWorldStateMgr->SetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (dominantFaction == TEAM_HORDE ? outnumberedFactionReward : 0), false, nullptr);
-
-    // save to db
-    setWorldState(WS_WAR_MODE_HORDE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_HORDE_BUFF_VALUE, nullptr));
-    setWorldState(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, sWorldStateMgr->GetValue(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, nullptr));
+    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_HORDE_BUFF_VALUE, 10 + (dominantFaction == TEAM_ALLIANCE ? outnumberedFactionReward : 0), false, nullptr);
+    sWorldStateMgr->SetValueAndSaveInDb(WS_WAR_MODE_ALLIANCE_BUFF_VALUE, 10 + (dominantFaction == TEAM_HORDE ? outnumberedFactionReward : 0), false, nullptr);
 }
 
 Realm realm;
