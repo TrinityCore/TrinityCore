@@ -2166,7 +2166,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
 
         target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
+        target->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
         target->AddUnitState(UNIT_STATE_DIED);
 
         if (Creature* creature = target->ToCreature())
@@ -2176,7 +2176,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
     {
         target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         target->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
-        target->RemoveDynamicFlag(UNIT_DYNFLAG_DEAD);
+        target->RemoveUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
         target->ClearUnitState(UNIT_STATE_DIED);
 
         if (Creature* creature = target->ToCreature())
