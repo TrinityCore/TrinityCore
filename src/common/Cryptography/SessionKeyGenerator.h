@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstring>
-#include "CryptoHash.h"
-
 #ifndef TRINITY_SESSIONKEYGENERATOR_HPP
 #define TRINITY_SESSIONKEYGENERATOR_HPP
+
+#include <cstring>
+#include "CryptoHash.h"
 
 template <typename Hash>
 class SessionKeyGenerator
