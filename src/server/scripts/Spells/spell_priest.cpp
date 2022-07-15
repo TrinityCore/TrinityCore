@@ -362,7 +362,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         {
             _casterCurrentPosition = caster->GetPosition();
 
-            // Note: Max. distance at which the Divine Star can travel to is 24 yards.
+            // Note: max. distance at which the Divine Star can travel to is 24 yards.
             float divineStarXOffSet = 24.0f;
 
             PathGenerator firstPath(at);
@@ -375,6 +375,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
             Movement::PointsArray const& pointsFirstPath = firstPath.GetPath();
 
+            // Note: it takes 1000ms to reach 24 yards, so it takes 41.67ms to run 1 yard.
             at->InitSplines(pointsFirstPath, at->GetDistance(pathEndPoint) * 41.67f);
         }
     }
@@ -442,6 +443,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
                 Movement::PointsArray returnSplinePoints;
 
+                // Note: we need to duplicate each point otherwise the spline is not formed.
                 for (uint8 i = 0; i < 4; i++)
                 {
                     G3D::Vector3 returnPoint;
