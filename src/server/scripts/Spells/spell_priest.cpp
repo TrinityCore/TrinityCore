@@ -667,17 +667,22 @@ class spell_pri_penance_damage_healing: public SpellScript
             {
                 PreventHitDefaultEffect(effIndex);
 
+                uint32 value = 0;
+
                 if (GetSpellInfo()->Id == SPELL_PRIEST_PENANCE_DAMAGE)
                 {
                     uint32 damageBonus = caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), SPELL_DIRECT_DAMAGE, GetEffectInfo(effIndex));
-                    uint32 value = damageBonus + (damageBonus * GetSpell());
-                    value = GetHitUnit()->SpellDamageBonusTaken(caster, GetSpellInfo(), GetEffectValue(), SPELL_DIRECT_DAMAGE);
+                    value = damageBonus + uint32(damageBonus * GetEffectVariance());
+                    value *= 1.0f + (powerOfTheDarkSide->GetAmount() / 100.0f);
+                    value = GetHitUnit()->SpellDamageBonusTaken(caster, GetSpellInfo(), value, SPELL_DIRECT_DAMAGE);
                     SetHitDamage(value);
                 }
                 else
                 {
                     uint32 healingBonus = caster->SpellHealingBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), HEAL, GetEffectInfo(effIndex));
-                    uint32 value = healingBonus * float(powerOfTheDarkSide->GetAmount() / 100.0f);
+                    value = healingBonus + uint32(healingBonus * GetEffectVariance());
+                    value *= 1.0f + (powerOfTheDarkSide->GetAmount() / 100.0f);
+                    value = GetHitUnit()->SpellHealingBonusTaken(caster, GetSpellInfo(), value, HEAL);
                     SetHitHeal(value);
                 }
             }
