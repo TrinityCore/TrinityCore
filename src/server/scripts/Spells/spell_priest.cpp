@@ -665,9 +665,21 @@ class spell_pri_penance_damage_healing: public SpellScript
         {
             if (AuraEffect* powerOfTheDarkSide = caster->GetAuraEffect(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE, EFFECT_0))
             {
-                uint32 spellBonus = caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), SPELL_DIRECT_DAMAGE, GetEffectInfo(effIndex));
-                uint32 value = spellBonus * float(powerOfTheDarkSide->GetAmount() / 100.0f);
-                SetEffectValue(value);
+                PreventHitDefaultEffect(effIndex);
+
+                if (GetSpellInfo()->Id == SPELL_PRIEST_PENANCE_DAMAGE)
+                {
+                    uint32 damageBonus = caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), SPELL_DIRECT_DAMAGE, GetEffectInfo(effIndex));
+                    uint32 value = damageBonus + (damageBonus * GetSpell());
+                    value = GetHitUnit()->SpellDamageBonusTaken(caster, GetSpellInfo(), GetEffectValue(), SPELL_DIRECT_DAMAGE);
+                    SetHitDamage(value);
+                }
+                else
+                {
+                    uint32 healingBonus = caster->SpellHealingBonusDone(GetHitUnit(), GetSpellInfo(), GetEffectValue(), HEAL, GetEffectInfo(effIndex));
+                    uint32 value = healingBonus * float(powerOfTheDarkSide->GetAmount() / 100.0f);
+                    SetHitHeal(value);
+                }
             }
         }
     }
