@@ -403,7 +403,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void OnUnitExit(Unit* unit) override
     {
-        // Note: this ensures any unit receives a second hit if they happen to be inside the AT at its last point right before it returns.
+        // Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
         if (Unit* caster = at->GetCaster())
         {
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
