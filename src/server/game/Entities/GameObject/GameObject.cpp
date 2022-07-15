@@ -93,6 +93,12 @@ public:
             }
         }
 
+        if (!_stopFrames.empty())
+        {
+            _pathProgress = 0;
+            _stateChangeProgress = 0;
+        }
+
         _positionUpdateTimer.Reset(PositionUpdateInterval);
     }
 
