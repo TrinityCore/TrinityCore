@@ -26,6 +26,7 @@
 #include "Log.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
@@ -355,6 +356,29 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 {
     areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
 
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            _casterCurrentPosition = caster->GetPosition();
+
+            // Note: Max. distance at which the Divine Star can travel to is 24 yards.
+            float divineStarXOffSet = 24.0f;
+
+            PathGenerator firstPath(at);
+            firstPath.CalculatePath(_casterCurrentPosition.GetPositionX() + (divineStarXOffSet * std::cos(caster->GetOrientation())),
+                _casterCurrentPosition.GetPositionY() + (divineStarXOffSet * std::sin(caster->GetOrientation())), _casterCurrentPosition.GetPositionZ(), false);
+
+            G3D::Vector3 endPoint = firstPath.GetPath().back();
+
+            Position pathEndPoint(endPoint.x, endPoint.y, endPoint.z);
+
+            Movement::PointsArray const& pointsFirstPath = firstPath.GetPath();
+
+            at->InitSplines(pointsFirstPath, at->GetDistance(pathEndPoint) * 41.67f);
+        }
+    }
+
     void OnUpdate(uint32 diff) override
     {
         _scheduler.Update(diff);
@@ -366,9 +390,26 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         {
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
-                if (!caster->IsFriendlyTo(unit))
+                if (caster->IsValidAttackTarget(unit))
                     caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                else
+                else if (caster->IsValidAssistTarget(unit))
+                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+
+                _affectedUnits.push_back(unit->GetGUID());
+            }
+        }
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        // Note: this ensures any unit receives a second hit if they happen to be inside the AT at its last point right before it returns.
+        if (Unit* caster = at->GetCaster())
+        {
+            if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
+            {
+                if (caster->IsValidAttackTarget(unit))
+                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                else if (caster->IsValidAssistTarget(unit))
                     caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
@@ -380,27 +421,14 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
-            _affectedUnits.clear();
-
-            // NOTE: this ensures any unit receives a second hit if they happen to be inside the AT at its last point right before it returns.
-            GuidUnorderedSet unitsInDivineStar;
-            GuidUnorderedSet const& insideTargets = at->GetInsideUnits();
-            unitsInDivineStar.insert(insideTargets.begin(), insideTargets.end());
-
-            for (ObjectGuid insideTargetGuid : unitsInDivineStar)
+            if (at->GetDistance(_casterCurrentPosition) > 1.0f)
             {
-                if (Unit* insideTarget = ObjectAccessor::GetUnit(*at, insideTargetGuid))
-                {
-                    if (!caster->IsFriendlyTo(insideTarget))
-                        caster->CastSpell(insideTarget, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                    else
-                        caster->CastSpell(insideTarget, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                _affectedUnits.clear();
 
-                    _affectedUnits.push_back(insideTarget->GetGUID());
-                }
+                ReturnToCaster();
             }
-
-            ReturnToCaster();
+            else
+                at->Remove();
         }
     }
 
@@ -426,10 +454,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
                 at->InitSplines(returnSplinePoints, (at->GetDistance(caster) / 24) * 1000);
 
-                if (at->GetDistance(_casterCurrentPosition) > 1.0f)
-                    task.Repeat(250ms);
-                else
-                    at->Remove();
+                task.Repeat(250ms);
             });
         }
     }
