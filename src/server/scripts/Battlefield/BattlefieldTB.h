@@ -575,8 +575,6 @@ class BattlefieldTB : public Battlefield
 
         bool SetupBattlefield() override;
 
-        void SaveWorldStateValues();
-
         void HandleKill(Player* killer, Unit* victim) override;
         //void OnUnitDeath(Unit* unit) override;
         void PromotePlayer(Player* killer);
@@ -598,8 +596,6 @@ class BattlefieldTB : public Battlefield
         bool warnedFiveMinutes;
         bool warnedTwoMinutes;
         bool warnedOneMinute;
-
-        uint32 m_saveTimer;
 
         bool updatedNPCAndObjects;
         uint32 m_updateObjectsTimer;
