@@ -682,7 +682,7 @@ class spell_pri_penance_damage_healing: public SpellScript
     }
 };
 
-// 198068 - Power of the Dark Side
+// 198069 - Power of the Dark Side
 class spell_pri_power_of_the_dark_side : public AuraScript
 {
     PrepareAuraScript(spell_pri_power_of_the_dark_side);
