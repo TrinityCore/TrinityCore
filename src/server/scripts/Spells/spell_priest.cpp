@@ -701,7 +701,10 @@ class spell_pri_power_of_the_dark_side : public AuraScript
     void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            caster->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+        {
+            if (caster->HasAura(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT))
+                caster->RemoveAura(SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT);
+        }
     }
 
     void Register() override
