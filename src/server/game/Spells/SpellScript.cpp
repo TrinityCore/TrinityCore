@@ -849,6 +849,28 @@ void SpellScript::SetEffectValue(int32 value)
     m_spell->damage = value;
 }
 
+float SpellScript::GetEffectVariance() const
+{
+    if (!IsInEffectHook())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetEffectVariance was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        return 0.0f;
+    }
+
+    return m_spell->variance;
+}
+
+void SpellScript::SetEffectVariance(float variance)
+{
+    if (!IsInEffectHook())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetEffectVariance was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        return;
+    }
+
+    m_spell->variance = variance;
+}
+
 Item* SpellScript::GetCastItem() const
 {
     return m_spell->m_CastItem;
