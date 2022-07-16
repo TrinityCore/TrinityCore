@@ -1073,8 +1073,10 @@ class spell_pri_sins_of_the_many : public AuraScript
     void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
+        {
             if (caster->HasAura(SPELL_PRIEST_SIN_OF_THE_MANY))
                 caster->RemoveAura(SPELL_PRIEST_SIN_OF_THE_MANY);
+        }
     }
 
     void Register() override
