@@ -231,7 +231,7 @@ void WorldStateMgr::SaveValueInDb(int32 worldStateId, int32 value)
     if (!GetWorldStateTemplate(worldStateId))
         return;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_VARIABLE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_STATE);
     stmt->setInt32(0, worldStateId);
     stmt->setInt32(1, value);
     CharacterDatabase.Execute(stmt);
