@@ -76,6 +76,8 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
+    SPELL_PRIEST_SIN_OF_THE_MANY                    = 280398,
+    SPELL_PRIEST_SIN_OF_THE_MANY_PASSIVE            = 280391,
     SPELL_PRIEST_SMITE                              = 585,
     SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
@@ -219,7 +221,13 @@ class spell_pri_atonement : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL }) && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_ATONEMENT_HEAL,
+            SPELL_PRIEST_SIN_OF_THE_MANY
+        })
+        && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_ATONEMENT_HEAL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
+        && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SIN_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -257,11 +265,60 @@ public:
     void AddAtonementTarget(ObjectGuid const& target)
     {
         _appliedAtonements.push_back(target);
+
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_PRIEST_SIN_OF_THE_MANY))
+                HandleSinsOfTheMany(caster);
     }
 
     void RemoveAtonementTarget(ObjectGuid const& target)
     {
         _appliedAtonements.erase(std::remove(_appliedAtonements.begin(), _appliedAtonements.end(), target), _appliedAtonements.end());
+
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_PRIEST_SIN_OF_THE_MANY))
+                HandleSinsOfTheMany(caster);
+    }
+
+    void HandleSinsOfTheMany(Unit* caster)
+    {
+        float damagePercent = 0.0f;
+
+        switch (_appliedAtonements.size())
+        {
+            case 0:
+            case 1:
+                damagePercent = 12.0f;
+                break;
+            case 2:
+                damagePercent = 10.0f;
+                break;
+            case 3:
+                damagePercent = 8.0f;
+                break;
+            case 4:
+                damagePercent = 7.0f;
+                break;
+            case 5:
+                damagePercent = 6.0f;
+                break;
+            case 7:
+            case 6:
+                damagePercent = 5.0f;
+                break;
+            case 9:
+            case 8:
+                damagePercent = 4.0f;
+                break;
+            case 10:
+            default:
+                damagePercent = 3.0f;
+                break;
+        }
+
+        for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
+            if (AuraEffect* sinOfTheMany = caster->GetAuraEffect(SPELL_PRIEST_SIN_OF_THE_MANY, effectIndex))
+                sinOfTheMany->ChangeAmount(damagePercent);
     }
 };
 
@@ -997,6 +1054,36 @@ private:
     ObjectGuid _raptureTarget;
 };
 
+// 280391 - Sins of the Many
+class spell_pri_sins_of_the_many : public AuraScript
+{
+    PrepareAuraScript(spell_pri_sins_of_the_many);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SIN_OF_THE_MANY });
+    }
+
+    void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_PRIEST_SIN_OF_THE_MANY, true);
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_PRIEST_SIN_OF_THE_MANY))
+                caster->RemoveAura(SPELL_PRIEST_SIN_OF_THE_MANY);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_sins_of_the_many::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_pri_sins_of_the_many::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 20711 - Spirit of Redemption
 class spell_pri_spirit_of_redemption : public AuraScript
 {
@@ -1351,6 +1438,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
