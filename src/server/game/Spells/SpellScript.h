@@ -614,6 +614,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         SpellEffectInfo const& GetEffectInfo() const;
         int32 GetEffectValue() const;
         void SetEffectValue(int32 value);
+        float GetEffectVariance() const;
+        void SetEffectVariance(float variance);
 
         // returns: cast item if present.
         Item* GetCastItem() const;

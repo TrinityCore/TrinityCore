@@ -724,8 +724,8 @@ void WorldPackets::Misc::CloseInteraction::Read()
 
 WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 {
-    _worldPacket << TimeLeft;
     _worldPacket << TotalTime;
+    _worldPacket << TimeLeft;
     _worldPacket << int32(Type);
 
     return &_worldPacket;

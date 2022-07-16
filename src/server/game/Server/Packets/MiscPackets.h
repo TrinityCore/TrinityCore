@@ -931,13 +931,20 @@ namespace WorldPackets
         class StartTimer final : public ServerPacket
         {
         public:
+            enum TimerType : int32
+            {
+                Pvp             = 0,
+                ChallengeMode   = 1,
+                PlayerCountdown = 2
+            };
+
             StartTimer() : ServerPacket(SMSG_START_TIMER, 12) { }
 
             WorldPacket const* Write() override;
 
-            int32 Type = 0;
-            Duration<Seconds> TimeLeft;
             Duration<Seconds> TotalTime;
+            Duration<Seconds> TimeLeft;
+            TimerType Type = Pvp;
         };
 
         class ConversationLineStarted final : public ClientPacket
