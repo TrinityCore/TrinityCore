@@ -219,7 +219,7 @@ class spell_pri_atonement : public AuraScript
 {
     PrepareAuraScript(spell_pri_atonement);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
