@@ -5007,18 +5007,15 @@ class spell_gen_mount_check_aura : public AuraScript
         if (!tempSummon)
             return;
 
-        WorldObject* summoner = tempSummon->GetSummoner();
+        Player const* summoner = Object::ToPlayer(tempSummon->GetSummoner());
         if (!summoner)
             return;
 
-        if (!summoner->IsPlayer())
-            return;
-
-        if (summoner->ToPlayer()->IsMounted() && (!summoner->ToUnit()->IsInCombat() || summoner->ToPlayer()->IsFlying()))
+        if (summoner->IsMounted() && (!summoner->IsInCombat() || summoner->IsFlying()))
         {
             if (CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(tempSummon->GetEntry()))
             {
-                if (summoner->ToPlayer()->IsFlying() && summonedData->FlyingMountDisplayID)
+                if (summoner->IsFlying() && summonedData->FlyingMountDisplayID)
                     mountDisplayId = *summonedData->FlyingMountDisplayID;
                 else if (summonedData->GroundMountDisplayID)
                     mountDisplayId = *summonedData->GroundMountDisplayID;
