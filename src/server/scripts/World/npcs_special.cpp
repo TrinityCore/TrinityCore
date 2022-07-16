@@ -849,7 +849,7 @@ public:
                 me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
                 me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->setDeathState(JUST_DIED);
-                me->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
+                me->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
 
                 if (!DoctorGUID.IsEmpty())
                     if (Creature* doctor = ObjectAccessor::GetCreature((*me), DoctorGUID))
