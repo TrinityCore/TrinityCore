@@ -48,6 +48,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
+    SPELL_PRIEST_HALO_DAMAGE                        = 120696,
+    SPELL_PRIEST_HALO_HEAL                          = 120692,
     SPELL_PRIEST_HEAL                               = 2060,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
@@ -366,6 +368,23 @@ class spell_pri_guardian_spirit : public AuraScript
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit::Absorb, EFFECT_1);
+    }
+};
+
+// 120517 - Halo
+struct areatrigger_pri_halo : AreaTriggerAI
+{
+    areatrigger_pri_halo(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_PRIEST_HALO_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            else if (caster->IsValidAssistTarget(unit))
+                caster->CastSpell(unit, SPELL_PRIEST_HALO_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+        }
     }
 };
 
@@ -1318,6 +1337,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_divine_hymn);
     RegisterSpellScript(spell_pri_guardian_spirit);
+    RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
