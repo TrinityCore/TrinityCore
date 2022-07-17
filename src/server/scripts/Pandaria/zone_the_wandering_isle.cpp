@@ -85,7 +85,7 @@ struct npc_aspiring_trainee : public ScriptedAI
     {
         _scheduler.Schedule(Seconds(4), [this](TaskContext task)
             {
-                if (Unit* target = me->GetVictim())
+                if (me->GetVictim())
                     DoCastVictim(SPELL_BLACKOUT_KICK);
 
                 task.Repeat(Seconds(8));
