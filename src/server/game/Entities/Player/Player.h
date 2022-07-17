@@ -122,28 +122,14 @@ TC_GAME_API Item* GetItemInBag(Bag const* bag, uint8 slot);
 
 typedef std::deque<Mail*> PlayerMails;
 
-#define PLAYER_MAX_SKILLS                       256
-
-template<typename SkillArrayType>
-constexpr std::size_t CalculateSkillFieldArraySize()
+enum PlayerSkillsConstants
 {
-    return PLAYER_MAX_SKILLS / sizeof(uint32) * sizeof(SkillArrayType);
-}
-
-enum SkillFieldOffset : uint16
-{
-    SKILL_ID_OFFSET            = 0,
-    SKILL_STEP_OFFSET          = SKILL_ID_OFFSET + CalculateSkillFieldArraySize<uint16>(),
-    SKILL_RANK_OFFSET          = SKILL_STEP_OFFSET + CalculateSkillFieldArraySize<uint16>(),
-    SUBSKILL_START_RANK_OFFSET = SKILL_RANK_OFFSET + CalculateSkillFieldArraySize<uint16>(),
-    SKILL_MAX_RANK_OFFSET      = SUBSKILL_START_RANK_OFFSET + CalculateSkillFieldArraySize<uint16>(),
-    SKILL_TEMP_BONUS_OFFSET    = SKILL_MAX_RANK_OFFSET + CalculateSkillFieldArraySize<uint16>(),
-    SKILL_PERM_BONUS_OFFSET    = SKILL_TEMP_BONUS_OFFSET + CalculateSkillFieldArraySize<uint16>()
+    PLAYER_MAX_SKILLS   = decltype(UF::SkillInfo::SkillLineID)::Size
 };
 
 enum PlayerExplorationConstants
 {
-    PLAYER_EXPLORED_ZONES_SIZE  = decltype(UF::ActivePlayerData::ExploredZones){}.size(),
+    PLAYER_EXPLORED_ZONES_SIZE  = decltype(UF::ActivePlayerData::ExploredZones)::Size,
     PLAYER_EXPLORED_ZONES_BITS  = sizeof(decltype(UF::ActivePlayerData::ExploredZones)::value_type) * 8
 };
 
@@ -598,18 +584,16 @@ enum QuestSaveType
 typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
 
 // Size of client completed quests bit map
-#define QUESTS_COMPLETED_BITS_SIZE 1750
-
-enum QuestSlotOffsets
+enum PlayerQuestCompletedConstants
 {
-    QUEST_ID_OFFSET     = 0,
-    QUEST_STATE_OFFSET  = 1,
-    QUEST_COUNTS_OFFSET = 2,
-    QUEST_TIME_OFFSET   = 14
+    QUESTS_COMPLETED_BITS_SIZE      = decltype(UF::ActivePlayerData::QuestCompleted)::Size,
+    QUESTS_COMPLETED_BITS_PER_BLOCK = sizeof(decltype(UF::ActivePlayerData::QuestCompleted)::value_type) * 8
 };
 
-#define MAX_QUEST_COUNTS 24
-#define MAX_QUEST_OFFSET 16
+enum PlayerQuestLogConstants
+{
+    MAX_QUEST_COUNTS    = decltype(UF::QuestLog::ObjectiveProgress)::Size
+};
 
 enum QuestSlotStateMask
 {
@@ -650,6 +634,8 @@ enum PlayerSlots
     PLAYER_SLOT_END             = 199,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
+
+static_assert(decltype(UF::ActivePlayerData::InvSlots)::Size == PLAYER_SLOT_END);
 
 #define INVENTORY_SLOT_BAG_0    255
 #define INVENTORY_DEFAULT_SIZE  16
