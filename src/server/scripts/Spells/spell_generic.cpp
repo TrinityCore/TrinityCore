@@ -4993,6 +4993,45 @@ class spell_gen_anchor_here : public SpellScript
     }
 };
 
+// 147066 - (Serverside/Non-DB2) Generic - Mount Check Aura
+class spell_gen_mount_check_aura : public AuraScript
+{
+    PrepareAuraScript(spell_gen_mount_check_aura);
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        uint32 mountDisplayId = 0;
+
+        TempSummon* tempSummon = target->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        Player const* summoner = Object::ToPlayer(tempSummon->GetSummoner());
+        if (!summoner)
+            return;
+
+        if (summoner->IsMounted() && (!summoner->IsInCombat() || summoner->IsFlying()))
+        {
+            if (CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(tempSummon->GetEntry()))
+            {
+                if (summoner->IsFlying() && summonedData->FlyingMountDisplayID)
+                    mountDisplayId = *summonedData->FlyingMountDisplayID;
+                else if (summonedData->GroundMountDisplayID)
+                    mountDisplayId = *summonedData->GroundMountDisplayID;
+            }
+        }
+
+        if (mountDisplayId != target->GetMountDisplayId())
+            target->SetMountDisplayId(mountDisplayId);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_mount_check_aura::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5147,4 +5186,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);
     RegisterSpellScript(spell_summon_battle_pet);
     RegisterSpellScript(spell_gen_anchor_here);
+    RegisterSpellScript(spell_gen_mount_check_aura);
 }
