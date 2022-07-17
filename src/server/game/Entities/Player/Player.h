@@ -141,7 +141,11 @@ enum SkillFieldOffset : uint16
     SKILL_PERM_BONUS_OFFSET    = SKILL_TEMP_BONUS_OFFSET + CalculateSkillFieldArraySize<uint16>()
 };
 
-#define PLAYER_EXPLORED_ZONES_SIZE  192
+enum PlayerExplorationConstants
+{
+    PLAYER_EXPLORED_ZONES_SIZE  = decltype(UF::ActivePlayerData::ExploredZones){}.size(),
+    PLAYER_EXPLORED_ZONES_BITS  = sizeof(decltype(UF::ActivePlayerData::ExploredZones)::value_type) * 8
+};
 
 enum SpellModType : uint8
 {

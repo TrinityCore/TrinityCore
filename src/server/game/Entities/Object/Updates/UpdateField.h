@@ -751,7 +751,7 @@ namespace UF
             return std::end(_values);
         }
 
-        std::size_t size() const
+        constexpr std::size_t size() const
         {
             return Size;
         }
