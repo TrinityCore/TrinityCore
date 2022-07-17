@@ -4649,6 +4649,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Ray of Frost (Fingers of Frost charges)
+    ApplySpellFix({ 269748 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
+    });
+
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
