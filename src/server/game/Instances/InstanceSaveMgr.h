@@ -81,7 +81,6 @@ class TC_GAME_API InstanceSave
         uint32 GetEntranceLocation() const { return m_entranceId; }
         void SetEntranceLocation(uint32 entranceId) { m_entranceId = entranceId; }
 
-        InstanceTemplate const* GetTemplate();
         MapEntry const* GetMapEntry();
 
         /* online players bound to the instance (perm/solo)
