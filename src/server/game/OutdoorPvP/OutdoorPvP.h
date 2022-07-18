@@ -128,6 +128,7 @@ class TC_GAME_API OPvPCapturePoint
         void AddGO(uint32 type, ObjectGuid::LowType guid);
         void AddCre(uint32 type, ObjectGuid::LowType guid);
 
+        bool SetCapturePointData(uint32 entry);
         bool SetCapturePointData(uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot);
 
     protected:

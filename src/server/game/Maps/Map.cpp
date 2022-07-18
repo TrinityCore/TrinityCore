@@ -3703,7 +3703,7 @@ void Map::UpdateSpawnGroupConditions()
         if (shouldBeActive)
             SpawnGroupSpawn(spawnGroupId);
         else if (ASSERT_NOTNULL(GetSpawnGroupData(spawnGroupId))->flags & SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE)
-            SpawnGroupDespawn(spawnGroupId);
+            SpawnGroupDespawn(spawnGroupId, true);
         else
             SetSpawnGroupInactive(spawnGroupId);
     }
