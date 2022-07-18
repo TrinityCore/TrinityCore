@@ -50,9 +50,8 @@ enum OutdoorPvPZMSpells
 
 enum ZMCreatureTypes
 {
-    ZM_ALLIANCE_FIELD_SCOUT = 0,
-    ZM_HORDE_FIELD_SCOUT,
-    ZM_CREATURE_NUM
+    ZM_ALLIANCE_FIELD_SCOUT = 18581,
+    ZM_HORDE_FIELD_SCOUT    = 18564,
 };
 
 enum ZM_BeaconType
@@ -97,7 +96,7 @@ enum ZM_TowerStateMask
 class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 {
     public:
-        OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type);
+        OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type, GameObject* go);
 
         void ChangeState() override;
 
@@ -144,6 +143,7 @@ class OutdoorPvPZM : public OutdoorPvP
         OutdoorPvPZM();
 
         bool SetupOutdoorPvP() override;
+        void OnGameObjectCreate(GameObject* go) override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
         bool Update(uint32 diff) override;
