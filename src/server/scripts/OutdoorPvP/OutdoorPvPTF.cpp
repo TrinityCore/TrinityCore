@@ -45,15 +45,6 @@ int32 const TF_CAPTURE_BUFF = 33377;
 uint32 const TF_ALLY_QUEST = 11505;
 uint32 const TF_HORDE_QUEST = 11506;
 
-go_type const TFCapturePoints[TF_TOWER_NUM] =
-{
-    { 183104, 530, { -3081.65f, 5335.03f, 17.1853f, -2.146750f }, { 0.0f, 0.0f, 0.878817f, -0.477159f } },
-    { 183411, 530, { -2939.90f, 4788.73f, 18.9870f,  2.775070f }, { 0.0f, 0.0f, 0.983255f,  0.182236f } },
-    { 183412, 530, { -3174.94f, 4440.97f, 16.2281f,  1.867500f }, { 0.0f, 0.0f, 0.803857f,  0.594823f } },
-    { 183413, 530, { -3603.31f, 4529.15f, 20.9077f,  0.994838f }, { 0.0f, 0.0f, 0.477159f,  0.878817f } },
-    { 183414, 530, { -3812.37f, 4899.30f, 17.7249f,  0.087266f }, { 0.0f, 0.0f, 0.043619f,  0.999048f } }
-};
-
 struct tf_tower_world_state
 {
     int32 n;
@@ -103,9 +94,11 @@ OutdoorPvPTF::OutdoorPvPTF()
     first_digit = 0;
 }
 
-OPvPCapturePointTF::OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type) : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(TF_TOWERSTATE_N)
+OPvPCapturePointTF::OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type, GameObject* go) : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(TF_TOWERSTATE_N)
 {
-    SetCapturePointData(TFCapturePoints[type].entry, TFCapturePoints[type].map, TFCapturePoints[type].pos, TFCapturePoints[type].rot);
+    m_capturePointSpawnId = go->GetSpawnId();
+    m_capturePoint = go;
+    SetCapturePointData(go->GetEntry());
 }
 
 void OutdoorPvPTF::SendRemoveWorldStates(Player* player)
@@ -275,13 +268,33 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     for (uint8 i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPTFBuffZones[i]);
 
-    AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_NW));
-    AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_N));
-    AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_NE));
-    AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_SE));
-    AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_S));
-
     return true;
+}
+
+void OutdoorPvPTF::OnGameObjectCreate(GameObject* go)
+{
+    switch (go->GetEntry())
+    {
+        case 183104:
+            AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_NW, go));
+            break;
+        case 183411:
+            AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_N, go));
+            break;
+        case 183412:
+            AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_NE, go));
+            break;
+        case 183413:
+            AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_SE, go));
+            break;
+        case 183414:
+            AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_S, go));
+            break;
+        default:
+            break;
+    }
+
+    OutdoorPvP::OnGameObjectCreate(go);
 }
 
 bool OPvPCapturePointTF::Update(uint32 diff)

@@ -19,6 +19,7 @@
 #define OUTDOOR_PVP_HP_
 
 #include "OutdoorPvP.h"
+#include <array>
 
 enum DefenseMessages
 {
@@ -58,12 +59,13 @@ enum OutdoorPvPHPWorldStates
 class OPvPCapturePointHP : public OPvPCapturePoint
 {
     public:
-        OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type);
+        OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type, GameObject* go, ObjectGuid::LowType const& flagSpawnId);
 
         void ChangeState() override;
 
     private:
         OutdoorPvPHPTowerType m_TowerType;
+        ObjectGuid::LowType const& m_flagSpawnId;
 };
 
 class OutdoorPvPHP : public OutdoorPvP
@@ -72,6 +74,8 @@ class OutdoorPvPHP : public OutdoorPvP
         OutdoorPvPHP();
 
         bool SetupOutdoorPvP() override;
+
+        void OnGameObjectCreate(GameObject* go) override;
 
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
@@ -88,6 +92,7 @@ class OutdoorPvPHP : public OutdoorPvP
     private:
         uint32 m_AllianceTowersControlled; // how many towers are controlled
         uint32 m_HordeTowersControlled;
+        std::array<ObjectGuid::LowType, HP_TOWER_NUM> m_towerFlagSpawnIds;
 };
 
 #endif
