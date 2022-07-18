@@ -19,6 +19,7 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "TaskScheduler.h"
+#include "Player.h"
 
 enum Aspirant
 {
@@ -42,10 +43,6 @@ Emote randomEmotes[5] =
 //54586
 struct npc_aspiring_trainee : public ScriptedAI
 {
-
-private:
-    TaskScheduler _scheduler;
-    EventMap events;
 
     npc_aspiring_trainee(Creature* c) : ScriptedAI(c)
     {
@@ -137,6 +134,10 @@ private:
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    TaskScheduler _scheduler;
+    EventMap events;
 
 };
 
