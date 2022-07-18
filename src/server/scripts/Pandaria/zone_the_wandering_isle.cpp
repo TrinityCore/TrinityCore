@@ -42,6 +42,11 @@ Emote randomEmotes[5] =
 //54586
 struct npc_aspiring_trainee : public ScriptedAI
 {
+
+private:
+    TaskScheduler _scheduler;
+    EventMap events;
+
     npc_aspiring_trainee(Creature* c) : ScriptedAI(c)
     {
         events.ScheduleEvent(EVENT_INSTRUCTOR_ZHI_RANDOM_EMOTE, 6s);
@@ -70,26 +75,27 @@ struct npc_aspiring_trainee : public ScriptedAI
             };
 
             _scheduler.Schedule(Seconds(3), [this](TaskContext /*task*/)
-                {
-                    me->GetMotionMaster()->MovePoint(0, 1446.302f, 3387.493f, 173.7903f);
-                });
+            {
+                me->GetMotionMaster()->MovePoint(0, 1446.302f, 3387.493f, 173.7903f);
+            });
 
             _scheduler.Schedule(Seconds(6), [this](TaskContext /*task*/)
-                {
-                    me->DespawnOrUnsummon();
-                });
+            {
+                me->DespawnOrUnsummon();
+            });
         }
     }
 
     void JustEngagedWith(Unit* /*attacker*/) override
     {
         _scheduler.Schedule(Seconds(4), [this](TaskContext task)
-            {
-                if (me->GetVictim())
-                    DoCastVictim(SPELL_BLACKOUT_KICK);
+        {
+            if (me->GetVictim())
 
-                task.Repeat(Seconds(8));
-            });
+            DoCastVictim(SPELL_BLACKOUT_KICK);
+
+            task.Repeat(Seconds(8));
+        });
 
         events.CancelEvent(EVENT_RANDOM_EMOTE);
     }
@@ -131,9 +137,7 @@ struct npc_aspiring_trainee : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-private:
-    TaskScheduler _scheduler;
-    EventMap events;
+
 };
 
 struct npc_instructor_zhi : public ScriptedAI
