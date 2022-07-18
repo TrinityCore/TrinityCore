@@ -140,7 +140,7 @@ class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
 class OutdoorPvPZM : public OutdoorPvP
 {
     public:
-        OutdoorPvPZM();
+        OutdoorPvPZM(Map* map);
 
         bool SetupOutdoorPvP() override;
         void OnGameObjectCreate(GameObject* go) override;

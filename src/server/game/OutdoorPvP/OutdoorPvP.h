@@ -161,7 +161,7 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
     public:
 
         // ctor
-        OutdoorPvP();
+        OutdoorPvP(Map* map);
 
         // dtor
         virtual ~OutdoorPvP();
@@ -259,9 +259,6 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         template<class Worker>
         void BroadcastWorker(Worker& _worker, uint32 zoneId);
-
-        // Hack to store map because this code is just shit
-        void SetMapFromZone(uint32 zone);
 
         Map* m_map;
 };

@@ -79,7 +79,7 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 class OutdoorPvPTF : public OutdoorPvP
 {
     public:
-        OutdoorPvPTF();
+        OutdoorPvPTF(Map* map);
 
         bool SetupOutdoorPvP() override;
         void OnGameObjectCreate(GameObject* go) override;

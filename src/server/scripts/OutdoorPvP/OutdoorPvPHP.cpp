@@ -45,7 +45,7 @@ OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType ty
     SetCapturePointData(go->GetEntry());
 }
 
-OutdoorPvPHP::OutdoorPvPHP() : m_towerFlagSpawnIds()
+OutdoorPvPHP::OutdoorPvPHP(Map* map) : OutdoorPvP(map), m_towerFlagSpawnIds()
 {
     m_TypeId = OUTDOOR_PVP_HP;
     m_AllianceTowersControlled = 0;
@@ -56,7 +56,6 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
 {
     m_AllianceTowersControlled = 0;
     m_HordeTowersControlled = 0;
-    SetMapFromZone(OutdoorPvPHPBuffZones[0]);
 
     // add the zones affected by the pvp buff
     for (uint32 i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
@@ -304,9 +303,9 @@ class OutdoorPvP_hellfire_peninsula : public OutdoorPvPScript
     public:
         OutdoorPvP_hellfire_peninsula() : OutdoorPvPScript("outdoorpvp_hp") { }
 
-        OutdoorPvP* GetOutdoorPvP() const override
+        OutdoorPvP* GetOutdoorPvP(Map* map) const override
         {
-            return new OutdoorPvPHP();
+            return new OutdoorPvPHP(map);
         }
 };
 

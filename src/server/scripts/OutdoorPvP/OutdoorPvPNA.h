@@ -148,7 +148,7 @@ class OPvPCapturePointNA : public OPvPCapturePoint
 class OutdoorPvPNA : public OutdoorPvP
 {
     public:
-        OutdoorPvPNA();
+        OutdoorPvPNA(Map* map);
 
         void OnGameObjectCreate(GameObject* go) override;
 

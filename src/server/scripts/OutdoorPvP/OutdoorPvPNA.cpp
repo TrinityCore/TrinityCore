@@ -37,7 +37,7 @@ uint32 const FLIGHT_NODES_NUM = 4;
 uint32 const FlightPathStartNodes[FLIGHT_NODES_NUM] = { 103, 105, 107, 109 };
 uint32 const FlightPathEndNodes[FLIGHT_NODES_NUM] = { 104, 106, 108, 110 };
 
-OutdoorPvPNA::OutdoorPvPNA()
+OutdoorPvPNA::OutdoorPvPNA(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_NA;
     m_obj = nullptr;
@@ -137,7 +137,6 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
 {
 //    m_TypeId = OUTDOOR_PVP_NA; _MUST_ be set in ctor, because of spawns cleanup
     // add the zones affected by the pvp buff
-    SetMapFromZone(NA_BUFF_ZONE);
     RegisterZone(NA_BUFF_ZONE);
 
     // halaa
@@ -482,9 +481,9 @@ class OutdoorPvP_nagrand : public OutdoorPvPScript
     public:
         OutdoorPvP_nagrand() : OutdoorPvPScript("outdoorpvp_na") { }
 
-        OutdoorPvP* GetOutdoorPvP() const override
+        OutdoorPvP* GetOutdoorPvP(Map* map) const override
         {
-            return new OutdoorPvPNA();
+            return new OutdoorPvPNA(map);
         }
 };
 

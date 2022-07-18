@@ -19,7 +19,6 @@
 #include "CellImpl.h"
 #include "ChatPackets.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Log.h"
@@ -111,7 +110,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry)
     return true;
 }
 
-OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_map(nullptr) { }
+OutdoorPvP::OutdoorPvP(Map* map) : m_TypeId(0), m_map(map) { }
 
 OutdoorPvP::~OutdoorPvP() = default;
 
@@ -504,12 +503,4 @@ void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->GetZoneId() == zoneId)
                     _worker(player);
-}
-
-void OutdoorPvP::SetMapFromZone(uint32 zone)
-{
-    AreaTableEntry const* areaTable = sAreaTableStore.AssertEntry(zone);
-    Map* map = sMapMgr->CreateBaseMap(areaTable->ContinentID);
-    ASSERT(!map->Instanceable());
-    m_map = map;
 }

@@ -71,7 +71,7 @@ class OPvPCapturePointHP : public OPvPCapturePoint
 class OutdoorPvPHP : public OutdoorPvP
 {
     public:
-        OutdoorPvPHP();
+        OutdoorPvPHP(Map* map);
 
         bool SetupOutdoorPvP() override;
 
