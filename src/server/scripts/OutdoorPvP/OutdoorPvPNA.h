@@ -80,18 +80,6 @@ enum ControlGOTypes
     NA_ROOST_W = 1,
     NA_ROOST_N = 2,
     NA_ROOST_E = 3,
-
-    NA_BOMB_WAGON_S = 4,
-    NA_BOMB_WAGON_W = 5,
-    NA_BOMB_WAGON_N = 6,
-    NA_BOMB_WAGON_E = 7,
-
-    NA_DESTROYED_ROOST_S = 8,
-    NA_DESTROYED_ROOST_W = 9,
-    NA_DESTROYED_ROOST_N = 10,
-    NA_DESTROYED_ROOST_E = 11,
-
-    NA_CONTROL_GO_NUM = 12
 };
 
 enum FlightSpellsNA
@@ -102,31 +90,10 @@ enum FlightSpellsNA
     NA_SPELL_FLY_EAST = 32081
 };
 
-enum ControlNPCTypes
+enum HalaaSpawnGroupIds
 {
-    NA_NPC_RESEARCHER = 0,
-    NA_NPC_QUARTERMASTER,
-    NA_NPC_BLADE_MERCHANT,
-    NA_NPC_FOOD_MERCHANT,
-    NA_NPC_AMMO,
-
-    NA_NPC_GUARD_01,
-    NA_NPC_GUARD_02,
-    NA_NPC_GUARD_03,
-    NA_NPC_GUARD_04,
-    NA_NPC_GUARD_05,
-    NA_NPC_GUARD_06,
-    NA_NPC_GUARD_07,
-    NA_NPC_GUARD_08,
-    NA_NPC_GUARD_09,
-    NA_NPC_GUARD_10,
-    NA_NPC_GUARD_11,
-    NA_NPC_GUARD_12,
-    NA_NPC_GUARD_13,
-    NA_NPC_GUARD_14,
-    NA_NPC_GUARD_15,
-
-    NA_CONTROL_NPC_NUM
+    SPAWN_GROUP_HORDE_GUARDS = 123,
+    SPAWN_GROUP_ALLIANCE_GUARDS = 124,
 };
 
 enum WyvernStates
@@ -159,13 +126,9 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
         int32 HandleOpenGo(Player* player, GameObject* go) override;
 
-        uint32 GetAliveGuardsCount();
+        uint32 GetAliveGuardsCount() const;
         uint32 GetControllingFaction() const;
         void FactionTakeOver(uint32 team); // called when a faction takes control
-        void DeSpawnNPCs();
-        void DeSpawnGOs();
-        void SpawnNPCsForTeam(uint32 team);
-        void SpawnGOsForTeam(uint32 team);
         void UpdateWyvernRoostWorldState(uint32 roost);
         void UpdateHalaaWorldState();
 
@@ -186,6 +149,8 @@ class OutdoorPvPNA : public OutdoorPvP
 {
     public:
         OutdoorPvPNA();
+
+        void OnGameObjectCreate(GameObject* go) override;
 
         bool SetupOutdoorPvP() override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
