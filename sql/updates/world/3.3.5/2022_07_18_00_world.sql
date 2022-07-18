@@ -32,3 +32,5 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (39190,'spell_hellfire_peninsula_send_vengeance'),
 (39202,'spell_hellfire_peninsula_send_vengeance_to_player');
+
+UPDATE `gameobject_template_addon` SET `flags` = 0 WHERE `entry` = 185298;
