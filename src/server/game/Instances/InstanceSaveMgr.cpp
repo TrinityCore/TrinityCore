@@ -241,12 +241,6 @@ time_t InstanceSave::GetResetTimeForDB()
         return GetResetTime();
 }
 
-// to cache or not to cache, that is the question
-InstanceTemplate const* InstanceSave::GetTemplate()
-{
-    return sObjectMgr->GetInstanceTemplate(m_mapid);
-}
-
 MapEntry const* InstanceSave::GetMapEntry()
 {
     return sMapStore.LookupEntry(m_mapid);

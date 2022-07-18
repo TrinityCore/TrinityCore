@@ -726,7 +726,7 @@ namespace UF
     {
     };
 
-    template<typename T, std::size_t Size>
+    template<typename T, std::size_t Size_>
     class UpdateFieldArrayBase : public UpdateFieldArrayBaseWithoutSize<T>
     {
         template<typename F, bool PublicSet>
@@ -740,6 +740,7 @@ namespace UF
 
     public:
         using value_type = T;
+        static constexpr std::size_t Size = Size_;
 
         T const* begin() const
         {
@@ -751,7 +752,7 @@ namespace UF
             return std::end(_values);
         }
 
-        std::size_t size() const
+        constexpr std::size_t size() const
         {
             return Size;
         }
