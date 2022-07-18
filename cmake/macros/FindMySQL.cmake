@@ -260,14 +260,26 @@ if(WIN32)
   )
 endif(WIN32)
 
+unset(MySQL_lib_WANTED)
+unset(MySQL_binary_WANTED)
+set(MYSQL_REQUIRED_VARS "")
 foreach(_comp IN LISTS MySQL_FIND_COMPONENTS)
   if(_comp STREQUAL "lib")
+    set(MySQL_${_comp}_WANTED TRUE)
+	if(MySQL_FIND_REQUIRED_${_comp})
+	  list(APPEND MYSQL_REQUIRED_VARS "MYSQL_LIBRARY")
+	  list(APPEND MYSQL_REQUIRED_VARS "MYSQL_INCLUDE_DIR")
+	endif()
     if(EXISTS "${MYSQL_LIBRARY}" AND EXISTS "${MYSQL_INCLUDE_DIR}")
       set(MySQL_${_comp}_FOUND TRUE)
     else()
       set(MySQL_${_comp}_FOUND FALSE)
     endif()
   elseif(_comp STREQUAL "binary")
+    set(MySQL_${_comp}_WANTED TRUE)
+	if(MySQL_FIND_REQUIRED_${_comp})
+	  list(APPEND MYSQL_REQUIRED_VARS "MYSQL_EXECUTABLE")
+	endif()
     if(EXISTS "${MYSQL_EXECUTABLE}" )
       set(MySQL_${_comp}_FOUND TRUE)
     else()
@@ -283,24 +295,24 @@ unset(_comp)
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MySQL
   REQUIRED_VARS
-    MYSQL_LIBRARY
-    MYSQL_INCLUDE_DIR
+    ${MYSQL_REQUIRED_VARS}
   HANDLE_COMPONENTS
   FAIL_MESSAGE
     "Could not find the MySQL libraries! Please install the development libraries and headers"
 )
+unset(MYSQL_REQUIRED_VARS)
 
 if(MYSQL_FOUND)
-  if(MySQL_lib_FOUND)
+  if(MySQL_lib_WANTED AND MySQL_lib_FOUND)
     message(STATUS "Found MySQL library: ${MYSQL_LIBRARY}")
     message(STATUS "Found MySQL headers: ${MYSQL_INCLUDE_DIR}")
   endif()
-  if(MySQL_binary_FOUND)
+  if(MySQL_binary_WANTED AND MySQL_binary_FOUND)
     message(STATUS "Found MySQL executable: ${MYSQL_EXECUTABLE}")
   endif()
   mark_as_advanced(MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIR MYSQL_EXECUTABLE)
 
-  if(NOT TARGET MySQL::MySQL AND MySQL_lib_FOUND)
+  if(NOT TARGET MySQL::MySQL AND MySQL_lib_WANTED AND MySQL_lib_FOUND)
     add_library(MySQL::MySQL UNKNOWN IMPORTED)
     set_target_properties(MySQL::MySQL
       PROPERTIES
