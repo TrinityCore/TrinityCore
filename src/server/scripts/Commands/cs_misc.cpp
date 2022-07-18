@@ -1127,7 +1127,7 @@ public:
             return false;
         }
 
-        uint32 offset = area->AreaBit / 64;
+        uint32 offset = area->AreaBit / PLAYER_EXPLORED_ZONES_BITS;
         if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -1135,7 +1135,7 @@ public:
             return false;
         }
 
-        uint64 val = UI64LIT(1) << (area->AreaBit % 64);
+        uint64 val = UI64LIT(1) << (area->AreaBit % PLAYER_EXPLORED_ZONES_BITS);
         playerTarget->AddExploredZones(offset, val);
 
         handler->SendSysMessage(LANG_EXPLORE_AREA);
@@ -1167,7 +1167,7 @@ public:
             return false;
         }
 
-        uint32 offset = area->AreaBit / 64;
+        uint32 offset = area->AreaBit / PLAYER_EXPLORED_ZONES_BITS;
         if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -1175,7 +1175,7 @@ public:
             return false;
         }
 
-        uint64 val = UI64LIT(1) << (area->AreaBit % 64);
+        uint64 val = UI64LIT(1) << (area->AreaBit % PLAYER_EXPLORED_ZONES_BITS);
         playerTarget->RemoveExploredZones(offset, val);
 
         handler->SendSysMessage(LANG_UNEXPLORE_AREA);
