@@ -708,7 +708,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
 
     Unit* unit = ObjectAccessor::GetUnit(*_player, packet.Target);
 
-    _player->UpdateCriteria(CriteriaType::DoEmote, packet.SoundIndex, 0, 0, unit);
+    _player->UpdateCriteria(CriteriaType::DoEmote, packet.EmoteID, 0, 0, unit);
 
     // Send scripted event call
     if (unit)
