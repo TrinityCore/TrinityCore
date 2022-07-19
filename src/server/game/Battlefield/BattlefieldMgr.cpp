@@ -16,24 +16,27 @@
  */
 
 #include "BattlefieldMgr.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
-#include "ObjectMgr.h"
 #include "Log.h"
+#include "Map.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+
+namespace
+{
+constexpr std::array<uint32, BATTLEFIELD_MAX> BattlefieldIdToMapId = { 0, 571, 732 };
+constexpr std::array<uint32, BATTLEFIELD_MAX> BattlefieldIdToZoneId = { 0, 4197, 5095 }; // imitate World_PVP_Area.db2
+std::array<uint32, BATTLEFIELD_MAX> BattlefieldIdToScriptId = { 0, 0, 0 };
+}
 
 BattlefieldMgr::BattlefieldMgr()
 {
     _updateTimer = 0;
 }
 
-BattlefieldMgr::~BattlefieldMgr()
-{
-    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
-        delete *itr;
-
-    _battlefieldMap.clear();
-}
+BattlefieldMgr::~BattlefieldMgr() = default;
 
 BattlefieldMgr* BattlefieldMgr::instance()
 {
@@ -61,22 +64,8 @@ void BattlefieldMgr::InitBattlefield()
                 continue;
             }
 
-            uint32 scriptId = sObjectMgr->GetScriptId(fields[1].GetString());
+            BattlefieldIdToScriptId[typeId] = sObjectMgr->GetScriptId(fields[1].GetString());
 
-            Battlefield* bf = sScriptMgr->CreateBattlefield(scriptId);
-            if (!bf)
-                continue;
-
-            if (!bf->SetupBattlefield())
-            {
-                TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u failed.", typeId);
-                delete bf;
-            }
-            else
-            {
-                _battlefieldSet.push_back(bf);
-                TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u succeeded.", typeId);
-            }
 
             ++count;
         } while (result->NextRow());
@@ -85,15 +74,45 @@ void BattlefieldMgr::InitBattlefield()
     TC_LOG_INFO("server.loading", ">> Loaded %u battlefields in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void BattlefieldMgr::CreateBattlefieldsForMap(Map* map)
+{
+    for (uint32 i = 0; i < BATTLEFIELD_MAX; ++i)
+    {
+        if (!BattlefieldIdToScriptId[i])
+            continue;
+
+        if (BattlefieldIdToMapId[i] != map->GetId())
+            continue;
+
+        Battlefield* bf = sScriptMgr->CreateBattlefield(BattlefieldIdToScriptId[i], map);
+        if (!bf)
+            continue;
+
+        if (!bf->SetupBattlefield())
+        {
+            TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u on map %u instance id %u failed.", i, map->GetId(), map->GetInstanceId());
+            delete bf;
+        }
+
+        _battlefieldsByMap[map].emplace_back(bf);
+        TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u on map %u instance id %u succeeded.", i, map->GetId(), map->GetInstanceId());
+    }
+}
+
+void BattlefieldMgr::DestroyBattlefieldsForMap(Map const* map)
+{
+    _battlefieldsByMap.erase(map);
+}
+
 void BattlefieldMgr::AddZone(uint32 zoneId, Battlefield* bf)
 {
-    _battlefieldMap[zoneId] = bf;
+    _battlefieldsByZone[{ bf->GetMap(), zoneId }] = bf;
 }
 
 void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
 {
-    BattlefieldMap::iterator itr = _battlefieldMap.find(zoneId);
-    if (itr == _battlefieldMap.end())
+    auto itr = _battlefieldsByZone.find({ player->GetMap(), zoneId });
+    if (itr == _battlefieldsByZone.end())
         return;
 
     Battlefield* bf = itr->second;
@@ -106,8 +125,8 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
 
 void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
 {
-    BattlefieldMap::iterator itr = _battlefieldMap.find(zoneId);
-    if (itr == _battlefieldMap.end())
+    auto itr = _battlefieldsByZone.find({ player->GetMap(), zoneId });
+    if (itr == _battlefieldsByZone.end())
         return;
 
     // teleport: remove once in removefromworld, once in updatezone
@@ -118,10 +137,15 @@ void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
     TC_LOG_DEBUG("bg.battlefield", "Player %s left battlefield id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
 }
 
-Battlefield* BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneId)
+bool BattlefieldMgr::IsWorldPvpArea(uint32 zoneId) const
 {
-    BattlefieldMap::iterator itr = _battlefieldMap.find(zoneId);
-    if (itr == _battlefieldMap.end())
+    return std::find(BattlefieldIdToZoneId.begin(), BattlefieldIdToZoneId.end(), zoneId) != BattlefieldIdToZoneId.end();
+}
+
+Battlefield* BattlefieldMgr::GetBattlefieldToZoneId(Map const* map, uint32 zoneId)
+{
+    auto itr = _battlefieldsByZone.find({ map, zoneId });
+    if (itr == _battlefieldsByZone.end())
     {
         // no handle for this zone, return
         return nullptr;
@@ -133,30 +157,12 @@ Battlefield* BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneId)
     return itr->second;
 }
 
-Battlefield* BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleId)
+Battlefield* BattlefieldMgr::GetBattlefieldByBattleId(Map const* map, uint32 battleId)
 {
-    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
-    {
-        if ((*itr)->GetBattleId() == battleId)
-            return *itr;
-    }
-    return nullptr;
-}
-
-Battlefield* BattlefieldMgr::GetBattlefieldByQueueId(uint64 queueId)
-{
-    for (Battlefield* bf : _battlefieldSet)
-        if (bf->GetQueueId() == queueId)
-            return bf;
-
-    return nullptr;
-}
-
-ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
-{
-    BattlefieldMap::iterator itr = _battlefieldMap.find(zoneId);
-    if (itr != _battlefieldMap.end())
-        return itr->second;
+    if (BattlefieldsMapByMap::mapped_type const* battlefields = Trinity::Containers::MapGetValuePtr(_battlefieldsByMap, map))
+        for (std::unique_ptr<Battlefield> const& battlefield : *battlefields)
+            if (battlefield->GetBattleId() == battleId)
+                return battlefield.get();
 
     return nullptr;
 }
@@ -166,9 +172,11 @@ void BattlefieldMgr::Update(uint32 diff)
     _updateTimer += diff;
     if (_updateTimer > BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL)
     {
-        for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
-            if ((*itr)->IsEnabled())
-                (*itr)->Update(_updateTimer);
+        for (auto const& [map, battlefields] : _battlefieldsByMap)
+            for (std::unique_ptr<Battlefield> const& bfItr : battlefields)
+                if (bfItr->IsEnabled())
+                    bfItr->Update(_updateTimer);
+
         _updateTimer = 0;
     }
 }
