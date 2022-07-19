@@ -64,7 +64,7 @@ enum TFTowerStates
 class OPvPCapturePointTF : public OPvPCapturePoint
 {
     public:
-        OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type);
+        OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type, GameObject* go);
 
         bool Update(uint32 diff) override;
         void ChangeState() override;
@@ -79,9 +79,10 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 class OutdoorPvPTF : public OutdoorPvP
 {
     public:
-        OutdoorPvPTF();
+        OutdoorPvPTF(Map* map);
 
         bool SetupOutdoorPvP() override;
+        void OnGameObjectCreate(GameObject* go) override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
         bool Update(uint32 diff) override;

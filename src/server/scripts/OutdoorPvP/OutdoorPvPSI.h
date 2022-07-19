@@ -38,7 +38,7 @@ enum SI_WorldStates
 class OutdoorPvPSI : public OutdoorPvP
 {
     public:
-        OutdoorPvPSI();
+        OutdoorPvPSI(Map* map);
 
         bool SetupOutdoorPvP() override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;

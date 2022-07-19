@@ -37,7 +37,7 @@ uint32 const SI_SILITHYST_MOUND = 181597;
 uint8 const OutdoorPvPSIBuffZonesNum = 3;
 uint32 const OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 3429 };
 
-OutdoorPvPSI::OutdoorPvPSI()
+OutdoorPvPSI::OutdoorPvPSI(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_SI;
     m_LastController = 0;
@@ -57,8 +57,6 @@ void OutdoorPvPSI::SendRemoveWorldStates(Player* player)
 
 bool OutdoorPvPSI::SetupOutdoorPvP()
 {
-    SetMapFromZone(OutdoorPvPSIBuffZones[0]);
-
     for (uint8 i = 0; i < OutdoorPvPSIBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPSIBuffZones[i]);
 
@@ -196,9 +194,9 @@ class OutdoorPvP_silithus : public OutdoorPvPScript
     public:
         OutdoorPvP_silithus() : OutdoorPvPScript("outdoorpvp_si") { }
 
-        OutdoorPvP* GetOutdoorPvP() const override
+        OutdoorPvP* GetOutdoorPvP(Map* map) const override
         {
-            return new OutdoorPvPSI();
+            return new OutdoorPvPSI(map);
         }
 };
 
