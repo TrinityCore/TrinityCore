@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-find_package(MySQL REQUIRED COMPONENTS lib OPTIONAL_COMPONENTS binary)
+find_package(MySQL REQUIRED COMPONENTS lib)
 
 add_library(mysql INTERFACE)
 

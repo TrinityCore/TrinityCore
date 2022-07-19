@@ -78,6 +78,9 @@ if(NOT WITHOUT_GIT)
   find_package(Git 1.7)
 endif()
 
+# find mysql client binary (needed by genrev)
+find_package(MySQL OPTIONAL_COMPONENTS binary)
+
 # Find revision ID and hash of the sourcetree
 include(cmake/genrev.cmake)
 

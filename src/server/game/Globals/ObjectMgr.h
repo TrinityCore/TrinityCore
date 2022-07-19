@@ -1615,8 +1615,6 @@ class TC_GAME_API ObjectMgr
         void RemoveCreatureFromGrid(CreatureData const* data);
         void AddGameobjectToGrid(GameObjectData const* data);
         void RemoveGameobjectFromGrid(GameObjectData const* data);
-        ObjectGuid::LowType AddGameObjectData(uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot, uint32 spawntimedelay = 0);
-        ObjectGuid::LowType AddCreatureData(uint32 entry, uint32 map, Position const& pos, uint32 spawntimedelay = 0);
 
         // reserved names
         void LoadReservedPlayersNames();
