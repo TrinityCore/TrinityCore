@@ -630,7 +630,7 @@ class TC_GAME_API Quest
         QuestObjectives Objectives;
         std::array<uint32, QUEST_EMOTE_COUNT> DetailsEmote = { };
         std::array<uint32, QUEST_EMOTE_COUNT> DetailsEmoteDelay = { };
-        std::array<uint32, QUEST_EMOTE_COUNT> OfferRewardEmote = { };
+        std::array<int32, QUEST_EMOTE_COUNT> OfferRewardEmote = { };
         std::array<uint32, QUEST_EMOTE_COUNT> OfferRewardEmoteDelay = { };
 
         uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
