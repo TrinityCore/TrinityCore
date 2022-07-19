@@ -27,7 +27,8 @@ enum Aspirant
     QUEST_29524_KILLCREDIT = 54586,
     EVENT_RANDOM_EMOTE = 1,
     EVENT_INSTRUCTOR_ZHI_RANDOM_EMOTE = 2,
-    NPC_INSTRUCTOR_ZHI = 61411
+    NPC_INSTRUCTOR_ZHI = 61411,
+    ACTION = 1
 };
 
 Emote randomEmotes[5] =
@@ -36,13 +37,12 @@ Emote randomEmotes[5] =
     EMOTE_ONESHOT_MONKOFFENSE_SPECIALUNARMED,
     EMOTE_ONESHOT_MONKOFFENSE_PARRYUNARMED,
     EMOTE_ONESHOT_PALMSTRIKE,
-    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF
+    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF,
 };
 
 //54586
 struct npc_aspiring_trainee : public ScriptedAI
 {
-
     npc_aspiring_trainee(Creature* c) : ScriptedAI(c)
     {
         events.ScheduleEvent(EVENT_INSTRUCTOR_ZHI_RANDOM_EMOTE, 6s);
@@ -110,9 +110,9 @@ struct npc_aspiring_trainee : public ScriptedAI
                 if (me->IsInCombat())
                     return;
 
-                if (Creature* instructorZhi = me->FindNearestCreature(NPC_INSTRUCTOR_ZHI, 20.0f))
+                if (Creature* instructorZhi = me->FindNearestCreature(NPC_INSTRUCTOR_ZHI, range))
                 {
-                    instructorZhi->AI()->DoAction(1);
+                    instructorZhi->AI()->DoAction(ACTION);
                     events.ScheduleEvent(EVENT_RANDOM_EMOTE, 1s);
                 }
 
@@ -137,6 +137,7 @@ struct npc_aspiring_trainee : public ScriptedAI
 private:
     TaskScheduler _scheduler;
     EventMap events;
+    float range = 20.0f;
 
 };
 
@@ -144,10 +145,15 @@ struct npc_instructor_zhi : public ScriptedAI
 {
     npc_instructor_zhi(Creature* creature) : ScriptedAI(creature) { }
 
-    void DoAction(int32 /*param*/) override
+    void DoAction(int32 param) override
     {
-        Emote randomEmote = Trinity::Containers::SelectRandomContainerElement(randomEmotes);
-        me->HandleEmoteCommand(randomEmote);
+        if (param == ACTION)
+
+        {
+            Emote randomEmote = Trinity::Containers::SelectRandomContainerElement(randomEmotes);
+            me->HandleEmoteCommand(randomEmote);
+            
+        }
     }
 };
 
