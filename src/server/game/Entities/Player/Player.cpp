@@ -25061,7 +25061,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
 
 OutdoorPvP* Player::GetOutdoorPvP() const
 {
-    return sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId());
+    return sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetMap(), GetZoneId());
 }
 
 bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem) const
