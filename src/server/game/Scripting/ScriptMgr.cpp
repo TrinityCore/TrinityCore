@@ -1750,10 +1750,10 @@ Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
     return nullptr;
 }
 
-OutdoorPvP* ScriptMgr::CreateOutdoorPvP(uint32 scriptId)
+OutdoorPvP* ScriptMgr::CreateOutdoorPvP(uint32 scriptId, Map* map)
 {
     GET_SCRIPT_RET(OutdoorPvPScript, scriptId, tmpscript, nullptr);
-    return tmpscript->GetOutdoorPvP();
+    return tmpscript->GetOutdoorPvP(map);
 }
 
 Trinity::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
