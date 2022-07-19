@@ -148,10 +148,9 @@ struct npc_instructor_zhi : public ScriptedAI
     void DoAction(int32 param) override
     {
         if (param == ACTION)
-
         {
-            Emote randomEmote = Trinity::Containers::SelectRandomContainerElement(randomEmotes);
-            me->HandleEmoteCommand(randomEmote);
+        Emote randomEmote = Trinity::Containers::SelectRandomContainerElement(randomEmotes);
+        me->HandleEmoteCommand(randomEmote);
             
         }
     }
