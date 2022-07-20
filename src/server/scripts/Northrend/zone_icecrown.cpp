@@ -909,6 +909,31 @@ class spell_icecrown_through_the_eye_kill_credit_to_master : public SpellScript
     }
 };
 
+/*######
+## Quest 13008: Scourge Tactics
+######*/
+
+// 56515 - Summon Freed Crusader
+class spell_icecrown_summon_freed_crusader : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_summon_freed_crusader);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_summon_freed_crusader::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -922,4 +947,5 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_chum_the_water);
     RegisterSpellScript(spell_icecrown_through_the_eye_the_eye_of_the_lk);
     RegisterSpellScript(spell_icecrown_through_the_eye_kill_credit_to_master);
+    RegisterSpellScript(spell_icecrown_summon_freed_crusader);
 }
