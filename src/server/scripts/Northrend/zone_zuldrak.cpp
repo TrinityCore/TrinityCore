@@ -31,118 +31,6 @@
 #include "Vehicle.h"
 
 /*####
-## npc_drakuru_shackles
-####*/
-
-enum DrakuruShackles
-{
-    NPC_RAGECLAW                             = 29686,
-    QUEST_TROLLS_IS_GONE_CRAZY               = 12861,
-    SPELL_CHAIN_OF_THE_SCURGE_RIGHT          = 54990,
-    SPELL_CHAIN_OF_THE_SCURGE_LEFT           = 55009,
-    SPELL_UNLOCK_SHACKLE                     = 55083,
-    SPELL_FREE_RAGECLAW                      = 55223
-};
-
-struct npc_drakuru_shackles : public ScriptedAI
-{
-    npc_drakuru_shackles(Creature* creature) : ScriptedAI(creature) { }
-
-    void Reset() override
-    {
-        _rageclawGUID.Clear();
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-
-        float x, y, z;
-        me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 0.1f);
-
-        if (Creature* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1s))
-        {
-            _rageclawGUID = summon->GetGUID();
-            LockRageclaw(summon);
-        }
-    }
-
-    void LockRageclaw(Creature* rageclaw)
-    {
-        // pointer check not needed
-        me->SetFacingToObject(rageclaw);
-        rageclaw->SetFacingToObject(me);
-    }
-
-    void UnlockRageclaw(Creature* rageclaw)
-    {
-        // pointer check not needed
-        DoCast(rageclaw, SPELL_FREE_RAGECLAW, true);
-
-        me->setDeathState(DEAD);
-    }
-
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-    {
-        Player* playerCaster = caster->ToPlayer();
-        if (!playerCaster)
-            return;
-
-        if (spellInfo->Id == SPELL_UNLOCK_SHACKLE)
-        {
-            if (playerCaster->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (Creature* rageclaw = ObjectAccessor::GetCreature(*me, _rageclawGUID))
-                {
-                    UnlockRageclaw(rageclaw);
-                    playerCaster->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
-                    me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_RIGHT);
-                    me->DespawnOrUnsummon();
-                }
-                else
-                    me->setDeathState(JUST_DIED);
-            }
-        }
-    }
-
-private:
-    ObjectGuid _rageclawGUID;
-};
-
-/*####
-## npc_captured_rageclaw
-####*/
-
-enum Rageclaw
-{
-    SPELL_UNSHACKLED                         = 55085,
-    SAY_RAGECLAW                             = 0
-};
-
-struct npc_captured_rageclaw : public ScriptedAI
-{
-    npc_captured_rageclaw(Creature* creature) : ScriptedAI(creature) { }
-
-    void Reset() override
-    {
-        me->SetFaction(FACTION_FRIENDLY);
-        DoCast(me, SPELL_CHAIN_OF_THE_SCURGE_RIGHT, true);
-    }
-
-    void MoveInLineOfSight(Unit* /*who*/) override { }
-
-    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-    {
-        if (spellInfo->Id == SPELL_FREE_RAGECLAW)
-        {
-            me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_LEFT);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetFaction(me->GetCreatureTemplate()->faction);
-            DoCast(me, SPELL_UNSHACKLED, true);
-            Talk(SAY_RAGECLAW);
-            me->GetMotionMaster()->MoveRandom(10);
-            me->DespawnOrUnsummon(10s);
-        }
-    }
-};
-
-/*####
 ## npc_released_offspring_harkoa
 ####*/
 
@@ -993,10 +881,33 @@ class spell_zuldrak_scourgewagon_explosion : public SpellScript
     }
 };
 
+/*######
+## Quest 12861: Trolls Is Gone Crazy!
+######*/
+
+// 54990 - Chains of the Scourge
+class spell_zuldrak_chains_of_the_scourge : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_chains_of_the_scourge);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_chains_of_the_scourge::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zuldrak()
 {
-    RegisterCreatureAI(npc_drakuru_shackles);
-    RegisterCreatureAI(npc_captured_rageclaw);
     RegisterCreatureAI(npc_released_offspring_harkoa);
     RegisterCreatureAI(npc_crusade_recruit);
     RegisterCreatureAI(npc_alchemist_finklestein);
@@ -1013,4 +924,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_cocooned_not_on_quest);
     RegisterSpellScript(spell_zuldrak_cocooned_on_quest);
     RegisterSpellScript(spell_zuldrak_scourgewagon_explosion);
+    RegisterSpellScript(spell_zuldrak_chains_of_the_scourge);
 }
