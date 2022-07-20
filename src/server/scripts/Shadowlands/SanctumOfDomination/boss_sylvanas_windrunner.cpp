@@ -238,10 +238,11 @@ enum Spells
 
 enum Phases
 {
+    PHASE_NONE                                          = 0,  
     PHASE_ONE                                           = 1,
-    PHASE_INTERMISSION                                  = 2,
-    PHASE_TWO                                           = 3,
-    PHASE_THREE                                         = 4
+    PHASE_INTERMISSION                                  = 11,
+    PHASE_TWO                                           = 2,
+    PHASE_THREE                                         = 3
 };
 
 enum Events
@@ -438,6 +439,11 @@ enum SpellVisuals
     SPELL_VISUAL_UNK01_177054                           = 107069, // At 1.0f
     SPELL_VISUAL_BANSHEE_FURY_IDK                       = 107476, // At 1.5f
     SPELL_VISUAL_UNK01_177787                           = 107063, // At 1.0f
+};
+
+enum WorldStates
+{
+    WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE                = 20348
 };
 
 enum Miscellanea
@@ -1254,6 +1260,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
         me->SummonCreatureGroup(SPAWN_GROUP_INITIAL);
 
+        me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
+
         events.Reset();
         _specialEvents.Reset();
 
@@ -1329,18 +1337,6 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        events.SetPhase(PHASE_ONE);
-
-        scheduler.Schedule(2s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_HAUNTING_WAVE, false);
-
-            task.Repeat(8s);
-        });
-
-        /*
-        DoAction(ACTION_PREPARE_PHASE_THREE);
-
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1357,7 +1353,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
 
-        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));*/
+        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
     }
 
     void DoAction(int32 action) override
@@ -1508,10 +1504,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 break;
 
             case ACTION_RESET_MELEE_KIT:
-            {
                 _meleeKitCombo = 0;
                 break;
-            }
 
             case ACTION_RANGER_SHOT:
             {
@@ -1539,6 +1533,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 events.CancelEventGroup(1);
 
                 me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
+
+                me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_INTERMISSION);
 
                 _specialEvents.SetPhase(PHASE_INTERMISSION);
                 events.SetPhase(PHASE_INTERMISSION);
@@ -1669,6 +1665,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
                     me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
+
+                    me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
 
                     events.SetPhase(PHASE_THREE);
                     events.ScheduleEvent(EVENT_BANSHEES_FURY, 1s + 500ms, 1, PHASE_THREE);
@@ -2331,6 +2329,11 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_STUN);
                         me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_SCENE);
+
+                        me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
+
+                        events.SetPhase(PHASE_TWO);
+                        _specialEvents.SetPhase(PHASE_TWO);
                     });
 
                     scheduler.Schedule(9s + 400ms, [this](TaskContext /*task*/)
