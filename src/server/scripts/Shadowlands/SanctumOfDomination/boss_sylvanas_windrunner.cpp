@@ -3458,6 +3458,11 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
+    void OnPrepare() override
+    {
+        GetCaster()->ApplySpellMod(GetSpellInfo(), SpellModOp::ChangeCastTime, 1500, GetSpell());
+    }
+
     void OnCast(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
