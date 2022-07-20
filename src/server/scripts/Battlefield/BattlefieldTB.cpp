@@ -45,8 +45,6 @@ bool BattlefieldTB::SetupBattlefield()
     m_TypeId = BATTLEFIELD_TB;                              // See enum BattlefieldTypes
     m_BattleId = BATTLEFIELD_BATTLEID_TB;
     m_ZoneId = BATTLEFIELD_TB_ZONEID;
-    m_MapId = BATTLEFIELD_TB_MAPID;
-    m_Map = sMapMgr->CreateBaseMap(m_MapId);
 
     InitStalker(NPC_DEBUG_ANNOUNCER, TolBaradDebugAnnouncerPos);
 
@@ -757,9 +755,9 @@ class Battlefield_tol_barad : public BattlefieldScript
 public:
     Battlefield_tol_barad() : BattlefieldScript("battlefield_tb") { }
 
-    Battlefield* GetBattlefield() const override
+    Battlefield* GetBattlefield(Map* map) const override
     {
-        return new BattlefieldTB();
+        return new BattlefieldTB(map);
     }
 };
 

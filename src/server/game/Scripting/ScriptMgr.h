@@ -528,7 +528,7 @@ class TC_GAME_API BattlefieldScript : public ScriptObject
 
         ~BattlefieldScript();
 
-        virtual Battlefield* GetBattlefield() const = 0;
+        virtual Battlefield* GetBattlefield(Map* map) const = 0;
 };
 
 class TC_GAME_API BattlegroundScript : public ScriptObject
@@ -1160,7 +1160,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* BattlefieldScript */
 
-        Battlefield* CreateBattlefield(uint32 scriptId);
+        Battlefield* CreateBattlefield(uint32 scriptId, Map* map);
 
     public: /* BattlegroundScript */
 
