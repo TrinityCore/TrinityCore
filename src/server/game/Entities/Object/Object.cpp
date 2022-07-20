@@ -1901,7 +1901,7 @@ ZoneScript* WorldObject::FindZoneScript() const
             return reinterpret_cast<ZoneScript*>(instanceMap->GetInstanceScript());
         else if (!map->IsBattlegroundOrArena())
         {
-            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(map, GetZoneId()))
                 return bf;
             else
                 return sOutdoorPvPMgr->GetOutdoorPvPToZoneId(map, GetZoneId());

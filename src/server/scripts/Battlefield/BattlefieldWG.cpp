@@ -411,8 +411,6 @@ bool BattlefieldWG::SetupBattlefield()
     m_TypeId = BATTLEFIELD_WG;                              // See enum BattlefieldTypes
     m_BattleId = BATTLEFIELD_BATTLEID_WG;
     m_ZoneId = AREA_WINTERGRASP;
-    m_MapId = BATTLEFIELD_WG_MAPID;
-    m_Map = sMapMgr->CreateBaseMap(m_MapId);
 
     InitStalker(BATTLEFIELD_WG_NPC_STALKER, WintergraspStalkerPos);
 
@@ -1477,6 +1475,26 @@ void BfWGGameObjectBuilding::Init(GameObject* go)
     }
 
     _state = WintergraspGameObjectState(sWorldStateMgr->GetValue(_worldState, _wg->GetMap()));
+    if (_state == BATTLEFIELD_WG_OBJECTSTATE_NONE)
+    {
+        // set to default state based on type
+        switch (_teamControl)
+        {
+            case TEAM_ALLIANCE:
+                _state = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT;
+                break;
+            case TEAM_HORDE:
+                _state = BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT;
+                break;
+            case TEAM_NEUTRAL:
+                _state = BATTLEFIELD_WG_OBJECTSTATE_NEUTRAL_INTACT;
+                break;
+            default:
+                break;
+        }
+        sWorldStateMgr->SetValueAndSaveInDb(_worldState, _state, false, _wg->GetMap());
+    }
+
     switch (_state)
     {
         case BATTLEFIELD_WG_OBJECTSTATE_NEUTRAL_INTACT:
@@ -1774,9 +1792,9 @@ class Battlefield_wintergrasp : public BattlefieldScript
 public:
     Battlefield_wintergrasp() : BattlefieldScript("battlefield_wg") { }
 
-    Battlefield* GetBattlefield() const override
+    Battlefield* GetBattlefield(Map* map) const override
     {
-        return new BattlefieldWG();
+        return new BattlefieldWG(map);
     }
 };
 
@@ -1794,7 +1812,7 @@ public:
             if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            BattlefieldWG* wintergrasp = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG));
+            BattlefieldWG* wintergrasp = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(killer->GetMap(), BATTLEFIELD_BATTLEID_WG));
             if (!wintergrasp)
                 return;
 
