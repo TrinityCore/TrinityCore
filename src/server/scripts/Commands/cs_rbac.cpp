@@ -35,6 +35,7 @@ EndScriptData */
 
 struct RBACCommandData
 {
+    RBACCommandData(rbac::RBACData* rbac_, bool needDelete_) : rbac(rbac_), needDelete(needDelete_) { }
     RBACCommandData(RBACCommandData const&) = delete;
     ~RBACCommandData()
     {

@@ -43,6 +43,12 @@ class TC_GAME_API OutdoorPvPMgr
         ~OutdoorPvPMgr();
 
     public:
+        OutdoorPvPMgr(OutdoorPvPMgr const&) = delete;
+        OutdoorPvPMgr(OutdoorPvPMgr&&) = delete;
+
+        OutdoorPvPMgr& operator= (OutdoorPvPMgr const&) = delete;
+        OutdoorPvPMgr& operator= (OutdoorPvPMgr&&) = delete;
+
         static OutdoorPvPMgr* instance();
 
         // create outdoor pvp events
