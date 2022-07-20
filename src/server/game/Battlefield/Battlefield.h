@@ -212,7 +212,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
     public:
         /// Constructor
-        Battlefield();
+        explicit Battlefield(Map* map);
         /// Destructor
         virtual ~Battlefield();
 

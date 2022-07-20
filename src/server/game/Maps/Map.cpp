@@ -16,6 +16,7 @@
  */
 
 #include "Map.h"
+#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
@@ -96,6 +97,7 @@ Map::~Map()
         sMapMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
     sOutdoorPvPMgr->DestroyOutdoorPvPForMap(this);
+    sBattlefieldMgr->DestroyBattlefieldsForMap(this);
 
     if (m_parentMap == this)
         delete m_childTerrainMaps;
@@ -379,6 +381,7 @@ i_scriptLock(false), _respawnCheckTimer(0)
     _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
 
     sOutdoorPvPMgr->CreateOutdoorPvPForMap(this);
+    sBattlefieldMgr->CreateBattlefieldsForMap(this);
 
     sScriptMgr->OnCreateMap(this);
 }
