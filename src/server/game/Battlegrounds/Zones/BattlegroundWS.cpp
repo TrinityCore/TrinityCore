@@ -160,6 +160,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
             _flagSpellForceTimer += diff;
             if (_flagDebuffState == 0 && _flagSpellForceTimer >= 10*MINUTE*IN_MILLISECONDS)  //10 minutes
             {
+                // Apply Stage 1 (Focused Assault)
                 if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[0]))
                     player->CastSpell(player, WS_SPELL_FOCUSED_ASSAULT, true);
                 if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[1]))
@@ -168,6 +169,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
             }
             else if (_flagDebuffState == 1 && _flagSpellForceTimer >= 15*MINUTE*IN_MILLISECONDS) //15 minutes
             {
+                // Apply Stage 2 (Brutal Assault)
                 if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[0]))
                 {
                     player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
@@ -181,8 +183,12 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
                 _flagDebuffState = 2;
             }
         }
-        else
+        else if ((_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_BASE || _flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN) &&
+         (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_BASE || _flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_WAIT_RESPAWN))
         {
+            // Both flags are in base or awaiting respawn.
+            // Remove assault debuffs, reset timers
+
             if (Player* player = ObjectAccessor::FindPlayer(m_FlagKeepers[0]))
             {
                 player->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
@@ -497,6 +503,11 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
         player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
         if (_flagState[1] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
+
+        if (_flagDebuffState == 1)
+          player->CastSpell(player, WS_SPELL_FOCUSED_ASSAULT, true);
+        else if (_flagDebuffState == 2)
+          player->CastSpell(player, WS_SPELL_BRUTAL_ASSAULT, true);
     }
 
     //horde flag picked up from base
@@ -515,6 +526,11 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
         player->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_WARSONG_FLAG_PICKED);
         if (_flagState[0] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
+
+        if (_flagDebuffState == 1)
+          player->CastSpell(player, WS_SPELL_FOCUSED_ASSAULT, true);
+        else if (_flagDebuffState == 2)
+          player->CastSpell(player, WS_SPELL_BRUTAL_ASSAULT, true);
     }
 
     //Alliance flag on ground(not in base) (returned or picked up again from ground!)

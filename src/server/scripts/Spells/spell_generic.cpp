@@ -354,52 +354,6 @@ class spell_gen_aura_of_fear : public AuraScript
     }
 };
 
-enum ServiceUniform
-{
-    // Spells
-    SPELL_SERVICE_UNIFORM       = 71450,
-
-    // Models
-    MODEL_GOBLIN_MALE           = 31002,
-    MODEL_GOBLIN_FEMALE         = 31003
-};
-
-class spell_gen_aura_service_uniform : public AuraScript
-{
-    PrepareAuraScript(spell_gen_aura_service_uniform);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SERVICE_UNIFORM });
-    }
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        // Apply model goblin
-        Unit* target = GetTarget();
-        if (target->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (target->GetNativeGender() == GENDER_MALE)
-                target->SetDisplayId(MODEL_GOBLIN_MALE);
-            else
-                target->SetDisplayId(MODEL_GOBLIN_FEMALE);
-        }
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-        if (target->GetTypeId() == TYPEID_PLAYER)
-            target->RestoreDisplayId();
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectRemoveFn(spell_gen_aura_service_uniform::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_aura_service_uniform::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 class spell_gen_av_drekthar_presence : public AuraScript
 {
     PrepareAuraScript(spell_gen_av_drekthar_presence);
@@ -1669,6 +1623,94 @@ class spell_steal_essence_visual : public AuraScript
     }
 };
 
+enum Feast
+{
+    SPELL_GREAT_FEAST                   = 57337,
+    SPELL_FISH_FEAST                    = 57397,
+    SPELL_GIGANTIC_FEAST                = 58466,
+    SPELL_SMALL_FEAST                   = 58475,
+    SPELL_BOUNTIFUL_FEAST               = 66477,
+
+    SPELL_FEAST_FOOD                    = 45548,
+    SPELL_FEAST_DRINK                   = 57073,
+    SPELL_BOUNTIFUL_FEAST_DRINK         = 66041,
+    SPELL_BOUNTIFUL_FEAST_FOOD          = 66478,
+
+    SPELL_GREAT_FEAST_REFRESHMENT       = 57338,
+    SPELL_FISH_FEAST_REFRESHMENT        = 57398,
+    SPELL_GIGANTIC_FEAST_REFRESHMENT    = 58467,
+    SPELL_SMALL_FEAST_REFRESHMENT       = 58477,
+    SPELL_BOUNTIFUL_FEAST_REFRESHMENT   = 66622
+};
+
+/* 57337 - Great Feast
+   57397 - Fish Feast
+   58466 - Gigantic Feast
+   58475 - Small Feast
+   66477 - Bountiful Feast */
+class spell_gen_feast : public SpellScript
+{
+    PrepareSpellScript(spell_gen_feast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_FEAST_FOOD,
+            SPELL_FEAST_DRINK,
+            SPELL_BOUNTIFUL_FEAST_DRINK,
+            SPELL_BOUNTIFUL_FEAST_FOOD,
+
+            SPELL_GREAT_FEAST_REFRESHMENT,
+            SPELL_FISH_FEAST_REFRESHMENT,
+            SPELL_GIGANTIC_FEAST_REFRESHMENT,
+            SPELL_SMALL_FEAST_REFRESHMENT,
+            SPELL_BOUNTIFUL_FEAST_REFRESHMENT
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_GREAT_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_GREAT_FEAST_REFRESHMENT);
+                break;
+            case SPELL_FISH_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_FISH_FEAST_REFRESHMENT);
+                break;
+            case SPELL_GIGANTIC_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_GIGANTIC_FEAST_REFRESHMENT);
+                break;
+            case SPELL_SMALL_FEAST:
+                target->CastSpell(target, SPELL_FEAST_FOOD);
+                target->CastSpell(target, SPELL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_SMALL_FEAST_REFRESHMENT);
+                break;
+            case SPELL_BOUNTIFUL_FEAST:
+                target->CastSpell(target, SPELL_BOUNTIFUL_FEAST_REFRESHMENT);
+                target->CastSpell(target, SPELL_BOUNTIFUL_FEAST_DRINK);
+                target->CastSpell(target, SPELL_BOUNTIFUL_FEAST_FOOD);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_feast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 /*
 There are only 3 possible flags Feign Death auras can apply: UNIT_DYNFLAG_DEAD, UNIT_FLAG2_FEIGN_DEATH
 and UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT. Some auras can apply only 2 flags
@@ -1971,6 +2013,83 @@ class spell_gen_gryphon_wyvern_mount_check : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_gryphon_wyvern_mount_check::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+/* 9204 - Hate to Zero (Melee)
+  20538 - Hate to Zero (AoE)
+  26569 - Hate to Zero (AoE)
+  26637 - Hate to Zero (AoE, Unique)
+  37326 - Hate to Zero (AoE)
+  40410 - Hate to Zero (Should be added, AoE)
+  40467 - Hate to Zero (Should be added, AoE)
+  41582 - Hate to Zero (Should be added, Melee) */
+class spell_gen_hate_to_zero : public SpellScript
+{
+    PrepareSpellScript(spell_gen_hate_to_zero);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->CanHaveThreatList())
+            GetCaster()->GetThreatManager().ModifyThreatByPercent(GetHitUnit(), -100);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_hate_to_zero::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// This spell is used by both player and creature, but currently works only if used by player
+// 63984 - Hate to Zero
+class spell_gen_hate_to_zero_caster_target : public SpellScript
+{
+    PrepareSpellScript(spell_gen_hate_to_zero_caster_target);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            if (target->CanHaveThreatList())
+                target->GetThreatManager().ModifyThreatByPercent(GetCaster(), -100);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_hate_to_zero_caster_target::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 19707 - Hate to 50%
+class spell_gen_hate_to_50 : public SpellScript
+{
+    PrepareSpellScript(spell_gen_hate_to_50);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->CanHaveThreatList())
+            GetCaster()->GetThreatManager().ModifyThreatByPercent(GetHitUnit(), -50);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_hate_to_50::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 26886 - Hate to 75%
+class spell_gen_hate_to_75 : public SpellScript
+{
+    PrepareSpellScript(spell_gen_hate_to_75);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->CanHaveThreatList())
+            GetCaster()->GetThreatManager().ModifyThreatByPercent(GetHitUnit(), -25);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_hate_to_75::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -4480,7 +4599,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_spawn_blood_pool);
     RegisterSpellScript(spell_gen_arena_drink);
     RegisterSpellScript(spell_gen_aura_of_fear);
-    RegisterSpellScript(spell_gen_aura_service_uniform);
     RegisterSpellScript(spell_gen_av_drekthar_presence);
     RegisterSpellScript(spell_gen_bandage);
     RegisterSpellScript(spell_gen_black_magic);
@@ -4518,6 +4636,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_ethereal_pet_onsummon);
     RegisterSpellScript(spell_ethereal_pet_aura_remove);
     RegisterSpellScript(spell_steal_essence_visual);
+    RegisterSpellScript(spell_gen_feast);
     RegisterSpellScript(spell_gen_feign_death_all_flags);
     RegisterSpellScript(spell_gen_feign_death_no_dyn_flag);
     RegisterSpellScript(spell_gen_feign_death_no_prevent_emotes);
@@ -4527,6 +4646,10 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_gift_of_naaru);
     RegisterSpellScript(spell_gen_gnomish_transporter);
     RegisterSpellScript(spell_gen_gryphon_wyvern_mount_check);
+    RegisterSpellScript(spell_gen_hate_to_zero);
+    RegisterSpellScript(spell_gen_hate_to_zero_caster_target);
+    RegisterSpellScript(spell_gen_hate_to_50);
+    RegisterSpellScript(spell_gen_hate_to_75);
     RegisterSpellScript(spell_gen_injured);
     RegisterSpellScript(spell_gen_lifeblood);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
