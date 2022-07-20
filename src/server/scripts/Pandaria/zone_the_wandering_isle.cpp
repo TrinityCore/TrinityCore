@@ -138,7 +138,6 @@ private:
     TaskScheduler _scheduler;
     EventMap events;
     float range = 20.0f;
-
 };
 
 struct npc_instructor_zhi : public ScriptedAI
@@ -151,7 +150,6 @@ struct npc_instructor_zhi : public ScriptedAI
         {
         Emote randomEmote = Trinity::Containers::SelectRandomContainerElement(randomEmotes);
         me->HandleEmoteCommand(randomEmote);
-            
         }
     }
 };
