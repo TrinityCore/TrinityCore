@@ -4769,7 +4769,7 @@ void Player::RepopAtGraveyard()
         ClosestGrave = bg->GetClosestGraveyard(this);
     else
     {
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
             ClosestGrave = bf->GetClosestGraveyard(this);
         else
             ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
@@ -26736,7 +26736,7 @@ bool Player::IsAreaThatActivatesPvpTalents(uint32 areaID) const
             if (area->Flags[0] & AREA_FLAG_ARENA)
                 return true;
 
-            if (sBattlefieldMgr->GetBattlefieldToZoneId(area->ID))
+            if (sBattlefieldMgr->IsWorldPvpArea(area->ID))
                 return true;
 
             area = sAreaTableStore.LookupEntry(area->ParentAreaID);
