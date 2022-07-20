@@ -200,6 +200,7 @@ class WintergraspCapturePoint : public BfCapturePoint
 class BattlefieldWG : public Battlefield
 {
     public:
+        using Battlefield::Battlefield;
         ~BattlefieldWG();
         /**
          * \brief Called when the battle start
