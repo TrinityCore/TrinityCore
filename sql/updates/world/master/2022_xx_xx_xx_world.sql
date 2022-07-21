@@ -477,20 +477,20 @@ INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data
 (27432, 0, 1, 0, 2, 19.5, 5, 2, 19.5, 5, 41079); -- Invigorating Field
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (23349, 23389, 22400, 23034, 23028, 5428, 23694, 23693, 23673, 23096, 23507, 23506, 23117, 40001);
-INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ScriptName`, `VerifiedBuild`) VALUES 
-(22400, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 5000, 0, 6, 6, 0, 0, 0, 0, 'at_sylvanas_windrunner_disecrating_shot', 41079), -- Desecrating Shot (348626)
-(23389, 27687, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 'at_sylvanas_windrunner_calamity', 41488), -- Calamity - Heroic Mode
-(23034, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 2500, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_rive_marker', 41079), -- Rive Marker (353419)
-(23028, 27408, 25793, 0, 0, 0, -1, 0, 0, 2653, 4000, 1, 5, 2.5, 3.5, 5, 2.5, 3.5, 'at_sylvanas_windrunner_rive', 41079), -- Rive (353375)
-(5428, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 'at_sylvanas_windrunner_bridges', 41079), -- Channel Ice (354476, 354574, 354573) and Call Earth (354577, 354575, 354576)
-(23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave - Normal Mode (351869)
-(23693, 27928, 0, 28658, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Heroic Mode (351869)
-(23673, 27927, 0, 28419, 0, 0, -1, 0, 0, 10000, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Mythic Mode (351869)
-(23096, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 3.6, 3.6, 0, 0, 0, 0, 'at_sylvanas_windrunner_banshee_bane', 41488), -- Banshee's Bane (the spell associated on areatrigger_create_properties is 0, likely a serverside spell)
-(23506, 27782, 0, 0, 0, 0, -1, 0, 0, 0, 10000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357729)
-(23507, 27783, 0, 0, 0, 0, -1, 0, 0, 0, 7000, 0, 100, 100, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357730)
-(23117, 27480, 0, 0, 0, 0, -1, 0, 462, 0, 0, 1, 20, 20, 5, 20, 20, 5, 'at_sylvanas_windrunner_raze', 41079), -- Raze (354145)
-(40001, 27432, 0, 0, 0, 0, 0, 0, 0, 1, 2, 19.5, 5, 2, 19.5, 5, 0, 0, 'at_sylvanas_windrunner_invigorating_field', 0); -- Invigorating Field (353660) NOTE: This one is a custom Id.
+INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
+(5428, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_bridges', 41079), -- Channel Ice (354476, 354574, 354573) and Call Earth (354577, 354575, 354576)
+(22400, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 5000, 0, 6, 6, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_disecrating_shot', 41079), -- Desecrating Shot (348626)
+(23028, 27408, 25793, 0, 0, 0, -1, 0, 0, 2653, 4000, 1, 5, 2.5, 3.5, 5, 2.5, 3.5, 0, 0, 'at_sylvanas_windrunner_rive', 41079), -- Rive (353375)
+(23034, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 2500, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_rive_marker', 41079), -- Rive Marker (353419)
+(23096, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 3.6, 3.6, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_banshee_bane', 41488), -- Rive Marker (353419)
+(23117, 27480, 0, 0, 0, 0, -1, 0, 462, 0, 0, 1, 20, 20, 5, 20, 20, 5, 0, 0, 'at_sylvanas_windrunner_raze', 41079), -- Raze (354145)
+(23389, 27687, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_calamity', 41488), -- Calamity - Heroic Mode
+(23506, 27782, 0, 0, 0, 0, -1, 0, 0, 0, 10000, 0, 100, 100, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357729)
+(23507, 27783, 0, 0, 0, 0, -1, 0, 0, 0, 7000, 0, 100, 100, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_blasphemy', 41079), -- Blasphemy (357730)
+(23673, 27927, 0, 28419, 0, 0, -1, 0, 0, 10000, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 0, 0, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Mythic Mode (351869)
+(23693, 27928, 0, 28658, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 0, 0, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Heroic Mode (351869)
+(23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 0, 0, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave - Normal Mode (351869)
+(40001, 27432, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 2, 19.5, 5, 2, 19.5, 5, 0, 0, 'at_sylvanas_windrunner_invigorating_field', 0); -- Invigorating Field (353660) NOTE: This one is a custom Id.
 
 DELETE FROM `areatrigger_create_properties_spline_point` WHERE `AreaTriggerCreatePropertiesId` IN (23028, 23694, 23693);
 INSERT INTO `areatrigger_create_properties_spline_point` (`AreaTriggerCreatePropertiesId`, `Idx`, `X`, `Y`, `Z`, `VerifiedBuild`) VALUES

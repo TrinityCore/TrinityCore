@@ -239,9 +239,10 @@ enum Phases
 {
     PHASE_NONE                                          = 0,  
     PHASE_ONE                                           = 1,
-    PHASE_INTERMISSION                                  = 11,
+    PHASE_INTERMISSION                                  = 4,
     PHASE_TWO                                           = 2,
-    PHASE_THREE                                         = 3
+    PHASE_THREE                                         = 3,
+    PHASE_INTERMISSION_WORLD_STATE                      = 11
 };
 
 enum Events
@@ -1333,6 +1334,9 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
+        DoAction(ACTION_PREPARE_PHASE_THREE);
+
+        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1349,7 +1353,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
 
-        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
+        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));*/
     }
 
     void DoAction(int32 action) override
@@ -1530,7 +1534,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
 
-                me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_INTERMISSION);
+                me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_INTERMISSION_WORLD_STATE);
 
                 _specialEvents.SetPhase(PHASE_INTERMISSION);
                 events.SetPhase(PHASE_INTERMISSION);
@@ -1740,9 +1744,9 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     me->AddAura(SPELL_RANGER_BOW_STANCE, me);
 
-                    // NOTE: unsure what happens on the fifth cast, no group takes that much time to phase into intermission, we won't probably know until next expansion launches, so we're resetting to 0 just in case.
+                    // NOTE: unsure what happens on the fifth cast, no group takes that much time to phase into intermission, we won't probably know until next expansion launches, so we're resetting to 1 just in case.
                     if (_windrunnerCastTimes == 4)
-                        _windrunnerCastTimes = 0;
+                        _windrunnerCastTimes = 1;
                     else
                         _windrunnerCastTimes++;
 
@@ -1872,9 +1876,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DESECRATING_SHOT:
                 {
-                    ChooseDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
-
-                    /*
                     _disecratingShotCastTimes++;
 
                     if (_windrunnerCastTimes == 1)
@@ -1885,15 +1886,13 @@ struct boss_sylvanas_windrunner : public BossAI
                         ChooseDesecratingShotPattern(_disecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
                     else if (_windrunnerCastTimes == 4)
                         ChooseDesecratingShotPattern(_disecratingShotCastTimes == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
-                    */
-
-                    events.Repeat(8s);
                     break;
                 }
 
                 case EVENT_DOMINATION_CHAINS:
                 {
                     me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
+
                     Position const jumpFirstPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
                     Position const jumpSecondPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
                     Position const jumpThirdPos = me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f));
@@ -2442,7 +2441,7 @@ struct boss_sylvanas_windrunner : public BossAI
             }
         }
 
-        //DoSylvanasAttackIfReady();
+        DoSylvanasAttackIfReady();
     }
 
     void DoSylvanasAttackIfReady()
@@ -3449,7 +3448,8 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
 
     void OnPrecast() override
     {
-        GetSpell()->SetCastTime(1500);
+        if (GetCaster()->GetAreaId() == AREA_THE_CRUCIBLE)
+            GetSpell()->SetCastTime(1500);
     }
 
     void OnCast(SpellEffIndex /*effIndex*/)
