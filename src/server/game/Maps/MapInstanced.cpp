@@ -141,7 +141,7 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
             }
         }
     }
-    else if (!IsGarrison())
+    else if (IsDungeon())
     {
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficultyID(GetEntry()));
         InstanceSave* pSave = pBind ? pBind->save : nullptr;
@@ -198,7 +198,7 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
                 map = CreateInstance(newInstanceId, nullptr, diff, player->GetTeamId());
         }
     }
-    else
+    else if (IsGarrison())
     {
         newInstanceId = player->GetGUID().GetCounter();
         map = FindInstanceMap(newInstanceId);
