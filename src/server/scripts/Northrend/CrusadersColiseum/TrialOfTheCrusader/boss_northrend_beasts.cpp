@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdlib>
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -396,7 +397,7 @@ struct boss_gormok : public boss_northrend_beastsAI
 
 struct npc_snobold_vassal : public ScriptedAI
 {
-    npc_snobold_vassal(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _mountedOnPlayer(false), _gormokDead(false)
+    npc_snobold_vassal(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _mountedOnPlayer(false), _gormokDead(false), _firstMount(false)
     {
         _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
         SetCombatMovement(false);
@@ -464,8 +465,10 @@ struct npc_snobold_vassal : public ScriptedAI
     void MountOnBoss()
     {
         Unit* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER);
-        if (gormok && gormok->IsAlive())
+        _gormokDead = !gormok || !gormok->IsAlive();
+        if (!_gormokDead && !_firstMount)
         {
+            _firstMount = true;
             me->AttackStop();
             _targetGUID.Clear();
             _mountedOnPlayer = false;
@@ -489,8 +492,7 @@ struct npc_snobold_vassal : public ScriptedAI
             _events.CancelEvent(EVENT_FIRE_BOMB);
             me->AttackStop();
             SetCombatMovement(true);
-            _gormokDead = true;
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+            if (Unit* target = SelectNewVictim())
             {
                 AttackStart(target);
                 me->GetMotionMaster()->MoveChase(target);
@@ -500,10 +502,49 @@ struct npc_snobold_vassal : public ScriptedAI
         }
     }
 
+    Player* SelectNewVictim()
+    {
+        const Map::PlayerList& players = me->GetMap()->GetPlayers();
+        std::vector<Player*> availablePlayers;
+        for (auto i = players.begin(); i != players.end(); ++i)
+        {
+            if (!i->GetSource()->IsAlive())
+            {
+                continue;
+            }
+
+            availablePlayers.push_back(i->GetSource());
+        }
+
+        if (availablePlayers.size() == 0)
+        {
+            return nullptr;
+        }
+
+        srand(me->GetMap()->GetInstanceId());
+        int playerIndex = rand() % availablePlayers.size();
+        return availablePlayers[playerIndex];
+    }
+
     void UpdateAI(uint32 diff) override
     {
+        if (!me->GetVictim() || !me->GetVictim()->IsAlive())
+        {
+            auto vehicle = me->GetVehicleBase();
+            if (vehicle && vehicle->GetGUID().IsPlayer())
+            {
+                me->ExitVehicle();
+            }
+
+            _targetGUID.Clear();
+            _mountedOnPlayer = false;
+            MountOnBoss();
+        }
+
         if (!UpdateVictim())
+        {
             return;
+        }
 
         _events.Update(diff);
 
@@ -537,7 +578,7 @@ struct npc_snobold_vassal : public ScriptedAI
                     DoCastSelf(SPELL_SNOBOLLED);
                     break;
                 case EVENT_CHECK_MOUNT:
-                    if (!me->GetVehicleBase())
+                    if (!me->GetVehicleBase() && !me->GetVictim())
                         MountOnBoss();
                     _events.Repeat(3s);
                     break;
@@ -560,6 +601,7 @@ private:
     ObjectGuid _targetGUID;
     bool _mountedOnPlayer;
     bool _gormokDead;
+    bool _firstMount;
 };
 
 struct npc_fire_bomb : public ScriptedAI
@@ -1215,7 +1257,7 @@ class spell_jormungars_slime_pool : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -1290,7 +1332,7 @@ class spell_icehowl_arctic_breath : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1341,7 +1383,7 @@ class spell_icehowl_massive_crash : public AuraScript
     void HandleSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* target = GetTarget()->ToPlayer())
-            if (target->GetMap()->IsHeroic())
+            if (target->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC || target->GetRaidDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
                 target->CastSpell(target, SPELL_SURGE_OF_ADRENALINE, true);
     }
 
