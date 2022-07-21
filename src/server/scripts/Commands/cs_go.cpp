@@ -340,19 +340,16 @@ public:
         AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID) : areaEntry;
         ASSERT(zoneEntry);
 
-        Map* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
+        x /= 100.0f;
+        y /= 100.0f;
 
-        if (map->Instanceable())
+        Map* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
+        if (!sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y))
         {
             handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaId, areaEntry->AreaName[handler->GetSessionDbcLocale()], map->GetId(), map->GetMapName());
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        x /= 100.0f;
-        y /= 100.0f;
-
-        sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y);
 
         if (!MapManager::IsValidMapCoord(zoneEntry->ContinentID, x, y))
         {
