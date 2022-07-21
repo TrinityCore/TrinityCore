@@ -1333,7 +1333,6 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1348,18 +1347,9 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
-        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);*/
+        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
 
         me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
-
-        events.SetPhase(PHASE_ONE);
-
-        scheduler.Schedule(1s, [this](TaskContext task)
-        {
-            _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 1ms, 0, PHASE_ONE);
-
-            task.Repeat(12s);
-        });
     }
 
     void DoAction(int32 action) override
@@ -2341,7 +2331,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     // TODO: This timer is partially wrong because there must be a bool check to know whether everyone in the raid has skipped the scene,
                     // in which case the timer is forced to happen instantly rather than having to wait for it completely. The idea should be behind
-                    // the packet that is sent OnSceneSkip, send data anytime it happens and, in the case of equaling the raid's size, force it
+                    // OnSceneCancel, send data anytime it happens and, in the case of equaling the raid's size, force it.
                     scheduler.Schedule(38s + 400ms, [this](TaskContext /*task*/)
                     {
                         if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
