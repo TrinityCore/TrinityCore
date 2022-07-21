@@ -57,8 +57,8 @@ enum Spells
 
     // Windrunner
     SPELL_WINDRUNNER                                    = 347504,
-    SPELL_WINDRUNNER_DISAPPEAR_01                       = 352303, // 2 SpellXSpellVisual
-    SPELL_WINDRUNNER_DISAPPEAR_02                       = 358975, // 2 SpellXSpellVisual
+    SPELL_WINDRUNNER_DISAPPEAR_01                       = 352303,
+    SPELL_WINDRUNNER_DISAPPEAR_02                       = 358975,
     SPELL_WINDRUNNER_SPIN                               = 351187,
     SPELL_WINDRUNNER_MOVE                               = 347606,
     SPELL_WINDRUNNER_SHOT_01                            = 347604, // Not on the sniff
@@ -69,7 +69,7 @@ enum Spells
     // Shadow Dagger
     SPELL_SHADOW_DAGGER_COPY                            = 358964,
     SPELL_SHADOW_DAGGER                                 = 347670,
-    SPELL_SHADOW_DAGGER_AOE                             = 353935, // 2 SpellXSpellVisual
+    SPELL_SHADOW_DAGGER_AOE                             = 353935,
     SPELL_SHADOW_DAGGER_MISSILE                         = 348089,
     SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE             = 353935,
 
@@ -96,8 +96,7 @@ enum Spells
 
     // Wailing Arrow
     SPELL_WAILING_ARROW_POINTER                         = 348064,
-    SPELL_WAILING_ARROW                                 = 347609, // 2 SpellXSpellVisual
-    SPELL_WAILING_ARROW_CAST_JUMP                       = 355839,
+    SPELL_WAILING_ARROW                                 = 347609,
 
     // Domination Chains
     SPELL_DOMINATION_CHAINS_JUMP                        = 347602,
@@ -107,7 +106,7 @@ enum Spells
     SPELL_DOMINATION_ARROW_FALL_AND_VISUAL              = 352319,
     SPELL_DOMINATION_ARROW_ACTIVATE                     = 356650,
     SPELL_DOMINATION_ARROW_CALAMITY_VISUAL              = 356769,
-    SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER         = 356624, // 2 SpellXSpellVisual
+    SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER         = 356624,
     SPELL_DOMINATION_ARROW_CALAMITY_DAMAGE              = 356649,
 
     SPELL_DOMINATION_CHAIN_PLAYER                       = 349451,
@@ -123,7 +122,7 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE                 = 352470,
     SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW                 = 350335,
     SPELL_VEIL_OF_DARKNESS_PHASE_1_AREA                 = 357726,
-    SPELL_VEIL_OF_DARKNESS_PHASE_1                      = 347726, // 4 SpellXSpellVisual
+    SPELL_VEIL_OF_DARKNESS_PHASE_1                      = 347726,
 
     // Banshee Shroud
     SPELL_BANSHEE_SHROUD                                = 350857,
@@ -141,7 +140,7 @@ enum Spells
     SPELL_RIVE_MYTHIC_COPY                              = 358431,
 
     // Banshee Wail
-    SPELL_BANSHEE_WAIL                                  = 348094, // 3 SpellXSpellVisual
+    SPELL_BANSHEE_WAIL                                  = 348094,
     SPELL_BANSHEE_WAIL_TRIGGERED_MISSILE                = 348108,
     SPELL_BANSHEE_WAIL_MISSILE                          = 348133,
     SPELL_BANSHEE_WAIL_SILENCE                          = 351253,
@@ -352,9 +351,6 @@ enum SpellVisualKits
     SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN        = 142389,
     SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS         = 143940,
     SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN    = 142388,
-    SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE      = 142447,
-    SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_JUMP        = 145145,
-    SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_EFFECT      = 146199,
     SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS          = 142021,
     SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK                = 145541,
     SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK_FAST           = 145608,
@@ -1337,6 +1333,7 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
+        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1351,9 +1348,18 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
-        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
+        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);*/
 
         me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
+
+        events.SetPhase(PHASE_ONE);
+
+        scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 1ms, 0, PHASE_ONE);
+
+            task.Repeat(12s);
+        });
     }
 
     void DoAction(int32 action) override
@@ -2035,16 +2041,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true, SPELL_WAILING_ARROW_POINTER))
                             me->CastSpell(target, SPELL_WAILING_ARROW, false);
-
-                        // HACKFIX: TC needs to implement ViewerPlayerConditionID for SpellXSpellVisual to show the spell correctly.
-                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_CHARGE, 0, 0);
-                    });
-
-                    scheduler.Schedule(2s + 600ms, [this](TaskContext /*task*/)
-                    {
-                        // HACKFIX: TC needs to implement ViewerPlayerConditionID for SpellXSpellVisual to show the spell correctly.
-                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_JUMP, 0, 0);
-                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_WAILING_ARROW_EFFECT, 0, 0);
                     });
 
                     scheduler.Schedule(4s + 500ms, [this](TaskContext /*task*/)
@@ -2343,6 +2339,9 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->NearTeleportTo(SylvanasPhase2PrePos, false);
                     });
 
+                    // TODO: This timer is partially wrong because there must be a bool check to know whether everyone in the raid has skipped the scene,
+                    // in which case the timer is forced to happen instantly rather than having to wait for it completely. The idea should be behind
+                    // the packet that is sent OnSceneSkip, send data anytime it happens and, in the case of equaling the raid's size, force it
                     scheduler.Schedule(38s + 400ms, [this](TaskContext /*task*/)
                     {
                         if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))

@@ -474,7 +474,7 @@ INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data
 (27928, 0, 1, 34, 1.75, 4, 2, 1.75, 4, 2, 41488), -- Haunting Wave - Heroic Mode
 (27927, 0, 1, 34, 1.75, 4, 2, 1.75, 4, 2, 44232), -- Haunting Wave - Mythic Mode
 (27480, 0, 1, 0, 30, 30, 5, 30, 30, 5, 41488), -- Raze
-(27432, 0, 1, 0, 2, 19.5, 5, 2, 19.5, 5, 0, 0, 41079); -- Invigorating Field
+(27432, 0, 1, 0, 2, 19.5, 5, 2, 19.5, 5, 41079); -- Invigorating Field
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (23349, 23389, 22400, 23034, 23028, 5428, 23694, 23693, 23673, 23096, 23507, 23506, 23117, 40001);
 INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ScriptName`, `VerifiedBuild`) VALUES 
