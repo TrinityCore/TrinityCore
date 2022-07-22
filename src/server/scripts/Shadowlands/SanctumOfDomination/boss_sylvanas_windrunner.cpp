@@ -253,7 +253,6 @@ enum Events
     EVENT_DESECRATING_SHOT,
     EVENT_DESECRATING_SHOT_LAUNCH,
     EVENT_DOMINATION_CHAINS,
-    EVENT_WAILING_ARROW_MARKER,
     EVENT_WAILING_ARROW,
     EVENT_VEIL_OF_DARKNESS,
     EVENT_RIVE,
@@ -294,7 +293,7 @@ enum Texts
     SAY_SHADOW_DAGGER                                   = 4,
     SAY_DESECRATING_SHOT                                = 5,
     SAY_ANNOUNCE_WAILING_ARROW                          = 6,
-    SAY_ANNOUNCE_WAILING_ARROW_TANK                     = 7,
+    SAY_ANNOUNCE_WAILING_ARROW_AFFECTED                 = 7,
     SAY_WAILING_ARROW                                   = 8,
     SAY_ANNOUNCE_DOMINATION_CHAINS                      = 9,
     SAY_DOMINATION_CHAINS                               = 10,
@@ -1335,6 +1334,7 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
+        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1349,9 +1349,14 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
-        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
+        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);*/
 
         me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
+
+        me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
+        events.SetPhase(PHASE_THREE);
+        _specialEvents.SetPhase(PHASE_THREE);
+        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 1s, 1, PHASE_THREE);
     }
 
     void DoAction(int32 action) override
@@ -1677,7 +1682,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
                     _specialEvents.SetPhase(PHASE_THREE);
-                    _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 60s, 1, PHASE_THREE);
+                    _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 60s, 1, PHASE_THREE);
                 });
                 break;
             }
@@ -1700,25 +1705,93 @@ struct boss_sylvanas_windrunner : public BossAI
         {
             switch (specialEventId)
             {
-                case EVENT_WAILING_ARROW_MARKER:
+                case EVENT_WAILING_ARROW:
                 {
                     std::list<Player*> everyPlayerButCurrentTank;
                     GetPlayerListInGrid(everyPlayerButCurrentTank, me, 250.0f);
 
                     if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 250.0f, true, true))
                     {
-                        Talk(SAY_ANNOUNCE_WAILING_ARROW_TANK, currentTank);
+                        Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, currentTank);
 
                         me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
 
                         if (Player* currentTankToPlayer = currentTank->ToPlayer())
                             everyPlayerButCurrentTank.remove(currentTankToPlayer);
+
+                        if (events.GetPhaseMask() == PHASE_ONE)
+                            for (Unit* nonTank : everyPlayerButCurrentTank)
+                                Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
+
+                        scheduler.Schedule(events.GetPhaseMask() == PHASE_ONE ? 4s + 500ms : 6s, [this, currentTank](TaskContext /*task*/)
+                        {
+                            me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
+
+                            if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
+                                DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+                        });
+
+                        scheduler.Schedule(events.GetPhaseMask() == PHASE_ONE ? 5s + 500ms : 7s, [this, currentTank](TaskContext /*task*/)
+                        {
+                            Talk(SAY_WAILING_ARROW);
+
+                            if (events.GetPhaseMask() == PHASE_ONE)
+                                me->CastSpell(currentTank, SPELL_WAILING_ARROW, false);
+                            else
+                                me->CastSpell(currentTank, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
+                        });
+
+                        if (events.GetPhaseMask() == PHASE_ONE)
+                        {
+                            scheduler.Schedule(9s, [this](TaskContext /*task*/)
+                            {
+                                me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
+
+                                _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 33s, PHASE_ONE);
+                            });
+                        }
                     }
 
-                    for (Unit* nonTank : everyPlayerButCurrentTank)
-                        Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
+                    if (events.GetPhaseMask() == PHASE_THREE)
+                    {
+                        Trinity::Containers::RandomResize(everyPlayerButCurrentTank, 2);
 
-                    events.ScheduleEvent(EVENT_WAILING_ARROW, events.GetPhaseMask() == PHASE_ONE ? 4s + 500ms : 6s, 1, events.GetPhaseMask() == PHASE_ONE ? PHASE_ONE : PHASE_THREE);
+                        Unit* firstRandomPlayer = everyPlayerButCurrentTank.front();
+                        Unit* secondRandomPlayer = everyPlayerButCurrentTank.back();
+
+                        scheduler.Schedule(3s, [this, firstRandomPlayer](TaskContext /*task*/)
+                        {
+                            Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, firstRandomPlayer);
+
+                            me->CastSpell(firstRandomPlayer, SPELL_WAILING_ARROW_POINTER, true);
+
+                            scheduler.Schedule(7s, [this, firstRandomPlayer](TaskContext /*task*/)
+                            {
+                                me->CastSpell(firstRandomPlayer, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
+                            });
+                        });
+
+                        scheduler.Schedule(6s, [this, secondRandomPlayer](TaskContext /*task*/)
+                        {
+                            Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, secondRandomPlayer);
+
+                            me->CastSpell(secondRandomPlayer, SPELL_WAILING_ARROW_POINTER, true);
+
+                            scheduler.Schedule(7s, [this, secondRandomPlayer](TaskContext /*task*/)
+                            {
+                                me->CastSpell(secondRandomPlayer, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
+                            });
+
+                            scheduler.Schedule(10s, [this](TaskContext /*task*/)
+                            {
+                                me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
+
+                                // TODO: this timer is wrong, find correct one.
+                                //_specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 33s, PHASE_THREE);
+                            });
+                        });
+                    }
+
                     break;
                 }
 
@@ -2012,30 +2085,6 @@ struct boss_sylvanas_windrunner : public BossAI
                             }
                         });
                     }
-                    break;
-                }
-
-                case EVENT_WAILING_ARROW:
-                {
-                    me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
-
-                    if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-
-                    scheduler.Schedule(1s, [this](TaskContext /*task*/)
-                    {
-                        Talk(SAY_WAILING_ARROW);
-
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true, SPELL_WAILING_ARROW_POINTER))
-                            me->CastSpell(target, SPELL_WAILING_ARROW, events.GetPhaseMask() == PHASE_ONE ? false : CastSpellExtraArgs(SPELLVALUE_CAST_TIME, 1500));
-                    });
-
-                    scheduler.Schedule(4s + 500ms, [this](TaskContext /*task*/)
-                    {
-                        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
-
-                        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 33s, PHASE_ONE);
-                    });
                     break;
                 }
 
