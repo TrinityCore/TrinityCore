@@ -3377,19 +3377,6 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     // Prepare data for triggers
     prepareDataForTriggerSystem();
 
-    if (Player* player = m_caster->ToPlayer())
-    {
-        if (!player->GetCommandStatus(CHEAT_CASTTIME))
-        {
-            // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
-            m_casttime = m_spellInfo->CalcCastTime(this);
-        }
-        else
-            m_casttime = 0; // Set cast time to 0 if .cheat casttime is enabled.
-    }
-    else
-        m_casttime = m_spellInfo->CalcCastTime(this);
-
     if (m_caster->IsUnit() && m_caster->ToUnit()->isMoving())
     {
         result = CheckMovement();
@@ -8339,6 +8326,9 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
             break;
         case SPELLVALUE_DURATION:
             m_spellValue->Duration = value;
+            break;
+        case SPELLVALUE_CAST_TIME:
+            m_spellValue->CastTime = value;
             break;
         default:
             break;

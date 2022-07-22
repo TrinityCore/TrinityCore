@@ -210,6 +210,7 @@ struct SpellValue
     int32     AuraStackAmount;
     float     DurationMul;
     float     CriticalChance;
+    Optional<int32> CastTime;
     Optional<int32> Duration;
 };
 
@@ -612,6 +613,7 @@ class TC_GAME_API Spell
         ObjectGuid GetOriginalCasterGUID() const { return m_originalCasterGUID; }
         Unit* GetOriginalCaster() const { return m_originalCaster; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
+        SpellValue const* GetSpellValue() const { return m_spellValue; }
         Difficulty GetCastDifficulty() const;
         std::vector<SpellPowerCost> const& GetPowerCost() const { return m_powerCost; }
         bool HasPowerTypeCost(Powers power) const;

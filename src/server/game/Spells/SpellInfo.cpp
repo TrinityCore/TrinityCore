@@ -3773,12 +3773,27 @@ int32 SpellInfo::GetMaxDuration() const
 
 uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
 {
+    WorldObject* caster = spell ? spell->GetCaster() : nullptr;
+    if (caster)
+    {
+        Player* player = caster->ToPlayer();
+        if (player && player->GetCommandStatus(CHEAT_CASTTIME))
+            return 0;
+    }
+
+    if (spell)
+        if (Optional<int32> castTime = spell->GetSpellValue()->CastTime)
+            return *castTime;
+
     int32 castTime = 0;
     if (CastTimeEntry)
         castTime = std::max(CastTimeEntry->Base, CastTimeEntry->Minimum);
 
     if (castTime <= 0)
         return 0;
+
+    if (caster)
+        caster->ModSpellCastTime(this, castTime, spell);
 
     if (spell)
         spell->GetCaster()->ModSpellCastTime(this, castTime, spell);
