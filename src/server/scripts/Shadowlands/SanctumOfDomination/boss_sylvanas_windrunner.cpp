@@ -1334,7 +1334,6 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1344,19 +1343,14 @@ struct boss_sylvanas_windrunner : public BossAI
 
         // NOTE: we need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting.
         _specialEvents.SetPhase(PHASE_ONE);
-        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, 28s, 1, PHASE_ONE);
+        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 28s, 1, PHASE_ONE);
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
-        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);*/
+        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
 
         me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
-
-        me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
-        events.SetPhase(PHASE_THREE);
-        _specialEvents.SetPhase(PHASE_THREE);
-        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 1s, 1, PHASE_THREE);
     }
 
     void DoAction(int32 action) override
