@@ -2884,9 +2884,9 @@ struct boss_sylvanas_windrunner : public BossAI
 
     bool IsHeartseekerReady()
     {
-        Aura* rangerHeartseekerCharge = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
+        Aura* heartseekerCharge = me->GetAura(events.GetPhaseMask() == PHASE_ONE ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEES_HEARTSEEKER_CHARGE);
 
-        if (rangerHeartseekerCharge && rangerHeartseekerCharge->GetStackAmount() >= 3)
+        if (heartseekerCharge && heartseekerCharge->GetStackAmount() >= 3)
             return true;
         else
             return false;
