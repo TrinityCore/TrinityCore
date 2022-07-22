@@ -194,7 +194,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
                 , TSPlayer(_player)
                 , menuId
                 , gossipListId
-                , TSString(code.c_str())
+                , code
                 , TSMutable<bool>(&b)
             );
             if (!b && !unit->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
@@ -210,10 +210,10 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
                 , TSPlayer(_player)
                 , menuId
                 , gossipListId
-                , TSString(code.c_str())
+                , code
                 , TSMutable<bool>(&b)
             );
-            if (!b && !go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, TSString(code.c_str())))
+            if (!b && !go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
                 _player->OnGossipSelect(go, gossipListId, menuId);
         }
         else if(item)
@@ -226,7 +226,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
                 , TSPlayer(_player)
                 , menuId
                 , gossipListId
-                , TSString(code.c_str())
+                , code
                 , TSMutable<bool>(&b)
             );
             if(!b)
