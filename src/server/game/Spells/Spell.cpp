@@ -3377,6 +3377,8 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     // Prepare data for triggers
     prepareDataForTriggerSystem();
 
+    m_casttime = m_spellInfo->CalcCastTime(this);
+
     if (m_caster->IsUnit() && m_caster->ToUnit()->isMoving())
     {
         result = CheckMovement();
