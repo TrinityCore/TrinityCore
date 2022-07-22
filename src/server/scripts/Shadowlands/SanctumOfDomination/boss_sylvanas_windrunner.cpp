@@ -416,7 +416,7 @@ enum SpellVisuals
     SPELL_VISUAL_WINDRUNNER_03                          = 107920, // At 0.25f
     SPELL_VISUAL_DESECRATING_ARROW                      = 106363, // At 0.40f - 0.12f
     SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE               = 105944, // At 48.0f, false as time
-    SPELL_VISUAL_RANGER_HEARTSEEKER                     = 107607, // At 36f, false as time
+    SPELL_VISUAL_HEARTSEEKER                            = 107607, // At 36f, false as time
     SPELL_VISUAL_DOMINATION_ARROW                       = 107501, // At 2.5f
     SPELL_VISUAL_DOMINATION_ARROW_SPAWN                 = 109620, // At 2.5f
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM           = 109159, // At 5.0f
@@ -3270,38 +3270,26 @@ class spell_sylvanas_windrunner_desecrating_shot : public SpellScript
     }
 };
 
-class HeartseekerMissileEvent : public BasicEvent
+class HeartseekerDamageEvent : public BasicEvent
 {
     public:
-        HeartseekerMissileEvent(Unit* actor, Unit* victim) : _actor(actor), _victim(victim) { _scheduler.ClearValidator(); }
+        HeartseekerDamageEvent(Unit* actor, Unit* victim) : _actor(actor), _victim(victim) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _actor->SendPlaySpellVisual(_victim, SPELL_VISUAL_RANGER_HEARTSEEKER, 0, 0, 36.0f, false);
-
-            uint32 timeToTarget = _actor->GetDistance(_victim) * 0.0277f;
-
             if (_actor->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
             {
-                _scheduler.Schedule(Seconds(timeToTarget), [this](TaskContext /*task*/)
-                {
-                    _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
-                    _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
-                });
+                _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
+                _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
 
-                if (Aura* rangerHeartseeker = _actor->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE))
-                    rangerHeartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
+                return true;
             }
             else
             {
-                _scheduler.Schedule(Seconds(timeToTarget), [this](TaskContext /*task*/)
-                {
-                     _actor->CastSpell(_victim, SPELL_BANSHEES_HEARTSEEKER_PHYSICAL_DAMAGE, true);
-                     _actor->CastSpell(_victim, SPELL_BANSHEES_HEARTSEEKER_SHADOW_DAMAGE, true);
-                });
+                _actor->CastSpell(_victim, SPELL_BANSHEES_HEARTSEEKER_PHYSICAL_DAMAGE, true);
+                _actor->CastSpell(_victim, SPELL_BANSHEES_HEARTSEEKER_SHADOW_DAMAGE, true);
 
-                if (Aura* bansheesHeartseeker = _actor->GetAura(SPELL_BANSHEES_HEARTSEEKER_CHARGE))
-                    bansheesHeartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
+                return true;
             }
 
             return true;
@@ -3310,20 +3298,47 @@ class HeartseekerMissileEvent : public BasicEvent
     private:
         Unit* _actor;
         Unit* _victim;
-        TaskScheduler _scheduler;
 };
 
-// Ranger's Heartseeker - 352663
+class HeartseekerMissileEvent : public BasicEvent
+{
+    public:
+        HeartseekerMissileEvent(Unit* actor, Unit* victim) : _actor(actor), _victim(victim) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _actor->SendPlaySpellVisual(_victim, SPELL_VISUAL_HEARTSEEKER, 0, 0, 36.0f, false);
+
+            uint32 timeToTarget = _actor->GetDistance(_victim) * (0.0277 * 1000);
+
+            _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timeToTarget)));
+
+            if (Aura* heartseeker = _actor->GetAura(_actor->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEES_HEARTSEEKER_CHARGE))
+                heartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
+
+            return true;
+        }
+
+    private:
+        Unit* _actor;
+        Unit* _victim;
+};
+
+// Ranger's Heartseeker - 353969
 class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_heartseeker);
 
     void OnPrecast() override
     {
-        GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_SHEATHE_UNARMED), GetCaster()->m_Events.CalculateTime(16ms));
-        GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_SHEATHE_BOW), GetCaster()->m_Events.CalculateTime(328ms));
-        GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_COPY), GetCaster()->m_Events.CalculateTime(343ms));
-        GetCaster()->m_Events.AddEvent(new SetSheatheStateOrNameplate(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_SYLVANAS), GetCaster()->m_Events.CalculateTime(2s));
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->m_Events.AddEvent(new SetSheatheStateOrNameplate(caster, DATA_CHANGE_SHEATHE_UNARMED), caster->m_Events.CalculateTime(16ms));
+        caster->m_Events.AddEvent(new SetSheatheStateOrNameplate(caster, DATA_CHANGE_SHEATHE_BOW), caster->m_Events.CalculateTime(328ms));
+        caster->m_Events.AddEvent(new SetSheatheStateOrNameplate(caster, DATA_CHANGE_NAMEPLATE_TO_COPY), caster->m_Events.CalculateTime(343ms));
+        caster->m_Events.AddEvent(new SetSheatheStateOrNameplate(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS), caster->m_Events.CalculateTime(2s));
     }
 
     void Register() override { }
@@ -3335,14 +3350,17 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
-        GetCaster()->SetFacingToObject(GetCaster()->GetVictim());
+        Unit* actualTank = caster->GetVictim();
 
-        GetCaster()->m_Events.AddEvent(new HeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(1ms));
-        GetCaster()->m_Events.AddEvent(new HeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(281ms));
-        GetCaster()->m_Events.AddEvent(new HeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(562ms));
+        caster->SetFacingToObject(actualTank);
+
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(1ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(281ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(562ms));
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4001,14 +4019,17 @@ class spell_sylvanas_windrunner_banshees_heartseeker_aura : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
-        GetCaster()->SetFacingToObject(GetCaster()->GetVictim());
+        Unit* actualTank = caster->GetVictim();
 
-        GetCaster()->m_Events.AddEvent(new HeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(1ms));
-        GetCaster()->m_Events.AddEvent(new HeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(281ms));
-        GetCaster()->m_Events.AddEvent(new HeartseekerMissileEvent(GetCaster(), GetCaster()->GetVictim()), GetCaster()->m_Events.CalculateTime(562ms));
+        caster->SetFacingToObject(actualTank);
+
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(1ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(281ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(562ms));
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -6309,6 +6330,8 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_interrupt);
     RegisterSpellScript(spell_sylvanas_windrunner_haunting_wave);
     RegisterSpellScript(spell_sylvanas_windrunner_ruin);
+    RegisterSpellAndAuraScriptPair(spell_sylvanas_windrunner_banshees_heartseeker, spell_sylvanas_windrunner_banshees_heartseeker_aura);
+    RegisterSpellScript(spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_bane);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_fury);
