@@ -1335,9 +1335,6 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < 4; i++)
             me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
-        DoAction(ACTION_PREPARE_PHASE_THREE);
-
-        /*
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
@@ -1354,7 +1351,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
 
-        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));*/
+        me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
     }
 
     void DoAction(int32 action) override
@@ -1721,7 +1718,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     for (Unit* nonTank : everyPlayerButCurrentTank)
                         Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
 
-                    events.ScheduleEvent(EVENT_WAILING_ARROW, 4s + 500ms, 1, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_WAILING_ARROW, events.GetPhaseMask() == PHASE_ONE ? 4s + 500ms : 6s, 1, events.GetPhaseMask() == PHASE_ONE ? PHASE_ONE : PHASE_THREE);
                     break;
                 }
 
@@ -2030,13 +2027,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         Talk(SAY_WAILING_ARROW);
 
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true, SPELL_WAILING_ARROW_POINTER))
-                        {
-                            if (events.GetPhaseMask() == PHASE_ONE)
-                                me->CastSpell(target, SPELL_WAILING_ARROW, false);
-                            else
-                                me->CastSpell(target, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
-                                
-                        }
+                            me->CastSpell(target, SPELL_WAILING_ARROW, events.GetPhaseMask() == PHASE_ONE ? false : CastSpellExtraArgs(SPELLVALUE_CAST_TIME, 1500));
                     });
 
                     scheduler.Schedule(4s + 500ms, [this](TaskContext /*task*/)
