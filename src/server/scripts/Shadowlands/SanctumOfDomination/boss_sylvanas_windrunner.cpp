@@ -604,9 +604,10 @@ Position const CovenantPlatformPos[4][3] =
     }
 };
 
+// Note: 
 Position const InvigoratingFieldPos[8] =
 {
-    { -268.229f, -1236.99f, 5671.67f, 0.0f     },
+    { -268.229f, -1236.99f, 5671.67f, 0.0f     }, 
     { -289.297f, -1258.25f, 5671.67f, 4.71239f },
     { -289.569f, -1294.9f,  5671.67f, 1.5708f  },
     { -268.229f, -1316.38f, 5671.67f, 0.0f     },
@@ -2029,7 +2030,13 @@ struct boss_sylvanas_windrunner : public BossAI
                         Talk(SAY_WAILING_ARROW);
 
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true, true, SPELL_WAILING_ARROW_POINTER))
-                            me->CastSpell(target, SPELL_WAILING_ARROW, false);
+                        {
+                            if (events.GetPhaseMask() == PHASE_ONE)
+                                me->CastSpell(target, SPELL_WAILING_ARROW, false);
+                            else
+                                me->CastSpell(target, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
+                                
+                        }
                     });
 
                     scheduler.Schedule(4s + 500ms, [this](TaskContext /*task*/)
@@ -3444,12 +3451,6 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
-    }
-
-    void OnPrecast() override
-    {
-        if (GetCaster()->GetAreaId() == AREA_THE_CRUCIBLE)
-            GetSpell()->SetCastTime(1500);
     }
 
     void OnCast(SpellEffIndex /*effIndex*/)
@@ -5994,6 +5995,13 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
     at_sylvanas_windrunner_haunting_wave(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
         _instance(at->GetInstanceScript()) { }
 
+    void OnCreate() override
+    {
+        _finalDest = at->GetPosition();
+
+        _finalDest.GetPositionX() + 100.0f * std::cos(at->GetOrientation());
+    }
+
     void OnUnitEnter(Unit* unit) override
     {
         if (!_instance || !unit->IsPlayer())
@@ -6017,7 +6025,7 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
                 break;
         }
 
-        unit->ApplyMovementForce(at->GetGUID(), at->GetCaster()->GetPosition(), _movementForceMagnitude, MovementForceType::SingleDirectional);
+        unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), _movementForceMagnitude, MovementForceType::SingleDirectional, _finalDest);
 
         at->GetCaster()->CastSpell(unit, SPELL_HAUNTING_WAVE_DAMAGE, true);
     }
@@ -6033,6 +6041,7 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
 private:
     InstanceScript* _instance;
     float _movementForceMagnitude = 0.0f;
+    Position _finalDest;
 };
 
 // Blasphemy - 23506
