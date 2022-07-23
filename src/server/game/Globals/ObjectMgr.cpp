@@ -10501,3 +10501,114 @@ ByteBuffer QuestPOIWrapper::BuildQueryData() const
 
     return tempBuffer;
 }
+
+void ObjectMgr::SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint32 reqPlayTime, uint32 rewardMoneyA, uint32 rewardMoneyH, uint32 rewardItemA, uint32 rewardItemCountA, uint32 rewardItemH, uint32 rewardItemCountH, std::string subject, std::string body, uint8 active) const
+{
+    if (active)
+    {
+        if (player->GetLevel() < reqLevel)
+            return;
+
+        if (player->GetTotalPlayedTime() < reqPlayTime)
+            return;
+
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+        MailSender sender(MAIL_NORMAL, player->GetGUID().GetCounter(), MAIL_STATIONERY_GM);
+        MailDraft draft(subject, body);
+
+        draft.AddMoney(player->GetTeamId() == TEAM_ALLIANCE ? rewardMoneyA : rewardMoneyH);
+        if (Item* mailItem = Item::CreateItem(player->GetTeamId() == TEAM_ALLIANCE ? rewardItemA : rewardItemH, player->GetTeamId() == TEAM_ALLIANCE ? rewardItemCountA : rewardItemCountH))
+        {
+            mailItem->SaveToDB(trans);
+            draft.AddItem(mailItem);
+        }
+
+        draft.SendMailTo(trans, MailReceiver(player), sender);
+        CharacterDatabase.CommitTransaction(trans);
+
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_MAIL_SERVER_CHARACTER);
+        stmt->setUInt32(0, player->GetGUID().GetCounter());
+        stmt->setUInt32(1, id);
+        CharacterDatabase.Execute(stmt);
+
+        TC_LOG_DEBUG("entities.player", "ObjectMgr::SendServerMail() Sent mail id %u to %s", id, player->GetGUID().ToString().c_str());
+    }
+}
+
+void ObjectMgr::LoadMailServerTemplates()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _serverMailStore.clear(); // for reload case
+
+    //                                                     0       1           2              3         4         5        6             7       8             9        10       11
+    QueryResult result = CharacterDatabase.Query("SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`");
+    if (!result)
+    {
+        TC_LOG_INFO("sql.sql", ">> Loaded 0 server mail rewards. DB table `mail_server_template` is empty.");
+        return;
+    }
+
+    _serverMailStore.rehash(result->GetRowCount());
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id = fields[0].GetUInt32();
+
+        ServerMail& servMail = _serverMailStore[id];
+
+        servMail.id = id;
+        servMail.reqLevel = fields[1].GetUInt8();
+        servMail.reqPlayTime = fields[2].GetUInt32();
+        servMail.moneyA = fields[3].GetUInt32();
+        servMail.moneyH = fields[4].GetUInt32();
+        servMail.itemA = fields[5].GetUInt32();
+        servMail.itemCountA = fields[6].GetUInt32();
+        servMail.itemH = fields[7].GetUInt32();
+        servMail.itemCountH = fields[8].GetUInt32();
+        servMail.subject = fields[9].GetString();
+        servMail.body = fields[10].GetString();
+        servMail.active = fields[11].GetUInt8();
+
+        if (servMail.reqLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `mail_server_template` has reqLevel %u but max level is %u for id %u, skipped.", servMail.reqLevel, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL), servMail.id);
+            return;
+        }
+
+        if (servMail.moneyA > MAX_MONEY_AMOUNT || servMail.moneyH > MAX_MONEY_AMOUNT)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `mail_server_template` has moneyA %u or moneyH %u larger than MAX_MONEY_AMOUNT %u for id %u, skipped.", servMail.moneyA, servMail.moneyH, MAX_MONEY_AMOUNT, servMail.id);
+            return;
+        }
+
+        ItemTemplate const* itemTemplateA = sObjectMgr->GetItemTemplate(servMail.itemA);
+        if (!itemTemplateA && servMail.itemA)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `mail_server_template` has invalid item in itemA %u for id %u, skipped.", servMail.itemA, servMail.id);
+            return;
+        }
+        ItemTemplate const* itemTemplateH = sObjectMgr->GetItemTemplate(servMail.itemH);
+        if (!itemTemplateH && servMail.itemH)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `mail_server_template` has invalid item in itemH %u for id %u, skipped.", servMail.itemH, servMail.id);
+            return;
+        }
+
+        if (!servMail.itemA && servMail.itemCountA)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `mail_server_template` has itemCountA %u with no ItemA, set to 0", servMail.itemCountA);
+            servMail.itemCountA = 0;
+        }
+        if (!servMail.itemH && servMail.itemCountH)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `mail_server_template` has itemCountH %u with no ItemH, set to 0", servMail.itemCountH);
+            servMail.itemCountH = 0;
+        }
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %lu Mail Server Template in %u ms", _serverMailStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}

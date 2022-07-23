@@ -34,6 +34,7 @@ void AddSC_xp_boost();
 // player
 void AddSC_chat_log();
 void AddSC_action_ip_logger();
+void AddSC_server_mail();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -49,6 +50,7 @@ void AddWorldScripts()
     AddSC_npcs_special();
     AddSC_achievement_scripts();
     AddSC_chat_log(); // location: scripts\World\chat_log.cpp
+    AddSC_server_mail(); // location: scripts\World\server_mail.cpp
 
     // FIXME: This should be moved in a script validation hook.
     // To avoid duplicate code, we check once /*ONLY*/ if logging is permitted or not.
