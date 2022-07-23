@@ -19,6 +19,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
@@ -413,10 +414,35 @@ class spell_majordomo_staghelm_leaping_flames_targeting : public SpellScript
         std::list<WorldObject*> targetsCopy = targets;
         targets.remove_if([&](WorldObject const* target)
         {
-            return target == GetCaster()->GetVictim();
+            if (target == GetCaster()->GetVictim())
+                return true;
+
+            Player const* player = target->ToPlayer();
+            if (!player)
+                return true;
+
+            // Leaping Flames will prioritize ranged classes and specs
+            switch (player->getClass())
+            {
+                case CLASS_HUNTER:
+                case CLASS_MAGE:
+                case CLASS_WARLOCK:
+                case CLASS_PRIEST:
+                    return false;
+                case CLASS_SHAMAN:
+                    return player->GetPrimaryTalentTree(player->GetActiveSpec()) == TALENT_TREE_SHAMAN_ENHANCEMENT;
+                case CLASS_PALADIN:
+                    return player->GetPrimaryTalentTree(player->GetActiveSpec()) != TALENT_TREE_PALADIN_HOLY;
+                case CLASS_DRUID:
+                    return player->GetPrimaryTalentTree(player->GetActiveSpec()) == TALENT_TREE_DRUID_FERAL_COMBAT;
+                default:
+                    return true;
+            }
+
+            return false;
         });
 
-        // We only have the tank left fightning the caster so we use im
+        // We have no available targets. Fall back to any random target
         if (targets.empty())
             targets = targetsCopy;
     }
