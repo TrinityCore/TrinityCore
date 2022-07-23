@@ -692,7 +692,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
                     , TSCreature(vendor)
                     , TSItemTemplate(itemTemplate)
                     , TSPlayer(_player)
-                    , TSMutable<bool>(&shouldSend)
+                    , TSMutable<bool,bool>(&shouldSend)
                 )
                 if (!shouldSend)
                 {

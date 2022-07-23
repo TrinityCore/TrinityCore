@@ -2186,8 +2186,8 @@ bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
         , Spell,OnCheckAreaTarget
         , TSAura(this)
         , TSUnit(target)
-        , TSMutable<bool>(&result)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&result)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return result;
     // @tswow-end
@@ -2212,7 +2212,7 @@ void Aura::CallScriptDispel(DispelInfo* dispelInfo)
         , Spell,OnDispel
         , TSAura(this)
         , TSDispelInfo(dispelInfo)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2237,7 +2237,7 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
         , Spell,OnAfterDispel
         , TSAura(this)
         , TSDispelInfo(dispelInfo)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2308,7 +2308,7 @@ void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraAppl
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , static_cast<uint32>(mode)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2335,7 +2335,7 @@ void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApp
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , static_cast<uint32>(mode)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2361,7 +2361,7 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
         , Spell,OnEffectPeriodic
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
-        , TSMutable<bool>(&preventDefault)
+        , TSMutable<bool,bool>(&preventDefault)
     );
     // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2406,9 +2406,9 @@ void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& a
           m_spellInfo->events.id
         , Spell,OnEffectCalcAmount
         , TSAuraEffect(aurEff)
-        , TSMutable<int32>(&amount)
-        , TSMutable<bool>(&canBeRecalculated)
-        , TSMutable<bool>(&cancel)
+        , TSMutableNumber<int32>(&amount)
+        , TSMutable<bool,bool>(&canBeRecalculated)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2433,9 +2433,9 @@ void Aura::CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool& 
           m_spellInfo->events.id
         , Spell,OnEffectCalcPeriodic
         , TSAuraEffect(aurEff)
-        , TSMutable<bool>(&isPeriodic)
-        , TSMutable<int32>(&amplitude)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&isPeriodic)
+        , TSMutableNumber<int32>(&amplitude)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2461,7 +2461,7 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellM
         , Spell,OnEffectCalcSpellMod
         , TSAuraEffect(aurEff)
         , TSSpellModifier(spellMod)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2487,8 +2487,8 @@ void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication co
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
-        , TSMutable<uint32>(&absorbAmount)
-        , TSMutable<bool>(&defaultPrevented)
+        , TSMutableNumber<uint32>(&absorbAmount)
+        , TSMutable<bool,bool>(&defaultPrevented)
     );
     if (defaultPrevented) return;
     // @tswow-end
@@ -2519,8 +2519,8 @@ void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplicati
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
-        , TSMutable<uint32>(&absorbAmount)
-        , TSMutable<bool>(&cancel)
+        , TSMutableNumber<uint32>(&absorbAmount)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2547,8 +2547,8 @@ void Aura::CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplicatio
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
-        , TSMutable<uint32>(&absorbAmount)
-        , TSMutable<bool>(&cancel)
+        , TSMutableNumber<uint32>(&absorbAmount)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2575,8 +2575,8 @@ void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraAppli
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
-        , TSMutable<uint32>(&absorbAmount)
-        , TSMutable<bool>(&cancel)
+        , TSMutableNumber<uint32>(&absorbAmount)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2603,8 +2603,8 @@ void Aura::CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication con
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSDamageInfo(&dmgInfo)
-        , TSMutable<uint32>(&splitAmount)
-        , TSMutable<bool>(&cancel)
+        , TSMutableNumber<uint32>(&splitAmount)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2631,8 +2631,8 @@ bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventI
         , Spell,OnCheckProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
-        , TSMutable<bool>(&result)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&result)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return result;
     // @tswow-end
@@ -2660,8 +2660,8 @@ bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEven
         , Spell,OnPrepareProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
-        , TSMutable<bool>(&prepare)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&prepare)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return prepare;
     // @tswow-end
@@ -2692,8 +2692,8 @@ bool Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& 
         , Spell,OnProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
-        , TSMutable<bool>(&handled)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&handled)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return handled;
     // @tswow-end
@@ -2721,7 +2721,7 @@ void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventI
         , Spell,OnAfterProc
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -2748,8 +2748,8 @@ bool Aura::CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
-        , TSMutable<bool>(&result)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&result)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return result;
     // @tswow-end
@@ -2778,7 +2778,7 @@ bool Aura::CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplicatio
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
-        , TSMutable<bool>(&preventDefault)
+        , TSMutable<bool,bool>(&preventDefault)
     );
     // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2807,7 +2807,7 @@ void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
         , TSAuraEffect(aurEff)
         , TSAuraApplication(aurApp)
         , TSProcEventInfo(&eventInfo)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end

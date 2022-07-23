@@ -257,7 +257,7 @@ namespace Trinity::Impl::ChatCommands
     FIRE( Player,OnCommand
         , TSPlayer(handler.GetPlayer())
         , TSMutableString(&str)
-        , TSMutable<bool>(&found)
+        , TSMutable<bool,bool>(&found)
         );
     if(found)
     {

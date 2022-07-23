@@ -3900,7 +3900,7 @@ bool Player::ResetTalents(bool no_cost)
     FIRE(
           Player,OnTalentsResetEarly
         , TSPlayer(this)
-        , TSMutable<bool>(&no_cost)
+        , TSMutable<bool,bool>(&no_cost)
     );
     // @tswow-end
     sScriptMgr->OnPlayerTalentsReset(this, no_cost);
@@ -5757,7 +5757,7 @@ inline int SkillGainChance(Player* player, uint32 skillId, uint32 SkillValue, ui
 
     FIRE(Player,OnCalcSkillGainChance
         , TSPlayer(player)
-        , TSMutable<int>(&chance)
+        , TSMutableNumber<int32>(&chance)
         , skillId
         , SkillValue
         , GrayLevel
@@ -8739,7 +8739,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             {
                 // @tswow-begin
                 bool b = creature->CanGeneratePickPocketLoot();
-                FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnCanGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSMutable<bool>(&b));
+                FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnCanGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSMutable<bool,bool>(&b));
                 if (b)
                 // @tswow-end
                 {
@@ -11602,7 +11602,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 , TSPlayer(const_cast<Player*>(this))
                 , slot
                 , swap
-                , TSMutable<uint32>(&evtRes)
+                , TSMutableNumber<uint32>(&evtRes)
             );
             return InventoryResult(evtRes);
             // @tswow-end
@@ -11661,7 +11661,7 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
             , TSItem(pItem)
             , TSPlayer(const_cast<Player*>(this))
             , swap
-            , TSMutable<uint32>(&status)
+            , TSMutableNumber<uint32>(&status)
             );
     return static_cast<InventoryResult>(status);
     // @tswow-end
@@ -11689,7 +11689,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
             , bag
             , slot
             , swap
-            , TSMutable<uint32>(&eventRes)
+            , TSMutableNumber<uint32>(&eventRes)
             );
     InventoryResult eventResEnum = static_cast<InventoryResult>(eventRes);
     if(eventResEnum != InventoryResult::EQUIP_ERR_OK)
@@ -11933,7 +11933,7 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                         , Item,OnCanUse
                         , TSItem(pItem)
                         , TSPlayer(const_cast<Player*>(this))
-                        , TSMutable<uint32>(&evtRes)
+                        , TSMutableNumber<uint32>(&evtRes)
                         );
                 InventoryResult evtResEnum = static_cast<InventoryResult>(evtRes);
                 if(evtResEnum != InventoryResult::EQUIP_ERR_OK)
@@ -11990,7 +11990,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
         , Item,OnCanUseType
         , TSItemTemplate(proto)
         , TSPlayer(const_cast<Player*>(this))
-        , TSMutable<uint32>(&res)
+        , TSMutableNumber<uint32>(&res)
     )
     return InventoryResult(res);
     // @tswow-end
@@ -12017,7 +12017,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
             , TSItemTemplate(proto)
             , TSWorldObject(const_cast<WorldObject*>(lootedObject))
             , TSPlayer(const_cast<Player*>(this))
-            , TSMutable<int32>(&evtRes)
+            , TSMutableNumber<int32>(&evtRes)
             );
     InventoryResult evtResEnum = static_cast<InventoryResult>(evtRes);
     if(evtRes >= 0)
@@ -12685,7 +12685,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                     , Item,OnDestroyEarly
                     , TSItem(pItem)
                     , TSPlayer(this)
-                    , TSMutable<bool>(&evtCanDestroy)
+                    , TSMutable<bool,bool>(&evtCanDestroy)
                     );
             if(!evtCanDestroy)
             {
@@ -15504,7 +15504,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         , Quest,OnRewardXP
         , TSQuest(quest)
         , TSPlayer(this)
-        , TSMutable<uint32>(&XP)
+        , TSMutableNumber<uint32>(&XP)
     );
     // @tswow-end
 
@@ -22146,7 +22146,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         , TSCreature(creature)
         , TSItemTemplate(pProto)
         , TSPlayer(this)
-        , TSMutable<bool>(&shouldSend)
+        , TSMutable<bool,bool>(&shouldSend)
     )
     if (!shouldSend)
     {
@@ -23883,7 +23883,7 @@ float Player::GetReputationPriceDiscount(FactionTemplateEntry const* factionTemp
         , TSPlayer(const_cast<Player*>(this))
         , TSFactionTemplate(factionTemplate)
         , TSCreature(const_cast<Creature*>(creature))
-        , TSMutable<float>(&money)
+        , TSMutableNumber<float>(&money)
     );
     return money;
 }
@@ -24980,7 +24980,7 @@ void Player::InitGlyphsForLevel()
     // @tswow-begin
     FIRE(Player,OnGlyphInitForLevel
         , TSPlayer(this)
-        , TSMutable<uint32>(&value)
+        , TSMutableNumber<uint32>(&value)
     );
     // @tswow-end
 
@@ -25388,7 +25388,7 @@ uint32 Player::CalculateTalentsPoints() const
     FIRE(
           Player,OnCalcTalentPoints
         , TSPlayer(const_cast<Player*>(this))
-        , TSMutable<uint32>(&out_talent)
+        , TSMutableNumber<uint32>(&out_talent)
     )
         return out_talent;
 }
@@ -25787,7 +25787,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
 
     // @tswow-begin
     bool cancel = false;
-    FIRE(Player,OnLearnTalent, TSPlayer(this), talentInfo->TabID, talentId, talentRank, spellid, TSMutable<bool>(&cancel));
+    FIRE(Player,OnLearnTalent, TSPlayer(this), talentInfo->TabID, talentId, talentRank, spellid, TSMutable<bool,bool>(&cancel));
     if (cancel)
     {
         return;

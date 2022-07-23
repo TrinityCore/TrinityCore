@@ -223,6 +223,7 @@ add_library(scripts STATIC
 target_link_libraries(scripts
   PRIVATE
     trinity-core-interface
+    sol2
   PUBLIC
     game-interface)
 
@@ -232,7 +233,6 @@ target_include_directories(scripts
     #tswow-begin
     ${TSWOW_INCLUDES}
     ${LUA_ROOT}
-    ${sol2_SOURCE_DIR}/include
     ${sourcemap_SOURCE_DIR}/src
     ${sourcemap_SOURCE_DIR}/deps/json
     ${sourcemap_SOURCE_DIR}/deps/cencode

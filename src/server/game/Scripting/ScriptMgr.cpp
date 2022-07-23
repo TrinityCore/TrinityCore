@@ -1599,7 +1599,7 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
 
     // @tswow-begin
     bool b = false;
-    FIRE_ID(proto->events.id,Item,OnExpire,TSItemTemplate(proto),TSPlayer(player),TSMutable<bool>(&b));
+    FIRE_ID(proto->events.id,Item,OnExpire,TSItemTemplate(proto),TSPlayer(player),TSMutable<bool,bool>(&b));
     if(b) return b;
     // @tswow-end
     GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
@@ -1613,7 +1613,7 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
 
     // @tswow-begin
     bool b = false;
-    FIRE_ID(item->GetTemplate()->events.id,Item,OnRemove,TSItem(item),TSPlayer(player),TSMutable<bool>(&b));
+    FIRE_ID(item->GetTemplate()->events.id,Item,OnRemove,TSItem(item),TSPlayer(player),TSMutable<bool,bool>(&b));
     if(b) return b;
     // @tswow-end
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
@@ -1629,7 +1629,7 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
 
     // @tswow-begin
     bool b = false;
-    FIRE_ID(item->GetTemplate()->events.id,Item,OnCastSpell,TSItem(item),TSPlayer(player),TSUnit(victim),TSSpellInfo(spellInfo),TSMutable<bool>(&b));
+    FIRE_ID(item->GetTemplate()->events.id,Item,OnCastSpell,TSItem(item),TSPlayer(player),TSUnit(victim),TSSpellInfo(spellInfo),TSMutable<bool,bool>(&b));
     if(b) return b;
     // @tswow-end
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);

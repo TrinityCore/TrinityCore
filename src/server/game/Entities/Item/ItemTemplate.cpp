@@ -61,7 +61,7 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
           events.id
         , Item,OnCanChangeEquipState
         , TSItemTemplate(this)
-        , TSMutable<bool>(&canChange)
+        , TSMutable<bool,bool>(&canChange)
     );
     return canChange;
     // @tswow-end

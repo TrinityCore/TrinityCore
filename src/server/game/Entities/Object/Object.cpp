@@ -2521,7 +2521,7 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
           spellInfo->events.id
         , Spell,OnCalcHit
         , TSSpellInfo(spellInfo)
-        , TSMutable<int32>(&HitChance)
+        , TSMutableNumber<int32>(&HitChance)
         , TSWorldObject(const_cast<WorldObject*>(this))
         , TSUnit(victim)
     );
@@ -2564,7 +2564,7 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
           spellInfo->events.id
         , Spell,OnCalcResist
         , TSSpellInfo(spellInfo)
-        , TSMutable<int32>(&resist_chance)
+        , TSMutableNumber<int32>(&resist_chance)
         , TSWorldObject(const_cast<WorldObject*>(this))
         , TSUnit(victim)
     );
@@ -2583,7 +2583,7 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
               spellInfo->events.id
             , Spell,OnCalcResist
             , TSSpellInfo(spellInfo)
-            , TSMutable<int32>(&resist_chance)
+            , TSMutableNumber<int32>(&resist_chance)
             , TSWorldObject(const_cast<WorldObject*>(this))
             , TSUnit(victim)
         );
@@ -2636,7 +2636,7 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
               spellInfo->events.id
             , Spell,OnCalcReflect
             , TSSpellInfo(spellInfo)
-            , TSMutable<int32>(&reflectchance)
+            , TSMutableNumber<int32>(&reflectchance)
             , TSWorldObject(const_cast<WorldObject*>(this))
             , TSUnit(victim)
         );
