@@ -34,7 +34,7 @@ class DynamicMapTree;
 class GridMap;
 class PhaseShift;
 
-class TerrainInfo
+class TC_GAME_API TerrainInfo
 {
 public:
     explicit TerrainInfo(uint32 mapId);
