@@ -2141,7 +2141,9 @@ class spell_ragnaros_burning_wound : public AuraScript
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
-        int32 basePoints = sSpellMgr->AssertSpellInfo(SPELL_BURNING_BLAST)->Effects[EFFECT_0].CalcValue(target) * GetStackAmount();
+        int32 basePoints = sSpellMgr->AssertSpellInfo(SPELL_BURNING_BLAST)->Effects[EFFECT_0].CalcValue(target);
+        AddPct(basePoints, GetStackAmount() * 10.f);
+
         target->CastSpell(eventInfo.GetProcTarget(), SPELL_BURNING_BLAST, CastSpellExtraArgs(aurEff).AddSpellBP0(basePoints));
     }
 
