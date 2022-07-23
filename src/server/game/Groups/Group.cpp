@@ -267,7 +267,8 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
     member.guid = ObjectGuid::Create<HighGuid::Player>(guidLow);
 
     // skip non-existed member
-    if (!sCharacterCache->GetCharacterNameAndClassByGUID(member.guid, member.name, member._class))
+    CharacterCacheEntry const* character = sCharacterCache->GetCharacterCacheByGuid(member.guid);
+    if (!character)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
         stmt->setUInt64(0, guidLow);
@@ -275,6 +276,9 @@ void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uin
         return;
     }
 
+    member.name         = character->Name;
+    member.race         = Races(character->Race);
+    member._class       = character->Class;
     member.group        = subgroup;
     member.flags        = memberFlags;
     member.roles        = roles;
