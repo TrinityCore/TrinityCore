@@ -48,6 +48,7 @@
 #include "ScriptReloadMgr.h"
 #include "SecretMgr.h"
 #include "TCSoap.h"
+#include "TerrainMgr.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
@@ -317,6 +318,7 @@ extern int main(int argc, char** argv)
         sInstanceSaveMgr->Unload();
         sOutdoorPvPMgr->Die();                    // unload it before MapManager
         sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
+        sTerrainMgr.UnloadAll();
     });
 
     // Start the Remote Access port (acceptor) if enabled

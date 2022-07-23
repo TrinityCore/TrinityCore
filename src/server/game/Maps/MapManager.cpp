@@ -52,11 +52,6 @@ void MapManager::Initialize()
         m_updater.activate(num_threads);
 }
 
-void MapManager::InitializeParentMapData(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
-{
-    _parentMapData = mapData;
-}
-
 void MapManager::InitializeVisibilityDistanceInfo()
 {
     for (auto iter = i_maps.begin(); iter != i_maps.end(); ++iter)
@@ -101,12 +96,8 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
     else
         map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, DIFFICULTY_NONE);
 
-    map->DiscoverGridMapFiles();
 
     i_maps[mapEntry->ID] = map;
-
-    for (uint32 childMapId : _parentMapData[mapEntry->ID])
-        map->AddChildTerrainMap(CreateBaseMap_i(sMapStore.AssertEntry(childMapId)));
 
     if (!mapEntry->Instanceable())
     {
@@ -251,16 +242,6 @@ void MapManager::Update(uint32 diff)
 }
 
 void MapManager::DoDelayedMovesAndRemoves() { }
-
-bool MapManager::ExistMapAndVMap(uint32 mapid, float x, float y)
-{
-    GridCoord p = Trinity::ComputeGridCoord(x, y);
-
-    int gx = (MAX_NUMBER_OF_GRIDS - 1) - p.x_coord;
-    int gy = (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord;
-
-    return Map::ExistMap(mapid, gx, gy) && Map::ExistVMap(mapid, gx, gy);
-}
 
 bool MapManager::IsValidMAP(uint32 mapId)
 {

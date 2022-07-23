@@ -23,13 +23,13 @@
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
-#include "MapManager.h"
 #include "NPCHandler.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QueryPackets.h"
 #include "Realm.h"
+#include "TerrainMgr.h"
 #include "World.h"
 
 void WorldSession::BuildNameQueryData(ObjectGuid guid, WorldPackets::Query::NameCacheLookupResult& lookupData)
@@ -146,12 +146,12 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
             if (corpseMapEntry->IsDungeon() && corpseMapEntry->CorpseMapID >= 0)
             {
                 // if corpse map have entrance
-                if (Map* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
+                if (std::shared_ptr<TerrainInfo> entranceTerrain = sTerrainMgr.LoadTerrain(corpseMapEntry->CorpseMapID))
                 {
                     mapID = corpseMapEntry->CorpseMapID;
                     x = corpseMapEntry->Corpse.X;
                     y = corpseMapEntry->Corpse.Y;
-                    z = entranceMap->GetHeight(player->GetPhaseShift(), x, y, MAX_HEIGHT);
+                    z = entranceTerrain->GetStaticHeight(player->GetPhaseShift(), x, y, MAX_HEIGHT);
                 }
             }
         }
