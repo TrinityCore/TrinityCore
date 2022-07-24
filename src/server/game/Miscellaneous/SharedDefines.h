@@ -7750,6 +7750,9 @@ enum WorldState : uint32
     WS_CURRENT_PVP_SEASON_ID                = 3191,
     WS_PREVIOUS_PVP_SEASON_ID               = 3901,
 
+    WS_TEAM_IN_INSTANCE_ALLIANCE            = 4485,
+    WS_TEAM_IN_INSTANCE_HORDE               = 4486,
+
     WS_BATTLEFIELD_WG_VEHICLE_H             = 3490,
     WS_BATTLEFIELD_WG_MAX_VEHICLE_H         = 3491,
     WS_BATTLEFIELD_WG_VEHICLE_A             = 3680,
