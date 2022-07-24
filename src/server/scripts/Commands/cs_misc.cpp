@@ -32,8 +32,6 @@
 #include "IPLocation.h"
 #include "Item.h"
 #include "Language.h"
-#include "Log.h"
-#include "MapManager.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
 #include "MotionMaster.h"
@@ -46,6 +44,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "TerrainMgr.h"
 #include "Transport.h"
 #include "Weather.h"
 #include "World.h"
@@ -262,8 +261,8 @@ public:
         int gridX = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
         int gridY = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
 
-        uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
-        uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
+        uint32 haveMap = TerrainInfo::ExistMap(mapId, gridX, gridY) ? 1 : 0;
+        uint32 haveVMap = TerrainInfo::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
 
         if (haveVMap)

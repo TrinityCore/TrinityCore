@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "Optional.h"
 #include <array>
 
 /// Represents a map magic value of 4 bytes (used in versions)
@@ -118,6 +119,46 @@ struct map_liquidHeader
     uint8  width;
     uint8  height;
     float  liquidLevel;
+};
+
+enum ZLiquidStatus : uint32
+{
+    LIQUID_MAP_NO_WATER     = 0x00000000,
+    LIQUID_MAP_ABOVE_WATER  = 0x00000001,
+    LIQUID_MAP_WATER_WALK   = 0x00000002,
+    LIQUID_MAP_IN_WATER     = 0x00000004,
+    LIQUID_MAP_UNDER_WATER  = 0x00000008
+};
+
+#define MAP_LIQUID_STATUS_SWIMMING (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)
+#define MAP_LIQUID_STATUS_IN_CONTACT (MAP_LIQUID_STATUS_SWIMMING | LIQUID_MAP_WATER_WALK)
+
+struct LiquidData
+{
+    EnumFlag<map_liquidHeaderTypeFlags> type_flags = map_liquidHeaderTypeFlags::NoWater;
+    uint32 entry;
+    float  level;
+    float  depth_level;
+};
+
+struct PositionFullTerrainStatus
+{
+    struct AreaInfo
+    {
+        AreaInfo(int32 _adtId, int32 _rootId, int32 _groupId, uint32 _flags) : adtId(_adtId), rootId(_rootId), groupId(_groupId), mogpFlags(_flags) { }
+        int32 const adtId;
+        int32 const rootId;
+        int32 const groupId;
+        uint32 const mogpFlags;
+    };
+
+    PositionFullTerrainStatus() : areaId(0), floorZ(0.0f), outdoors(true), liquidStatus(LIQUID_MAP_NO_WATER) { }
+    uint32 areaId;
+    float floorZ;
+    bool outdoors;
+    ZLiquidStatus liquidStatus;
+    Optional<AreaInfo> areaInfo;
+    Optional<LiquidData> liquidInfo;
 };
 
 #endif // MapDefines_h__
