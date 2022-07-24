@@ -2772,7 +2772,7 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam)
   : Map(id, expiry, InstanceId, SpawnMode),
     m_resetAfterUnload(false), m_unloadWhenEmpty(false),
-    i_data(nullptr), i_script_id(0), i_script_team(InstanceTeam), i_scenario(nullptr)
+    i_data(nullptr), i_script_id(0), i_scenario(nullptr)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -2780,6 +2780,9 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty
     // the timer is started by default, and stopped when the first player joins
     // this make sure it gets unloaded if for some reason no player joins
     m_unloadTimer = std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+
+    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, InstanceTeam == TEAM_ALLIANCE, false, this);
+    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
 }
 
 InstanceMap::~InstanceMap()
@@ -3268,6 +3271,15 @@ uint32 InstanceMap::GetMaxResetDelay() const
 {
     MapDifficultyEntry const* mapDiff = GetMapDifficulty();
     return mapDiff ? mapDiff->GetRaidDuration() : 0;
+}
+
+TeamId InstanceMap::GetTeamIdInInstance() const
+{
+    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, this))
+        return TEAM_ALLIANCE;
+    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_HORDE, this))
+        return TEAM_HORDE;
+    return TEAM_NEUTRAL;
 }
 
 /* ******* Battleground Instance Maps ******* */
