@@ -35,7 +35,11 @@ TerrainInfo::TerrainInfo(uint32 mapId) : _mapId(mapId), _parentTerrain(nullptr),
 {
 }
 
-TerrainInfo::~TerrainInfo() = default;
+TerrainInfo::~TerrainInfo()
+{
+    VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId());
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId());
+}
 
 char const* TerrainInfo::GetMapName() const
 {
@@ -69,7 +73,7 @@ void TerrainInfo::DiscoverGridMapFiles()
 
     for (uint32 gx = 0; gx < MAX_NUMBER_OF_GRIDS; ++gx)
         for (uint32 gy = 0; gy < MAX_NUMBER_OF_GRIDS; ++gy)
-            _gridFileExists[gx * MAX_NUMBER_OF_GRIDS + gy] = ExistMap(GetId(), gx, gy, false);
+            _gridFileExists[GetBitsetIndex(gx, gy)] = ExistMap(GetId(), gx, gy, false);
 }
 
 bool TerrainInfo::ExistMap(uint32 mapid, int32 gx, int32 gy, bool log /*= true*/)
@@ -144,7 +148,7 @@ bool TerrainInfo::ExistVMap(uint32 mapid, int32 gx, int32 gy)
 bool TerrainInfo::HasChildTerrainGridFile(uint32 mapId, int32 gx, int32 gy) const
 {
     auto childMapItr = std::find_if(_childTerrain.begin(), _childTerrain.end(), [mapId](std::shared_ptr<TerrainInfo> const& childTerrain) { return childTerrain->GetId() == mapId; });
-    return childMapItr != _childTerrain.end() && (*childMapItr)->_gridFileExists[gx * MAX_NUMBER_OF_GRIDS + gy];
+    return childMapItr != _childTerrain.end() && (*childMapItr)->_gridFileExists[GetBitsetIndex(gx, gy)];
 }
 
 void TerrainInfo::AddChildTerrain(std::shared_ptr<TerrainInfo> childTerrain)
@@ -170,6 +174,8 @@ void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
 
     for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
         childTerrain->LoadMapAndVMapImpl(gx, gy);
+
+    _loadedGrids[GetBitsetIndex(gx, gy)] = true;
 }
 
 void TerrainInfo::LoadMap(int32 gx, int32 gy)
@@ -177,7 +183,7 @@ void TerrainInfo::LoadMap(int32 gx, int32 gy)
     if (_gridMap[gx][gy])
         return;
 
-    if (!_gridFileExists[gx * MAX_NUMBER_OF_GRIDS + gy])
+    if (!_gridFileExists[GetBitsetIndex(gx, gy)])
         return;
 
     // map file name
@@ -189,7 +195,7 @@ void TerrainInfo::LoadMap(int32 gx, int32 gy)
     if (gridMapLoadResult == GridMap::LoadResult::Ok)
         _gridMap[gx][gy] = std::move(gridMap);
     else
-        _gridFileExists[gx * MAX_NUMBER_OF_GRIDS + gy] = false;
+        _gridFileExists[GetBitsetIndex(gx, gy)] = false;
 
     if (gridMapLoadResult == GridMap::LoadResult::InvalidFile)
         TC_LOG_ERROR("maps", "Error loading map file: %s", fileName.c_str());
@@ -206,11 +212,14 @@ void TerrainInfo::LoadVMap(int32 gx, int32 gy)
         case VMAP::LoadResult::Success:
             TC_LOG_DEBUG("maps", "VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
-        default:
+        case VMAP::LoadResult::VersionMismatch:
+        case VMAP::LoadResult::ReadFromFileFailed:
             TC_LOG_ERROR("maps", "Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         case VMAP::LoadResult::DisabledInConfig:
             TC_LOG_DEBUG("maps", "Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            break;
+        default:
             break;
     }
 }
@@ -242,6 +251,8 @@ void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
 
     for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
         childTerrain->UnloadMapImpl(gx, gy);
+
+    _loadedGrids[GetBitsetIndex(gx, gy)] = false;
 }
 
 GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing /*= true*/)
@@ -251,7 +262,7 @@ GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing
     int32 gy = (int)(CENTER_GRID_ID - y / SIZE_OF_GRIDS);                   //grid y
 
     // ensure GridMap is loaded
-    if (!_gridMap[gx][gy] && loadIfMissing)
+    if (!_loadedGrids[GetBitsetIndex(gx, gy)] && loadIfMissing)
     {
         std::lock_guard<std::mutex> lock(_loadMutex);
         LoadMapAndVMapImpl(gx, gy);
@@ -277,7 +288,7 @@ void TerrainInfo::CleanUpGrids(uint32 diff)
     // delete those GridMap objects which have refcount = 0
     for (int32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
         for (int32 y = 0; y < MAX_NUMBER_OF_GRIDS; ++y)
-            if (_gridMap[x][y] && !_referenceCountFromMap[x][y])
+            if (_loadedGrids[GetBitsetIndex(x, y)] && !_referenceCountFromMap[x][y])
                 UnloadMapImpl(x, y);
 
     _cleanupTimer.Reset(CleanupInterval);

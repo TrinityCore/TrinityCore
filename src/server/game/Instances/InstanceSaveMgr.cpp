@@ -28,7 +28,6 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include "MapInstanced.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -607,7 +606,7 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
 void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     TC_LOG_DEBUG("maps", "InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
-    Map const* map = sMapMgr->CreateBaseMap(mapid);
+    MapEntry const* map = sMapStore.LookupEntry(mapid);
     if (!map->IsDungeon())
         return;
 
@@ -617,7 +616,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 
     DeleteInstanceFromDB(instanceId);                       // even if save not loaded
 
-    Map* iMap = ((MapInstanced*)map)->FindInstanceMap(instanceId);
+    Map* iMap = sMapMgr->FindMap(mapid, instanceId);
     if (iMap)
     {
         ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
@@ -696,28 +695,23 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     }
 
     // note: this isn't fast but it's meant to be executed very rarely
-    Map const* map = sMapMgr->CreateBaseMap(mapid);          // _not_ include difficulty
-    MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
-    MapInstanced::InstancedMaps::iterator mitr;
-    uint32 timeLeft;
-
-    for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
+    if (mapEntry->IsDungeon())
     {
-        Map* map2 = mitr->second;
-        if (!map2->IsDungeon())
-            continue;
-
-        if (warn)
+        sMapMgr->DoForAllMapsWithMapId(mapid, [=](Map* map)
         {
-            if (now >= resetTime)
-                timeLeft = 0;
-            else
-                timeLeft = uint32(resetTime - now);
+            if (warn)
+            {
+                uint32 timeLeft;
+                if (now >= resetTime)
+                    timeLeft = 0;
+                else
+                    timeLeft = uint32(resetTime - now);
 
-            ((InstanceMap*)map2)->SendResetWarnings(timeLeft);
-        }
-        else
-            ((InstanceMap*)map2)->Reset(INSTANCE_RESET_GLOBAL);
+                ((InstanceMap*)map)->SendResetWarnings(timeLeft);
+            }
+            else
+                ((InstanceMap*)map)->Reset(INSTANCE_RESET_GLOBAL);
+        });
     }
 
     /// @todo delete creature/gameobject respawn times even if the maps are not loaded

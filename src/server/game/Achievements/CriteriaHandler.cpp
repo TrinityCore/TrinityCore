@@ -34,6 +34,7 @@
 #include "Item.h"
 #include "LanguageMgr.h"
 #include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
