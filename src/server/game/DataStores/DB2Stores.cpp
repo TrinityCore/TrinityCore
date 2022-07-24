@@ -1516,6 +1516,11 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         _wmoAreaTableLookup[WMOAreaTableKey(entry->WmoID, entry->NameSetID, entry->WmoGroupID)] = entry;
 
     // Initialize global taxinodes mask
+    // reinitialize internal storage for globals after loading TaxiNodes.db2
+    sTaxiNodesMask = {};
+    sHordeTaxiNodesMask = {};
+    sAllianceTaxiNodesMask = {};
+    sOldContinentsNodesMask = {};
     // include existed nodes that have at least single not spell base (scripted) path
     for (TaxiNodesEntry const* node : sTaxiNodesStore)
     {
@@ -3332,11 +3337,11 @@ bool DB2Manager::GetUiMapPosition(float x, float y, float z, int32 mapId, int32 
     return true;
 }
 
-void DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
+bool DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
 {
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
     if (!areaEntry)
-        return;
+        return false;
 
     for (auto assignment : Trinity::Containers::MapEqualRange(_uiMapAssignmentByArea[UI_MAP_SYSTEM_WORLD], areaId))
     {
@@ -3348,8 +3353,10 @@ void DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
         x = assignment.second->Region[0].X + tmpY * (assignment.second->Region[1].X - assignment.second->Region[0].X);
         y = assignment.second->Region[0].Y + tmpX * (assignment.second->Region[1].Y - assignment.second->Region[0].Y);
 
-        break;
+        return true;
     }
+
+    return false;
 }
 
 void DB2Manager::Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const
@@ -3386,7 +3393,8 @@ bool ItemLevelSelectorQualityEntryComparator::Compare(ItemLevelSelectorQualityEn
 
 TaxiMask::TaxiMask()
 {
-    _data.resize(((sTaxiNodesStore.GetNumRows() - 1) / (sizeof(value_type) * 8)) + 1, 0);
+    if (sTaxiNodesStore.GetNumRows())
+        _data.resize(((sTaxiNodesStore.GetNumRows() - 1) / (sizeof(value_type) * 8)) + 1, 0);
 }
 
 bool DB2Manager::FriendshipRepReactionEntryComparator::Compare(FriendshipRepReactionEntry const* left, FriendshipRepReactionEntry const* right)

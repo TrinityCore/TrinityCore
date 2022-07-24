@@ -34,6 +34,7 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 #include "SupportMgr.h"
+#include "TerrainMgr.h"
 #include "Transport.h"
 #include "Util.h"
 #include "WorldSession.h"
@@ -230,8 +231,8 @@ public:
         else
             player->SaveRecallPosition(); // save only in non-flight case
 
-        Map* map = sMapMgr->CreateBaseMap(mapId);
-        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
+        std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(mapId);
+        float z = std::max(terrain->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), terrain->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, player->GetOrientation());
         return true;
@@ -289,8 +290,8 @@ public:
         else
             player->SaveRecallPosition(); // save only in non-flight case
 
-        Map* map = sMapMgr->CreateBaseMap(mapId);
-        z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
+        std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(mapId);
+        z = std::max(terrain->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), terrain->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, 0.0f);
         return true;
@@ -340,19 +341,16 @@ public:
         AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID) : areaEntry;
         ASSERT(zoneEntry);
 
-        Map* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
-
-        if (map->Instanceable())
-        {
-            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaId, areaEntry->AreaName[handler->GetSessionDbcLocale()], map->GetId(), map->GetMapName());
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         x /= 100.0f;
         y /= 100.0f;
 
-        sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y);
+        std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(zoneEntry->ContinentID);
+        if (!sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y))
+        {
+            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaId, areaEntry->AreaName[handler->GetSessionDbcLocale()], terrain->GetId(), terrain->GetMapName());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         if (!MapManager::IsValidMapCoord(zoneEntry->ContinentID, x, y))
         {
@@ -367,7 +365,7 @@ public:
         else
             player->SaveRecallPosition(); // save only in non-flight case
 
-        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
+        float z = std::max(terrain->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), terrain->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(zoneEntry->ContinentID, x, y, z, player->GetOrientation());
         return true;
@@ -395,8 +393,8 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            Map* map = sMapMgr->CreateBaseMap(mapId);
-            z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
+            std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(mapId);
+            z = std::max(terrain->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), terrain->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
         }
 
         return DoTeleport(handler, { x, y, *z, o.value_or(0.0f) }, mapId);

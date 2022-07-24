@@ -26,7 +26,7 @@ class Player;
 class TC_GAME_API GarrisonMap : public Map
 {
 public:
-    GarrisonMap(uint32 id, time_t, uint32 instanceId, Map* parent, ObjectGuid const& owner);
+    GarrisonMap(uint32 id, time_t, uint32 instanceId, ObjectGuid const& owner);
 
     void LoadGridObjects(NGridType* grid, Cell const& cell) override;
     Garrison* GetGarrison();

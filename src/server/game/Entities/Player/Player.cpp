@@ -114,6 +114,7 @@
 #include "SpellPackets.h"
 #include "StringConvert.h"
 #include "TalentPackets.h"
+#include "TerrainMgr.h"
 #include "ToyPackets.h"
 #include "TradeData.h"
 #include "Transport.h"
@@ -1429,7 +1430,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // Check enter rights before map getting to avoid creating instance copy for player
         // this check not dependent from map instance copy and same for all instance copies of selected map
-        if (sMapMgr->PlayerCannotEnter(mapid, this, false))
+        if (Map::PlayerCannotEnter(mapid, this, false))
             return false;
 
         // Seamless teleport can happen only if cosmetic maps match
@@ -7182,7 +7183,7 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
         if (!sMapStore.LookupEntry(map))
             return 0;
 
-        zone = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), map, posx, posy, posz);
+        zone = sTerrainMgr.GetZoneId(PhasingHandler::GetEmptyPhaseShift(), map, posx, posy, posz);
 
         if (zone > 0)
         {
@@ -19759,7 +19760,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         if (!createPosition.TransportGuid)
         {
             m_homebind.WorldRelocate(createPosition.Loc);
-            m_homebindAreaId = sMapMgr->GetAreaId(PhasingHandler::GetEmptyPhaseShift(), m_homebind);
+            m_homebindAreaId = sTerrainMgr.GetAreaId(PhasingHandler::GetEmptyPhaseShift(), m_homebind);
 
             saveHomebindToDb();
             ok = true;
@@ -19775,7 +19776,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         ASSERT(loc, "Missing fallback graveyard location for faction %u", uint32(GetTeamId()));
 
         m_homebind.WorldRelocate(loc->Loc);
-        m_homebindAreaId = sMapMgr->GetAreaId(PhasingHandler::GetEmptyPhaseShift(), loc->Loc);
+        m_homebindAreaId = sTerrainMgr.GetAreaId(PhasingHandler::GetEmptyPhaseShift(), loc->Loc);
 
         saveHomebindToDb();
     }

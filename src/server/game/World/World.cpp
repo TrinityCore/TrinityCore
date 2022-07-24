@@ -67,6 +67,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "MiscPackets.h"
@@ -89,6 +90,7 @@
 #include "SmartScriptMgr.h"
 #include "SupportMgr.h"
 #include "TaxiPathGraph.h"
+#include "TerrainMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "UpdateTime.h"
@@ -1743,15 +1745,15 @@ void World::SetInitialWorldSettings()
     sObjectMgr->SetHighestGuids();
 
     ///- Check the existence of the map files for all races' startup areas.
-    if (!MapManager::ExistMapAndVMap(0, -6240.32f, 331.033f)
-        || !MapManager::ExistMapAndVMap(0, -8949.95f, -132.493f)
-        || !MapManager::ExistMapAndVMap(1, -618.518f, -4251.67f)
-        || !MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f)
-        || !MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f)
-        || !MapManager::ExistMapAndVMap(1, -2917.58f, -257.98f)
+    if (!TerrainMgr::ExistMapAndVMap(0, -6240.32f, 331.033f)
+        || !TerrainMgr::ExistMapAndVMap(0, -8949.95f, -132.493f)
+        || !TerrainMgr::ExistMapAndVMap(1, -618.518f, -4251.67f)
+        || !TerrainMgr::ExistMapAndVMap(0, 1676.35f, 1677.45f)
+        || !TerrainMgr::ExistMapAndVMap(1, 10311.3f, 832.463f)
+        || !TerrainMgr::ExistMapAndVMap(1, -2917.58f, -257.98f)
         || (m_int_configs[CONFIG_EXPANSION] && (
-            !MapManager::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
-            !MapManager::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
+            !TerrainMgr::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
+            !TerrainMgr::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
     {
         TC_LOG_FATAL("server.loading", "Unable to load critical files - server shutting down !!!");
         exit(1);
@@ -1821,7 +1823,7 @@ void World::SetInitialWorldSettings()
             mapData[mapEntry->CosmeticParentMapID].push_back(mapEntry->ID);
     }
 
-    sMapMgr->InitializeParentMapData(mapData);
+    sTerrainMgr.InitializeParentMapData(mapData);
 
     vmmgr2->InitializeThreadUnsafe(mapData);
 
@@ -2492,19 +2494,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading phase names...");
     sObjectMgr->LoadPhaseNames();
 
-    // Preload all cells, if required for the base maps
-    if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
-    {
-        sMapMgr->DoForAllMaps([](Map* map)
-        {
-            if (!map->Instanceable())
-            {
-                TC_LOG_INFO("server.loading", "Pre-loading base map data for map %u", map->GetId());
-                map->LoadAllCells();
-            }
-        });
-    }
-
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
@@ -2735,6 +2724,11 @@ void World::Update(uint32 diff)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update maps"));
         sMapMgr->Update(diff);
+    }
+
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Terrain data cleanup"));
+        sTerrainMgr.Update(diff);
     }
 
     if (sWorld->getBoolConfig(CONFIG_AUTOBROADCAST))
