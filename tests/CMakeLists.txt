@@ -30,6 +30,9 @@ CollectIncludeDirectories(
 target_include_directories(tests
   PUBLIC
     ${TEST_INCLUDES}
+    # tswow-begin
+    ${TSWOW_INCLUDES}
+    # tswow-end
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
