@@ -60,6 +60,7 @@
 #include "SpellScript.h"
 #include "StringConvert.h"
 #include "TemporarySummon.h"
+#include "TerrainMgr.h"
 #include "Timer.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
@@ -2431,7 +2432,7 @@ void ObjectMgr::LoadCreatures()
             uint32 zoneId = 0;
             uint32 areaId = 0;
             PhasingHandler::InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
-            sMapMgr->GetZoneAndAreaId(phaseShift, zoneId, areaId, data.mapId, data.spawnPoint);
+            sTerrainMgr.GetZoneAndAreaId(phaseShift, zoneId, areaId, data.mapId, data.spawnPoint);
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA);
 
@@ -2737,7 +2738,7 @@ void ObjectMgr::LoadGameObjects()
             uint32 zoneId = 0;
             uint32 areaId = 0;
             PhasingHandler::InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
-            sMapMgr->GetZoneAndAreaId(phaseShift, zoneId, areaId, data.mapId, data.spawnPoint);
+            sTerrainMgr.GetZoneAndAreaId(phaseShift, zoneId, areaId, data.mapId, data.spawnPoint);
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA);
 
@@ -6951,7 +6952,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
     uint32 MapId = location.GetMapId();
 
     // search for zone associated closest graveyard
-    uint32 zoneId = sMapMgr->GetZoneId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
+    uint32 zoneId = sTerrainMgr.GetZoneId(conditionObject ? conditionObject->GetPhaseShift() : PhasingHandler::GetEmptyPhaseShift(), MapId, x, y, z);
 
     if (!zoneId)
     {

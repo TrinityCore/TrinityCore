@@ -3375,7 +3375,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Unit is flying, check for potential collision via vmaps
     if (path.GetPathType() & PATHFIND_NOT_USING_PATH)
     {
-        col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap(), pos.m_positionX, pos.m_positionY),
+        col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap()->GetTerrain(), pos.m_positionX, pos.m_positionY),
             pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
             destx, desty, destz + halfHeight,
             destx, desty, destz, -0.5f);
