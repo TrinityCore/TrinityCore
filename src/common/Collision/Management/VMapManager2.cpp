@@ -78,7 +78,6 @@ namespace VMAP
     void VMapManager2::InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
     {
         // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
-        iChildMapData = mapData;
         for (std::pair<uint32 const, std::vector<uint32>> const& mapId : mapData)
         {
             iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId.first, nullptr));
@@ -110,37 +109,11 @@ namespace VMAP
         return fname.str();
     }
 
-    int VMapManager2::loadMap(char const* basePath, unsigned int mapId, int x, int y)
+    LoadResult VMapManager2::loadMap(char const* basePath, unsigned int mapId, int x, int y)
     {
-        int result = VMAP_LOAD_RESULT_IGNORED;
-        if (isMapLoadingEnabled())
-        {
-            LoadResult parentLoadResult = loadSingleMap(mapId, basePath, x, y);
-            if (parentLoadResult == LoadResult::Success || parentLoadResult == LoadResult::FileNotFound)
-            {
-                if (parentLoadResult == LoadResult::Success)
-                    result = VMAP_LOAD_RESULT_OK;
-                // else VMAP_LOAD_RESULT_IGNORED
+        if (!isMapLoadingEnabled())
+            return LoadResult::DisabledInConfig;
 
-                auto childMaps = iChildMapData.find(mapId);
-                if (childMaps != iChildMapData.end())
-                    for (uint32 childMapId : childMaps->second)
-                    {
-                        LoadResult childLoadResult = loadSingleMap(childMapId, basePath, x, y);
-                        if (childLoadResult != LoadResult::Success && childLoadResult != LoadResult::FileNotFound)
-                            result = VMAP_LOAD_RESULT_ERROR;
-                    }
-            }
-            else
-                result = VMAP_LOAD_RESULT_ERROR;
-        }
-
-        return result;
-    }
-
-    // load one tile (internal use only)
-    LoadResult VMapManager2::loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY)
-    {
         auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree == iInstanceMapTrees.end())
         {
@@ -148,7 +121,7 @@ namespace VMAP
                 instanceTree = iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId, nullptr)).first;
             else
                 ABORT_MSG("Invalid mapId %u tile [%u, %u] passed to VMapManager2 after startup in thread unsafe environment",
-                mapId, tileX, tileY);
+                    mapId, x, y);
         }
 
         if (!instanceTree->second)
@@ -164,20 +137,10 @@ namespace VMAP
             instanceTree->second = newTree;
         }
 
-        return instanceTree->second->LoadMapTile(tileX, tileY, this);
+        return instanceTree->second->LoadMapTile(x, y, this);
     }
 
     void VMapManager2::unloadMap(unsigned int mapId, int x, int y)
-    {
-        auto childMaps = iChildMapData.find(mapId);
-        if (childMaps != iChildMapData.end())
-            for (uint32 childMapId : childMaps->second)
-                unloadSingleMap(childMapId, x, y);
-
-        unloadSingleMap(mapId, x, y);
-    }
-
-    void VMapManager2::unloadSingleMap(uint32 mapId, int x, int y)
     {
         auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
@@ -192,16 +155,6 @@ namespace VMAP
     }
 
     void VMapManager2::unloadMap(unsigned int mapId)
-    {
-        auto childMaps = iChildMapData.find(mapId);
-        if (childMaps != iChildMapData.end())
-            for (uint32 childMapId : childMaps->second)
-                unloadSingleMap(childMapId);
-
-        unloadSingleMap(mapId);
-    }
-
-    void VMapManager2::unloadSingleMap(uint32 mapId)
     {
         auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
