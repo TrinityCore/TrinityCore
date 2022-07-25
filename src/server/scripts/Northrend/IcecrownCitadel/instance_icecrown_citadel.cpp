@@ -146,7 +146,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
-                TeamInInstance = map->GetTeamInInstance();
                 HeroicAttempts = MaxHeroicAttempts;
                 ColdflameJetsState = NOT_STARTED;
                 UpperSpireTeleporterActiveState = NOT_STARTED;
@@ -178,7 +177,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
-                uint8 spawnGroupId = TeamInInstance == ALLIANCE ? SPAWN_GROUP_ALLIANCE_ROS : SPAWN_GROUP_HORDE_ROS;
+                uint8 spawnGroupId = GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SPAWN_GROUP_ALLIANCE_ROS : SPAWN_GROUP_HORDE_ROS;
                 if (!instance->IsSpawnGroupActive(spawnGroupId))
                     instance->SpawnGroupSpawn(spawnGroupId);
 
@@ -186,12 +185,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                     SpawnGunship();
 
                 if (IsFactionBuffActive)
-                    DoCastSpellOnPlayer(player, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG);
+                    DoCastSpellOnPlayer(player, GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG);
             }
 
             void OnPlayerLeave(Player* player) override
             {
-                DoRemoveAurasDueToSpellOnPlayer(player, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true, true);
+                DoRemoveAurasDueToSpellOnPlayer(player, GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true, true);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -199,7 +198,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 if (creature->IsGuardian() && creature->GetOwnerGUID().IsPlayer())
                 {
                     if (IsFactionBuffActive)
-                        creature->CastSpell(creature, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true);
+                        creature->CastSpell(creature, GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true);
                 }
 
                 switch (creature->GetEntry())
@@ -354,53 +353,53 @@ class instance_icecrown_citadel : public InstanceMapScript
                             }
                         }
 
-                        if (entry == NPC_KOR_KRON_LIEUTENANT && TeamInInstance == ALLIANCE)
+                        if (entry == NPC_KOR_KRON_LIEUTENANT && GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             return NPC_SKYBREAKER_LIEUTENANT;
                         break;
                     }
                     case NPC_HORDE_GUNSHIP_CANNON:
                     case NPC_ORGRIMS_HAMMER_CREW:
                     case NPC_SKY_REAVER_KORM_BLACKSCAR:
-                        if (TeamInInstance == ALLIANCE)
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             return 0;
                         break;
                     case NPC_ALLIANCE_GUNSHIP_CANNON:
                     case NPC_SKYBREAKER_DECKHAND:
                     case NPC_HIGH_CAPTAIN_JUSTIN_BARTLETT:
-                        if (TeamInInstance == HORDE)
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                             return 0;
                         break;
                     case NPC_ZAFOD_BOOMBOX:
                         if (GameObjectTemplate const* go = sObjectMgr->GetGameObjectTemplate(GO_THE_SKYBREAKER_A))
-                            if ((TeamInInstance == ALLIANCE && int32(data->mapId) == go->moTransport.SpawnMap) ||
-                                (TeamInInstance == HORDE && int32(data->mapId) != go->moTransport.SpawnMap))
+                            if ((GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && int32(data->mapId) == go->moTransport.SpawnMap) ||
+                                (GetData(DATA_TEAM_IN_INSTANCE) == HORDE && int32(data->mapId) != go->moTransport.SpawnMap))
                                 return entry;
                         return 0;
                     case NPC_IGB_MURADIN_BRONZEBEARD:
-                        if ((TeamInInstance == ALLIANCE && data->spawnPoint.GetPositionX() > 10.0f) ||
-                            (TeamInInstance == HORDE && data->spawnPoint.GetPositionX() < 10.0f))
+                        if ((GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE && data->spawnPoint.GetPositionX() > 10.0f) ||
+                            (GetData(DATA_TEAM_IN_INSTANCE) == HORDE && data->spawnPoint.GetPositionX() < 10.0f))
                             return entry;
                         return 0;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
-                        return TeamInInstance == ALLIANCE ? NPC_SE_MURADIN_BRONZEBEARD : NPC_SE_HIGH_OVERLORD_SAURFANG;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_SE_MURADIN_BRONZEBEARD : NPC_SE_HIGH_OVERLORD_SAURFANG;
                     case NPC_KOR_KRON_GENERAL:
-                        return TeamInInstance == ALLIANCE ? NPC_ALLIANCE_COMMANDER : NPC_KOR_KRON_GENERAL;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_ALLIANCE_COMMANDER : NPC_KOR_KRON_GENERAL;
                     case NPC_TORTUNOK:
-                        return TeamInInstance == ALLIANCE ? NPC_ALANA_MOONSTRIKE : NPC_TORTUNOK;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_ALANA_MOONSTRIKE : NPC_TORTUNOK;
                     case NPC_GERARDO_THE_SUAVE:
-                        return TeamInInstance == ALLIANCE ? NPC_TALAN_MOONSTRIKE : NPC_GERARDO_THE_SUAVE;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_TALAN_MOONSTRIKE : NPC_GERARDO_THE_SUAVE;
                     case NPC_UVLUS_BANEFIRE:
-                        return TeamInInstance == ALLIANCE ? NPC_MALFUS_GRIMFROST : NPC_UVLUS_BANEFIRE;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_MALFUS_GRIMFROST : NPC_UVLUS_BANEFIRE;
                     case NPC_IKFIRUS_THE_VILE:
-                        return TeamInInstance == ALLIANCE ? NPC_YILI : NPC_IKFIRUS_THE_VILE;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_YILI : NPC_IKFIRUS_THE_VILE;
                     case NPC_VOL_GUK:
-                        return TeamInInstance == ALLIANCE ? NPC_JEDEBIA : NPC_VOL_GUK;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_JEDEBIA : NPC_VOL_GUK;
                     case NPC_HARAGG_THE_UNSEEN:
-                        return TeamInInstance == ALLIANCE ? NPC_NIBY_THE_ALMIGHTY : NPC_HARAGG_THE_UNSEEN;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_NIBY_THE_ALMIGHTY : NPC_HARAGG_THE_UNSEEN;
                     case NPC_GARROSH_HELLSCREAM:
-                        return TeamInInstance == ALLIANCE ? NPC_KING_VARIAN_WRYNN : NPC_GARROSH_HELLSCREAM;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_KING_VARIAN_WRYNN : NPC_GARROSH_HELLSCREAM;
                     case NPC_SE_KOR_KRON_REAVER:
-                        return TeamInInstance == ALLIANCE ? NPC_SE_SKYBREAKER_MARINE : NPC_SE_KOR_KRON_REAVER;
+                        return GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_SE_SKYBREAKER_MARINE : NPC_SE_KOR_KRON_REAVER;
                     default:
                         break;
                 }
@@ -416,14 +415,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_GUNSHIP_ARMORY_H_25N:
                     case GO_GUNSHIP_ARMORY_H_10H:
                     case GO_GUNSHIP_ARMORY_H_25H:
-                        if (TeamInInstance == ALLIANCE)
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             return 0;
                         break;
                     case GO_GUNSHIP_ARMORY_A_10N:
                     case GO_GUNSHIP_ARMORY_A_25N:
                     case GO_GUNSHIP_ARMORY_A_10H:
                     case GO_GUNSHIP_ARMORY_A_25H:
-                        if (TeamInInstance == HORDE)
+                        if (GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                             return 0;
                         break;
                     default:
@@ -730,7 +729,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_UPPERSPIRE_TELE_ACT:
                         return UpperSpireTeleporterActiveState;
                     case DATA_TEAM_IN_INSTANCE:
-                        return TeamInInstance;
+                        return instance->GetTeamInInstance();
                     case DATA_BLOOD_QUICKENING_STATE:
                         return BloodQuickeningState;
                     case DATA_HEROIC_ATTEMPTS:
@@ -1025,7 +1024,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 if (!GunshipGUID)
                 {
                     SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, NOT_STARTED);
-                    uint32 gunshipEntry = TeamInInstance == HORDE ? GO_ORGRIMS_HAMMER_H : GO_THE_SKYBREAKER_A;
+                    uint32 gunshipEntry = GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? GO_ORGRIMS_HAMMER_H : GO_THE_SKYBREAKER_A;
                     if (Transport* gunship = sTransportMgr->CreateTransport(gunshipEntry, instance))
                         GunshipGUID = gunship->GetGUID();
                 }
@@ -1101,7 +1100,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_FACTION_BUFF:
                         IsFactionBuffActive = data ? true : false;
                         if (!IsFactionBuffActive)
-                            DoRemoveAurasDueToSpellOnPlayers(TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true, true);
+                            DoRemoveAurasDueToSpellOnPlayers(GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true, true);
                         break;
                     case DATA_NERUBAR_BROODKEEPER_EVENT:
                     {
@@ -1424,7 +1423,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             source->AddObjectToRemoveList();
                         break;
                     case EVENT_ENEMY_GUNSHIP_COMBAT:
-                        if (Creature* captain = source->FindNearestCreature(TeamInInstance == HORDE ? NPC_IGB_HIGH_OVERLORD_SAURFANG : NPC_IGB_MURADIN_BRONZEBEARD, 100.0f))
+                        if (Creature* captain = source->FindNearestCreature(GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? NPC_IGB_HIGH_OVERLORD_SAURFANG : NPC_IGB_MURADIN_BRONZEBEARD, 100.0f))
                             captain->AI()->DoAction(ACTION_ENEMY_GUNSHIP_TALK);
                         [[fallthrough]];
                     case EVENT_PLAYERS_GUNSHIP_SPAWN:
@@ -1434,7 +1433,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 transport->EnableMovement(false);
                         break;
                     case EVENT_PLAYERS_GUNSHIP_SAURFANG:
-                        if (Creature* captain = source->FindNearestCreature(TeamInInstance == HORDE ? NPC_IGB_HIGH_OVERLORD_SAURFANG : NPC_IGB_MURADIN_BRONZEBEARD, 100.0f))
+                        if (Creature* captain = source->FindNearestCreature(GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? NPC_IGB_HIGH_OVERLORD_SAURFANG : NPC_IGB_MURADIN_BRONZEBEARD, 100.0f))
                             captain->AI()->DoAction(ACTION_EXIT_SHIP);
                         if (GameObject* go = source->ToGameObject())
                             if (Transport* transport = go->ToTransport())
@@ -1531,7 +1530,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             ObjectGuid FrozenBolvarGUID;
             ObjectGuid PillarsChainedGUID;
             ObjectGuid PillarsUnchainedGUID;
-            Team TeamInInstance;
             uint32 ColdflameJetsState;
             uint32 UpperSpireTeleporterActiveState;
             std::unordered_set<ObjectGuid::LowType> FrostwyrmGUIDs;
