@@ -126,6 +126,8 @@ class TC_GAME_API MapManager
         void DecreaseScheduledScriptCount(std::size_t count) { _scheduledScripts -= count; }
         bool IsScriptScheduled() const { return _scheduledScripts > 0; }
 
+        void AddSC_BuiltInScripts();
+
     private:
         using MapKey = std::pair<uint32, uint32>;
         typedef std::map<MapKey, Map*> MapMapType;

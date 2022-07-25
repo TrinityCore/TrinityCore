@@ -27,7 +27,9 @@
 #include "Map.h"
 #include "Player.h"
 #include "ScenarioMgr.h"
+#include "ScriptMgr.h"
 #include "World.h"
+#include "WorldStateMgr.h"
 #include <boost/dynamic_bitset.hpp>
 #include <numeric>
 
@@ -236,6 +238,9 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId 
     else
     {
         newInstanceId = 0;
+        if (entry->IsSplitByFaction())
+            newInstanceId = player->GetTeamId();
+
         map = FindMap_i(mapId, newInstanceId);
         if (!map)
             map = CreateWorldMap(mapId, newInstanceId);
@@ -395,4 +400,26 @@ void MapManager::FreeInstanceId(uint32 instanceId)
     // If freed instance id is lower than the next id available for new instances, use the freed one instead
     _nextInstanceId = std::min(instanceId, _nextInstanceId);
     _freeInstanceIds->set(instanceId, true);
+}
+
+// hack to allow conditions to access what faction owns the map (these worldstates should not be set on these maps)
+class SplitByFactionMapScript : public WorldMapScript
+{
+public:
+    SplitByFactionMapScript(char const* name, uint32 mapId) : WorldMapScript(name, mapId)
+    {
+    }
+
+    void OnCreate(Map* map) override
+    {
+        sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, map->GetInstanceId() == TEAM_ALLIANCE, false, map);
+        sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, map->GetInstanceId() == TEAM_HORDE, false, map);
+    }
+};
+
+void MapManager::AddSC_BuiltInScripts()
+{
+    for (MapEntry const* mapEntry : sMapStore)
+        if (mapEntry->IsWorldMap() && mapEntry->IsSplitByFaction())
+            new SplitByFactionMapScript(Trinity::StringFormat("world_map_set_faction_worldstates_%u", mapEntry->ID).c_str(), mapEntry->ID);
 }
