@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "GossipDef.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

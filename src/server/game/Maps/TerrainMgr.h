@@ -97,6 +97,8 @@ public:
     float GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground = nullptr, bool swim = false, float collisionHeight = 2.03128f, DynamicMapTree const* dynamicMapTree = nullptr); // DEFAULT_COLLISION_HEIGHT in Object.h
 
 private:
+    static constexpr int32 GetBitsetIndex(int32 gx, int32 gy) { return gx * MAX_NUMBER_OF_GRIDS + gy; }
+
     uint32 _mapId;
 
     TerrainInfo* _parentTerrain;
@@ -105,6 +107,7 @@ private:
     std::mutex _loadMutex;
     std::unique_ptr<GridMap> _gridMap[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
     std::atomic<uint16> _referenceCountFromMap[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+    std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS> _loadedGrids;
     std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS> _gridFileExists; // cache what grids are available for this map (not including parent/child maps)
 
     static constexpr Milliseconds CleanupInterval = 1min;
