@@ -37,6 +37,7 @@ class DamageInfo;
 class DispelInfo;
 class DynamicObject;
 class GameObject;
+class HealInfo;
 class Item;
 class ModuleReference;
 class Player;
@@ -1077,16 +1078,16 @@ class TC_GAME_API AuraScript : public _SpellScript
         #define AuraEffectAbsorbFn(F, I) EffectAbsorbFunction(&F, I)
         #define AuraEffectAbsorbOverkillFn(F, I) EffectAbsorbFunction(&F, I, true)
 
+        // executed after absorb aura effect reduced damage to target - absorbAmount is real amount absorbed by aura
+        // example: AfterEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
+        // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
+        HookList<EffectAbsorbHandler> AfterEffectAbsorb;
+
         // executed when absorb aura effect is going to reduce damage
         // example: OnEffectAbsorbHeal += AuraEffectAbsorbHealFn(class::function, EffectIndexSpecifier);
         // where function is: void function (AuraEffect const* aurEff, HealInfo& healInfo, uint32& absorbAmount);
         HookList<EffectAbsorbHealHandler> OnEffectAbsorbHeal;
         #define AuraEffectAbsorbHealFn(F, I) EffectAbsorbHealFunction(&F, I)
-
-        // executed after absorb aura effect reduced damage to target - absorbAmount is real amount absorbed by aura
-        // example: AfterEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
-        // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
-        HookList<EffectAbsorbHandler> AfterEffectAbsorb;
 
         // executed after absorb aura effect reduced heal to target - absorbAmount is real amount absorbed by aura
         // example: AfterEffectAbsorbHeal += AuraEffectAbsorbHealFn(class::function, EffectIndexSpecifier);
