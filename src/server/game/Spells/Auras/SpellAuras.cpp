@@ -2200,6 +2200,23 @@ void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication co
     }
 }
 
+void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount, bool& defaultPrevented)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_ABSORB, aurApp);
+        auto effEndItr = (*scritr)->OnEffectAbsorbHeal.end(), effItr = (*scritr)->OnEffectAbsorbHeal.begin();
+        for (; effItr != effEndItr; ++effItr)
+
+            if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                effItr->Call(*scritr, aurEff, healInfo, absorbAmount);
+
+        if (!defaultPrevented)
+            defaultPrevented = (*scritr)->_IsDefaultActionPrevented();
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
 void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount)
 {
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2209,6 +2226,21 @@ void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplicati
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
                 effItr->Call(*scritr, aurEff, dmgInfo, absorbAmount);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB, aurApp);
+        auto effEndItr = (*scritr)->AfterEffectAbsorbHeal.end(), effItr = (*scritr)->AfterEffectAbsorbHeal.begin();
+        for (; effItr != effEndItr; ++effItr)
+
+            if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                effItr->Call(*scritr, aurEff, healInfo, absorbAmount);
 
         (*scritr)->_FinishScriptCall();
     }
