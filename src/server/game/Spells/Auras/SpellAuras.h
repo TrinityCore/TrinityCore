@@ -44,6 +44,7 @@ class DispelInfo;
 class DynObjAura;
 class ChargeDropEvent;
 class DynamicObject;
+class HealInfo;
 class ProcEventInfo;
 class Unit;
 class UnitAura;
@@ -277,8 +278,8 @@ class TC_GAME_API Aura
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier*& spellMod);
         void CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit const* victim, float& critChance);
         void CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool & defaultPrevented);
-        void CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount, bool& defaultPrevented);
         void CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount);
+        void CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount, bool& defaultPrevented);
         void CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount);
         void CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool & defaultPrevented);
         void CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount);
