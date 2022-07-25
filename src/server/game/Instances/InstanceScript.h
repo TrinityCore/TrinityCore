@@ -245,7 +245,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source);
 
         // Used only during loading
-        void SetCompletedEncountersMask(uint32 newMask) { completedEncounters = newMask; }
+        void SetCompletedEncountersMask(uint32 newMask);
 
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }

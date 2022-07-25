@@ -54,7 +54,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
         void SkipCurrentNode() { ++_currentNode; }
         void DoEventIfAny(Player* owner, TaxiPathNodeEntry const* node, bool departure);
         void InitEndGridInfo();
-        void PreloadEndGrid();
+        void PreloadEndGrid(Player* owner);
 
         std::string GetDebugInfo() const override;
 
