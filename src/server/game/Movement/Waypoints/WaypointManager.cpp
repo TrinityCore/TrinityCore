@@ -18,7 +18,6 @@
 #include "WaypointManager.h"
 #include "DatabaseEnv.h"
 #include "GridDefines.h"
-#include "MapManager.h"
 #include "Log.h"
 
 void WaypointMgr::Load()

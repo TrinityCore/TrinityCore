@@ -20,7 +20,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "MapManager.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "PassiveAI.h"
