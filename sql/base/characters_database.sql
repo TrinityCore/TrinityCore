@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.26, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.29, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	8.0.26
+-- Server version	8.0.29-0ubuntu0.20.04.3
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2982,7 +2982,7 @@ CREATE TABLE `item_loot_items` (
   `container_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
   `item_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'loot item entry (item_instance.itemEntry)',
   `item_count` int NOT NULL DEFAULT '0' COMMENT 'stack size',
-  `item_index` int(10) unsigned NOT NULL DEFAULT '0',
+  `item_index` int unsigned NOT NULL DEFAULT '0',
   `follow_rules` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'follow loot rules',
   `ffa` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'free-for-all',
   `blocked` tinyint(1) NOT NULL DEFAULT '0',
@@ -3670,10 +3670,11 @@ INSERT INTO `updates` VALUES
 ('2022_01_31_02_characters.sql','6E3A3F02276287DD540BC4C17E246DFB850260D8','ARCHIVED','2022-01-31 21:43:38',0),
 ('2022_02_28_00_characters_2020_09_27_00_characters.sql','2292A1ED0E7F46DEC41384F75FA6D9461464EEB8','ARCHIVED','2022-02-28 12:43:58',0),
 ('2022_03_06_00_characters.sql','474AAF9D03E6A56017899C968DC9875368301934','ARCHIVED','2022-03-06 15:12:24',0),
-('2022_03_11_00_characters_2021_07_18_00_characters.sql','0BA579ED21F4E75AC2B4797421B5029568B3F6E2','RELEASED','2022-03-11 18:56:07',0),
-('2022_06_01_00_characters.sql','582AC6E256F8365F83AB70BA165CCC8B218E19FF','RELEASED','2022-06-01 21:16:56',0),
-('2022_07_03_00_characters.sql','D3F04078C0846BCF7C8330AC20C39B8C3AEE7002','RELEASED','2022-07-03 23:37:24',0),
-('2022_07_14_00_characters.sql','2EAD57D77FC39F6678F2D2A7D9C24046E6B836D8','RELEASED','2022-07-14 21:44:35',0);
+('2022_03_11_00_characters_2021_07_18_00_characters.sql','0BA579ED21F4E75AC2B4797421B5029568B3F6E2','ARCHIVED','2022-03-11 18:56:07',0),
+('2022_06_01_00_characters.sql','582AC6E256F8365F83AB70BA165CCC8B218E19FF','ARCHIVED','2022-06-01 21:16:56',0),
+('2022_07_03_00_characters.sql','D3F04078C0846BCF7C8330AC20C39B8C3AEE7002','ARCHIVED','2022-07-03 23:37:24',0),
+('2022_07_14_00_characters.sql','2EAD57D77FC39F6678F2D2A7D9C24046E6B836D8','ARCHIVED','2022-07-14 21:44:35',0),
+('2022_07_25_00_characters.sql','3159BB2F3C346A7881920AB2B1F8108247CF13EE','ARCHIVED','2022-07-25 18:44:10',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3774,15 +3775,15 @@ CREATE TABLE `world_variable` (
 LOCK TABLES `world_variable` WRITE;
 /*!40000 ALTER TABLE `world_variable` DISABLE KEYS */;
 INSERT INTO `world_variable` VALUES
-('NextCurrencyResetTime',0),
-('NextWeeklyQuestResetTime',0),
 ('NextBGRandomDailyResetTime',0),
-('PersistentCharacterCleanFlags',0),
-('NextGuildDailyResetTime',0),
-('NextMonthlyQuestResetTime',0),
+('NextCurrencyResetTime',0),
 ('NextDailyQuestResetTime',0),
+('NextGuildDailyResetTime',0),
+('NextGuildWeeklyResetTime',0),
+('NextMonthlyQuestResetTime',0),
 ('NextOldCalendarEventDeletionTime',0),
-('NextGuildWeeklyResetTime',0);
+('NextWeeklyQuestResetTime',0),
+('PersistentCharacterCleanFlags',0);
 /*!40000 ALTER TABLE `world_variable` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3799,4 +3800,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-06 15:12:27
+-- Dump completed on 2022-07-25 18:44:12
