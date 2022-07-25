@@ -25,6 +25,7 @@
 #include "InstancePackets.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
 #include "MovementPackets.h"

@@ -37,6 +37,7 @@ EndScriptData */
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "Language.h"
 #include "Log.h"
@@ -1233,17 +1234,26 @@ public:
 
     static bool HandleDebugLoadCellsCommand(ChatHandler* handler, Optional<uint32> mapId, Optional<uint32> tileX, Optional<uint32> tileY)
     {
-        Map* map = nullptr;
         if (mapId)
         {
-            map = sMapMgr->FindBaseNonInstanceMap(*mapId);
-        }
-        else if (Player* player = handler->GetPlayer())
-        {
-            // Fallback to player's map if no map has been specified
-            map = player->GetMap();
+            sMapMgr->DoForAllMapsWithMapId(*mapId, [&](Map* map)
+            {
+                HandleDebugLoadCellsCommandHelper(handler, map, tileX, tileY);
+            });
+            return true;
         }
 
+        if (Player* player = handler->GetPlayer())
+        {
+            // Fallback to player's map if no map has been specified
+            return HandleDebugLoadCellsCommandHelper(handler, player->GetMap(), tileX, tileY);
+        }
+
+        return false;
+    }
+
+    static bool HandleDebugLoadCellsCommandHelper(ChatHandler* handler, Map* map, Optional<uint32> tileX, Optional<uint32> tileY)
+    {
         if (!map)
             return false;
 

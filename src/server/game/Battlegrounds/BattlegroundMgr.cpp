@@ -37,8 +37,6 @@
 #include "GameEventMgr.h"
 #include "Language.h"
 #include "Log.h"
-#include "Map.h"
-#include "MapInstanced.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
