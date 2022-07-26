@@ -1229,6 +1229,9 @@ void ScriptMgr::Initialize()
     // LFGScripts
     lfg::AddSC_LFGScripts();
 
+    // MapScripts
+    sMapMgr->AddSC_BuiltInScripts();
+
     // Load all static linked scripts through the script loader function.
     ASSERT(_script_loader_callback,
            "Script loader callback wasn't registered!");

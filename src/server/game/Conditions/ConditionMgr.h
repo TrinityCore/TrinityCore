@@ -256,7 +256,7 @@ struct TC_GAME_API Condition
 
     bool Meets(ConditionSourceInfo& sourceInfo) const;
     uint32 GetSearcherTypeMaskForCondition() const;
-    bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId; }
+    bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId || ScriptId; }
     uint32 GetMaxAvailableConditionTargets() const;
 
     std::string ToString(bool ext = false) const; /// For logging purpose
