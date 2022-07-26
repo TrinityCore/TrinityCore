@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.26, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.29, for Linux (x86_64)
 --
 -- Host: localhost    Database: hotfixes
 -- ------------------------------------------------------
--- Server version	8.0.26
+-- Server version	8.0.29-0ubuntu0.20.04.3
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -134,7 +134,7 @@ CREATE TABLE `adventure_journal` (
   `ContinueDescription` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
   `PlayerConditionID` int unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `ButtonActionType` tinyint unsigned NOT NULL DEFAULT '0',
   `TextureFileDataID` int NOT NULL DEFAULT '0',
   `LfgDungeonID` smallint unsigned NOT NULL DEFAULT '0',
@@ -1549,7 +1549,7 @@ CREATE TABLE `chr_classes` (
   `SelectScreenFileDataID` int unsigned NOT NULL DEFAULT '0',
   `IconFileDataID` int unsigned NOT NULL DEFAULT '0',
   `LowResScreenFileDataID` int unsigned NOT NULL DEFAULT '0',
-  `Flags` int unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `SpellTextureBlobFileDataID` int unsigned NOT NULL DEFAULT '0',
   `RolesMask` int unsigned NOT NULL DEFAULT '0',
   `ArmorTypeMask` int unsigned NOT NULL DEFAULT '0',
@@ -1822,7 +1822,7 @@ CREATE TABLE `chr_model` (
   `CustomizeOffset2` float NOT NULL DEFAULT '0',
   `CustomizeOffset3` float NOT NULL DEFAULT '0',
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `Sex` int NOT NULL DEFAULT '0',
+  `Sex` tinyint NOT NULL DEFAULT '0',
   `DisplayID` int NOT NULL DEFAULT '0',
   `CharComponentTextureLayoutID` int NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
@@ -2627,8 +2627,8 @@ CREATE TABLE `curve_point` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `PosX` float NOT NULL DEFAULT '0',
   `PosY` float NOT NULL DEFAULT '0',
-  `PosPreSquishX` float NOT NULL DEFAULT '0',
-  `PosPreSquishY` float NOT NULL DEFAULT '0',
+  `PreSLSquishPosX` float NOT NULL DEFAULT '0',
+  `PreSLSquishPosY` float NOT NULL DEFAULT '0',
   `CurveID` smallint unsigned NOT NULL DEFAULT '0',
   `OrderIndex` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -4284,8 +4284,8 @@ CREATE TABLE `item_bonus_tree_node` (
   `ChildItemBonusTreeID` smallint unsigned NOT NULL DEFAULT '0',
   `ChildItemBonusListID` smallint unsigned NOT NULL DEFAULT '0',
   `ChildItemLevelSelectorID` smallint unsigned NOT NULL DEFAULT '0',
-  `ItemBonusListGroupID` int NOT NULL DEFAULT '0',
-  `ParentItemBonusTreeNodeID` int NOT NULL DEFAULT '0',
+  `ChildItemBonusListGroupID` int NOT NULL DEFAULT '0',
+  `IblGroupPointsModSetID` int NOT NULL DEFAULT '0',
   `ParentItemBonusTreeID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -4929,6 +4929,8 @@ CREATE TABLE `item_sparse` (
   `DurationInInventory` int unsigned NOT NULL DEFAULT '0',
   `QualityModifier` float NOT NULL DEFAULT '0',
   `BagFamily` int unsigned NOT NULL DEFAULT '0',
+  `StartQuestID` int NOT NULL DEFAULT '0',
+  `LanguageID` int NOT NULL DEFAULT '0',
   `ItemRange` float NOT NULL DEFAULT '0',
   `StatPercentageOfSocket1` float NOT NULL DEFAULT '0',
   `StatPercentageOfSocket2` float NOT NULL DEFAULT '0',
@@ -4977,7 +4979,6 @@ CREATE TABLE `item_sparse` (
   `ZoneBound2` smallint unsigned NOT NULL DEFAULT '0',
   `ItemSet` smallint unsigned NOT NULL DEFAULT '0',
   `LockID` smallint unsigned NOT NULL DEFAULT '0',
-  `StartQuestID` int NOT NULL DEFAULT '0',
   `PageID` smallint unsigned NOT NULL DEFAULT '0',
   `ItemDelay` smallint unsigned NOT NULL DEFAULT '0',
   `MinFactionID` smallint unsigned NOT NULL DEFAULT '0',
@@ -4994,7 +4995,6 @@ CREATE TABLE `item_sparse` (
   `SheatheType` tinyint unsigned NOT NULL DEFAULT '0',
   `Material` tinyint unsigned NOT NULL DEFAULT '0',
   `PageMaterialID` tinyint unsigned NOT NULL DEFAULT '0',
-  `LanguageID` int NOT NULL DEFAULT '0',
   `Bonding` tinyint unsigned NOT NULL DEFAULT '0',
   `DamageDamageType` tinyint unsigned NOT NULL DEFAULT '0',
   `StatModifierBonusStat1` tinyint NOT NULL DEFAULT '0',
@@ -5137,7 +5137,7 @@ CREATE TABLE `journal_encounter` (
   `FirstSectionID` smallint unsigned NOT NULL DEFAULT '0',
   `UiMapID` smallint unsigned NOT NULL DEFAULT '0',
   `MapDisplayConditionID` int unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `DifficultyMask` tinyint NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -5193,8 +5193,8 @@ CREATE TABLE `journal_encounter_section` (
   `UiModelSceneID` int NOT NULL DEFAULT '0',
   `SpellID` int NOT NULL DEFAULT '0',
   `IconFileDataID` int NOT NULL DEFAULT '0',
-  `Flags` smallint unsigned NOT NULL DEFAULT '0',
-  `IconFlags` smallint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
+  `IconFlags` int NOT NULL DEFAULT '0',
   `DifficultyMask` tinyint NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -5246,7 +5246,7 @@ CREATE TABLE `journal_instance` (
   `ButtonSmallFileDataID` int NOT NULL DEFAULT '0',
   `LoreFileDataID` int NOT NULL DEFAULT '0',
   `OrderIndex` tinyint unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `AreaID` smallint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -5488,7 +5488,7 @@ CREATE TABLE `lfg_dungeons` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `TypeID` tinyint unsigned NOT NULL DEFAULT '0',
-  `Subtype` tinyint unsigned NOT NULL DEFAULT '0',
+  `Subtype` tinyint NOT NULL DEFAULT '0',
   `Faction` tinyint NOT NULL DEFAULT '0',
   `IconTextureFileID` int NOT NULL DEFAULT '0',
   `RewardsBgTextureFileID` int NOT NULL DEFAULT '0',
@@ -5768,6 +5768,7 @@ CREATE TABLE `map` (
   `WdtFileDataID` int NOT NULL DEFAULT '0',
   `Flags1` int NOT NULL DEFAULT '0',
   `Flags2` int NOT NULL DEFAULT '0',
+  `Flags3` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -8487,7 +8488,8 @@ CREATE TABLE `summon_properties` (
   `Faction` int NOT NULL DEFAULT '0',
   `Title` int NOT NULL DEFAULT '0',
   `Slot` int NOT NULL DEFAULT '0',
-  `Flags` int NOT NULL DEFAULT '0',
+  `Flags1` int NOT NULL DEFAULT '0',
+  `Flags2` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -9527,4 +9529,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-06 15:12:33
+-- Dump completed on 2022-07-25 18:44:18
