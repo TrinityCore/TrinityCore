@@ -42,6 +42,7 @@ EndScriptData */
 #include "LFGMgr.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "SkillDiscovery.h"
