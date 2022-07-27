@@ -1212,7 +1212,56 @@ public:
         return new go_bellsAI(go);
     }
 };
+/*####
+## go_ETC70_music
+####*/
 
+enum ETC70Music 
+{
+    POWER_OF_THE_HORDE = 181075
+};
+enum ETC70MusicEvent
+{
+    EVENT_ETC_START_MUSIC = 1
+};
+class go_etc_concert_music : public GameObjectScript
+{
+public:
+    go_etc_concert_music() : GameObjectScript("go_etc_concert_music") { }
+
+    struct go_etc_concert_musicAI : public GameObjectAI
+    {
+        go_etc_concert_musicAI(GameObject* go) : GameObjectAI(go)
+        {
+            _events.ScheduleEvent(EVENT_ETC_START_MUSIC, 1s);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_ETC_START_MUSIC:
+
+                    me->PlayDirectMusic(POWER_OF_THE_HORDE);
+                    _events.ScheduleEvent(EVENT_ETC_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_etc_concert_musicAI(go);
+    }
+};
 void AddSC_go_scripts()
 {
     new go_gilded_brazier();
@@ -1235,4 +1284,5 @@ void AddSC_go_scripts()
     new go_darkmoon_faire_music();
     new go_pirate_day_music();
     new go_bells();
+    new go_etc_concert_music();
 }
