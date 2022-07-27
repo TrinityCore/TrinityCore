@@ -3412,10 +3412,10 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
             m_caster->ToCreature()->SetSpellFocus(this, nullptr);
     }
 
+    CallScriptOnPrecastHandler();
+
     // set timer base at cast time
     ReSetTimer();
-
-    CallScriptOnPrecastHandler();
 
     TC_LOG_DEBUG("spells", "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
 
