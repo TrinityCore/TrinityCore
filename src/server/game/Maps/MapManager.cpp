@@ -186,7 +186,10 @@ Map* MapManager::CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId 
             {
                 map = FindMap_i(mapId, loginInstanceId);
                 if (!map && pSave && pSave->GetInstanceId() == loginInstanceId)
+                {
                     map = CreateInstance(mapId, loginInstanceId, pSave, pSave->GetDifficultyID(), player->GetTeamId());
+                    i_maps[{ map->GetId(), map->GetInstanceId() }] = map;
+                }
                 return map;
             }
 
