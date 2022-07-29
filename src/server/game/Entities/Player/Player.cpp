@@ -14260,7 +14260,7 @@ uint32 Player::GetGossipMenuForSource(WorldObject* source)
     {
         case TYPEID_UNIT:
         {
-            uint32 defaultMenuId = 0;
+            uint32 menuIdToShow = 0;
             for (uint32 menuId : source->ToCreature()->GetCreatureTemplate()->GossipMenuIds)
             {
                 GossipMenusMapBounds menuBounds = sObjectMgr->GetGossipMenusMapBounds(menuId);
@@ -14270,10 +14270,10 @@ uint32 Player::GetGossipMenuForSource(WorldObject* source)
                     if (!sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
                         continue;
 
-                    defaultMenuId = menuId;
+                    menuIdToShow = menuId;
                 }
             }
-            return defaultMenuId;
+            return menuIdToShow;
         }
         case TYPEID_GAMEOBJECT:
             return source->ToGameObject()->GetGOInfo()->GetGossipMenuId();
