@@ -420,7 +420,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.SubName                = fields[8].GetString();
     creatureTemplate.TitleAlt               = fields[9].GetString();
     creatureTemplate.IconName               = fields[10].GetString();
-    creatureTemplate.GossipMenuId           = fields[11].GetUInt32();
+    //creatureTemplate.GossipMenuId           = fields[11].GetUInt32();
     creatureTemplate.HealthScalingExpansion = fields[12].GetInt32();
     creatureTemplate.RequiredExpansion      = fields[13].GetUInt32();
     creatureTemplate.VignetteID             = fields[14].GetUInt32();
@@ -500,6 +500,52 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.flags_extra            = fields[67].GetUInt32();
     creatureTemplate.ScriptID               = GetScriptId(fields[68].GetString());
     creatureTemplate.StringId               = fields[69].GetString();
+}
+
+void ObjectMgr::LoadCreatureTemplateGossip()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0           1
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, MenuID FROM creature_template_gossip");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 creature template gossip definitions. DB table `creature_template_gossip` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 creatureID = fields[0].GetUInt32();
+        uint32 menuID = fields[1].GetUInt32();
+
+        CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
+        if (itr == _creatureTemplateStore.end())
+        {
+            TC_LOG_ERROR("sql.sql", "creature_template_gossip has gossip definitions for creature %u but this creature doesn't exist", creatureID);
+            continue;
+        }
+
+        GossipMenusMapBounds menuBounds = sObjectMgr->GetGossipMenusMapBounds(menuID);
+        if (menuBounds.first == menuBounds.second)
+        {
+            TC_LOG_ERROR("sql.sql", "creature_template_gossip has gossip definitions for menu id %u but this menu doesn't exist", menuID);
+            continue;
+        }
+
+        CreatureTemplate& creatureTemplate = itr->second;
+        creatureTemplate.GossipMenuIds.push_back(menuID);
+
+        ++count;
+
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u creature template gossip menus in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -1243,9 +1289,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     const_cast<CreatureTemplate*>(cInfo)->ModDamage *= Creature::_GetDamageMod(cInfo->rank);
 
-    if (cInfo->GossipMenuId && !(cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP))
-        TC_LOG_INFO("sql.sql", "Creature (Entry: {}) has assigned gossip menu {}, but npcflag does not include UNIT_NPC_FLAG_GOSSIP.", cInfo->Entry, cInfo->GossipMenuId);
-    else if (!cInfo->GossipMenuId && cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP)
+    if (!cInfo->GossipMenuIds.empty() && !(cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP))
+        TC_LOG_INFO("sql.sql", "Creature (Entry: {}) has assigned gossip menu, but npcflag does not include UNIT_NPC_FLAG_GOSSIP.", cInfo->Entry);
+    else if (cInfo->GossipMenuIds.empty() && cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP)
         TC_LOG_INFO("sql.sql", "Creature (Entry: {}) has npcflag UNIT_NPC_FLAG_GOSSIP, but gossip menu is unassigned.", cInfo->Entry);
 }
 

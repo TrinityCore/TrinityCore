@@ -1193,7 +1193,7 @@ struct npc_tirion_fordring_tft : public ScriptedAI
 
     bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
     {
-        if (me->GetGossipMenuId() == menuId && !gossipListId)
+        if (me->GetCreatureTemplate()->GossipMenuIds[0] == menuId && !gossipListId)
         {
             _events.SetPhase(PHASE_INTRO);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);

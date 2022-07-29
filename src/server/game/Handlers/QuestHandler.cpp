@@ -98,7 +98,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     if (creature->AI()->OnGossipHello(_player))
         return;
 
-    _player->PrepareGossipMenu(creature, creature->GetGossipMenuId(), true);
+    _player->PrepareGossipMenu(creature, _player->GetGossipMenuForSource(creature), true);
     _player->SendPreparedGossip(creature);
 }
 
