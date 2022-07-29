@@ -1169,6 +1169,17 @@ void AuraScript::EffectAbsorbHandler::Call(AuraScript* auraScript, AuraEffect* a
     (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
 }
 
+AuraScript::EffectAbsorbHealHandler::EffectAbsorbHealHandler(AuraEffectAbsorbHealFnType _pEffectHandlerScript, uint8 _effIndex)
+    : AuraScript::EffectBase(_effIndex, SPELL_AURA_SCHOOL_HEAL_ABSORB)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectAbsorbHealHandler::Call(AuraScript * auraScript, AuraEffect * aurEff, HealInfo & healInfo, uint32 & absorbAmount)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff, healInfo, absorbAmount);
+}
+
 AuraScript::EffectManaShieldHandler::EffectManaShieldHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex)
     : AuraScript::EffectBase(_effIndex, SPELL_AURA_MANA_SHIELD), pEffectHandlerScript(_pEffectHandlerScript)
 {
