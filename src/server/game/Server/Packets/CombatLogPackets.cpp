@@ -424,3 +424,21 @@ WorldPacket const* WorldPackets::CombatLog::SpellAbsorbLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellHealAbsorbLog::Write()
+{
+    _worldPacket << Target;
+    _worldPacket << AbsorbCaster;
+    _worldPacket << Healer;
+    _worldPacket << int32(AbsorbSpellID);
+    _worldPacket << int32(AbsorbedSpellID);
+    _worldPacket << int32(Absorbed);
+    _worldPacket << int32(OriginalHeal);
+    _worldPacket.WriteBit(ContentTuning.has_value());
+    _worldPacket.FlushBits();
+
+    if (ContentTuning)
+        _worldPacket << *ContentTuning;
+
+    return &_worldPacket;
+}
