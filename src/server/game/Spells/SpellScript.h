@@ -217,6 +217,7 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_AFTER_CAST,
     SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE,
     SPELL_SCRIPT_HOOK_ON_PRECAST,
+    SPELL_SCRIPT_HOOK_CALC_CAST_TIME,
 };
 
 #define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT_HIT
@@ -415,6 +416,7 @@ class TC_GAME_API SpellScript : public _SpellScript
 
         #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:
+        SpellScript() : m_spell(nullptr), m_hitPreventEffectMask(0), m_hitPreventDefaultEffectMask(0) { }
         bool _Validate(SpellInfo const* entry) override;
         bool _Load(Spell* spell);
         void _InitHit();
@@ -436,7 +438,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         //
         // SpellScript interface
         //
-        // example: void OnPrecast override { }
+        // example: void OnPrecast() override { }
         virtual void OnPrecast() { }
         //
         // hooks to which you can attach your functions
@@ -453,6 +455,9 @@ class TC_GAME_API SpellScript : public _SpellScript
         // where function is SpellCastResult function()
         HookList<CheckCastHandler> OnCheckCast;
         #define SpellCheckCastFn(F) CheckCastHandlerFunction(&F)
+
+        // example: int32 CalcCastTime(int32 castTime) override { return 1500; }
+        virtual int32 CalcCastTime(int32 castTime) { return castTime; }
 
         // example: OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(class::function);
         // where function is void function(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
