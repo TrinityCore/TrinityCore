@@ -22,6 +22,7 @@ if(SERVERS OR TOOLS)
   add_subdirectory(openssl)
   add_subdirectory(jemalloc)
   add_subdirectory(argon2)
+  add_subdirectory(openssl_ed25519)
 endif()
 
 if(SERVERS)
