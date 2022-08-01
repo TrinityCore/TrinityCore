@@ -944,12 +944,12 @@ struct AuctionHouseCategoryMeta
             { FT_INT, 1, false },
             { FT_INT, 1, true },
             { FT_INT, 1, true },
-            { FT_INT, 1, true },
+            { FT_BYTE, 1, true },
             { FT_INT, 1, true },
             { FT_BYTE, 1, false },
             { FT_INT, 1, true },
         };
-        static DB2Meta instance(4366440, 2, 9, 8, 0xB60740F7, fields, 8);
+        static DB2Meta instance(4366440, 2, 9, 8, 0xA528FA70, fields, 8);
         return &instance;
     }
 };
@@ -7321,12 +7321,12 @@ struct ItemSubClassMeta
             { FT_BYTE, 1, true },
             { FT_BYTE, 1, false },
             { FT_BYTE, 1, true },
-            { FT_SHORT, 1, true },
-            { FT_BYTE, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
             { FT_BYTE, 1, true },
             { FT_BYTE, 1, true },
         };
-        static DB2Meta instance(1261604, 2, 11, 11, 0x7F0C91E3, fields, 3);
+        static DB2Meta instance(1261604, 2, 11, 11, 0xC096A1B1, fields, 3);
         return &instance;
     }
 };
@@ -11013,7 +11013,7 @@ struct SoundAmbienceMeta
     {
         static DB2MetaField const fields[7] =
         {
-            { FT_BYTE, 1, false },
+            { FT_INT, 1, true },
             { FT_INT, 1, false },
             { FT_INT, 1, false },
             { FT_INT, 2, false },
@@ -11021,7 +11021,7 @@ struct SoundAmbienceMeta
             { FT_INT, 2, false },
             { FT_INT, 2, false },
         };
-        static DB2Meta instance(1310628, -1, 7, 7, 0x77CE9923, fields, -1);
+        static DB2Meta instance(1310628, -1, 7, 7, 0xCB856968, fields, -1);
         return &instance;
     }
 };
@@ -11654,7 +11654,7 @@ struct SpellChainEffectsMeta
             { FT_FLOAT, 1, true },
             { FT_INT, 1, false },
             { FT_SHORT, 1, false },
-            { FT_INT, 1, false },
+            { FT_INT, 1, true },
             { FT_SHORT, 1, false },
             { FT_FLOAT, 1, true },
             { FT_BYTE, 1, false },
@@ -11710,7 +11710,7 @@ struct SpellChainEffectsMeta
             { FT_FLOAT, 3, true },
             { FT_INT, 3, true },
         };
-        static DB2Meta instance(1343310, -1, 60, 60, 0x7FCAB519, fields, -1);
+        static DB2Meta instance(1343310, -1, 60, 60, 0xD76BE290, fields, -1);
         return &instance;
     }
 };
