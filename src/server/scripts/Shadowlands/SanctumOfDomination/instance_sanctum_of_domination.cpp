@@ -34,8 +34,6 @@ ObjectData const creatureData[] =
     { 0,                               0                                } // END
 };
 
-struct npc_sylvanas_windrunner_shadowcopy;
-
 class instance_sanctum_of_domination : public InstanceMapScript
 {
 public:
@@ -62,6 +60,10 @@ public:
             {
                 case BOSS_SYLVANAS_WINDRUNNER:
                     SylvanasGUID = creature->GetGUID();
+                    break;
+
+                case NPC_SYLVANAS_SHADOWCOPY_RIDING:
+                    SylvanasShadowcopyRidingGUID = creature->GetGUID();
                     break;
 
                 case NPC_SYLVANAS_SHADOWCOPY_FIGHTER:
@@ -123,6 +125,8 @@ public:
             {
                 case DATA_SYLVANAS_WINDRUNNER:
                     return SylvanasGUID;
+                case DATA_SYLVANAS_SHADOWCOPY_RIDING:
+                    return SylvanasShadowcopyRidingGUID;
                 case DATA_SYLVANAS_SHADOWCOPY_01:
                     return SylvanasShadowcopyGUIDs[0];
                 case DATA_SYLVANAS_SHADOWCOPY_02:
@@ -304,6 +308,7 @@ public:
         protected:
             EventMap Events;
             ObjectGuid SylvanasGUID;
+            ObjectGuid SylvanasShadowcopyRidingGUID;
             std::vector<ObjectGuid> SylvanasShadowcopyGUIDs;
             ObjectGuid BolvarPinnacleGUID;
             ObjectGuid JainaPinnacleGUID;

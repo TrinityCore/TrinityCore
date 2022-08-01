@@ -749,12 +749,12 @@ class SetSheatheStateOrNameplate : public BasicEvent
                     break;
 
                 case DATA_CHANGE_NAMEPLATE_TO_COPY:
-                    if (Creature* shadowCopy = _actor->GetInstanceScript()->GetCreature(DATA_SYLVANAS_SHADOWCOPY_01 + _copyIndex))
+                    if (Creature* shadowCopy = _actor->GetInstanceScript()->instance->GetCreature(_actor->GetInstanceScript()->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01 + _copyIndex)))
                         _actor->SetNameplateAttachToGUID(shadowCopy->GetGUID());
                     break;
 
                 case DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY:
-                    if (Creature* ridingCopy = _actor->FindNearestCreature(NPC_SYLVANAS_SHADOWCOPY_RIDING, 10.0f, true))
+                    if (Creature* ridingCopy = _actor->GetCreature(DATA_SYLVANAS_SHADOWCOPY_RIDING))
                         _actor->SetNameplateAttachToGUID(ridingCopy->GetGUID());
                     break;
 
