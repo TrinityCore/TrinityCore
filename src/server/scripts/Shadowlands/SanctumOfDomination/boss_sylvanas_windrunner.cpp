@@ -234,6 +234,8 @@ enum Spells
     SPELL_PLATFORMS_SCENE                               = 350943,
     SPELL_FINAL_SCENE                                   = 358806,
     SPELL_FINAL_CINEMATIC                               = 358985,
+    SPELL_SYLVANAS_REWARD_ACHIEVEMENT                   = 358178,
+    SPELL_SYLVANAS_UNK_05                               = 353687, // NPC 179262 casts it at the end of the encounter before Sylvanas teleports to its dead pos and casts feign death
     SPELL_SYLVANAS_FEIGN_DEATH                          = 358844,
 
     SPELL_HEALTH_PCT_CHECK_INTERMISSION                 = 358794,
@@ -278,6 +280,7 @@ enum Actions
     ACTION_RANGER_SHOT,
     ACTION_ACTIVATE_DOMINATION_ARROW,
     ACTION_RANGER_HEARTSEEKER,
+    ACTION_START_WITHERING_FIRE,
     ACTION_CALCULATE_ARROWS,
     ACTION_WAILING_ARROW,
     ACTION_PREPARE_INTERMISSION,
@@ -445,8 +448,18 @@ enum SpellVisuals
 
 enum WorldStates
 {
-    WORLD_STATE_SYLVANAS_UNK_01                         = 20346, // Sets to 1 after SMSG_ENCOUNTER_START
-    WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE                = 20348
+    WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED              = 20346,
+    WORLD_STATE_SYLVANAS_ENCOUNTER_COMPLETED            = 20347,
+    WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE                = 20348,
+    WORLD_STATE_SYLVANAS_UNK_01                         = 21210, // Sets to 0 several times on phase 3
+    WORLD_STATE_SYLVANAS_UNK_02                         = 21166, // Sets to 1 when SPELL_FINAL_SCENE is cast on players
+    WORLD_STATE_SYLVANAS_UNK_03                         = 21120, // Sets to 1 when 353687 spell is cast by NPC 179262
+    WORLD_STATE_SYLVANAS_ACHIEVEMENT_COMPLETED          = 21134,
+    WORLD_STATE_SYLVANAS_UNK_04                         = 20439, // This is always 1 on INIT and the following 0
+    WORLD_STATE_SYLVANAS_UNK_05                         = 20440,
+    WORLD_STATE_SYLVANAS_UNK_06                         = 20441,
+    WORLD_STATE_SYLVANAS_UNK_07                         = 20442,
+    WORLD_STATE_SYLVANAS_UNK_08                         = 20443
 };
 
 enum Miscellanea
@@ -485,11 +498,11 @@ enum Miscellanea
     DATA_DESECRATING_SHOT_PATTERN_SPIRAL                = 4,
     DATA_DESECRATING_SHOT_PATTERN_JAR                   = 5,
 
-    DATA_JUMP_TIME_ONE                                  = 1,
-    DATA_JUMP_TIME_TWO                                  = 2,
-    DATA_JUMP_TIME_THREE                                = 3,
-    DATA_JUMP_TIME_FOUR                                 = 4,
-    DATA_JUMP_TIME_FIVE                                 = 5,
+    DATA_JUMP_TIME_CERO                                 = 1,
+    DATA_JUMP_TIME_ONE                                  = 2,
+    DATA_JUMP_TIME_TWO                                  = 3,
+    DATA_JUMP_TIME_THREE                                = 4,
+    DATA_JUMP_TIME_FOUR                                 = 5,
 
     DATA_BRIDGE_PHASE_TWO_1                             = 1,
     DATA_BRIDGE_PHASE_TWO_2                             = 2,
@@ -522,6 +535,15 @@ Position const SylvanasIntroPos[4] =
     { 242.00348f, -840.51215f, 4105.0386f          },
     { 241.23091f, -830.0955f,  4105.0386f          },
     { 225.73611f, -844.0746f,  4104.9882f, 1.3613f }
+};
+
+Position const SylvanasWitheringFireTestPos[5] =
+{
+    { 253.3075f, -830.7087f, 4104.9900f },
+    { 250.9643f, -820.1835f, 4104.9900f },
+    { 246.7454f, -815.5137f, 4104.9900f },
+    { 239.9896f, -811.9060f, 4104.9900f },
+    { 232.9633f, -810.9619f, 4104.9900f }
 };
 
 Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
@@ -643,6 +665,15 @@ Position const SylvanasVeilThreePos = { -286.978f, -1245.2378f, 5772.0347f, 0.0f
 
 Position const SylvanasEndPos =       { -249.876f, -1252.4791f, 5667.1157f, 3.3742f    };
 
+UnitAI* GetShadowcopyAI(InstanceScript* instance, uint8 copyIndex)
+{
+    Creature* shadowCopy = instance->instance->GetCreature(instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01 + copyIndex));
+    if (!shadowCopy)
+        return nullptr;
+
+    return shadowCopy->AI();
+}
+
 class SylvanasNonMeleeSelector
 {
     public:
@@ -718,15 +749,12 @@ class SetSheatheStateOrNameplate : public BasicEvent
                     break;
 
                 case DATA_CHANGE_NAMEPLATE_TO_COPY:
-                    if (InstanceScript* instance = _actor->GetInstanceScript())
-                        if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*_actor, ai->GetShadowCopyJumperGuid(_copyIndex)))
-                                    _actor->SetNameplateAttachToGUID(shadowCopy->GetGUID());
+                    if (Creature* shadowCopy = _actor->GetInstanceScript()->GetCreature(DATA_SYLVANAS_SHADOWCOPY_01 + _copyIndex))
+                        _actor->SetNameplateAttachToGUID(shadowCopy->GetGUID());
                     break;
 
                 case DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY:
-                    if (Creature* ridingCopy = _actor->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
+                    if (Creature* ridingCopy = _actor->FindNearestCreature(NPC_SYLVANAS_SHADOWCOPY_RIDING, 10.0f, true))
                         _actor->SetNameplateAttachToGUID(ridingCopy->GetGUID());
                     break;
 
@@ -756,11 +784,9 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetReactState(REACT_PASSIVE);
-
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToAll(true, true);
         me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetReactState(REACT_PASSIVE);
 
         _events.SetPhase(PHASE_ONE);
     }
@@ -915,14 +941,19 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     {
         switch (action)
         {
+            case ACTION_START_WITHERING_FIRE:
+                for (uint8 i = 0; i < 5; i++)
+                    _randomWitheringFirePos.push_back(me->GetFirstCollisionPosition(40.0f, 2.0f * float(M_PI) - frand(-0.5f, 0.5f)));
+                TeleportShadowcopyToPosition(SylvanasWitheringFireTestPos[0], SPELL_VISUAL_WINDRUNNER_02);
+                _events.ScheduleEvent(EVENT_WITHERING_FIRE, 15ms, 0, PHASE_ONE);
+                break;
+
             case ACTION_CALCULATE_ARROWS:
             {
                 // Number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive)
                 uint8 arrowsToSpawn = _onDominationChainsBeforeRive ? me->GetMap()->GetPlayersCountExceptGMs() :
                     std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3)), 4), 10);
-
                 _selectedArrowCountsPerJump = SplitArrowCasts(arrowsToSpawn);
-
                 _jumpCount = 0;
                 break;
             }
@@ -936,131 +967,123 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     {
         _scheduler.Update(diff);
 
+        Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        _events.Update(diff);
+
         while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
             {
-                Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
-                if (!sylvanas)
-                    return;
-
-                boss_sylvanas_windrunner* sylvanasAI = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI());
-                if (!sylvanasAI)
-                    return;
-
                 case EVENT_WITHERING_FIRE:
-                    DoCastSelf(SPELL_WITHERING_FIRE_COPY, true);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 1, 200ms, 0, PHASE_ONE);
+                    me->CastSpell(_randomWitheringFirePos[0], SPELL_WITHERING_FIRE_COPY, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 1, 204ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 1:
-                    sylvanasAI->TeleportShadowcopyToPosition(me, _randomWitheringFirePos[1], false, SPELL_VISUAL_WINDRUNNER_02);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 2, 60ms, 0, PHASE_ONE);
+                    TeleportShadowcopyToPosition(_randomWitheringFirePos[1], SPELL_VISUAL_WINDRUNNER_02);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 2, 62ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 2:
-                    DoCastSelf(SPELL_WITHERING_FIRE_COPY, true);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 3, 220ms, 0, PHASE_ONE);
+                    me->CastSpell(_randomWitheringFirePos[1], SPELL_WITHERING_FIRE_COPY, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 3, 219ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 3:
-                    sylvanasAI->TeleportShadowcopyToPosition(me, _randomWitheringFirePos[2], false, SPELL_VISUAL_WINDRUNNER_02);
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        sylvanasAI->TeleportShadowcopyToPosition(shadowCopy2, _randomWitheringFirePos[0], false, 0);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 4, 60ms, 0, PHASE_ONE);
+                    TeleportShadowcopyToPosition(_randomWitheringFirePos[2], SPELL_VISUAL_WINDRUNNER_02);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->TeleportShadowcopyToPosition(_randomWitheringFirePos[0]);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 4, 16ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 4:
-                    DoCastSelf(SPELL_WITHERING_FIRE_COPY, true);
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        shadowCopy2->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, false);
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = sylvanasAI->GetSylvanasCopyAI(1))
-                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_ONE);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 5, 190ms, 0, PHASE_ONE);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_CERO);
+                    me->CastSpell(_randomWitheringFirePos[2], SPELL_WITHERING_FIRE_COPY, false);
+                    if (Creature* shadowCopy2 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy2->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 5, 234ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 5:
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        sylvanasAI->TeleportShadowcopyToPosition(shadowCopy2, _randomWitheringFirePos[1], false, 0);
-                    sylvanasAI->TeleportShadowcopyToPosition(me, _randomWitheringFirePos[3], false, SPELL_VISUAL_WINDRUNNER_02);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 6, 50ms, 0, PHASE_ONE);
+                    TeleportShadowcopyToPosition(_randomWitheringFirePos[3], SPELL_VISUAL_WINDRUNNER_02);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->TeleportShadowcopyToPosition(_randomWitheringFirePos[1]);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 6, 16ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 6:
-                    DoCastSelf(SPELL_WITHERING_FIRE_COPY, true);
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        shadowCopy2->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, false);
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = sylvanasAI->GetSylvanasCopyAI(1))
-                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_TWO);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 7, 50ms, 0, PHASE_ONE);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_ONE);
+                    me->CastSpell(_randomWitheringFirePos[3], SPELL_WITHERING_FIRE_COPY, false);
+                    if (Creature* shadowCopy2 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy2->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 7, 109ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 7:
-                    sylvanasAI->TeleportShadowcopyToPosition(me, sylvanas->GetPosition(), true, 0);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 8, 75ms, 0, PHASE_ONE);
+                    TeleportShadowcopyToPosition(sylvanas->GetPosition());
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 8, 15ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 8:
-                    sylvanas->m_Events.AddEvent(new SetSheatheStateOrNameplate(sylvanas, DATA_CHANGE_NAMEPLATE_TO_COPY, 0), sylvanas->m_Events.CalculateTime(0ms));
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 9, 25ms, 0, PHASE_ONE);
+                    sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                    me->CastSpell(_randomWitheringFirePos[2], SPELL_WINDRUNNER_MOVE, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 9, 141ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 9:
-                    me->CastSpell(_randomWitheringFirePos[2], SPELL_WINDRUNNER_MOVE, true);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 10, 70ms, 0, PHASE_ONE);
+                    ExecuteWitheringFire(DATA_JUMP_TIME_TWO);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->TeleportShadowcopyToPosition(_randomWitheringFirePos[4], SPELL_VISUAL_WINDRUNNER_02);
+                    if (Creature* shadowCopy2 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy2->CastSpell(_randomWitheringFirePos[4], SPELL_WITHERING_FIRE_COPY, false);
+                    me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 10, 203ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 10:
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        sylvanasAI->TeleportShadowcopyToPosition(shadowCopy2, _randomWitheringFirePos[4], false, SPELL_VISUAL_WINDRUNNER_02);
-                    me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, false);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 11, 50ms, 0, PHASE_ONE);
+                    me->CastSpell(sylvanas->GetPosition(), SPELL_WINDRUNNER_MOVE, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 11, 47ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 11:
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = sylvanasAI->GetSylvanasCopyAI(1))
-                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_THREE);
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        shadowCopy2->CastSpell(_randomWitheringFirePos[4], SPELL_WITHERING_FIRE_COPY, true);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 12, 40ms, 0, PHASE_ONE);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->TeleportShadowcopyToPosition(_randomWitheringFirePos[3]);
+                    if (Creature* shadowCopy2 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy2->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 12, 140ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 12:
-                    ExecuteWitheringFire(DATA_JUMP_TIME_FOUR);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 13, 107ms, 0, PHASE_ONE);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_THREE);
+                    sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 13, 125ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 13:
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        sylvanasAI->TeleportShadowcopyToPosition(shadowCopy2, _randomWitheringFirePos[3], true, SPELL_VISUAL_WINDRUNNER_02);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 14, 140ms, 0, PHASE_ONE);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->TeleportShadowcopyToPosition(_randomWitheringFirePos[4]);
+                    if (Creature* shadowCopy2 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy2->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 14, 75ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 14:
-                    sylvanas->m_Events.AddEvent(new SetSheatheStateOrNameplate(sylvanas, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), sylvanas->m_Events.CalculateTime(0ms));
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 15, 125ms, 0, PHASE_ONE);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_FOUR);
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, 1)))
+                        shadowCopy2AI->TeleportShadowcopyToPosition(sylvanas->GetPosition());
+                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 15, 456ms, 0, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 15:
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        sylvanasAI->TeleportShadowcopyToPosition(shadowCopy2, _randomWitheringFirePos[4], true, SPELL_VISUAL_WINDRUNNER_02);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 16, 70ms, 0, PHASE_ONE);
-                    break;
-
-                case EVENT_WITHERING_FIRE + 16:
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = sylvanasAI->GetSylvanasCopyAI(1))
-                        shadowCopy2AI->ExecuteWitheringFire(DATA_JUMP_TIME_FIVE);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 17, 50ms, 0, PHASE_ONE);
-                    break;
-
-                case EVENT_WITHERING_FIRE + 17:
-                    if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*sylvanas, sylvanasAI->GetShadowCopyJumperGuid(1)))
-                        sylvanasAI->TeleportShadowcopyToPosition(shadowCopy2, sylvanas->GetPosition(), true, 0);
-                    _events.ScheduleEvent(EVENT_WITHERING_FIRE + 18, 412ms, 0, PHASE_ONE);
-                    break;
-
-                case EVENT_WITHERING_FIRE + 18:
-                    me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    sylvanas->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    _randomWitheringFirePos.clear();
                     break;
                 default:
                     break;
@@ -1068,18 +1091,19 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         }
     }
 
-    void StartWitheringFireEvent()
+    void TeleportShadowcopyToPosition(Position chosenPos, uint32 spellVisual = 0)
     {
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
-            // TODO: clean this vector on finish
-            for (uint8 itr = 0; itr < 5; itr++)
-                _randomWitheringFirePos.push_back(me->GetFirstCollisionPosition(frand(45.0f, 70.0f), 2.0f * float(M_PI) - frand(-0.5f, 0.5f)));
+            // HACKFIX: remove orientation when SPELL_ATTR12_UNK11 (Face Destination) is implemented.
+            me->NearTeleportTo(chosenPos.GetPositionX(), chosenPos.GetPositionY(), chosenPos.GetPositionZ(), chosenPos.GetAbsoluteAngle(sylvanas->GetPosition()), false);
 
-            if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                ai->TeleportShadowcopyToPosition(me, _randomWitheringFirePos[0], false, SPELL_VISUAL_WINDRUNNER_02);
+            if (spellVisual > 0)
+            {
+                float speed = spellVisual == SPELL_VISUAL_WINDRUNNER_01 ? 0.5f : 0.25f;
 
-            _events.ScheduleEvent(EVENT_WITHERING_FIRE, 1ms, 0, PHASE_ONE);
+                sylvanas->SendPlayOrphanSpellVisual(chosenPos, spellVisual, speed, true, false);
+            }
         }
     }
 
@@ -1087,32 +1111,35 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     {
         uint32 currentWitheringFires = 0;
 
-        if (jumpTime == 1)
+        if (jumpTime == DATA_JUMP_TIME_CERO)
         {
             // Number of casts is dependent on raid's difficulty and size: if mythic, 15; if not, half the raid (min. 5, max. 15)
             _totalWitheringFires = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 :
                 std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
 
-            GetPlayerListInGrid(_witheringFireTargetList, me, 350.0f);
-            Trinity::Containers::RandomResize(_witheringFireTargetList, _totalWitheringFires);
+            std::list<Player*> witheringFireTargetList;
+            GetPlayerListInGrid(witheringFireTargetList, me, 200.0f);
+            Trinity::Containers::RandomResize(witheringFireTargetList, _totalWitheringFires);
+
+            for (Player* player : witheringFireTargetList)
+                _witheringFireTargetGUIDs.push_back(player->GetGUID());
         }
 
-        if (jumpTime == 3)
-            currentWitheringFires = _totalWitheringFires > 11 ? 2 : 1;
-        else
+        if (jumpTime == DATA_JUMP_TIME_TWO)
             currentWitheringFires = _totalWitheringFires > 11 ? _totalWitheringFires - 8 : _totalWitheringFires - 4;
+        else
+            currentWitheringFires = _totalWitheringFires > 11 ? 2 : 1;
 
-        std::list<Player*> temporalTargetList;
-        for (uint8 itr = currentWitheringFires; itr > 0; itr--)
+        std::vector<Player*> targetedPlayers;
+        for (uint8 itr = currentWitheringFires; itr > 0 && !_witheringFireTargetGUIDs.empty(); itr--)
         {
-            Player* target = Trinity::Containers::SelectRandomContainerElement(_witheringFireTargetList);
+            if (Player* target = ObjectAccessor::GetPlayer(*me, _witheringFireTargetGUIDs.front()))
+                targetedPlayers.push_back(target);
 
-            temporalTargetList.push_back(target);
-
-            _witheringFireTargetList.remove(target);
+            _witheringFireTargetGUIDs.erase(std::remove(_witheringFireTargetGUIDs.begin(), _witheringFireTargetGUIDs.end(), _witheringFireTargetGUIDs.front()), _witheringFireTargetGUIDs.end());
         }
 
-        for (Unit* target : temporalTargetList)
+        for (Player* target : targetedPlayers)
         {
             uint32 timeToTarget = me->GetDistance(target) * 0.0208 * 1000;
 
@@ -1123,10 +1150,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             _scheduler.Schedule(Milliseconds(timeToTarget), [this, targetGUID](TaskContext /*task*/)
             {
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
-                        sylvanas->CastSpell(target, SPELL_WITHERING_FIRE, true);
-                }
+                    if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
+                        sylvanas->CastSpell(target, SPELL_WITHERING_FIRE, false);
             });
         }
     }
@@ -1332,7 +1357,7 @@ private:
     EventMap _events;
     TaskScheduler _scheduler;
     std::vector<Position> _randomWitheringFirePos;
-    std::list<Player*> _witheringFireTargetList;
+    std::vector<ObjectGuid> _witheringFireTargetGUIDs;
     uint32 _totalWitheringFires;
     bool _onPhaseOne;
     bool _onDominationChains;
@@ -1340,7 +1365,7 @@ private:
     bool _onRiveEvent;
     uint8 _sayDaggers;
     uint8 _sayDesecrating;
-    std::array<uint32, 3> _selectedArrowCountsPerJump;
+    std::array<uint32, 3> _selectedArrowCountsPerJump = { };
     uint8 _jumpCount;
 };
 
@@ -1379,6 +1404,11 @@ struct boss_sylvanas_windrunner : public BossAI
     void JustAppeared() override
     {
         scheduler.ClearValidator();
+
+        me->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+        me->SetImmuneToAll(false);
+
+        me->SetSpeed(UnitMoveType::MOVE_RUN, 14.0f);
 
         DoCastSelf(SPELL_DUAL_WIELD, true);
         DoCastSelf(SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING, true);
@@ -1445,7 +1475,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
         switch (summon->GetEntry())
         {
-            case NPC_SYLVANAS_SHADOW_COPY_FIGHTERS:
+            case NPC_SYLVANAS_SHADOWCOPY_FIGHTER:
                 _shadowCopyGUID.push_back(summon->GetGUID());
                 break;
             default:
@@ -1494,11 +1524,13 @@ struct boss_sylvanas_windrunner : public BossAI
 
         // NOTE: it is safe to assume that these are summoned by a serverside spell.
         for (uint8 i = 0; i < 4; i++)
-            me->SummonCreature(NPC_SYLVANAS_SHADOW_COPY_FIGHTERS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+            me->SummonCreature(NPC_SYLVANAS_SHADOWCOPY_FIGHTER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
 
         Talk(SAY_AGGRO);
 
         events.SetPhase(PHASE_ONE);
+        events.ScheduleEvent(EVENT_WITHERING_FIRE, 2s, 1, PHASE_ONE);
+        /*
         events.ScheduleEvent(EVENT_WINDRUNNER, 7s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 22s, 1, PHASE_ONE);
         events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 44s, 1, PHASE_ONE);
@@ -1510,7 +1542,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
-        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
+        DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);*/
 
         // Note: she also sends SMSG_AURA_UPDATE with root for 2s and then 2.5s
         me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(750ms));
@@ -1902,10 +1934,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         {
                             Talk(SAY_WAILING_ARROW);
 
-                            if (events.GetPhaseMask() == PHASE_ONE)
-                                me->CastSpell(currentTank, SPELL_WAILING_ARROW, false);
-                            else
-                                me->CastSpell(currentTank, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
+                            me->CastSpell(currentTank, SPELL_WAILING_ARROW, false);
                         });
 
                         if (events.GetPhaseMask() == PHASE_ONE)
@@ -1934,7 +1963,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                             scheduler.Schedule(7s, [this, firstRandomPlayer](TaskContext /*task*/)
                             {
-                                me->CastSpell(firstRandomPlayer, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
+                                me->CastSpell(firstRandomPlayer, SPELL_WAILING_ARROW, false);
                             });
                         });
 
@@ -1946,7 +1975,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                             scheduler.Schedule(7s, [this, secondRandomPlayer](TaskContext /*task*/)
                             {
-                                me->CastSpell(secondRandomPlayer, SPELL_WAILING_ARROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_CAST_TIME, 1500));
+                                me->CastSpell(secondRandomPlayer, SPELL_WAILING_ARROW, false);
                             });
 
                             scheduler.Schedule(10s, [this](TaskContext /*task*/)
@@ -2036,8 +2065,9 @@ struct boss_sylvanas_windrunner : public BossAI
                         case PHASE_ONE:
                             DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 2062));
                             DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3800));
-                            if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = GetSylvanasCopyAI(0))
-                                shadowCopy1AI->StartWitheringFireEvent();
+                            if (Creature* shadowCopy1 = instance->instance->GetCreature(instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
+                                if (shadowCopy1->IsAIEnabled())
+                                    shadowCopy1->AI()->DoAction(ACTION_START_WITHERING_FIRE);
                             break;
 
                         case PHASE_TWO:
@@ -2070,6 +2100,9 @@ struct boss_sylvanas_windrunner : public BossAI
                         default:
                             break;
                     }
+
+                    events.Repeat(4s);
+                    break;
                 }
 
                 case EVENT_SHADOW_DAGGERS:
@@ -2089,7 +2122,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             {
                                 if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(itr))
                                 {
-                                    Creature* nextShadowCopy = ObjectAccessor::GetCreature(*me, GetShadowCopyJumperGuid(itr + 1));
+                                    Creature* nextShadowCopy = ObjectAccessor::GetCreature(*me, GetShadowCopyGuid(itr + 1));
 
                                     ai->StartShadowDaggersEvent(itr == randomCopy, itr, nextShadowCopy);
                                 }
@@ -2621,7 +2654,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(800ms, [this](TaskContext /*task*/)
                     {
-                        if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOW_COPY_RIDING, 10.0f, true))
+                        if (Creature* ridingCopy = me->FindNearestCreature(NPC_SYLVANAS_SHADOWCOPY_RIDING, 10.0f, true))
                             me->SetNameplateAttachToGUID(ridingCopy->GetGUID());
                     });
 
@@ -3017,27 +3050,14 @@ struct boss_sylvanas_windrunner : public BossAI
 
     void TeleportShadowcopiesToMe()
     {
-        for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+        for (ObjectGuid const& shadowCopiesGUID : _shadowCopyGUID)
         {
-            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, shadowCopiesGUID))
                 shadowCopy->NearTeleportTo(me->GetPosition(), false);
         }
     }
 
-    void TeleportShadowcopyToPosition(Unit* copy, Position chosenPos, bool isReturn, uint32 spellVisual)
-    {
-        Unit* actor = isReturn ? copy : me;
-        Position destPos = isReturn ? me->GetPosition() : chosenPos;
-        float speed = spellVisual == SPELL_VISUAL_WINDRUNNER_01 ? 0.5f : 0.25f;
-
-        // HACKFIX: remove orientation when SPELL_ATTR12_UNK11 (Face Destination) is implemented.
-        copy->NearTeleportTo(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), destPos.GetAbsoluteAngle(me), false);
-
-        if (spellVisual > 0)
-            actor->SendPlayOrphanSpellVisual(destPos, spellVisual, speed, true, false);
-    }
-
-    ObjectGuid GetShadowCopyJumperGuid(int32 index)
+    ObjectGuid GetShadowCopyGuid(int32 index)
     {
         return _shadowCopyGUID[index];
     }
@@ -3695,6 +3715,14 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
         return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
+    int32 CalcCastTime(int32 castTime) override
+    {
+        if (GetCaster()->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == 3)
+            return 1500;
+
+        return castTime;
+    }
+
     void OnCast(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
@@ -3869,7 +3897,7 @@ class spell_sylvanas_windrunner_rive : public SpellScript
             {
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(3)))
+                    if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(3)))
                     {
                         shadowCopy3->CastSpell(sylvanas, SPELL_RIVE_CHAIN, false);
 
@@ -3889,7 +3917,7 @@ class spell_sylvanas_windrunner_rive : public SpellScript
             {
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
+                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(0)))
                         sylvanas->CastSpell(shadowCopy->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
                 }
             }
@@ -3924,7 +3952,7 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
             {
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(3)))
+                    if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(3)))
                     {
                         shadowCopy3->CastSpell(sylvanas, SPELL_RIVE_CHAIN_FAST, false);
 
@@ -3944,7 +3972,7 @@ class spell_sylvanas_windrunner_rive_fast : public SpellScript
             {
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
+                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(0)))
                         sylvanas->CastSpell(shadowCopy->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
                 }
             }
@@ -5313,14 +5341,14 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     {
                         if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                         {
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
-                                sylvanas->SetNameplateAttachToGUID(ai->GetShadowCopyJumperGuid(0));
+                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(0)))
+                                sylvanas->SetNameplateAttachToGUID(ai->GetShadowCopyGuid(0));
 
                             sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
 
                             sylvanas->SendPlayOrphanSpellVisual(SylvanasWavePos[0], SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyJumperGuid(0)))
+                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(0)))
                                 shadowCopy->CastSpell(SylvanasWavePos[0], SPELL_WINDRUNNER_MOVE, true);
                         }
                     });
@@ -6155,7 +6183,7 @@ struct at_sylvanas_windrunner_disecrating_shot : AreaTriggerAI
             {
                 if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                 {
-                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*at, ai->GetShadowCopyJumperGuid(0)))
+                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*at, ai->GetShadowCopyGuid(0)))
                         shadowCopy->SendPlaySpellVisual(at->GetPosition(), 0, SPELL_VISUAL_DESECRATING_ARROW, 0, 0, 0.280999988317489624f, true);
                 }
             });

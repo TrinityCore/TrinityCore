@@ -29,23 +29,9 @@ uint32 const EncounterCount = 10;
 
 enum SanctumOfDominationDataTypes
 {
-    DATA_THE_TERRAGRUE                              = 0,
-    DATA_THE_EYE_OF_THE_JAILER                      = 1,
-    DATA_THE_NINE                                   = 2,
-    DATA_SOULRENDER_DORMAZAIN                       = 3,
-    DATA_REMNANT_OF_NERZHUL                         = 4,
-    DATA_PAINSMITH_RAZNAL                           = 5,
-    DATA_GUARDIAN_OF_THE_FIRST_ONES                 = 6,
-    DATA_FATESCRIBE_ROHKALO                         = 7,
-    DATA_KELTHUZAD                                  = 8,
     DATA_SYLVANAS_WINDRUNNER                        = 9,
 
     // Encounter-related data
-
-    // The Nine
-    DATA_SKYJA,
-    DATA_KYRA,
-    DATA_SIGNE,
 
     // Sylvanas Windrunner
     DATA_SYLVANAS_INTRO,
@@ -53,21 +39,26 @@ enum SanctumOfDominationDataTypes
     DATA_JAINA_PROUDMOORE_PINNACLE,
     DATA_THRALL_PINNACLE,
     DATA_ANDUIN_CRUCIBLE,
-    DATA_DOMINATION_ARROW
+    DATA_DOMINATION_ARROW,
+
+    DATA_SYLVANAS_SHADOWCOPY_01                     = 20,
+    DATA_SYLVANAS_SHADOWCOPY_02,
+    DATA_SYLVANAS_SHADOWCOPY_03,
+    DATA_SYLVANAS_SHADOWCOPY_04,
+    DATA_SYLVANAS_SHADOWCOPY_05,
+    DATA_SYLVANAS_SHADOWCOPY_06,
+    DATA_SYLVANAS_SHADOWCOPY_07,
+    DATA_SYLVANAS_SHADOWCOPY_08,
+    DATA_SYLVANAS_SHADOWCOPY_09,
+    DATA_SYLVANAS_SHADOWCOPY_10,
+    DATA_SYLVANAS_SHADOWCOPY_11,
+    DATA_SYLVANAS_SHADOWCOPY_12,
+    DATA_SYLVANAS_SHADOWCOPY_13
 };
 
 enum SanctumOfDominationCreatureIds
 {
     // Bosses
-    BOSS_THE_TERRAGRUE                              = 152253,
-    BOSS_THE_EYE_OF_THE_JAILER                      = 180018,
-    BOSS_SKYJA                                      = 178684,
-    BOSS_REMNANT_OF_NERZHUL                         = 175729,
-    BOSS_SOULRENDER_DORMAZAIN                       = 175727,
-    BOSS_PAINSMITH_RAZNAL                           = 176523,
-    BOSS_GUARDIAN_OF_THE_FIRST_ONES                 = 175731,
-    BOSS_FATESCRIBE_ROHKALO                         = 179390,
-    BOSS_KELTHUZAD                                  = 175559,
     BOSS_SYLVANAS_WINDRUNNER                        = 175732,
 
     // Sylvanas Windrunner
@@ -76,9 +67,9 @@ enum SanctumOfDominationCreatureIds
     NPC_THRALL_PINNACLE                             = 176532,
     NPC_ANDUIN_CRUCIBLE                             = 178072,
 
-    NPC_SYLVANAS_SHADOW_COPY_RIDING                 = 178355,
-    NPC_SYLVANAS_SHADOW_COPY_FIGHTERS               = 176369,
-    NPC_SYLVANAS_SHADOW_COPY_LAST_PHASE             = 179262,
+    NPC_SYLVANAS_SHADOWCOPY_RIDING                  = 178355,
+    NPC_SYLVANAS_SHADOWCOPY_FIGHTER                 = 176369,
+    NPC_SYLVANAS_JAILER_SOUL                        = 179262,
 
     NPC_DOMINATION_ARROW                            = 176920
 };

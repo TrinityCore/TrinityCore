@@ -26,15 +26,6 @@
 
 ObjectData const creatureData[] =
 {
-  /*{ BOSS_THE_TERRAGRUE,              DATA_THE_TERRAGRUE               },
-    { BOSS_THE_EYE_OF_THE_JAILER,      DATA_THE_EYE_OF_THE_JAILER       },
-    { BOSS_SKYJA,                      DATA_THE_NINE                    },
-    { BOSS_REMNANT_OF_NERZHUL,         DATA_REMNANT_OF_NERZHUL          },
-    { BOSS_SOULRENDER_DORMAZAIN,       DATA_SOULRENDER_DORMAZAIN        },
-    { BOSS_PAINSMITH_RAZNAL,           DATA_PAINSMITH_RAZNAL            },
-    { BOSS_GUARDIAN_OF_THE_FIRST_ONES, DATA_GUARDIAN_OF_THE_FIRST_ONES  },
-    { BOSS_FATESCRIBE_ROHKALO,         DATA_FATESCRIBE_ROHKALO          },
-    { BOSS_KELTHUZAD,                  DATA_KELTHUZAD                   },*/
     { BOSS_SYLVANAS_WINDRUNNER,        DATA_SYLVANAS_WINDRUNNER         },
     { NPC_BOLVAR_FORDRAGON_PINNACLE,   DATA_BOLVAR_FORDRAGON_PINNACLE   },
     { NPC_JAINA_PROUDMOORE_PINNACLE,   DATA_JAINA_PROUDMOORE_PINNACLE   },
@@ -42,6 +33,8 @@ ObjectData const creatureData[] =
     { NPC_ANDUIN_CRUCIBLE,             DATA_ANDUIN_CRUCIBLE             },
     { 0,                               0                                } // END
 };
+
+struct npc_sylvanas_windrunner_shadowcopy;
 
 class instance_sanctum_of_domination : public InstanceMapScript
 {
@@ -59,17 +52,6 @@ public:
 
         void OnPlayerEnter(Player* /*player*/) override
         {
-            SetData(DATA_SYLVANAS_INTRO, DONE);
-            /*
-            if (GetData(DATA_SYLVANAS_INTRO) == NOT_STARTED)
-            {
-                if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                {
-                    if (sylvanas->IsAIEnabled())
-                        sylvanas->AI()->DoAction(ACTION_START_SYLVANAS_INTRO);
-                }
-            }
-            */
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -79,13 +61,12 @@ public:
             switch (creature->GetEntry())
             {
                 case BOSS_SYLVANAS_WINDRUNNER:
-                {
                     SylvanasGUID = creature->GetGUID();
-
-                    if (GetData(DATA_SYLVANAS_INTRO) != DONE)
-                        SetData(DATA_SYLVANAS_INTRO, DONE);
                     break;
-                }
+
+                case NPC_SYLVANAS_SHADOWCOPY_FIGHTER:
+                    SylvanasShadowcopyGUIDs.push_back(creature->GetGUID());
+                    break;
 
                 case NPC_BOLVAR_FORDRAGON_PINNACLE:
                     BolvarPinnacleGUID = creature->GetGUID();
@@ -136,25 +117,36 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_SYLVANAS_INTRO:
-                    return SylvanasIntro;
-                default:
-                    break;
-            }
-
-            return 0;
-        }
-
         ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
                 case DATA_SYLVANAS_WINDRUNNER:
                     return SylvanasGUID;
+                case DATA_SYLVANAS_SHADOWCOPY_01:
+                    return SylvanasShadowcopyGUIDs[0];
+                case DATA_SYLVANAS_SHADOWCOPY_02:
+                    return SylvanasShadowcopyGUIDs[1];
+                case DATA_SYLVANAS_SHADOWCOPY_03:
+                    return SylvanasShadowcopyGUIDs[2];
+                case DATA_SYLVANAS_SHADOWCOPY_04:
+                    return SylvanasShadowcopyGUIDs[3];
+                case DATA_SYLVANAS_SHADOWCOPY_05:
+                    return SylvanasShadowcopyGUIDs[4];
+                case DATA_SYLVANAS_SHADOWCOPY_06:
+                    return SylvanasShadowcopyGUIDs[5];
+                case DATA_SYLVANAS_SHADOWCOPY_07:
+                    return SylvanasShadowcopyGUIDs[6];
+                case DATA_SYLVANAS_SHADOWCOPY_08:
+                    return SylvanasShadowcopyGUIDs[7];
+                case DATA_SYLVANAS_SHADOWCOPY_09:
+                    return SylvanasShadowcopyGUIDs[8];
+                case DATA_SYLVANAS_SHADOWCOPY_10:
+                    return SylvanasShadowcopyGUIDs[9];
+                case DATA_SYLVANAS_SHADOWCOPY_11:
+                    return SylvanasShadowcopyGUIDs[10];
+                case DATA_SYLVANAS_SHADOWCOPY_12:
+                    return SylvanasShadowcopyGUIDs[11];
                 case DATA_BOLVAR_FORDRAGON_PINNACLE:
                     return BolvarPinnacleGUID;
                 case DATA_JAINA_PROUDMOORE_PINNACLE:
@@ -214,6 +206,8 @@ public:
                                 invisibleWall->Respawn();
                         }
 
+                        SylvanasShadowcopyGUIDs.clear();
+
                         Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
                     }
 
@@ -237,17 +231,18 @@ public:
                     {
                         case NOT_STARTED:
                         {
+                            /*
                             if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != DONE)
                             {
                                 if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                 {
                                     sylvanas->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                    sylvanas->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                                    sylvanas->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                                    sylvanas->SetImmuneToAll(true);
 
                                     sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 4.0f);
                                 }
                             }
+                            */
                             break;
                         }
 
@@ -258,8 +253,7 @@ public:
                                 if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                                 {
                                     sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                    sylvanas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                                    sylvanas->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                                    sylvanas->SetImmuneToAll(false);
 
                                     sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 14.0f);
                                 }
@@ -309,23 +303,14 @@ public:
 
         protected:
             EventMap Events;
-            ObjectGuid TerragrueGUID;
-            ObjectGuid EyeoftheJailerGUID;
-            ObjectGuid SkyjaGUID;
-            ObjectGuid RemnantofNerzhulGUID;
-            ObjectGuid SoulrenderDormazainGUID;
-            ObjectGuid PainsmithRaznalGUID;
-            ObjectGuid GuardianoftheFirstOnesGUID;
-            ObjectGuid FatescribeRohkaloGUID;
-            ObjectGuid KelthuzadGUID;
             ObjectGuid SylvanasGUID;
+            std::vector<ObjectGuid> SylvanasShadowcopyGUIDs;
             ObjectGuid BolvarPinnacleGUID;
             ObjectGuid JainaPinnacleGUID;
             ObjectGuid ThrallPinnacleGUID;
             ObjectGuid AnduinCrucibleGUID;
             std::vector<ObjectGuid> TorghastSpikeGUID;
             std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
-            uint32 SylvanasIntro;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
