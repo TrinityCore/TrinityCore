@@ -20,15 +20,11 @@
 #include "Memory.h"
 #include <ed25519/ed25519.h>
 #include <openssl/pem.h>
-#include <algorithm>
 #include <memory>
-#include <vector>
 
 namespace Trinity::Crypto
 {
-Ed25519::Ed25519()
-{
-}
+Ed25519::Ed25519() = default;
 
 Ed25519::Ed25519(Ed25519 const& right)
 {
@@ -133,7 +129,6 @@ bool Ed25519::Sign(uint8 const* message, std::size_t messageLength, std::vector<
 
     output.resize(64);
     int result = ED25519_sign(output.data(), message, messageLength, publicKey, privateKey);
-    std::reverse(output.begin(), output.end());
     return result != 0;
 }
 
