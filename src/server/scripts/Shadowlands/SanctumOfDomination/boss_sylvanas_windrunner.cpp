@@ -2125,9 +2125,12 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                     me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_TWO, 0, 0, float(randomSpeed / 1000), true);
 
-                                    scheduler.Schedule(Milliseconds(randomSpeed), [this, target](TaskContext /*task*/)
+                                    ObjectGuid targetGUID = target->GetGUID();
+
+                                    scheduler.Schedule(Milliseconds(randomSpeed), [this, targetGUID](TaskContext /*task*/)
                                     {
-                                        me->CastSpell(target, SPELL_WITHERING_FIRE, true);
+                                        if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
+                                            me->CastSpell(target, SPELL_WITHERING_FIRE, false);
                                     });
                                 }
                             });
