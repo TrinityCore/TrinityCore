@@ -283,8 +283,8 @@ void Creature::AddToWorld()
 {
     // @tswow-begin
     bool b = false;
-    FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnCreate,TSCreature(this),TSMutable<bool>(&b));
-    FIRE_ID(GetMap()->GetId(),Map,OnCreatureCreate,TSMap(GetMap()),TSCreature(this),TSMutable<bool>(&b));
+    FIRE_ID(GetCreatureTemplate()->events.id,Creature,OnCreate,TSCreature(this),TSMutable<bool,bool>(&b));
+    FIRE_ID(GetMap()->GetId(),Map,OnCreatureCreate,TSMap(GetMap()),TSCreature(this),TSMutable<bool,bool>(&b));
     if(b)
     {
         // TODO: Is this enough to stop spawning?
@@ -1543,7 +1543,7 @@ void Creature::UpdateLevelDependantStats()
           this->GetCreatureTemplate()->events.id
         , Creature,OnUpdateLvlDepMaxHealth
         , TSCreature(this)
-        , TSMutable<uint32>(&health)
+        , TSMutableNumber<uint32>(&health)
         , healthmod
         , basehp
         );
@@ -1561,7 +1561,7 @@ void Creature::UpdateLevelDependantStats()
           GetCreatureTemplate()->events.id
         , Creature,OnUpdateLvlDepMaxMana
         , TSCreature(this)
-        , TSMutable<uint32>(&mana)
+        , TSMutableNumber<uint32>(&mana)
         , stats->BaseMana
     );
     // @tswow-end
@@ -1591,8 +1591,8 @@ void Creature::UpdateLevelDependantStats()
           this->GetCreatureTemplate()->events.id
         , Creature,OnUpdateLvlDepBaseDamage
         , TSCreature(this)
-        , TSMutable<float>(&weaponBaseMinDamage)
-        , TSMutable<float>(&weaponBaseMaxDamage)
+        , TSMutableNumber<float>(&weaponBaseMinDamage)
+        , TSMutableNumber<float>(&weaponBaseMaxDamage)
         , basedamage
     );
     // @tswow-end
@@ -1613,8 +1613,8 @@ void Creature::UpdateLevelDependantStats()
           GetCreatureTemplate()->events.id
         , Creature,OnUpdateLvlDepAttackPower
         , TSCreature(this)
-        , TSMutable<uint32>(&attackPower)
-        , TSMutable<uint32>(&rangedAttackPower)
+        , TSMutableNumber<uint32>(&attackPower)
+        , TSMutableNumber<uint32>(&rangedAttackPower)
     );
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, attackPower);
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, rangedAttackPower);
@@ -1626,7 +1626,7 @@ void Creature::UpdateLevelDependantStats()
           GetCreatureTemplate()->events.id
         , Creature,OnUpdateLvlDepArmor
         , TSCreature(this)
-        , TSMutable<float>(&armor)
+        , TSMutableNumber<float>(&armor)
         , stats->BaseArmor
     );
     // @tswow-end

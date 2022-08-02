@@ -3919,7 +3919,7 @@ void Spell::EffectApplyGlyph()
           m_spellInfo->events.id
         , Spell,OnEffectApplyGlyph
         , TSSpell(this)
-        , TSMutable<bool>(&isLocked)
+        , TSMutable<bool,bool>(&isLocked)
     );
 
     if (isLocked)

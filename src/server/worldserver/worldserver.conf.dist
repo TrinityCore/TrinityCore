@@ -4379,7 +4379,7 @@ TSWoW.MessageBufferBytes = 10000
 #        Default:     false
 #
 
-TSWoW.EnableLua = false
+TSWoW.EnableLua = true
 
 #
 ###################################################################################################

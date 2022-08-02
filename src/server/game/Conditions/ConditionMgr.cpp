@@ -551,7 +551,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         , Condition,OnCheck
         , TSCondition(const_cast<Condition*>(this))
         , TSConditionSourceInfo(&sourceInfo)
-        , TSMutable<bool>(&condMeets)
+        , TSMutable<bool,bool>(&condMeets)
     );
     // @tswow-end
 

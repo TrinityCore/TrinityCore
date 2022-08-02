@@ -224,7 +224,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
         , Creature,OnGossipHello
         , TSCreature(unit)
         , TSPlayer(_player)
-        , TSMutable<bool>(&b)
+        , TSMutable<bool,bool>(&b)
     );
     if (!b && !unit->AI()->OnGossipHello(_player))
     // @tswow-end

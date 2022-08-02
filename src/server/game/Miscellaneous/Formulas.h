@@ -42,7 +42,7 @@ namespace Trinity
         {
             float honor = multiplier * level * 1.55f;
             sScriptMgr->OnHonorCalculation(honor, level, multiplier);
-            FIRE(World,OnCalcHonor, TSMutable<float>(&honor), level, multiplier);
+            FIRE(World,OnCalcHonor, TSMutableNumber<float>(&honor), level, multiplier);
             return honor;
         }
 
@@ -74,7 +74,7 @@ namespace Trinity
             FIRE(
                   Player,OnCalcGreyLevel
                 , TSPlayer(player)
-                , TSMutable<uint8>(&level)
+                , TSMutableNumber<uint8>(&level)
                 );
             // @tswow-end
             return level;
@@ -105,7 +105,7 @@ namespace Trinity
                   creature->GetCreatureTemplate()->events.id
                 , Creature,OnCalcColorCode
                 , TSCreature(creature)
-                , TSMutable<uint8>((uint8*)(&color))
+                , TSMutableNumber<uint8>((uint8*)(&color))
                 , TSPlayer(player)
                 , pl_level
                 , mob_level
@@ -148,7 +148,7 @@ namespace Trinity
             sScriptMgr->OnZeroDifferenceCalculation(diff, pl_level);
             FIRE(Player,OnCalcZeroDiff
                 , TSPlayer(player)
-                , TSMutable<uint8>(&diff)
+                , TSMutableNumber<uint8>(&diff)
             );
             return diff;
         }
@@ -213,7 +213,7 @@ namespace Trinity
                   creature->GetCreatureTemplate()->events.id
                 , Creature,OnCalcBaseGain
                 , TSCreature(creature)
-                , TSMutable<uint32>(&baseGain)
+                , TSMutableNumber<uint32>(&baseGain)
                 , TSPlayer(player)
             );
             // @tswow-end
@@ -261,7 +261,7 @@ namespace Trinity
                 creature->GetCreatureTemplate()->events.id
                 , Creature,OnCalcGain
                 , TSCreature(creature)
-                , TSMutable<uint32>(&gain)
+                , TSMutableNumber<uint32>(&gain)
                 , TSPlayer(player)
             );
             // @tswow-end
@@ -305,7 +305,7 @@ namespace Trinity
             FIRE(
                   Player,OnCalcGroupGain
                 , TSPlayer(player)
-                , TSMutable<float>(&rate)
+                , TSMutableNumber<float>(&rate)
                 , count
                 , isRaid
             );

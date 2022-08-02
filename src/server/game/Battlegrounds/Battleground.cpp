@@ -702,7 +702,7 @@ void Battleground::EndBattleground(uint32 winner)
           m_MapId
         , Battleground,OnEndEarly
         , TSBattleground(m_Map, this)
-        , TSMutable<uint32>(&winner)
+        , TSMutableNumber<uint32>(&winner)
     );
     // @tswow-end
     RemoveFromBGFreeSlotQueue();
@@ -1332,7 +1332,7 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
         , TSPlayer(player)
         , type
         , doAddHonor
-        , TSMutable<uint32>(&value)
+        , TSMutable<uint32, TSNumber<uint32>>(&value)
     );
     // @tswow-end
 
@@ -1404,16 +1404,16 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
         , Battleground,OnAddGameObject
         , TSBattleground(m_Map, this)
         , type
-        , TSMutable<uint32>(&entry)
-        , TSMutable<uint8>((uint8*)&goState)
-        , TSMutable<float>(&x)
-        , TSMutable<float>(&y)
-        , TSMutable<float>(&z)
-        , TSMutable<float>(&o)
-        , TSMutable<float>(&rotation0)
-        , TSMutable<float>(&rotation1)
-        , TSMutable<float>(&rotation2)
-        , TSMutable<float>(&rotation3)
+        , TSMutable<uint32, TSNumber<uint32>>(&entry)
+        , TSMutable<uint8, TSNumber<uint8>>((uint8*)&goState)
+        , TSMutable<float, TSNumber<float>>(&x)
+        , TSMutable<float, TSNumber<float>>(&y)
+        , TSMutable<float, TSNumber<float>>(&z)
+        , TSMutable<float, TSNumber<float>>(&o)
+        , TSMutable<float, TSNumber<float>>(&rotation0)
+        , TSMutable<float, TSNumber<float>>(&rotation1)
+        , TSMutable<float, TSNumber<float>>(&rotation2)
+        , TSMutable<float, TSNumber<float>>(&rotation3)
     );
     if (type >= BgObjects.size()) BgObjects.resize(type + 1);
     //ASSERT(type < BgObjects.size());
@@ -1577,12 +1577,12 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, float x, float y,
         , Battleground,OnAddCreature
         , TSBattleground(m_Map, this)
         , type
-        , TSMutable<uint32>(&entry)
-        , TSMutable<float>(&x)
-        , TSMutable<float>(&y)
-        , TSMutable<float>(&z)
-        , TSMutable<float>(&o)
-        , TSMutable<uint32_t>(&respawntime)
+        , TSMutable<uint32, TSNumber<uint32>>(&entry)
+        , TSMutable<float, TSNumber<float>>(&x)
+        , TSMutable<float, TSNumber<float>>(&y)
+        , TSMutable<float, TSNumber<float>>(&z)
+        , TSMutable<float, TSNumber<float>>(&o)
+        , TSMutable<uint32_t, TSNumber<uint32>>(&respawntime)
     );
     if (type >= BgCreatures.size()) BgCreatures.resize(type + 1);
     //ASSERT(type < BgCreatures.size());
@@ -1706,12 +1706,12 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         , Battleground,OnAddSpiritGuide
         , TSBattleground(m_Map, this)
         , type
-        , TSMutable<uint32>(&entry)
-        , TSMutable<uint8>(&_teamId)
-        , TSMutable<float>(&x)
-        , TSMutable<float>(&y)
-        , TSMutable<float>(&z)
-        , TSMutable<float>(&o)
+        , TSMutable<uint32, TSNumber<uint32>>(&entry)
+        , TSMutable<uint8, TSNumber<uint8>>(&_teamId)
+        , TSMutable<float, TSNumber<float>>(&x)
+        , TSMutable<float, TSNumber<float>>(&y)
+        , TSMutable<float, TSNumber<float>>(&z)
+        , TSMutable<float, TSNumber<float>>(&o)
     );
     teamId = (TeamId)_teamId;
     // @tswow-end
@@ -1985,7 +1985,7 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
         , trigger
-        , TSMutable<bool>(&handled)
+        , TSMutable<bool,bool>(&handled)
     );
     if (handled) return;
     // @tswow-end
@@ -2005,7 +2005,7 @@ bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*
         , TSPlayer(const_cast<Player*>(source))
         , TSUnit(const_cast<Unit*>(target))
         , miscvalue1
-        , TSMutable<bool>(&handled)
+        , TSMutable<bool,bool>(&handled)
     );
     if (handled) return true;
 // @tswow-end
@@ -2032,7 +2032,7 @@ bool Battleground::SetupBattleground()
           m_MapId
         , Battleground,OnCanCreate
         , TSBattleground(m_Map, this)
-        , TSMutable<bool>(&result)
+        , TSMutable<bool,bool>(&result)
     );
     return result;
 }
@@ -2149,7 +2149,7 @@ bool Battleground::HandlePlayerUnderMap(Player* player)
         , Battleground,OnPlayerUnderMap
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
-        , TSMutable<bool>(&handled)
+        , TSMutable<bool,bool>(&handled)
     );
     return handled;
 }

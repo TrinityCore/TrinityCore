@@ -189,7 +189,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
     Player* pSender = ObjectAccessor::FindPlayerByLowGUID(sender.GetSenderId());
     // @tswow-begin
-    FIRE(Player,OnSendMail,TSPlayer(pSender),TSMailDraft(this),TSMutable<uint32>(&deliver_delay));
+    FIRE(Player,OnSendMail,TSPlayer(pSender),TSMailDraft(this),TSMutableNumber<uint32>(&deliver_delay));
     // @tswow-end
 
     if (pReceiver)

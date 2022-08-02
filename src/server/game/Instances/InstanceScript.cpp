@@ -995,7 +995,7 @@ bool InstanceScript::_CheckRequiredBosses(uint32 bossId, Player const* player, b
         , TSInstance(instance, const_cast<InstanceScript*>(this))
         , bossId
         , TSPlayer(const_cast<Player*>(player))
-        , TSMutable<bool>(&in)
+        , TSMutable<bool,bool>(&in)
     );
     return in;
 }
@@ -1019,7 +1019,7 @@ void InstanceScript::SetBossNumber(uint32 number)
           instance->GetEntry()->ID
         , Instance,OnSetBossNumber
         , TSInstance(instance, this)
-        , TSMutable<uint32>(&tmp)
+        , TSMutableNumber<uint32>(&tmp)
     );
     if (tmp < number)
     {

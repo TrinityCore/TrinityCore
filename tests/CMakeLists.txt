@@ -21,6 +21,10 @@ target_link_libraries(tests
   PRIVATE
     trinity-core-interface
     game
+    # tswow-begin
+    sol2
+    liblua
+    # tswow-end
     Catch2::Catch2)
 
 CollectIncludeDirectories(
@@ -30,6 +34,10 @@ CollectIncludeDirectories(
 target_include_directories(tests
   PUBLIC
     ${TEST_INCLUDES}
+    # tswow-begin
+    ${TSWOW_INCLUDES}
+    ${LUA_ROOT}
+    # tswow-end
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 

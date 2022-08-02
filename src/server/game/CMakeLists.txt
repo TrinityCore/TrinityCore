@@ -54,7 +54,6 @@ target_include_directories(game
     # tswow-begin
     ${TSWOW_INCLUDES}
     ${LUA_ROOT}
-    ${sol2_SOURCE_DIR}/include
     ${sourcemap_SOURCE_DIR}/src
     ${sourcemap_SOURCE_DIR}/deps/json
     ${sourcemap_SOURCE_DIR}/deps/cencode
@@ -82,6 +81,7 @@ FILE(GLOB TSWOW_MESSAGES ${TSWOW_MESSAGES_INCLUDES}/*)
 target_compile_definitions(game PUBLIC CUSTOM_PACKET_API=TC_GAME_API)
 target_compile_definitions(game PUBLIC TRINITY=1)
 
+
 #tswow-begin
 source_group("tswow-messages" FILES ${TSWOW_MESSAGES})
 source_group("tswow-public" FILES ${TSWOW_PUBLIC})
@@ -92,6 +92,7 @@ target_link_libraries(game
   PRIVATE
     trinity-core-interface
     efsw
+    sol2
   PUBLIC
     # tswow-begin
     nlohmann_json::nlohmann_json

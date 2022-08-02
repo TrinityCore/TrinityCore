@@ -73,7 +73,7 @@ namespace Trainer
                 , TSSpellInfo(trainerSpellInfo)
                 , _trainerId
                 , TSPlayer(const_cast<Player*>(player))
-                , TSMutable<bool>(&allowTrain)
+                , TSMutable<bool,bool>(&allowTrain)
             )
             if (!allowTrain)
             {
@@ -179,7 +179,7 @@ namespace Trainer
             , TSSpellInfo(trainerSpellInfo)
             , _trainerId
             , TSPlayer(const_cast<Player*>(player))
-            , TSMutable<bool>(&allowTrain)
+            , TSMutable<bool,bool>(&allowTrain)
         )
         if (!allowTrain)
         {

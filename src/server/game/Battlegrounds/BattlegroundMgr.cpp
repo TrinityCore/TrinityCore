@@ -1073,7 +1073,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
             FIRE(
                       Battleground,OnWeight
                     , entry.battleground
-                    , TSMutable<float>(&weight)
+                    , TSMutableNumber<float>(&weight)
                     , bgTypeId
                 );
             weights.push_back(entry.weight);
@@ -1085,7 +1085,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 
     FIRE(
               Battleground,OnSelect
-            , TSMutable<uint32>(reinterpret_cast<uint32*>(&bgTypeId))
+            , TSMutableNumber<uint32>(reinterpret_cast<uint32*>(&bgTypeId))
     );
     return BattlegroundTypeId(bgTypeId);
     // @tswow-end

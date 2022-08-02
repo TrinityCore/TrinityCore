@@ -2131,8 +2131,8 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         Spell,OnCalcMiss,
         TSSpell(this),
         TSUnit(target),
-        TSMutable<uint32>(&miss),
-        TSMutable<uint32>(&effectMask)
+        TSMutableNumber<uint32>(&miss),
+        TSMutableNumber<uint32>(&effectMask)
     );
     targetInfo.MissCondition = SpellMissInfo(miss);
 
@@ -5141,7 +5141,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoT
         this->m_spellInfo->events.id
         , Spell,OnEffect
         , TSSpell(this)
-        , TSMutable<bool>(&preventDefault)
+        , TSMutable<bool,bool>(&preventDefault)
         , TSSpellEffectInfo(&spellEffectInfo)
         , static_cast<uint32>(mode)
         , TSUnit(pUnitTarget)
@@ -7749,7 +7749,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
         this->m_spellInfo->events.id
         , Spell,OnCalcCrit
         , TSSpell(this)
-        , TSMutable<float>(&critChance)
+        , TSMutableNumber<float>(&critChance)
     );
     // @tswow-end
     targetInfo.IsCrit = roll_chance_f(critChance);
@@ -7916,7 +7916,7 @@ void Spell::CallScriptBeforeCastHandlers()
         m_spellInfo->events.id
         , Spell,OnBeforeCast
         , TSSpell(this)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -7954,7 +7954,7 @@ void Spell::CallScriptAfterCastHandlers()
           m_spellInfo->events.id
         , Spell,OnAfterCast
         , TSSpell(this)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -7989,7 +7989,7 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
     FIRE_ID(m_spellInfo->events.id
         , Spell,OnCheckCast
         , TSSpell(this)
-        , TSMutable<uint8>(reinterpret_cast<uint8_t*>(&retVal)));
+        , TSMutableNumber<uint8>(reinterpret_cast<uint8_t*>(&retVal)));
     return retVal;
 }
 
@@ -8066,7 +8066,7 @@ void Spell::CallScriptBeforeHitHandlers(SpellMissInfo missInfo)
         , Spell,OnBeforeHit
         , TSSpell(this)
         , static_cast<uint32>(missInfo)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -8105,7 +8105,7 @@ void Spell::CallScriptAfterHitHandlers()
         m_spellInfo->events.id
         , Spell,OnAfterHit
         , TSSpell(this)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -8132,7 +8132,7 @@ void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& ta
         , TSWorldObjectCollection(&targets)
         , static_cast<uint32>(effIndex)
         , TSSpellImplicitTargetInfo(&targetType)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -8160,7 +8160,7 @@ void Spell::CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffI
         , TSMutableWorldObject(target)
         , static_cast<uint32>(effIndex)
         , TSSpellImplicitTargetInfo(&targetType)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -8188,7 +8188,7 @@ void Spell::CallScriptDestinationTargetSelectHandlers(SpellDestination& target, 
         , TSSpellDestination(&target)
         , static_cast<uint32>(effIndex)
         , TSSpellImplicitTargetInfo(&targetType)
-        , TSMutable<bool>(&cancel)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end
@@ -8360,9 +8360,9 @@ void Spell::CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageIn
         , Spell,OnOnResistAbsorbCalculate
         , TSSpell(this)
         , TSDamageInfo(&damageInfo)
-        , TSMutable<uint32>(&resistAmount)
-        , TSMutable<int32>(&absorbAmount)
-        , TSMutable<bool>(&cancel)
+        , TSMutableNumber<uint32>(&resistAmount)
+        , TSMutableNumber<int32>(&absorbAmount)
+        , TSMutable<bool,bool>(&cancel)
     );
     if (cancel) return;
     // @tswow-end

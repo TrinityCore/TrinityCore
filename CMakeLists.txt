@@ -38,14 +38,11 @@ endif()
 # sol2
 #
 FetchContent_Declare (sol2
-  GIT_REPOSITORY https://github.com/tswow/sol2
-  GIT_TAG b9c83d5ecf6bc9503dc66779f2395dc32dffb1e5
+  GIT_REPOSITORY https://github.com/ThePhD/sol2
+  GIT_TAG 4de99c5b41b64b7e654bf8e48b177e8414a756b7
 )
 FetchContent_MakeAvailable (sol2)
-add_library (sane-sol2 INTERFACE)
-add_library (sol2::sane ALIAS sane-sol2)
-target_link_libraries (sane-sol2 INTERFACE liblua)
-target_include_directories (sane-sol2 SYSTEM INTERFACE "${sol2_SOURCE_DIR}/include")
+target_compile_definitions(sol2 INTERFACE SOL_NO_CHECK_NUMBER_PRECISION)
 
 #
 # sourcemap
