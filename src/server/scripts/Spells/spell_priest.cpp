@@ -218,13 +218,10 @@ class spell_pri_atonement : public AuraScript
 {
     PrepareAuraScript(spell_pri_atonement);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({
-            SPELL_PRIEST_ATONEMENT_HEAL,
-            SPELL_PRIEST_SINS_OF_THE_MANY
-        })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_ATONEMENT_HEAL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
+            && spellInfo->GetEffects().size() > EFFECT_1
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SINS_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
     }
 
