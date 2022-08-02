@@ -47,25 +47,7 @@ public:
     }
 };
 
-enum SylvanasWindrunnerIntroduction
-{
-    NPC_BOLVAR_FORDRAGON_PINNACLE           = 178081
-};
-
-class conversation_sylvanas_windrunner_introduction : public ConversationScript
-{
-public:
-    conversation_sylvanas_windrunner_introduction() : ConversationScript("conversation_sylvanas_windrunner_introduction") { }
-
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
-    {
-        if (Creature* bolvar = creator->FindNearestCreature(NPC_BOLVAR_FORDRAGON_PINNACLE, 50.0f, true))
-            conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, 1, bolvar->GetGUID());
-    }
-};
-
 void AddSC_conversation_scripts()
 {
     new conversation_allied_race_dk_defender_of_azeroth();
-    new conversation_sylvanas_windrunner_introduction();
 }

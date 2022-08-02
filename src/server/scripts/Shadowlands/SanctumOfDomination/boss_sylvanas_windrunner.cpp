@@ -843,12 +843,14 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 break;
 
             case ACTION_CALCULATE_ARROWS:
+            {
                 // NOTE: number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive).
-                uint8 arrowsToSpawn = _events.GetPhaseMask() == PHASE_INTERMISSION ? me->GetMap()->GetPlayersCountExceptGMs() :
-                    std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3)), 4), 10);
+                uint8 arrowsToSpawn = _events.GetPhaseMask() == PHASE_INTERMISSION ? me->GetMap()->GetPlayersCountExceptGMs()
+                    : std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3)), 4), 10);
                 _selectedArrowCountsPerJump = SplitArrowCasts(arrowsToSpawn);
                 _jumpCount = 0;
                 break;
+            }
 
             case ACTION_PREPARE_INTERMISSION:
                 _events.CancelEventGroup(1);
@@ -6404,6 +6406,19 @@ private:
     InstanceScript* _instance;
 };
 
+// Sylvanas Windrunner's Introduction Conversation - 17368
+class conversation_sylvanas_windrunner_introduction : public ConversationScript
+{
+public:
+    conversation_sylvanas_windrunner_introduction() : ConversationScript("conversation_sylvanas_windrunner_introduction") { }
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        if (Creature* bolvar = creator->GetInstanceScript()->GetCreature(NPC_BOLVAR_FORDRAGON_PINNACLE))
+            conversation->AddActor(NPC_BOLVAR_FORDRAGON_PINNACLE, 1, bolvar->GetGUID());
+    }
+};
+
 void AddSC_boss_sylvanas_windrunner()
 {
     RegisterSanctumOfDominationCreatureAI(boss_sylvanas_windrunner);
@@ -6477,4 +6492,6 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_banshee_bane);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_raze);
+
+    new conversation_sylvanas_windrunner_introduction();
 }
