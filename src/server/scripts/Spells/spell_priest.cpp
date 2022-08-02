@@ -21,20 +21,20 @@
  * Scriptnames of files in this file should be prefixed with "spell_pri_".
  */
 
+#include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
+#include "G3DPosition.hpp"
 #include "GridNotifiers.h"
 #include "Log.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
-#include <G3D/Vector3.h>
 
 enum PriestSpells
 {
@@ -371,14 +371,10 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
             PathGenerator firstPath(at);
             firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
-            G3D::Vector3 endPoint = firstPath.GetPath().back();
-
-            Position pathEndPoint(endPoint.x, endPoint.y, endPoint.z);
-
-            Movement::PointsArray const& pointsFirstPath = firstPath.GetPath();
+            G3D::Vector3 const& endPoint = firstPath.GetPath().back();
 
             // Note: it takes 1000ms to reach 24 yards, so it takes 41.67ms to run 1 yard.
-            at->InitSplines(pointsFirstPath, at->GetDistance(pathEndPoint) * 41.67f);
+            at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * 41.67f);
         }
     }
 
@@ -438,30 +434,24 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void ReturnToCaster()
     {
-        if (Unit* caster = at->GetCaster())
+        _scheduler.Schedule(0ms, [this](TaskContext task)
         {
-            _scheduler.Schedule(0ms, [this, caster](TaskContext task)
+            if (Unit* caster = at->GetCaster())
             {
                 _casterCurrentPosition = caster->GetPosition();
 
                 Movement::PointsArray returnSplinePoints;
 
-                // Note: we need to duplicate each point otherwise the spline is not formed.
-                for (uint8 i = 0; i < 4; i++)
-                {
-                    G3D::Vector3 returnPoint;
-                    returnPoint.x = (i < 2) ? at->GetPositionX() : caster->GetPositionX();
-                    returnPoint.y = (i < 2) ? at->GetPositionY() : caster->GetPositionY();
-                    returnPoint.z = (i < 2) ? at->GetPositionZ() : caster->GetPositionZ();
+                returnSplinePoints.push_back(PositionToVector3(at));
+                returnSplinePoints.push_back(PositionToVector3(at));
+                returnSplinePoints.push_back(PositionToVector3(caster));
+                returnSplinePoints.push_back(PositionToVector3(caster));
 
-                    returnSplinePoints.push_back(returnPoint);
-                }
-
-                at->InitSplines(returnSplinePoints, (at->GetDistance(caster) / 24) * 1000);
+                at->InitSplines(returnSplinePoints, at->GetDistance(caster) / 24 * 1000);
 
                 task.Repeat(250ms);
-            });
-        }
+            }
+        });
     }
 
 private:
