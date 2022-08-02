@@ -32,8 +32,8 @@ class TC_COMMON_API Ed25519
 {
 public:
     Ed25519();
-    Ed25519(Ed25519 const& other);
-    Ed25519(Ed25519&& other) noexcept;
+    Ed25519(Ed25519 const& right);
+    Ed25519(Ed25519&& right) noexcept;
     ~Ed25519();
 
     Ed25519& operator=(Ed25519 const& right);
