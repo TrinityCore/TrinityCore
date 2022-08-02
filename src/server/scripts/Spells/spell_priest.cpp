@@ -76,6 +76,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
+    SPELL_PRIEST_SINS_OF_THE_MANY                   = 280398,
     SPELL_PRIEST_SMITE                              = 585,
     SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
@@ -219,7 +220,9 @@ class spell_pri_atonement : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL }) && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
+            && spellInfo->GetEffects().size() > EFFECT_1
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SINS_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -257,11 +260,24 @@ public:
     void AddAtonementTarget(ObjectGuid const& target)
     {
         _appliedAtonements.push_back(target);
+
+        UpdateSinsOfTheManyValue();
     }
 
     void RemoveAtonementTarget(ObjectGuid const& target)
     {
         _appliedAtonements.erase(std::remove(_appliedAtonements.begin(), _appliedAtonements.end(), target), _appliedAtonements.end());
+
+        UpdateSinsOfTheManyValue();
+    }
+
+    void UpdateSinsOfTheManyValue()
+    {
+        constexpr std::array<float, 11> damageByStack = { 12.0f, 12.0f, 10.0f, 8.0f, 7.0f, 6.0f, 5.0f, 5.0f, 4.0f, 4.0f, 3.0f };
+
+        for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
+            if (AuraEffect* sinOfTheMany = GetTarget()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
+                sinOfTheMany->ChangeAmount(damageByStack[std::min(_appliedAtonements.size(), damageByStack.size() - 1)]);
     }
 };
 
@@ -997,6 +1013,33 @@ private:
     ObjectGuid _raptureTarget;
 };
 
+// 280391 - Sins of the Many
+class spell_pri_sins_of_the_many : public AuraScript
+{
+    PrepareAuraScript(spell_pri_sins_of_the_many);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SINS_OF_THE_MANY });
+    }
+
+    void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_SINS_OF_THE_MANY, true);
+    }
+
+    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAura(SPELL_PRIEST_SINS_OF_THE_MANY);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_sins_of_the_many::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_pri_sins_of_the_many::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 20711 - Spirit of Redemption
 class spell_pri_spirit_of_redemption : public AuraScript
 {
@@ -1351,6 +1394,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
