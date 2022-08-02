@@ -76,8 +76,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
-    SPELL_PRIEST_SIN_OF_THE_MANY                    = 280398,
-    SPELL_PRIEST_SIN_OF_THE_MANY_PASSIVE            = 280391,
+    SPELL_PRIEST_SINS_OF_THE_MANY                   = 280398,
     SPELL_PRIEST_SMITE                              = 585,
     SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
@@ -221,13 +220,12 @@ class spell_pri_atonement : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
+        return ValidateSpellInfo({
             SPELL_PRIEST_ATONEMENT_HEAL,
-            SPELL_PRIEST_SIN_OF_THE_MANY
+            SPELL_PRIEST_SINS_OF_THE_MANY
         })
-        && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_ATONEMENT_HEAL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
-        && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SIN_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_ATONEMENT_HEAL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SINS_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -266,59 +264,23 @@ public:
     {
         _appliedAtonements.push_back(target);
 
-        if (Unit* caster = GetCaster())
-            if (caster->HasAura(SPELL_PRIEST_SIN_OF_THE_MANY))
-                HandleSinsOfTheMany(caster);
+        UpdateSinsOfTheManyValue();
     }
 
     void RemoveAtonementTarget(ObjectGuid const& target)
     {
         _appliedAtonements.erase(std::remove(_appliedAtonements.begin(), _appliedAtonements.end(), target), _appliedAtonements.end());
 
-        if (Unit* caster = GetCaster())
-            if (caster->HasAura(SPELL_PRIEST_SIN_OF_THE_MANY))
-                HandleSinsOfTheMany(caster);
+        UpdateSinsOfTheManyValue();
     }
 
-    void HandleSinsOfTheMany(Unit* caster)
+    void UpdateSinsOfTheManyValue()
     {
-        float damagePercent = 0.0f;
-
-        switch (_appliedAtonements.size())
-        {
-            case 0:
-            case 1:
-                damagePercent = 12.0f;
-                break;
-            case 2:
-                damagePercent = 10.0f;
-                break;
-            case 3:
-                damagePercent = 8.0f;
-                break;
-            case 4:
-                damagePercent = 7.0f;
-                break;
-            case 5:
-                damagePercent = 6.0f;
-                break;
-            case 7:
-            case 6:
-                damagePercent = 5.0f;
-                break;
-            case 9:
-            case 8:
-                damagePercent = 4.0f;
-                break;
-            case 10:
-            default:
-                damagePercent = 3.0f;
-                break;
-        }
+        constexpr std::array<float, 11> damageByStack = { 12.0f, 12.0f, 10.0f, 8.0f, 7.0f, 6.0f, 5.0f, 5.0f, 4.0f, 4.0f, 3.0f };
 
         for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
-            if (AuraEffect* sinOfTheMany = caster->GetAuraEffect(SPELL_PRIEST_SIN_OF_THE_MANY, effectIndex))
-                sinOfTheMany->ChangeAmount(damagePercent);
+            if (AuraEffect* sinOfTheMany = GetTarget()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
+                sinOfTheMany->ChangeAmount(damageByStack[std::min(_appliedAtonements.size(), damageByStack.size() - 1)]);
     }
 };
 
@@ -1061,22 +1023,17 @@ class spell_pri_sins_of_the_many : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_SIN_OF_THE_MANY });
+        return ValidateSpellInfo({ SPELL_PRIEST_SINS_OF_THE_MANY });
     }
 
     void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_PRIEST_SIN_OF_THE_MANY, true);
+        GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_SINS_OF_THE_MANY, true);
     }
 
     void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* caster = GetCaster())
-        {
-            if (caster->HasAura(SPELL_PRIEST_SIN_OF_THE_MANY))
-                caster->RemoveAura(SPELL_PRIEST_SIN_OF_THE_MANY);
-        }
+        GetTarget()->RemoveAura(SPELL_PRIEST_SINS_OF_THE_MANY);
     }
 
     void Register() override
