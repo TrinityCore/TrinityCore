@@ -3597,18 +3597,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 5;
     });
 
-    // Curse of the Plaguebringer - Noth (H)
-    ApplySpellFix({ 54835 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 8;
-    });
-
     ApplySpellFix({
         40827, // Sinful Beam
         40859, // Sinister Beam
         40860, // Vile Beam
         40861, // Wicked Beam
-        54098  // Poison Bolt Volly - Faerlina (H)
+        54098, // Poison Bolt Volly - Faerlina (H)
+        54835  // Curse of the Plaguebringer - Noth (H)
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 10;
