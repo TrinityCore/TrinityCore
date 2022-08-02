@@ -41,6 +41,8 @@ enum SanctumOfDominationDataTypes
     DATA_ANDUIN_CRUCIBLE,
     DATA_DOMINATION_ARROW,
 
+    DATA_SYLVANAS_SHADOWCOPY_RIDING,
+
     DATA_SYLVANAS_SHADOWCOPY_01                     = 20,
     DATA_SYLVANAS_SHADOWCOPY_02,
     DATA_SYLVANAS_SHADOWCOPY_03,
@@ -106,6 +108,22 @@ enum SanctumOfDominationAreas
     AREA_PINNACLE_OF_DOMINANCE                      = 13653,
     AREA_EDGE_OF_THE_ABYSS                          = 13654,
     AREA_THE_CRUCIBLE                               = 13655
+};
+
+enum SanctumofDominationWorldStates
+{
+    WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED          = 20346,
+    WORLD_STATE_SYLVANAS_ENCOUNTER_COMPLETED        = 20347,
+    WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE            = 20348,
+    WORLD_STATE_SYLVANAS_UNK_01                     = 21210, // Sets to 0 several times on phase 3
+    WORLD_STATE_SYLVANAS_UNK_02                     = 21166, // Sets to 1 when SPELL_FINAL_SCENE is cast on players
+    WORLD_STATE_SYLVANAS_UNK_03                     = 21120, // Sets to 1 when 353687 spell is cast by NPC 179262
+    WORLD_STATE_SYLVANAS_ACHIEVEMENT_COMPLETED      = 21134,
+    WORLD_STATE_SYLVANAS_UNK_04                     = 20439, // This is always 1 on INIT and the following 0
+    WORLD_STATE_SYLVANAS_UNK_05                     = 20440,
+    WORLD_STATE_SYLVANAS_UNK_06                     = 20441,
+    WORLD_STATE_SYLVANAS_UNK_07                     = 20442,
+    WORLD_STATE_SYLVANAS_UNK_08                     = 20443
 };
 
 template <class AI, class T>

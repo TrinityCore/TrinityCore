@@ -24,9 +24,10 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`
 (2723, 20, 3218, 0),
 (2799, 16, 3314, 0);
 
-DELETE FROM `world_state` WHERE `ID`=20348;
+DELETE FROM `world_state` WHERE `ID` IN (20348, 20346);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
-(20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Encounter Phase');
+(20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas encounter phase'),
+(20346, 0, '2450', NULL, '', 'Sanctum of Domination - Sylvanas encounter started');
 
  --
  -- Introduction

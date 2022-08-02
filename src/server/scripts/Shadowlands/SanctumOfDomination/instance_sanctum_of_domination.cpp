@@ -175,46 +175,49 @@ public:
             {
                 case DATA_SYLVANAS_WINDRUNNER:
                 {
-                    if (state == IN_PROGRESS)
+                    switch (state)
                     {
-                        if (Creature* bolvar = GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                        case NOT_STARTED:
+                            // NOTE: this could be removed once someone implements SetStartedEncountersMask in InstanceScript.h.
+                            DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
+                            break;
+                        case IN_PROGRESS:
                         {
-                            if (bolvar->IsAIEnabled())
-                                bolvar->AI()->DoZoneInCombat();
+                            // NOTE: this could be removed once someone implements SetStartedEncountersMask in InstanceScript.h.
+                            DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
+
+                            if (Creature* bolvar = GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
+                                if (bolvar->IsAIEnabled())
+                                    bolvar->AI()->DoZoneInCombat();
+
+                            if (Creature* thrall = GetCreature(DATA_THRALL_PINNACLE))
+                                if (thrall->IsAIEnabled())
+                                    thrall->AI()->DoZoneInCombat();
+
+                            if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                                if (jaina->IsAIEnabled())
+                                    jaina->AI()->DoZoneInCombat();
+                            break;
                         }
 
-                        if (Creature* thrall = GetCreature(DATA_THRALL_PINNACLE))
+                        case FAIL:
                         {
-                            if (thrall->IsAIEnabled())
-                                thrall->AI()->DoZoneInCombat();
-                        }
+                            for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
+                                if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
+                                    torghastSpike->SetSpellVisualId(0);
 
-                        if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
-                        {
-                            if (jaina->IsAIEnabled())
-                                jaina->AI()->DoZoneInCombat();
+                            for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
+                                if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
+                                    invisibleWall->Respawn();
+
+                            SylvanasShadowcopyGUIDs.clear();
+
+                            Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
+                            break;
                         }
+                        default:
+                            break;
                     }
-
-                    if (state == FAIL)
-                    {
-                        for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
-                        {
-                            if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
-                                torghastSpike->SetSpellVisualId(0);
-                        }
-
-                        for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
-                        {
-                            if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
-                                invisibleWall->Respawn();
-                        }
-
-                        SylvanasShadowcopyGUIDs.clear();
-
-                        Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
-                    }
-
                     break;
                 }
 
