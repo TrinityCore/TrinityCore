@@ -31,6 +31,7 @@ ObjectData const creatureData[] =
     { NPC_JAINA_PROUDMOORE_PINNACLE,   DATA_JAINA_PROUDMOORE_PINNACLE   },
     { NPC_THRALL_PINNACLE,             DATA_THRALL_PINNACLE             },
     { NPC_ANDUIN_CRUCIBLE,             DATA_ANDUIN_CRUCIBLE             },
+    { NPC_SYLVANAS_SHADOWCOPY_RIDING,  DATA_SYLVANAS_SHADOWCOPY_RIDING  },
     { 0,                               0                                } // END
 };
 
@@ -178,12 +179,10 @@ public:
                     switch (state)
                     {
                         case NOT_STARTED:
-                            // NOTE: this could be removed once someone implements SetStartedEncountersMask in InstanceScript.h.
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
                             break;
                         case IN_PROGRESS:
                         {
-                            // NOTE: this could be removed once someone implements SetStartedEncountersMask in InstanceScript.h.
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
 
                             if (Creature* bolvar = GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))

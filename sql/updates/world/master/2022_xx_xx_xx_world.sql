@@ -24,10 +24,15 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`
 (2723, 20, 3218, 0),
 (2799, 16, 3314, 0);
 
-DELETE FROM `world_state` WHERE `ID` IN (20348, 20346);
+DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20554, 20555, 20545, 20546, 20547);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
-(20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas encounter phase'),
-(20346, 0, '2450', NULL, '', 'Sanctum of Domination - Sylvanas encounter started');
+(20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter phase'),
+(20346, 0, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter started'),
+(20554, 1, '2450', NULL, '', 'Sanctum of Domination - Normal and heroic week - Opened'),
+(20555, 1, '2450', NULL, '', 'Sanctum of Domination - Mythic week - Opened'),
+(20545, 0, '2450', NULL, '', 'Sanctum of Domination - Normal Difficulty - Testing state'),
+(20546, 0, '2450', NULL, '', 'Sanctum of Domination - Heroic Difficulty - Testing state'),
+(20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic Difficulty - Testing state');
 
  --
  -- Introduction
