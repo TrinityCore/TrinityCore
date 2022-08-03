@@ -151,6 +151,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "BattlePet Species Learned", true, true,  true  },
     { "On Scenario Step",          true, false, false },
     { "Scene In Progress",         true, false, false },
+    { "Player Condition",          true, false, false },
 };
 
 ConditionSourceInfo::ConditionSourceInfo(WorldObject* target0, WorldObject* target1, WorldObject* target2)
@@ -621,6 +622,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = player->GetSceneMgr().GetActiveSceneCount(ConditionValue1) > 0;
             break;
         }
+        case CONDITION_PLAYER_CONDITION:
+        {
+            if (Player* player = object->ToPlayer())
+                if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ConditionValue1))
+                    condMeets = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+            break;
+        }
         default:
             break;
     }
@@ -828,6 +836,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_SCENE_IN_PROGRESS:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_PLAYER_CONDITION:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -2715,6 +2726,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             if (!sSceneScriptPackageStore.LookupEntry(cond->ConditionValue1))
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing SceneScriptPackageId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_PLAYER_CONDITION:
+        {
+            if (!sPlayerConditionStore.LookupEntry(cond->ConditionValue1))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non existing PlayerConditionId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
