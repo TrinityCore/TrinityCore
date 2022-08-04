@@ -402,7 +402,7 @@ void PetAI::HandleReturnMovement()
             me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
         }
     }
-    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); // on player pets, this flag indicates that we're actively going after a target - we're returning, so remove it
+    me->RemoveUnitFlag(UNIT_FLAG_PET_IN_COMBAT); // on player pets, this flag indicates that we're actively going after a target - we're returning, so remove it
 }
 
 void PetAI::DoAttack(Unit* target, bool chase)
@@ -412,7 +412,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
 
     if (me->Attack(target, true))
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); // on player pets, this flag indicates we're actively going after a target - that's what we're doing, so set it
+        me->SetUnitFlag(UNIT_FLAG_PET_IN_COMBAT); // on player pets, this flag indicates we're actively going after a target - that's what we're doing, so set it
         // Play sound to let the player know the pet is attacking something it picked on its own
         if (me->HasReactState(REACT_AGGRESSIVE) && !me->GetCharmInfo()->IsCommandAttack())
             me->SendPetAIReaction(me->GetGUID());

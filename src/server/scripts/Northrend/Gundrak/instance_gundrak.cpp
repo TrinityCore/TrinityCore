@@ -99,7 +99,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_SLAD_RAN) == DONE)
                         {
                             if (SladRanStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -108,7 +108,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_MOORABI) == DONE)
                         {
                             if (MoorabiStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -117,7 +117,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_DRAKKARI_COLOSSUS) == DONE)
                         {
                             if (DrakkariColossusStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -173,17 +173,17 @@ class instance_gundrak : public InstanceMapScript
                     case DATA_SLAD_RAN:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_SLAD_RAN_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case DATA_DRAKKARI_COLOSSUS:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_DRAKKARI_COLOSSUS_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case DATA_MOORABI:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_MOORABI_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;
@@ -357,7 +357,7 @@ struct go_gundrak_altar : public GameObjectAI
 
     bool OnGossipHello(Player* /*player*/) override
     {
-        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         me->SetGoState(GO_STATE_ACTIVE);
 
         instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());

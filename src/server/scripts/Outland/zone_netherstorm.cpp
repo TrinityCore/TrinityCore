@@ -495,7 +495,7 @@ class spell_detonate_teleporter : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* creature = GetHitCreature())
+        if (Creature* creature = GetHitCreature())
         {
             if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
             {

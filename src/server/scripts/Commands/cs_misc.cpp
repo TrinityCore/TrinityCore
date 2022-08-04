@@ -1782,7 +1782,7 @@ public:
         if (result2)
         {
             Field* fields  = result2->Fetch();
-            bool permanent = fields[1].GetBool();
+            bool permanent = fields[1].GetUInt64() != 0;
             banTime        = !permanent ? int64(fields[0].GetUInt32()) : 0;
             bannedBy       = fields[2].GetString();
             banReason      = fields[3].GetString();

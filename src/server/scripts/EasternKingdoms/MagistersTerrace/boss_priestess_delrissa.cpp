@@ -242,10 +242,7 @@ public:
             if (instance->GetData(DATA_DELRISSA_DEATH_COUNT) == MAX_ACTIVE_LACKEY)
                 instance->SetBossState(DATA_PRIESTESS_DELRISSA, DONE);
             else
-            {
-                if (me->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
-                    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-            }
+                me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
         }
 
         void UpdateAI(uint32 diff) override
@@ -424,8 +421,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
             //time to make her lootable and complete event if she died before lackeys
             if (!delrissa->IsAlive())
             {
-                if (!delrissa->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
-                    delrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                delrissa->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 
                 instance->SetBossState(DATA_PRIESTESS_DELRISSA, DONE);
             }

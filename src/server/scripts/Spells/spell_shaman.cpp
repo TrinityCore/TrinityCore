@@ -41,6 +41,7 @@ enum ShamanSpells
     SPELL_SHAMAN_CLEANSING_TOTEM_EFFECT         = 52025,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
+    SPELL_SHAMAN_ELEMENTAL_OATH                 = 51466,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_R1                   = 1535,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
@@ -198,7 +199,7 @@ private:
     void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
     {
         // reduces all damage taken while stun, fear or silence
-        if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
+        if (GetTarget()->HasUnitFlag(UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || (GetTarget()->HasUnitFlag(UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
             absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
     }
 
@@ -237,7 +238,7 @@ class spell_sha_astral_shift_visual_dummy : public AuraScript
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
         // Periodic needed to remove visual on stun/fear/silence lost
-        if (!GetTarget()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED))
+        if (!GetTarget()->HasUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED))
             Remove();
     }
 
@@ -339,6 +340,30 @@ class spell_sha_cleansing_totem_pulse : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sha_cleansing_totem_pulse::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 16246 - Clearcasting
+class spell_sha_clearcasting : public AuraScript
+{
+    PrepareAuraScript(spell_sha_clearcasting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_OATH });
+    }
+
+    // Elemental Oath bonus
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Unit const* owner = GetUnitOwner();
+        if (Aura const* aura = owner->GetAuraOfRankedSpell(SPELL_SHAMAN_ELEMENTAL_OATH, owner->GetGUID()))
+            amount = aura->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_clearcasting::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     }
 };
 
@@ -1890,6 +1915,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_bloodlust);
     RegisterSpellScript(spell_sha_chain_heal);
     RegisterSpellScript(spell_sha_cleansing_totem_pulse);
+    RegisterSpellScript(spell_sha_clearcasting);
     RegisterSpellScript(spell_sha_earth_shield);
     RegisterSpellScript(spell_sha_earthbind_totem);
     RegisterSpellScript(spell_sha_earthen_power);

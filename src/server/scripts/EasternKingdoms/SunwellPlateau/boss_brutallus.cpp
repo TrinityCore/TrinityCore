@@ -158,7 +158,7 @@ public:
                 IsIntro = true;
                 Madrigosa->SetMaxHealth(me->GetMaxHealth());
                 Madrigosa->SetHealth(me->GetMaxHealth());
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->Attack(Madrigosa, true);
                 Madrigosa->Attack(me, true);
             }
@@ -172,7 +172,7 @@ public:
 
         void EndIntro()
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Intro = false;
             IsIntro = false;
         }
@@ -362,8 +362,30 @@ class spell_brutallus_burn : public AuraScript
     }
 };
 
+// 45185 - Stomp
+class spell_brutallus_stomp : public SpellScript
+{
+    PrepareSpellScript(spell_brutallus_stomp);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BURN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_BURN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_brutallus_stomp::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_brutallus()
 {
     new boss_brutallus();
     RegisterSpellScript(spell_brutallus_burn);
+    RegisterSpellScript(spell_brutallus_stomp);
 }

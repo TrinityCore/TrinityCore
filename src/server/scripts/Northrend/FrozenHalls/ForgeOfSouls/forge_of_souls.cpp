@@ -82,7 +82,7 @@ struct npc_sylvanas_fos : public ScriptedAI
     {
         Initialize();
         instance = me->GetInstanceScript();
-        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
     }
 
     void Initialize()
@@ -107,7 +107,7 @@ struct npc_sylvanas_fos : public ScriptedAI
         {
             CloseGossipMenuFor(player);
             phase = PHASE_INTRO;
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             events.Reset();
             events.ScheduleEvent(EVENT_INTRO_1, 1s);
         }
@@ -169,7 +169,7 @@ struct npc_jaina_fos: public ScriptedAI
     {
         Initialize();
         instance = me->GetInstanceScript();
-        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
     }
 
     void Initialize()
@@ -194,7 +194,7 @@ struct npc_jaina_fos: public ScriptedAI
         {
             CloseGossipMenuFor(player);
             phase = PHASE_INTRO;
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             events.Reset();
             events.ScheduleEvent(EVENT_INTRO_1, 1s);
         }

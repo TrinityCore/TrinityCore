@@ -103,6 +103,7 @@ find_path(MYSQL_INCLUDE_DIR
     "$ENV{SystemDrive}/MySQL/MySQL Server 5.7/include"
     "c:/msys/local/include"
     "$ENV{MYSQL_ROOT}/include"
+    "$ENV{MYSQL_ROOT}/include/mysql"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4;INSTALLDIR]/include/mysql"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.4 (x64);INSTALLDIR]/include/mysql"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB 10.5;INSTALLDIR]/include/mysql"

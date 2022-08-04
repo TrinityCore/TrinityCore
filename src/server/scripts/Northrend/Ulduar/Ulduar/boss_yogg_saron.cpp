@@ -1060,7 +1060,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
 
             void Reset() override
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetImmuneToPC(false);
                 DoCast(me, SPELL_MATCH_HEALTH);
                 _summons.DespawnAll();
@@ -1075,7 +1075,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                     DoCastAOE(SPELL_SHATTERED_ILLUSION_REMOVE, true);
                     DoCast(me, SPELL_MATCH_HEALTH_2, true); // it doesn't seem to hit Yogg-Saron here
                     DoCast(me, SPELL_BRAIN_HURT_VISUAL, true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetImmuneToPC(true);
 
                     if (Creature* voice = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
@@ -1553,7 +1553,7 @@ class npc_observation_ring_keeper : public CreatureScript
                 if (menuId != 10333)
                     return false;
 
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 me->DespawnOrUnsummon(2s);
                 DoCast(SPELL_TELEPORT);
                 Talk(SAY_KEEPER_CHOSEN_1, player);
@@ -3073,35 +3073,6 @@ class spell_yogg_saron_keeper_aura : public SpellScriptLoader     // 62650, 6267
         }
 };
 
-// 63984 - Hate to Zero
-class spell_yogg_saron_hate_to_zero : public SpellScriptLoader    // 63984
-{
-    public:
-        spell_yogg_saron_hate_to_zero() : SpellScriptLoader("spell_yogg_saron_hate_to_zero") { }
-
-        class spell_yogg_saron_hate_to_zero_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_yogg_saron_hate_to_zero_SpellScript);
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    if (target->CanHaveThreatList())
-                        target->GetThreatManager().ModifyThreatByPercent(GetCaster(), -100);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_yogg_saron_hate_to_zero_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_yogg_saron_hate_to_zero_SpellScript();
-        }
-};
-
 // 64184 - In the Maws of the Old God
 class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    // 64184
 {
@@ -3265,7 +3236,6 @@ void AddSC_boss_yogg_saron()
     new spell_yogg_saron_insane_periodic();
     new spell_yogg_saron_lunatic_gaze();
     new spell_yogg_saron_keeper_aura();
-    new spell_yogg_saron_hate_to_zero();
     new spell_yogg_saron_in_the_maws_of_the_old_god();
     new spell_yogg_saron_titanic_storm();
     new spell_yogg_saron_hodirs_protective_gaze();

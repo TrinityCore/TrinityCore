@@ -19,6 +19,7 @@
 #define _ADDONMGR_H
 
 #include "Define.h"
+#include <array>
 #include <string>
 #include <vector>
 
@@ -36,8 +37,8 @@ struct SavedAddon
 struct BannedAddon
 {
     uint32 Id;
-    uint8 NameMD5[16];
-    uint8 VersionMD5[16];
+    std::array<uint8, 16> NameMD5;
+    std::array<uint8, 16> VersionMD5;
     uint32 Timestamp;
 };
 

@@ -130,7 +130,7 @@ public:
             me->SetDisableGravity(true);
             HandleTerraceDoors(true);
             if (GameObject* urn = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_BLACKENED_URN)))
-                urn->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                urn->RemoveFlag(GO_FLAG_IN_USE);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -158,7 +158,7 @@ public:
                 events.SetPhase(PHASE_INTRO);
                 me->setActive(true);
                 me->SetFarVisible(true);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
             }
@@ -430,7 +430,7 @@ class go_blackened_urn : public GameObjectScript
 
             bool OnGossipHello(Player* /*player*/) override
             {
-                if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+                if (me->HasFlag(GO_FLAG_IN_USE))
                     return false;
 
                 if (instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
@@ -438,7 +438,7 @@ class go_blackened_urn : public GameObjectScript
 
                 if (Creature* nightbane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NIGHTBANE)))
                 {
-                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    me->SetFlag(GO_FLAG_IN_USE);
                     nightbane->AI()->DoAction(ACTION_SUMMON);
                 }
                 return false;

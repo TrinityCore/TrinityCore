@@ -22,7 +22,7 @@
 #include "MoveSpline.h"
 #include "Unit.h"
 
-GenericMovementGenerator::GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id) : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0)
+GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id) : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -30,7 +30,7 @@ GenericMovementGenerator::GenericMovementGenerator(Movement::MoveSplineInit&& sp
     BaseUnitState = UNIT_STATE_ROAMING;
 }
 
-void GenericMovementGenerator::Initialize(Unit* /*owner*/)
+void GenericMovementGenerator::Initialize(Unit* owner)
 {
     if (HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED) && !HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING)) // Resume spline is not supported
     {
@@ -42,7 +42,9 @@ void GenericMovementGenerator::Initialize(Unit* /*owner*/)
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
-    _duration.Reset(_splineInit.Launch());
+    Movement::MoveSplineInit init(owner);
+    _splineInit(init);
+    _duration.Reset(init.Launch());
 }
 
 void GenericMovementGenerator::Reset(Unit* owner)

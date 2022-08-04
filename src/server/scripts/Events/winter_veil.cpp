@@ -59,7 +59,6 @@ class spell_winter_veil_mistletoe : public SpellScript
     }
 };
 
-// 26275 - PX-238 Winter Wondervolt TRAP
 enum PX238WinterWondervolt
 {
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1  = 26157,
@@ -68,7 +67,7 @@ enum PX238WinterWondervolt
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4  = 26274
 };
 
-uint32 const WonderboltTransformSpells[] =
+std::array<uint32, 4> const WonderboltTransformSpells =
 {
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
@@ -115,9 +114,10 @@ enum ReindeerTransformation
     SPELL_REINDEER_60                           = 25858,
 };
 
-class spell_item_reindeer_transformation : public SpellScript
+// 25860 - Reindeer Transformation
+class spell_winter_veil_reindeer_transformation : public SpellScript
 {
-    PrepareSpellScript(spell_item_reindeer_transformation);
+    PrepareSpellScript(spell_winter_veil_reindeer_transformation);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -162,7 +162,7 @@ class spell_item_reindeer_transformation : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_item_reindeer_transformation::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_winter_veil_reindeer_transformation::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -170,5 +170,5 @@ void AddSC_event_winter_veil()
 {
     RegisterSpellScript(spell_winter_veil_mistletoe);
     RegisterSpellScript(spell_winter_veil_px_238_winter_wondervolt);
-    RegisterSpellScript(spell_item_reindeer_transformation);
+    RegisterSpellScript(spell_winter_veil_reindeer_transformation);
 }

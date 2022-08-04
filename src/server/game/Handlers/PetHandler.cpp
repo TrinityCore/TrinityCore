@@ -598,7 +598,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     PetStable* petStable = _player->GetPetStable();
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
-    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET || !pet->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ||
+    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET || !pet->HasPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED) ||
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo() ||
         !petStable || !petStable->CurrentPet || petStable->CurrentPet->PetNumber != pet->GetCharmInfo()->GetPetNumber())
         return;
@@ -621,7 +621,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     if (pet->GetOwner()->GetGroup())
         pet->GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
-    pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED);
+    pet->RemovePetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED);
 
     petStable->CurrentPet->Name = name;
     petStable->CurrentPet->WasRenamed = true;
@@ -669,7 +669,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime())); // cast can't be helped
+    pet->SetPetNameTimestamp(uint32(GameTime::GetGameTime())); // cast can't be helped
 }
 
 void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
@@ -901,7 +901,7 @@ void WorldSession::HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& /*pac
         if (charm->HasUnitState(UNIT_STATE_POSSESSED))
             _player->PossessSpellInitialize();
         // Packet sent when player controlling a vehicle
-        else if (charm->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && charm->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
+        else if (charm->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED) && charm->HasUnitFlag(UNIT_FLAG_POSSESSED))
             _player->VehicleSpellInitialize();
         // Packet sent when player has a charmed unit
         else

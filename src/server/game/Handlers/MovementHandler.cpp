@@ -297,41 +297,26 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     recvData.rfinish();                         // prevent warnings spam
 
     if (!movementInfo.pos.IsPositionValid())
-    {
-        recvData.rfinish();                     // prevent warnings spam
         return;
-    }
 
     if (!mover->movespline->Finalized())
-    {
-        recvData.rfinish();                     // prevent warnings spam
         return;
-    }
 
     /* handle special cases */
     if (movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
         // We were teleported, skip packets that were broadcast before teleport
         if (movementInfo.pos.GetExactDist2d(mover) > SIZE_OF_GRIDS)
-        {
-            recvData.rfinish();                 // prevent warnings spam
             return;
-        }
 
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
         if (fabs(movementInfo.transport.pos.GetPositionX()) > 75.0f || fabs(movementInfo.transport.pos.GetPositionY()) > 75.0f || fabs(movementInfo.transport.pos.GetPositionZ()) > 75.0f)
-        {
-            recvData.rfinish();                 // prevent warnings spam
             return;
-        }
 
         if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.transport.pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.transport.pos.GetPositionY(),
             movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
-        {
-            recvData.rfinish();                 // prevent warnings spam
             return;
-        }
 
         // if we boarded a transport, add us to it
         if (plrMover)

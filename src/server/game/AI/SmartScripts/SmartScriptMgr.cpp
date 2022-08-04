@@ -77,7 +77,9 @@ void SmartWaypointMgr::LoadFromDB()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
-        float o = fields[5].GetFloat();
+        Optional<float> o;
+        if (!fields[5].IsNull())
+            o = fields[5].GetFloat();
         uint32 delay = fields[6].GetUInt32();
 
         if (lastEntry != entry)
@@ -769,6 +771,10 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             //case SMART_EVENT_SCENE_CANCEL: return sizeof(SmartEvent::raw);
             //case SMART_EVENT_SCENE_COMPLETE: return sizeof(SmartEvent::raw);
             case SMART_EVENT_SUMMONED_UNIT_DIES: return sizeof(SmartEvent::summoned);
+            case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1099,6 +1105,17 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 if (!IsMinMaxValid(e, e.event.spellHit.cooldownMin, e.event.spellHit.cooldownMax))
                     return false;
                 break;
+            case SMART_EVENT_ON_SPELL_CAST:
+            case SMART_EVENT_ON_SPELL_FAILED:
+            case SMART_EVENT_ON_SPELL_START:
+            {
+                if (!IsSpellValid(e, e.event.spellCast.spell))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.spellCast.cooldownMin, e.event.spellCast.cooldownMax))
+                    return false;
+                break;
+            }
             case SMART_EVENT_OOC_LOS:
             case SMART_EVENT_IC_LOS:
                 if (!IsMinMaxValid(e, e.event.los.cooldownMin, e.event.los.cooldownMax))
@@ -1384,6 +1401,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_JUST_CREATED:
             case SMART_EVENT_FOLLOW_COMPLETED:
             case SMART_EVENT_ON_SPELLCLICK:
+            case SMART_EVENT_ON_DESPAWN:
                 break;
             // Unused
             case SMART_EVENT_TARGET_HEALTH_PCT:

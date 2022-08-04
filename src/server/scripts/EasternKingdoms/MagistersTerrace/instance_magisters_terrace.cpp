@@ -159,7 +159,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 {
                     case GO_ESCAPE_ORB:
                         if (GetBossState(DATA_KAELTHAS_SUNSTRIDER) == DONE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;
@@ -201,7 +201,7 @@ class instance_magisters_terrace : public InstanceMapScript
                     case DATA_KAELTHAS_SUNSTRIDER:
                         if (state == DONE)
                             if (GameObject* orb = GetGameObject(DATA_ESCAPE_ORB))
-                                orb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                orb->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;

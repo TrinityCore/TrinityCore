@@ -129,7 +129,7 @@ struct boss_thekal : public BossAI
         _Reset();
         Initialize();
         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -301,7 +301,7 @@ struct boss_thekal : public BossAI
                     // Trigger phase change
                     _isChangingPhase = false;
                     DoCastSelf(SPELL_TIGER_FORM);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease);
                     ResetThreatList();
                     me->SetControlled(false, UNIT_STATE_ROOT);
@@ -401,7 +401,7 @@ struct npc_zealot_lorkhan : public ScriptedAI
     {
         _events.Reset();
         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -499,7 +499,7 @@ struct npc_zealot_zath : public ScriptedAI
     {
         _events.Reset();
         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override

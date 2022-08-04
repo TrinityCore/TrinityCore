@@ -123,6 +123,15 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when spell hits a target
         void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override;
 
+        // Called when a spell finishes
+        void OnSpellCast(SpellInfo const* spellInfo) override;
+
+        // Called when a spell fails
+        void OnSpellFailed(SpellInfo const* spellInfo) override;
+
+        // Called when a spell starts
+        void OnSpellStart(SpellInfo const* spellInfo) override;
+
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override;
 
@@ -149,6 +158,9 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // called when the corpse of this creature gets removed
         void CorpseRemoved(uint32& respawnDelay) override;
+
+        // Called when the unit is about to be removed from the world (despawn, grid unload, corpse disappearing)
+        void OnDespawn() override;
 
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;

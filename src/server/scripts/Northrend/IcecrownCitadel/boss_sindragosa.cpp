@@ -323,7 +323,7 @@ struct boss_sindragosa : public BossAI
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetSpeedRate(MOVE_FLIGHT, 4.0f);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
             me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
             me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
@@ -357,7 +357,7 @@ struct boss_sindragosa : public BossAI
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->SetHomePosition(SindragosaLandPos);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetSpeedRate(MOVE_FLIGHT, 2.5f);
 
                 // Sindragosa enters combat as soon as she lands
@@ -525,7 +525,7 @@ struct boss_sindragosa : public BossAI
                     destY = float(rand_norm()) * 75.0f + 2450.0f;
                     destZ = 205.0f; // random number close to ground, get exact in next call
                     me->UpdateGroundPositionZ(destX, destY, destZ);
-                    me->CastSpell({ destX, destY, destZ }, SPELL_FROST_BOMB_TRIGGER, false);
+                    me->CastSpell(Position{ destX, destY, destZ }, SPELL_FROST_BOMB_TRIGGER, false);
                     events.ScheduleEvent(EVENT_FROST_BOMB, 6s, 8s);
                     break;
                 }
@@ -694,7 +694,7 @@ struct npc_spinestalker : public ScriptedAI
             me->setActive(true);
             me->SetFarVisible(true);
             me->SetSpeedRate(MOVE_FLIGHT, 2.0f);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
             me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(moveTime + 250ms));
             me->SetDefaultMovementType(IDLE_MOTION_TYPE);
@@ -716,7 +716,7 @@ struct npc_spinestalker : public ScriptedAI
         me->SetDisableGravity(false);
         me->SetHomePosition(SpinestalkerLandPos);
         me->SetFacingTo(SpinestalkerLandPos.GetOrientation());
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
     }
 

@@ -20,6 +20,8 @@
 
 #include "CreatureAIImpl.h"
 
+struct Position;
+
 #define DataHeader "CS"
 #define CoSScriptName "instance_culling_of_stratholme"
 
@@ -82,8 +84,6 @@ uint32 constexpr EncounterCount = 5;
 *    - StratholmeNPCAIWrapper::CheckDespawn:                                                                            *
 *      - gets current instance state using GetData, then checks if we should despawn ourselves (bitmask check)          *
 \***********************************************************************************************************************/
-
-struct Position;
 
 // Note: These are bitmask values to allow combining, but only a single bit will ever be true in instance script
 enum COSProgressStates : uint32

@@ -68,7 +68,7 @@ struct npc_dragonflayer_forge_master : public ScriptedAI
         if (_forgeId)
             _instance->SetData(DATA_FORGE_1 + _forgeId - 1, IN_PROGRESS);
 
-        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        me->SetEmoteState(EMOTE_ONESHOT_NONE);
     }
 
     void UpdateAI(uint32 /*diff*/) override
@@ -209,7 +209,7 @@ struct npc_enslaved_proto_drake : public ScriptedAI
     {
         if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
         {
-            me->SetAnimationTier(AnimationTier::Ground);
+            me->SetAnimTier(AnimTier::Ground);
         }
     }
 
@@ -218,7 +218,7 @@ struct npc_enslaved_proto_drake : public ScriptedAI
         if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
         {
             _setData = true;
-            me->SetAnimationTier(AnimationTier::Fly);
+            me->SetAnimTier(AnimTier::Fly);
             me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
         }
     }
