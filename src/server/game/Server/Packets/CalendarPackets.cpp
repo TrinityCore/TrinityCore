@@ -448,11 +448,11 @@ WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutRemoved::Write()
 
 WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutUpdated::Write()
 {
-    _worldPacket << uint32(ServerTime);
+    _worldPacket.AppendPackedTime(ServerTime);
     _worldPacket << int32(MapID);
     _worldPacket << uint32(DifficultyID);
-    _worldPacket << int32(NewTimeRemaining);
     _worldPacket << int32(OldTimeRemaining);
+    _worldPacket << int32(NewTimeRemaining);
 
     return &_worldPacket;
 }
