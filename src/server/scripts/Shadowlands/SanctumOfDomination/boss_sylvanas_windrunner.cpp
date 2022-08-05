@@ -1748,8 +1748,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
                     DoAction(ACTION_RESET_MELEE_KIT);
-                    if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 2s + 500ms)
-                        events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s + 500ms, 1, PHASE_ONE);
+                    if (events.GetTimeUntilEvent(EVENT_VEIL_OF_DARKNESS) <= 3s)
+                        events.RescheduleEvent(EVENT_VEIL_OF_DARKNESS, 3s, 1, PHASE_ONE);
                     events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 54s, 1, PHASE_ONE);
                 }
                 else
@@ -2047,11 +2047,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     me->AddAura(SPELL_RANGER_BOW_STANCE, me);
 
-                    // NOTE: unsure what happens on the fifth cast, no group takes that much time to phase into intermission, we won't probably know until next expansion launches, so we're resetting to 1 just in case.
-                    if (_windrunnerCastTimes == 4)
+                    _windrunnerCastTimes++;
+
+                    if (_windrunnerCastTimes == 5)
                         _windrunnerCastTimes = 1;
-                    else
-                        _windrunnerCastTimes++;
 
                     if (_windrunnerCastTimes == 1)
                     {
@@ -2063,8 +2062,9 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 6s + 250ms, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 8s + 200ms, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 200ms, 2, PHASE_ONE);
+                        events.Repeat(me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 57s : 51s);
                     }
-                    else if (_windrunnerCastTimes == 2) // TODO: fix timers
+                    else if (_windrunnerCastTimes == 2) // TODO: fix timers, these are wrong.
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 13000));
 
@@ -2073,8 +2073,9 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s + 141ms, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 6s + 750ms, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 800ms, 2, PHASE_ONE);
+                        events.Repeat(me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 55s : 49s);
                     }
-                    else if (_windrunnerCastTimes == 3) // TODO: fix timers
+                    else if (_windrunnerCastTimes == 3) // TODO: fix timers, these are wrong.
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 15000));
 
@@ -2084,11 +2085,20 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 7s, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, 2, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s, 2, PHASE_ONE);
+                        events.Repeat(me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 56s : 47s);
                     }
-                    else if (_windrunnerCastTimes == 4) // TODO: fix timers
+                    else if (_windrunnerCastTimes == 4) // TODO: fix timers, these are wrong.
+                    {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 17000));
 
-                    events.Repeat(51s);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 500ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s + 141ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 500ms, 2, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, 2, PHASE_ONE);
+                        events.Repeat(me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 62s : 53s);
+                    }
                     break;
                 }
 
@@ -2248,10 +2258,8 @@ struct boss_sylvanas_windrunner : public BossAI
                                         float y = target->GetPositionY();
                                         float z = target->GetPositionZ() + 0.5f;
 
-                                        if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID)
-                                            me->SendPlayOrphanSpellVisual(Position{ x, y, z }, SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC, 5.0f, true, false);
-                                        else
-                                            me->SendPlayOrphanSpellVisual(Position{ x, y, z }, SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM, 5.0f, true, false);
+                                        me->SendPlayOrphanSpellVisual(Position{ x, y, z }, me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID ? SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC
+                                            : SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM, 5.0f, true, false);
                                     }
                                 }
                             });
@@ -2322,14 +2330,9 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         scheduler.Schedule(100ms, [this](TaskContext /*task*/)
                         {
-                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                shadowCopy->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
-
-                            if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
-                                shadowCopy2->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
-
-                            if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[3]))
-                                shadowCopy3->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
+                            for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                                    shadowCopy->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
                         });
 
                         scheduler.Schedule(200ms, [this](TaskContext /*task*/)
@@ -2609,27 +2612,23 @@ struct boss_sylvanas_windrunner : public BossAI
 
         if (me->isAttackReady(BASE_ATTACK))
         {
-            if (IsHeartseekerReady() == true || !me->IsWithinCombatRange(me->GetVictim(), 15.0f))
+            if (IsHeartseekerReady() == true || !me->IsWithinCombatRange(me->GetVictim(), 7.5f))
             {
                 if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                     DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
                 else
-                {
                     if (!_rangerShotOnCD)
                         DoAction(ACTION_RANGER_SHOT);
-                }
             }
             else
             {
                 switch (_meleeKitCombo)
                 {
                     case DATA_MELEE_COMBO_SWITCH_TO_MELEE:
-                    {
                         if (!me->HasAura(SPELL_RANGER_DAGGERS_STANCE))
                             DoCastSelf(SPELL_RANGER_DAGGERS_STANCE, false);
                         _meleeKitCombo++;
                         break;
-                    }
 
                     case DATA_MELEE_COMBO_RANGER_STRIKE_01:
                     case DATA_MELEE_COMBO_RANGER_STRIKE_02:
@@ -2638,12 +2637,10 @@ struct boss_sylvanas_windrunner : public BossAI
                         break;
 
                     case DATA_MELEE_COMBO_SWITCH_TO_RANGED:
-                    {
                         if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                             DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
                         _meleeKitCombo++;
                         break;
-                    }
 
                     case DATA_MELEE_COMBO_FINISH:
                         DoAction(ACTION_RANGER_SHOT);
