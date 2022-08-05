@@ -198,6 +198,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         if (!dungeon)
             continue;
 
+        if (!sDB2Manager.GetMapDifficultyData(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
+            continue;
+
         switch (dungeon->TypeID)
         {
             case LFG_TYPE_DUNGEON:
