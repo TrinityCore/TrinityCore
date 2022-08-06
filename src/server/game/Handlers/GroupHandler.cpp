@@ -506,16 +506,12 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
 {
-    uint32 minimum, maximum;
-    minimum = packet.Min;
-    maximum = packet.Max;
-
     /** error handling **/
-    if (minimum > maximum || maximum > 10000)                // < 32768 for urand call
+    if (packet.Min > packet.Max || packet.Max > 1000000)
         return;
     /********************/
 
-    GetPlayer()->DoRandomRoll(minimum, maximum);
+    GetPlayer()->DoRandomRoll(packet.Min, packet.Max);
 }
 
 void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
