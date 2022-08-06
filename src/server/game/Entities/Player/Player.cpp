@@ -16474,10 +16474,17 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                     SetQuestObjectiveData(objective, newProgress);
                     if (addCount > 0 && !(objective.Flags & QUEST_OBJECTIVE_FLAG_HIDE_CREDIT_MSG))
                     {
-                        if (objectiveType != QUEST_OBJECTIVE_PLAYERKILLS)
-                            SendQuestUpdateAddCredit(quest, victimGuid, objective, newProgress);
-                        else
-                            SendQuestUpdateAddPlayer(quest, newProgress);
+                        switch (objectiveType)
+                        {
+                            case QUEST_OBJECTIVE_ITEM:
+                                break; // case handled by SMSG_ITEM_PUSH_RESULT
+                            case QUEST_OBJECTIVE_PLAYERKILLS:
+                                SendQuestUpdateAddPlayer(quest, newProgress);
+                                break;
+                            default:
+                                SendQuestUpdateAddCredit(quest, victimGuid, objective, newProgress);
+                                break;
+                        }
                     }
 
                     objectiveIsNowComplete = IsQuestObjectiveComplete(logSlot, quest, objective);
