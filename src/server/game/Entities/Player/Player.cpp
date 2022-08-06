@@ -28498,7 +28498,7 @@ void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
 
 uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
 {
-    ASSERT(maximum <= 10000);
+    ASSERT(maximum <= 1000000);
 
     uint32 roll = urand(minimum, maximum);
 
