@@ -70,8 +70,8 @@ CascLib (An open-source implementation of library for reading CASC storage from 
   Version: 4fc4c18bd5a49208337199a7f4256271675cae44
 
 rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
-  https://github.com/miloyip/rapidjson
-  Version: v1.1.0
+  https://github.com/Tencent/rapidjson
+  Version: 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 
 protobuf (Protocol Buffers - Google's data interchange format https://developers.google.com/protocol-buffers/)
   https://github.com/google/protobuf
