@@ -326,7 +326,7 @@ std::vector<WorldPackets::Achievement::CriteriaProgress> Scenario::GetCriteriasP
 
 CriteriaList const& Scenario::GetCriteriaByType(CriteriaType type, uint32 /*asset*/) const
 {
-    return sCriteriaMgr->GetScenarioCriteriaByType(type);
+    return sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(type, _data->Entry->ID);
 }
 
 void Scenario::SendBootPlayer(Player* player)
