@@ -4305,6 +4305,14 @@ CriteriaList const& CriteriaMgr::GetPlayerCriteriaByType(CriteriaType type, uint
     return _criteriasByType[size_t(type)];
 }
 
+CriteriaList const& CriteriaMgr::GetScenarioCriteriaByTypeAndScenario(CriteriaType type, uint32 scenarioId) const
+{
+    if (CriteriaList const* criteriaList = Trinity::Containers::MapGetValuePtr(_scenarioCriteriasByTypeAndScenarioId[size_t(type)], scenarioId))
+        return *criteriaList;
+
+    return EmptyCriteriaList;
+}
+
 CriteriaMgr::CriteriaMgr() = default;
 
 //==========================================================
@@ -4455,6 +4463,8 @@ void CriteriaMgr::LoadCriteriaList()
 
         _criteria[criteria->ID] = criteria;
 
+        std::vector<uint32> scenarioIds;
+
         for (CriteriaTree const* tree : treeItr->second)
         {
             const_cast<CriteriaTree*>(tree)->Criteria = criteria;
@@ -4469,7 +4479,10 @@ void CriteriaMgr::LoadCriteriaList()
                     criteria->FlagsCu |= CRITERIA_FLAG_CU_PLAYER;
             }
             else if (tree->ScenarioStep)
+            {
                 criteria->FlagsCu |= CRITERIA_FLAG_CU_SCENARIO;
+                scenarioIds.push_back(tree->ScenarioStep->ScenarioID);
+            }
             else if (tree->QuestObjective)
                 criteria->FlagsCu |= CRITERIA_FLAG_CU_QUEST_OBJECTIVE;
         }
@@ -4513,7 +4526,8 @@ void CriteriaMgr::LoadCriteriaList()
         if (criteria->FlagsCu & CRITERIA_FLAG_CU_SCENARIO)
         {
             ++scenarioCriterias;
-            _scenarioCriteriasByType[criteriaEntry->Type].push_back(criteria);
+            for (uint32 scenarioId : scenarioIds)
+                _scenarioCriteriasByTypeAndScenarioId[criteriaEntry->Type][scenarioId].push_back(criteria);
         }
 
         if (criteria->FlagsCu & CRITERIA_FLAG_CU_QUEST_OBJECTIVE)
