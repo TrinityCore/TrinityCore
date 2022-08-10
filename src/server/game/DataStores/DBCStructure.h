@@ -706,51 +706,53 @@ struct FactionTemplateEntry
     uint32      Enemies[MAX_FACTION_RELATIONS];             // 6
     uint32      Friend[MAX_FACTION_RELATIONS];              // 10
 
+    EnumFlag<FactionTemplateFlags> GetFlags() const { return static_cast<FactionTemplateFlags>(Flags); }
+
     // helpers
-    bool IsFriendlyTo(FactionTemplateEntry const& entry) const
+    bool IsFriendlyTo(FactionTemplateEntry const* entry) const
     {
-        if (ID == entry.ID)
+        if (ID == entry->ID)
             return true;
 
-        if (entry.Faction)
-        {
-            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (Enemies[i] == entry.Faction)
-                    return false;
-            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
-                if (Friend[i] == entry.Faction)
-                    return true;
-        }
-        return (FriendGroup & entry.FactionGroup) || (FactionGroup & entry.FriendGroup);
+        for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
+            if (Friend[i] == entry->Faction)
+                return true;
+
+        if (FactionGroup > 0 && (FactionGroup & entry->FriendGroup) != 0)
+            return true;
+
+        return false;
     }
-    bool IsHostileTo(FactionTemplateEntry const& entry) const
+
+    bool IsHostileTo(FactionTemplateEntry const* entry) const
     {
-        if (ID == entry.ID)
+        if (ID == entry->ID)
             return false;
 
-        if (entry.Faction)
-        {
-            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; i++)
-                if (Enemies[i] == entry.Faction)
-                    return true;
+        if (GetFlags().HasFlag(FactionTemplateFlags::HatesAllExceptFriends) && !IsFriendlyTo(entry))
+            return true;
 
-            for (uint8 i = 0; i < MAX_FACTION_RELATIONS; i++)
-                if (Friend[i] == entry.Faction)
-                    return false;
-        }
-        return (EnemyGroup & entry.FactionGroup) != 0;
+        for (uint8 i = 0; i < MAX_FACTION_RELATIONS; ++i)
+            if (Enemies[i] == entry->Faction)
+                return true;
+
+        if (FactionGroup > 0 && (FactionGroup & entry->EnemyGroup) != 0)
+            return true;
+
+        return false;
     }
 
-    bool IsHostileToPlayers() const { return (EnemyGroup & FACTION_MASK_PLAYER) != 0; }
+    bool IsHostileToPlayers() const { return (EnemyGroup & FACTION_GROUP_MASK_PLAYER) != 0; }
+    bool IsHostileToPvpActivePlayers() const { return GetFlags().HasFlag(FactionTemplateFlags::AttackPvPActivePlayers); }
+
     bool IsNeutralToAll() const
     {
         for (uint8 i = 0; i < MAX_FACTION_RELATIONS; i++)
             if (Enemies[i] != 0)
                 return false;
 
-        return EnemyGroup == 0 && FriendGroup == 0;
+        return EnemyGroup == FACTION_GROUP_MASK_NONE && FriendGroup == FACTION_GROUP_MASK_NONE;
     }
-    bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
 };
 
 struct GameObjectArtKitEntry

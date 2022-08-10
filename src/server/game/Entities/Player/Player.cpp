@@ -25293,7 +25293,7 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject) const
         FactionTemplateEntry const* playerFaction = GetFactionTemplateEntry();
         FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetFaction());
 
-        if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
+        if (playerFaction && faction && !playerFaction->IsFriendlyTo(faction))
             return false;
     }
 

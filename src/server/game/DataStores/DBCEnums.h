@@ -430,20 +430,34 @@ enum SpawnMask
     SPAWNMASK_RAID_ALL          = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL)
 };
 
-enum FactionTemplateFlags
+enum class FactionTemplateFlags : uint32
 {
-    FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
-    FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
-    FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000
+    None                            = 0x0000,
+    RespondToCallForHelp            = 0x0001,
+    BroadcastToEnemiesLowPriority   = 0x0002,
+    BroadcastToEnemiesMedPriority   = 0x0004,
+    BroadcastToEnemiesHighPriority  = 0x0008,
+    SearchForEnemiesLowPriority     = 0x0010,
+    SearchForEnemiesMedPriority     = 0x0020,
+    SearchForEnemiesHighPriority    = 0x0040,
+    SearchForFriendsLowPriority     = 0x0080,
+    SearchForFriendsMedPriority     = 0x0100,
+    SearchForFriendsHighPriority    = 0x0200,
+    FleeFromCallForHelp             = 0x0400,
+    AssistPlayers                   = 0x0800, // flagged for PvP
+    AttackPvPActivePlayers          = 0x1000, // faction will attack players that were involved in PvP combats
+    HatesAllExceptFriends           = 0x2000
 };
 
-enum FactionMasks
+DEFINE_ENUM_FLAG(FactionTemplateFlags);
+
+enum FactionGroupMasks : uint8
 {
-    FACTION_MASK_PLAYER   = 1,                              // any player
-    FACTION_MASK_ALLIANCE = 2,                              // player or creature from alliance team
-    FACTION_MASK_HORDE    = 4,                              // player or creature from horde team
-    FACTION_MASK_MONSTER  = 8                               // aggressive creature from monster team
-    // if none flags set then non-aggressive creature
+    FACTION_GROUP_MASK_NONE     = 0x0,    // none = neutral
+    FACTION_GROUP_MASK_PLAYER   = 0x1,    // any player
+    FACTION_GROUP_MASK_ALLIANCE = 0x2,    // player or creature from alliance team
+    FACTION_GROUP_MASK_HORDE    = 0x4,    // player or creature from horde team
+    FACTION_GROUP_MASK_MONSTER  = 0x8     // aggressive creature from monster team
 };
 
 enum MapTypes                                               // Lua_IsInInstance
