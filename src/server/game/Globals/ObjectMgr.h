@@ -1392,6 +1392,7 @@ class TC_GAME_API ObjectMgr
 
         void LoadGossipMenu();
         void LoadGossipMenuItems();
+        void LoadGossipMenuFriendshipFactions();
 
         void LoadVendors();
         void LoadTrainers();
@@ -1687,6 +1688,14 @@ class TC_GAME_API ObjectMgr
         {
             return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
+        uint32 GetGossipMenuFriendshipFaction(uint32 menuId) const
+        {
+            GossipMenuFriendshipFactionContainer::const_iterator itr = _gossipMenuFriendshipFactionsStore.find(menuId);
+            if (itr != _gossipMenuFriendshipFactionsStore.end())
+                return itr->second;
+
+            return 0;
+        }
 
         // for wintergrasp only
         GraveyardContainer GraveyardStore;
@@ -1797,6 +1806,7 @@ class TC_GAME_API ObjectMgr
         std::vector<Quest const*> _questTemplatesAutoPush;
         QuestObjectivesByIdContainer _questObjectives;
 
+        typedef std::unordered_map<uint32, uint32> GossipMenuFriendshipFactionContainer;
         typedef std::unordered_map<uint32, NpcText> NpcTextContainer;
         typedef std::unordered_map<uint32, std::unordered_set<uint32>> QuestAreaTriggerContainer;
         typedef std::set<uint32> TavernAreaTriggerContainer;
@@ -1820,6 +1830,7 @@ class TC_GAME_API ObjectMgr
 
         GossipMenusContainer _gossipMenusStore;
         GossipMenuItemsContainer _gossipMenuItemsStore;
+        GossipMenuFriendshipFactionContainer _gossipMenuFriendshipFactionsStore;
         PointOfInterestContainer _pointsOfInterestStore;
 
         QuestPOIContainer _questPOIStore;

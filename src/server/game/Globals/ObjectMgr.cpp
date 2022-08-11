@@ -9687,6 +9687,48 @@ void ObjectMgr::LoadGossipMenuItems()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " gossip_menu_option entries in %u ms", _gossipMenuItemsStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadGossipMenuFriendshipFactions()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _gossipMenuFriendshipFactionsStore.clear();
+
+    //                                               0       1
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, FactionID FROM gossip_menu_friendship_faction");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_friendship_faction IDs. DB table `gossip_menu_friendship_faction` is empty!");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 MenuID = fields[0].GetUInt32();
+        uint32 FactionID = fields[1].GetUInt32();
+
+        if (FactionEntry const* faction = sFactionStore.LookupEntry(FactionID))
+        {
+            if (!sFriendshipReputationStore.LookupEntry(faction->FriendshipRepID))
+            {
+                TC_LOG_ERROR("sql.sql", "Table gossip_menu_friendship_faction: ID %u is using FactionID %u referencing non-existing FriendshipRepID %u", MenuID, FactionID, faction->FriendshipRepID);
+                continue;
+            }
+        }
+        else
+        {
+            TC_LOG_ERROR("sql.sql", "Table gossip_menu_friendship_faction: ID %u is using non-existing FactionID %u", MenuID, FactionID);
+            continue;
+        }
+
+        _gossipMenuFriendshipFactionsStore.insert(GossipMenuFriendshipFactionContainer::value_type(MenuID, FactionID));
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_friendship_faction IDs in %u ms", uint32(_gossipMenuFriendshipFactionsStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
 {
     return Trinity::Containers::MapGetValuePtr(_trainers, trainerId);

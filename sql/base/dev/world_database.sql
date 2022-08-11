@@ -1843,6 +1843,21 @@ CREATE TABLE `gossip_menu` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `gossip_menu_friendship_faction`
+--
+
+DROP TABLE IF EXISTS `gossip_menu_friendship_faction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gossip_menu_friendship_faction` (
+  `MenuID` int unsigned NOT NULL DEFAULT 0,
+  `FactionID` int unsigned NOT NULL DEFAULT 0,
+  `VerifiedBuild` int NOT NULL DEFAULT 0,
+  PRIMARY KEY (`MenuID`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `gossip_menu_option`
 --
 
