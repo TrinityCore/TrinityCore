@@ -827,7 +827,8 @@ enum TrinityStrings
     LANG_RBAC_EMAIL_REQUIRED              = 881,
     //                                    = 882, LANG_PINFO_CHR_MAP_WITH_AREA
     LANG_ACCOUNT                          = 883,
-    // Room for in-game strings             884-999 not used
+    LANG_COMMAND_QUEST_OBJECTIVE_NOTFOUND = 884,
+    // Room for in-game strings             885-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                     = 1000,
