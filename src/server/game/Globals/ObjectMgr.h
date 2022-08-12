@@ -1688,7 +1688,7 @@ class TC_GAME_API ObjectMgr
         {
             return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
-        uint32 GetGossipMenuFriendshipFaction(uint32 menuId) const
+        int32 GetGossipMenuFriendshipFaction(uint32 menuId) const
         {
             GossipMenuFriendshipFactionContainer::const_iterator itr = _gossipMenuFriendshipFactionsStore.find(menuId);
             if (itr != _gossipMenuFriendshipFactionsStore.end())
