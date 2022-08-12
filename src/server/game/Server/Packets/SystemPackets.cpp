@@ -189,6 +189,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
+    _worldPacket.WriteBit(Unused925.has_value());
     _worldPacket.FlushBits();
 
     if (EuropaTicketSystemStatus)
@@ -207,6 +208,9 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(GameRuleUnknown1);
     _worldPacket << uint32(GameRuleValues.size());
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
+
+    if (Unused925)
+        _worldPacket << int32(*Unused925);
 
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());

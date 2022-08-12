@@ -203,6 +203,7 @@ namespace WorldPackets
             int32 GameRuleUnknown1 = 0;
             std::vector<GameRuleValuePair> GameRuleValues;
             int16 MaxPlayerNameQueriesPerPacket = 50;
+            Optional<int32> Unused925;
         };
 
         class MOTD final : public ServerPacket
