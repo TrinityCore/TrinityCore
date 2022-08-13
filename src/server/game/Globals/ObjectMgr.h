@@ -766,12 +766,18 @@ struct GossipMenus
     ConditionContainer  Conditions;
 };
 
+struct GossipMenuAddon
+{
+    int32 FriendshipFactionID;
+};
+
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
 typedef std::pair<GossipMenusContainer::const_iterator, GossipMenusContainer::const_iterator> GossipMenusMapBounds;
 typedef std::pair<GossipMenusContainer::iterator, GossipMenusContainer::iterator> GossipMenusMapBoundsNonConst;
 typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
 typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
 typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
+typedef std::unordered_map<uint32, GossipMenuAddon> GossipMenuAddonContainer;
 
 struct QuestPOIBlobPoint
 {
@@ -1688,13 +1694,12 @@ class TC_GAME_API ObjectMgr
         {
             return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
-        int32 GetGossipMenuFriendshipFaction(uint32 menuId) const
+        GossipMenuAddon const* GetGossipMenuAddon(uint32 menuId) const
         {
-            GossipMenuFriendshipFactionContainer::const_iterator itr = _gossipMenuFriendshipFactionsStore.find(menuId);
-            if (itr != _gossipMenuFriendshipFactionsStore.end())
-                return itr->second;
-
-            return 0;
+            GossipMenuAddonContainer::const_iterator itr = _gossipMenuAddonStore.find(menuId);
+            if (itr != _gossipMenuAddonStore.end())
+                return &itr->second;
+            return nullptr;
         }
 
         // for wintergrasp only
@@ -1806,7 +1811,6 @@ class TC_GAME_API ObjectMgr
         std::vector<Quest const*> _questTemplatesAutoPush;
         QuestObjectivesByIdContainer _questObjectives;
 
-        typedef std::unordered_map<uint32, uint32> GossipMenuFriendshipFactionContainer;
         typedef std::unordered_map<uint32, NpcText> NpcTextContainer;
         typedef std::unordered_map<uint32, std::unordered_set<uint32>> QuestAreaTriggerContainer;
         typedef std::set<uint32> TavernAreaTriggerContainer;
@@ -1830,7 +1834,7 @@ class TC_GAME_API ObjectMgr
 
         GossipMenusContainer _gossipMenusStore;
         GossipMenuItemsContainer _gossipMenuItemsStore;
-        GossipMenuFriendshipFactionContainer _gossipMenuFriendshipFactionsStore;
+        GossipMenuAddonContainer _gossipMenuAddonStore;
         PointOfInterestContainer _pointsOfInterestStore;
 
         QuestPOIContainer _questPOIStore;

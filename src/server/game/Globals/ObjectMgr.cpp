@@ -9691,14 +9691,14 @@ void ObjectMgr::LoadGossipMenuFriendshipFactions()
 {
     uint32 oldMSTime = getMSTime();
 
-    _gossipMenuFriendshipFactionsStore.clear();
+    _gossipMenuAddonStore.clear();
 
     //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, FactionID FROM gossip_menu_friendship_faction");
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, FriendshipFactionID FROM gossip_menu_addon");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_friendship_faction IDs. DB table `gossip_menu_friendship_faction` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_addon IDs. DB table `gossip_menu_addon` is empty!");
         return;
     }
 
@@ -9707,26 +9707,27 @@ void ObjectMgr::LoadGossipMenuFriendshipFactions()
         Field* fields = result->Fetch();
 
         uint32 menuID = fields[0].GetUInt32();
-        uint32 factionID = fields[1].GetUInt32();
+        GossipMenuAddon& addon = _gossipMenuAddonStore[menuID];
+        addon.FriendshipFactionID = fields[1].GetInt32();
 
-        if (FactionEntry const* faction = sFactionStore.LookupEntry(factionID))
+        if (FactionEntry const* faction = sFactionStore.LookupEntry(addon.FriendshipFactionID))
         {
             if (!sFriendshipReputationStore.LookupEntry(faction->FriendshipRepID))
             {
-                TC_LOG_ERROR("sql.sql", "Table gossip_menu_friendship_faction: ID %u is using FactionID %u referencing non-existing FriendshipRepID %u", menuID, factionID, faction->FriendshipRepID);
-                continue;
+                TC_LOG_ERROR("sql.sql", "Table gossip_menu_addon: ID %u is using FriendshipFactionID %u referencing non-existing FriendshipRepID %u",
+                    menuID, addon.FriendshipFactionID, faction->FriendshipRepID);
+                addon.FriendshipFactionID = 0;
             }
         }
         else
         {
-            TC_LOG_ERROR("sql.sql", "Table gossip_menu_friendship_faction: ID %u is using non-existing FactionID %u", menuID, factionID);
-            continue;
+            TC_LOG_ERROR("sql.sql", "Table gossip_menu_addon: ID %u is using non-existing FriendshipFactionID %u", menuID, addon.FriendshipFactionID);
+            addon.FriendshipFactionID = 0;
         }
 
-        _gossipMenuFriendshipFactionsStore.insert(GossipMenuFriendshipFactionContainer::value_type(menuID, factionID));
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_friendship_faction IDs in %u ms", uint32(_gossipMenuFriendshipFactionsStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_addon IDs in %u ms", uint32(_gossipMenuAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
