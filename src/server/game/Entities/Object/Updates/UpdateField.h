@@ -726,7 +726,7 @@ namespace UF
     {
     };
 
-    template<typename T, std::size_t Size_>
+    template<typename T, std::size_t Size>
     class UpdateFieldArrayBase : public UpdateFieldArrayBaseWithoutSize<T>
     {
         template<typename F, bool PublicSet>
@@ -740,7 +740,6 @@ namespace UF
 
     public:
         using value_type = T;
-        static constexpr std::size_t Size = Size_;
 
         T const* begin() const
         {
@@ -752,7 +751,7 @@ namespace UF
             return std::end(_values);
         }
 
-        constexpr std::size_t size() const
+        static constexpr std::size_t size()
         {
             return Size;
         }
@@ -765,6 +764,19 @@ namespace UF
     private:
         T _values[Size] = {};
     };
+
+    // workaround functions for internal compiler errors in msvc 19.33.31629
+    template<typename T>
+    constexpr std::size_t size()
+    {
+        return T::size();
+    }
+
+    template<typename T>
+    constexpr std::size_t size_of_value_type()
+    {
+        return sizeof(typename T::value_type);
+    }
 
     template<typename T, std::size_t Size, uint32 Bit, uint32 FirstElementBit>
     class UpdateFieldArray : public UpdateFieldArrayBase<T, Size>
