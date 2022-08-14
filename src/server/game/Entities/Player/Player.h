@@ -124,13 +124,13 @@ typedef std::deque<Mail*> PlayerMails;
 
 enum PlayerSkillsConstants
 {
-    PLAYER_MAX_SKILLS   = decltype(UF::SkillInfo::SkillLineID)::Size
+    PLAYER_MAX_SKILLS   = UF::size<decltype(UF::SkillInfo::SkillLineID)>()
 };
 
 enum PlayerExplorationConstants
 {
-    PLAYER_EXPLORED_ZONES_SIZE  = decltype(UF::ActivePlayerData::ExploredZones)::Size,
-    PLAYER_EXPLORED_ZONES_BITS  = sizeof(decltype(UF::ActivePlayerData::ExploredZones)::value_type) * 8
+    PLAYER_EXPLORED_ZONES_SIZE  = UF::size<decltype(UF::ActivePlayerData::ExploredZones)>(),
+    PLAYER_EXPLORED_ZONES_BITS  = UF::size_of_value_type<decltype(UF::ActivePlayerData::ExploredZones)>() * 8
 };
 
 enum SpellModType : uint8
@@ -586,13 +586,13 @@ typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
 // Size of client completed quests bit map
 enum PlayerQuestCompletedConstants
 {
-    QUESTS_COMPLETED_BITS_SIZE      = decltype(UF::ActivePlayerData::QuestCompleted)::Size,
-    QUESTS_COMPLETED_BITS_PER_BLOCK = sizeof(decltype(UF::ActivePlayerData::QuestCompleted)::value_type) * 8
+    QUESTS_COMPLETED_BITS_SIZE      = UF::size<decltype(UF::ActivePlayerData::QuestCompleted)>(),
+    QUESTS_COMPLETED_BITS_PER_BLOCK = UF::size_of_value_type<decltype(UF::ActivePlayerData::QuestCompleted)>() * 8
 };
 
 enum PlayerQuestLogConstants
 {
-    MAX_QUEST_COUNTS    = decltype(UF::QuestLog::ObjectiveProgress)::Size
+    MAX_QUEST_COUNTS    = UF::size<decltype(UF::QuestLog::ObjectiveProgress)>()
 };
 
 enum QuestSlotStateMask
@@ -635,7 +635,7 @@ enum PlayerSlots
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
-static_assert(decltype(UF::ActivePlayerData::InvSlots)::Size == PLAYER_SLOT_END);
+static_assert(UF::size<decltype(UF::ActivePlayerData::InvSlots)>() == PLAYER_SLOT_END);
 
 #define INVENTORY_SLOT_BAG_0    255
 #define INVENTORY_DEFAULT_SIZE  16
