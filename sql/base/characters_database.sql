@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.29, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.30, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	8.0.29-0ubuntu0.20.04.3
+-- Server version	8.0.30-0ubuntu0.20.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1340,7 +1340,7 @@ DROP TABLE IF EXISTS `characters`;
 CREATE TABLE `characters` (
   `guid` int unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `account` int unsigned NOT NULL DEFAULT '0' COMMENT 'Account Identifier',
-  `name` varchar(12) CHARACTER SET utf8mb3 COLLATE utf8_bin NOT NULL,
+  `name` varchar(12) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `race` tinyint unsigned NOT NULL DEFAULT '0',
   `class` tinyint unsigned NOT NULL DEFAULT '0',
   `gender` tinyint unsigned NOT NULL DEFAULT '0',
@@ -2674,7 +2674,8 @@ INSERT INTO `updates` VALUES
 ('2022_01_15_00_characters.sql','351DEB60A6BB87FD9ED5D097E15ADBC32424C58A','ARCHIVED','2022-01-15 18:05:55',0),
 ('2022_02_16_00_characters.sql','3086FE1DB569830190013FE0129F9CF072C12D6A','ARCHIVED','2022-02-16 21:52:01',0),
 ('2022_04_14_00_characters.sql','FFFF611BE95F047CD853701136452BF8D28C3130','ARCHIVED','2022-04-14 16:24:35',0),
-('2022_06_01_00_characters.sql','F33CA4F6F0A685CE1F42F0106269F3C39E31F1B0','ARCHIVED','2022-06-01 10:50:50',0);
+('2022_06_01_00_characters.sql','F33CA4F6F0A685CE1F42F0106269F3C39E31F1B0','ARCHIVED','2022-06-01 10:50:50',0),
+('2022_08_15_00_characters.sql','B2468D3323AB51872385A0B36EF66688C4F661EA','ARCHIVED','2022-08-15 11:21:17',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2845,4 +2846,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-06-01 10:50:53
+-- Dump completed on 2022-08-15 11:21:19
