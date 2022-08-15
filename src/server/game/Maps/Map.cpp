@@ -1818,7 +1818,7 @@ Map::EnterState Map::PlayerCannotEnter(uint32 mapid, Player* player, bool /*logi
                 return denyReason;
 
         // players are only allowed to enter 10 instances per hour
-        if (entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
+        if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
             return CANNOT_ENTER_TOO_MANY_INSTANCES;
     }
 
