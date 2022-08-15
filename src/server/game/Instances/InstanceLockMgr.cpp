@@ -362,7 +362,6 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
 
     if (instanceLock->IsExpired())
     {
-        ASSERT(instanceLock->IsExtended(), "Instance lock must have been extended to create instance map from it");
         instanceLock->SetExpiryTime(GetNextResetTime(entries));
         instanceLock->SetExtended(false);
         TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Expired instance lock for %s in instance %u is now active",

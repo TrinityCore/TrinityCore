@@ -836,7 +836,7 @@ class TC_GAME_API InstanceMap : public Map
 
         std::string GetDebugInfo() const override;
     private:
-        bool m_shuttingDown;
+        Optional<SystemTimePoint> i_instanceExpireEvent;
         InstanceScript* i_data;
         uint32 i_script_id;
         InstanceScenario* i_scenario;

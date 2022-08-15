@@ -2769,7 +2769,6 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock)
   : Map(id, expiry, InstanceId, SpawnMode),
-    m_shuttingDown(false),
     i_data(nullptr), i_script_id(0), i_scenario(nullptr), i_instanceLock(instanceLock)
 {
     //lets initialize visibility distance for dungeons
@@ -2783,7 +2782,10 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty
     sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
 
     if (i_instanceLock)
+    {
         i_instanceLock->SetInUse(true);
+        i_instanceExpireEvent = i_instanceLock->GetExpiryTime(); // ignore extension state for reset event (will ask players to accept extended save on expiration)
+    }
 }
 
 InstanceMap::~InstanceMap()
@@ -2813,9 +2815,6 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
         ABORT();
         return CANNOT_ENTER_ALREADY_IN_MAP;
     }
-
-    if (m_shuttingDown)
-        return CANNOT_ENTER_INSTANCE_SHUTTING_DOWN;
 
     // allow GM's to enter
     if (player->IsGameMaster())
@@ -2904,6 +2903,12 @@ void InstanceMap::Update(uint32 t_diff)
 
     if (i_scenario)
         i_scenario->Update(t_diff);
+
+    if (i_instanceExpireEvent && i_instanceExpireEvent < GameTime::GetSystemTime())
+    {
+        Reset(InstanceResetMethod::Expire);
+        i_instanceExpireEvent = sInstanceLockMgr.GetNextResetTime({ GetEntry(), GetMapDifficulty() });
+    }
 }
 
 void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
@@ -2915,7 +2920,7 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
 
     // if last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
-        m_unloadTimer = m_shuttingDown ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+        m_unloadTimer = (i_instanceLock && i_instanceLock->IsExpired()) ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
 
     if (i_scenario)
         i_scenario->OnPlayerExit(player);
@@ -2985,13 +2990,30 @@ InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
                 // no client notification
                 break;
             case InstanceResetMethod::Expire:
-                // on lock expiration boot players (do we also care about extension state?)
-                // set the homebind timer for players inside (1 minute)
-                for (MapReference& ref : m_mapRefManager)
-                    ref.GetSource()->m_InstanceValid = false;
+            {
+                WorldPackets::Instance::RaidInstanceMessage raidInstanceMessage;
+                raidInstanceMessage.Type = RAID_INSTANCE_EXPIRED;
+                raidInstanceMessage.MapID = GetId();
+                raidInstanceMessage.DifficultyID = GetDifficultyID();
+                raidInstanceMessage.Write();
 
-                m_shuttingDown = true;
+                WorldPackets::Instance::PendingRaidLock pendingRaidLock;
+                pendingRaidLock.TimeUntilLock = 60000;
+                pendingRaidLock.CompletedMask = i_instanceLock->GetData()->CompletedEncountersMask;
+                pendingRaidLock.Extending = true;
+                pendingRaidLock.WarningOnly = GetEntry()->IsFlexLocking();
+                pendingRaidLock.Write();
+
+                for (MapReference& ref : m_mapRefManager)
+                {
+                    ref.GetSource()->SendDirectMessage(raidInstanceMessage.GetRawPacket());
+                    ref.GetSource()->SendDirectMessage(pendingRaidLock.GetRawPacket());
+
+                    if (!pendingRaidLock.WarningOnly)
+                        ref.GetSource()->SetPendingBind(GetInstanceId(), 60000);
+                }
                 break;
+            }
             default:
                 break;
         }
