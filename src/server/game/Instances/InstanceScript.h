@@ -287,6 +287,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
         bool IsEncounterCompleted(uint32 dungeonEncounterId) const;
+        bool IsEncounterCompletedInMaskByBossId(uint32 completedEncountersMask, uint32 bossId) const;
 
         uint32 GetEncounterCount() const { return uint32(bosses.size()); }
 

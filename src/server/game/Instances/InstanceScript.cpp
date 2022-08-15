@@ -477,6 +477,12 @@ void InstanceScript::Load(char const* data)
     InstanceScriptDataReader reader(*this);
     if (reader.Load(data) == InstanceScriptDataReader::Result::Ok)
     {
+        // in loot-based lockouts instance can be loaded with later boss marked as killed without preceding bosses
+        // but we still need to have them alive
+        for (uint32 i = 0; i < bosses.size(); ++i)
+            if (bosses[i].state == DONE && !CheckRequiredBosses(i))
+                bosses[i].state = NOT_STARTED;
+
         UpdateSpawnGroups();
         AfterDataLoad();
     }
@@ -736,6 +742,15 @@ bool InstanceScript::IsEncounterCompleted(uint32 dungeonEncounterId) const
         for (std::size_t j = 0; j < bosses[i].DungeonEncounters.size(); ++j)
             if (bosses[i].DungeonEncounters[j] && bosses[i].DungeonEncounters[j]->ID == dungeonEncounterId)
                 return bosses[i].state == DONE;
+
+    return false;
+}
+
+bool InstanceScript::IsEncounterCompletedInMaskByBossId(uint32 completedEncountersMask, uint32 bossId) const
+{
+    if (DungeonEncounterEntry const* dungeonEncounter = GetBossDungeonEncounter(bossId))
+        if (completedEncountersMask & (1 << dungeonEncounter->Bit))
+            return bosses[bossId].state == DONE;
 
     return false;
 }
