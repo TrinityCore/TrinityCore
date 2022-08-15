@@ -2554,10 +2554,13 @@ struct MapEntry
         }
     }
 
-    bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
-    bool IsFlexLocking() const { return (Flags[0] & MAP_FLAG_FLEX_LOCKING) != 0; }
-    bool IsGarrison() const { return (Flags[0] & MAP_FLAG_GARRISON) != 0; }
+    bool IsDynamicDifficultyMap() const { return GetFlags().HasFlag(MapFlags::DynamicDifficulty); }
+    bool IsFlexLocking() const { return GetFlags().HasFlag(MapFlags::FlexibleRaidLocking); }
+    bool IsGarrison() const { return GetFlags().HasFlag(MapFlags::Garrison); }
     bool IsSplitByFaction() const { return ID == 609 || ID == 2175; }
+
+    EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags[0]); }
+    EnumFlag<MapFlags2> GetFlags2() const { return static_cast<MapFlags2>(Flags[1]); }
 };
 
 struct MapChallengeModeEntry
