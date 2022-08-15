@@ -38,6 +38,8 @@ typedef std::map<uint32, uint32> AreaFlagByMapID;
 typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
+typedef std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> AbilitiesBySkillLine;
+
 DBCStorage <AreaTableEntry> sAreaTableStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
 DBCStorage <AreaPOIEntry> sAreaPOIStore(AreaPOIEntryfmt);
@@ -157,6 +159,16 @@ DBCStorage <SkillLineEntry> sSkillLineStore(SkillLinefmt);
 DBCStorage <SkillLineAbilityEntry> sSkillLineAbilityStore(SkillLineAbilityfmt);
 DBCStorage <SkillRaceClassInfoEntry> sSkillRaceClassInfoStore(SkillRaceClassInfofmt);
 SkillRaceClassInfoMap SkillRaceClassInfoBySkill;
+
+static AbilitiesBySkillLine sAbilitiesBySkillLine;
+std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skillLine)
+{
+    auto i = sAbilitiesBySkillLine.find(skillLine);
+    if (i != sAbilitiesBySkillLine.end())
+        return &i->second;
+    return nullptr;
+}
+
 DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
 
 DBCStorage <SoundEntriesEntry> sSoundEntriesStore(SoundEntriesfmt);
@@ -496,6 +508,17 @@ void LoadDBCStores(const std::string& dataPath)
 
                 sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->ID);
             }
+        }
+
+        auto abilityBySkillLineItr = sAbilitiesBySkillLine.find(skillLine->SkillLine);
+        if (abilityBySkillLineItr == sAbilitiesBySkillLine.end())
+        {
+            (sAbilitiesBySkillLine[skillLine->SkillLine] = std::vector<SkillLineAbilityEntry const*>())
+                .push_back(skillLine);
+        }
+        else
+        {
+            abilityBySkillLineItr->second.push_back(skillLine);
         }
     }
 
