@@ -226,6 +226,7 @@ class BattlegroundWS : public Battleground
         void EventPlayerDroppedFlag(Player* player) override;
         void EventPlayerClickedOnFlag(Player* player, GameObject* target_obj) override;
         void EventPlayerCapturedFlag(Player* player);
+        void HandleFlagRoomCapturePoint(int32 team);
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger) override;
