@@ -18,6 +18,7 @@
 #include "DBCStores.h"
 #include "DBCFileLoader.h"
 #include "DBCfmt.h"
+#include "Containers.h"
 #include "Errors.h"
 #include "IteratorPair.h"
 #include "Log.h"
@@ -163,10 +164,7 @@ SkillRaceClassInfoMap SkillRaceClassInfoBySkill;
 static AbilitiesBySkillLine sAbilitiesBySkillLine;
 std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skillLine)
 {
-    auto i = sAbilitiesBySkillLine.find(skillLine);
-    if (i != sAbilitiesBySkillLine.end())
-        return &i->second;
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(sAbilitiesBySkillLine, skillLine);
 }
 
 DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
@@ -510,16 +508,7 @@ void LoadDBCStores(const std::string& dataPath)
             }
         }
 
-        auto abilityBySkillLineItr = sAbilitiesBySkillLine.find(skillLine->SkillLine);
-        if (abilityBySkillLineItr == sAbilitiesBySkillLine.end())
-        {
-            (sAbilitiesBySkillLine[skillLine->SkillLine] = std::vector<SkillLineAbilityEntry const*>())
-                .push_back(skillLine);
-        }
-        else
-        {
-            abilityBySkillLineItr->second.push_back(skillLine);
-        }
+        sAbilitiesBySkillLine[skillLine->SkillLine].push_back(skillLine);
     }
 
     // Create Spelldifficulty searcher
