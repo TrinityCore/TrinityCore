@@ -16,6 +16,7 @@
  */
 
 #include "SkillExtraItems.h"
+#include "LoadDataQueries.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -55,8 +56,7 @@ void LoadSkillPerfectItemTable()
 
     SkillPerfectItemStore.clear(); // reload capability
 
-    //                                                  0               1                      2                  3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, requiredSpecialization, perfectCreateChance, perfectItemType FROM skill_perfect_item_template");
+    QueryResult result = LoadSkillPerfectItemTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -142,8 +142,7 @@ void LoadSkillExtraItemTable()
 
     SkillExtraItemStore.clear();                            // need for reload
 
-    //                                                  0               1                       2                    3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
+    QueryResult result = LoadSkillExtraItemTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {

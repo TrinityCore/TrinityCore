@@ -16,6 +16,7 @@
  */
 
 #include "CreatureGroups.h"
+#include "LoadDataQueries.h"
 #include "Containers.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -98,7 +99,7 @@ void FormationMgr::LoadCreatureFormations()
     uint32 oldMSTime = getMSTime();
 
     //Get group data
-    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
+    QueryResult result = LoadCreatureFormationsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");

@@ -16,6 +16,7 @@
  */
 
 #include "ConditionMgr.h"
+#include "LoadDataQueries.h"
 #include "AchievementMgr.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
@@ -1077,8 +1078,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
-                                             " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
+    QueryResult result = LoadConditionsQuery.GetOrQueryResults();
 
     if (!result)
     {

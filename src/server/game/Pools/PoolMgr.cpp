@@ -16,6 +16,7 @@
  */
 
 #include "PoolMgr.h"
+#include "LoadDataQueries.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -449,7 +450,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT entry, max_limit FROM pool_template");
+        QueryResult result = LoadPoolTemplatesQuery.GetOrQueryResults();
         if (!result)
         {
             mPoolTemplate.clear();
@@ -480,8 +481,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 1      2            3
-        QueryResult result = WorldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
+        QueryResult result = LoadPoolCreatureMembersQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -537,8 +537,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                               1        2            3
-        QueryResult result = WorldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
+        QueryResult result = LoadPoolGameObjectMembersQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -607,8 +606,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                  1        2            3
-        QueryResult result = WorldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
+        QueryResult result = LoadPoolMotherMembersQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -697,9 +695,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template"
-            " LEFT JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry"
-            " LEFT JOIN pool_members ON pool_members.type = 2 AND pool_template.entry = pool_members.spawnId WHERE game_event_pool.pool_entry IS NULL");
+        QueryResult result = LoadPoolHandlingQuery.GetOrQueryResults();
 
         if (!result)
         {

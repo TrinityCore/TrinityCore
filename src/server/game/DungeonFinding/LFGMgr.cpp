@@ -16,6 +16,7 @@
  */
 
 #include "LFGMgr.h"
+#include "LoadDataQueries.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
@@ -125,7 +126,7 @@ void LFGMgr::LoadRewards()
     RewardMapStore.clear();
 
     // ORDER BY is very important for GetRandomDungeonReward!
-    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+    QueryResult result = LFGLoadRewardsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -210,8 +211,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     }
 
     // Fill teleport locations from DB
-    //                                                   0          1           2           3            4
-    QueryResult result = WorldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation FROM lfg_dungeon_template");
+    QueryResult result = LFGLoadDungeonTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {

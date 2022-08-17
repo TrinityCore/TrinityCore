@@ -17,6 +17,7 @@
 
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
+#include "LoadDataQueries.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "Common.h"
@@ -88,8 +89,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     mTextMap.clear(); // for reload case
     //all currently used temp texts are NOT reset
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEXT);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
+    QueryResult result = LoadCreatureTextQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -179,8 +179,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
 
     mLocaleTextMap.clear(); // for reload case
 
-    //                                               0           1        2   3       4
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, GroupID, ID, Locale, Text FROM creature_text_locale");
+    QueryResult result = LoadCreatureTextLocalesQuery.GetOrQueryResults();
 
     if (!result)
         return;

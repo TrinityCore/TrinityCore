@@ -16,6 +16,7 @@
  */
 
 #include "BattlefieldMgr.h"
+#include "LoadDataQueries.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Log.h"
@@ -47,7 +48,7 @@ void BattlefieldMgr::InitBattlefield()
 
     uint32 count = 0;
 
-    if (QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM battlefield_template"))
+    if (QueryResult result = LoadBattlefieldQuery.GetOrQueryResults())
     {
         do
         {

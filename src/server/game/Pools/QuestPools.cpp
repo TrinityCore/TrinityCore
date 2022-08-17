@@ -16,6 +16,7 @@
  */
 
 #include "QuestPools.h"
+#include "LoadDataQueries.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -75,7 +76,7 @@ void QuestPoolMgr::LoadFromDB()
 
     // load template data from world DB
     {
-        QueryResult result = WorldDatabase.Query("SELECT qpm.questId, qpm.poolId, qpm.poolIndex, qpt.numActive FROM quest_pool_members qpm LEFT JOIN quest_pool_template qpt ON qpm.poolId = qpt.poolId");
+        QueryResult result = LoadQuestPoolsQuery.GetOrQueryResults();
         if (!result)
         {
             TC_LOG_INFO("server.loading", ">> Loaded 0 quest pools. DB table `quest_pool_members` is empty.");

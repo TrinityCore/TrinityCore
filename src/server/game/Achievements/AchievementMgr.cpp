@@ -16,6 +16,7 @@
  */
 
 #include "AchievementMgr.h"
+#include "LoadDataQueries.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
@@ -2413,7 +2414,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
     m_criteriaDataMap.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM achievement_criteria_data");
+    QueryResult result = LoadAchievementCriteriaDataQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2592,8 +2593,7 @@ void AchievementGlobalMgr::LoadRewards()
 
     m_achievementRewards.clear();                           // need for reload case
 
-    //                                               0   1       2       3       4       5        6     7
-    QueryResult result = WorldDatabase.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Body, MailTemplateID FROM achievement_reward");
+    QueryResult result = LoadAchievementRewardsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2707,8 +2707,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
     m_achievementRewardLocales.clear();                       // need for reload case
 
-    //                                               0   1       2        3
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
+    QueryResult result = LoadAchievementRewardLocalesQuery.GetOrQueryResults();
 
     if (!result)
     {

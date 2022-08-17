@@ -17,6 +17,7 @@
 
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
+#include "LoadDataQueries.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
 #include "BattlegroundEY.h"
@@ -523,7 +524,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
     _battlegroundTemplates.clear();
 
     //                                               0   1                  2                  3       4       5                 6               7              8            9             10      11
-    QueryResult result = WorldDatabase.Query("SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName FROM battleground_template");
+    QueryResult result = LoadBattlegroundTemplateQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
@@ -875,7 +876,7 @@ void BattlegroundMgr::LoadBattleMastersEntry()
 
     mBattleMastersMap.clear();                                  // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, bg_template FROM battlemaster_entry");
+    QueryResult result = LoadBattlemasterEntryQuery.GetOrQueryResults();
 
     if (!result)
     {

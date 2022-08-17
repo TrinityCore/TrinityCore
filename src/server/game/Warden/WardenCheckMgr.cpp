@@ -17,6 +17,7 @@
 
 #include "WardenCheckMgr.h"
 
+#include "LoadDataQueries.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
@@ -39,7 +40,7 @@ void WardenCheckMgr::LoadWardenChecks()
         return;
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT MAX(id) FROM warden_checks");
+    QueryResult result = LoadMaxWardenChecksQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -53,8 +54,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
     _checks.resize(maxCheckId+1);
 
-    //                                    0    1     2     3        4       5      6      7
-    result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
+    result = LoadWardenChecksQuery.GetOrQueryResults();
 
     uint32 count = 0;
     do

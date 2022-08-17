@@ -16,6 +16,7 @@
  */
 
 #include "TransportMgr.h"
+#include "LoadDataQueries.h"
 #include "DatabaseEnv.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -49,7 +50,7 @@ void TransportMgr::LoadTransportTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
+    QueryResult result = LoadTransportTemplatesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -432,7 +433,7 @@ void TransportMgr::SpawnContinentTransports()
 
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
+    QueryResult result = LoadTransportsQuery.GetOrQueryResults();
 
     uint32 count = 0;
     if (result)

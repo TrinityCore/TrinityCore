@@ -16,6 +16,7 @@
  */
 
 #include "DisableMgr.h"
+#include "LoadDataQueries.h"
 #include "AchievementMgr.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
@@ -60,7 +61,7 @@ void LoadDisables()
 
     m_DisableMap.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
+    QueryResult result = LoadDisablesQueryQuery.GetOrQueryResults();
 
     uint32 total_count = 0;
 

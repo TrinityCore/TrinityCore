@@ -16,6 +16,7 @@
  */
 
 #include "WaypointManager.h"
+#include "LoadDataQueries.h"
 #include "DatabaseEnv.h"
 #include "GridDefines.h"
 #include "MapManager.h"
@@ -25,8 +26,7 @@ void WaypointMgr::Load()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0    1         2           3          4            5           6        7      8           9
-    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
+    QueryResult result = LoadWaypointsQuery.GetOrQueryResults();
 
     if (!result)
     {

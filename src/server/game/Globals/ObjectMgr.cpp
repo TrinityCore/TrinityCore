@@ -16,6 +16,7 @@
  */
 
 #include "ObjectMgr.h"
+#include "LoadDataQueries.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "Bag.h"
@@ -264,8 +265,7 @@ void ObjectMgr::LoadCreatureLocales()
 
     _creatureLocaleStore.clear();                              // need for reload case
 
-    //                                               0      1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT entry, locale, Name, Title FROM creature_template_locale");
+    QueryResult result = LoadCreatureLocaleQuery.GetOrQueryResults();
     if (!result)
         return;
 
@@ -294,8 +294,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
-    //                                               0       1            2       3           4
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
+    QueryResult result = LoadGossipMenuItemsLocalesQuery.GetOrQueryResults();
 
     if (!result)
         return;
@@ -326,8 +325,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
     _pointOfInterestLocaleStore.clear();                              // need for reload case
 
-    //                                               0   1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
+    QueryResult result = LoadPointOfInterestLocalesQuery.GetOrQueryResults();
 
     if (!result)
         return;
@@ -354,149 +352,7 @@ void ObjectMgr::LoadCreatureTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    // Steps to update the counter below without doing it 1 by 1 manually
-    // 1. Using Notepad++ copy the query from "SELECT" to last field
-    // 2. Run this regex
-    //  a.find     "\r\n[ ]+\/\/[ ]+[0-9]+
-    //  b.replace "\/\/
-    // 3. Alt + Left Click and vertical select all columns enough on the right of the file to be after // in all lines
-    // 4. Select "Edit" in the menu and then "Column Editor.."
-    // 5. Select "Number to Insert", Initial number 1, Increase by 1
-    // 6. Run this regex
-    //  a.find    "\/\/[ ]+
-    //  b.replace "\r\n\t\t\/\/ (not that there is a space at the end of the regex, it's needed)
-
-    QueryResult result = WorldDatabase.Query(
-        //  0
-        "SELECT entry,"
-        //  1
-        "difficulty_entry_1,"
-        //  2
-        "difficulty_entry_2,"
-        //  3
-        "difficulty_entry_3,"
-        //  4
-        "KillCredit1,"
-        //  5
-        "KillCredit2,"
-        //  6
-        "modelid1,"
-        //  7
-        "modelid2,"
-        //  8
-        "modelid3,"
-        //  9
-        "modelid4,"
-        // 10
-        "name,"
-        // 11
-        "subname,"
-        // 12
-        "IconName,"
-        // 13
-        "gossip_menu_id,"
-        // 14
-        "minlevel,"
-        // 15
-        "maxlevel,"
-        // 16
-        "exp,"
-        // 17
-        "faction,"
-        // 18
-        "npcflag,"
-        // 19
-        "speed_walk,"
-        // 20
-        "speed_run,"
-        // 21
-        "scale,"
-        // 22
-        "`rank`,"
-        // 23
-        "dmgschool,"
-        // 24
-        "BaseAttackTime,"
-        // 25
-        "RangeAttackTime,"
-        // 26
-        "BaseVariance,"
-        // 27
-        "RangeVariance,"
-        // 28
-        "unit_class,"
-        // 29
-        "unit_flags,"
-        // 30
-        "unit_flags2,"
-        // 31
-        "dynamicflags,"
-        // 32
-        "family,"
-        // 33
-        "type,"
-        // 34
-        "type_flags,"
-        // 35
-        "lootid,"
-        // 36
-        "pickpocketloot,"
-        // 37
-        "skinloot,"
-        // 38
-        "PetSpellDataId,"
-        // 39
-        "VehicleId,"
-        // 40
-        "mingold,"
-        // 41
-        "maxgold,"
-        // 42
-        "AIName,"
-        // 43
-        "MovementType,"
-        // 44
-        "ctm.Ground,"
-        // 45
-        "ctm.Swim,"
-        // 46
-        "ctm.Flight,"
-        // 47
-        "ctm.Rooted,"
-        // 48
-        "ctm.Chase,"
-        // 49
-        "ctm.Random,"
-        // 50
-        "ctm.InteractionPauseTimer,"
-        // 51
-        "HoverHeight,"
-        // 52
-        "HealthModifier,"
-        // 53
-        "ManaModifier,"
-        // 54
-        "ArmorModifier,"
-        // 55
-        "DamageModifier,"
-        // 56
-        "ExperienceModifier,"
-        // 57
-        "RacialLeader,"
-        // 58
-        "movementId,"
-        // 59
-        "RegenHealth,"
-        // 60
-        "mechanic_immune_mask,"
-        // 61
-        "spell_school_immune_mask,"
-        // 62
-        "flags_extra,"
-        // 63
-        "ScriptName"
-        " FROM creature_template ct"
-        " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
+    QueryResult result = LoadCreatureTemplatesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -620,8 +476,7 @@ void ObjectMgr::LoadCreatureTemplateResistances()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0           1       2
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
+    QueryResult result = LoadCreatureTemplateResistancesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -665,8 +520,7 @@ void ObjectMgr::LoadCreatureTemplateSpells()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0           1       2
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
+    QueryResult result = LoadCreatureTemplateSpellsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -710,8 +564,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5               6               7
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, visibilityDistanceType, auras FROM creature_template_addon");
+    QueryResult result = LoadCreatureTemplateAddonsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1258,8 +1111,7 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5              6               7
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, visibilityDistanceType, auras FROM creature_addon");
+    QueryResult result = LoadCreatureAddonsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1359,8 +1211,7 @@ void ObjectMgr::LoadGameObjectAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1                 2                 3                 4                 5                 6
-    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue FROM gameobject_addon");
+    QueryResult result = LoadGameObjectAddonsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1475,8 +1326,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0         1       2       3       4
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
+    QueryResult result = LoadEquipmentTemplatesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1555,18 +1405,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
     _creatureMovementOverrides.clear();
 
     // Load the data from creature_movement_override and if NULL fallback to creature_template_movement
-    QueryResult result = WorldDatabase.Query(
-        "SELECT cmo.SpawnId,"
-        "COALESCE(cmo.Ground, ctm.Ground),"
-        "COALESCE(cmo.Swim, ctm.Swim),"
-        "COALESCE(cmo.Flight, ctm.Flight),"
-        "COALESCE(cmo.Rooted, ctm.Rooted),"
-        "COALESCE(cmo.Chase, ctm.Chase),"
-        "COALESCE(cmo.Random, ctm.Random),"
-        "COALESCE(cmo.InteractionPauseTimer, ctm.InteractionPauseTimer) "
-        "FROM creature_movement_override AS cmo "
-        "LEFT JOIN creature AS c ON c.guid = cmo.SpawnId "
-        "LEFT JOIN creature_template_movement AS ctm ON ctm.CreatureId = c.id");
+    QueryResult result = LoadCreatureMovementOverridesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1671,8 +1510,7 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* display
 void ObjectMgr::LoadCreatureModelInfo()
 {
     uint32 oldMSTime = getMSTime();
-    //                                                   0             1             2          3               4
-    QueryResult result = WorldDatabase.Query("SELECT DisplayID, BoundingRadius, CombatReach, Gender, DisplayID_Other_Gender FROM creature_model_info");
+    QueryResult result = LoadCreatureModelInfoQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1734,7 +1572,7 @@ void ObjectMgr::LoadPlayerTotemModels()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT TotemSlot, RaceId, DisplayId from player_totem_model");
+    QueryResult result = LoadPlayerTotemModelsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1792,8 +1630,7 @@ void ObjectMgr::LoadLinkedRespawn()
     uint32 oldMSTime = getMSTime();
 
     _linkedRespawnStore.clear();
-    //                                                 0        1          2
-    QueryResult result = WorldDatabase.Query("SELECT guid, linkedGuid, linkType FROM linked_respawn ORDER BY guid ASC");
+    QueryResult result = LoadLinkedRespawnQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2027,8 +1864,7 @@ void ObjectMgr::LoadTempSummons()
 
     _tempSummonDataStore.clear();   // needed for reload case
 
-    //                                               0           1             2        3      4           5           6           7            8           9
-    QueryResult result = WorldDatabase.Query("SELECT summonerId, summonerType, groupId, entry, position_x, position_y, position_z, orientation, summonType, summonTime FROM creature_summon_groups");
+    QueryResult result = LoadTempSummonsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2113,15 +1949,7 @@ void ObjectMgr::LoadCreatures()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0              1   2    3           4           5           6            7        8             9              10
-    QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, "
-    //   11               12         13       14            15         16          17          18                19                   20                    21
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.dynamicflags, "
-    //   22
-        "creature.ScriptName "
-        "FROM creature "
-        "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
-        "LEFT OUTER JOIN pool_members ON pool_members.type = 0 AND creature.guid = pool_members.spawnId");
+    QueryResult result = LoadCreaturesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2421,14 +2249,7 @@ void ObjectMgr::LoadGameObjects()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0                1   2    3           4           5           6
-    QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
-    //   7          8          9          10         11             12            13     14         15         16          17
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, poolSpawnId, "
-    //   18
-        "ScriptName "
-        "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
-        "LEFT OUTER JOIN pool_members ON pool_members.type = 1 AND gameobject.guid = pool_members.spawnId");
+    QueryResult result = LoadGameObjectsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2600,8 +2421,7 @@ void ObjectMgr::LoadSpawnGroupTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0        1          2
-    QueryResult result = WorldDatabase.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
+    QueryResult result = LoadSpawnGroupTemplatesQuery.GetOrQueryResults();
 
     if (result)
     {
@@ -2659,8 +2479,7 @@ void ObjectMgr::LoadSpawnGroups()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0        1          2
-    QueryResult result = WorldDatabase.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");
+    QueryResult result = LoadSpawnGroupsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2722,8 +2541,7 @@ void ObjectMgr::LoadInstanceSpawnGroups()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0              1            2           3             4
-    QueryResult result = WorldDatabase.Query("SELECT instanceMapId, bossStateId, bossStates, spawnGroupId, flags FROM instance_spawn_groups");
+    QueryResult result = LoadInstanceSpawnGroupsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -2833,8 +2651,7 @@ void ObjectMgr::LoadItemLocales()
 
     _itemLocaleStore.clear();                                 // need for reload case
 
-    //                                               0   1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name, Description FROM item_template_locale");
+    QueryResult result = LoadItemLocalesQuery.GetOrQueryResults();
     if (!result)
         return;
 
@@ -2861,38 +2678,7 @@ void ObjectMgr::LoadItemTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1       2               3              4        5        6       7          8         9        10        11           12
-    QueryResult result = WorldDatabase.Query("SELECT entry, class, subclass, SoundOverrideSubclass, name, displayid, Quality, Flags, FlagsExtra, BuyCount, BuyPrice, SellPrice, InventoryType, "
-    //                                              13              14           15          16             17               18                19              20
-                                             "AllowableClass, AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, requiredspell, requiredhonorrank, "
-    //                                              21                      22                       23               24        25          26             27           28
-                                             "RequiredCityRank, RequiredReputationFaction, RequiredReputationRank, maxcount, stackable, ContainerSlots, StatsCount, stat_type1, "
-    //                                            29           30          31           32          33           34          35           36          37           38
-                                             "stat_value1, stat_type2, stat_value2, stat_type3, stat_value3, stat_type4, stat_value4, stat_type5, stat_value5, stat_type6, "
-    //                                            39           40          41           42           43          44           45           46           47
-                                             "stat_value6, stat_type7, stat_value7, stat_type8, stat_value8, stat_type9, stat_value9, stat_type10, stat_value10, "
-    //                                                   48                    49           50        51        52         53        54         55      56      57        58
-                                             "ScalingStatDistribution, ScalingStatValue, dmg_min1, dmg_max1, dmg_type1, dmg_min2, dmg_max2, dmg_type2, armor, holy_res, fire_res, "
-    //                                            59          60         61          62       63       64            65            66          67               68
-                                             "nature_res, frost_res, shadow_res, arcane_res, delay, ammo_type, RangedModRange, spellid_1, spelltrigger_1, spellcharges_1, "
-    //                                              69              70                71                 72                 73           74               75
-                                             "spellppmRate_1, spellcooldown_1, spellcategory_1, spellcategorycooldown_1, spellid_2, spelltrigger_2, spellcharges_2, "
-    //                                              76               77              78                  79                 80           81               82
-                                             "spellppmRate_2, spellcooldown_2, spellcategory_2, spellcategorycooldown_2, spellid_3, spelltrigger_3, spellcharges_3, "
-    //                                              83               84              85                  86                 87           88               89
-                                             "spellppmRate_3, spellcooldown_3, spellcategory_3, spellcategorycooldown_3, spellid_4, spelltrigger_4, spellcharges_4, "
-    //                                              90               91              92                  93                  94          95               96
-                                             "spellppmRate_4, spellcooldown_4, spellcategory_4, spellcategorycooldown_4, spellid_5, spelltrigger_5, spellcharges_5, "
-    //                                              97               98              99                  100                 101        102         103       104          105
-                                             "spellppmRate_5, spellcooldown_5, spellcategory_5, spellcategorycooldown_5, bonding, description, PageText, LanguageID, PageMaterial, "
-    //                                            106       107     108      109          110            111       112     113         114       115   116     117
-                                             "startquest, lockid, Material, sheath, RandomProperty, RandomSuffix, block, itemset, MaxDurability, area, Map, BagFamily, "
-    //                                            118             119             120             121             122            123              124            125
-                                             "TotemCategory, socketColor_1, socketContent_1, socketColor_2, socketContent_2, socketColor_3, socketContent_3, socketBonus, "
-    //                                            126                 127                     128            129            130            131         132         133
-                                             "GemProperties, RequiredDisenchantSkill, ArmorDamageModifier, duration, ItemLimitCategory, HolidayId, ScriptName, DisenchantID, "
-    //                                           134        135            136
-                                             "FoodType, minMoneyLoot, maxMoneyLoot, flagsCustom FROM item_template");
+    QueryResult result = LoadItemTemplatesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -3469,8 +3255,7 @@ void ObjectMgr::LoadItemSetNameLocales()
 
     _itemSetNameLocaleStore.clear();                                 // need for reload case
 
-    //                                               0   1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM item_set_names_locale");
+    QueryResult result = LoadItemSetNameLocalesQuery.GetOrQueryResults();
     if (!result)
         return;
 
@@ -3512,8 +3297,7 @@ void ObjectMgr::LoadItemSetNames()
                 itemSetItems.insert(setEntry->ItemID[i]);
     }
 
-    //                                                  0        1            2
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `name`, `InventoryType` FROM `item_set_names`");
+    QueryResult result = LoadItemSetNamesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -3582,8 +3366,7 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
 
     uint32 count = 0;
 
-    //                                                  0             1              2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
+    QueryResult result = LoadVehicleTemplateAccessoriesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -3635,8 +3418,7 @@ void ObjectMgr::LoadVehicleTemplate()
 
     _vehicleTemplateStore.clear();
 
-    //                                               0           1
-    QueryResult result = WorldDatabase.Query("SELECT creatureId, despawnDelayMs FROM vehicle_template");
+    QueryResult result = LoadVehicleTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -3672,8 +3454,7 @@ void ObjectMgr::LoadVehicleAccessories()
 
     uint32 count = 0;
 
-    //                                                  0             1             2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
+    QueryResult result = LoadVehicleAccessoriesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -3715,8 +3496,7 @@ void ObjectMgr::LoadVehicleSeatAddon()
 
     uint32 count = 0;
 
-    //                                                0            1                  2             3             4             5             6
-    QueryResult result = WorldDatabase.Query("SELECT `SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
+    QueryResult result = LoadVehicleSeatAddonQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -3767,8 +3547,7 @@ void ObjectMgr::LoadPetLevelInfo()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0               1      2   3     4    5    6    7     8    9      10       11
-    QueryResult result = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor, min_dmg, max_dmg FROM pet_levelstats");
+    QueryResult result = LoadPetLevelInfoQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -3904,8 +3683,7 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate
     {
         uint32 oldMSTime = getMSTime();
-        //                                                0     1      2    3        4          5           6
-        QueryResult result = WorldDatabase.Query("SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
+        QueryResult result = LoadPlayerInfoQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -3990,8 +3768,7 @@ void ObjectMgr::LoadPlayerInfo()
     TC_LOG_INFO("server.loading", "Loading Player Create Items Data...");
     {
         uint32 oldMSTime = getMSTime();
-        //                                                0     1      2       3
-        QueryResult result = WorldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
+        QueryResult result = LoadPlayerCreateInfoItemsQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -4061,7 +3838,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.PQuery("SELECT raceMask, classMask, skill, `rank` FROM playercreateinfo_skills");
+        QueryResult result = LoadPlayerCreateInfoCreateSkillsQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -4135,7 +3912,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.PQuery("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+        QueryResult result = LoadPlayerCreateInfoSpellCustomQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -4197,7 +3974,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.PQuery("SELECT raceMask, classMask, spell FROM playercreateinfo_cast_spell");
+        QueryResult result = LoadPlayerCreateInfoCastSpellQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 player create cast spells. DB table `playercreateinfo_cast_spell` is empty.");
@@ -4252,8 +4029,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                0     1      2       3       4
-        QueryResult result = WorldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
+        QueryResult result = LoadPlayerCreateInfoActionQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -4297,8 +4073,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                0      1      2       3
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, basehp, basemana FROM player_classlevelstats");
+        QueryResult result = LoadPlayerClassLevelStatsQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -4377,8 +4152,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 0     1      2      3    4    5    6    7
-        QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
+        QueryResult result = LoadPlayerLevelStatsQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -4489,8 +4263,7 @@ void ObjectMgr::LoadPlayerInfo()
         for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
             _playerXPperLevel[level] = 0;
 
-        //                                                  0         1
-        QueryResult result  = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
+        QueryResult result = LoadPlayerXPForLevelQuery.GetOrQueryResults();
 
         if (!result)
         {
@@ -4650,34 +4423,8 @@ void ObjectMgr::LoadQuests()
 
     _exclusiveQuestGroups.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT "
-        //0      1           2         3           4            5                6              7             8
-        "ID, QuestType, QuestLevel, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, TimeAllowed, AllowableRaces,"
-        //      9                     10                   11                    12
-        "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, "
-        //     13                 14               15             16                17               18            19            20
-        "RewardNextQuest, RewardXPDifficulty, RewardMoney, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
-        //   21       22        23              24                25               26
-        "StartItem, Flags, RewardTitle, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
-        //    27            28            29           30             31            32            33            34
-        "RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
-        //        35                      36                      37                      38                      39                      40                      41                      42                      43                      44                     45                      46
-        "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemID6, RewardChoiceItemQuantity6, "
-        //       47                 48                     49                  50                  51                     52                 53                  54                     55                  56                  57                    58                   59                 60                      61
-        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionID5, RewardFactionValue5,  RewardFactionOverride5,"
-        //    62        63    64       65
-        "POIContinent, POIx, POIy, POIPriority, "
-        //   66          67               68                69                70
-        "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, "
-        //      71                72                73                74                   75                     76                    77                      78
-        "RequiredNpcOrGo1, RequiredNpcOrGo2, RequiredNpcOrGo3, RequiredNpcOrGo4, RequiredNpcOrGoCount1, RequiredNpcOrGoCount2, RequiredNpcOrGoCount3, RequiredNpcOrGoCount4, "
-        //   79         80         81         82            83                 84                  85                86
-        "ItemDrop1, ItemDrop2, ItemDrop3, ItemDrop4, ItemDropQuantity1, ItemDropQuantity2, ItemDropQuantity3, ItemDropQuantity4, "
-        //      87               88               89               90               91               92                93                  94                  95                  96                  97                  98
-        "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-        //  99          100             101             102             103
-        "Unknown0, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4"
-        " FROM quest_template");
+    QueryResult result = LoadQuestsQuery.GetOrQueryResults();
+
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 quests definitions. DB table `quest_template` is empty.");
@@ -5401,8 +5148,7 @@ void ObjectMgr::LoadQuestLocales()
 
     _questLocaleStore.clear();                                // need for reload case
 
-    //                                               0   1       2      3        4           5        6              7               8               9               10
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Title, Details, Objectives, EndText, CompletedText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4 FROM quest_template_locale");
+    QueryResult result = LoadQuestLocalesQuery.GetOrQueryResults();
     if (!result)
         return;
 
@@ -5850,7 +5596,7 @@ void ObjectMgr::LoadSpellScriptNames()
 
     _spellScriptsStore.clear();                            // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
+    QueryResult result = LoadSpellScriptNamesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -5988,8 +5734,7 @@ void ObjectMgr::LoadPageTexts()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0    1      2
-    QueryResult result = WorldDatabase.Query("SELECT ID, `Text`, NextPageID FROM page_text");
+    QueryResult result = LoadPageTextsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -6040,8 +5785,7 @@ void ObjectMgr::LoadPageTextLocales()
 
     _pageTextLocaleStore.clear();                             // need for reload case
 
-    //                                               0   1        2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale");
+    QueryResult result = LoadPageTextLocalesQuery.GetOrQueryResults();
 
     if (!result)
         return;
@@ -6068,8 +5812,7 @@ void ObjectMgr::LoadInstanceTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0     1       2        4
-    QueryResult result = WorldDatabase.Query("SELECT map, parent, script, allowMount FROM instance_template");
+    QueryResult result = LoadInstanceTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -6118,8 +5861,7 @@ void ObjectMgr::LoadInstanceEncounters()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0         1            2                3
-    QueryResult result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+    QueryResult result = LoadInstanceEncountersQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 instance encounters, table is empty!");
@@ -6213,16 +5955,7 @@ void ObjectMgr::LoadGossipText()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "text0_0, text0_1, BroadcastTextID0, lang0, Probability0, EmoteDelay0_0, Emote0_0, EmoteDelay0_1, Emote0_1, EmoteDelay0_2, Emote0_2, "
-        "text1_0, text1_1, BroadcastTextID1, lang1, Probability1, EmoteDelay1_0, Emote1_0, EmoteDelay1_1, Emote1_1, EmoteDelay1_2, Emote1_2, "
-        "text2_0, text2_1, BroadcastTextID2, lang2, Probability2, EmoteDelay2_0, Emote2_0, EmoteDelay2_1, Emote2_1, EmoteDelay2_2, Emote2_2, "
-        "text3_0, text3_1, BroadcastTextID3, lang3, Probability3, EmoteDelay3_0, Emote3_0, EmoteDelay3_1, Emote3_1, EmoteDelay3_2, Emote3_2, "
-        "text4_0, text4_1, BroadcastTextID4, lang4, Probability4, EmoteDelay4_0, Emote4_0, EmoteDelay4_1, Emote4_1, EmoteDelay4_2, Emote4_2, "
-        "text5_0, text5_1, BroadcastTextID5, lang5, Probability5, EmoteDelay5_0, Emote5_0, EmoteDelay5_1, Emote5_1, EmoteDelay5_2, Emote5_2, "
-        "text6_0, text6_1, BroadcastTextID6, lang6, Probability6, EmoteDelay6_0, Emote6_0, EmoteDelay6_1, Emote6_1, EmoteDelay6_2, Emote6_2, "
-        "text7_0, text7_1, BroadcastTextID7, lang7, Probability7, EmoteDelay7_0, Emote7_0, EmoteDelay7_1, Emote7_1, EmoteDelay7_2, Emote7_2 "
-        "FROM npc_text");
+    QueryResult result = LoadGossipTextQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -6297,10 +6030,7 @@ void ObjectMgr::LoadNpcTextLocales()
 
     _npcTextLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, "
-    //   2        3        4        5        6        7        8        9        10       11       12       13       14       15       16       17
-        "Text0_0, Text0_1, Text1_0, Text1_1, Text2_0, Text2_1, Text3_0, Text3_1, Text4_0, Text4_1, Text5_0, Text5_1, Text6_0, Text6_1, Text7_0, Text7_1 "
-        "FROM npc_text_locale");
+    QueryResult result = LoadNpcTextLocalesQuery.GetOrQueryResults();
 
     if (!result)
         return;
@@ -6459,7 +6189,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
 
     _questAreaTriggerStore.clear();                           // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT id, quest FROM areatrigger_involvedrelation");
+    QueryResult result = LoadQuestAreaTriggersQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -6529,8 +6259,7 @@ void ObjectMgr::LoadQuestGreetings()
 
     _questGreetingStore.clear(); // need for reload case
 
-    //                                                0   1          2                3             4
-    QueryResult result = WorldDatabase.Query("SELECT ID, Type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
+    QueryResult result = LoadQuestGreetingsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 quest greetings. DB table `quest_greeting` is empty.");
@@ -6597,8 +6326,7 @@ void ObjectMgr::LoadQuestGreetingLocales()
 
     _questGreetingLocaleStore.clear();                              // need for reload case
 
-    //                                               0     1      2       3
-    QueryResult result = WorldDatabase.Query("SELECT ID, Type, Locale, Greeting FROM quest_greeting_locale");
+    QueryResult result = LoadQuestGreetingLocalesQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 quest_greeting locales. DB table `quest_greeting_locale` is empty.");
@@ -6642,8 +6370,7 @@ void ObjectMgr::LoadQuestOfferRewardLocale()
     uint32 oldMSTime = getMSTime();
 
     _questOfferRewardLocaleStore.clear(); // need for reload case
-    //                                               0     1          2
-    QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+    QueryResult result = LoadQuestOfferRewardLocaleQuery.GetOrQueryResults();
     if (!result)
         return;
 
@@ -6671,7 +6398,7 @@ void ObjectMgr::LoadQuestRequestItemsLocale()
 
     _questRequestItemsLocaleStore.clear(); // need for reload case
     //                                               0     1          2
-    QueryResult result = WorldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
+    QueryResult result = LoadQuestRequestItemsLocaleQuery.GetOrQueryResults();
     if (!result)
         return;
 
@@ -6699,7 +6426,7 @@ void ObjectMgr::LoadTavernAreaTriggers()
 
     _tavernAreaTriggerStore.clear();                          // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT id FROM areatrigger_tavern");
+    QueryResult result = LoadAreaTriggersQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -6736,7 +6463,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
 
     _areaTriggerScriptStore.clear();                            // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
+    QueryResult result = LoadAreaTriggerScriptsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 areatrigger scripts. DB table `areatrigger_scripts` is empty.");
@@ -6878,8 +6605,7 @@ void ObjectMgr::LoadGraveyardZones()
 
     GraveyardStore.clear(); // need for reload case
 
-    //                                               0   1          2
-    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone, Faction FROM graveyard_zone");
+    QueryResult result = LoadGraveyardZonesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -7181,8 +6907,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     _areaTriggerStore.clear();                                  // need for reload case
 
-    //                                               0        1              2                  3                  4                   5
-    QueryResult result = WorldDatabase.Query("SELECT ID,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
+    QueryResult result = LoadAreaTriggerTeleportsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
@@ -7240,8 +6965,7 @@ void ObjectMgr::LoadAccessRequirements()
 
     _accessRequirementStore.clear();                                  // need for reload case
 
-    //                                               0      1           2          3          4           5      6             7             8                      9     10
-    QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item_level, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
+    QueryResult result = LoadAccessRequirementsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -7391,7 +7115,7 @@ void ObjectMgr::SetHighestGuids()
     CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());         // One-time query
     CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());     // One-time query
 
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
+    result = LoadSelectmaxTransport.GetOrQueryResults();
     if (result)
         GetGuidSequenceGenerator<HighGuid::Mo_Transport>().Set((*result)[0].GetUInt32()+1);
 
@@ -7419,11 +7143,11 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
 
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
+    result = LoadSelectMaxCreatures.GetOrQueryResults();
     if (result)
         _creatureSpawnId = (*result)[0].GetUInt32() + 1;
 
-    result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
+    result = LoadSelectMaxGameObject.GetOrQueryResults();
     if (result)
         _gameObjectSpawnId = (*result)[0].GetUInt32() + 1;
 }
@@ -7494,8 +7218,7 @@ void ObjectMgr::LoadGameObjectLocales()
 
     _gameObjectLocaleStore.clear(); // need for reload case
 
-    //                                               0      1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT entry, locale, name, castBarCaption FROM gameobject_template_locale");
+    QueryResult result = LoadGameObjectLocaleQuery.GetOrQueryResults();
     if (!result)
         return;
 
@@ -7581,13 +7304,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0      1      2        3       4             5          6     7
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, "
-    //                                         8      9      10     11     12     13     14     15     16     17     18      19      20
-                                             "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
-    //                                         21      22      23      24      25      26      27      28      29      30      31      32      33
-                                             "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName "
-                                             "FROM gameobject_template");
+    QueryResult result = LoadGameObjectTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -7764,8 +7481,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3        4       5        6        7        8
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3 FROM gameobject_template_addon");
+    QueryResult result = LoadGameObjectTemplateAddonsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -7836,8 +7552,7 @@ void ObjectMgr::LoadGameObjectOverrides()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                     0        1      2
-    QueryResult result = WorldDatabase.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
+    QueryResult result = LoadGameObjectOverridesQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 gameobject faction and flags overrides. DB table `gameobject_overrides` is empty.");
@@ -7874,7 +7589,7 @@ void ObjectMgr::LoadExplorationBaseXP()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
+    QueryResult result = LoadExplorationBaseXPQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -7912,8 +7627,7 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
 void ObjectMgr::LoadPetNames()
 {
     uint32 oldMSTime = getMSTime();
-    //                                                0     1      2
-    QueryResult result = WorldDatabase.Query("SELECT word, entry, half FROM pet_name_generation");
+    QueryResult result = LoadPetNamesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -7981,8 +7695,8 @@ void ObjectMgr::LoadReputationRewardRate()
 
     _repRewardRateStore.clear();                             // for reload case
 
-    uint32 count = 0; //                                0          1             2                  3                  4                 5                      6             7
-    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
+    uint32 count = 0;
+    QueryResult result = LoadReputationRewardRateQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded `reputation_reward_rate`, table is empty!");
@@ -8072,11 +7786,7 @@ void ObjectMgr::LoadReputationOnKill()
 
     uint32 count = 0;
 
-    //                                                0            1                     2
-    QueryResult result = WorldDatabase.Query("SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, "
-    //   3             4             5                   6             7             8                   9
-        "IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent "
-        "FROM creature_onkill_reputation");
+    QueryResult result = LoadReputationOnKillQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -8141,8 +7851,8 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
 
     _repSpilloverTemplateStore.clear();                      // for reload case
 
-    uint32 count = 0; //                                0         1        2       3        4       5       6         7        8      9        10       11     12
-    QueryResult result = WorldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4 FROM reputation_spillover_template");
+    uint32 count = 0;
+    QueryResult result = LoadReputationSpilloverTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -8235,8 +7945,7 @@ void ObjectMgr::LoadPointsOfInterest()
 
     uint32 count = 0;
 
-    //                                               0       1          2        3     4      5    6
-    QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Importance, Name FROM points_of_interest");
+    QueryResult result = LoadPointsOfInterestQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -8279,8 +7988,7 @@ void ObjectMgr::LoadQuestPOI()
 
     _questPOIStore.clear();                              // need for reload case
 
-    //                                               0        1          2          3           4          5       6        7
-    QueryResult result = WorldDatabase.Query("SELECT QuestID, id, ObjectiveIndex, MapID, WorldMapAreaId, Floor, Priority, Flags FROM quest_poi");
+    QueryResult result = LoadQuestPOIQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
@@ -8289,8 +7997,7 @@ void ObjectMgr::LoadQuestPOI()
 
     _questPOIStore.reserve(result->GetRowCount());
 
-    //                                                  0       1   2  3
-    QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx2");
+    QueryResult points = LoadQuestPOIPointsQuery.GetOrQueryResults();
 
     std::vector<std::vector<std::vector<QuestPOIBlobPoint>>> POIs;
     if (points)
@@ -8371,8 +8078,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     uint32 oldMSTime = getMSTime();
 
     _spellClickInfoStore.clear();
-    //                                                0          1         2            3
-    QueryResult result = WorldDatabase.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
+    QueryResult result = LoadNPCSpellClickSpellsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -8814,7 +8520,7 @@ bool ObjectMgr::LoadTrinityStrings()
 
     _trinityStringStore.clear(); // for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
+    QueryResult result = LoadTrinityStringsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 trinity strings. DB table `trinity_string` is empty. You have imported an incorrect database for more info search for TCE00003 on forum.");
@@ -8859,7 +8565,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
 
     _fishingBaseForAreaStore.clear();                            // for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, skill FROM skill_fishing_base_level");
+    QueryResult result = LoadFishingBaseSkillLevelQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -8977,8 +8683,7 @@ void ObjectMgr::LoadGameTele()
 
     _gameTeleStore.clear();                                  // for reload case
 
-    //                                                0       1           2           3           4        5     6
-    QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
+    QueryResult result = LoadGameTeleQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -9135,8 +8840,7 @@ void ObjectMgr::LoadMailLevelRewards()
 
     _mailLevelRewardStore.clear();                           // for reload case
 
-    //                                                 0        1             2            3
-    QueryResult result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
+    QueryResult result = LoadMailLevelRewardsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -9196,7 +8900,7 @@ void ObjectMgr::LoadTrainers()
     _trainers.clear();
 
     std::unordered_map<int32, std::vector<Trainer::Spell>> spellsByTrainer;
-    if (QueryResult trainerSpellsResult = WorldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell"))
+    if (QueryResult trainerSpellsResult = LoadTrainerSpellQuery.GetOrQueryResults())
     {
         do
         {
@@ -9252,7 +8956,7 @@ void ObjectMgr::LoadTrainers()
         } while (trainerSpellsResult->NextRow());
     }
 
-    if (QueryResult trainersResult = WorldDatabase.Query("SELECT Id, Type, Requirement, Greeting FROM trainer"))
+    if (QueryResult trainersResult = LoadTrainerQuery.GetOrQueryResults())
     {
         do
         {
@@ -9313,7 +9017,7 @@ void ObjectMgr::LoadTrainers()
         }
     }
 
-    if (QueryResult trainerLocalesResult = WorldDatabase.Query("SELECT Id, locale, Greeting_lang FROM trainer_locale"))
+    if (QueryResult trainerLocalesResult = LoadTrainerLocaleQuery.GetOrQueryResults())
     {
         do
         {
@@ -9342,7 +9046,7 @@ void ObjectMgr::LoadCreatureDefaultTrainers()
 
     _creatureDefaultTrainers.clear();
 
-    if (QueryResult result = WorldDatabase.Query("SELECT CreatureId, TrainerId FROM creature_default_trainer"))
+    if (QueryResult result = LoadCreatureDefaultTrainersQuery.GetOrQueryResults())
     {
         do
         {
@@ -9421,7 +9125,7 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC");
+    QueryResult result = LoadVendorsQuery.GetOrQueryResults();
     if (!result)
     {
 
@@ -9467,8 +9171,7 @@ void ObjectMgr::LoadGossipMenu()
 
     _gossipMenusStore.clear();
 
-    //                                               0       1
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, TextID FROM gossip_menu");
+    QueryResult result = LoadGossipMenuQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -9503,10 +9206,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     _gossipMenuItemsStore.clear();
 
-    QueryResult result = WorldDatabase.Query(
-        //      0       1       2           3           4                      5           6              7             8            9         10        11       12
-        "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
-        "FROM gossip_menu_option ORDER BY MenuID, OptionID");
+    QueryResult result = LoadGossipMenuItemsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -9709,36 +9409,7 @@ void ObjectMgr::LoadScriptNames()
     // script id 0 as dummy for "no script found".
     _scriptNamesStore.emplace_back("");
 
-    QueryResult result = WorldDatabase.Query(
-        "SELECT DISTINCT(ScriptName) FROM achievement_criteria_data WHERE ScriptName <> '' AND type = 11 "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM battlefield_template WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM creature WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM gameobject WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM gameobject_template WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM item_template WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM areatrigger_scripts WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM spell_script_names WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM transports WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM game_weather WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM conditions WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
-        "UNION "
-        "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
+    QueryResult result = LoadScriptNamesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -9790,8 +9461,7 @@ void ObjectMgr::LoadBroadcastTexts()
 
     _broadcastTextStore.clear(); // for reload case
 
-    //                                               0   1            2      3      4         5         6         7            8            9            10              11        12
-    QueryResult result = WorldDatabase.Query("SELECT ID, LanguageID, `Text`, Text1, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, EmoteDelay3, SoundEntriesID, EmotesID, Flags FROM broadcast_text");
+    QueryResult result = LoadBroadcastTextQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast texts. DB table `broadcast_text` is empty.");
@@ -9873,8 +9543,7 @@ void ObjectMgr::LoadBroadcastTextLocales()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1        2     3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text`, Text1 FROM broadcast_text_locale");
+    QueryResult result = LoadBroadcastTextsLocaleQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");
@@ -9936,7 +9605,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2 FROM creature_classlevelstats");
+    QueryResult result = LoadCreatureClassLevelStatsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10003,7 +9672,7 @@ void ObjectMgr::LoadFactionChangeAchievements()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
+    QueryResult result = LoadFactionChangeAchievementsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10038,7 +9707,7 @@ void ObjectMgr::LoadFactionChangeItems()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_items");
+    QueryResult result = LoadFactionChangeItemsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10073,7 +9742,7 @@ void ObjectMgr::LoadFactionChangeQuests()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
+    QueryResult result = LoadFactionChangeQuestsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10108,7 +9777,7 @@ void ObjectMgr::LoadFactionChangeReputations()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
+    QueryResult result = LoadFactionChangeReputationsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10143,7 +9812,7 @@ void ObjectMgr::LoadFactionChangeSpells()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
+    QueryResult result = LoadFactionChangeSpellsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10178,7 +9847,7 @@ void ObjectMgr::LoadFactionChangeTitles()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
+    QueryResult result = LoadFactionChangeTitlesQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10284,8 +9953,7 @@ void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0                1       2
-    QueryResult result = WorldDatabase.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
+    QueryResult result = LoadGameObjectQuestItemsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -10329,8 +9997,7 @@ void ObjectMgr::LoadCreatureQuestItems()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0              1       2
-    QueryResult result = WorldDatabase.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
+    QueryResult result = LoadCreatureQuestItemsQuery.GetOrQueryResults();
 
     if (!result)
     {

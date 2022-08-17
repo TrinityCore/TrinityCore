@@ -16,6 +16,7 @@
  */
 
 #include "SmartScriptMgr.h"
+#include "LoadDataQueries.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
@@ -128,8 +129,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     for (SmartAIEventMap& eventmap : mEventMap)
         eventmap.clear();  //Drop Existing SmartAI List
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
+    QueryResult result = LoadSmartScriptsQuery.GetOrQueryResults();
 
     if (!result)
     {

@@ -16,6 +16,7 @@
  */
 
 #include "OutdoorPvPMgr.h"
+#include "LoadDataQueries.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Log.h"
@@ -50,8 +51,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0       1
-    QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
+    QueryResult result = LoadOutdoorPVPTemplatesQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");

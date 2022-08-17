@@ -16,6 +16,7 @@
  */
 
 #include "SkillDiscovery.h"
+#include "LoadDataQueries.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "Player.h"
@@ -50,8 +51,7 @@ void LoadSkillDiscoveryTable()
 
     SkillDiscoveryStore.clear();                            // need for reload
 
-    //                                                0        1         2              3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
+    QueryResult result = LoadSkillDiscoveryTemplateQuery.GetOrQueryResults();
 
     if (!result)
     {

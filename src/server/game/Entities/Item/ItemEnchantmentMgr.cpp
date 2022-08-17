@@ -16,6 +16,7 @@
  */
 
 #include "ItemEnchantmentMgr.h"
+#include "LoadDataQueries.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -51,8 +52,7 @@ void LoadRandomEnchantmentsTable()
 
     RandomItemEnch.clear();                                 // for reload case
 
-    //                                                 0      1      2
-    QueryResult result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
+    QueryResult result = LoadRandomEnchantmentsTableQuery.GetOrQueryResults();
 
     if (result)
     {

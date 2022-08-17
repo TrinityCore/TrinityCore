@@ -16,6 +16,7 @@
  */
 
 #include "GameEventMgr.h"
+#include "LoadDataQueries.h"
 #include "BattlegroundMgr.h"
 #include "CreatureAI.h"
 #include "DBCStores.h"
@@ -218,8 +219,7 @@ void GameEventMgr::LoadFromDB()
 {
     {
         uint32 oldMSTime = getMSTime();
-        //                                               0           1                           2                         3          4       5        6             7            8            9
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, description, world_event, announce FROM game_event");
+        QueryResult result = LoadGameEventsQuery.GetOrQueryResults();
         if (!result)
         {
             mGameEvent.clear();
@@ -334,8 +334,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                   0             1
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
+        QueryResult result = LoadGameEventPrerequisiteQuery.GetOrQueryResults();
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
         else
@@ -382,8 +381,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 0        1
-        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry FROM game_event_creature");
+        QueryResult result = LoadGameEventCreaturesQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 creatures in game events. DB table `game_event_creature` is empty.");
@@ -432,8 +430,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                0         1
-        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry FROM game_event_gameobject");
+        QueryResult result = LoadGameEventGameObjectsQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
@@ -481,9 +478,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                       0           1                       2                                 3                                     4
-        QueryResult result = WorldDatabase.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
-                                                 "FROM creature JOIN game_event_model_equip ON creature.guid = game_event_model_equip.guid");
+        QueryResult result = LoadGameEventDisplayChangeQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
@@ -536,8 +531,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                               0     1      2
-        QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
+        QueryResult result = LoadGameEventCreatureQuestQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
@@ -573,8 +567,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                               0     1      2
-        QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
+        QueryResult result = LoadGameEventGameObjectQuestQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
@@ -610,8 +603,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 0       1         2             3
-        QueryResult result = WorldDatabase.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
+        QueryResult result = LoadGameObjectQuestConditionQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
@@ -649,8 +641,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                  0          1            2             3                      4
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
+        QueryResult result = LoadGameEventConditionQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
@@ -731,8 +722,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                0       1        2
-        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
+        QueryResult result = LoadGameEventNPCFlagQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
@@ -767,8 +757,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                  0          1
-        QueryResult result = WorldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
+        QueryResult result = LoadGameEventSeasonalQuestRelationQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
@@ -808,8 +797,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                               0           1     2     3         4         5
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor ORDER BY guid, slot ASC");
+        QueryResult result = LoadGameEventNPCVendorQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
@@ -870,8 +858,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                               0           1
-        QueryResult result = WorldDatabase.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
+        QueryResult result = LoadGameEventBattlegroundHolidayQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 battleground holidays in game events. DB table `game_event_battleground_holiday` is empty.");
@@ -904,9 +891,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                               0                         1
-        QueryResult result = WorldDatabase.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template"
-                                                 " JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");
+        QueryResult result = LoadGameEventPoolsQuery.GetOrQueryResults();
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
@@ -950,8 +935,7 @@ void GameEventMgr::LoadHolidayDates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1        2           3
-    QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value, holiday_duration FROM holiday_dates");
+    QueryResult result = LoadHolidayDatesQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 holiday dates. DB table `holiday_dates` is empty.");
@@ -1012,7 +996,7 @@ uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 
 void GameEventMgr::Initialize()
 {
-    QueryResult result = WorldDatabase.Query("SELECT MAX(eventEntry) FROM game_event");
+    QueryResult result = LoadGameEventMaxEntryQuery.GetOrQueryResults();
     if (result)
     {
         Field* fields = result->Fetch();

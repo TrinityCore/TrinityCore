@@ -20,6 +20,7 @@
 */
 
 #include "World.h"
+#include "LoadDataQueries.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
@@ -1553,6 +1554,9 @@ void World::LoadConfigSettings(bool reload)
 /// Initialize the World
 void World::SetInitialWorldSettings()
 {
+    // Start this as early as possible to maximize cpu-bound work before we must wait
+    LoadDataQuery::StartAllAsyncQueries();
+
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
 

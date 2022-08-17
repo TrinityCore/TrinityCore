@@ -16,6 +16,7 @@
  */
 
 #include "SpellMgr.h"
+#include "LoadDataQueries.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
@@ -863,8 +864,7 @@ void SpellMgr::LoadSpellRanks()
 
     uint32 oldMSTime = getMSTime();
 
-    //                                                     0             1       2
-    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, `rank` from spell_ranks ORDER BY first_spell_id, `rank`");
+    QueryResult result = LoadSpellRanksQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -979,8 +979,7 @@ void SpellMgr::LoadSpellRequired()
     mSpellsReqSpell.clear();                                   // need for reload case
     mSpellReq.clear();                                         // need for reload case
 
-    //                                                   0        1
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, req_spell from spell_required");
+    QueryResult result = LoadSpellRequiredQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -1085,8 +1084,7 @@ void SpellMgr::LoadSpellLearnSpells()
 
     mSpellLearnSpells.clear();                              // need for reload case
 
-    //                                                  0      1        2
-    QueryResult result = WorldDatabase.Query("SELECT entry, SpellID, Active FROM spell_learn_spell");
+    QueryResult result = LoadSpellLearnSpellsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell learn spells. DB table `spell_learn_spell` is empty.");
@@ -1186,8 +1184,7 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                                0      1          2        3         4           5            6
-    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
+    QueryResult result = LoadSpellTargetPositionQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -1289,8 +1286,7 @@ void SpellMgr::LoadSpellGroups()
     mSpellSpellGroup.clear();                                  // need for reload case
     mSpellGroupSpell.clear();
 
-    //                                                0     1
-    QueryResult result = WorldDatabase.Query("SELECT id, spell_id FROM spell_group");
+    QueryResult result = LoadSpellGroupsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell group definitions. DB table `spell_group` is empty.");
@@ -1370,8 +1366,7 @@ void SpellMgr::LoadSpellGroupStackRules()
 
     std::vector<uint32> sameEffectGroups;
 
-    //                                                       0         1
-    QueryResult result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
+    QueryResult result = LoadSpellGroupStackRulesQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell group stack rules. DB table `spell_group_stack_rules` is empty.");
@@ -1519,10 +1514,7 @@ void SpellMgr::LoadSpellProcs()
 
     mSpellProcMap.clear();                             // need for reload case
 
-    //                                                     0           1                2                 3                 4                 5
-    QueryResult result = WorldDatabase.Query("SELECT SpellId, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, "
-    //           6              7               8        9               10                  11              12      13        14       15
-        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, DisableEffectsMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
+    QueryResult result = LoadSpellProcsQuery.GetOrQueryResults();
 
     uint32 count = 0;
     if (result)
@@ -1884,7 +1876,7 @@ void SpellMgr::LoadSpellBonuses()
     mSpellBonusMap.clear();                             // need for reload case
 
     //                                                0      1             2          3         4
-    QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
+    QueryResult result = LoadSpellBonusesQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell bonus data. DB table `spell_bonus_data` is empty.");
@@ -1922,8 +1914,7 @@ void SpellMgr::LoadSpellThreats()
 
     mSpellThreatMap.clear();                                // need for reload case
 
-    //                                                0      1        2       3
-    QueryResult result = WorldDatabase.Query("SELECT entry, flatMod, pctMod, apPctMod FROM spell_threat");
+    QueryResult result = LoadSpellThreatsQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 aggro generating spells. DB table `spell_threat` is empty.");
@@ -1982,8 +1973,7 @@ void SpellMgr::LoadSpellPetAuras()
 
     mSpellPetAuraMap.clear();                                  // need for reload case
 
-    //                                                  0       1       2    3
-    QueryResult result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
+    QueryResult result = LoadSpellPetAurasQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
@@ -2082,8 +2072,7 @@ void SpellMgr::LoadSpellEnchantProcData()
 
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
-    //                                                       0       1               2        3               4
-    QueryResult result = WorldDatabase.Query("SELECT EnchantID, Chance, ProcsPerMinute, HitMask, AttributesMask FROM spell_enchant_proc_data");
+    QueryResult result = LoadSpellEnchantProcDataQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
@@ -2124,8 +2113,7 @@ void SpellMgr::LoadSpellLinked()
 
     mSpellLinkedMap.clear();    // need for reload case
 
-    //                                                0              1             2
-    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
+    QueryResult result = LoadSpellLinkedQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
@@ -2369,8 +2357,7 @@ void SpellMgr::LoadSpellAreas()
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
 
-    //                                                  0     1         2              3               4                 5          6          7       8         9
-    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
+    QueryResult result = LoadSpellAreasQuery.GetOrQueryResults();
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
@@ -2605,7 +2592,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     uint32 oldMSTime = getMSTime();
     uint32 oldMSTime2 = oldMSTime;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, attributes FROM spell_custom_attr");
+    QueryResult result = LoadSpellInfoCustomAttributesQuery.GetOrQueryResults();
 
     if (!result)
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell custom attributes from DB. DB table `spell_custom_attr` is empty.");

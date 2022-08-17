@@ -16,6 +16,7 @@
  */
 
 #include "ScriptSystem.h"
+#include "LoadDataQueries.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -42,14 +43,13 @@ void SystemMgr::LoadScriptWaypoints()
     uint64 entryCount = 0;
 
     // load Waypoints
-    QueryResult result = WorldDatabase.Query("SELECT COUNT(entry) FROM script_waypoint GROUP BY entry");
+    QueryResult result = LoadScriptWaypointCountQuery.GetOrQueryResults();
     if (result)
         entryCount = result->GetRowCount();
 
     TC_LOG_INFO("server.loading", "Loading Script Waypoints for " UI64FMTD " creature(s)...", entryCount);
 
-    //                                     0       1         2           3           4           5
-    result = WorldDatabase.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
+    result = LoadScriptWaypointsQuery.GetOrQueryResults();
 
     if (!result)
     {
@@ -94,10 +94,8 @@ void SystemMgr::LoadScriptSplineChains()
 
     m_mSplineChainsMap.clear();
 
-    //                                                   0      1        2         3                 4            5
-    QueryResult resultMeta = WorldDatabase.Query("SELECT entry, chainId, splineId, expectedDuration, msUntilNext, velocity FROM script_spline_chain_meta ORDER BY entry asc, chainId asc, splineId asc");
-    //                                                 0      1        2         3     4  5  6
-    QueryResult resultWP = WorldDatabase.Query("SELECT entry, chainId, splineId, wpId, x, y, z FROM script_spline_chain_waypoints ORDER BY entry asc, chainId asc, splineId asc, wpId asc");
+    QueryResult resultMeta = LoadScriptSplineChainMetaQuery.GetOrQueryResults();
+    QueryResult resultWP = LoadScriptSplineChainWaypointsQuery.GetOrQueryResults();
     if (!resultMeta || !resultWP)
     {
         TC_LOG_INFO("server.loading", ">> Loaded spline chain data for 0 chains, consisting of 0 splines with 0 waypoints. DB tables `script_spline_chain_meta` and `script_spline_chain_waypoints` are empty.");
