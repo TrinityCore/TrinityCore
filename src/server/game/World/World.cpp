@@ -1554,14 +1554,14 @@ void World::LoadConfigSettings(bool reload)
 /// Initialize the World
 void World::SetInitialWorldSettings()
 {
-    // Start this as early as possible to maximize cpu-bound work before we must wait
-    LoadDataQuery::StartAllAsyncQueries();
-
     if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
 
     ///- Server startup begin
     uint32 startupBegin = getMSTime();
+
+    // Start this as early as possible to maximize cpu-bound work before we must wait
+    LoadDataQuery::StartAllAsyncQueries();
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime());
