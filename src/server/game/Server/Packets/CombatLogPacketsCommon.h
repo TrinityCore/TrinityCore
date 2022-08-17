@@ -76,6 +76,7 @@ namespace WorldPackets
             uint32 Flags = NO_LEVEL_SCALING | NO_ITEM_LEVEL_SCALING;
             int32 PlayerContentTuningID = 0;
             int32 TargetContentTuningID = 0;
+            int32 Unused927 = 0;
 
             template<class T, class U>
             bool GenerateDataForUnits(T* attacker, U* target);

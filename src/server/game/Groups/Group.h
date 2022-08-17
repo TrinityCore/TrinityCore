@@ -440,6 +440,7 @@ class TC_GAME_API Group
         GroupRefManager     m_memberMgr;
         InvitesList         m_invitees;
         ObjectGuid          m_leaderGuid;
+        uint8               m_leaderFactionGroup;
         std::string         m_leaderName;
         GroupFlags          m_groupFlags;
         GroupCategory       m_groupCategory;

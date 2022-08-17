@@ -287,6 +287,7 @@ namespace WorldPackets
 
             ObjectGuid Auctioneer;
             int32 AuctionID = 0;
+            int32 ItemID = 0;
             Optional<Addon::AddOnInfo> TaintedBy;
         };
 
@@ -417,6 +418,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
+            uint32 DeliveryDelay = 0;
             bool OpenForBusiness = true;
         };
 
