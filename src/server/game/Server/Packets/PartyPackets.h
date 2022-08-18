@@ -556,6 +556,7 @@ namespace WorldPackets
 
             ObjectGuid PartyGUID;
             ObjectGuid LeaderGUID;
+            uint8 LeaderFactionGroup = 0;
 
             int32 MyIndex = 0;
             int32 SequenceNum = 0;

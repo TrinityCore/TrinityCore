@@ -109,11 +109,6 @@ struct DB2IndexData
     std::vector<DB2IndexEntry> Entries;
 };
 
-DB2FieldMeta::DB2FieldMeta(bool isSigned, DBCFormer type, char const* name)
-    : IsSigned(isSigned), Type(type), Name(name)
-{
-}
-
 DB2FileLoadInfo::DB2FileLoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta)
     : Fields(fields), FieldCount(fieldCount), Meta(meta)
 {

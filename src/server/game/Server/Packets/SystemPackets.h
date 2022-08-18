@@ -130,6 +130,7 @@ namespace WorldPackets
             uint32 KioskSessionMinutes                   = 0;
             int32 ActiveSeason                           = 0; ///< Currently active Classic season
             int16 MaxPlayerNameQueriesPerPacket          = 50;
+            int16 PlayerNameQueryTelemetryInterval       = 600;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -203,6 +204,7 @@ namespace WorldPackets
             int32 ActiveSeason                       = 0;     // Currently active Classic season
             std::vector<GameRuleValuePair> GameRuleValues;
             int16 MaxPlayerNameQueriesPerPacket = 50;
+            int16 PlayerNameQueryTelemetryInterval = 600;
             Optional<int32> LaunchETA;
         };
 
