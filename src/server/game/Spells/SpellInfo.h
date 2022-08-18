@@ -268,15 +268,17 @@ public:
     flag96    SpellClassMask;
     std::vector<Condition*>* ImplicitTargetConditions;
     // SpellScalingEntry
-    float     ScalingMultiplier;
-    float     DeltaScalingMultiplier;
-    float     ComboScalingMultiplier;
+    struct
+    {
+        float Coefficient;
+        float Variance;
+        float ComboPointsCoefficient;
+    } Scaling;
 
     SpellEffectInfo() : _spellInfo(nullptr), _effIndex(0), Effect(0), ApplyAuraName(0), AuraPeriod(0), DieSides(0),
                         RealPointsPerLevel(0.f), BasePoints(0), PointsPerComboPoint(0), Amplitude(0.f), DamageMultiplier(0.f),
                         BonusMultiplier(0.f), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), RadiusEntry(nullptr), MaxRadiusEntry(nullptr),
-                        ChainTarget(0), ItemType(0), TriggerSpell(0), ImplicitTargetConditions(nullptr), ScalingMultiplier(0.f), DeltaScalingMultiplier(0.f),
-                        ComboScalingMultiplier(0.f) { }
+                        ChainTarget(0), ItemType(0), TriggerSpell(0), ImplicitTargetConditions(nullptr) { }
 
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
 
@@ -438,12 +440,16 @@ class TC_GAME_API SpellInfo
         uint32 SpellTotemsId;
         uint32 ResearchProjectId;
         // SpellScalingEntry
-        int32  CastTimeMin;
-        int32  CastTimeMax;
-        int32  CastTimeMaxLevel;
-        int32  ScalingClass;
-        float  CoefBase;
-        int32  CoefLevelBase;
+        struct
+        {
+            int32 CastTimeMin;
+            int32 CastTimeMax;
+            int32 CastTimeMaxLevel;
+            int32 Class;
+            float NerfFactor;
+            int32 NerfMaxLevel;
+        } Scaling;
+
         SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
         uint32 ExplicitTargetMask;
         SpellChainNode const* ChainEntry;

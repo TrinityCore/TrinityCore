@@ -375,9 +375,10 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag96(0);
     ImplicitTargetConditions = nullptr;
-    ScalingMultiplier = scaling ? scaling->Coefficient[_effIndex] : 0.0f;
-    DeltaScalingMultiplier = scaling ? scaling->Variance[_effIndex] : 0.0f;
-    ComboScalingMultiplier = scaling ? scaling->ComboPointsCoefficient[_effIndex] : 0.0f;
+
+    Scaling.Coefficient = scaling ? scaling->Coefficient[_effIndex] : 0.0f;
+    Scaling.Variance = scaling ? scaling->Variance[_effIndex] : 0.0f;
+    Scaling.ComboPointsCoefficient = scaling ? scaling->ComboPointsCoefficient[_effIndex] : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -461,48 +462,60 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     float comboDamage = PointsPerComboPoint;
 
     // base amount modification based on spell lvl vs caster lvl
-    if (ScalingMultiplier != 0.0f)
+    if (Scaling.Coefficient != 0.0f)
     {
-        if (caster)
+        uint32 level = _spellInfo->SpellLevel;
+        if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_2))
+            level = target->getLevel();
+        else if (caster)
+            level = caster->getLevel();
+
+        if (_spellInfo->HasAttribute(SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING))
+            level = _spellInfo->BaseLevel;
+
+        float value = 0.0f;
+        if (level > 0)
         {
-            int32 level = caster->getLevel();
-            if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_2))
-                level = target->getLevel();
+            if (!_spellInfo->Scaling.Class)
+                return 0;
 
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->ScalingClass != -1 ? _spellInfo->ScalingClass - 1 : MAX_CLASSES - 1) * 100 + level - 1))
-            {
-                float multiplier = gtScaling->value;
-                if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > level)
-                    multiplier *= float(_spellInfo->CastTimeMin + (level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
-                if (_spellInfo->CoefLevelBase > level)
-                    multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->Scaling.Class != -1 ? _spellInfo->Scaling.Class - 1 : MAX_CLASSES - 1) * 100 + level - 1))
+                value = gtScaling->value;
 
-                float preciseBasePoints = ScalingMultiplier * multiplier;
-                if (DeltaScalingMultiplier)
-                {
-                    float delta = fabs(DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f);
-                    preciseBasePoints += frand(-delta, delta);
-                }
+            if (int32(level) < _spellInfo->Scaling.CastTimeMaxLevel && _spellInfo->Scaling.CastTimeMax)
+                value *= float(_spellInfo->Scaling.CastTimeMin + (level - 1) * (_spellInfo->Scaling.CastTimeMax - _spellInfo->Scaling.CastTimeMin) / (_spellInfo->Scaling.CastTimeMaxLevel - 1)) / float(_spellInfo->Scaling.CastTimeMax);
 
-                basePoints = int32(preciseBasePoints);
-
-                if (ComboScalingMultiplier)
-                    comboDamage = ComboScalingMultiplier * multiplier;
-            }
+            if (int32(level) < _spellInfo->Scaling.NerfMaxLevel)
+                value *= ((((1.0f - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
         }
+
+        value *= Scaling.Coefficient;
+        if (value != 0.0f && value < 1.0f)
+            value = 1.0f;
+
+        if (Scaling.Variance)
+        {
+            float delta = fabs(Scaling.Variance * 0.5f);
+            float valueVariance = frand(-delta, delta);
+            value += value * valueVariance;
+        }
+
+        basePoints = int32(round(value));
+
+        if (Scaling.ComboPointsCoefficient)
+            comboDamage = Scaling.ComboPointsCoefficient * value;
     }
     else
     {
-        if (caster && basePointsPerLevel != 0.0f)
+        if (caster)
         {
             int32 level = int32(caster->getLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
             else if (level < int32(_spellInfo->BaseLevel))
                 level = int32(_spellInfo->BaseLevel);
-
-            // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
-            level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
+            if (!_spellInfo->IsPassive())
+                level -= int32(_spellInfo->SpellLevel);
             basePoints += int32(level * basePointsPerLevel);
         }
 
@@ -587,7 +600,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 {
                     value *= casterScaler->ratio / spellScaler->ratio;
                     if (caster->getLevel() > 80)
-                        value *= (caster->getLevel() - 80) * 4.4f; // this value has been reversed by calculating default scalings against sniffed spell damage log packets
+                        value *= (caster->getLevel() - 80) * 4.4f; // Cataclysm creatures have a way higher jump in stats than previous expansions so we use this estimated value based on combat log packet research
                 }
             }
         }
@@ -933,12 +946,12 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
 
     // SpellScalingEntry
     SpellScalingEntry const* _scaling = GetSpellScaling();
-    CastTimeMin = _scaling ? _scaling->CastTimeMin : 0;
-    CastTimeMax = _scaling ?_scaling->CastTimeMax : 0;
-    CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
-    ScalingClass = _scaling ? _scaling->Class : 0;
-    CoefBase = _scaling ? _scaling->NerfFactor : 0;
-    CoefLevelBase = _scaling ? _scaling->NerfMaxLevel : 0;
+    Scaling.CastTimeMin = _scaling ? _scaling->CastTimeMin : 0;
+    Scaling.CastTimeMax = _scaling ? _scaling->CastTimeMax : 0;
+    Scaling.CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
+    Scaling.Class = _scaling ? _scaling->Class : 0;
+    Scaling.NerfFactor = _scaling ? _scaling->NerfFactor : 0;
+    Scaling.NerfMaxLevel = _scaling ? _scaling->NerfMaxLevel : 0;
 
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = GetSpellAuraOptions();
@@ -2809,6 +2822,9 @@ void SpellInfo::_LoadImmunityInfo()
         uint32 dispelImmunity = 0;
         uint32 damageImmunityMask = 0;
 
+        if (!Effects[i].IsEffect())
+            continue;
+
         int32 miscVal = Effects[i].MiscValue;
         int32 amount = Effects[i].CalcValue();
 
@@ -3451,11 +3467,11 @@ uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= nullptr*/) const
         level = spell->GetCaster()->getLevel();
 
     // not all spells have cast time index and this is all is pasiive abilities
-    if (level && CastTimeMax > 0)
+    if (level && Scaling.CastTimeMax > 0)
     {
-        castTime = CastTimeMax;
-        if (CastTimeMaxLevel > level)
-            castTime = CastTimeMin + int32(level - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
+        castTime = Scaling.CastTimeMax;
+        if (Scaling.CastTimeMaxLevel > level)
+            castTime = Scaling.CastTimeMin + int32(level - 1) * (Scaling.CastTimeMax - Scaling.CastTimeMin) / (Scaling.CastTimeMaxLevel - 1);
     }
     else if (CastTimeEntry)
         castTime = CastTimeEntry->Base;
@@ -3732,7 +3748,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
             Effects[i].Effect == SPELL_EFFECT_APPLY_AURA_2 ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
             Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
-            !Effects[i].ScalingMultiplier)
+            !Effects[i].Scaling.Coefficient)
         {
             needRankSelection = true;
             break;
