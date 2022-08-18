@@ -288,14 +288,17 @@ namespace WorldPackets
         class EnterEncryptedMode final : public ServerPacket
         {
         public:
-            EnterEncryptedMode(uint8 const* encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
+            static bool InitializeEncryption();
+            static void ShutdownEncryption();
+
+            EnterEncryptedMode(std::array<uint8, 16> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
                 EncryptionKey(encryptionKey), Enabled(enabled)
             {
             }
 
             WorldPacket const* Write() override;
 
-            uint8 const* EncryptionKey;
+            std::array<uint8, 16> const& EncryptionKey;
             bool Enabled = false;
         };
     }

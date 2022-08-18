@@ -403,6 +403,7 @@ extern int main(int argc, char** argv)
 
     // Shutdown starts here
     WorldPackets::Auth::ConnectTo::ShutdownEncryption();
+    WorldPackets::Auth::EnterEncryptedMode::ShutdownEncryption();
 
     threadPool.reset();
 
