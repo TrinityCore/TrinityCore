@@ -18,7 +18,7 @@
 #include "AuthenticationPackets.h"
 #include "BigNumber.h"
 #include "CharacterTemplateDataStore.h"
-#include "CryptoHash.h"
+#include "Ed25519.h"
 #include "HMAC.h"
 #include "ObjectMgr.h"
 #include "RSA.h"
@@ -205,7 +205,7 @@ WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
 
 namespace
 {
-std::string RSAPrivateKey = R"(-----BEGIN RSA PRIVATE KEY-----
+std::string const RSAPrivateKey = R"(-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEA7rPc1NPDtFRRzmZbyzK48PeSU8YZ8gyFL4omqXpFn2DE683q
 f41Z2FeyYHsJTJtouMft7x6ADeZrN1tTkOsYEw1/Q2SD2pjmrMIwooKlxsvH+4af
 n6kCagNJxTj7wMhVzMDOJZG+hc/R0TfOzIPS6jCAB3uAn51EVCIpvoba20jFqfkT
@@ -234,7 +234,16 @@ OHYtKG3GK3GEcFDwZU2LPHq21EroUAdtRfbrJ4KW2yc8igtXKxTBYw==
 -----END RSA PRIVATE KEY-----
 )";
 
+std::array<uint8, 32> constexpr EnterEncryptedModePrivateKey =
+{
+    0x08, 0xBD, 0xC7, 0xA3, 0xCC, 0xC3, 0x4F, 0x3F,
+    0x6A, 0x0B, 0xFF, 0xCF, 0x31, 0xC1, 0xB6, 0x97,
+    0x69, 0x1E, 0x72, 0x9A, 0x0A, 0xAB, 0x2C, 0x77,
+    0xC3, 0x6F, 0x8A, 0xE7, 0x5A, 0x9A, 0xA7, 0xC9
+};
+
 std::unique_ptr<Trinity::Crypto::RsaSignature> ConnectToRSA;
+std::unique_ptr<Trinity::Crypto::Ed25519> EnterEncryptedModeSigner;
 }
 
 bool WorldPackets::Auth::ConnectTo::InitializeEncryption()
@@ -309,19 +318,34 @@ void WorldPackets::Auth::ConnectToFailed::Read()
     _worldPacket >> Con;
 }
 
-uint8 constexpr EnableEncryptionSeed[16] = { 0x90, 0x9C, 0xD0, 0x50, 0x5A, 0x2C, 0x14, 0xDD, 0x5C, 0x2C, 0xC0, 0x64, 0x14, 0xF3, 0xFE, 0xC9 };
+bool WorldPackets::Auth::EnterEncryptedMode::InitializeEncryption()
+{
+    std::unique_ptr<Trinity::Crypto::Ed25519> ed25519 = std::make_unique<Trinity::Crypto::Ed25519>();
+    if (!ed25519->LoadFromByteArray(EnterEncryptedModePrivateKey))
+        return false;
+
+    EnterEncryptedModeSigner = std::move(ed25519);
+    return true;
+}
+
+void WorldPackets::Auth::EnterEncryptedMode::ShutdownEncryption()
+{
+    EnterEncryptedModeSigner.reset();
+}
+
+std::array<uint8, 16> constexpr EnableEncryptionSeed = { 0x90, 0x9C, 0xD0, 0x50, 0x5A, 0x2C, 0x14, 0xDD, 0x5C, 0x2C, 0xC0, 0x64, 0x14, 0xF3, 0xFE, 0xC9 };
+std::array<uint8, 16> constexpr EnableEncryptionContext = { 0xA7, 0x1F, 0xB6, 0x9B, 0xC9, 0x7C, 0xDD, 0x96, 0xE9, 0xBB, 0xB8, 0x21, 0x39, 0x8D, 0x5A, 0xD4 };
 
 WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
 {
-    std::array<uint8, 17> msg{};
-    msg[0] = Enabled ? 1 : 0;
-    std::copy_n(std::begin(EnableEncryptionSeed), std::size(EnableEncryptionSeed), &msg[1]);
+    std::array<uint8, 32> toSign = Trinity::Crypto::HMAC_SHA256::GetDigestOf(EncryptionKey,
+        std::array<uint8, 1>{uint8(Enabled ? 1 : 0)},
+        EnableEncryptionSeed);
 
-    Trinity::Crypto::RsaSignature rsa(*ConnectToRSA);
-    Trinity::Crypto::RsaSignature::HMAC_SHA256 digestGenerator(EncryptionKey, 16);
+    Trinity::Crypto::Ed25519 ed25519(*EnterEncryptedModeSigner);
     std::vector<uint8> signature;
 
-    rsa.Sign(msg, digestGenerator, signature);
+    ed25519.SignWithContext(toSign, { EnableEncryptionContext.begin(), EnableEncryptionContext.end() }, signature);
 
     _worldPacket.append(signature.data(), signature.size());
     _worldPacket.WriteBit(Enabled);

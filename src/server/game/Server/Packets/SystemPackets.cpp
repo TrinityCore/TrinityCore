@@ -81,6 +81,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << uint32(GameRuleValues.size());
 
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
+    _worldPacket << int16(PlayerNameQueryTelemetryInterval);
 
     for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
         _worldPacket << gameRuleValue;
@@ -208,6 +209,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(ActiveSeason);
     _worldPacket << uint32(GameRuleValues.size());
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
+    _worldPacket << int16(PlayerNameQueryTelemetryInterval);
 
     if (LaunchETA)
         _worldPacket << int32(*LaunchETA);
