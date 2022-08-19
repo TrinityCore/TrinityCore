@@ -1562,12 +1562,11 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
         playerInfos.GUID = citr->guid;
         playerInfos.Name = citr->name;
+        playerInfos.Class = citr->_class;
 
         playerInfos.FactionGroup = Player::GetFactionGroupForRace(citr->race);
 
-        playerInfos.Status = MEMBER_STATUS_OFFLINE;
-        if (member && member->GetSession() && !member->GetSession()->PlayerLogout())
-            playerInfos.Status = MEMBER_STATUS_ONLINE | (isBGGroup() || isBFGroup() ? MEMBER_STATUS_PVP : 0);
+        playerInfos.Connected = member && member->GetSession() && !member->GetSession()->PlayerLogout();
 
         playerInfos.Subgroup = citr->group;         // groupid
         playerInfos.Flags = citr->flags;            // See enum GroupMemberFlags

@@ -505,14 +505,14 @@ namespace WorldPackets
             ObjectGuid GUID;
             std::string Name;
             std::string VoiceStateID;   // same as bgs.protocol.club.v1.MemberVoiceState.id
-            uint8 Status = 0u;
+            uint8 Class = 0u;
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
             uint8 FactionGroup = 0u;
             bool FromSocialQueue = false;
             bool VoiceChatSilenced = false;
-            bool Connected = true;
+            bool Connected = false;
         };
 
         struct PartyLFGInfo
