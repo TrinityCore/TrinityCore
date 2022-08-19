@@ -285,7 +285,7 @@ namespace WorldPackets
             void Read() override;
         };
 
-        class EnterEncryptedMode final : public ServerPacket
+        class TC_GAME_API EnterEncryptedMode final : public ServerPacket
         {
         public:
             static bool InitializeEncryption();
