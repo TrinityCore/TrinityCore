@@ -718,7 +718,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
             Log(_T("SYMBOL HANDLER ERROR (THIS IS NOT THE CRASH ERROR)\r\n\r\n"));
             Log(_T("Couldn't initialize symbol handler for process when generating crash report\r\n"));
             Log(_T("Error: %s\r\n"), ErrorMessage(GetLastError()));
-            Log(_T("THE BELOW CALL STACKS MAY NOW HAVE MISSING OR INACCURATE FILE/FUNCTION NAMES\r\n\r\n"));
+            Log(_T("THE BELOW CALL STACKS MIGHT HAVE MISSING OR INACCURATE FILE/FUNCTION NAMES\r\n\r\n"));
             Log(_T("END OF SYMBOL HANDLER ERROR\r\n"));
             Log(_T("----\r\n"));
         }
