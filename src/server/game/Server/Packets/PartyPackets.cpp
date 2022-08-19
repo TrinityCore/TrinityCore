@@ -423,14 +423,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo co
 {
     data.WriteBits(playerInfo.Name.size(), 6);
     data.WriteBits(playerInfo.VoiceStateID.size() + 1, 6);
-    data.WriteBit(playerInfo.FromSocialQueue);
+    data.WriteBit(playerInfo.Connected);
     data.WriteBit(playerInfo.VoiceChatSilenced);
+    data.WriteBit(playerInfo.FromSocialQueue);
     data << playerInfo.GUID;
     data << uint8(playerInfo.Status);
     data << uint8(playerInfo.Subgroup);
     data << uint8(playerInfo.Flags);
     data << uint8(playerInfo.RolesAssigned);
-    data << uint8(playerInfo.Class);
     data << uint8(playerInfo.FactionGroup);
     data.WriteString(playerInfo.Name);
     if (!playerInfo.VoiceStateID.empty())

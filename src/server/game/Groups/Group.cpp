@@ -1562,7 +1562,6 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
         playerInfos.GUID = citr->guid;
         playerInfos.Name = citr->name;
-        playerInfos.Class = citr->_class;
 
         playerInfos.FactionGroup = Player::GetFactionGroupForRace(citr->race);
 
