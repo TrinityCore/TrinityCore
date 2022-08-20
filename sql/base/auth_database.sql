@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.29, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.30, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	8.0.29-0ubuntu0.20.04.3
+-- Server version	8.0.30-0ubuntu0.20.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2611,9 +2611,10 @@ INSERT INTO `updates` VALUES
 ('2022_06_27_00_auth.sql','CF613CCAAF8B6F08AAE1C48DBC4AF4D224291D8D','ARCHIVED','2022-06-27 21:13:58',0),
 ('2022_07_23_00_auth.sql','FEA7A8DA363F097A090F3BB39401C3FD7AE8E9B5','ARCHIVED','2022-07-25 18:40:38',0),
 ('2022_07_25_00_auth.sql','8F5BA8F7E010EDCA70F49FDE947B2F89476A2F95','ARCHIVED','2022-07-25 18:44:10',0),
-('2022_08_02_00_auth.sql','4B97D20928B05086C7863497F4DDD408A51619BE','RELEASED','2022-08-02 18:28:31',0),
-('2022_08_17_00_auth.sql','1A45DAE660690A7F4D0822C514116BF44A3185BB','RELEASED','2022-08-17 10:16:00',0),
-('2022_08_19_00_auth.sql','332E7CC2E69D69BF274E5C61768FB80D1C217BDB','RELEASED','2022-08-19 09:52:06',0);
+('2022_08_02_00_auth.sql','4B97D20928B05086C7863497F4DDD408A51619BE','ARCHIVED','2022-08-02 18:28:31',0),
+('2022_08_17_00_auth.sql','1A45DAE660690A7F4D0822C514116BF44A3185BB','ARCHIVED','2022-08-17 10:16:00',0),
+('2022_08_19_00_auth.sql','332E7CC2E69D69BF274E5C61768FB80D1C217BDB','ARCHIVED','2022-08-19 09:52:06',0),
+('2022_08_19_01_auth.sql','8B32826AE09C27B98C9480EF4D61205666F68318','ARCHIVED','2022-08-19 23:43:01',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2738,7 +2739,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
 /*!50001 SET character_set_client      = utf8mb3 */;
 /*!50001 SET character_set_results     = utf8mb3 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 SET collation_connection      = utf8mb3_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 */
 /*!50001 VIEW `vw_rbac` AS select `t1`.`linkedId` AS `Permission ID`,`t1`.`id` AS `Permission Group`,ifnull(`t2`.`secId`,'linked') AS `Security Level`,`t3`.`name` AS `Permission` from ((`rbac_linked_permissions` `t1` left join `rbac_default_permissions` `t2` on((`t1`.`id` = `t2`.`permissionId`))) left join `rbac_permissions` `t3` on((`t1`.`linkedId` = `t3`.`id`))) */;
@@ -2755,4 +2756,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-07-25 18:44:12
+-- Dump completed on 2022-08-19 23:43:03
