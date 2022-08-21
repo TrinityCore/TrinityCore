@@ -1398,7 +1398,7 @@ class TC_GAME_API ObjectMgr
 
         void LoadGossipMenu();
         void LoadGossipMenuItems();
-        void LoadGossipMenuFriendshipFactions();
+        void LoadGossipMenuAddons();
 
         void LoadVendors();
         void LoadTrainers();

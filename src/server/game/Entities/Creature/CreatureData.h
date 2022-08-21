@@ -635,8 +635,9 @@ struct CreatureAddon
     uint16 aiAnimKit;
     uint16 movementAnimKit;
     uint16 meleeAnimKit;
-    std::vector<uint32> auras;
+    bool PlayHoverAnim;
     VisibilityDistanceType visibilityDistanceType;
+    std::vector<uint32> auras;
 };
 
 // Vendors

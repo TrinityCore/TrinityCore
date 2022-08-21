@@ -713,8 +713,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0       1       2      3       4       5        6             7              8                  9              10
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
+    //                                               0      1        2      3       4       5      6          7                8             9              10                      11
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, PlayHoverAnim, visibilityDistanceType, auras FROM creature_template_addon");
 
     if (!result)
     {
@@ -745,9 +745,10 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.aiAnimKit                 = fields[6].GetUInt16();
         creatureAddon.movementAnimKit           = fields[7].GetUInt16();
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        creatureAddon.PlayHoverAnim             = fields[9].GetBool();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[10].GetUInt8());
 
-        for (std::string_view aura : Trinity::Tokenize(fields[10].GetStringView(), ' ', false))
+        for (std::string_view aura : Trinity::Tokenize(fields[11].GetStringView(), ' ', false))
         {
             SpellInfo const* spellInfo = nullptr;
             if (Optional<uint32> spellId = Trinity::StringTo<uint32>(aura))
@@ -1275,8 +1276,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5        6             7              8                  9              10
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
+    //                                               0     1        2      3       4       5      6          7                8             9              10                      11
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, PlayHoverAnim, visibilityDistanceType, auras FROM creature_addon");
 
     if (!result)
     {
@@ -1314,9 +1315,10 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.aiAnimKit                 = fields[6].GetUInt16();
         creatureAddon.movementAnimKit           = fields[7].GetUInt16();
         creatureAddon.meleeAnimKit              = fields[8].GetUInt16();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        creatureAddon.PlayHoverAnim             = fields[9].GetBool();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[10].GetUInt8());
 
-        for (std::string_view aura : Trinity::Tokenize(fields[10].GetStringView(), ' ', false))
+        for (std::string_view aura : Trinity::Tokenize(fields[11].GetStringView(), ' ', false))
         {
             SpellInfo const* spellInfo = nullptr;
             if (Optional<uint32> spellId = Trinity::StringTo<uint32>(aura))
@@ -9687,7 +9689,7 @@ void ObjectMgr::LoadGossipMenuItems()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " gossip_menu_option entries in %u ms", _gossipMenuItemsStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadGossipMenuFriendshipFactions()
+void ObjectMgr::LoadGossipMenuAddons()
 {
     uint32 oldMSTime = getMSTime();
 

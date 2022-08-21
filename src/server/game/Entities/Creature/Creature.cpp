@@ -2680,6 +2680,8 @@ bool Creature::LoadCreaturesAddon()
     SetMovementAnimKitId(cainfo->movementAnimKit);
     SetMeleeAnimKitId(cainfo->meleeAnimKit);
 
+    SetPlayHoverAnim(cainfo->PlayHoverAnim, false);
+
     // Check if visibility distance different
     if (cainfo->visibilityDistanceType != VisibilityDistanceType::Normal)
         SetVisibilityDistanceOverride(cainfo->visibilityDistanceType);

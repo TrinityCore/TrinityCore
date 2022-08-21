@@ -2248,8 +2248,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Gossip menu options...");
     sObjectMgr->LoadGossipMenuItems();
 
-    TC_LOG_INFO("server.loading", "Loading Gossip menu friendship factions...");
-    sObjectMgr->LoadGossipMenuFriendshipFactions();
+    TC_LOG_INFO("server.loading", "Loading Gossip menu addons...");
+    sObjectMgr->LoadGossipMenuAddons();
 
     TC_LOG_INFO("server.loading", "Loading Creature trainers...");
     sObjectMgr->LoadCreatureTrainers();                         // must be after LoadGossipMenuItems
