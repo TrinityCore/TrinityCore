@@ -8,7 +8,7 @@ INSERT INTO `terrain_swap_defaults` (`MapId`, `TerrainSwapMap`, `Comment`) VALUE
 (1116, 1158, 'SMV Alliance Garrison Level 1');
 
 -- Condition
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 25 AND `SourceGroup` = 0 AND `SourceEntry` = 1158) OR (`SourceTypeOrReferenceId` = 13 AND `SourceGroup` = 1 AND `SourceEntry` = 160938) OR (`SourceTypeOrReferenceId` = 15) AND (`SourceGroup` IN (16871));
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 25 AND `SourceGroup` = 0 AND `SourceEntry` = 1158) OR (`SourceTypeOrReferenceId` = 13 AND `SourceGroup` = 1 AND `SourceEntry` = 160938) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=16871 AND `SourceEntry`=0 AND `SourceId`=0);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES
 (25, 0, 1158, 0, 0, 47, 0, 36797, 66, 0, 0, 'TerrainSwap to 1158 if Quest: 36797 is complete/rewarded'),
 (13, 1, 160938, 0, 0, 31, 0, 3, 79655, 0, 0, 'Spell "Despawn All Summons (Garrison Intro Only) can hit Vindicator Maraad'),
