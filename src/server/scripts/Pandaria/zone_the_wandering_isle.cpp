@@ -21,42 +21,37 @@
 #include "ScriptedCreature.h"
 #include "TaskScheduler.h"
 
-enum Aspirant
+enum AspiringTrainee
 {
-    SAY_FINISH_FIGHT = 0,
-    SPELL_BLACKOUT_KICK = 109080,
-    QUEST_29524_KILLCREDIT = 54586,
-    EVENT_RANDOM_EMOTE = 1,
-    EVENT_INSTRUCTOR_ZHI_RANDOM_EMOTE = 2,
-    NPC_INSTRUCTOR_ZHI = 61411,
-    ACTION = 1
+    SAY_FINISH_FIGHT                    = 0,
+
+    SPELL_BLACKOUT_KICK                 = 109080,
+
+    QUEST_29524_KILLCREDIT              = 54586,
+
+    NPC_INSTRUCTOR_ZHI                  = 61411,
+
+    ASPIRING_TRAINEE_PATH_MAX          = 5,
 };
 
-Emote randomEmotes[5] =
-{
-    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMED,
-    EMOTE_ONESHOT_MONKOFFENSE_SPECIALUNARMED,
-    EMOTE_ONESHOT_MONKOFFENSE_PARRYUNARMED,
-    EMOTE_ONESHOT_PALMSTRIKE,
-    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF,
+std::vector<Position const> AspiringTraineePaths[ASPIRING_TRAINEE_PATH_MAX] = {
+    { // waypoints 1
+        { 0.0f, 0.0f, 0.0f },
+        { 0.0f, 0.0f, 0.0f },
+    },
+    {
+        { 0.0f, 0.0f, 0.0f },
+    },
 };
 
-//54586
+// 54586 - Aspiring Trainee
 struct npc_aspiring_trainee : public ScriptedAI
 {
-    npc_aspiring_trainee(Creature* c) : ScriptedAI(c)
-    {
-        events.ScheduleEvent(EVENT_INSTRUCTOR_ZHI_RANDOM_EMOTE, 6s);
-    }
-
-    void Reset() override
-    {
-        ScriptedAI::Reset();
-    }
+    npc_aspiring_trainee(Creature* creature) : ScriptedAI(creature) { }
 
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (attacker && (me->HealthBelowPctDamaged(15, damage) || damage >= me->GetHealth()))
+        if (attacker && me->HealthBelowPctDamaged(15, damage))
         {
             if (Player* player = attacker->ToPlayer())
                 player->KilledMonsterCredit(QUEST_29524_KILLCREDIT);
@@ -65,22 +60,32 @@ struct npc_aspiring_trainee : public ScriptedAI
 
             me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
             me->CombatStop();
+            _scheduler.CancelAll();
 
-            _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/) { Talk(SAY_FINISH_FIGHT); });
+            _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/)
             {
                 Talk(SAY_FINISH_FIGHT);
-            };
+            });
 
             _scheduler.Schedule(Seconds(3), [this](TaskContext /*task*/)
             {
-                me->GetMotionMaster()->MovePoint(0, 1446.302f, 3387.493f, 173.7903f);
-            });
-
-            _scheduler.Schedule(Seconds(6), [this](TaskContext /*task*/)
-            {
-                me->DespawnOrUnsummon();
+                uint32 pathId = urand(0, ASPIRING_TRAINEE_PATH_MAX);
+                me->GetMotionMaster()->MoveSmoothPath(pathId, AspiringTraineePaths[pathId].data(), AspiringTraineePaths[pathId].size());
             });
         }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != EFFECT_MOTION_TYPE)
+            return;
+
+        me->DespawnOrUnsummon();
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _scheduler.CancelAll();
     }
 
     void JustEngagedWith(Unit* /*attacker*/) override
@@ -88,46 +93,15 @@ struct npc_aspiring_trainee : public ScriptedAI
         _scheduler.Schedule(Seconds(4), [this](TaskContext task)
         {
             if (me->GetVictim())
-
-            DoCastVictim(SPELL_BLACKOUT_KICK);
+                DoCastVictim(SPELL_BLACKOUT_KICK);
 
             task.Repeat(Seconds(8));
         });
-
-        events.CancelEvent(EVENT_RANDOM_EMOTE);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
         _scheduler.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-            case EVENT_INSTRUCTOR_ZHI_RANDOM_EMOTE:
-            {
-                if (me->IsInCombat())
-                    return;
-
-                if (Creature* instructorZhi = me->FindNearestCreature(NPC_INSTRUCTOR_ZHI, range))
-                {
-                    instructorZhi->AI()->DoAction(ACTION);
-                    events.ScheduleEvent(EVENT_RANDOM_EMOTE, 1s);
-                }
-
-                events.Repeat(6s);
-                break;
-            }
-            case EVENT_RANDOM_EMOTE:
-            {
-                Emote randomEmote = Trinity::Containers::SelectRandomContainerElement(randomEmotes);
-                me->HandleEmoteCommand(randomEmote);
-                break;
-            }
-            }
-        }
 
         if (!UpdateVictim())
             return;
@@ -137,22 +111,71 @@ struct npc_aspiring_trainee : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    EventMap events;
-    float range = 20.0f;
 };
 
+enum InstructorZhiMisc
+{
+    NPC_ASPIRING_TRAINEE                            = 54586,
+
+    EVENT_INSTRUCTOR_ZHI_START_EMOTE                = 1,
+    EVENT_INSTRUCTOR_ZHI_TRAINEES_DO_EMOTE          = 2,
+};
+
+Emote const InstructorZhiRandomEmotes[5] =
+{
+    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMED,
+    EMOTE_ONESHOT_MONKOFFENSE_SPECIALUNARMED,
+    EMOTE_ONESHOT_MONKOFFENSE_PARRYUNARMED,
+    EMOTE_ONESHOT_PALMSTRIKE,
+    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF,
+};
+
+// 61411 - Instructor Zhi
 struct npc_instructor_zhi : public ScriptedAI
 {
-    npc_instructor_zhi(Creature* creature) : ScriptedAI(creature) { }
+    npc_instructor_zhi(Creature* c) : ScriptedAI(c) { }
 
-    void DoAction(int32 param) override
+    void Reset() override
     {
-        if (param == ACTION)
+        _events.ScheduleEvent(EVENT_INSTRUCTOR_ZHI_START_EMOTE, 6s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-        Emote randomEmote = Trinity::Containers::SelectRandomContainerElement(randomEmotes);
-        me->HandleEmoteCommand(randomEmote);
+            switch (eventId)
+            {
+                case EVENT_INSTRUCTOR_ZHI_START_EMOTE:
+                {
+                    _currentEmote = Trinity::Containers::SelectRandomContainerElement(InstructorZhiRandomEmotes);
+                    me->HandleEmoteCommand(_currentEmote);
+
+                    _events.ScheduleEvent(EVENT_INSTRUCTOR_ZHI_TRAINEES_DO_EMOTE, 1s);
+                    _events.Repeat(6s);
+                    break;
+                }
+                case EVENT_INSTRUCTOR_ZHI_TRAINEES_DO_EMOTE:
+                {
+                    std::list<Creature*> traineeList;
+                    me->GetCreatureListWithEntryInGrid(traineeList, NPC_ASPIRING_TRAINEE, 20.0f);
+                    for (Creature* trainee : traineeList)
+                    {
+                        if (trainee->IsInCombat())
+                            continue;
+                        trainee->HandleEmoteCommand(_currentEmote);
+                    }
+                    break;
+                }
+            }
         }
     }
+
+private:
+    EventMap _events;
+    Emote _currentEmote;
 };
 
 void AddSC_zone_the_wandering_isle()
