@@ -923,13 +923,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(14083) ||               // last area added in 9.2.5 (43971)
-        !sCharTitlesStore.LookupEntry(727) ||                // last char title added in 9.2.5 (43971)
-        !sGemPropertiesStore.LookupEntry(3922) ||            // last gem property added in 9.2.5 (43971)
-        !sItemStore.LookupEntry(193265) ||                   // last item added in 9.2.5 (43971)
-        !sItemExtendedCostStore.LookupEntry(7302) ||         // last item extended cost added in 9.2.5 (43971)
-        !sMapStore.LookupEntry(2559) ||                      // last map added in 9.2.5 (43971)
-        !sSpellNameStore.LookupEntry(375051))                // last spell added in 9.2.5 (43971)
+    if (!sAreaTableStore.LookupEntry(14083) ||               // last area added in 9.2.7 (45114)
+        !sCharTitlesStore.LookupEntry(727) ||                // last char title added in 9.2.7 (45114)
+        !sGemPropertiesStore.LookupEntry(3922) ||            // last gem property added in 9.2.7 (45114)
+        !sItemStore.LookupEntry(199202) ||                   // last item added in 9.2.7 (45114)
+        !sItemExtendedCostStore.LookupEntry(7316) ||         // last item extended cost added in 9.2.7 (45114)
+        !sMapStore.LookupEntry(2559) ||                      // last map added in 9.2.7 (45114)
+        !sSpellNameStore.LookupEntry(387936))                // last spell added in 9.2.7 (45114)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
