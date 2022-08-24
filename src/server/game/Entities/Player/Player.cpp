@@ -14047,6 +14047,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 case GOSSIP_OPTION_TABARDDESIGNER:
                 case GOSSIP_OPTION_AUCTIONEER:
                 case GOSSIP_OPTION_TRANSMOGRIFIER:
+                case GOSSIP_OPTION_MAILBOX:
                     break;                                  // no checks
                 case GOSSIP_OPTION_OUTDOORPVP:
                     if (!sOutdoorPvPMgr->CanTalkTo(this, creature, itr->second))
@@ -14258,6 +14259,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         }
         case GOSSIP_OPTION_TRANSMOGRIFIER:
             GetSession()->SendOpenTransmogrifier(guid);
+            break;
+        case GOSSIP_OPTION_MAILBOX:
+            GetSession()->SendShowMailBox(guid);
             break;
     }
 
