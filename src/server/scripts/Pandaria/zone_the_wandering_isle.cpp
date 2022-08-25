@@ -196,7 +196,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
             _scheduler.CancelAll();
 
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
-            _scheduler.Schedule(Seconds(1), [this](TaskContext task)
+            _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/ )
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
             });
@@ -209,7 +209,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
         me->SetEmoteState(EMOTE_ONESHOT_NONE);
         me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
 
-        _scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/)
         {
             me->SetEmoteState(EMOTE_STATE_MONKOFFENSE_READYUNARMED);
         });
@@ -251,7 +251,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
     void BeginSparringDelayed(ObjectGuid partnerGuid)
     {
         _partnerGuid = partnerGuid;
-        _scheduler.Schedule(Seconds(1), [this, partnerGuid](TaskContext task)
+        _scheduler.Schedule(Seconds(1), [this, partnerGuid](TaskContext /*task*/)
         {
             BeginSparring(partnerGuid);
         });
