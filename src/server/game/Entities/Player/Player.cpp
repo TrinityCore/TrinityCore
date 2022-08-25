@@ -56,6 +56,7 @@
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "Garrison.h"
+#include "GarrisonMgr.h"
 #include "GitRevision.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
@@ -14044,6 +14045,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 case GOSSIP_OPTION_TABARDDESIGNER:
                 case GOSSIP_OPTION_AUCTIONEER:
                 case GOSSIP_OPTION_TRANSMOGRIFIER:
+                case GOSSIP_OPTION_TALENT_NPC:
                     break;                                  // no checks
                 case GOSSIP_OPTION_OUTDOORPVP:
                     if (!sOutdoorPvPMgr->CanTalkTo(this, creature, itr->second))
@@ -14255,6 +14257,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         }
         case GOSSIP_OPTION_TRANSMOGRIFIER:
             GetSession()->SendOpenTransmogrifier(guid);
+            break;
+        case GOSSIP_OPTION_TALENT_NPC:
+            SendGarrisonOpenTalentNpc(guid);
             break;
     }
 
@@ -28826,4 +28831,18 @@ void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusR
     }
 
     SendDirectMessage(displayToast.Write());
+}
+
+void Player::SendGarrisonOpenTalentNpc(ObjectGuid guid)
+{
+    WorldPackets::Garrison::GarrisonOpenTalentNpc openTalentNpc;
+    GarrisonTalentNPC const* data = sGarrisonMgr.GetTalentNPCEntry(guid.GetEntry());
+    if (!data)
+        return;
+
+    openTalentNpc.NpcGUID = guid;
+    openTalentNpc.GarrTalentTreeID = data->GarrTalentTreeID;
+    openTalentNpc.FriendshipFactionID = data->FriendshipFactionID;
+
+    SendDirectMessage(openTalentNpc.Write());
 }

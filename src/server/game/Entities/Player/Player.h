@@ -2814,6 +2814,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
 
+        void SendGarrisonOpenTalentNpc(ObjectGuid guid);
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
