@@ -21,7 +21,7 @@
 #include "ScriptedCreature.h"
 #include "TaskScheduler.h"
 
-enum AspiringTrainee
+enum TraineeMisc
 {
     SAY_FINISH_FIGHT                    = 0,
 
@@ -29,38 +29,74 @@ enum AspiringTrainee
 
     QUEST_29524_KILLCREDIT              = 54586,
 
-    NPC_INSTRUCTOR_ZHI                  = 61411,
+    POINT_DESPAWN                       = 0,
 
-    ASPIRING_TRAINEE_PATH_MAX          = 5,
+    NPC_HUOJIN_TRAINEE_MALE             = 54586,
+    NPC_HUOJIN_TRAINEE_FEMALE           = 65470,
+    NPC_TUSHUI_TRAINEE_MALE             = 54587,
+    NPC_TUSHUI_TRAINEE_FEMALE           = 65471,
 };
 
-std::vector<Position const> AspiringTraineePaths[ASPIRING_TRAINEE_PATH_MAX] = {
-    { // waypoints 1
-        { 0.0f, 0.0f, 0.0f },
-        { 0.0f, 0.0f, 0.0f },
-    },
-    {
-        { 0.0f, 0.0f, 0.0f },
-    },
+Position const TraineeEndpoints[] = {
+    { 1465.3872f, 3283.8604f, 137.69096f },
+    { 1431.401f, 3264.001f, 136.02579f },
+    { 1397.2067f, 3276.5618f, 133.84508f },
+    { 1441.566f, 3232.8013f, 135.01802f },
+    { 1403.632f, 3229.1094f, 132.14877f },
+    { 1347.1927f, 3286.5842f, 131.94803f },
+    { 1365.1865f, 3338.9502f, 128.57233f },
+    { 1349.6024f, 3315.0574f, 130.97443f },
+    { 1335.4618f, 3344.019f, 130.42047f },
+    { 1360.1198f, 3378.02f, 127.34183f },
+    { 1435.8524f, 3355.6423f, 173.77744f },
+    { 1432.7031f, 3385.1572f, 184.4187f },
+    { 1452.6094f, 3373.3315f, 187.0402f },
+    { 1426.7778f, 3364.7517f, 184.39569f },
+    { 1450.3646f, 3361.264f, 184.42484f },
 };
 
-// 54586 - Aspiring Trainee
-struct npc_aspiring_trainee : public ScriptedAI
+Emote const TraineeEmotes[5] =
 {
-    npc_aspiring_trainee(Creature* creature) : ScriptedAI(creature) { }
+    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMED,
+    EMOTE_ONESHOT_MONKOFFENSE_SPECIALUNARMED,
+    EMOTE_ONESHOT_MONKOFFENSE_PARRYUNARMED,
+    EMOTE_ONESHOT_PALMSTRIKE,
+    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF,
+};
+
+// 54586 - Huojin Trainee
+// 65470 - Huojin Trainee
+// 54587 - Tushui Trainee
+// 65471 - Tushui Trainee
+struct npc_tushui_huojin_trainee : public ScriptedAI
+{
+    npc_tushui_huojin_trainee(Creature* creature) : ScriptedAI(creature), _defeated(false) { }
+
+    Emote PlayRandomEmote()
+    {
+        Emote emote = Trinity::Containers::SelectRandomContainerElement(TraineeEmotes);
+        me->HandleEmoteCommand(emote);
+        return emote;
+    }
 
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (attacker && me->HealthBelowPctDamaged(15, damage))
+        if (me->HealthBelowPctDamaged(20, damage))
         {
-            if (Player* player = attacker->ToPlayer())
-                player->KilledMonsterCredit(QUEST_29524_KILLCREDIT);
-
             damage = 0;
+            if (_defeated)
+                return;
 
+            _defeated = true;
+            if (attacker)
+            {
+                if (Player* player = attacker->ToPlayer())
+                    player->KilledMonsterCredit(QUEST_29524_KILLCREDIT);
+            }
+
+            me->SetEmoteState(EMOTE_ONESHOT_NONE);
             me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
             me->CombatStop();
-            _scheduler.CancelAll();
 
             _scheduler.Schedule(Seconds(1), [this](TaskContext /*task*/)
             {
@@ -69,23 +105,31 @@ struct npc_aspiring_trainee : public ScriptedAI
 
             _scheduler.Schedule(Seconds(3), [this](TaskContext /*task*/)
             {
-                uint32 pathId = urand(0, ASPIRING_TRAINEE_PATH_MAX);
-                me->GetMotionMaster()->MoveSmoothPath(pathId, AspiringTraineePaths[pathId].data(), AspiringTraineePaths[pathId].size());
+                Position currentPosition;
+                float currentDist = 1000.0f;
+                for (Position const& pos : TraineeEndpoints)
+                {
+                    float dist = pos.GetExactDist2d(me);
+                    if (dist >= currentDist)
+                        continue;
+
+                    currentPosition = pos;
+                    currentDist = dist;
+                }
+                me->GetMotionMaster()->MovePoint(POINT_DESPAWN, currentPosition);
             });
         }
     }
 
     void MovementInform(uint32 type, uint32 id) override
     {
-        if (type != EFFECT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id != POINT_DESPAWN)
             return;
 
         me->DespawnOrUnsummon();
-    }
-
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        _scheduler.CancelAll();
     }
 
     void JustEngagedWith(Unit* /*attacker*/) override
@@ -109,8 +153,183 @@ struct npc_aspiring_trainee : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-private:
+    void EnterEvadeMode(EvadeReason why)
+    {
+        if (!_defeated)
+            ScriptedAI::EnterEvadeMode(why);
+    }
+
+protected:
     TaskScheduler _scheduler;
+    bool _defeated;
+};
+
+enum HuojinTraineeMisc
+{
+    ACTION_PARTNER_ENTERED_COMBAT = 1,
+};
+
+// 54586 - Huojin Trainee
+// 65470 - Huojin Trainee
+struct npc_huojin_trainee : public npc_tushui_huojin_trainee
+{
+    npc_huojin_trainee(Creature* creature) : npc_tushui_huojin_trainee(creature) { }
+
+    void JustEngagedWith(Unit* /*attacker*/) override
+    {
+        _scheduler.CancelAll();
+        Creature* partner = ObjectAccessor::GetCreature(*me, _partnerGuid);
+        if (!partner)
+            return;
+
+        if (partner->AI())
+            partner->AI()->DoAction(ACTION_PARTNER_ENTERED_COMBAT);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_PARTNER_ENTERED_COMBAT)
+        {
+            _scheduler.CancelAll();
+
+            me->SetEmoteState(EMOTE_ONESHOT_NONE);
+            _scheduler.Schedule(Seconds(1), [this](TaskContext task)
+            {
+                me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+            });
+        }
+    }
+
+    void BeginSparring(ObjectGuid guid)
+    {
+        _partnerGuid = guid;
+        me->SetEmoteState(EMOTE_ONESHOT_NONE);
+        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+
+        _scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        {
+            me->SetEmoteState(EMOTE_STATE_MONKOFFENSE_READYUNARMED);
+        });
+
+        _scheduler.Schedule(Seconds(4), [this](TaskContext task)
+        {
+            if (!ObjectAccessor::GetCreature(*me, _partnerGuid))
+                return;
+
+            PlayRandomEmote();
+            task.Repeat(Seconds(4));
+        });
+    }
+
+    Creature* TryGetNewPartner()
+    {
+        std::list<Creature*> partnerList;
+        me->GetCreatureListWithEntryInGrid(partnerList, NPC_HUOJIN_TRAINEE_MALE, 5.0f);
+        me->GetCreatureListWithEntryInGrid(partnerList, NPC_HUOJIN_TRAINEE_FEMALE, 5.0f);
+
+        Creature* partner = nullptr;
+        float currentDist = 1000.0f;
+        for (Creature* potentialPartner : partnerList)
+        {
+            if (potentialPartner == me)
+                continue;
+            if (potentialPartner->IsInCombat())
+                continue;
+            if (potentialPartner->isDead())
+                continue;
+
+            float dist = me->GetDistance(potentialPartner);
+            if (dist < currentDist)
+            {
+                currentDist = dist;
+                partner = potentialPartner;
+            }
+        }
+        return partner;
+    }
+
+    void DelayedSparringStart(ObjectGuid partnerGuid)
+    {
+        _partnerGuid = partnerGuid;
+        _scheduler.Schedule(Seconds(1), [this, partnerGuid](TaskContext task)
+        {
+            BeginSparring(partnerGuid);
+        });
+    }
+
+    void InitiateSparring()
+    {
+        Creature* partner = TryGetNewPartner();
+
+        if (!partner)
+            return;
+
+        BeginSparring(partner->GetGUID());
+        if (Creature* partner = ObjectAccessor::GetCreature(*me, _partnerGuid))
+        {
+            if (npc_huojin_trainee* ai = CAST_AI(npc_huojin_trainee, partner->GetAI()))
+                ai->DelayedSparringStart(me->GetGUID());
+        }
+    }
+
+    void JustReachedHome() override
+    {
+        InitiateSparring();
+    }
+
+    void JustAppeared() override
+    {
+        // partner is already assigned, sparring start is delayed
+        if (!ObjectAccessor::GetCreature(*me, _partnerGuid))
+            InitiateSparring();
+    }
+private:
+    ObjectGuid _partnerGuid;
+};
+
+void HandleEmoteNearbyTushuiTrainees(Creature* leader, Emote emote)
+{
+    std::list<Creature*> traineeList;
+    leader->GetCreatureListWithEntryInGrid(traineeList, NPC_TUSHUI_TRAINEE_MALE, 10.0f);
+    leader->GetCreatureListWithEntryInGrid(traineeList, NPC_TUSHUI_TRAINEE_FEMALE, 10.0f);
+    for (Creature* trainee : traineeList)
+    {
+        if (!trainee->IsInCombat())
+            trainee->HandleEmoteCommand(emote);
+    }
+}
+
+// 54587 - Tushui Trainee
+// 65471 - Tushui Trainee
+struct npc_tushui_leading_trainee : public npc_tushui_huojin_trainee
+{
+    npc_tushui_leading_trainee(Creature* creature) : npc_tushui_huojin_trainee(creature) { }
+
+    void ScheduleEmoteExecution()
+    {
+        _scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        {
+            Emote emote = PlayRandomEmote();
+            HandleEmoteNearbyTushuiTrainees(me, emote);
+            task.Repeat(Seconds(6));
+        });
+    }
+
+    void JustReachedHome() override
+    {
+        ScheduleEmoteExecution();
+    }
+
+    void JustAppeared() override
+    {
+        ScheduleEmoteExecution();
+    }
+
+    void JustEngagedWith(Unit* attacker) override
+    {
+        _scheduler.CancelAll();
+        npc_tushui_huojin_trainee::JustEngagedWith(attacker);
+    }
 };
 
 enum InstructorZhiMisc
@@ -121,65 +340,39 @@ enum InstructorZhiMisc
     EVENT_INSTRUCTOR_ZHI_TRAINEES_DO_EMOTE          = 2,
 };
 
-Emote const InstructorZhiRandomEmotes[5] =
-{
-    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMED,
-    EMOTE_ONESHOT_MONKOFFENSE_SPECIALUNARMED,
-    EMOTE_ONESHOT_MONKOFFENSE_PARRYUNARMED,
-    EMOTE_ONESHOT_PALMSTRIKE,
-    EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF,
-};
-
 // 61411 - Instructor Zhi
 struct npc_instructor_zhi : public ScriptedAI
 {
-    npc_instructor_zhi(Creature* c) : ScriptedAI(c) { }
+    npc_instructor_zhi(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
-        _events.ScheduleEvent(EVENT_INSTRUCTOR_ZHI_START_EMOTE, 6s);
+        _scheduler.Schedule(Seconds(6), [this](TaskContext task)
+        {
+            Emote emote = Trinity::Containers::SelectRandomContainerElement(TraineeEmotes);
+            me->HandleEmoteCommand(emote);
+
+            task.Schedule(Seconds(1), [this, emote](TaskContext task2)
+            {
+                HandleEmoteNearbyTushuiTrainees(me, emote);
+            });
+            task.Repeat(Seconds(6));
+        });
     }
 
     void UpdateAI(uint32 diff) override
     {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_INSTRUCTOR_ZHI_START_EMOTE:
-                {
-                    _currentEmote = Trinity::Containers::SelectRandomContainerElement(InstructorZhiRandomEmotes);
-                    me->HandleEmoteCommand(_currentEmote);
-
-                    _events.ScheduleEvent(EVENT_INSTRUCTOR_ZHI_TRAINEES_DO_EMOTE, 1s);
-                    _events.Repeat(6s);
-                    break;
-                }
-                case EVENT_INSTRUCTOR_ZHI_TRAINEES_DO_EMOTE:
-                {
-                    std::list<Creature*> traineeList;
-                    me->GetCreatureListWithEntryInGrid(traineeList, NPC_ASPIRING_TRAINEE, 20.0f);
-                    for (Creature* trainee : traineeList)
-                    {
-                        if (trainee->IsInCombat())
-                            continue;
-                        trainee->HandleEmoteCommand(_currentEmote);
-                    }
-                    break;
-                }
-            }
-        }
+        _scheduler.Update(diff);
     }
 
 private:
-    EventMap _events;
-    Emote _currentEmote;
+    TaskScheduler _scheduler;
 };
 
 void AddSC_zone_the_wandering_isle()
 {
-    RegisterCreatureAI(npc_aspiring_trainee);
+    RegisterCreatureAI(npc_tushui_huojin_trainee);
+    RegisterCreatureAI(npc_huojin_trainee);
+    RegisterCreatureAI(npc_tushui_leading_trainee);
     RegisterCreatureAI(npc_instructor_zhi);
 }
