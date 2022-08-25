@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "TaskScheduler.h"
 
@@ -215,9 +216,6 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
 
         _scheduler.Schedule(Seconds(4), [this](TaskContext task)
         {
-            if (!ObjectAccessor::GetCreature(*me, _partnerGuid))
-                return;
-
             PlayRandomEmote();
             task.Repeat(Seconds(4));
         });
@@ -332,14 +330,6 @@ struct npc_tushui_leading_trainee : public npc_tushui_huojin_trainee
         _scheduler.CancelAll();
         npc_tushui_huojin_trainee::JustEngagedWith(attacker);
     }
-};
-
-enum InstructorZhiMisc
-{
-    NPC_ASPIRING_TRAINEE                            = 54586,
-
-    EVENT_INSTRUCTOR_ZHI_START_EMOTE                = 1,
-    EVENT_INSTRUCTOR_ZHI_TRAINEES_DO_EMOTE          = 2,
 };
 
 // 61411 - Instructor Zhi
