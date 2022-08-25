@@ -344,7 +344,7 @@ struct npc_instructor_zhi : public ScriptedAI
             Emote emote = Trinity::Containers::SelectRandomContainerElement(TraineeEmotes);
             me->HandleEmoteCommand(emote);
 
-            task.Schedule(Seconds(1), [this, emote](TaskContext task2)
+            task.Schedule(Seconds(1), [this, emote](TaskContext /*task*/)
             {
                 HandleEmoteNearbyTushuiTrainees(me, emote);
             });
