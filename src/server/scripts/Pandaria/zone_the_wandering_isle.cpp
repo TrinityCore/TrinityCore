@@ -109,7 +109,7 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
                 float currentDist = 1000.0f;
                 for (Position const& pos : TraineeEndpoints)
                 {
-                    float dist = pos.GetExactDist2d(me);
+                    float dist = pos.GetExactDist(me);
                     if (dist >= currentDist)
                         continue;
 
@@ -153,7 +153,7 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void EnterEvadeMode(EvadeReason why)
+    void EnterEvadeMode(EvadeReason why) override
     {
         if (!_defeated)
             ScriptedAI::EnterEvadeMode(why);
@@ -175,9 +175,11 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
 {
     npc_huojin_trainee(Creature* creature) : npc_tushui_huojin_trainee(creature) { }
 
-    void JustEngagedWith(Unit* /*attacker*/) override
+    void JustEngagedWith(Unit* attacker) override
     {
         _scheduler.CancelAll();
+        npc_tushui_huojin_trainee::JustEngagedWith(attacker);
+
         Creature* partner = ObjectAccessor::GetCreature(*me, _partnerGuid);
         if (!partner)
             return;
@@ -248,7 +250,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
         return partner;
     }
 
-    void DelayedSparringStart(ObjectGuid partnerGuid)
+    void BeginSparringDelayed(ObjectGuid partnerGuid)
     {
         _partnerGuid = partnerGuid;
         _scheduler.Schedule(Seconds(1), [this, partnerGuid](TaskContext task)
@@ -268,7 +270,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
         if (Creature* partner = ObjectAccessor::GetCreature(*me, _partnerGuid))
         {
             if (npc_huojin_trainee* ai = CAST_AI(npc_huojin_trainee, partner->GetAI()))
-                ai->DelayedSparringStart(me->GetGUID());
+                ai->BeginSparringDelayed(me->GetGUID());
         }
     }
 
