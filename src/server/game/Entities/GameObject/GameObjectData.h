@@ -342,6 +342,7 @@ struct GameObjectTemplate
             uint32 ritualNoTargetCheck;                     // 7 ritualNoTargetCheck, enum { false, true, }; Default: true
             uint32 conditionID1;                            // 8 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Allowunfriendlycrossfactionpartymemberstocollaborateonaritual;// 10 Allow unfriendly cross faction party members to collaborate on a ritual, enum { false, true, }; Default: false
         } ritual;
         // 19 GAMEOBJECT_TYPE_MAILBOX
         struct
@@ -381,6 +382,7 @@ struct GameObjectTemplate
             uint32 Unused2;                                 // 1 Unused, int, Min value: 1, Max value: 65535, Default value: 60
             uint32 areaID;                                  // 2 areaID, References: AreaTable, NoValue = 0
             uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Preventmeetingstonefromtargetinganunfriendlypartymemberoutsideofinstances;// 4 Prevent meeting stone from targeting an unfriendly party member outside of instances, enum { false, true, }; Default: false
         } meetingStone;
         // 24 GAMEOBJECT_TYPE_FLAGSTAND
         struct
@@ -677,12 +679,13 @@ struct GameObjectTemplate
         // 48 GAMEOBJECT_TYPE_UI_LINK
         struct
         {
-            uint32 UILinkType;                              // 0 UI Link Type, enum { Adventure Journal, Obliterum Forge, Scrapping Machine, }; Default: Adventure Journal
+            uint32 UILinkType;                              // 0 UI Link Type, enum { Adventure Journal, Obliterum Forge, Scrapping Machine, Item Interaction, }; Default: Adventure Journal
             uint32 allowMounted;                            // 1 allowMounted, enum { false, true, }; Default: false
             uint32 GiganticAOI;                             // 2 Gigantic AOI, enum { false, true, }; Default: false
             uint32 spellFocusType;                          // 3 spellFocusType, References: SpellFocusObject, NoValue = 0
             uint32 radius;                                  // 4 radius, int, Min value: 0, Max value: 50, Default value: 10
             uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 ItemInteractionID;                       // 6 Item Interaction ID, References: UiItemInteraction, NoValue = 0
         } UILink;
         // 49 GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE
         struct
