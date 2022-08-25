@@ -482,8 +482,6 @@ void GarrisonMgr::LoadTalentNPCs()
     uint32 count = 0;
     do
     {
-        
-
         Field* fields = result->Fetch();
         uint32 npcEntry = fields[0].GetUInt32();
         uint32 garrTalentTreeID = fields[1].GetUInt32();
