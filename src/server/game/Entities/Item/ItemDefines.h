@@ -126,15 +126,16 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_BE_OBLITERATED                          = 100,// You can't obliterate that item
     EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 101,// You cannot store conjured items in the guild bank
     EQUIP_ERR_BAG_FULL_6                                   = 102,// That bag is full.
-    EQUIP_ERR_CANT_BE_SCRAPPED                             = 103,// You can't scrap that item
-    EQUIP_ERR_BAG_FULL_7                                   = 104,// That bag is full.
-    EQUIP_ERR_NOT_IN_PET_BATTLE                            = 105,// You cannot do that while in a pet battle
-    EQUIP_ERR_BAG_FULL_8                                   = 106,// That bag is full.
-    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 107,// You can't do that right now.
-    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2                     = 108,// You can't do that right now.
-    EQUIP_ERR_NOT_IN_NPE                                   = 109,// Not available during the tutorial
-    EQUIP_ERR_ITEM_COOLDOWN                                = 110,// Item is not ready yet.
-    EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND                    = 111,// You can't do that in a rated battleground.
+    EQUIP_ERR_BAG_FULL_7                                   = 103,// That bag is full.
+    EQUIP_ERR_CANT_BE_SCRAPPED                             = 104,// You can't scrap that item
+    EQUIP_ERR_BAG_FULL_8                                   = 105,// That bag is full.
+    EQUIP_ERR_NOT_IN_PET_BATTLE                            = 106,// You cannot do that while in a pet battle
+    EQUIP_ERR_BAG_FULL_9                                   = 107,// That bag is full.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 108,// You can't do that right now.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2                     = 109,// You can't do that right now.
+    EQUIP_ERR_NOT_IN_NPE                                   = 110,// Not available during the tutorial
+    EQUIP_ERR_ITEM_COOLDOWN                                = 111,// Item is not ready yet.
+    EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND                    = 112,// You can't do that in a rated battleground.
 };
 
 // EnumUtils: DESCRIBE THIS

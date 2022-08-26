@@ -705,27 +705,6 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
     qmapitr = PlayerNonQuestNonFFAConditionalItems.find(plguid);
     if (qmapitr == PlayerNonQuestNonFFAConditionalItems.end())
         FillNonQuestNonFFAConditionalLoot(player, presentAtLooting);
-
-    // if not auto-processed player will have to come and pick it up manually
-    if (!presentAtLooting)
-        return;
-
-    // Process currency items
-    uint32 max_slot = GetMaxSlotInLootFor(player);
-    LootItem const* item = nullptr;
-    uint32 itemsSize = uint32(items.size());
-    for (uint32 i = 0; i < max_slot; ++i)
-    {
-        if (i < items.size())
-            item = &items[i];
-        else
-            item = &quest_items[i - itemsSize];
-
-        if (!item->is_looted && item->freeforall && item->AllowedForPlayer(player))
-            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
-                if (proto->IsCurrencyToken())
-                    player->StoreLootItem(i, this);
-    }
 }
 
 NotNormalLootItemList* Loot::FillFFALoot(Player* player)
