@@ -51,7 +51,6 @@ struct GarrAbilities
 
 struct GarrisonTalentNPC
 {
-    uint32 NPCEntry;
     uint32 GarrTalentTreeID;
     uint32 FriendshipFactionID;
 };

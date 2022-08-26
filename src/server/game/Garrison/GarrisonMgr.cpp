@@ -471,7 +471,7 @@ GarrisonTalentNPC const* GarrisonMgr::GetTalentNPCEntry(int32 entry) const
 void GarrisonMgr::LoadTalentNPCs()
 {
     //                                                      0                 1                    2
-    QueryResult result = WorldDatabase.Query("SELECT npcEntry, garrTalentTreeID, friendshipFactionID FROM garrison_talent_npc");
+    QueryResult result = WorldDatabase.Query("SELECT NpcEntry, GarrTalentTreeID, FriendshipFactionID FROM garrison_talent_npc");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 garrison talent NPCs. DB table `garrison_talent_npc` is empty.");
