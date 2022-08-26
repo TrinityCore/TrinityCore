@@ -123,7 +123,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             loot = &creature->loot;
         }
 
-        player->StoreLootItem(req.LootListID - 1, loot, aeResultPtr);
+        player->StoreLootItem(lguid, req.LootListID - 1, loot, aeResultPtr);
 
         // If player is removing the last LootItem, delete the empty container.
         if (loot->isLooted() && lguid.IsItem())
@@ -257,8 +257,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
         loot->gold = 0;
 
         // Delete the money loot record from the DB
-        if (!loot->containerID.IsEmpty())
-            sLootItemStorage->RemoveStoredMoneyForContainer(loot->containerID.GetCounter());
+        if (guid.IsItem() && loot->loot_type == LOOT_CORPSE)
+            sLootItemStorage->RemoveStoredMoneyForContainer(guid.GetCounter());
 
         // Delete container if empty
         if (loot->isLooted() && guid.IsItem())

@@ -134,10 +134,11 @@ TC_API_EXPORT EnumText EnumUtils<InventoryResult>::ToString(InventoryResult valu
         case EQUIP_ERR_CANT_BE_OBLITERATED: return { "EQUIP_ERR_CANT_BE_OBLITERATED", "EQUIP_ERR_CANT_BE_OBLITERATED", "You can't obliterate that item" };
         case EQUIP_ERR_GUILD_BANK_CONJURED_ITEM: return { "EQUIP_ERR_GUILD_BANK_CONJURED_ITEM", "EQUIP_ERR_GUILD_BANK_CONJURED_ITEM", "You cannot store conjured items in the guild bank" };
         case EQUIP_ERR_BAG_FULL_6: return { "EQUIP_ERR_BAG_FULL_6", "EQUIP_ERR_BAG_FULL_6", "That bag is full." };
-        case EQUIP_ERR_CANT_BE_SCRAPPED: return { "EQUIP_ERR_CANT_BE_SCRAPPED", "EQUIP_ERR_CANT_BE_SCRAPPED", "You can't scrap that item" };
         case EQUIP_ERR_BAG_FULL_7: return { "EQUIP_ERR_BAG_FULL_7", "EQUIP_ERR_BAG_FULL_7", "That bag is full." };
-        case EQUIP_ERR_NOT_IN_PET_BATTLE: return { "EQUIP_ERR_NOT_IN_PET_BATTLE", "EQUIP_ERR_NOT_IN_PET_BATTLE", "You cannot do that while in a pet battle" };
+        case EQUIP_ERR_CANT_BE_SCRAPPED: return { "EQUIP_ERR_CANT_BE_SCRAPPED", "EQUIP_ERR_CANT_BE_SCRAPPED", "You can't scrap that item" };
         case EQUIP_ERR_BAG_FULL_8: return { "EQUIP_ERR_BAG_FULL_8", "EQUIP_ERR_BAG_FULL_8", "That bag is full." };
+        case EQUIP_ERR_NOT_IN_PET_BATTLE: return { "EQUIP_ERR_NOT_IN_PET_BATTLE", "EQUIP_ERR_NOT_IN_PET_BATTLE", "You cannot do that while in a pet battle" };
+        case EQUIP_ERR_BAG_FULL_9: return { "EQUIP_ERR_BAG_FULL_9", "EQUIP_ERR_BAG_FULL_9", "That bag is full." };
         case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW: return { "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW", "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW", "You can't do that right now." };
         case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2: return { "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2", "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2", "You can't do that right now." };
         case EQUIP_ERR_NOT_IN_NPE: return { "EQUIP_ERR_NOT_IN_NPE", "EQUIP_ERR_NOT_IN_NPE", "Not available during the tutorial" };
@@ -148,7 +149,7 @@ TC_API_EXPORT EnumText EnumUtils<InventoryResult>::ToString(InventoryResult valu
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 112; }
+TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 113; }
 
 template <>
 TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index)
@@ -258,15 +259,16 @@ TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index
         case 100: return EQUIP_ERR_CANT_BE_OBLITERATED;
         case 101: return EQUIP_ERR_GUILD_BANK_CONJURED_ITEM;
         case 102: return EQUIP_ERR_BAG_FULL_6;
-        case 103: return EQUIP_ERR_CANT_BE_SCRAPPED;
-        case 104: return EQUIP_ERR_BAG_FULL_7;
-        case 105: return EQUIP_ERR_NOT_IN_PET_BATTLE;
-        case 106: return EQUIP_ERR_BAG_FULL_8;
-        case 107: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW;
-        case 108: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2;
-        case 109: return EQUIP_ERR_NOT_IN_NPE;
-        case 110: return EQUIP_ERR_ITEM_COOLDOWN;
-        case 111: return EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND;
+        case 103: return EQUIP_ERR_BAG_FULL_7;
+        case 104: return EQUIP_ERR_CANT_BE_SCRAPPED;
+        case 105: return EQUIP_ERR_BAG_FULL_8;
+        case 106: return EQUIP_ERR_NOT_IN_PET_BATTLE;
+        case 107: return EQUIP_ERR_BAG_FULL_9;
+        case 108: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW;
+        case 109: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2;
+        case 110: return EQUIP_ERR_NOT_IN_NPE;
+        case 111: return EQUIP_ERR_ITEM_COOLDOWN;
+        case 112: return EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND;
         default: throw std::out_of_range("index");
     }
 }
@@ -379,15 +381,16 @@ TC_API_EXPORT size_t EnumUtils<InventoryResult>::ToIndex(InventoryResult value)
         case EQUIP_ERR_CANT_BE_OBLITERATED: return 100;
         case EQUIP_ERR_GUILD_BANK_CONJURED_ITEM: return 101;
         case EQUIP_ERR_BAG_FULL_6: return 102;
-        case EQUIP_ERR_CANT_BE_SCRAPPED: return 103;
-        case EQUIP_ERR_BAG_FULL_7: return 104;
-        case EQUIP_ERR_NOT_IN_PET_BATTLE: return 105;
-        case EQUIP_ERR_BAG_FULL_8: return 106;
-        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW: return 107;
-        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2: return 108;
-        case EQUIP_ERR_NOT_IN_NPE: return 109;
-        case EQUIP_ERR_ITEM_COOLDOWN: return 110;
-        case EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND: return 111;
+        case EQUIP_ERR_BAG_FULL_7: return 103;
+        case EQUIP_ERR_CANT_BE_SCRAPPED: return 104;
+        case EQUIP_ERR_BAG_FULL_8: return 105;
+        case EQUIP_ERR_NOT_IN_PET_BATTLE: return 106;
+        case EQUIP_ERR_BAG_FULL_9: return 107;
+        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW: return 108;
+        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2: return 109;
+        case EQUIP_ERR_NOT_IN_NPE: return 110;
+        case EQUIP_ERR_ITEM_COOLDOWN: return 111;
+        case EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND: return 112;
         default: throw std::out_of_range("value");
     }
 }
