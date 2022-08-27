@@ -8922,9 +8922,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
         loot = &item->loot;
 
-        // Store container id
-        loot->containerID = item->GetGUID();
-
         // If item doesn't already have loot, attempt to load it. If that
         // fails then this is first time opening, generate loot
         if (!item->m_lootGenerated && !sLootItemStorage->LoadStoredLoot(item, this))
@@ -8950,7 +8947,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                     // Force save the loot and money items that were just rolled
                     //  Also saves the container item ID in Loot struct (not to DB)
                     if (loot->gold > 0 || loot->unlootedCount > 0)
-                        sLootItemStorage->AddNewStoredLoot(loot, this);
+                        sLootItemStorage->AddNewStoredLoot(item->GetGUID().GetCounter(), loot, this);
 
                     break;
             }
@@ -14047,6 +14044,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 case GOSSIP_OPTION_TABARDDESIGNER:
                 case GOSSIP_OPTION_AUCTIONEER:
                 case GOSSIP_OPTION_TRANSMOGRIFIER:
+                case GOSSIP_OPTION_MAILBOX:
                     break;                                  // no checks
                 case GOSSIP_OPTION_OUTDOORPVP:
                     if (!sOutdoorPvPMgr->CanTalkTo(this, creature, itr->second))
@@ -14258,6 +14256,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         }
         case GOSSIP_OPTION_TRANSMOGRIFIER:
             GetSession()->SendOpenTransmogrifier(guid);
+            break;
+        case GOSSIP_OPTION_MAILBOX:
+            GetSession()->SendShowMailBox(guid);
             break;
     }
 
@@ -26061,7 +26062,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
     Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_LOOTED, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }
 
-void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* = nullptr*/)
+void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot* loot, AELootResult* aeResult/* = nullptr*/)
 {
     NotNormalLootItem* qitem = nullptr;
     NotNormalLootItem* ffaitem = nullptr;
@@ -26150,8 +26151,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
             aeResult->Add(newitem, item->count, loot->loot_type);
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
-        if (!loot->containerID.IsEmpty())
-            sLootItemStorage->RemoveStoredLootItemForContainer(loot->containerID.GetCounter(), item->itemid, item->count, item->itemIndex);
+        if (lootWorldObjectGuid.IsItem() && loot->loot_type == LOOT_CORPSE)
+            sLootItemStorage->RemoveStoredLootItemForContainer(lootWorldObjectGuid.GetCounter(), item->itemid, item->count, item->itemIndex);
 
         ApplyItemLootedSpell(newitem, true);
     }

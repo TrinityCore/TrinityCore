@@ -220,10 +220,6 @@ struct TC_GAME_API Loot
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
-    // GUID of container that holds this loot (item_instance.entry)
-    //  Only set for inventory items that can be right-click looted
-    ObjectGuid containerID;
-
     Loot(uint32 _gold = 0);
     ~Loot();
 
