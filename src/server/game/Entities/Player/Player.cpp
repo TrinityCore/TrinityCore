@@ -14273,6 +14273,8 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         case GossipOptionIcon::Transmogrify:
             GetSession()->SendOpenTransmogrifier(guid);
             break;
+        default:
+            break;
     }
 
     ModifyMoney(-cost);
