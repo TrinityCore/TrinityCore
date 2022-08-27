@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "PhasingHandler.h"
 #include "Player.h"
