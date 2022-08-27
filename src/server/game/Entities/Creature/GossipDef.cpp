@@ -69,7 +69,7 @@ uint32 GossipMenu::AddMenuItem(int32 menuItemId, GossipOptionIcon icon, std::str
     menuItem.Message         = message;
     menuItem.IsCoded         = coded;
     menuItem.Sender          = sender;
-    menuItem.OptionType      = action;
+    menuItem.Action          = action;
     menuItem.BoxMessage      = boxMessage;
     menuItem.BoxMoney        = boxMoney;
     return menuItemId;
@@ -162,7 +162,7 @@ uint32 GossipMenu::GetMenuItemAction(uint32 menuItemId) const
     if (itr == _menuItems.end())
         return 0;
 
-    return itr->second.OptionType;
+    return itr->second.Action;
 }
 
 bool GossipMenu::IsMenuItemCoded(uint32 menuItemId) const
@@ -172,15 +172,6 @@ bool GossipMenu::IsMenuItemCoded(uint32 menuItemId) const
         return false;
 
     return itr->second.IsCoded;
-}
-
-bool GossipMenu::HasMenuItemType(uint32 optionType) const
-{
-    for (auto const& menuItemPair : _menuItems)
-        if (menuItemPair.second.OptionType == optionType)
-            return true;
-
-    return false;
 }
 
 void GossipMenu::ClearMenu()
