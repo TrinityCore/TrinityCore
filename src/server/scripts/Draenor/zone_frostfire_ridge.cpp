@@ -20,6 +20,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "QuestDef.h"
+#include "ScriptMgr.h"
 
 // 233664 - Master Surveyor
 enum MasterSurveyorMisc
