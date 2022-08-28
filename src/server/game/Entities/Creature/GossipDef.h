@@ -53,6 +53,7 @@ enum Gossip_Option
     GOSSIP_OPTION_LEARNDUALSPEC     = 18,                   //UNIT_NPC_FLAG_TRAINER             (16) (bonus option for GOSSIP_OPTION_TRAINER)
     GOSSIP_OPTION_OUTDOORPVP        = 19,                   //added by code (option for outdoor pvp creatures)
     GOSSIP_OPTION_TRANSMOGRIFIER    = 20,                   //UNIT_NPC_FLAG_TRANSMOGRIFIER
+    GOSSIP_OPTION_MAILBOX           = 21,                   //UNIT_NPC_FLAG_MAILBOX
     GOSSIP_OPTION_MAX
 };
 
