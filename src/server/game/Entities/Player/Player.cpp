@@ -14082,7 +14082,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         {
             switch (itr->second.OptionIcon)
             {
-            case GossipOptionIcon::None:
+                case GossipOptionIcon::None:
                     if (go->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER && go->GetGoType() != GAMEOBJECT_TYPE_GOOBER)
                         canTalk = false;
                     break;

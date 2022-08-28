@@ -14,7 +14,7 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (0, 8 , 8 , 'I want to create a guild crest.', 3415, 524288, 0, 0, 0, 0, 0, NULL, 0, 0),
 (0, 9,  9 , 'I would like to go to the battleground.', 10355, 1048576, 0, 0, 0, 0, 0, NULL, 0, 0),
 (0, 10, 10, 'I''d like to browse the items up for auction.', 52635, 2097152, 0, 0, 0, 0, 0, NULL, 0, 0),
-(0, 12, 12, 'I''d like to stable my pet here.', 8912, 4194304, 0, 0, 0, 0, 0, NULL, 0, 0),
+(0, 12, 12, 'I''d like to stable my pet here.', 30181, 4194304, 0, 0, 0, 0, 0, NULL, 0, 0),
 (0, 18, 18, 'I''d like to check my mail.', 146045, 67108864, 0, 0, 0, 0, 0, NULL, 0, 0),
 (0, 34, 34, 'I want to transmogrify my gear.', 130510, 268435456, 0, 0, 0, 0, 0, NULL, 0, 0);
 
