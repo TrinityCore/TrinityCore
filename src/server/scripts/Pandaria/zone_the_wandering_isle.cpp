@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CellImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -170,6 +171,36 @@ enum HuojinTraineeMisc
     ACTION_PARTNER_ENTERED_COMBAT = 1,
 };
 
+class HuojinTraineePartnerSearch
+{
+public:
+    HuojinTraineePartnerSearch(Creature* partner) : _partner(partner) { }
+
+    bool operator()(Creature* target) const
+    {
+        if (target == _partner)
+            return false;
+        if (target->IsInCombat())
+            return false;
+        if (target->isDead())
+            return false;
+        if (target->GetDistance(_partner) > 5.0f)
+            return false;
+
+        switch (target->GetEntry())
+        {
+            case NPC_HUOJIN_TRAINEE_MALE:
+            case NPC_HUOJIN_TRAINEE_FEMALE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+private:
+    Unit* _partner;
+};
+
 // 54586 - Huojin Trainee
 // 65470 - Huojin Trainee
 struct npc_huojin_trainee : public npc_tushui_huojin_trainee
@@ -224,20 +255,14 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
     Creature* TryGetNewPartner()
     {
         std::list<Creature*> partnerList;
-        me->GetCreatureListWithEntryInGrid(partnerList, NPC_HUOJIN_TRAINEE_MALE, 5.0f);
-        me->GetCreatureListWithEntryInGrid(partnerList, NPC_HUOJIN_TRAINEE_FEMALE, 5.0f);
+        HuojinTraineePartnerSearch check(me);
+        Trinity::CreatureListSearcher<HuojinTraineePartnerSearch> searcher(me, partnerList, check);
+        Cell::VisitGridObjects(me, searcher, 10.0f);
 
         Creature* partner = nullptr;
         float currentDist = 1000.0f;
         for (Creature* potentialPartner : partnerList)
         {
-            if (potentialPartner == me)
-                continue;
-            if (potentialPartner->IsInCombat())
-                continue;
-            if (potentialPartner->isDead())
-                continue;
-
             float dist = me->GetDistance(potentialPartner);
             if (dist < currentDist)
             {
@@ -287,16 +312,44 @@ private:
     ObjectGuid _partnerGuid;
 };
 
+class TushuiTraineeSearch
+{
+public:
+    TushuiTraineeSearch(Creature* leader, float maxDist) : _leader(leader), _maxDist(maxDist) { }
+
+    bool operator()(Creature* target) const
+    {
+        if (target->IsInCombat())
+            return false;
+        if (target->isDead())
+            return false;
+        if (target->GetDistance(_leader) >= _maxDist)
+            return false;
+
+        switch (target->GetEntry())
+        {
+            case NPC_TUSHUI_TRAINEE_MALE:
+            case NPC_TUSHUI_TRAINEE_FEMALE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+private:
+    Creature* _leader;
+    float _maxDist;
+};
+
 void HandleEmoteNearbyTushuiTrainees(Creature* leader, Emote emote)
 {
     std::list<Creature*> traineeList;
-    leader->GetCreatureListWithEntryInGrid(traineeList, NPC_TUSHUI_TRAINEE_MALE, 10.0f);
-    leader->GetCreatureListWithEntryInGrid(traineeList, NPC_TUSHUI_TRAINEE_FEMALE, 10.0f);
+    TushuiTraineeSearch check(leader, 10.0f);
+    Trinity::CreatureListSearcher<TushuiTraineeSearch> searcher(leader, traineeList, check);
+    Cell::VisitGridObjects(leader, searcher, 10.0f);
+
     for (Creature* trainee : traineeList)
-    {
-        if (!trainee->IsInCombat())
-            trainee->HandleEmoteCommand(emote);
-    }
+        trainee->HandleEmoteCommand(emote);
 }
 
 // 54587 - Tushui Trainee
