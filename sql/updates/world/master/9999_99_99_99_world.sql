@@ -1,5 +1,5 @@
 -- Update table `gossip_menu_option`
-ALTER TABLE `gossip_menu_option` DROP `OptionType`, RENAME COLUMN OptionIcon TO OptionNpc;
+ALTER TABLE `gossip_menu_option` DROP `OptionType`, RENAME COLUMN `OptionIcon` TO `OptionNpc`;
 
 -- Update default option
 DELETE FROM `gossip_menu_option` WHERE `MenuID`=0;
