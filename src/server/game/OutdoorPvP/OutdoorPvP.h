@@ -113,8 +113,6 @@ class TC_GAME_API OPvPCapturePoint
 
         virtual void SendChangePhase();
 
-        virtual bool CanTalkTo(Player* /*player*/, Creature* /*creature*/, GossipMenuItems const& /*gso*/) { return false; }
-
         virtual bool HandleDropFlag(Player* /*player*/, uint32 /*spellId*/) { return false; }
 
         ObjectGuid::LowType m_capturePointSpawnId;
