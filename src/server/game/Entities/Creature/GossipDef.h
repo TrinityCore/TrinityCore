@@ -30,7 +30,7 @@ enum class QuestGiverStatus : uint32;
 #define GOSSIP_MAX_MENU_ITEMS               32
 #define DEFAULT_GOSSIP_MESSAGE              0xffffff
 
-enum class GossipOptionIcon : uint8
+enum class GossipOptionNpc : uint8
 {
     None                       = 0,    // White chat bubble. Default
     Vendor                     = 1,    // Brown bag
@@ -98,7 +98,7 @@ enum class GossipOptionRewardType : uint8
 
 struct GossipMenuItem
 {
-    GossipOptionIcon MenuItemIcon;
+    GossipOptionNpc  OptionNpc;
     bool             IsCoded;
     std::string      Message;
     uint32           Sender;
@@ -134,7 +134,7 @@ class TC_GAME_API GossipMenu
         GossipMenu();
         ~GossipMenu();
 
-        uint32 AddMenuItem(int32 menuItemId, GossipOptionIcon icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+        uint32 AddMenuItem(int32 menuItemId, GossipOptionNpc optionNpc, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
         void AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action);
 
         void SetMenuId(uint32 menu_id) { _menuId = menu_id; }

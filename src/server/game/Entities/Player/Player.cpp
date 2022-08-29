@@ -14002,87 +14002,87 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             if (!(itr->second.OptionNpcFlag & npcflags))
                 continue;
 
-            switch (itr->second.OptionIcon)
+            switch (itr->second.OptionNpc)
             {
-                case GossipOptionIcon::TaxiNode:
+                case GossipOptionNpc::TaxiNode:
                     if (GetSession()->SendLearnNewTaxiNode(creature))
                         return;
                     break;
-                case GossipOptionIcon::SpiritHealer:
+                case GossipOptionNpc::SpiritHealer:
                     if (!isDead())
                         canTalk = false;
                     break;
-                case GossipOptionIcon::BattleMaster:
-                case GossipOptionIcon::WorldPVPQueue:
+                case GossipOptionNpc::BattleMaster:
+                case GossipOptionNpc::WorldPVPQueue:
                     if (!creature->isCanInteractWithBattleMaster(this, false))
                         canTalk = false;
                     break;
-                case GossipOptionIcon::StableMaster:
+                case GossipOptionNpc::StableMaster:
                     if (GetClass() != CLASS_HUNTER)
                         canTalk = false;
                     break;
-                case GossipOptionIcon::DisableXPGain:
+                case GossipOptionNpc::DisableXPGain:
                     if (HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN))
                         canTalk = false;
                     break;
-                case GossipOptionIcon::EnableXPGain:
+                case GossipOptionNpc::EnableXPGain:
                     if (!HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN))
                         canTalk = false;
                     break;
-                case GossipOptionIcon::None:
-                case GossipOptionIcon::Vendor:
-                case GossipOptionIcon::Trainer:
-                case GossipOptionIcon::Binder:
-                case GossipOptionIcon::Banker:
-                case GossipOptionIcon::PetitionVendor:
-                case GossipOptionIcon::TabardVendor:
-                case GossipOptionIcon::Auctioneer:
-                case GossipOptionIcon::Mailbox:
-                case GossipOptionIcon::Transmogrify:
+                case GossipOptionNpc::None:
+                case GossipOptionNpc::Vendor:
+                case GossipOptionNpc::Trainer:
+                case GossipOptionNpc::Binder:
+                case GossipOptionNpc::Banker:
+                case GossipOptionNpc::PetitionVendor:
+                case GossipOptionNpc::TabardVendor:
+                case GossipOptionNpc::Auctioneer:
+                case GossipOptionNpc::Mailbox:
+                case GossipOptionNpc::Transmogrify:
                     break;                                         // No checks
-                case GossipOptionIcon::TalentMaster:
-                case GossipOptionIcon::PetSpecializationMaster:
-                case GossipOptionIcon::GuildBanker:
-                case GossipOptionIcon::SpellClick:
-                case GossipOptionIcon::CemeterySelect:
-                case GossipOptionIcon::SpecializationMaster:
-                case GossipOptionIcon::GlyphMaster:
+                case GossipOptionNpc::TalentMaster:
+                case GossipOptionNpc::PetSpecializationMaster:
+                case GossipOptionNpc::GuildBanker:
+                case GossipOptionNpc::SpellClick:
+                case GossipOptionNpc::CemeterySelect:
+                case GossipOptionNpc::SpecializationMaster:
+                case GossipOptionNpc::GlyphMaster:
                     canTalk = false;                               // Deprecated
                     break;
-                case GossipOptionIcon::LFGDungeon:
-                case GossipOptionIcon::ArtifactRespec:
-                case GossipOptionIcon::QueueScenario:
-                case GossipOptionIcon::GarrisonArchitect:
-                case GossipOptionIcon::GarrisonMission:
-                case GossipOptionIcon::ShipmentCrafter:
-                case GossipOptionIcon::GarrisonTradeskill:
-                case GossipOptionIcon::GarrisonRecruitment:
-                case GossipOptionIcon::AdventureMap:
-                case GossipOptionIcon::GarrisonTalent:
-                case GossipOptionIcon::ContributionCollector:
-                case GossipOptionIcon::AzeriteRespec:
-                case GossipOptionIcon::IslandsMission:
-                case GossipOptionIcon::UIItemInteraction:
-                case GossipOptionIcon::WorldMap:
-                case GossipOptionIcon::Soulbind:
-                case GossipOptionIcon::ChromieTime:
-                case GossipOptionIcon::CovenantPreview:
-                case GossipOptionIcon::RuneforgeLegendaryCrafting:
-                case GossipOptionIcon::NewPlayerGuide:
-                case GossipOptionIcon::RuneforgeLegendaryUpgrade:
-                case GossipOptionIcon::CovenantRenown:
+                case GossipOptionNpc::LFGDungeon:
+                case GossipOptionNpc::ArtifactRespec:
+                case GossipOptionNpc::QueueScenario:
+                case GossipOptionNpc::GarrisonArchitect:
+                case GossipOptionNpc::GarrisonMission:
+                case GossipOptionNpc::ShipmentCrafter:
+                case GossipOptionNpc::GarrisonTradeskill:
+                case GossipOptionNpc::GarrisonRecruitment:
+                case GossipOptionNpc::AdventureMap:
+                case GossipOptionNpc::GarrisonTalent:
+                case GossipOptionNpc::ContributionCollector:
+                case GossipOptionNpc::AzeriteRespec:
+                case GossipOptionNpc::IslandsMission:
+                case GossipOptionNpc::UIItemInteraction:
+                case GossipOptionNpc::WorldMap:
+                case GossipOptionNpc::Soulbind:
+                case GossipOptionNpc::ChromieTime:
+                case GossipOptionNpc::CovenantPreview:
+                case GossipOptionNpc::RuneforgeLegendaryCrafting:
+                case GossipOptionNpc::NewPlayerGuide:
+                case GossipOptionNpc::RuneforgeLegendaryUpgrade:
+                case GossipOptionNpc::CovenantRenown:
                     break;                                         // NYI
                 default:
-                    TC_LOG_ERROR("sql.sql", "Creature entry %u has an unknown gossip option icon %u for menu %u.", creature->GetEntry(), AsUnderlyingType(itr->second.OptionIcon), itr->second.MenuID);
+                    TC_LOG_ERROR("sql.sql", "Creature entry %u has an unknown gossip option icon %u for menu %u.", creature->GetEntry(), AsUnderlyingType(itr->second.OptionNpc), itr->second.MenuID);
                     canTalk = false;
                     break;
             }
         }
         else if (GameObject* go = source->ToGameObject())
         {
-            switch (itr->second.OptionIcon)
+            switch (itr->second.OptionNpc)
             {
-                case GossipOptionIcon::None:
+                case GossipOptionNpc::None:
                     if (go->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER && go->GetGoType() != GAMEOBJECT_TYPE_GOOBER)
                         canTalk = false;
                     break;
@@ -14126,7 +14126,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 }
             }
 
-            menu->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionIcon, strOptionText, 0, AsUnderlyingType(itr->second.OptionIcon), strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+            menu->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionNpc, strOptionText, 0, AsUnderlyingType(itr->second.OptionNpc), strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
             menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionID, itr->second.ActionMenuID, itr->second.ActionPoiID);
         }
     }
@@ -14169,12 +14169,12 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     if (!item)
         return;
 
-    GossipOptionIcon gossipOptionIcon = item->MenuItemIcon;
+    GossipOptionNpc gossipOptionNpc = item->OptionNpc;
     ObjectGuid guid = source->GetGUID();
 
     if (source->GetTypeId() == TYPEID_GAMEOBJECT)
     {
-        if (gossipOptionIcon != GossipOptionIcon::None)
+        if (gossipOptionNpc != GossipOptionNpc::None)
         {
             TC_LOG_ERROR("entities.player", "Player '%s' (%s) requests invalid gossip option for GameObject (Entry: %u)",
                 GetName().c_str(), GetGUID().ToString().c_str(), source->GetEntry());
@@ -14194,9 +14194,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         return;
     }
 
-    switch (gossipOptionIcon)
+    switch (gossipOptionNpc)
     {
-        case GossipOptionIcon::None:
+        case GossipOptionNpc::None:
         {
             if (menuItemData->GossipActionPoi)
                 PlayerTalkClass->SendPointOfInterest(menuItemData->GossipActionPoi);
@@ -14209,37 +14209,37 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
 
             break;
         }
-        case GossipOptionIcon::Vendor:
+        case GossipOptionNpc::Vendor:
             GetSession()->SendListInventory(guid);
             break;
-        case GossipOptionIcon::TaxiNode:
+        case GossipOptionNpc::TaxiNode:
             GetSession()->SendTaxiMenu(source->ToCreature());
             break;
-        case GossipOptionIcon::Trainer:
+        case GossipOptionNpc::Trainer:
             GetSession()->SendTrainerList(source->ToCreature(), sObjectMgr->GetCreatureTrainerForGossipOption(source->GetEntry(), menuId, gossipListId));
             break;
-        case GossipOptionIcon::SpiritHealer:
+        case GossipOptionNpc::SpiritHealer:
             if (isDead())
                 source->ToCreature()->CastSpell(source->ToCreature(), 17251, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
                     .SetOriginalCaster(GetGUID()));
             break;
-        case GossipOptionIcon::Binder:
+        case GossipOptionNpc::Binder:
             PlayerTalkClass->SendCloseGossip();
             SetBindPoint(guid);
             break;
-        case GossipOptionIcon::Banker:
+        case GossipOptionNpc::Banker:
             GetSession()->SendShowBank(guid);
             break;
-        case GossipOptionIcon::PetitionVendor:
+        case GossipOptionNpc::PetitionVendor:
             PlayerTalkClass->SendCloseGossip();
             GetSession()->SendPetitionShowList(guid);
             break;
-        case GossipOptionIcon::TabardVendor:
+        case GossipOptionNpc::TabardVendor:
             PlayerTalkClass->SendCloseGossip();
             GetSession()->SendTabardVendorActivate(guid);
             break;
-        case GossipOptionIcon::BattleMaster:
-        case GossipOptionIcon::WorldPVPQueue:
+        case GossipOptionNpc::BattleMaster:
+        case GossipOptionNpc::WorldPVPQueue:
         {
             BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(source->GetEntry());
 
@@ -14253,24 +14253,24 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             sBattlegroundMgr->SendBattlegroundList(this, guid, bgTypeId);
             break;
         }
-        case GossipOptionIcon::Auctioneer:
+        case GossipOptionNpc::Auctioneer:
             GetSession()->SendAuctionHello(guid, source->ToCreature());
             break;
-        case GossipOptionIcon::StableMaster:
+        case GossipOptionNpc::StableMaster:
             GetSession()->SendStablePet(guid);
             break;
-        case GossipOptionIcon::DisableXPGain:
+        case GossipOptionNpc::DisableXPGain:
             PlayerTalkClass->SendCloseGossip();
             SetPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
-        case GossipOptionIcon::EnableXPGain:
+        case GossipOptionNpc::EnableXPGain:
             PlayerTalkClass->SendCloseGossip();
             RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
-        case GossipOptionIcon::Mailbox:
+        case GossipOptionNpc::Mailbox:
             GetSession()->SendShowMailBox(guid);
             break;
-        case GossipOptionIcon::Transmogrify:
+        case GossipOptionNpc::Transmogrify:
             GetSession()->SendOpenTransmogrifier(guid);
             break;
         default:
