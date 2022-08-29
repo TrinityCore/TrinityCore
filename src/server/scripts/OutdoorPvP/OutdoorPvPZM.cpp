@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
+#include "WorldSession.h"
 #include "WorldStatePackets.h"
 
 uint8 const OutdoorPvPZMBuffZonesNum = 5;
@@ -413,6 +414,7 @@ enum ZMFieldScoutMisc
     GOSSIP_MENU_FIELD_SCOUT_ALLIANCE            = 7724,
 
     GOSSIP_OPTION_FIELD_SCOUT_BATTLE_STANDARD   = 0,
+    GOSSIP_OPTION_FIELD_SCOUT_VENDOR            = 1,
 };
 
 // 18581 - Alliance Field Scout
@@ -457,10 +459,9 @@ struct npc_zm_field_scout : public ScriptedAI
             gossipMenuId = GOSSIP_MENU_FIELD_SCOUT_ALLIANCE;
 
         if (CanObtainBanner(player))
-            AddGossipItemFor(player, gossipMenuId, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        if (me->IsVendor())
-            AddGossipItemFor(player, gossipMenuId, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_FIELD_SCOUT_BATTLE_STANDARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
+        AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_FIELD_SCOUT_VENDOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
         return true;
     }
@@ -468,39 +469,43 @@ struct npc_zm_field_scout : public ScriptedAI
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
         uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-        if (action == GOSSIP_ACTION_TRADE)
+        switch (action)
         {
-            player->GetSession()->SendListInventory(me->GetGUID());
+            case GOSSIP_ACTION_INFO_DEF:
+            {
+                player->PlayerTalkClass->SendCloseGossip();
+
+                OutdoorPvP* pvp = player->GetOutdoorPvP();
+                if (!pvp)
+                    return true;
+
+                OutdoorPvPZM* zmPvp = reinterpret_cast<OutdoorPvPZM*>(pvp);
+                if (!zmPvp)
+                    return true;
+
+                OPvPCapturePointZM_Graveyard* gy = zmPvp->GetGraveyard();
+                if (!gy)
+                    return true;
+
+                // if the flag is already taken, then return
+                if (!gy->GetFlagCarrierGUID().IsEmpty())
+                    return true;
+
+                uint32 battleStandardSpell = ZM_BATTLE_STANDARD_H;
+                if (me->GetEntry() == ZM_ALLIANCE_FIELD_SCOUT)
+                    battleStandardSpell = ZM_BATTLE_STANDARD_A;
+
+                me->CastSpell(player, battleStandardSpell, true);
+                gy->SetFlagCarrierGUID(player->GetGUID());
+                gy->UpdateTowerState();
+                break;
+            }
+            case GOSSIP_ACTION_TRADE:
+                player->GetSession()->SendListInventory(me->GetGUID());
+                break;
+            default:
+                break;
         }
-        else if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->PlayerTalkClass->SendCloseGossip();
-
-            OutdoorPvP* pvp = player->GetOutdoorPvP();
-            if (!pvp)
-                return true;
-
-            OutdoorPvPZM* zmPvp = reinterpret_cast<OutdoorPvPZM*>(pvp);
-            if (!zmPvp)
-                return true;
-
-            OPvPCapturePointZM_Graveyard* gy = zmPvp->GetGraveyard();
-            if (!gy)
-                return true;
-
-            // if the flag is already taken, then return
-            if (!gy->GetFlagCarrierGUID().IsEmpty())
-                return true;
-
-            uint32 battleStandardSpell = ZM_BATTLE_STANDARD_H;
-            if (me->GetEntry() == ZM_ALLIANCE_FIELD_SCOUT)
-                battleStandardSpell = ZM_BATTLE_STANDARD_A;
-
-            me->CastSpell(player, battleStandardSpell, true);
-            gy->SetFlagCarrierGUID(player->GetGUID());
-            gy->UpdateTowerState();
-        }
-
         return true;
     }
 };
