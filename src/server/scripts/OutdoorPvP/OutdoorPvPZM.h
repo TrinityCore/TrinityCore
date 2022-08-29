@@ -128,8 +128,6 @@ class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
         void SetBeaconState(uint32 controlling_team); // not good atm
         uint32 GetGraveyardState() const;
 
-        uint32 GetBothControllingFaction() const { return m_BothControllingFaction; }
-
         ObjectGuid GetFlagCarrierGUID() const { return m_FlagCarrierGUID; }
         void SetFlagCarrierGUID(ObjectGuid guid) { m_FlagCarrierGUID = guid; }
 

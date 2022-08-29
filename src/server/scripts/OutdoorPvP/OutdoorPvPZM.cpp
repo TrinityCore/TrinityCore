@@ -273,10 +273,13 @@ void OPvPCapturePointZM_Graveyard::UpdateTowerState()
     m_PvP->SetWorldState(ZM_MAP_GRAVEYARD_H, int32((m_GraveyardState & ZM_GRAVEYARD_H) != 0));
     m_PvP->SetWorldState(ZM_MAP_GRAVEYARD_A, int32((m_GraveyardState & ZM_GRAVEYARD_A) != 0));
 
-    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_READY, int32(m_BothControllingFaction == ALLIANCE));
-    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_NOT_READY, int32(m_BothControllingFaction != ALLIANCE));
-    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_READY, int32(m_BothControllingFaction == HORDE));
-    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_NOT_READY, int32(m_BothControllingFaction != HORDE));
+    bool allianceFlagReady = m_BothControllingFaction == ALLIANCE && m_GraveyardState != ZM_GRAVEYARD_A;
+    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_READY, int32(allianceFlagReady));
+    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_NOT_READY, int32(!allianceFlagReady));
+
+    bool hordeFlagReady = m_BothControllingFaction == HORDE && m_GraveyardState != ZM_GRAVEYARD_H;
+    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_READY, int32(hordeFlagReady));
+    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_NOT_READY, int32(!hordeFlagReady));
 }
 
 void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
@@ -416,22 +419,17 @@ struct npc_zm_field_scout : public ScriptedAI
 {
     npc_zm_field_scout(Creature* creature) : ScriptedAI(creature) { }
 
-    OPvPCapturePointZM_Graveyard* GetGraveyard(Player* player)
+    bool CanObtainBanner(Player* player)
     {
         OutdoorPvP* pvp = player->GetOutdoorPvP();
         if (!pvp)
-            return nullptr;
+            return false;
 
         OutdoorPvPZM* zmPvp = reinterpret_cast<OutdoorPvPZM*>(pvp);
         if (!zmPvp)
-            return nullptr;
+            return false;
 
-        return zmPvp->GetGraveyard();
-    }
-
-    bool CanObtainBanner(Player* player)
-    {
-        OPvPCapturePointZM_Graveyard* gy = GetGraveyard(player);
+        OPvPCapturePointZM_Graveyard* gy = zmPvp->GetGraveyard();
         if (!gy)
             return false;
 
@@ -441,9 +439,9 @@ struct npc_zm_field_scout : public ScriptedAI
         switch (me->GetEntry())
         {
             case ZM_ALLIANCE_FIELD_SCOUT:
-                return player->GetTeam() == ALLIANCE && gy->GetBothControllingFaction() == ALLIANCE && gy->GetGraveyardState() != ZM_GRAVEYARD_A;
+                return player->GetTeam() == ALLIANCE && pvp->GetWorldState(ZM_MAP_ALLIANCE_FLAG_READY);
             case ZM_HORDE_FIELD_SCOUT:
-                return player->GetTeam() == HORDE && gy->GetBothControllingFaction() == HORDE && gy->GetGraveyardState() != ZM_GRAVEYARD_H;
+                return player->GetTeam() == HORDE && pvp->GetWorldState(ZM_MAP_HORDE_FLAG_READY);
             default:
                 break;
         }
@@ -476,7 +474,15 @@ struct npc_zm_field_scout : public ScriptedAI
         {
             player->PlayerTalkClass->SendCloseGossip();
 
-            OPvPCapturePointZM_Graveyard* gy = GetGraveyard(player);
+            OutdoorPvP* pvp = player->GetOutdoorPvP();
+            if (!pvp)
+                return true;
+
+            OutdoorPvPZM* zmPvp = reinterpret_cast<OutdoorPvPZM*>(pvp);
+            if (!zmPvp)
+                return true;
+
+            OPvPCapturePointZM_Graveyard* gy = zmPvp->GetGraveyard();
             if (!gy)
                 return true;
 
