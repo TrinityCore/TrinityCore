@@ -5045,6 +5045,17 @@ class spell_gen_ancestral_call : public SpellScript
 {
     PrepareSpellScript(spell_gen_ancestral_call);
 
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RICTUS_OF_THE_LAUGHING_SKULL,
+            SPELL_ZEAL_OF_THE_BURNING_BLADE,
+            SPELL_FEROCITY_OF_THE_FROSTWOLF,
+            SPELL_MIGHT_OF_THE_BLACKROCK
+        });
+    }
+
     void Oncast()
     {
         Unit* caster = GetCaster();
