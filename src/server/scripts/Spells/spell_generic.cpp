@@ -5056,12 +5056,9 @@ class spell_gen_ancestral_call : public SpellScript
         });
     }
 
-    void Oncast()
+    void OnCast()
     {
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
         uint32 spellId = 0;
 
         switch (urand(0, 3))
@@ -5077,7 +5074,7 @@ class spell_gen_ancestral_call : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_gen_ancestral_call::Oncast);
+        OnCast += SpellCastFn(spell_gen_ancestral_call::OnCast);
     }
 };
 
