@@ -175,31 +175,30 @@ enum HuojinTraineeMisc
 class HuojinTraineePartnerSearch
 {
 public:
-    HuojinTraineePartnerSearch(Creature* partner) : _partner(partner) { }
+    HuojinTraineePartnerSearch(Creature* partner) : _partner(partner), _minDist(10.0f) { }
 
-    bool operator()(Creature* target) const
+    bool operator()(Creature* target)
     {
+        if (target->GetEntry() != NPC_HUOJIN_TRAINEE_MALE && target->GetEntry() != NPC_HUOJIN_TRAINEE_FEMALE)
+            return false;
         if (target == _partner)
             return false;
         if (target->IsInCombat())
             return false;
         if (target->isDead())
             return false;
-        if (target->GetDistance(_partner) > 5.0f)
+
+        float dist = target->GetDistance(_partner);
+        if (dist >= _minDist)
             return false;
 
-        switch (target->GetEntry())
-        {
-            case NPC_HUOJIN_TRAINEE_MALE:
-            case NPC_HUOJIN_TRAINEE_FEMALE:
-                return true;
-            default:
-                return false;
-        }
+        _minDist = dist;
+        return true;
     }
 
 private:
     Unit* _partner;
+    float _minDist;
 };
 
 // 54586 - Huojin Trainee
@@ -253,24 +252,12 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
         });
     }
 
-    Creature* TryGetNewPartner()
+    Creature* GetNewPartner()
     {
-        std::list<Creature*> partnerList;
-        HuojinTraineePartnerSearch check(me);
-        Trinity::CreatureListSearcher<HuojinTraineePartnerSearch> searcher(me, partnerList, check);
-        Cell::VisitGridObjects(me, searcher, 10.0f);
-
         Creature* partner = nullptr;
-        float currentDist = 1000.0f;
-        for (Creature* potentialPartner : partnerList)
-        {
-            float dist = me->GetDistance(potentialPartner);
-            if (dist < currentDist)
-            {
-                currentDist = dist;
-                partner = potentialPartner;
-            }
-        }
+        HuojinTraineePartnerSearch check(me);
+        Trinity::CreatureLastSearcher<HuojinTraineePartnerSearch> searcher(me, partner, check);
+        Cell::VisitGridObjects(me, searcher, 10.0f);
         return partner;
     }
 
@@ -285,7 +272,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
 
     void InitiateSparring()
     {
-        Creature* partner = TryGetNewPartner();
+        Creature* partner = GetNewPartner();
 
         if (!partner)
             return;
