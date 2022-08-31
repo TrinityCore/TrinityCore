@@ -450,15 +450,22 @@ class spell_pal_eye_for_an_eye : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo() && eventInfo.GetDamageInfo()->GetDamage() > 0;
+    }
+
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(damage));
+        if (damage)
+            GetTarget()->CastSpell(eventInfo.GetActor(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(damage));
     }
 
     void Register() override
     {
+        DoCheckProc.Register(&spell_pal_eye_for_an_eye::CheckProc);
         OnEffectProc.Register(&spell_pal_eye_for_an_eye::HandleEffectProc, EFFECT_0, m_scriptSpellId == SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1 ? SPELL_AURA_DUMMY : SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
