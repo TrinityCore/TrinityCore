@@ -471,14 +471,17 @@ class spell_pal_grand_crusader : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_AVENGERS_SHIELD });
     }
 
-    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return GetTarget()->GetTypeId() == TYPEID_PLAYER;
+        if (!eventInfo.GetProcSpell() || !eventInfo.GetProcTarget())
+            return false;
+
+        return eventInfo.GetProcTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
     }
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_PALADIN_AVENGERS_SHIELD, true);
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_PALADIN_AVENGERS_SHIELD, true);
     }
 
     void Register() override
