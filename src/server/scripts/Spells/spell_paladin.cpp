@@ -96,6 +96,7 @@ enum PaladinSpells
     SPELL_PALADIN_SEAL_OF_TRUTH                         = 31801,
     SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE                  = 42463,
     SPELL_PALADIN_SEAL_OF_JUSTICE                       = 20164,
+    SPELL_PALADIN_SPEED_OF_LIGHT                        = 85497,
     SPELL_PALADIN_SWIFT_RETRIBUTION_R1                  = 53379,
     SPELL_PALADIN_TEMPLARS_VERDICT                      = 85256,
     SPELL_PALADIN_TWO_HANDED_WEAPON_SPECIALIZATION      = 20113
@@ -1814,6 +1815,26 @@ class spell_pal_repentance : public AuraScript
     }
 };
 
+// -85495 - Speed of Light
+class spell_pal_speed_of_light : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_SPEED_OF_LIGHT });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(nullptr, SPELL_PALADIN_SPEED_OF_LIGHT, CastSpellExtraArgs().AddSpellBP0(aurEff->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_pal_speed_of_light::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     RegisterSpellScript(spell_pal_ardent_defender);
@@ -1862,6 +1883,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_seal_of_truth);
     RegisterSpellScript(spell_pal_shield_of_the_righteous);
     RegisterSpellScript(spell_pal_selfless_healer);
+    RegisterSpellScript(spell_pal_speed_of_light);
     RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellScript(spell_pal_tower_of_radiance);
     RegisterSpellAndAuraScriptPair(spell_pal_word_of_glory, spell_pal_word_of_glory_AuraScript);
