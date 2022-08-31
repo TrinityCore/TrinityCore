@@ -80,6 +80,7 @@ enum PaladinSpells
     SPELL_PALADIN_JUDGEMENTS_OF_THE_BOLD                = 89906,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_PASSIVE        = 31878,
     SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE                = 31930,
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST                = 68055,
     SPELL_PALADIN_JUDGEMENT_OF_TRUTH                    = 31804,
     SPELL_PALADIN_JUDGEMENT_OF_RIGHTEOUSNESS            = 20187,
     SPELL_PALADIN_JUDGEMENT_DEFAULT                     = 54158,
@@ -1201,7 +1202,7 @@ class spell_pal_word_of_glory: public SpellScript
         if (!caster || !target)
             return;
 
-        int32 heal = GetEffectValue() + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.198;
+        int32 heal = GetEffectValue() + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.198f;
         uint8 power = caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC) ? 3 : (caster->GetPower(POWER_HOLY_POWER) + 1);
         heal *= power;
 
@@ -1835,6 +1836,26 @@ class spell_pal_speed_of_light : public AuraScript
     }
 };
 
+// -53695 - Judgements of the Just 
+class spell_pal_judgements_of_the_just : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_JUDGEMENTS_OF_THE_JUST);
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_pal_judgements_of_the_just::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     RegisterSpellScript(spell_pal_ardent_defender);
@@ -1871,6 +1892,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_item_healing_discount);
     RegisterSpellScript(spell_pal_judgement);
     RegisterSpellScript(spell_pal_judgements);
+    RegisterSpellScript(spell_pal_judgements_of_the_just);
     RegisterSpellScript(spell_pal_lay_on_hands);
     RegisterSpellScript(spell_pal_lights_beacon);
     RegisterSpellScript(spell_pal_light_of_dawn);
