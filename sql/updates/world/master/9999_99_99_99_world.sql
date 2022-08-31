@@ -3,7 +3,7 @@ ALTER TABLE `gossip_menu_option` DROP `OptionType`, RENAME COLUMN `OptionIcon` T
 
 -- Update default option
 DELETE FROM `gossip_menu_option` WHERE `MenuID`=0;
-INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextId`, `OptionNpcFlag`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextId`, `OptionNpcFlag`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
 (0, 1 , 1 , 'I want to browse your goods.', 3370, 128, 0, 0, 0, 0, 0, NULL, 0, 0),
 (0, 2 , 2 , 'I''d like to travel by air.', 53141, 8192, 0, 0, 0, 0, 0, NULL, 0, 0),
 (0, 3 , 3 , 'Train me.', 3266, 16, 0, 0, 0, 0, 0, NULL, 0, 0),
