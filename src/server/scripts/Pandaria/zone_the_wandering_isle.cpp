@@ -185,6 +185,8 @@ public:
             return false;
         if (target->IsInCombat())
             return false;
+        if (target->IsInEvadeMode())
+            return false;
         if (target->isDead())
             return false;
 
@@ -307,21 +309,18 @@ public:
 
     bool operator()(Creature* target) const
     {
+        if (target->GetEntry() != NPC_TUSHUI_TRAINEE_MALE && target->GetEntry() != NPC_TUSHUI_TRAINEE_FEMALE)
+            return false;
         if (target->IsInCombat())
             return false;
-        if (target->isDead())
+        if (target->IsInEvadeMode())
             return false;
         if (target->GetDistance(_leader) >= _maxDist)
             return false;
+        if (target->isDead())
+            return false;
 
-        switch (target->GetEntry())
-        {
-            case NPC_TUSHUI_TRAINEE_MALE:
-            case NPC_TUSHUI_TRAINEE_FEMALE:
-                return true;
-            default:
-                return false;
-        }
+        return true;
     }
 
 private:
@@ -378,7 +377,7 @@ struct npc_instructor_zhi : public ScriptedAI
 {
     npc_instructor_zhi(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
         _scheduler.Schedule(Seconds(6), [this](TaskContext task)
         {
