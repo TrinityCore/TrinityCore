@@ -82,7 +82,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 DELETE FROM `creature_text` WHERE `CreatureID` IN (54130, 54567, 54856, 54943, 56503, 59642, 59652, 65469); 
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (54130, 0, 0, 'Look out! Its friendses are coming!', 14, 0, 100, 2, 0, 0, 56473, 0, 'Amberleaf Scamp to Player'),
-(54130, 1, 0, 'Run away!', 14, 0, 100, 2, 0, 0, 120283, 0, 'Amberleaf Scamp to Player'), -- BroadcastTextID: 26179 - 56474 - 61876 - 120283
+(54130, 1, 0, 'Run away!', 14, 0, 100, 2, 0, 0, 56474, 0, 'Amberleaf Scamp to Player'), -- BroadcastTextID: 26179 - 56474 - 61876 - 120283
 (54567, 0, 0, 'And so our path lays before us. Speak to Master Shang Xi, he will tell you what comes next.', 12, 0, 100, 0, 0, 27399, 60046, 0, 'Aysa Cloudsinger to Player'),
 (54856, 0, 0, 'Master Li Fei\'s voice echoes, \"It is good to see you again, Aysa. You\'ve come with respect, and so I shall give you the answers you seek.\"', 16, 0, 100, 1, 0, 0, 53845, 0, 'Master Li Fei to Player'),
 (54856, 1, 0, 'Master Li Fei\'s voice echoes, \"Huo, the spirit of fire, is known for his hunger. He wants for tinder to eat. He needs the caress of the wind to rouse him.\"', 16, 0, 100, 1, 0, 0, 53841, 0, 'Master Li Fei to Player'),
