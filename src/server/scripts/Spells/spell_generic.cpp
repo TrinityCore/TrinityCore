@@ -5056,18 +5056,12 @@ class spell_gen_ancestral_call : public SpellScript
         });
     }
 
+    static constexpr uint32 AncestralCalls[] = { SPELL_RICTUS_OF_THE_LAUGHING_SKULL, SPELL_ZEAL_OF_THE_BURNING_BLADE, SPELL_FEROCITY_OF_THE_FROSTWOLF, SPELL_MIGHT_OF_THE_BLACKROCK };
+
     void HandleOnCast()
     {
         Unit* caster = GetCaster();
-        uint32 spellId = 0;
-
-        switch (urand(0, 3))
-        {
-            case 0: spellId = SPELL_RICTUS_OF_THE_LAUGHING_SKULL; break;
-            case 1: spellId = SPELL_ZEAL_OF_THE_BURNING_BLADE; break;
-            case 2: spellId = SPELL_FEROCITY_OF_THE_FROSTWOLF; break;
-            case 3: spellId = SPELL_MIGHT_OF_THE_BLACKROCK; break;
-        }
+        uint32 spellId = Trinity::Containers::SelectRandomContainerElement(AncestralCalls);
 
         caster->CastSpell(caster, spellId, true);
     }
