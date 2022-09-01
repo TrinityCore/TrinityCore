@@ -5032,6 +5032,46 @@ class spell_gen_mount_check_aura : public AuraScript
     }
 };
 
+enum AncestralCallSpells
+{
+    SPELL_RICTUS_OF_THE_LAUGHING_SKULL  = 274739,
+    SPELL_ZEAL_OF_THE_BURNING_BLADE     = 274740,
+    SPELL_FEROCITY_OF_THE_FROSTWOLF     = 274741,
+    SPELL_MIGHT_OF_THE_BLACKROCK        = 274742
+};
+
+// 274738 - Ancestral Call (Mag'har Orc Racial)
+class spell_gen_ancestral_call : public SpellScript
+{
+    PrepareSpellScript(spell_gen_ancestral_call);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RICTUS_OF_THE_LAUGHING_SKULL,
+            SPELL_ZEAL_OF_THE_BURNING_BLADE,
+            SPELL_FEROCITY_OF_THE_FROSTWOLF,
+            SPELL_MIGHT_OF_THE_BLACKROCK
+        });
+    }
+
+    static constexpr uint32 AncestralCallBuffs[] = { SPELL_RICTUS_OF_THE_LAUGHING_SKULL, SPELL_ZEAL_OF_THE_BURNING_BLADE, SPELL_FEROCITY_OF_THE_FROSTWOLF, SPELL_MIGHT_OF_THE_BLACKROCK };
+
+    void HandleOnCast()
+    {
+        Unit* caster = GetCaster();
+        uint32 spellId = Trinity::Containers::SelectRandomContainerElement(AncestralCallBuffs);
+
+        caster->CastSpell(caster, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_gen_ancestral_call::HandleOnCast);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5187,4 +5227,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_summon_battle_pet);
     RegisterSpellScript(spell_gen_anchor_here);
     RegisterSpellScript(spell_gen_mount_check_aura);
+    RegisterSpellScript(spell_gen_ancestral_call);
 }
