@@ -284,7 +284,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
         loot->gold = 0;
 
         // Delete the money loot record from the DB
-        if (guid.IsItem() && loot->loot_type == LOOT_CORPSE)
+        if (loot->loot_type == LOOT_ITEM)
             sLootItemStorage->RemoveStoredMoneyForContainer(guid.GetCounter());
 
         // Delete container if empty

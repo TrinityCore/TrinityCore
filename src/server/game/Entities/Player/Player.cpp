@@ -8808,19 +8808,19 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
             if (!go)
                 return true;
 
-            if (lootType == LOOT_SKINNING)
+            switch (lootType)
             {
-                // Disarm Trap
-                if (!go->IsWithinDistInMap(this, 20.f))
-                    return true;
-            }
-            else
-            {
-                if (lootType != LOOT_FISHINGHOLE && ((lootType != LOOT_FISHING && lootType != LOOT_FISHING_JUNK) || go->GetOwnerGUID() != GetGUID()) && !go->IsWithinDistInMap(this))
-                    return true;
-
-                if (lootType == LOOT_CORPSE && go->GetRespawnTime() && go->isSpawnedByDefault())
-                    return true;
+                case LOOT_FISHING:
+                case LOOT_FISHING_JUNK:
+                    if (go->GetOwnerGUID() != GetGUID())
+                        return true;
+                    break;
+                case LOOT_FISHINGHOLE:
+                    break;
+                default:
+                    if (!go->IsWithinDistInMap(this))
+                        return true;
+                    break;
             }
 
             return false;
@@ -9121,15 +9121,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
         }
     }
 
-    // LOOT_INSIGNIA and LOOT_FISHINGHOLE unsupported by client
-    switch (loot_type)
-    {
-        case LOOT_INSIGNIA:    loot_type = LOOT_SKINNING; break;
-        case LOOT_FISHINGHOLE: loot_type = LOOT_FISHING; break;
-        case LOOT_FISHING_JUNK: loot_type = LOOT_FISHING; break;
-        default: break;
-    }
-
     // need know merged fishing/corpse loot type for achievements
     if (loot)
         loot->loot_type = loot_type;
@@ -9149,14 +9140,14 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
             }
         }
 
-        if (!aeLooting)
+        if (!guid.IsItem() && !aeLooting)
             SetLootGUID(guid);
 
         WorldPackets::Loot::LootResponse packet;
         packet.Owner = guid;
         packet.LootObj = loot->GetGUID();
         packet._LootMethod = _lootMethod;
-        packet.AcquireReason = loot_type;
+        packet.AcquireReason = GetLootTypeForClient(loot_type);
         packet.Acquired = true; // false == No Loot (this too^^)
         packet.AELooting = aeLooting;
         loot->BuildLootResponse(packet, this, permission);
@@ -26147,14 +26138,14 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
         {
             SendNewItem(newitem, uint32(item->count), false, false, true);
             UpdateCriteria(CriteriaType::LootItem, item->itemid, item->count);
-            UpdateCriteria(CriteriaType::GetLootByType, item->itemid, item->count, loot->loot_type);
+            UpdateCriteria(CriteriaType::GetLootByType, item->itemid, item->count, GetLootTypeForClient(loot->loot_type));
             UpdateCriteria(CriteriaType::LootAnyItem, item->itemid, item->count);
         }
         else
-            aeResult->Add(newitem, item->count, loot->loot_type);
+            aeResult->Add(newitem, item->count, GetLootTypeForClient(loot->loot_type));
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
-        if (lootWorldObjectGuid.IsItem() && loot->loot_type == LOOT_CORPSE)
+        if (loot->loot_type == LOOT_ITEM)
             sLootItemStorage->RemoveStoredLootItemForContainer(lootWorldObjectGuid.GetCounter(), item->itemid, item->count, item->itemIndex);
 
         ApplyItemLootedSpell(newitem, true);
