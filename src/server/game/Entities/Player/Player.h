@@ -2029,6 +2029,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing) const;
+        float OCTRegenHPPerSpirit() const;
+        float OCTRegenMPPerSpirit() const;
         float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
         float ApplyRatingDiminishing(CombatRating cr, float bonusValue) const;

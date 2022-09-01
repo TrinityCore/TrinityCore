@@ -4420,6 +4420,60 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& base
     baseMana = uint32(GetGameTableColumnForClass(mp, class_));
 }
 
+float ObjectMgr::GetOCTRegenHP(uint32 class_, uint8 level) const
+{
+    if (level < 1 || class_ >= MAX_CLASSES)
+        return 0.f;
+
+    if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+
+    GtOCTRegenHPEntry const* octRegenHP = sOCTRegenHPGameTable.GetRow(level);
+    if (!octRegenHP)
+    {
+        TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data from OCTRegenHP. Class %u Level %u", class_, level);
+        return 0.f;
+    }
+
+     return float(GetGameTableColumnForClass(octRegenHP, class_));
+}
+
+float ObjectMgr::GetRegenHPPerSpt(uint32 class_, uint8 level) const
+{
+    if (level < 1 || class_ >= MAX_CLASSES)
+        return 0.f;
+
+    if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+
+    GtRegenHPPerSptEntry const* regenHPPerSpt = sRegenHPPerSptGameTable.GetRow(level);
+    if (!regenHPPerSpt)
+    {
+        TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data from RegenHPPerSpt. Class %u Level %u", class_, level);
+        return 0.f;
+    }
+
+    return float(GetGameTableColumnForClass(regenHPPerSpt, class_));
+}
+
+float ObjectMgr::GetRegenMPPerSpt(uint32 class_, uint8 level) const
+{
+    if (level < 1 || class_ >= MAX_CLASSES)
+        return 0.f;
+
+    if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+
+    GtRegenMPPerSptEntry const* regenMPPerSpt = sRegenMPPerSptGameTable.GetRow(level);
+    if (!regenMPPerSpt)
+    {
+        TC_LOG_ERROR("misc", "Tried to get non-existant Class-Level combination data from RegenMPPerSpt. Class %u Level %u", class_, level);
+        return 0.f;
+    }
+
+    return float(GetGameTableColumnForClass(regenMPPerSpt, class_));
+}
+
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
 {
     if (level < 1 || race >= MAX_RACES || class_ >= MAX_CLASSES)

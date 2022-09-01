@@ -1351,7 +1351,16 @@ void ExtractGameTables()
         { 1391659, "SandboxScaling.txt" },
         { 1391660, "SpellScaling.txt" },
         { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" }
+        { 1391661, "xp.txt" },
+        { 2200979, "ShieldBlockRegular.txt" },
+        { 2238239, "OCTRegenMP.txt" },
+        { 2238240, "RegenMPPerSpt.txt" },
+        { 3953485, "OCTRegenHP.txt" },
+        { 3953486, "RegenHPPerSpt.txt" },
+        { 3999262, "ChanceToMeleeCrit.txt" },
+        { 3999263, "ChanceToMeleeCritBase.txt" },
+        { 3999264, "ChanceToSpellCritBase.txt" },
+        { 3999265, "ChanceToSpellCrit.txt" }
     };
 
     uint32 count = 0;
