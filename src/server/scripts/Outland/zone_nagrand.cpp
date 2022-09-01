@@ -521,7 +521,7 @@ public:
                 return;
 
             // This check is done at all times, but does not take effect if casting.
-            if (!has_fled && me->GetHealth() > damage && me->HealthBelowPct(15))
+            if (!has_fled && me->HealthBelowPct(15))
             {
                 me->DoFleeToGetAssistance();
                 has_fled = true;
