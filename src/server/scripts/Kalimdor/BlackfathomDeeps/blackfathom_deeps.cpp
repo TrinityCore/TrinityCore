@@ -121,7 +121,7 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
 
         if (me->GetEntry() == NPC_MURKSHALLOW_SOFTSHELL && me->GetEntry() == NPC_BARBED_CRUSTACEAN)
         {
-            if (!_flee && me->HealthBelowPctDamaged(15, damage))
+            if (!_flee && me->HealthBelowPct(15))
             {
                 _flee = true;
                 me->DoFleeToGetAssistance();
