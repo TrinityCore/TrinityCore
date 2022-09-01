@@ -513,20 +513,20 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            // This check is done at all times, but does not take effect if casting.
+            if (!me->HasUnitState(UNIT_STATE_CASTING) && !has_fled && me->HealthBelowPct(15))
+            {
+                me->DoFleeToGetAssistance();
+                has_fled = true;
+                return;
+            }
+
             if (!UpdateVictim() || !me->GetVictim())
                 return;
 
             interrupt_cooldown += diff;
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            // This check is done at all times, but does not take effect if casting.
-            if (!has_fled && me->HealthBelowPct(15))
-            {
-                me->DoFleeToGetAssistance();
-                has_fled = true;
-                return;
-            }
 
             if (me->EnsureVictim()->HasUnitState(UNIT_STATE_CASTING) && interrupt_cooldown > 25000)
             {

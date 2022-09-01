@@ -111,6 +111,16 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        if (me->GetEntry() == NPC_MURKSHALLOW_SOFTSHELL || me->GetEntry() == NPC_BARBED_CRUSTACEAN)
+        {
+            if (!me->HasUnitState(UNIT_STATE_CASTING) && !_flee && me->HealthBelowPct(15))
+            {
+                _flee = true;
+                me->DoFleeToGetAssistance();
+                return;
+            }
+        }
+
         if (!UpdateVictim())
             return;
 
@@ -118,16 +128,6 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-
-        if (me->GetEntry() == NPC_MURKSHALLOW_SOFTSHELL && me->GetEntry() == NPC_BARBED_CRUSTACEAN)
-        {
-            if (!_flee && me->HealthBelowPct(15))
-            {
-                _flee = true;
-                me->DoFleeToGetAssistance();
-                return;
-            }
-        }
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
