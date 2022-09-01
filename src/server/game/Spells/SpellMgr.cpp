@@ -2404,7 +2404,7 @@ void SpellMgr::LoadSpellAreas()
         if (SpellInfo const* spellInfo = GetSpellInfo(spell))
         {
             if (spellArea.flags & SPELL_AREA_FLAG_AUTOCAST)
-                const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
+                const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_NO_AURA_CANCEL;
         }
         else
         {
@@ -2792,8 +2792,8 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                         [[fallthrough]];
                     default:
                     {
-                        // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
-                        if (!spellInfo->Effects[j].CalcValue() && !((spellInfo->Effects[j].Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)))
+                        // No value and not interrupt cast or crowd control without SPELL_ATTR0_NO_IMMUNITIES flag
+                        if (!spellInfo->Effects[j].CalcValue() && !((spellInfo->Effects[j].Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)))
                             break;
 
                         // Sindragosa Frost Breath
@@ -3258,7 +3258,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 47569 }, [](SpellInfo* spellInfo)
     {
         // with this spell atrribute aura can be stacked several times
-        spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
+        spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFTED;
     });
 
     // Hymn of Hope
@@ -4044,7 +4044,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
     // Raging Spirit Visual
@@ -4237,7 +4237,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Introspection
     ApplySpellFix({ 40055, 40165, 40166, 40167 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
     // Minor Fortitude
@@ -4909,7 +4909,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Torment
     ApplySpellFix({ 99256, 100230, 100231, 100232 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
     // Summon Fragment of Rhyolith

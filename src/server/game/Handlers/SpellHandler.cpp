@@ -301,8 +301,8 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (!spellInfo)
         return;
 
-    // not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
-    if (spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
+    // not allow remove spells with attr SPELL_ATTR0_NO_AURA_CANCEL
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL))
         return;
 
     // channeled spell case (it currently cast then)
@@ -398,8 +398,8 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     if (!spellInfo)
         return;
 
-    // not allow cancel channeling with attr SPELL_ATTR0_CANT_CANCEL
-    if (spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
+    // not allow cancel channeling with attr SPELL_ATTR0_NO_AURA_CANCEL
+    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_AURA_CANCEL))
         return;
 
     Unit* mover = GetGameClient()->GetActivelyMovedUnit();

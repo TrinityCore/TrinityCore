@@ -560,7 +560,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             return !aura->IsPermanent()
                                 && aura->GetDuration() <= 30 * IN_MILLISECONDS
                                 && aurApp->IsPositive()
-                                && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+                                && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)
                                 && !aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY);
                         });
                     }

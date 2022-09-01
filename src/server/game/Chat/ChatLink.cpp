@@ -282,7 +282,7 @@ bool SpellChatLink::ValidateName(char* buffer, char const* context)
     ChatLink::ValidateName(buffer, context);
 
     // spells with that flag have a prefix of "$PROFESSION: "
-    if (_spell->HasAttribute(SPELL_ATTR0_TRADESPELL))
+    if (_spell->HasAttribute(SPELL_ATTR0_IS_TRADESKILL))
     {
         SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(_spell->Id);
         if (bounds.first == bounds.second)
