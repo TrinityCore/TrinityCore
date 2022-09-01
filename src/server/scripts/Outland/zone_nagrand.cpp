@@ -520,6 +520,14 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
+            // This check is done at all times, but does not take effect if casting.
+            if (!has_fled && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
+            {
+                me->DoFleeToGetAssistance();
+                has_fled = true;
+                return;
+            }
+
             if (me->EnsureVictim()->HasUnitState(UNIT_STATE_CASTING) && interrupt_cooldown > 25000)
             {
                 DoCastVictim(SPELL_COUNTERSPELL);
@@ -530,15 +538,6 @@ public:
             {
                 DoMeleeAttackIfReady();
             });
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-        {
-            if (!has_fled && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
-            {
-                me->DoFleeToGetAssistance();
-                has_fled = true;
-            }
         }
 
     private:
