@@ -22,6 +22,7 @@
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "Log.h"
+#include "Loot.h"
 #include "Map.h"
 #include "PhasingHandler.h"
 #include "Player.h"

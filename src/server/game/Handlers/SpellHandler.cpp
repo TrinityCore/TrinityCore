@@ -26,6 +26,7 @@
 #include "GuildMgr.h"
 #include "Item.h"
 #include "Log.h"
+#include "Loot.h"
 #include "Map.h"
 #include "Player.h"
 #include "ObjectAccessor.h"

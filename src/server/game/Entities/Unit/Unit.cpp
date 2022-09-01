@@ -10658,24 +10658,17 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             }
         }
         else
-        {
             player->SendDirectMessage(partyKillLog.Write());
-
-            if (creature)
-            {
-                WorldPackets::Loot::LootList lootList;
-                lootList.Owner = creature->GetGUID();
-                lootList.LootObj = creature->loot.GetGUID();
-
-                player->SendMessageToSet(lootList.Write(), true);
-            }
-        }
 
         // Generate loot before updating looter
         if (creature)
         {
-            Loot* loot = &creature->loot;
-            loot->clear();
+            creature->m_loot.reset(new Loot());
+            Loot* loot = creature->m_loot.get();
+            loot->SetGUID(ObjectGuid::Create<HighGuid::LootObject>(creature->GetMapId(), 0, creature->GetMap()->GenerateLowGuid<HighGuid::LootObject>()));
+            if (creature->GetMap()->Is25ManRaid())
+                loot->maxDuplicates = 3;
+
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
                 loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
 
@@ -10692,6 +10685,13 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                 // Update round robin looter only if the creature had loot
                 if (!loot->empty())
                     group->UpdateLooterGuid(creature);
+            }
+            else
+            {
+                WorldPackets::Loot::LootList lootList;
+                lootList.Owner = creature->GetGUID();
+                lootList.LootObj = creature->m_loot->GetGUID();
+                player->SendMessageToSet(lootList.Write(), true);
             }
         }
 
@@ -10785,7 +10785,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
         if (!creature->IsPet())
         {
             // must be after setDeathState which resets dynamic flags
-            if (!creature->loot.isLooted())
+            if (creature->m_loot && !creature->m_loot->isLooted())
                 creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
             else
                 creature->AllLootRemovedFromCorpse();
