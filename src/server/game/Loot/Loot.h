@@ -93,15 +93,36 @@ enum LootType : uint8
     LOOT_PICKPOCKETING          = 2,
     LOOT_FISHING                = 3,
     LOOT_DISENCHANTING          = 4,
-                                                            // ignored always by client
+    LOOT_ITEM                   = 5,
     LOOT_SKINNING               = 6,
-    LOOT_PROSPECTING            = 7,
-    LOOT_MILLING                = 8,
+    LOOT_GATHERING_NODE         = 8,
+    LOOT_CHEST                  = 9,
+    LOOT_CORPSE_PERSONAL        = 14,
 
     LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
     LOOT_INSIGNIA               = 21,                       // unsupported by client, sending LOOT_CORPSE instead
-    LOOT_FISHING_JUNK           = 22                        // unsupported by client, sending LOOT_FISHING instead
+    LOOT_FISHING_JUNK           = 22,                       // unsupported by client, sending LOOT_FISHING instead
+    LOOT_PROSPECTING            = 23,
+    LOOT_MILLING                = 24,
 };
+
+constexpr LootType GetLootTypeForClient(LootType lootType)
+{
+    switch (lootType)
+    {
+        case LOOT_PROSPECTING:
+        case LOOT_MILLING:
+            return LOOT_DISENCHANTING;
+        case LOOT_INSIGNIA:
+            return LOOT_SKINNING;
+        case LOOT_FISHINGHOLE:
+        case LOOT_FISHING_JUNK:
+            return LOOT_FISHING;
+        default:
+            break;
+    }
+    return lootType;
+}
 
 enum LootError : uint8
 {
@@ -220,7 +241,7 @@ struct TC_GAME_API Loot
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
-    Loot(uint32 _gold = 0);
+    Loot();
     ~Loot();
 
     ObjectGuid const& GetGUID() const { return _GUID; }

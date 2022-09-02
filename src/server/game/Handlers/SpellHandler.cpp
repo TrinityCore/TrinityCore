@@ -26,6 +26,7 @@
 #include "GuildMgr.h"
 #include "Item.h"
 #include "Log.h"
+#include "Loot.h"
 #include "Map.h"
 #include "Player.h"
 #include "ObjectAccessor.h"
@@ -201,7 +202,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
             .WithPreparedCallback(std::bind(&WorldSession::HandleOpenWrappedItemCallback, this, item->GetPos(), item->GetGUID(), std::placeholders::_1)));
     }
     else
-        player->SendLoot(item->GetGUID(), LOOT_CORPSE);
+        player->SendLoot(item->GetGUID(), LOOT_ITEM);
 }
 
 void WorldSession::HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid, PreparedQueryResult result)
