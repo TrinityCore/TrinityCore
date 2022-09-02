@@ -376,24 +376,6 @@ bool OutdoorPvP::HandleOpenGo(Player* player, GameObject* go)
     return false;
 }
 
-bool OutdoorPvP::HandleGossipOption(Player* player, Creature* creature, uint32 id)
-{
-    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if (itr->second->HandleGossipOption(player, creature, id))
-            return true;
-
-    return false;
-}
-
-bool OutdoorPvP::CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso)
-{
-    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if (itr->second->CanTalkTo(player, c, gso))
-            return true;
-
-    return false;
-}
-
 bool OutdoorPvP::HandleDropFlag(Player* player, uint32 id)
 {
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
