@@ -1,5 +1,5 @@
 -- 
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_zm_field_scout' WHERE `entry` IN(18581, 18564);
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_zm_field_scout' WHERE `entry` IN (18581,18564);
 UPDATE `gossip_menu_option` SET `OptionNpcFlag`=1 WHERE `MenuID`=7724 AND `OptionID`=0;
 
 DELETE FROM `gossip_menu_option` WHERE (`MenuID`=7722 AND `OptionID`=0);
