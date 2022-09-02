@@ -1024,9 +1024,9 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     WorldPackets::Loot::LootList lootList;
 
     lootList.Owner = creature->GetGUID();
-    lootList.LootObj = creature->loot.GetGUID();
+    lootList.LootObj = creature->m_loot->GetGUID();
 
-    if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
+    if (GetLootMethod() == MASTER_LOOT && creature->m_loot->hasOverThresholdItem())
         lootList.Master = GetMasterLooterGuid();
 
     if (groupLooter)

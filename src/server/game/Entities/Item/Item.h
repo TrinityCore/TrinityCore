@@ -25,11 +25,11 @@
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"
 #include "IteratorPair.h"
-#include "Loot.h"
 
 class SpellInfo;
 class Bag;
 class Unit;
+struct Loot;
 namespace WorldPackets
 {
     namespace Item
@@ -313,8 +313,9 @@ class TC_GAME_API Item : public Object
         int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return m_itemData->SpellCharges[index]; }
         void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value); }
 
-        Loot loot;
+        std::unique_ptr<Loot> m_loot;
         bool m_lootGenerated;
+        Loot* GetLootForPlayer(Player const* /*player*/) const override { return m_loot.get(); }
 
         // Update States
         ItemUpdateState GetState() const { return uState; }
