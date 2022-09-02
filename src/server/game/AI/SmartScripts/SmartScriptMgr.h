@@ -597,8 +597,10 @@ enum SMART_ACTION
     SMART_ACTION_SET_UNINTERACTIBLE                 = 146,    // 0/1
     SMART_ACTION_ACTIVATE_GAMEOBJECT                = 147,    // GameObjectActions
     SMART_ACTION_ADD_TO_STORED_TARGET_LIST          = 148,    // varID
-
-    SMART_ACTION_END                                = 149
+    SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER   = 149,    // don't use on 3.3.5a
+    SMART_ACTION_TRIGGER_GAME_EVENT                 = 150,    // eventId, useSaiTargetAsGameEventSource (RESERVED, PENDING CHERRYPICK)
+    SMART_ACTION_DO_ACTION                          = 151,    // actionId (RESERVED, PENDING CHERRYPICK)
+    SMART_ACTION_END                                = 152
 };
 
 enum class SmartActionSummonCreatureFlags
