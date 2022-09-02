@@ -18,6 +18,7 @@
 #include "DBCStores.h"
 #include "DBCFileLoader.h"
 #include "DBCfmt.h"
+#include "Containers.h"
 #include "Errors.h"
 #include "IteratorPair.h"
 #include "Log.h"
@@ -156,7 +157,9 @@ DBCStorage <ScalingStatValuesEntry> sScalingStatValuesStore(ScalingStatValuesfmt
 DBCStorage <SkillLineEntry> sSkillLineStore(SkillLinefmt);
 DBCStorage <SkillLineAbilityEntry> sSkillLineAbilityStore(SkillLineAbilityfmt);
 DBCStorage <SkillRaceClassInfoEntry> sSkillRaceClassInfoStore(SkillRaceClassInfofmt);
+std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> SkillLineAbilitiesBySkill;
 SkillRaceClassInfoMap SkillRaceClassInfoBySkill;
+
 DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
 
 DBCStorage <SoundEntriesEntry> sSoundEntriesStore(SoundEntriesfmt);
@@ -497,6 +500,8 @@ void LoadDBCStores(const std::string& dataPath)
                 sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->ID);
             }
         }
+
+        SkillLineAbilitiesBySkill[skillLine->SkillLine].push_back(skillLine);
     }
 
     // Create Spelldifficulty searcher
@@ -935,6 +940,11 @@ uint32 GetDefaultMapLight(uint32 mapId)
     }
 
     return 0;
+}
+
+std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skillLine)
+{
+    return Trinity::Containers::MapGetValuePtr(SkillLineAbilitiesBySkill, skillLine);
 }
 
 SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)

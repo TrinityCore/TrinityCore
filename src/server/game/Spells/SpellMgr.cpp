@@ -2197,19 +2197,12 @@ void SpellMgr::LoadPetLevelupSpellMap()
             if (!creatureFamily->SkillLine[j])
                 continue;
 
-            for (uint32 k = 0; k < sSkillLineAbilityStore.GetNumRows(); ++k)
+            std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = GetSkillLineAbilitiesBySkill(creatureFamily->SkillLine[j]);
+            if (!skillLineAbilities)
+                continue;
+
+            for (SkillLineAbilityEntry const* skillLine : *skillLineAbilities)
             {
-                SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(k);
-                if (!skillLine)
-                    continue;
-
-                //if (skillLine->skillId != creatureFamily->SkillLine[0] &&
-                //    (!creatureFamily->SkillLine[1] || skillLine->skillId != creatureFamily->SkillLine[1]))
-                //    continue;
-
-                if (skillLine->SkillLine != creatureFamily->SkillLine[j])
-                    continue;
-
                 if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
