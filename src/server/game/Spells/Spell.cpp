@@ -5664,10 +5664,11 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (res != SPELL_CAST_OK)
                     return res;
 
-                // chance for fail at lockpicking attempt
-                // second check prevent fail at rechecks
-                if (skillId != SKILL_NONE && (!m_selfContainer || ((*m_selfContainer) != this)))
+                // some tradeskills can fail - but herbalism, mining and skinning cannot
+                if (skillId != SKILL_NONE && skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_SKINNING && (!m_selfContainer || ((*m_selfContainer) != this)))
                 {
+                    // chance for fail at lockpicking attempt
+                    // second check prevent fail at rechecks
                     bool canFailAtMax = skillId == SKILL_LOCKPICKING;
 
                     // chance for failure in orange lockpick
