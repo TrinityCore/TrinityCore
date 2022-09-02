@@ -27,6 +27,7 @@ npc_maghar_captive
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "ConditionMgr.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
