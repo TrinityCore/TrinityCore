@@ -529,11 +529,6 @@ void BattlePetMgr::ModifyName(ObjectGuid guid, std::string const& name, std::uni
 
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
-
-    // Update the timestamp if the battle pet is summoned
-    if (Creature* summonedBattlePet = _owner->GetPlayer()->GetSummonedBattlePet())
-        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
-            summonedBattlePet->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
 }
 
 bool BattlePetMgr::IsPetInSlot(ObjectGuid guid)
@@ -649,17 +644,6 @@ void BattlePetMgr::CageBattlePet(ObjectGuid guid)
     WorldPackets::BattlePet::BattlePetDeleted deletePet;
     deletePet.PetGuid = guid;
     _owner->SendPacket(deletePet.Write());
-
-    // Battle pet despawns if it's summoned
-    Player* player = _owner->GetPlayer();
-    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
-    {
-        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
-        {
-            summonedBattlePet->DespawnOrUnsummon();
-            player->SetBattlePetData(nullptr);
-        }
-    }
 }
 
 void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality quality)
@@ -816,25 +800,6 @@ void BattlePetMgr::HealBattlePetsPct(uint8 pct)
     SendUpdates(std::move(updates), false);
 }
 
-void BattlePetMgr::UpdateBattlePetData(ObjectGuid guid)
-{
-    BattlePet* pet = GetPet(guid);
-    if (!pet)
-        return;
-
-    Player* player = _owner->GetPlayer();
-
-    // Update battle pet related update fields
-    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
-    {
-        if (summonedBattlePet->GetBattlePetCompanionGUID() == guid)
-        {
-            summonedBattlePet->SetWildBattlePetLevel(pet->PacketInfo.Level);
-            player->SetBattlePetData(pet);
-        }
-    }
-}
-
 void BattlePetMgr::SummonPet(ObjectGuid guid)
 {
     BattlePet* pet = GetPet(guid);
@@ -856,16 +821,6 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
         args.AddSpellBP0(speciesEntry->CreatureID);
     }
     player->CastSpell(_owner->GetPlayer(), summonSpellId, args);
-}
-
-void BattlePetMgr::DismissPet()
-{
-    Player* player = _owner->GetPlayer();
-    if (Creature* summonedBattlePet = player->GetSummonedBattlePet())
-    {
-        summonedBattlePet->DespawnOrUnsummon();
-        player->SetBattlePetData(nullptr);
-    }
 }
 
 void BattlePetMgr::SendJournal()

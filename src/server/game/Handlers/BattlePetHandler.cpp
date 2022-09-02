@@ -119,16 +119,3 @@ void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& c
 {
     GetBattlePetMgr()->CageBattlePet(cageBattlePet.PetGuid);
 }
-
-void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon)
-{
-    if (*_player->m_activePlayerData->SummonedBattlePetGUID != battlePetSummon.PetGuid)
-        GetBattlePetMgr()->SummonPet(battlePetSummon.PetGuid);
-    else
-        GetBattlePetMgr()->DismissPet();
-}
-
-void WorldSession::HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify)
-{
-    GetBattlePetMgr()->UpdateBattlePetData(battlePetUpdateNotify.PetGuid);
-}

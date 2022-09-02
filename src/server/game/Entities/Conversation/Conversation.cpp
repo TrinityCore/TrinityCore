@@ -224,17 +224,6 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
     sScriptMgr->OnConversationCreate(this, creator);
 
-    // All actors need to be set
-    for (uint16 actorIndex : actorIndices)
-    {
-        UF::ConversationActor const* actor = actorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[actorIndex] : nullptr;
-        if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
-        {
-            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", conversationEntry, actorIndex);
-            return false;
-        }
-    }
-
     if (!GetMap()->AddToMap(this))
         return false;
 
@@ -249,7 +238,6 @@ void Conversation::AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& ac
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), actorGuid);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Id), actorId);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ConversationActorType::WorldObject));
-    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::NoActorObject), 0);
 }
 
 void Conversation::AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId)
@@ -260,7 +248,6 @@ void Conversation::AddActor(int32 actorId, uint32 actorIdx, ConversationActorTyp
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), ObjectGuid::Empty);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Id), actorId);
     SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(type));
-    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::NoActorObject), type == ConversationActorType::WorldObject ? 1 : 0);
 }
 
 Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 lineId) const

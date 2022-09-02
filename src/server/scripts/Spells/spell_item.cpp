@@ -22,7 +22,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "AzeritePackets.h"
 #include "Battleground.h"
 #include "Containers.h"
 #include "Creature.h"
@@ -4478,40 +4477,6 @@ class spell_item_eggnog : public SpellScript
     }
 };
 
-// 277253 - Heart of Azeroth
-class spell_item_heart_of_azeroth : public AuraScript
-{
-    PrepareAuraScript(spell_item_heart_of_azeroth);
-
-    void SetEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
-    {
-        SetState(true);
-    }
-
-    void ClearEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
-    {
-        SetState(false);
-    }
-
-    void SetState(bool equipped)
-    {
-        if (Player* target = GetTarget()->ToPlayer())
-        {
-            target->ApplyAllAzeriteEmpoweredItemMods(equipped);
-
-            WorldPackets::Azerite::PlayerAzeriteItemEquippedStatusChanged statusChanged;
-            statusChanged.IsHeartEquipped = equipped;
-            target->SendDirectMessage(statusChanged.Write());
-        }
-    }
-
-    void Register()
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_item_heart_of_azeroth::SetEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_item_heart_of_azeroth::ClearEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4651,6 +4616,4 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_mad_alchemists_potion);
     RegisterSpellScript(spell_item_crazy_alchemists_potion);
     RegisterSpellScript(spell_item_eggnog);
-
-    RegisterSpellScript(spell_item_heart_of_azeroth);
 }

@@ -5961,27 +5961,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         SummonPropertiesEntry const* properties = minion->m_Properties;
         if (properties && SummonTitle(properties->Title) == SummonTitle::Companion)
-        {
             SetCritterGUID(minion->GetGUID());
-            if (Player const* thisPlayer = ToPlayer())
-            {
-                if (properties->GetFlags().HasFlag(SummonPropertiesFlags::SummonFromBattlePetJournal))
-                {
-                    if (BattlePets::BattlePet const* pet = thisPlayer->GetSession()->GetBattlePetMgr()->GetPet(thisPlayer->GetSummonedBattlePetGUID()))
-                    {
-                        minion->SetBattlePetCompanionGUID(thisPlayer->GetSummonedBattlePetGUID());
-                        minion->SetBattlePetCompanionNameTimestamp(pet->NameTimestamp);
-                        minion->SetWildBattlePetLevel(pet->PacketInfo.Level);
-
-                        if (uint32 display = pet->PacketInfo.DisplayID)
-                        {
-                            minion->SetDisplayId(display);
-                            minion->SetNativeDisplayId(display);
-                        }
-                    }
-                }
-            }
-        }
 
         // PvP, FFAPvP
         minion->ReplaceAllPvpFlags(GetPvpFlags());
@@ -6766,7 +6746,7 @@ float Unit::SpellCritChanceDone(Spell* spell, AuraEffect const* aurEff, SpellSch
                 crit_chance = 0.0f;
             // For other schools
             else if (Player const* thisPlayer = ToPlayer())
-                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage;
+                crit_chance = thisPlayer->m_activePlayerData->SpellCritPercentage[GetFirstSchoolInMask(schoolMask)];
             else
                 crit_chance = (float)m_baseSpellCritChance;
             break;
@@ -7063,7 +7043,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
         float maxModDamagePercentSchool = 0.0f;
         for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
             if (spellProto->GetSchoolMask() & (1 << i))
-                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, thisPlayer->m_activePlayerData->ModHealingDonePercent[i]);
+                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, (float)thisPlayer->m_activePlayerData->ModHealingDonePercent);
 
         return maxModDamagePercentSchool;
     }
@@ -9003,14 +8983,10 @@ void Unit::UpdateResistances(uint32 school)
 
         float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
         value *= GetPctModifierValue(unitMod, BASE_PCT);
-
-        float baseValue = value;
-
         value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
         value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
         SetResistance(SpellSchools(school), int32(value));
-        SetBonusResistanceMod(SpellSchools(school), int32(value - baseValue));
     }
     else
         UpdateArmor();
@@ -9021,8 +8997,6 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapo
     if (attType == RANGED_ATTACK)
     {
         float ap = m_unitData->RangedAttackPower + m_unitData->RangedAttackPowerModPos + m_unitData->RangedAttackPowerModNeg;
-        if (includeWeapon)
-            ap += std::max<float>(m_unitData->MainHandWeaponAttackPower, m_unitData->RangedWeaponAttackPower);
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + m_unitData->RangedAttackPowerMultiplier);
@@ -9032,13 +9006,8 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType, bool includeWeapo
         float ap = m_unitData->AttackPower + m_unitData->AttackPowerModPos + m_unitData->AttackPowerModNeg;
         if (includeWeapon)
         {
-            if (attType == BASE_ATTACK)
-                ap += std::max<float>(m_unitData->MainHandWeaponAttackPower, m_unitData->RangedWeaponAttackPower);
-            else
-            {
-                ap += m_unitData->OffHandWeaponAttackPower;
+            if (attType != BASE_ATTACK)
                 ap /= 2;
-            }
         }
         if (ap < 0)
             return 0.0f;

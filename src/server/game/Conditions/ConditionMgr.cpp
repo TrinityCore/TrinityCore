@@ -2934,7 +2934,7 @@ uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerCond
 
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, 0))
     {
         uint8 minLevel = condition->Flags & 0x800 ? levels->MinLevelWithDelta : levels->MinLevel;
         uint8 maxLevel = 0;
@@ -3348,9 +3348,6 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         return false;
 
     if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
-        return false;
-
-    if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
         return false;
 
     return true;

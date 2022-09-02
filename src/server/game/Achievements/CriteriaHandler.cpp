@@ -17,7 +17,6 @@
 
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
-#include "AzeriteItem.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CollectionMgr.h"
@@ -3212,12 +3211,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerAzeriteLevelEqualOrGreaterThan: // 235
-        {
-            Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere);
-            if (!heartOfAzeroth || heartOfAzeroth->ToAzeriteItem()->GetLevel() < reqValue)
-                return false;
-            break;
-        }
+            return false;
         case ModifierTreeType::PlayerIsOnQuestInQuestline: // 236
         {
             bool isOnQuest = false;
@@ -3385,32 +3379,11 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case ModifierTreeType::PlayerHasAzeriteEssenceRankLessThan: // 259
-        {
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
-                if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
-                    for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
-                        if (essence.AzeriteEssenceID == reqValue && essence.Rank < secondaryAsset)
-                            return true;
             return false;
-        }
         case ModifierTreeType::PlayerHasAzeriteEssenceRankEqual: // 260
-        {
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
-                if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
-                    for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
-                        if (essence.AzeriteEssenceID == reqValue && essence.Rank == secondaryAsset)
-                            return true;
             return false;
-        }
         case ModifierTreeType::PlayerHasAzeriteEssenceRankGreaterThan: // 261
-        {
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
-                if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
-                    for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
-                        if (essence.AzeriteEssenceID == reqValue && essence.Rank > secondaryAsset)
-                            return true;
             return false;
-        }
         case ModifierTreeType::PlayerHasAuraWithEffectIndex: // 262
             if (!referencePlayer->GetAuraEffect(reqValue, secondaryAsset))
                 return false;
@@ -3436,20 +3409,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerHasAzeriteEssenceInSlotAtRankLessThan: // 266
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
-                if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
-                    if (UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences())
-                        for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
-                            if (essence.AzeriteEssenceID == selectedEssences->AzeriteEssenceID[reqValue] && essence.Rank < secondaryAsset)
-                                return true;
             return false;
         case ModifierTreeType::PlayerHasAzeriteEssenceInSlotAtRankGreaterThan: // 267
-            if (Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
-                if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
-                    if (UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences())
-                        for (UF::UnlockedAzeriteEssence const& essence : azeriteItem->m_azeriteItemData->UnlockedEssences)
-                            if (essence.AzeriteEssenceID == selectedEssences->AzeriteEssenceID[reqValue] && essence.Rank > secondaryAsset)
-                                return true;
             return false;
         case ModifierTreeType::PlayerLevelWithinContentTuning: // 268
         {
@@ -3504,9 +3465,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::TargetLevelWithinOrAboveLevelRange: // 275 NYI
             return false;
         case ModifierTreeType::MaxJailersTowerLevelEqualOrGreaterThan: // 276
-            if (referencePlayer->m_activePlayerData->JailersTowerLevelMax < int32(reqValue))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::GroupedWithRaFRecruit: // 277
         {
             Group const* group = referencePlayer->GetGroup();
@@ -3550,9 +3509,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::JailersTowerActiveFloorDifficultyEqualOrGreaterThan: // 287 NYI
             return false;
         case ModifierTreeType::PlayerCovenant: // 288
-            if (referencePlayer->m_playerData->CovenantID != int32(reqValue))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::HasTimeEventPassed: // 289
         {
             time_t eventTimestamp = GameTime::GetGameTime();
@@ -3583,9 +3540,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::GarrisonHasPermanentTalent: // 290 NYI
             return false;
         case ModifierTreeType::HasActiveSoulbind: // 291
-            if (referencePlayer->m_playerData->SoulbindID != int32(reqValue))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::HasMemorizedSpell: // 292 NYI
             return false;
         case ModifierTreeType::PlayerHasAPACSubscriptionReward_2020: // 293
@@ -3615,30 +3570,17 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         }
         case ModifierTreeType::PlayerIsInChromieTime: // 300
-            if (referencePlayer->m_activePlayerData->UiChromieTimeExpansionID != int32(reqValue))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::PlayerIsInAnyChromieTime: // 301
-            if (referencePlayer->m_activePlayerData->UiChromieTimeExpansionID == 0)
-                return false;
-            break;
+            return false;
         case ModifierTreeType::ItemIsAzeriteArmor: // 302
             if (!sDB2Manager.GetAzeriteEmpoweredItem(miscValue1))
                 return false;
             break;
         case ModifierTreeType::PlayerHasRuneforgePower: // 303
-        {
-            uint32 block = reqValue / 32;
-            if (block >= referencePlayer->m_activePlayerData->RuneforgePowers.size())
-                return false;
-
-            uint32 bit = reqValue % 32;
-            return referencePlayer->m_activePlayerData->RuneforgePowers[block] & (1 << bit);
-        }
+            return false;
         case ModifierTreeType::PlayerInChromieTimeForScaling: // 304
-            if (!(referencePlayer->m_playerData->CtrOptions->ContentTuningConditionMask & 1))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::IsRaFRecruit: // 305
             if (!referencePlayer->GetSession()->GetRecruiterId())
                 return false;
@@ -3691,15 +3633,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerHasWeeklyRewardsAvailable: // 313
-            if (!*referencePlayer->m_activePlayerData->WeeklyRewardsPeriodSinceOrigin)
-                return false;
-            break;
+            return false;
         case ModifierTreeType::TargetCovenant: // 314
-            if (!ref || !ref->IsPlayer())
-                return false;
-            if (ref->ToPlayer()->m_playerData->CovenantID != int32(reqValue))
-                return false;
-            break;
+            return false;
         case ModifierTreeType::PlayerHasTBCCollectorsEdition: // 315
         case ModifierTreeType::PlayerHasWrathCollectorsEdition: // 316
             return false;

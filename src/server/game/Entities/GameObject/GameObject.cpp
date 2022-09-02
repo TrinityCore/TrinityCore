@@ -17,8 +17,6 @@
 
 #include "GameObject.h"
 #include "ArtifactPackets.h"
-#include "AzeriteItem.h"
-#include "AzeritePackets.h"
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
 #include "CellImpl.h"
@@ -1811,7 +1809,7 @@ uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
     if (GetGoType() == GAMEOBJECT_TYPE_TRAP)
     {
         if (Player const* player = target->ToPlayer())
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(GetGOInfo()->ContentTuningId, 0))
                 return uint8(std::clamp<int16>(player->GetLevel(), userLevels->MinLevel, userLevels->MaxLevel));
 
         if (Unit const* targetUnit = target->ToUnit())
@@ -2573,11 +2571,11 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, 0))
                 if (player->GetLevel() < userLevels->MaxLevel)
                     return;
 
-            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, 0))
                 if (targetPlayer->GetLevel() < targetLevels->MaxLevel)
                     return;
 
@@ -2746,17 +2744,6 @@ void GameObject::Use(Unit* user)
                     openArtifactForge.ArtifactGUID = item->GetGUID();
                     openArtifactForge.ForgeGUID = GetGUID();
                     player->SendDirectMessage(openArtifactForge.Write());
-                    break;
-                }
-                case 2: // Heart Forge
-                {
-                    Item const* item = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere);
-                    if (!item)
-                        return;
-
-                    WorldPackets::Azerite::OpenHeartForge openHeartForge;
-                    openHeartForge.ForgeGUID = GetGUID();
-                    player->SendDirectMessage(openHeartForge.Write());
                     break;
                 }
                 default:

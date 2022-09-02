@@ -191,7 +191,6 @@ public:
     void UpdateBattlePetData(ObjectGuid guid);
 
     void SummonPet(ObjectGuid guid);
-    void DismissPet();
 
     void SendJournal();
     void SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded);

@@ -26,7 +26,6 @@
 
 struct AchievementEntry;
 struct ArtifactPowerRankEntry;
-struct AzeriteEssenceEntry;
 struct BattlePetSpeciesEntry;
 struct CurrencyContainerEntry;
 struct CurrencyTypesEntry;
@@ -70,12 +69,6 @@ namespace Trinity::Hyperlinks
         ArtifactPowerRankEntry const* ArtifactPower = nullptr;
         uint8 PurchasedRank = 0;
         uint8 CurrentRankWithBonus = 0;
-    };
-
-    struct AzeriteEssenceLinkData
-    {
-        AzeriteEssenceEntry const* Essence = nullptr;
-        uint8 Rank = 0;
     };
 
     struct BattlePetLinkData
@@ -285,13 +278,6 @@ namespace Trinity::Hyperlinks
             static bool StoreTo(ArtifactPowerLinkData& val, std::string_view text);
         };
 
-        struct TC_GAME_API azessence
-        {
-            using value_type = AzeriteEssenceLinkData const&;
-            static constexpr std::string_view tag() { return "azessence"; }
-            static bool StoreTo(AzeriteEssenceLinkData& val, std::string_view text);
-        };
-
         struct TC_GAME_API battlepet
         {
             using value_type = BattlePetLinkData const&;
@@ -416,13 +402,6 @@ namespace Trinity::Hyperlinks
             using value_type = ItemModifiedAppearanceEntry const*;
             static constexpr std::string_view tag() { return "transmogappearance"; }
             static bool StoreTo(ItemModifiedAppearanceEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API transmogillusion
-        {
-            using value_type = SpellItemEnchantmentEntry const*;
-            static constexpr std::string_view tag() { return "transmogillusion"; }
-            static bool StoreTo(SpellItemEnchantmentEntry const*& val, std::string_view text);
         };
 
         struct TC_GAME_API transmogset

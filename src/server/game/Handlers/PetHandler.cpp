@@ -51,12 +51,7 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packe
     if (_player->GetCritterGUID() == pet->GetGUID())
     {
         if (pet->GetTypeId() == TYPEID_UNIT && pet->IsSummon())
-        {
-            if (!_player->GetSummonedBattlePetGUID().IsEmpty() && _player->GetSummonedBattlePetGUID() == pet->GetBattlePetCompanionGUID())
-                _player->SetBattlePetData(nullptr);
-
             pet->ToTempSummon()->UnSummon();
-        }
     }
 }
 

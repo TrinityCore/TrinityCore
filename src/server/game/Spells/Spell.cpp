@@ -16,7 +16,6 @@
  */
 
 #include "Spell.h"
-#include "AzeriteEmpoweredItem.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -4998,7 +4997,7 @@ void Spell::SendChannelUpdate(uint32 time)
     {
         unitCaster->ClearChannelObjects();
         unitCaster->SetChannelSpellId(0);
-        unitCaster->SetChannelVisual({});
+        unitCaster->SetChannelSpellXSpellVisual(0);
     }
 
     WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
@@ -5077,7 +5076,7 @@ void Spell::SendChannelStart(uint32 duration)
                 creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, unitCaster->m_unitData->ChannelObjects[0]));
 
     unitCaster->SetChannelSpellId(m_spellInfo->Id);
-    unitCaster->SetChannelVisual(m_SpellVisual);
+    unitCaster->SetChannelSpellXSpellVisual(m_SpellVisual.SpellXSpellVisualID);
 }
 
 void Spell::SendResurrectRequest(Player* target)
@@ -6372,12 +6371,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
                 if (creature)
                 {
-                    if (playerCaster->GetSummonedBattlePetGUID().IsEmpty() || creature->GetBattlePetCompanionGUID().IsEmpty())
-                        return SPELL_FAILED_NO_PET;
-
-                    if (playerCaster->GetSummonedBattlePetGUID() != creature->GetBattlePetCompanionGUID())
-                        return SPELL_FAILED_BAD_TARGETS;
-
                     if (BattlePets::BattlePet* battlePet = battlePetMgr->GetPet(creature->GetBattlePetCompanionGUID()))
                     {
                         if (BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(battlePet->PacketInfo.Species))
@@ -7590,37 +7583,6 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                              && item->GetSpellCharges(itemEffect->LegacySlotIndex) == itemEffect->Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  break;
-            }
-            case SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM:
-            {
-                Item const* item = m_targets.GetItemTarget();
-                if (!item)
-                    return SPELL_FAILED_AZERITE_EMPOWERED_ONLY;
-
-                if (item->GetOwnerGUID() != m_caster->GetGUID())
-                    return SPELL_FAILED_DONT_REPORT;
-
-                AzeriteEmpoweredItem const* azeriteEmpoweredItem = item->ToAzeriteEmpoweredItem();
-                if (!azeriteEmpoweredItem)
-                    return SPELL_FAILED_AZERITE_EMPOWERED_ONLY;
-
-                bool hasSelections = false;
-                for (int32 tier = 0; tier < azeriteEmpoweredItem->GetMaxAzeritePowerTier(); ++tier)
-                {
-                    if (azeriteEmpoweredItem->GetSelectedAzeritePower(tier))
-                    {
-                        hasSelections = true;
-                        break;
-                    }
-                }
-
-                if (!hasSelections)
-                    return SPELL_FAILED_AZERITE_EMPOWERED_NO_CHOICES_TO_UNDO;
-
-                if (!m_caster->ToPlayer()->HasEnoughMoney(azeriteEmpoweredItem->GetRespecCost()))
-                    return SPELL_FAILED_DONT_REPORT;
-
-                break;
             }
             default:
                 break;
@@ -9109,14 +9071,6 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* trig
         OriginalCastId = triggeringAura->GetBase()->GetCastId();
 
     return *this;
-}
-
-SpellCastVisual::operator UF::SpellCastVisual() const
-{
-    UF::SpellCastVisual visual;
-    visual.SpellXSpellVisualID = SpellXSpellVisualID;
-    visual.ScriptVisualID = ScriptVisualID;
-    return visual;
 }
 
 SpellCastVisual::operator WorldPackets::Spells::SpellCastVisual() const

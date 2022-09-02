@@ -19,8 +19,6 @@
 #include "ArenaTeamMgr.h"
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
-#include "AzeriteEmpoweredItem.h"
-#include "AzeriteItem.h"
 #include "Chat.h"
 #include "Containers.h"
 #include "CreatureAIFactory.h"
@@ -6553,11 +6551,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 CharacterDatabaseTransaction nonTransactional(nullptr);
                 // mail open and then not returned
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
-                {
                     Item::DeleteFromDB(nonTransactional, itr2->item_guid);
-                    AzeriteItem::DeleteFromDB(nonTransactional, itr2->item_guid);
-                    AzeriteEmpoweredItem::DeleteFromDB(nonTransactional, itr2->item_guid);
-                }
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
                 stmt->setUInt32(0, m->messageID);

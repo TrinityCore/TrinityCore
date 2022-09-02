@@ -73,7 +73,7 @@ AuctionsBucketKey AuctionsBucketKey::ForItem(Item* item)
         return
         {
             item->GetEntry(),
-            uint16(Item::GetItemLevel(itemTemplate, *item->GetBonus(), 0, item->GetRequiredLevel(), 0, 0, 0, false, 0)),
+            uint16(Item::GetItemLevel(itemTemplate, *item->GetBonus(), 0, item->GetRequiredLevel(), 0, 0, 0, false)),
             uint16(item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID)),
             uint16(item->GetBonus()->Suffix)
         };

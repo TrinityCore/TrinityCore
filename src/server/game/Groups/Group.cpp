@@ -2000,7 +2000,7 @@ ItemDisenchantLootEntry const* Roll::GetItemDisenchantLoot(Player const* player)
             return nullptr;
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemid);
-        uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, player->GetLevel(), 0, 0, 0, 0, false, 0);
+        uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, player->GetLevel(), 0, 0, 0, 0, false);
         return Item::GetDisenchantLoot(itemTemplate, bonusData.Quality, itemLevel);
     }
 

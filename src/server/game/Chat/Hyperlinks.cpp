@@ -186,23 +186,6 @@ struct LinkValidator<LinkTags::apower>
 };
 
 template <>
-struct LinkValidator<LinkTags::azessence>
-{
-    static bool IsTextValid(AzeriteEssenceLinkData const& data, std::string_view text)
-    {
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (data.Essence->Name[i] == text)
-                return true;
-        return false;
-    }
-
-    static bool IsColorValid(AzeriteEssenceLinkData const& data, HyperlinkColor c)
-    {
-        return c == ItemQualityColors[data.Rank + 1];
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::battlepet>
 {
     static bool IsTextValid(BattlePetLinkData const& data, std::string_view text)
@@ -573,26 +556,6 @@ struct LinkValidator<LinkTags::transmogappearance>
 };
 
 template <>
-struct LinkValidator<LinkTags::transmogillusion>
-{
-    static bool IsTextValid(SpellItemEnchantmentEntry const* enchantment, std::string_view text)
-    {
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (enchantment->Name[i] == text)
-                return true;
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
-            if (enchantment->HordeName[i] == text)
-                return true;
-        return false;
-    }
-
-    static bool IsColorValid(SpellItemEnchantmentEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_TRANSMOG;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::transmogset>
 {
     static bool IsTextValid(TransmogSetEntry const* set, std::string_view text)
@@ -659,7 +622,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     using namespace LinkTags;
     TryValidateAs(achievement);
     TryValidateAs(apower);
-    TryValidateAs(azessence);
     TryValidateAs(area);
     TryValidateAs(areatrigger);
     TryValidateAs(battlepet);
@@ -692,7 +654,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(title);
     TryValidateAs(trade);
     TryValidateAs(transmogappearance);
-    TryValidateAs(transmogillusion);
     TryValidateAs(transmogset);
     TryValidateAs(worldmap);
     return false;

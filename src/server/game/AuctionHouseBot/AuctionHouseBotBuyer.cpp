@@ -169,7 +169,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, AuctionPosting 
     Item const* item = auction->Items[0];
     float itemBuyPrice = float(auction->BuyoutOrUnitPrice);
     float itemPrice;
-    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0)))
+    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false)))
         itemPrice = float(itemSellPrice);
     else
         itemPrice = float(GetVendorPrice(item->GetQuality()));
@@ -214,7 +214,7 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, AuctionPosting 
     Item const* item = auction->Items[0];
     float itemBidPrice = float(bidPrice);
     float itemPrice;
-    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false, 0)))
+    if (uint32 itemSellPrice = item->GetSellPrice(item->GetTemplate(), item->GetQuality(), item->GetItemLevel(item->GetTemplate(), *item->GetBonus(), 0, 0, 0, 0, 0, false)))
         itemPrice = float(itemSellPrice);
     else
         itemPrice = float(GetVendorPrice(item->GetQuality()));

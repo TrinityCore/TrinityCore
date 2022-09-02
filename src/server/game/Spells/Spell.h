@@ -397,12 +397,9 @@ class TC_GAME_API Spell
         void EffectGiveHonor();
         void EffectJumpCharge();
         void EffectLearnTransmogSet();
-        void EffectRespecAzeriteEmpoweredItem();
-        void EffectLearnAzeriteEssencePower();
         void EffectCreatePrivateConversation();
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
-        void EffectLearnTransmogIllusion();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 

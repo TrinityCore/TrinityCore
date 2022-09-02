@@ -580,8 +580,7 @@ void Player::UpdateHealingDonePercentMod()
     for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT))
         AddPct(value, auraEffect->GetAmount());
 
-    for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent, i), value);
+    SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent), (int32)value);
 }
 
 float const m_diminishing_k[MAX_CLASSES] =
@@ -707,7 +706,8 @@ void Player::UpdateSpellCritChance()
     crit += GetRatingBonusValue(CR_CRIT_SPELL);
 
     // Store crit value
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage), crit);
+    for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage, i), crit);
 }
 
 void Player::UpdateCorruption()
@@ -826,7 +826,6 @@ void Player::UpdateManaRegen()
         modManaRegenInterrupt = 100;
 
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, manaIndex), power_regen_mp5 + power_regen);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, manaIndex), power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
 }
 
 void Player::UpdateAllRunesRegen()
@@ -842,7 +841,6 @@ void Player::UpdateAllRunesRegen()
 
     uint32 cooldown = GetRuneBaseCooldown();
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenPeace);
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, runeIndex), float(1 * IN_MILLISECONDS) / float(cooldown) - runeEntry->RegenCombat);
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -851,7 +849,6 @@ void Player::_ApplyAllStatBonuses()
 
     _ApplyAllAuraStatMods();
     _ApplyAllItemMods();
-    ApplyAllAzeriteItemMods(true);
 
     SetCanModifyStats(true);
 
@@ -862,7 +859,6 @@ void Player::_RemoveAllStatBonuses()
 {
     SetCanModifyStats(false);
 
-    ApplyAllAzeriteItemMods(false);
     _RemoveAllItemMods();
     _RemoveAllAuraStatMods();
 
@@ -1109,17 +1105,12 @@ void Guardian::UpdateResistances(uint32 school)
     if (school > SPELL_SCHOOL_NORMAL)
     {
         float baseValue = GetFlatModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + school), BASE_VALUE);
-        float bonusValue = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school)) - baseValue;
 
         // hunter and warlock pets gain 40% of owner's resistance
         if (IsPet())
-        {
             baseValue += float(CalculatePct(m_owner->GetResistance(SpellSchools(school)), 40));
-            bonusValue += float(CalculatePct(m_owner->GetBonusResistanceMod(SpellSchools(school)), 40));
-        }
 
         SetResistance(SpellSchools(school), int32(baseValue));
-        SetBonusResistanceMod(SpellSchools(school), int32(bonusValue));
     }
     else
         UpdateArmor();

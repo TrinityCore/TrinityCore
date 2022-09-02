@@ -253,7 +253,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModManaCostPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -289,7 +288,6 @@ class TC_GAME_API AuraEffect
         void HandleShieldBlockValue(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleShieldBlockValuePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  power cost
-        void HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  others
@@ -327,7 +325,6 @@ class TC_GAME_API AuraEffect
         void HandleTriggerSpellOnExpire(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleMountRestrictions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 

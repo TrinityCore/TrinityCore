@@ -139,7 +139,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         // 70 SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE implemented in AuraEffect::PeriodicTick
     &AuraEffect::HandleStoreTeleportReturnPoint,                  // 71 SPELL_AURA_STORE_TELEPORT_RETURN_POINT
     &AuraEffect::HandleNoImmediateEffect,                         // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
-    &AuraEffect::HandleModPowerCost,                              // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
+    &AuraEffect::HandleNULL,                                      // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNoImmediateEffect,                         // 74 SPELL_AURA_REFLECT_SPELLS_SCHOOL  implemented in Unit::SpellHitResult
     &AuraEffect::HandleNoImmediateEffect,                         // 75 SPELL_AURA_MOD_LANGUAGE
     &AuraEffect::HandleNoImmediateEffect,                         // 76 SPELL_AURA_FAR_SIGHT
@@ -489,7 +489,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //420 SPELL_AURA_MOD_BATTLE_PET_XP_PCT - Implemented in BattlePetMgr::GrantBattlePetExperience
     &AuraEffect::HandleNULL,                                      //421 SPELL_AURA_MOD_ABSORB_EFFECTS_DONE_PCT
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_MOD_ABSORB_EFFECTS_TAKEN_PCT
-    &AuraEffect::HandleModManaCostPct,                            //423 SPELL_AURA_MOD_MANA_COST_PCT
+    &AuraEffect::HandleNULL,                                      //423 SPELL_AURA_MOD_MANA_COST_PCT
     &AuraEffect::HandleNULL,                                      //424 SPELL_AURA_CASTER_IGNORE_LOS
     &AuraEffect::HandleNULL,                                      //425
     &AuraEffect::HandleNULL,                                      //426
@@ -553,7 +553,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_ALLOW_INTERRUPT_SPELL
     &AuraEffect::HandleModMovementForceMagnitude,                 //485 SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE
     &AuraEffect::HandleNULL,                                      //486
-    &AuraEffect::HandleCosmeticMounted,                           //487 SPELL_AURA_COSMETIC_MOUNTED
+    &AuraEffect::HandleNULL,                                      //487 SPELL_AURA_COSMETIC_MOUNTED
     &AuraEffect::HandleNULL,                                      //488
     &AuraEffect::HandleModAlternativeDefaultLanguage,             //489 SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE
     &AuraEffect::HandleNULL,                                      //490
@@ -3875,14 +3875,6 @@ void AuraEffect::HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aur
     }
 }
 
-void AuraEffect::HandleModManaCostPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
-{
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    aurApp->GetTarget()->ApplyModManaCostMultiplier(GetAmount() / 100.0f, apply);
-}
-
 void AuraEffect::HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK))
@@ -4425,22 +4417,6 @@ void AuraEffect::HandleShieldBlockValuePercent(AuraApplication const* aurApp, ui
 /********************************/
 /***        POWER COST        ***/
 /********************************/
-
-void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const
-{
-    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
-        return;
-
-    // handled in SpellInfo::CalcPowerCost, this is only for client UI
-    if (!(GetMiscValueB() & (1 << POWER_MANA)))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if (GetMiscValue() & (1 << i))
-            target->ApplyModManaCostModifier(SpellSchools(i), GetAmount(), apply);
-}
 
 void AuraEffect::HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
@@ -6128,23 +6104,6 @@ void AuraEffect::HandleMountRestrictions(AuraApplication const* aurApp, uint8 mo
         return;
 
     aurApp->GetTarget()->UpdateMountCapability();
-}
-
-void AuraEffect::HandleCosmeticMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const
-{
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    if (apply)
-        aurApp->GetTarget()->SetCosmeticMountDisplayId(GetMiscValue());
-    else
-        aurApp->GetTarget()->SetCosmeticMountDisplayId(0); // set cosmetic mount to 0, even if multiple auras are active; tested with zandalari racial + divine steed
-
-    Player* playerTarget = aurApp->GetTarget()->ToPlayer();
-    if (!playerTarget)
-        return;
-
-    playerTarget->SendMovementSetCollisionHeight(playerTarget->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Force);
 }
 
 void AuraEffect::HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const

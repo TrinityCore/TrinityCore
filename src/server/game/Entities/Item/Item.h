@@ -85,7 +85,6 @@ struct BonusData
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 RelicType;
     int32 RequiredLevelOverride;
-    int32 AzeriteTierUnlockSetId;
     uint32 Suffix;
     int32 RequiredLevelCurve;
     std::array<ItemEffectEntry const*, 13> Effects;
@@ -105,7 +104,6 @@ private:
         int32 SuffixPriority;
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
-        int32 AzeriteTierUnlockSetPriority;
         int32 RequiredLevelCurvePriority;
         bool HasQualityBonus;
     } _state;
@@ -126,35 +124,11 @@ struct ArtifactData
     std::vector<ArtifactPowerData> ArtifactPowers;
 };
 
-struct AzeriteItemSelectedEssencesData
-{
-    uint32 SpecializationId = 0;
-    std::array<uint32, MAX_AZERITE_ESSENCE_SLOT> AzeriteEssenceId = { };
-};
-
-struct AzeriteItemData
-{
-    uint64 Xp;
-    uint32 Level;
-    uint32 KnowledgeLevel;
-    std::vector<uint32> AzeriteItemMilestonePowers;
-    std::vector<AzeriteEssencePowerEntry const*> UnlockedAzeriteEssences;
-    std::array<AzeriteItemSelectedEssencesData, 4> SelectedAzeriteEssences = { };
-};
-
-struct AzeriteEmpoweredItemData
-{
-    std::array<int32, MAX_AZERITE_EMPOWERED_TIER> SelectedAzeritePowers;
-};
-
 struct ItemAdditionalLoadInfo
 {
-    static void Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
-        PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, PreparedQueryResult azeriteEmpoweredItemResult);
+    static void Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo, PreparedQueryResult artifactResult);
 
     Optional<ArtifactData> Artifact;
-    Optional<AzeriteItemData> AzeriteItem;
-    Optional<AzeriteEmpoweredItemData> AzeriteEmpoweredItem;
 };
 
 struct ItemDynamicFieldGems
@@ -239,18 +213,12 @@ class TC_GAME_API Item : public Object
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return nullptr; }
         Bag const* ToBag() const { if (IsBag()) return reinterpret_cast<Bag const*>(this); else return nullptr; }
-        AzeriteItem* ToAzeriteItem() { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem*>(this) : nullptr; }
-        AzeriteItem const* ToAzeriteItem() const { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem const*>(this) : nullptr; }
-        AzeriteEmpoweredItem* ToAzeriteEmpoweredItem() { return IsAzeriteEmpoweredItem() ? reinterpret_cast<AzeriteEmpoweredItem*>(this) : nullptr; }
-        AzeriteEmpoweredItem const* ToAzeriteEmpoweredItem() const { return IsAzeriteEmpoweredItem() ? reinterpret_cast<AzeriteEmpoweredItem const*>(this) : nullptr; }
 
         bool IsRefundable() const { return HasItemFlag(ITEM_FIELD_FLAG_REFUNDABLE); }
         bool IsBOPTradeable() const { return HasItemFlag(ITEM_FIELD_FLAG_BOP_TRADEABLE); }
         bool IsWrapped() const { return HasItemFlag(ITEM_FIELD_FLAG_WRAPPED); }
         bool IsLocked() const { return !HasItemFlag(ITEM_FIELD_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->GetInventoryType() == INVTYPE_BAG; }
-        bool IsAzeriteItem() const { return GetTypeId() == TYPEID_AZERITE_ITEM; }
-        bool IsAzeriteEmpoweredItem() const { return GetTypeId() == TYPEID_AZERITE_EMPOWERED_ITEM; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
         bool IsBroken() const { return *m_itemData->MaxDurability > 0 && *m_itemData->Durability == 0; }
@@ -336,7 +304,7 @@ class TC_GAME_API Item : public Object
         uint32 GetQuality() const { return _bonusData.Quality; }
         uint32 GetItemLevel(Player const* owner) const;
         static uint32 GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel,
-            uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus, uint32 azeriteLevel);
+            uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus);
         int32 GetRequiredLevel() const;
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
         float GetItemStatValue(uint32 index, Player const* owner) const;

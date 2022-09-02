@@ -111,16 +111,6 @@ bool Trinity::Hyperlinks::LinkTags::apower::StoreTo(ArtifactPowerLinkData& val, 
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::azessence::StoreTo(AzeriteEssenceLinkData& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 azeriteEssenceId;
-    if (!t.TryConsumeTo(azeriteEssenceId))
-        return false;
-    return (val.Essence = sAzeriteEssenceStore.LookupEntry(azeriteEssenceId)) && t.TryConsumeTo(val.Rank)
-        && sDB2Manager.GetAzeriteEssencePower(azeriteEssenceId, val.Rank) && t.IsEmpty();
-}
-
 bool Trinity::Hyperlinks::LinkTags::battlepet::StoreTo(BattlePetLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -420,16 +410,6 @@ bool Trinity::Hyperlinks::LinkTags::transmogappearance::StoreTo(ItemModifiedAppe
     if (!t.TryConsumeTo(itemModifiedAppearanceId))
         return false;
     return !!(val = sItemModifiedAppearanceStore.LookupEntry(itemModifiedAppearanceId)) && t.IsEmpty();
-}
-
-bool Trinity::Hyperlinks::LinkTags::transmogillusion::StoreTo(SpellItemEnchantmentEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 spellItemEnchantmentId;
-    if (!t.TryConsumeTo(spellItemEnchantmentId))
-        return false;
-    return !!(val = sSpellItemEnchantmentStore.LookupEntry(spellItemEnchantmentId))
-        && sDB2Manager.GetTransmogIllusionForEnchantment(spellItemEnchantmentId) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::transmogset::StoreTo(TransmogSetEntry const*& val, std::string_view text)
