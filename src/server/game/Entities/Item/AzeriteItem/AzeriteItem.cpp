@@ -17,6 +17,7 @@
 
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
+#include "ConditionMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameObject.h"

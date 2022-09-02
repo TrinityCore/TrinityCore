@@ -37,6 +37,7 @@
 #include "InstanceScript.h"
 #include "Item.h"
 #include "Log.h"
+#include "Loot.h"
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -5996,7 +5997,8 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     return SPELL_FAILED_TARGET_UNSKINNABLE;
 
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
-                if (!creature->IsCritter() && !creature->loot.isLooted())
+                Loot* loot = creature->GetLootForPlayer(m_caster->ToPlayer());
+                if (loot && !loot->isLooted())
                     return SPELL_FAILED_TARGET_NOT_LOOTED;
 
                 uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();

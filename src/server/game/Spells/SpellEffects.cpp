@@ -1661,7 +1661,7 @@ void Spell::EffectOpenLock()
     }
 
     if (gameObjTarget)
-        SendLoot(guid, LOOT_SKINNING);
+        SendLoot(guid, LOOT_CHEST);
     else if (itemTarget)
     {
         itemTarget->SetItemFlag(ITEM_FIELD_FLAG_UNLOCKED);
