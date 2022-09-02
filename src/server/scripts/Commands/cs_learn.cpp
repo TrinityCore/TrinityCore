@@ -435,11 +435,11 @@ public:
     {
         uint32 classmask = player->GetClassMask();
 
-        std::vector<SkillLineAbilityEntry const*> const* abilities = GetSkillLineAbilitiesBySkill(skillId);
-        if (!abilities)
+        std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = GetSkillLineAbilitiesBySkill(skillId);
+        if (!skillLineAbilities)
             return;
 
-        for(SkillLineAbilityEntry const* skillLine : *abilities)
+        for (SkillLineAbilityEntry const* skillLine : *skillLineAbilities)
         {
             // not high rank
             if (skillLine->SupercededBySpell)

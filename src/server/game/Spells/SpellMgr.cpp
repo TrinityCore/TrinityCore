@@ -2197,11 +2197,11 @@ void SpellMgr::LoadPetLevelupSpellMap()
             if (!creatureFamily->SkillLine[j])
                 continue;
 
-            std::vector<SkillLineAbilityEntry const*> const* abilities = GetSkillLineAbilitiesBySkill(creatureFamily->SkillLine[j]);
-            if (!abilities)
+            std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = GetSkillLineAbilitiesBySkill(creatureFamily->SkillLine[j]);
+            if (!skillLineAbilities)
                 continue;
 
-            for (SkillLineAbilityEntry const* skillLine: *abilities)
+            for (SkillLineAbilityEntry const* skillLine : *skillLineAbilities)
             {
                 if (skillLine->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;

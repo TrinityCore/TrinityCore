@@ -6021,9 +6021,9 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
                 mSkillStatus.erase(itr);
 
             // remove all spells that related to this skill
-            if (std::vector<SkillLineAbilityEntry const*> const* abilities = GetSkillLineAbilitiesBySkill(id))
-                for (SkillLineAbilityEntry const* pAbility : *abilities)
-                    RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->Spell));
+            if (std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = GetSkillLineAbilitiesBySkill(id))
+                for (SkillLineAbilityEntry const* skillLineAbility : *skillLineAbilities)
+                    RemoveSpell(sSpellMgr->GetFirstSpellInChain(skillLineAbility->Spell));
         }
     }
     else if (newVal)                                        //add
@@ -23152,12 +23152,11 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
     uint32 raceMask  = GetRaceMask();
     uint32 classMask = GetClassMask();
-
-    std::vector<SkillLineAbilityEntry const*> const* abilities = GetSkillLineAbilitiesBySkill(skillId);
-    if (!abilities)
+    std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = GetSkillLineAbilitiesBySkill(skillId);
+    if (!skillLineAbilities)
         return;
 
-    for (SkillLineAbilityEntry const* ability : *abilities)
+    for (SkillLineAbilityEntry const* ability : *skillLineAbilities)
     {
         if (!sSpellMgr->GetSpellInfo(ability->Spell))
             continue;

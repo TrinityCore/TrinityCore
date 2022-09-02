@@ -39,8 +39,6 @@ typedef std::map<uint32, uint32> AreaFlagByMapID;
 typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
-typedef std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> AbilitiesBySkillLine;
-
 DBCStorage <AreaTableEntry> sAreaTableStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
 DBCStorage <AreaPOIEntry> sAreaPOIStore(AreaPOIEntryfmt);
@@ -159,13 +157,8 @@ DBCStorage <ScalingStatValuesEntry> sScalingStatValuesStore(ScalingStatValuesfmt
 DBCStorage <SkillLineEntry> sSkillLineStore(SkillLinefmt);
 DBCStorage <SkillLineAbilityEntry> sSkillLineAbilityStore(SkillLineAbilityfmt);
 DBCStorage <SkillRaceClassInfoEntry> sSkillRaceClassInfoStore(SkillRaceClassInfofmt);
+std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> SkillLineAbilitiesBySkill;
 SkillRaceClassInfoMap SkillRaceClassInfoBySkill;
-
-static AbilitiesBySkillLine sAbilitiesBySkillLine;
-std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skillLine)
-{
-    return Trinity::Containers::MapGetValuePtr(sAbilitiesBySkillLine, skillLine);
-}
 
 DBCStorage <SkillTiersEntry> sSkillTiersStore(SkillTiersfmt);
 
@@ -508,7 +501,7 @@ void LoadDBCStores(const std::string& dataPath)
             }
         }
 
-        sAbilitiesBySkillLine[skillLine->SkillLine].push_back(skillLine);
+        SkillLineAbilitiesBySkill[skillLine->SkillLine].push_back(skillLine);
     }
 
     // Create Spelldifficulty searcher
@@ -947,6 +940,11 @@ uint32 GetDefaultMapLight(uint32 mapId)
     }
 
     return 0;
+}
+
+std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skillLine)
+{
+    return Trinity::Containers::MapGetValuePtr(SkillLineAbilitiesBySkill, skillLine);
 }
 
 SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)
