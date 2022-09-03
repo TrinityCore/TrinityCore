@@ -2994,7 +2994,7 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
 
                     hitInfo.HitAura->SetDiminishGroup(hitInfo.DRGroup);
 
-                    hitInfo.AuraDuration = caster->ModSpellDuration(hitInfo.AuraSpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, _spellAura->GetEffectMask());
+                    hitInfo.AuraDuration = caster->ModSpellDuration(hitInfo.AuraSpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura->GetEffectMask());
 
                     // Haste modifies duration of channeled spells
                     if (m_spellInfo->IsChanneled())
@@ -3017,13 +3017,13 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
 
                     if (m_spellInfo->IsChanneled() && refresh && m_spellInfo->IsRollingDurationOver())
                     {
-                        SendChannelStart(_spellAura->GetMaxDuration() - _spellAura->GetRolledOverDuration());
-                        SendChannelUpdate(_spellAura->GetMaxDuration());
+                        SendChannelStart(hitInfo.HitAura->GetMaxDuration() - hitInfo.HitAura->GetRolledOverDuration());
+                        SendChannelUpdate(hitInfo.HitAura->GetMaxDuration());
 
                         // A side-effect of SendChannelStart() is to set the spell's timer to the value passed as parameter.
                         // However for channeled dot clipping to work properly, we need to roll over the duration.
                         // So we need to re-update timer with a proper value.
-                        m_timer = _spellAura->GetMaxDuration();
+                        m_timer = hitInfo.HitAura->GetMaxDuration();
                     }
                 }
             }
