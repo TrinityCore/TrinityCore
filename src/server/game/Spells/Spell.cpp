@@ -2737,9 +2737,9 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         else if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT && spell->m_caster->ToGameObject()->AI())
             spell->m_caster->ToGameObject()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
 
-        if (spell->_spellAura)
+        if (HitAura)
         {
-            if (AuraApplication* aurApp = spell->_spellAura->GetApplicationOfTarget(_spellHitTarget->GetGUID()))
+            if (AuraApplication* aurApp = HitAura->GetApplicationOfTarget(_spellHitTarget->GetGUID()))
             {
                 // only apply unapplied effects (for reapply case)
                 uint8 effMask = EffectMask & aurApp->GetEffectsToApply();
@@ -3027,7 +3027,10 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                 }
             }
             else
+            {
+                hitInfo.HitAura = _spellAura;
                 _spellAura->AddStaticApplication(unit, aura_effmask);
+            }
         }
     }
 
