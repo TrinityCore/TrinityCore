@@ -5470,6 +5470,24 @@ class spell_gen_shadowmeld : public AuraScript
     }
 };
 
+enum SiegeTankControl
+{
+    SPELL_SIEGE_TANK_CONTROL = 47963
+};
+
+class spell_gen_vehicle_control_link : public AuraScript
+{
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SIEGE_TANK_CONTROL); //aurEff->GetAmount()
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove.Register(&spell_gen_vehicle_control_link::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5607,4 +5625,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_rocket_barrage);
     RegisterSpellScript(spell_gen_face_rage);
     RegisterSpellScript(spell_gen_shadowmeld);
+    RegisterSpellScript(spell_gen_vehicle_control_link);
 }

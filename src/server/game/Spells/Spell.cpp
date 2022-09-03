@@ -2759,7 +2759,9 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             spell->m_caster->ToPlayer()->UpdatePvP(true);
     }
 
+    spell->_spellAura = HitAura;
     spell->CallScriptAfterHitHandlers();
+    spell->_spellAura = nullptr;
 }
 
 void Spell::GOTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
@@ -2958,8 +2960,7 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
         {
             bool refresh = false;
 
-            // delayed spells with multiple targets need to create a new aura object, otherwise we'll access a deleted aura
-            if (!_spellAura || (m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()))
+            if (!hitInfo.HitAura)
             {
                 uint8 const allAuraEffectMask = Aura::BuildEffectMaskForOwner(hitInfo.AuraSpellInfo, MAX_EFFECT_MASK, unit);
                 int32 const* bp = hitInfo.AuraBasePoints;
@@ -2976,18 +2977,18 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
 
                 if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo))
                 {
-                    _spellAura = aura->ToUnitAura();
+                    hitInfo.HitAura = aura->ToUnitAura();
 
                     // Set aura stack amount to desired value
                     if (m_spellValue->AuraStackAmount > 1)
                     {
                         if (!refresh)
-                            _spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
+                            hitInfo.HitAura->SetStackAmount(m_spellValue->AuraStackAmount);
                         else
-                            _spellAura->ModStackAmount(m_spellValue->AuraStackAmount);
+                            hitInfo.HitAura->ModStackAmount(m_spellValue->AuraStackAmount);
                     }
 
-                    _spellAura->SetDiminishGroup(hitInfo.DRGroup);
+                    hitInfo.HitAura->SetDiminishGroup(hitInfo.DRGroup);
 
                     hitInfo.AuraDuration = caster->ModSpellDuration(hitInfo.AuraSpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, _spellAura->GetEffectMask());
 
@@ -2998,10 +2999,10 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                     else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, hitInfo.AuraSpellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
                         hitInfo.AuraDuration = int32(hitInfo.AuraDuration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
 
-                    if (hitInfo.AuraDuration != _spellAura->GetMaxDuration())
+                    if (hitInfo.AuraDuration != hitInfo.HitAura->GetMaxDuration())
                     {
-                        _spellAura->SetMaxDuration(hitInfo.AuraDuration);
-                        _spellAura->SetDuration(hitInfo.AuraDuration);
+                        hitInfo.HitAura->SetMaxDuration(hitInfo.AuraDuration);
+                        hitInfo.HitAura->SetDuration(hitInfo.AuraDuration);
                     }
 
                     if (DynamicObject* dynObj = m_originalCaster->GetDynObject(m_spellInfo->Id))
@@ -3020,13 +3021,13 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                 }
             }
             else
-                _spellAura->AddStaticApplication(unit, aura_effmask);
-
-            hitInfo.HitAura = _spellAura;
+                hitInfo.HitAura->AddStaticApplication(unit, aura_effmask);
         }
     }
 
+    _spellAura = hitInfo.HitAura;
     HandleEffects(unit, nullptr, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
+    _spellAura = nullptr;
 }
 
 void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)

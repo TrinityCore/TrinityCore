@@ -930,7 +930,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         AuraEffectApplyHookHandler::HookList AfterEffectApply;
 
         // executed after aura effect is removed with specified mode from target
-        // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
+        // should be used when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe
         // example: OnEffectRemove.Register(this, &class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
         // example: OnEffectRemove.Register(this, &class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
         // where function is: void function (AuraEffect const* aurEff, AuraEffectHandleModes mode);
