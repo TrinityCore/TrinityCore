@@ -25,6 +25,7 @@
 #include "SpellInfo.h"
 #include "Utilities/StringFormat.h"
 #include "Util.h"
+#include "Unit.h"
 #include "advstd.h"
 
 #include <memory>
