@@ -22,7 +22,10 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
+#include "WorldSession.h"
 #include "WorldStatePackets.h"
 
 uint8 const OutdoorPvPZMBuffZonesNum = 5;
@@ -273,10 +276,13 @@ void OPvPCapturePointZM_Graveyard::UpdateTowerState()
     m_PvP->SetWorldState(ZM_MAP_GRAVEYARD_H, int32((m_GraveyardState & ZM_GRAVEYARD_H) != 0));
     m_PvP->SetWorldState(ZM_MAP_GRAVEYARD_A, int32((m_GraveyardState & ZM_GRAVEYARD_A) != 0));
 
-    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_READY, int32(m_BothControllingFaction == ALLIANCE));
-    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_NOT_READY, int32(m_BothControllingFaction != ALLIANCE));
-    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_READY, int32(m_BothControllingFaction == HORDE));
-    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_NOT_READY, int32(m_BothControllingFaction != HORDE));
+    bool allianceFlagReady = m_BothControllingFaction == ALLIANCE && m_GraveyardState != ZM_GRAVEYARD_A;
+    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_READY, int32(allianceFlagReady));
+    m_PvP->SetWorldState(ZM_MAP_ALLIANCE_FLAG_NOT_READY, int32(!allianceFlagReady));
+
+    bool hordeFlagReady = m_BothControllingFaction == HORDE && m_GraveyardState != ZM_GRAVEYARD_H;
+    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_READY, int32(hordeFlagReady));
+    m_PvP->SetWorldState(ZM_MAP_HORDE_FLAG_NOT_READY, int32(!hordeFlagReady));
 }
 
 void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
@@ -322,50 +328,6 @@ void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
     }
     // send worldstateupdate
     UpdateTowerState();
-}
-
-bool OPvPCapturePointZM_Graveyard::CanTalkTo(Player* player, Creature* c, GossipMenuItems const& /*gso*/)
-{
-    switch (c->GetEntry())
-    {
-        case ZM_ALLIANCE_FIELD_SCOUT:
-            return player->GetTeam() == ALLIANCE && m_BothControllingFaction == ALLIANCE && !m_FlagCarrierGUID && m_GraveyardState != ZM_GRAVEYARD_A;
-        case ZM_HORDE_FIELD_SCOUT:
-            return player->GetTeam() == HORDE && m_BothControllingFaction == HORDE && !m_FlagCarrierGUID && m_GraveyardState != ZM_GRAVEYARD_H;
-        default:
-            break;
-    }
-
-    return false;
-}
-
-bool OPvPCapturePointZM_Graveyard::HandleGossipOption(Player* player, Creature* creature, uint32 /*gossipid*/)
-{
-    switch (creature->GetEntry())
-    {
-        case ZM_ALLIANCE_FIELD_SCOUT:
-            // if the flag is already taken, then return
-            if (!m_FlagCarrierGUID.IsEmpty())
-                return true;
-            creature->CastSpell(player, ZM_BATTLE_STANDARD_A, true);
-            m_FlagCarrierGUID = player->GetGUID();
-            UpdateTowerState();
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        case ZM_HORDE_FIELD_SCOUT:
-            // if the flag is already taken, then return
-            if (!m_FlagCarrierGUID.IsEmpty())
-                return true;
-            creature->CastSpell(player, ZM_BATTLE_STANDARD_H, true);
-            m_FlagCarrierGUID = player->GetGUID();
-            UpdateTowerState();
-            player->PlayerTalkClass->SendCloseGossip();
-            return true;
-        default:
-            break;
-    }
-
-    return false;
 }
 
 bool OPvPCapturePointZM_Graveyard::HandleDropFlag(Player* /*player*/, uint32 spellId)
@@ -446,7 +408,110 @@ class OutdoorPvP_zangarmarsh : public OutdoorPvPScript
         }
 };
 
+enum ZMFieldScoutMisc
+{
+    GOSSIP_MENU_FIELD_SCOUT_HORDE               = 7722,
+    GOSSIP_MENU_FIELD_SCOUT_ALLIANCE            = 7724,
+
+    GOSSIP_OPTION_FIELD_SCOUT_BATTLE_STANDARD   = 0,
+    GOSSIP_OPTION_FIELD_SCOUT_VENDOR            = 1,
+};
+
+// 18581 - Alliance Field Scout
+// 18564 - Horde Field Scout
+struct npc_zm_field_scout : public ScriptedAI
+{
+    npc_zm_field_scout(Creature* creature) : ScriptedAI(creature) { }
+
+    bool CanObtainBanner(Player* player)
+    {
+        OutdoorPvP* pvp = player->GetOutdoorPvP();
+        if (!pvp)
+            return false;
+
+        OutdoorPvPZM* zmPvp = reinterpret_cast<OutdoorPvPZM*>(pvp);
+        if (!zmPvp)
+            return false;
+
+        OPvPCapturePointZM_Graveyard* gy = zmPvp->GetGraveyard();
+        if (!gy)
+            return false;
+
+        if (!gy->GetFlagCarrierGUID().IsEmpty())
+            return false;
+
+        switch (me->GetEntry())
+        {
+            case ZM_ALLIANCE_FIELD_SCOUT:
+                return player->GetTeam() == ALLIANCE && pvp->GetWorldState(ZM_MAP_ALLIANCE_FLAG_READY);
+            case ZM_HORDE_FIELD_SCOUT:
+                return player->GetTeam() == HORDE && pvp->GetWorldState(ZM_MAP_HORDE_FLAG_READY);
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        uint32 gossipMenuId = GOSSIP_MENU_FIELD_SCOUT_HORDE;
+        if (me->GetEntry() == ZM_ALLIANCE_FIELD_SCOUT)
+            gossipMenuId = GOSSIP_MENU_FIELD_SCOUT_ALLIANCE;
+
+        if (CanObtainBanner(player))
+            AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_FIELD_SCOUT_BATTLE_STANDARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_FIELD_SCOUT_VENDOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        switch (action)
+        {
+            case GOSSIP_ACTION_INFO_DEF:
+            {
+                player->PlayerTalkClass->SendCloseGossip();
+
+                OutdoorPvP* pvp = player->GetOutdoorPvP();
+                if (!pvp)
+                    return true;
+
+                OutdoorPvPZM* zmPvp = reinterpret_cast<OutdoorPvPZM*>(pvp);
+                if (!zmPvp)
+                    return true;
+
+                OPvPCapturePointZM_Graveyard* gy = zmPvp->GetGraveyard();
+                if (!gy)
+                    return true;
+
+                // if the flag is already taken, then return
+                if (!gy->GetFlagCarrierGUID().IsEmpty())
+                    return true;
+
+                uint32 battleStandardSpell = ZM_BATTLE_STANDARD_H;
+                if (me->GetEntry() == ZM_ALLIANCE_FIELD_SCOUT)
+                    battleStandardSpell = ZM_BATTLE_STANDARD_A;
+
+                me->CastSpell(player, battleStandardSpell, true);
+                gy->SetFlagCarrierGUID(player->GetGUID());
+                gy->UpdateTowerState();
+                break;
+            }
+            case GOSSIP_ACTION_TRADE:
+                player->GetSession()->SendListInventory(me->GetGUID());
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+};
+
 void AddSC_outdoorpvp_zm()
 {
     new OutdoorPvP_zangarmarsh();
+    RegisterCreatureAI(npc_zm_field_scout);
 }
