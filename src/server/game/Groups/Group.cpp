@@ -940,7 +940,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     p->SendDirectMessage(&data);
 }
 
-void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, int32 rollNumber, uint8 rollType, Roll const& roll)
+void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, int32 rollNumber, uint8 rollType, Roll const& roll, bool autoPass)
 {
     WorldPacket data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1+1));
     data << uint64(sourceGuid);                             // guid of the item rolled
@@ -951,7 +951,7 @@ void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, int32 rol
     data << uint32(roll.itemRandomPropId.Id);               // Item random property ID
     data << int32(rollNumber);                              // 0: "Need for: [item name]" - 1: "you passed on: [item name]"      Roll number
     data << uint8(rollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
-    data << uint8(0);                                       // 1: "You automatically passed on: %s because you cannot loot that item." - Possibly used in need befor greed
+    data << uint8(autoPass);                                // 1: "You automatically passed on: %s because you cannot loot that item." - Possibly used in need befor greed
 
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
@@ -1025,6 +1025,23 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     BroadcastPacket(lootList.Write(), false);
 }
 
+bool CanRollOnItem(const LootItem& item, Player const* player)
+{
+    // Players can't roll on unique items if they already reached the maximum quantity of that item
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
+    if (!proto)
+        return false;
+
+    uint32 itemCount = player->GetItemCount(item.itemid);
+    if ((proto->GetMaxCount() > 0 && static_cast<int32>(itemCount) >= proto->GetMaxCount()) || (player->CanEquipUniqueItem(proto) != EQUIP_ERR_OK))
+        return false;
+
+    if (!item.AllowedForPlayer(player))
+        return false;
+
+    return true;
+}
+
 void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 {
     std::vector<LootItem>::iterator i;
@@ -1056,18 +1073,16 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                 Player* member = itr->GetSource();
                 if (!member || !member->GetSession())
                     continue;
-                if (member->IsAtGroupRewardDistance(pLootedObject) && i->AllowedForPlayer(member))
+                if (member->IsAtGroupRewardDistance(pLootedObject))
                 {
                     r->totalPlayersRolling++;
-
-                    if (member->GetPassOnGroupLoot())
+                    RollVote vote = member->GetPassOnGroupLoot() ? PASS : NOT_EMITED_YET;
+                    if (!CanRollOnItem(*i, member))
                     {
-                        r->playerVote[member->GetGUID()] = PASS;
-                        r->totalPass++;
-                        // can't broadcast the pass now. need to wait until all rolling players are known.
+                        vote = PASS;
+                        ++r->totalPass;
                     }
-                    else
-                        r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
+                    r->playerVote[member->GetGUID()] = vote;
                 }
             }
 

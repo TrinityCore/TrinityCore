@@ -362,7 +362,7 @@ class TC_GAME_API Group
         bool isRollLootActive() const;
         void SendLootStartRoll(uint32 CountDown, uint32 mapid, Roll const& r);
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
-        void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, int32 RollNumber, uint8 RollType, Roll const& r);
+        void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, int32 RollNumber, uint8 RollType, Roll const& r, bool autoPass = false);
         void SendLootRollWon(ObjectGuid SourceGuid, ObjectGuid TargetGuid, int32 RollNumber, uint8 RollType, Roll const& r);
         void SendLootAllPassed(Roll const& roll);
         void SendLooter(Creature* creature, Player* pLooter);
