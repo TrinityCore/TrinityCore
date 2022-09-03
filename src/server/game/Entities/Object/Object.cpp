@@ -2764,7 +2764,7 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
     Unit const* targetUnit = Coalesce<const Unit>(target->ToUnit(), targetPlayerOwner);
     if (unit && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
     {
-        if (unit && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+        if (targetUnit && targetUnit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         {
             if (selfPlayerOwner && targetPlayerOwner)
             {
