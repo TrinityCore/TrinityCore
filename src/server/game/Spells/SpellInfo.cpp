@@ -3898,6 +3898,11 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                     break;
             }
             break;
+        case SPELLFAMILY_MAGE:
+            // Arcane Missiles
+            if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
+                return false;
+            break;
         case SPELLFAMILY_WARRIOR:
             // Slam, Execute
             if ((spellInfo->SpellFamilyFlags[0] & 0x20200000) != 0)
