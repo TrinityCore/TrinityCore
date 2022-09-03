@@ -910,7 +910,7 @@ namespace Trinity
     class NearestAttackableNoTotemUnitInObjectRangeCheck
     {
         public:
-            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) { }
+            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) { }
 
             bool operator()(Unit* u)
             {
@@ -926,7 +926,7 @@ namespace Trinity
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_funit->IsValidAttackTarget(u))
+                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_obj->IsValidAttackTarget(u))
                     return false;
 
                 i_range = i_obj->GetDistance(*u);
@@ -934,7 +934,6 @@ namespace Trinity
             }
         private:
             WorldObject const* i_obj;
-            Unit const* i_funit;
             float i_range;
     };
 
