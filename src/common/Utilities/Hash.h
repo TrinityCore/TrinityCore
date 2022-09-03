@@ -32,20 +32,17 @@ namespace Trinity
 
  //! Hash implementation for std::pair to allow using pairs in unordered_set or as key for unordered_map
  //! Individual types used in pair must be hashable by std::hash
-namespace std
+template<class K, class V>
+struct std::hash<std::pair<K, V>>
 {
-    template<class K, class V>
-    struct hash<std::pair<K, V>>
+public:
+    size_t operator()(std::pair<K, V> const& p) const
     {
-    public:
-        size_t operator()(std::pair<K, V> const& p) const
-        {
-            size_t hashVal = 0;
-            Trinity::hash_combine(hashVal, p.first);
-            Trinity::hash_combine(hashVal, p.second);
-            return hashVal;
-        }
-    };
-}
+        size_t hashVal = 0;
+        Trinity::hash_combine(hashVal, p.first);
+        Trinity::hash_combine(hashVal, p.second);
+        return hashVal;
+    }
+};
 
 #endif // TrinityCore_Hash_h__
