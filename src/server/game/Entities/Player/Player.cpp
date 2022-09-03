@@ -11938,6 +11938,8 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 if (slot == EQUIPMENT_SLOT_MAINHAND || slot == EQUIPMENT_SLOT_OFFHAND)
                     UpdateExpertise(OFF_ATTACK);
             }
+            else
+                m_items[slot] = nullptr;
 
             SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid::Empty);
 
@@ -12058,6 +12060,9 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                 if (pProto->GetItemSet())
                     RemoveItemsSetItem(this, pProto);
 
+                // clear m_items so weapons for example can be registered as unequipped
+                m_items[slot] = nullptr;
+
                 _ApplyItemMods(pItem, slot, false);
             }
 
@@ -12072,7 +12077,9 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                 SetVisibleItemSlot(slot, nullptr);
             }
 
-            m_items[slot] = nullptr;
+            // clear for rest of items (ie nonequippable)
+            if (slot >= INVENTORY_SLOT_BAG_END)
+                m_items[slot] = nullptr;
         }
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
