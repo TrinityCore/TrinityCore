@@ -2934,7 +2934,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
             }
         }
 
-        hitInfo.AuraDuration = hitInfo.AuraSpellInfo->GetMaxDuration();
+        hitInfo.AuraDuration = Aura::CalcMaxDuration(hitInfo.AuraSpellInfo, origCaster);
 
         // unit is immune to aura if it was diminished to 0 duration
         if (!hitInfo.Positive && !unit->ApplyDiminishingToDuration(hitInfo.AuraSpellInfo, triggered, hitInfo.AuraDuration, origCaster, diminishLevel))
@@ -2973,53 +2973,52 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                     .IsRefresh = &refresh;
 
                 if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo))
+                {
                     _spellAura = aura->ToUnitAura();
+
+                    // Set aura stack amount to desired value
+                    if (m_spellValue->AuraStackAmount > 1)
+                    {
+                        if (!refresh)
+                            _spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
+                        else
+                            _spellAura->ModStackAmount(m_spellValue->AuraStackAmount);
+                    }
+
+                    _spellAura->SetDiminishGroup(hitInfo.DRGroup);
+
+                    hitInfo.AuraDuration = caster->ModSpellDuration(hitInfo.AuraSpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, _spellAura->GetEffectMask());
+
+                    // Haste modifies duration of channeled spells
+                    if (m_spellInfo->IsChanneled())
+                        caster->ModSpellDurationTime(hitInfo.AuraSpellInfo, hitInfo.AuraDuration, this);
+                    // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
+                    else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, hitInfo.AuraSpellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
+                        hitInfo.AuraDuration = int32(hitInfo.AuraDuration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+
+                    if (hitInfo.AuraDuration != _spellAura->GetMaxDuration())
+                    {
+                        _spellAura->SetMaxDuration(hitInfo.AuraDuration);
+                        _spellAura->SetDuration(hitInfo.AuraDuration);
+                    }
+
+                    if (DynamicObject* dynObj = m_originalCaster->GetDynObject(m_spellInfo->Id))
+                        dynObj->SetDuration(hitInfo.AuraDuration);
+
+                    if (m_spellInfo->IsChanneled() && refresh && m_spellInfo->IsRollingDurationOver())
+                    {
+                        SendChannelStart(_spellAura->GetMaxDuration() - _spellAura->GetRolledOverDuration());
+                        SendChannelUpdate(_spellAura->GetMaxDuration());
+
+                        // A side-effect of SendChannelStart() is to set the spell's timer to the value passed as parameter.
+                        // However for channeled dot clipping to work properly, we need to roll over the duration.
+                        // So we need to re-update timer with a proper value.
+                        m_timer = _spellAura->GetMaxDuration();
+                    }
+                }
             }
             else
                 _spellAura->AddStaticApplication(unit, aura_effmask);
-
-            if (_spellAura)
-            {
-                // Set aura stack amount to desired value
-                if (m_spellValue->AuraStackAmount > 1)
-                {
-                    if (!refresh)
-                        _spellAura->SetStackAmount(m_spellValue->AuraStackAmount);
-                    else
-                        _spellAura->ModStackAmount(m_spellValue->AuraStackAmount);
-                }
-
-                _spellAura->SetDiminishGroup(hitInfo.DRGroup);
-
-                hitInfo.AuraDuration = caster->ModSpellDuration(hitInfo.AuraSpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, _spellAura->GetEffectMask());
-
-                // Haste modifies duration of channeled spells
-                if (m_spellInfo->IsChanneled())
-                    caster->ModSpellDurationTime(hitInfo.AuraSpellInfo, hitInfo.AuraDuration, this);
-                // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
-                else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, hitInfo.AuraSpellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
-                    hitInfo.AuraDuration = int32(hitInfo.AuraDuration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
-
-                if (hitInfo.AuraDuration != _spellAura->GetMaxDuration())
-                {
-                    _spellAura->SetMaxDuration(hitInfo.AuraDuration);
-                    _spellAura->SetDuration(hitInfo.AuraDuration);
-                }
-
-                if (DynamicObject* dynObj = m_originalCaster->GetDynObject(m_spellInfo->Id))
-                    dynObj->SetDuration(hitInfo.AuraDuration);
-
-                if (m_spellInfo->IsChanneled() && refresh && m_spellInfo->IsRollingDurationOver())
-                {
-                    SendChannelStart(_spellAura->GetMaxDuration() - _spellAura->GetRolledOverDuration());
-                    SendChannelUpdate(_spellAura->GetMaxDuration());
-
-                    // A side-effect of SendChannelStart() is to set the spell's timer to the value passed as parameter.
-                    // However for channeled dot clipping to work properly, we need to roll over the duration.
-                    // So we need to re-update timer with a proper value.
-                    m_timer = _spellAura->GetMaxDuration();
-                }
-            }
         }
     }
 
@@ -3729,8 +3728,12 @@ void Spell::handle_immediate()
 
         m_spellState = SPELL_STATE_CASTING;
 
-        // GameObjects shouldn't cast channeled spells
-        ASSERT_NOTNULL(m_caster->ToUnit())->AddInterruptMask(m_spellInfo->ChannelInterruptFlags, m_spellInfo->ChannelInterruptFlags2);
+        if (duration != 0)
+        {
+            m_spellState = SPELL_STATE_CASTING;
+            // GameObjects shouldn't cast channeled spells
+            ASSERT_NOTNULL(m_caster->ToUnit())->AddInterruptMask(m_spellInfo->ChannelInterruptFlags, m_spellInfo->ChannelInterruptFlags2);
+        }
     }
 
     PrepareTargetProcessing();
