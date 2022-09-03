@@ -891,7 +891,7 @@ public:
     void ResetTimes(bool weekly);
 
     bool HasAchieved(uint32 achievementId) const;
-    void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player, GameObject* go = nullptr);
+    void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, WorldObject* ref, Player* player, GameObject* go = nullptr);
 
     inline void SetAchievementPointsFor(ObjectGuid guid, uint32 achievementPoint)
     {

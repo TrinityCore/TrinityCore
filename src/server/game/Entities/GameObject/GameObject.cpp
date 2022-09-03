@@ -785,6 +785,8 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, P
 
 void GameObject::Update(uint32 diff)
 {
+    m_Events.Update(diff);
+
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
@@ -1068,8 +1070,10 @@ void GameObject::Update(uint32 diff)
                     else if (Unit* target = ObjectAccessor::GetUnit(*this, m_lootStateUnitGUID))
                     {
                         // Some traps do not have a spell but should be triggered
+                        CastSpellExtraArgs args;
+                        args.SetOriginalCaster(GetOwnerGUID());
                         if (goInfo->trap.spellId)
-                            CastSpell(target, goInfo->trap.spellId);
+                            CastSpell(target, goInfo->trap.spellId, args);
 
                         // Template value or 4 seconds
                         m_cooldownTime = GameTime::GetGameTimeMS() + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4)) * IN_MILLISECONDS;
@@ -1519,11 +1523,6 @@ bool GameObject::IsDestructibleBuilding() const
         return false;
 
     return gInfo->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING;
-}
-
-Unit* GameObject::GetOwner() const
-{
-    return ObjectAccessor::GetUnit(*this, GetOwnerGUID());
 }
 
 void GameObject::SaveRespawnTime(uint32 forceDelay)
@@ -2408,69 +2407,6 @@ void GameObject::Use(Unit* user)
         CastSpell(user, spellId);
 }
 
-void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /* = true*/)
-{
-    CastSpell(target, spellId, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
-}
-
-void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags triggered)
-{
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
-        return;
-
-    bool self = false;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
-        {
-            self = true;
-            break;
-        }
-    }
-
-    if (self)
-    {
-        if (target)
-            target->CastSpell(target, spellInfo->Id, triggered);
-        return;
-    }
-
-    //summon world trigger
-    Creature* trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, spellInfo->CalcCastTime() + 100);
-    if (!trigger)
-        return;
-
-    // remove immunity flags, to allow spell to target anything
-    trigger->SetImmuneToAll(false);
-    PhasingHandler::InheritPhaseShift(trigger, this);
-
-    CastSpellExtraArgs args;
-    args.TriggerFlags = triggered;
-    if (Unit* owner = GetOwner())
-    {
-        trigger->SetFaction(owner->GetFaction());
-        if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
-            trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-        // copy pvp state flags from owner
-        trigger->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, owner->GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG));
-        // needed for GO casts for proper target validation checks
-        trigger->SetOwnerGUID(owner->GetGUID());
-
-        args.OriginalCaster = owner->GetGUID();
-        trigger->CastSpell(target ? target : trigger, spellInfo->Id, args);
-    }
-    else
-    {
-        trigger->SetFaction(spellInfo->IsPositive() ? FACTION_FRIENDLY : FACTION_MONSTER);
-        // Set owner guid for target if no owner available - needed by trigger auras
-        // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-
-        args.OriginalCaster = target ? target->GetGUID() : ObjectGuid::Empty;
-        trigger->CastSpell(target ? target : trigger, spellInfo->Id, args);
-    }
-}
-
 void GameObject::SendCustomAnim(uint32 anim)
 {
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
@@ -2585,7 +2521,7 @@ QuaternionData GameObject::GetWorldRotation() const
     return localRotation;
 }
 
-void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)
+void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)
 {
     if (!m_goValue.Building.MaxHealth || !change)
         return;
@@ -2604,10 +2540,8 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/
     // Set the health bar, value = 255 * healthPct;
     SetGoAnimProgress(m_goValue.Building.Health * 255 / m_goValue.Building.MaxHealth);
 
-    Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr;
-
     // dealing damage, send packet
-    if (player)
+    if (Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr)
     {
         WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8 + 8 + 8 + 4 + 4);
         data << GetPackGUID();
@@ -2635,11 +2569,10 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/
     if (newState == GetDestructibleState())
         return;
 
-    /// @todo: pass attackerOrHealer instead of player
-    SetDestructibleState(newState, player, false);
+    SetDestructibleState(newState, attackerOrHealer, false);
 }
 
-void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player* eventInvoker /*= nullptr*/, bool setHealth /*= false*/)
+void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldObject* attackerOrHealer /*= nullptr*/, bool setHealth /*= false*/)
 {
     // the user calling this must know he is already operating on destructible gameobject
     ASSERT(GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING);
@@ -2659,8 +2592,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         case GO_DESTRUCTIBLE_DAMAGED:
         {
             if (GetGOInfo()->building.damagedEvent)
-                GameEvents::Trigger(GetGOInfo()->building.damagedEvent, eventInvoker, this);
-            AI()->Damaged(eventInvoker, m_goInfo->building.damageEvent);
+                GameEvents::Trigger(GetGOInfo()->building.damagedEvent, attackerOrHealer, this);
+            AI()->Damaged(attackerOrHealer, m_goInfo->building.damageEvent);
 
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
@@ -2685,12 +2618,12 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         case GO_DESTRUCTIBLE_DESTROYED:
         {
             if (GetGOInfo()->building.destroyedEvent)
-                GameEvents::Trigger(GetGOInfo()->building.destroyedEvent, eventInvoker, this);
-            AI()->Destroyed(eventInvoker, m_goInfo->building.destroyedEvent);
+                GameEvents::Trigger(GetGOInfo()->building.destroyedEvent, attackerOrHealer, this);
+            AI()->Destroyed(attackerOrHealer, m_goInfo->building.destroyedEvent);
 
-            if (eventInvoker)
-                if (Battleground* bg = eventInvoker->GetBattleground())
-                    bg->DestroyGate(eventInvoker, this);
+            if (attackerOrHealer && attackerOrHealer->GetTypeId() == TYPEID_PLAYER)
+                if (Battleground* bg = attackerOrHealer->ToPlayer()->GetBattleground())
+                    bg->DestroyGate(attackerOrHealer->ToPlayer(), this);
 
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
@@ -2712,7 +2645,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         case GO_DESTRUCTIBLE_REBUILDING:
         {
             if (GetGOInfo()->building.rebuildingEvent)
-                GameEvents::Trigger(GetGOInfo()->building.rebuildingEvent, eventInvoker, this);
+                GameEvents::Trigger(GetGOInfo()->building.rebuildingEvent, attackerOrHealer, this);
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;

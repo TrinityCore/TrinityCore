@@ -41,6 +41,9 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void SetDuration(int32 newDuration) { _duration = newDuration; }
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
 
+        ObjectGuid GetOwnerGUID() const override { return ObjectGuid::Empty; }
+        uint32 GetFaction() const override { return 0; }
+
     protected:
         int32 _duration;
 };

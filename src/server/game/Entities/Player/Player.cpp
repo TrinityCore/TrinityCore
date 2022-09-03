@@ -1798,7 +1798,7 @@ void Player::SetObjectScale(float scale)
         SendMovementSetCollisionHeight(GetCollisionHeight(), UPDATE_COLLISION_HEIGHT_SCALE);
 }
 
-bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
+bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
 {
     // players are immune to taunt (the aura and the spell effect)
     if (spellInfo->Effects[index].IsAura(SPELL_AURA_MOD_TAUNT))
@@ -22632,7 +22632,7 @@ void Player::UpdatePotionCooldown(Spell* spell)
     m_lastPotionId = 0;
 }
 
-void Player::SetResurrectRequestData(Unit* caster, uint32 health, uint32 mana, uint32 appliedAura)
+void Player::SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura)
 {
     ASSERT(!IsResurrectRequested());
     _resurrectionData = new ResurrectionData();
@@ -23283,94 +23283,6 @@ Player* Player::GetSelectedPlayer() const
     if (ObjectGuid selectionGUID = GetTarget())
         return ObjectAccessor::FindConnectedPlayer(selectionGUID);
     return nullptr;
-}
-
-void Player::SendComboPoints()
-{
-
-    Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
-    if (combotarget)
-    {
-        WorldPacket data;
-        Player* movingMe = GetCharmerOrSelfPlayer();
-        if (movingMe != this)
-        {
-            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, movingMe->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
-            data << movingMe->GetPackGUID();
-        }
-        else
-            data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
-        data << combotarget->GetPackGUID();
-        data << uint8(m_comboPoints);
-        SendDirectMessage(&data);
-    }
-}
-
-void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
-{
-    if (!count)
-        return;
-
-    int8 * comboPoints = spell ? &spell->m_comboPointGain : &m_comboPoints;
-
-    // without combo points lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
-    if (target->GetGUID() == m_comboTarget)
-        *comboPoints += count;
-    else
-    {
-        if (m_comboTarget)
-            if (Unit* target2 = ObjectAccessor::GetUnit(*this, m_comboTarget))
-                target2->RemoveComboPointHolder(GetGUID());
-
-        // Spells will always add value to m_comboPoints eventualy, so it must be cleared first
-        if (spell)
-            m_comboPoints = 0;
-
-        m_comboTarget = target->GetGUID();
-        *comboPoints = count;
-
-        target->AddComboPointHolder(GetGUID());
-    }
-
-    if (*comboPoints > 5)
-        *comboPoints = 5;
-    else if (*comboPoints < 0)
-        *comboPoints = 0;
-
-    if (!spell)
-        SendComboPoints();
-}
-
-void Player::GainSpellComboPoints(int8 count)
-{
-    if (!count)
-        return;
-
-    m_comboPoints += count;
-    if (m_comboPoints > 5) m_comboPoints = 5;
-    else if (m_comboPoints < 0) m_comboPoints = 0;
-
-    SendComboPoints();
-}
-
-void Player::ClearComboPoints()
-{
-    if (!m_comboTarget)
-        return;
-
-    // without combopoints lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
-    m_comboPoints = 0;
-
-    SendComboPoints();
-
-    if (Unit* target = ObjectAccessor::GetUnit(*this, m_comboTarget))
-        target->RemoveComboPointHolder(GetGUID());
-
-    m_comboTarget.Clear();
 }
 
 bool Player::IsInGroup(ObjectGuid groupGuid) const
@@ -26046,9 +25958,9 @@ void Player::ResetAchievementCriteria(AchievementCriteriaCondition condition, ui
     m_achievementMgr->ResetAchievementCriteria(condition, value, evenIfCriteriaComplete);
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= nullptr*/, GameObject* go /*= nullptr*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, WorldObject* ref /*= nullptr*/, GameObject* go /*= nullptr*/)
 {
-    m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+    m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, ref, this);
     Guild* guild = sGuildMgr->GetGuildById(GetGuildId());
     if (!guild)
         return;
@@ -26058,7 +25970,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 mis
     if (sAchievementMgr->IsGroupCriteriaType(type))
         return;
 
-    guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this, go);
+    guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, ref, this, go);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry)

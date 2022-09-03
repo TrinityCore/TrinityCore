@@ -2150,7 +2150,7 @@ void Creature::LoadTemplateImmunities()
     }
 }
 
-bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Optional<uint8> effectMask /*= {}*/) const
+bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster) const
 {
     if (!spellInfo)
         return false;
@@ -2159,9 +2159,6 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Option
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (!spellInfo->Effects[i].IsEffect())
-            continue;
-
-        if (effectMask && !(*effectMask & (1 << i)))
             continue;
 
         if (!IsImmunedToSpellEffect(spellInfo, i, caster))
@@ -2176,8 +2173,11 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Option
     return Unit::IsImmunedToSpell(spellInfo, caster);
 }
 
-bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
+bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const
 {
+    if (!spellInfo->Effects[index].IsEffect())
+        return true;
+
     if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && spellInfo->Effects[index].Effect == SPELL_EFFECT_HEAL)
         return true;
 

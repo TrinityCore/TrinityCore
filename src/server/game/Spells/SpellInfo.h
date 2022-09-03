@@ -291,14 +291,14 @@ public:
     bool IsAreaAuraEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
-    int32 CalcValue(Unit const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr) const;
+    int32 CalcValue(WorldObject const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr) const;
     int32 CalcBaseValue(int32 value) const;
-    float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
-    float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;
+    float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
+    float CalcDamageMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
 
     bool HasRadius() const;
     bool HasMaxRadius() const;
-    float CalcRadius(Unit* caster = nullptr, Spell* = nullptr) const;
+    float CalcRadius(WorldObject* caster = nullptr, Spell* = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -306,7 +306,7 @@ public:
     SpellEffectImplicitTargetTypes GetImplicitTargetType() const;
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
 
-    uint32 CalcPeriod(Unit* caster, Spell* spell = nullptr) const;
+    uint32 CalcPeriod(WorldObject const* caster, Spell* spell = nullptr) const;
 
 private:
     struct StaticData
@@ -493,7 +493,7 @@ class TC_GAME_API SpellInfo
         inline bool HasAttribute(SpellAttr10 attribute) const { return !!(AttributesEx10 & attribute); }
         inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
-        bool CanBeInterrupted(Unit* interruptTarget, bool ignoreImmunity = false) const;
+        bool CanBeInterrupted(Unit const* interruptTarget, bool ignoreImmunity = false) const;
 
         bool HasAnyAuraInterruptFlag() const;
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }
@@ -559,8 +559,8 @@ class TC_GAME_API SpellInfo
 
         SpellCastResult CheckShapeshift(uint32 form) const;
         SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = nullptr) const;
-        SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
-        SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = nullptr) const;
+        SpellCastResult CheckTarget(WorldObject const* caster, WorldObject const* target, bool implicit = true) const;
+        SpellCastResult CheckExplicitTarget(WorldObject const* caster, WorldObject const* target, Item const* itemTarget = nullptr) const;
         SpellCastResult CheckVehicle(Unit const* caster) const;
         bool CheckTargetCreatureType(Unit const* target) const;
 
@@ -578,20 +578,20 @@ class TC_GAME_API SpellInfo
         SpellSpecificType GetSpellSpecific() const;
 
         float GetMinRange(bool positive = false) const;
-        float GetMaxRange(bool positive = false, Unit* caster = nullptr, Spell* spell = nullptr) const;
+        float GetMaxRange(bool positive = false, WorldObject* caster = nullptr, Spell* spell = nullptr) const;
 
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
 
-        int32 CalcDuration(Unit* caster, Spell* spell = nullptr) const;
+        int32 CalcDuration(WorldObject const* caster, Spell* spell = nullptr) const;
 
         uint32 GetMaxTicks() const;
 
         uint32 CalcCastTime(uint8 level = 0, Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;
 
-        int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
-        float GetSpellScalingMultiplier(Unit const* caster, SpellScalingEntry const* scalingEntry, bool isPowerCostRelated = false) const;
+        int32 CalcPowerCost(WorldObject const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
+        float GetSpellScalingMultiplier(WorldObject const* caster, SpellScalingEntry const* scalingEntry, bool isPowerCostRelated = false) const;
 
         bool IsRanked() const;
         uint8 GetRank() const;

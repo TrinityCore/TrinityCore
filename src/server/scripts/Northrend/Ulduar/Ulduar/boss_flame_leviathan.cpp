@@ -1313,7 +1313,7 @@ class go_ulduar_tower : public GameObjectScript
 
             InstanceScript* instance;
 
-            void Destroyed(Player* /*player*/, uint32 /*eventId*/) override
+            void Destroyed(WorldObject* /*attacker*/, uint32 /*eventId*/) override
             {
                 switch (me->GetEntry())
                 {
