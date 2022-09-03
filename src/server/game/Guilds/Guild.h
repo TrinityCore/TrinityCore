@@ -32,6 +32,7 @@ class Item;
 class Player;
 class Unit;
 class GameObject;
+class WorldObject;
 class WorldPacket;
 class WorldSession;
 struct ItemPosCount;
