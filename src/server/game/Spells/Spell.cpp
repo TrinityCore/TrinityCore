@@ -2979,7 +2979,7 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                     .SetOwnerEffectMask(aura_effmask)
                     .IsRefresh = &refresh;
 
-                if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo))
+                if (Aura* aura = Aura::TryRefreshStackOrCreate(createInfo, false))
                 {
                     hitInfo.HitAura = aura->ToUnitAura();
 
@@ -3009,9 +3009,6 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                         hitInfo.HitAura->SetDuration(hitInfo.AuraDuration);
                     }
 
-                    if (refresh)
-                        hitInfo.HitAura->AddStaticApplication(unit, aura_effmask);
-
                     if (DynamicObject* dynObj = m_originalCaster->GetDynObject(m_spellInfo->Id))
                         dynObj->SetDuration(hitInfo.AuraDuration);
 
@@ -3025,6 +3022,9 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                         // So we need to re-update timer with a proper value.
                         m_timer = hitInfo.HitAura->GetMaxDuration();
                     }
+
+                    if (refresh)
+                        hitInfo.HitAura->AddStaticApplication(unit, aura_effmask);
                 }
             }
             else
