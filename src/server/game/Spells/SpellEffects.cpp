@@ -5563,7 +5563,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
     }
 }
 
-void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
+void Spell::EffectRechargeManaGem(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5576,7 +5576,7 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
     if (!player)
         return;
 
-    uint32 item_id = m_spellInfo->Effects[EFFECT_0].ItemType;
+    uint32 item_id = m_spellInfo->Effects[effIndex].ItemType;
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item_id);
     if (!pProto)
