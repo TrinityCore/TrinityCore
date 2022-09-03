@@ -3145,7 +3145,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     ObjectGuid newTarget = [&]()
     {
         // Spells that do not allow turning or channeled spells that will track their channel target do not set a unit field target
-        if (turnDisabled || noTurnDuringCast || spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET) || target == this)
+        if (turnDisabled || noTurnDuringCast || spellInfo->HasAttribute(SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) || target == this)
             return ObjectGuid::Empty;
 
         return target->GetGUID();

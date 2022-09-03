@@ -3705,7 +3705,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         // spell should dispel area aura, but doesn't have the attribute
         // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
         // that will be clear if we get more spells with problem like this
-        spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+        spellInfo->AttributesEx |= SPELL_ATTR1_IMMUNITY_PURGES_EFFECT;
     });
 
     // Spinning Up (Mimiron)
@@ -3925,7 +3925,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 69783, 69797, 69799, 69802 }, [](SpellInfo* spellInfo)
     {
         // Those spells are cast on creatures with same entry as caster while they have TARGET_UNIT_NEARBY_ENTRY.
-        spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+        spellInfo->AttributesEx |= SPELL_ATTR1_EXCLUDE_CASTER;
     });
 
     // Awaken Plagued Zombies
@@ -4784,7 +4784,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Spore Cloud
     ApplySpellFix({ 75701 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
     // Noxious Spores
@@ -4857,7 +4857,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Gaze of Occu'thar
     ApplySpellFix({ 96942, 101009 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
     // Meteor Slash
@@ -4968,7 +4968,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         100190
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
     // Fixate
@@ -5202,7 +5202,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Nurture
     ApplySpellFix({ 85425 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_SELF_CHANNELED;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
     // Soothing Breeze

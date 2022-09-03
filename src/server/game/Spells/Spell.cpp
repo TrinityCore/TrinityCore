@@ -667,7 +667,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     // Determine if spell can be reflected back to the caster
     // Patch 1.2 notes: Spell Reflection no longer reflects abilities
     m_canReflect = caster->IsUnit() && m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY)
-        && !m_spellInfo->HasAttribute(SPELL_ATTR1_CANT_BE_REFLECTED) && !m_spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)
+        && !m_spellInfo->HasAttribute(SPELL_ATTR1_NO_REFLECTION) && !m_spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)
         && !m_spellInfo->IsPassive();
 
     CleanupTargetList();
@@ -2673,7 +2673,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         }
 
         // Failed Pickpocket, reveal rogue
-        if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR0_CU_PICKPOCKET) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
+        if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_FAILURE_BREAKS_STEALTH) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
         {
             Unit* unitCaster = ASSERT_NOTNULL(spell->m_caster->ToUnit());
             unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
@@ -3566,7 +3566,7 @@ void Spell::_cast(bool skipCheck)
     }
 
     if (Unit* unitCaster = m_caster->ToUnit())
-        if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET_FIRST))
             if (Creature* pet = ObjectAccessor::GetCreature(*m_caster, unitCaster->GetPetGUID()))
                 pet->DespawnOrUnsummon();
 
@@ -4941,27 +4941,10 @@ void Spell::SendChannelStart(uint32 duration)
     if (!unitCaster)
         return;
 
-    ObjectGuid channelTarget = m_targets.GetObjectTargetGUID();
-    if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
-    {
-        // this is for TARGET_SELECT_CATEGORY_NEARBY
-        if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)
-            channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().TargetGUID : m_UniqueGOTargetInfo.front().TargetGUID;
-        else
-        {
-            // We assume that when we have a channel spell with more than one unique unit target that there is a caster and a target.
-            // We don't want the caster but the target so we are looking for a non-caster entry within the target list
-            for (auto& itr : m_UniqueTargetInfo)
-            {
-                if (itr.TargetGUID != m_caster->GetGUID())
-                    channelTarget = itr.TargetGUID;
-            }
-        }
-    }
-
-    // There must always be a channel target
-    if (!channelTarget)
-        channelTarget = m_caster->GetGUID();
+    WorldPackets::Spells::ChannelStart packet;
+    packet.CasterGUID = m_caster->GetGUID();
+    packet.SpellID = m_spellInfo->Id;
+    packet.ChannelDuration = duration;
 
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
     uint32 schoolImmunityMask = unitCaster->GetSchoolImmunityMask();
@@ -4970,15 +4953,6 @@ void Spell::SendChannelStart(uint32 duration)
     if (schoolImmunityMask || mechanicImmunityMask)
         castFlags |= CAST_FLAG_IMMUNITY;
 
-    uint8 ticks = m_spellInfo->GetMaxTicks();
-    if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-        ++ticks;
-
-    WorldPackets::Spells::ChannelStart packet;
-    packet.CasterGUID = m_caster->GetGUID();
-    packet.SpellID = m_spellInfo->Id;
-    packet.ChannelDuration = duration;
-
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
         packet.InterruptImmunities.emplace();
@@ -4986,26 +4960,62 @@ void Spell::SendChannelStart(uint32 duration)
         packet.InterruptImmunities->Immunities = mechanicImmunityMask; // CastImmunities
     }
 
+    if (!m_targets.HasDst())
+    {
+        uint32 channelAuraMask = 0;
+        uint32 explicitTargetEffectMask = 0xFFFFFFFF;
+        // if there is an explicit target, only add channel objects from effects that also hit it
+        if (!m_targets.GetUnitTargetGUID().IsEmpty())
+        {
+            auto explicitTargetItr = std::find_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [&](TargetInfo const& target)
+            {
+                return target.TargetGUID == m_targets.GetUnitTargetGUID();
+            });
+            if (explicitTargetItr != m_UniqueTargetInfo.end())
+                explicitTargetEffectMask = explicitTargetItr->EffectMask;
+        }
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            SpellEffectInfo const& spellEffectInfo = m_spellInfo->Effects[i];
+            if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA) && (explicitTargetEffectMask & (1u << i)))
+                channelAuraMask |= 1 << i;
+        }
+
+        for (TargetInfo const& target : m_UniqueTargetInfo)
+        {
+            if (!(target.EffectMask & channelAuraMask))
+                continue;
+
+            SpellAttr1 requiredAttribute = target.TargetGUID != unitCaster->GetGUID() ? SPELL_ATTR1_IS_CHANNELLED : SPELL_ATTR1_IS_SELF_CHANNELLED;
+            if (!m_spellInfo->HasAttribute(requiredAttribute))
+                continue;
+
+            unitCaster->SetChannelObjectGuid(target.TargetGUID);
+        }
+
+        for (GOTargetInfo const& target : m_UniqueGOTargetInfo)
+            if (target.EffectMask & channelAuraMask)
+                unitCaster->SetChannelObjectGuid(target.TargetGUID);
+    }
+    else if (m_spellInfo->HasAttribute(SPELL_ATTR1_IS_SELF_CHANNELLED))
+        unitCaster->SetChannelObjectGuid(unitCaster->GetGUID());
+
+
     if (m_spellInfo->HasAttribute(SPELL_ATTR8_HEAL_PREDICTION))
     {
         castFlags |= CAST_FLAG_HEAL_PREDICTION;
 
         WorldPackets::Spells::SpellHealPrediction predict;
         UpdateSpellHealPrediction(predict);
-        packet.HealPrediction.emplace(channelTarget, predict);
+        packet.HealPrediction.emplace(unitCaster->GetChannelObjectGuid(), predict);
     }
 
     m_caster->SendMessageToSet(packet.Write(), true);
-
     m_timer = duration;
-    if (channelTarget)
-    {
-        unitCaster->SetChannelObjectGuid(channelTarget);
-
-        if (Creature* creatureCaster = m_caster->ToCreature())
-            if (!creatureCaster->HasSpellFocus(this))
-               creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
-    }
+    if (Creature* creatureCaster = m_caster->ToCreature())
+        if (!creatureCaster->HasSpellFocus(this))
+           creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, unitCaster->GetChannelObjectGuid()));
 
     m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
 }
@@ -5550,7 +5560,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     {
                         if (m_spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT)
                             || m_spellInfo->IsNextMeleeSwingSpell()
-                            || m_spellInfo->HasAttribute(SPELL_ATTR1_MELEE_COMBAT_START)
+                            || m_spellInfo->HasAttribute(SPELL_ATTR1_INITIATES_COMBAT_ENABLES_AUTO_ATTACK)
                             || m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
@@ -6157,7 +6167,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 switch (SummonProperties->Control)
                 {
                     case SUMMON_CATEGORY_PET:
-                        if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && unitCaster->GetPetGUID())
+                        if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET_FIRST) && unitCaster->GetPetGUID())
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                         [[fallthrough]]; //  check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET*/
                     case SUMMON_CATEGORY_PUPPET:
@@ -6173,7 +6183,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 {
                     if (m_targets.GetUnitTarget()->GetTypeId() != TYPEID_PLAYER)
                         return SPELL_FAILED_BAD_TARGETS;
-                    if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && m_targets.GetUnitTarget()->GetPetGUID())
+                    if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET_FIRST) && m_targets.GetUnitTarget()->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                 }
                 break;
@@ -6192,7 +6202,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                             if (Pet* pet = unitCaster->ToPlayer()->GetPet())
                                 pet->CastSpell(pet, 32752, pet->GetGUID());
                     }
-                    else if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
+                    else if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET_FIRST))
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                 }
 
@@ -6325,7 +6335,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_CHARM
                     || m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_POSSESS)
                 {
-                    if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && unitCaster->GetPetGUID())
+                    if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET_FIRST) && unitCaster->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
                     if (unitCaster->GetCharmedGUID())
@@ -7712,7 +7722,7 @@ bool Spell::IsIgnoringCooldowns() const
 bool Spell::IsFocusDisabled() const
 {
     return ((_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING) != 0
-        || (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SpellAttr1(SPELL_ATTR1_CHANNEL_TRACK_TARGET | SPELL_ATTR1_SELF_CHANNELED))));
+        || (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL)));
 }
 
 bool Spell::IsProcDisabled() const

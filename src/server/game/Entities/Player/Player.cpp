@@ -5207,12 +5207,15 @@ inline int32 SkillGainChance(Player const* player, uint32 SkillValue, uint32 Gra
     return chance;
 }
 
-bool Player::UpdateCraftSkill(uint32 spellid)
+bool Player::UpdateCraftSkill(SpellInfo const* spellInfo)
 {
-    TC_LOG_DEBUG("entities.player.skills", "Player::UpdateCraftSkill: Player '%s' (%s), SpellID: %d",
-        GetName().c_str(), GetGUID().ToString().c_str(), spellid);
+    if (spellInfo->HasAttribute(SPELL_ATTR1_NO_SKILL_INCREASE))
+        return false;
 
-    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellid);
+    TC_LOG_DEBUG("entities.player.skills", "Player::UpdateCraftSkill: Player '%s' (%s), SpellID: %d",
+        GetName().c_str(), GetGUID().ToString().c_str(), spellInfo->Id);
+
+    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellInfo->Id);
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
@@ -5221,10 +5224,9 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillLine);
 
             // Alchemy Discoveries here
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid);
-            if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
+            if (spellInfo && spellInfo->Mechanic == MECHANIC_DISCOVERY)
             {
-                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillLine, spellid, this))
+                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillLine, spellInfo->Id, this))
                     LearnSpell(discoveredSpell, false);
             }
 
@@ -5234,7 +5236,6 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             if (craft_skill_points)
             {
                 craft_skill_points *= craft_skill_gain;
-                TC_LOG_INFO("entities.player", "craft_skill_points is %u, spellID: %u, skillID: %u", craft_skill_points, spellid, _spell_idx->second->SkillLine);
                 return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(this, SkillValue,
                     _spell_idx->second->TrivialSkillLineRankHigh,
                     (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow) / 2,

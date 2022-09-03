@@ -2729,7 +2729,7 @@ class spell_gen_profession_research : public SpellScriptLoader
                 if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster))
                     caster->LearnSpell(discoveredSpellId, false);
 
-                caster->UpdateCraftSkill(spellId);
+                caster->UpdateCraftSkill(GetSpellInfo());
             }
 
             void Register() override

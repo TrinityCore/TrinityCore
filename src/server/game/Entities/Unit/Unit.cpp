@@ -443,7 +443,7 @@ void Unit::Update(uint32 p_time)
     {
         // Prioritize tracking channeled spells above unit targets if they should both be present at the same time.
         Spell const* channeledSpell = GetCurrentSpell(CURRENT_CHANNELED_SPELL);
-        if (channeledSpell && channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET))
+        if (channeledSpell && channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL))
         {
             ObjectGuid const channelGuid = GetChannelObjectGuid();
             if (!channelGuid.IsEmpty() && channelGuid != GetGUID())
@@ -3651,7 +3651,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
     }
 }
 
-void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer)
+void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer, int32 stolenCharges /*= 1*/)
 {
     AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
     for (AuraMap::iterator iter = range.first; iter != range.second;)
@@ -3685,9 +3685,9 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                 if (Aura* oldAura = unitStealer->GetAura(aura->GetId(), aura->GetCasterGUID()))
                 {
                     if (stealCharge)
-                        oldAura->ModCharges(1);
+                        oldAura->ModCharges(stolenCharges);
                     else
-                        oldAura->ModStackAmount(1);
+                        oldAura->ModStackAmount(stolenCharges);
                     oldAura->SetDuration(int32(dur));
                 }
                 else
@@ -3712,16 +3712,16 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                             caster->GetLimitedCastAuras(aura->GetId()).push_back(aura);
                         }
                         // FIXME: using aura->GetMaxDuration() maybe not blizzlike but it fixes stealing of spells like Innervate
-                        newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? 1 : aura->GetCharges(), 1, recalculateMask, aura->GetCritChance(), aura->CanApplyResilience(), &damage[0]);
+                        newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? stolenCharges : aura->GetCharges(), stolenCharges, recalculateMask, aura->GetCritChance(), aura->CanApplyResilience(), &damage[0]);
                         newAura->ApplyForTargets();
                     }
                 }
             }
 
             if (stealCharge)
-                aura->ModCharges(-1, AuraRemoveFlags::ByEnemySpell);
+                aura->ModCharges(-stolenCharges, AuraRemoveFlags::ByEnemySpell);
             else
-                aura->ModStackAmount(-1, AuraRemoveFlags::ByEnemySpell);
+                aura->ModStackAmount(-stolenCharges, AuraRemoveFlags::ByEnemySpell);
 
             return;
         }
@@ -4033,7 +4033,27 @@ void Unit::RemoveAurasOnEvade()
 
     // don't remove vehicle auras, passengers aren't supposed to drop off the vehicle
     // don't remove clone caster on evade (to be verified)
-    RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_CLONE_CASTER);
+    auto evadeAuraCheck = [](Aura const* aura)
+    {
+        if (aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
+            return false;
+
+        if (aura->HasEffectType(SPELL_AURA_CLONE_CASTER))
+            return false;
+
+        if (aura->GetSpellInfo()->HasAttribute(SPELL_ATTR1_AURA_STAYS_AFTER_COMBAT))
+            return false;
+
+        return true;
+    };
+
+    auto evadeAuraApplicationCheck = [&evadeAuraCheck](AuraApplication const* aurApp)
+    {
+        return evadeAuraCheck(aurApp->GetBase());
+    };
+
+    RemoveAppliedAuras(evadeAuraApplicationCheck);
+    RemoveOwnedAuras(evadeAuraCheck);
 }
 
 void Unit::RemoveAllAurasOnDeath()
@@ -7303,7 +7323,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
     if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) && spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         return false;
 
-    if (spellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) || spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+    if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
         return false;
 
     if (uint32 schoolMask = spellInfo->GetSchoolMask())
