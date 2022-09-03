@@ -1983,7 +1983,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         if (!target->CanUseAttackType(BASE_ATTACK))
         {
             if (Item* pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetTemplate(), nullptr, apply);
+                target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetTemplate(), apply);
         }
     }
 
@@ -2371,7 +2371,10 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
 
     Unit* target = aurApp->GetTarget();
 
+    //Prevent handling aura twice
     AuraType type = GetAuraType();
+    if (apply ? target->GetAuraEffectsByType(type).size() > 1 : target->HasAuraType(type))
+        return;
 
     // Prevent handling aura twice
     if (apply ? target->GetAuraEffectsByType(type).size() > 1 : target->HasAuraType(type))
@@ -2403,8 +2406,10 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
             return;
     }
 
-    // if disarm aura is to be removed, remove the flag first to reapply damage/aura mods
-    if (!apply)
+    // set/remove flag before weapon bonuses so it's properly reflected in CanUseAttackType
+    if (apply)
+        target->SetFlag(field, flag);
+    else
         target->RemoveFlag(field, flag);
 
     // Handle damage modification, shapeshifted druids are not affected
@@ -2418,16 +2423,12 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
             player->ApplyItemDependentAuras(item, !apply);
             if (attackType != MAX_ATTACK)
             {
-                player->_ApplyWeaponDamage(slot, item->GetTemplate(), nullptr, !apply);
+                player->_ApplyWeaponDamage(slot, item->GetTemplate(), !apply);
                 if (!apply) // apply case already handled on item dependent aura removal (if any)
                     player->UpdateWeaponDependentAuras(attackType);
             }
         }
     }
-
-    // if disarm effects should be applied, wait to set flag until damage mods are unapplied
-    if (apply)
-        target->SetFlag(field, flag);
 
     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCurrentEquipmentId())
         target->UpdateDamagePhysical(attType);
