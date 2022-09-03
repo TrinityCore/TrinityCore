@@ -113,10 +113,6 @@ class TC_GAME_API OPvPCapturePoint
 
         virtual void SendChangePhase();
 
-        virtual bool HandleGossipOption(Player* /*player*/, Creature* /*guid*/, uint32 /*gossipId*/) { return false; }
-
-        virtual bool CanTalkTo(Player* /*player*/, Creature* /*creature*/, GossipMenuItems const& /*gso*/) { return false; }
-
         virtual bool HandleDropFlag(Player* /*player*/, uint32 /*spellId*/) { return false; }
 
         ObjectGuid::LowType m_capturePointSpawnId;
@@ -204,10 +200,6 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
         uint32 GetTypeId() const {return m_TypeId;}
 
         virtual bool HandleDropFlag(Player* player, uint32 spellId);
-
-        virtual bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid);
-
-        virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
