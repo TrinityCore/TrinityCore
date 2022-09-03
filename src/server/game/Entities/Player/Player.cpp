@@ -7652,8 +7652,6 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool appl
         return;
 
     ScalingStatValuesEntry const* ssv = GetScalingStatValuesFor(*proto);
-    float damage = 0.0f;
-
     float minDamage, maxDamage, dps;
     proto->GetWeaponDamage(this, minDamage, maxDamage, dps);
 
