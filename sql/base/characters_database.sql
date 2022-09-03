@@ -640,6 +640,7 @@ DROP TABLE IF EXISTS `character_aura`;
 CREATE TABLE `character_aura` (
   `guid` int unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `casterGuid` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
+  `itemGuid` bigint unsigned NOT NULL DEFAULT '0',
   `spell` int unsigned NOT NULL DEFAULT '0',
   `effectMask` tinyint unsigned NOT NULL DEFAULT '0',
   `recalculateMask` tinyint unsigned NOT NULL DEFAULT '0',
@@ -655,7 +656,7 @@ CREATE TABLE `character_aura` (
   `remainCharges` tinyint unsigned NOT NULL DEFAULT '0',
   `critChance` float NOT NULL DEFAULT '0',
   `applyResilience` tinyint(3) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
+  PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3056,6 +3057,7 @@ INSERT INTO `updates` VALUES
 ('2022_01_01_00_characters.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','ARCHIVED','2022-01-01 11:04:58',0),
 ('2022_01_09_00_characters.sql','1420602F3A6F5AAE1CB59045C47E33A3CE8809A4','ARCHIVED','2022-01-09 00:12:22',0),
 ('2022_09_01_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','RELEASED','2022-09-01 14:51:33',0),
+('2022_09_03_00_characters.sql','50429D68E6EBD1149CDA14A9EA642BC06A1FAE3D','RELEASED','2022-09-03 11:03:06',0),
 ('custom_2017_12_21_00_characters.sql','2D5B3830D47E4BC717EC468E18E477A32B9A21BF','ARCHIVED','2019-11-06 00:17:44',0),
 ('custom_2018_01_07_00_characters.sql','7437B6243B3CB6FA08F6A37BB39E38930B0DCFD3','ARCHIVED','2019-11-06 00:17:44',0),
 ('custom_2018_03_18_00_characters.sql','8D1E81A7272F643687C67443C270D17255A9AA84','ARCHIVED','2019-11-06 00:17:44',0),

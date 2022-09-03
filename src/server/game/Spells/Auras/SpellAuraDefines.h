@@ -508,7 +508,7 @@ struct TC_GAME_API AuraCreateInfo
     AuraCreateInfo& SetCasterGUID(ObjectGuid const& guid) { CasterGUID = guid; return *this; }
     AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
     AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
-    AuraCreateInfo& SetCastItem(Item* item) { CastItem = item; return *this; }
+    AuraCreateInfo& SetCastItemGUID(ObjectGuid const& guid) { CastItemGUID = guid; return *this; }
     AuraCreateInfo& SetOwnerEffectMask(uint8 effMask) { _targetEffectMask = effMask; return *this; }
 
     SpellInfo const* GetSpellInfo() const { return _spellInfo; }
@@ -517,7 +517,7 @@ struct TC_GAME_API AuraCreateInfo
     ObjectGuid CasterGUID;
     Unit* Caster = nullptr;
     int32 const* BaseAmount = nullptr;
-    Item* CastItem = nullptr;
+    ObjectGuid CastItemGUID;
     bool* IsRefresh = nullptr;
 
     private:

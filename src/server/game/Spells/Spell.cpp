@@ -2970,7 +2970,7 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                 createInfo
                     .SetCasterGUID(caster->GetGUID())
                     .SetBaseAmount(bp)
-                    .SetCastItem(m_CastItem)
+                    .SetCastItemGUID(m_CastItem ? m_CastItem->GetGUID() : ObjectGuid::Empty)
                     .SetOwnerEffectMask(aura_effmask)
                     .IsRefresh = &refresh;
 
