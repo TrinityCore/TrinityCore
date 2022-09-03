@@ -3009,6 +3009,9 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                         hitInfo.HitAura->SetDuration(hitInfo.AuraDuration);
                     }
 
+                    if (refresh)
+                        hitInfo.HitAura->AddStaticApplication(unit, aura_effmask);
+
                     if (DynamicObject* dynObj = m_originalCaster->GetDynObject(m_spellInfo->Id))
                         dynObj->SetDuration(hitInfo.AuraDuration);
 

@@ -3020,7 +3020,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     {
         Player const* player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
 
-        if (Unit const* creature = playerAffectingAttacker ? target->ToUnit() : ToUnit())
+        if (Unit const* creature = playerAffectingAttacker ? unitTarget : unit)
         {
             if (creature->IsContestedGuard() && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
                 return true;
@@ -3039,7 +3039,6 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     Creature const* creatureAttacker = ToCreature();
     if (creatureAttacker && (creatureAttacker->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))
         return false;
-
 
     if (playerAffectingAttacker && playerAffectingTarget)
         if (playerAffectingAttacker->duel && playerAffectingAttacker->duel->opponent == playerAffectingTarget && playerAffectingAttacker->duel->startTime != 0)
