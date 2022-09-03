@@ -83,10 +83,6 @@ class TC_GAME_API OutdoorPvPMgr
 
         void Update(uint32 diff);
 
-        void HandleGossipOption(Player* player, Creature* creature, uint32 gossipid);
-
-        bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso);
-
         void HandleDropFlag(Player* player, uint32 spellId);
 
         std::string GetDefenseMessage(uint32 zoneId, uint32 id, LocaleConstant locale) const;
