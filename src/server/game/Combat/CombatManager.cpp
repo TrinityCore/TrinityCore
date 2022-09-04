@@ -84,18 +84,8 @@ void CombatReference::EndCombat()
     delete this;
 }
 
-bool PvPCombatReference::Update(uint32 tdiff)
+void CombatReference::Refresh()
 {
-    if (_combatTimer <= tdiff)
-        return false;
-    _combatTimer -= tdiff;
-    return true;
-}
-
-void PvPCombatReference::Refresh()
-{
-    _combatTimer = PVP_COMBAT_TIMEOUT;
-
     bool needFirstAI = false, needSecondAI = false;
     if (_suppressFirst)
     {
@@ -114,12 +104,25 @@ void PvPCombatReference::Refresh()
         CombatManager::NotifyAICombat(second, first);
 }
 
-void PvPCombatReference::SuppressFor(Unit* who)
+void CombatReference::SuppressFor(Unit* who)
 {
     Suppress(who);
     if (who->GetCombatManager().UpdateOwnerCombatState())
         if (UnitAI* ai = who->GetAI())
             ai->JustExitedCombat();
+}
+
+bool PvPCombatReference::Update(uint32 tdiff)
+{
+    if (_combatTimer <= tdiff)
+        return false;
+    _combatTimer -= tdiff;
+    return true;
+}
+
+void PvPCombatReference::RefreshTimer()
+{
+    _combatTimer = PVP_COMBAT_TIMEOUT;
 }
 
 CombatManager::~CombatManager()
@@ -144,10 +147,18 @@ void CombatManager::Update(uint32 tdiff)
     }
 }
 
+bool CombatManager::HasPvECombat() const
+{
+    for (auto const& [guid, ref] : _pveRefs)
+        if (!ref->IsSuppressedFor(_owner))
+            return true;
+    return false;
+}
+
 bool CombatManager::HasPvECombatWithPlayers() const
 {
     for (std::pair<ObjectGuid const, CombatReference*> const& reference : _pveRefs)
-        if (reference.second->GetOther(_owner)->GetTypeId() == TYPEID_PLAYER)
+        if (!reference.second->IsSuppressedFor(_owner) && reference.second->GetOther(_owner)->GetTypeId() == TYPEID_PLAYER)
             return true;
 
     return false;
@@ -163,25 +174,29 @@ bool CombatManager::HasPvPCombat() const
 
 Unit* CombatManager::GetAnyTarget() const
 {
-    if (!_pveRefs.empty())
-        return _pveRefs.begin()->second->GetOther(_owner);
+    for (auto const& pair : _pveRefs)
+        if (!pair.second->IsSuppressedFor(_owner))
+            return pair.second->GetOther(_owner);
     for (auto const& pair : _pvpRefs)
         if (!pair.second->IsSuppressedFor(_owner))
             return pair.second->GetOther(_owner);
     return nullptr;
 }
 
-bool CombatManager::SetInCombatWith(Unit* who, bool suppressPvpSecond)
+bool CombatManager::SetInCombatWith(Unit* who, bool addSecondUnitSuppressed)
 {
     // Are we already in combat? If yes, refresh pvp combat
-    auto it = _pvpRefs.find(who->GetGUID());
-    if (it != _pvpRefs.end())
+    if (PvPCombatReference* existingPvpRef = Trinity::Containers::MapGetValuePtr(_pvpRefs, who->GetGUID()))
     {
-        it->second->Refresh();
+        existingPvpRef->RefreshTimer();
+        existingPvpRef->Refresh();
         return true;
     }
-    else if (_pveRefs.find(who->GetGUID()) != _pveRefs.end())
+    if (CombatReference* existingPveRef = Trinity::Containers::MapGetValuePtr(_pveRefs, who->GetGUID()))
+    {
+        existingPveRef->Refresh();
         return true;
+    }
 
     // Otherwise, check validity...
     if (!CombatManager::CanBeginCombat(_owner, who))
@@ -190,14 +205,12 @@ bool CombatManager::SetInCombatWith(Unit* who, bool suppressPvpSecond)
     // ...then create new reference
     CombatReference* ref;
     if (_owner->IsControlledByPlayer() && who->IsControlledByPlayer())
-    {
-        PvPCombatReference* refPvp = new PvPCombatReference(_owner, who);
-        if (suppressPvpSecond)
-            refPvp->SuppressFor(who);
-        ref = refPvp;
-    }
+        ref = new PvPCombatReference(_owner, who);
     else
         ref = new CombatReference(_owner, who);
+
+    if (addSecondUnitSuppressed)
+        ref->Suppress(who);
 
     // ...and insert it into both managers
     PutReference(who->GetGUID(), ref);
