@@ -431,6 +431,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Unit* GetOwner() const;
         Unit* GetCharmerOrOwner() const;
         Unit* GetCharmerOrOwnerOrSelf() const;
+        Unit* GetCharmerOrOwnerOrCreatorOrSelf() const;
         Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
         Player* GetAffectingPlayer() const;
 

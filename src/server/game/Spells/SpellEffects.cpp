@@ -1928,7 +1928,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     SummonCreatureExtraArgs extraArgs;
     extraArgs.SummonProperties = properties;
     extraArgs.SummonDuration = duration;
-    extraArgs.Summoner = unitCaster;
+    extraArgs.Summoner = caster->IsUnit() ? caster->ToUnit() : nullptr;
     extraArgs.SummonSpellId = m_spellInfo->Id;
     extraArgs.PrivateObjectOwner = privateObjectOwner;
 

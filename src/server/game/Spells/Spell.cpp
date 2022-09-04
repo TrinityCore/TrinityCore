@@ -2910,7 +2910,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
             }
         }
 
-                // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
+        // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
         bool triggered = (m_triggeredByAuraSpell != nullptr);
         hitInfo.DRGroup = m_spellInfo->GetDiminishingReturnsGroupForSpell(triggered);
 
@@ -3051,7 +3051,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
         {
             if (CanExecuteTriggersOnHit(effMask, i->triggeredByAura) && roll_chance_i(i->chance))
             {
-                m_caster->CastSpell(unit, i->triggeredSpell->Id, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_TARGET_CHECK));
+                m_caster->CastSpell(unit, i->triggeredSpell->Id, true);
                 TC_LOG_DEBUG("spells", "Spell %d triggered spell %d by SPELL_AURA_ADD_TARGET_TRIGGER aura", m_spellInfo->Id, i->triggeredSpell->Id);
 
                 // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
@@ -8025,8 +8025,6 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, uin
 
     targetInfo.Damage += m_damage;
     targetInfo.Healing += m_healing;
-
-
 
     float critChance = m_spellValue->CriticalChance;
     if (m_originalCaster)

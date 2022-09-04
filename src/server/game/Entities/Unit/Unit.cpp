@@ -11830,8 +11830,8 @@ bool Unit::IsInPartyWith(Unit const* unit) const
     if (this == unit)
         return true;
 
-    Unit const* u1 = GetCharmerOrOwnerOrSelf();
-    Unit const* u2 = unit->GetCharmerOrOwnerOrSelf();
+    Unit const* u1 = GetCharmerOrOwnerOrCreatorOrSelf();
+    Unit const* u2 = unit->GetCharmerOrOwnerOrCreatorOrSelf();
     if (u1 == u2)
         return true;
 
@@ -11849,8 +11849,8 @@ bool Unit::IsInRaidWith(Unit const* unit) const
     if (this == unit)
         return true;
 
-    Unit const* u1 = GetCharmerOrOwnerOrSelf();
-    Unit const* u2 = unit->GetCharmerOrOwnerOrSelf();
+    Unit const* u1 = GetCharmerOrOwnerOrCreatorOrSelf();
+    Unit const* u2 = unit->GetCharmerOrOwnerOrCreatorOrSelf();
     if (u1 == u2)
         return true;
 

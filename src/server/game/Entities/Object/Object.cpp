@@ -2340,6 +2340,19 @@ Unit* WorldObject::GetCharmerOrOwnerOrSelf() const
     return const_cast<WorldObject*>(this)->ToUnit();
 }
 
+Unit* WorldObject::GetCharmerOrOwnerOrCreatorOrSelf() const
+{
+    Unit* u = GetCharmerOrOwner();
+    if (!u)
+        u = const_cast<WorldObject*>(this)->ToUnit();
+
+    if (u)
+        if (Unit* creator = ObjectAccessor::GetUnit(*this, u->GetCreatorGUID()))
+            u = creator;
+
+    return u;
+}
+
 Player* WorldObject::GetCharmerOrOwnerPlayerOrPlayerItself() const
 {
     ObjectGuid guid = GetCharmerOrOwnerGUID();
@@ -3099,8 +3112,6 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
 
     // can't assist unattackable units
     Unit const* unitTarget = target->ToUnit();
-
-    // can't assist unattackable units
     if (unitTarget && unitTarget->HasUnitState(UNIT_STATE_UNATTACKABLE))
         return false;
 
