@@ -3531,13 +3531,22 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
             if (mechanicImmunity & (1 << i))
                 target->ApplySpellImmune(Id, IMMUNITY_MECHANIC, i, apply);
 
-        if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
+        if (HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
-            // exception for purely snare mechanic (eg. hands of freedom)!
-            if (mechanicImmunity == (1 << MECHANIC_SNARE))
-                target->RemoveMovementImpairingAuras(false);
-            else
+            if (apply)
                 target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
+            else
+            {
+                target->RemoveAppliedAuras([mechanicImmunity](AuraApplication const* aurApp)
+                {
+                    Aura* aura = aurApp->GetBase();
+                    if (aura->GetSpellInfo()->GetAllEffectsMechanicMask() & mechanicImmunity)
+                        aura->UpdateTargetMap(aura->GetCaster());
+
+                    // only update targets, don't remove anything
+                    return false;
+                });
+            }
         }
     }
 
