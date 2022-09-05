@@ -2740,14 +2740,19 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
         return false;
     }
 
-    if (spec == GetActiveTalentGroup() && talent->OverridesSpellID)
-        AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
-
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(talent->ID);
     if (itr != GetTalentMap(spec)->end())
         itr->second = PLAYERSPELL_UNCHANGED;
     else
         (*GetTalentMap(spec))[talent->ID] = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
+
+    if (spec == GetActiveTalentGroup())
+    {
+        LearnSpell(talent->SpellID, true);
+        if (talent->OverridesSpellID)
+            AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
+    }
+
 
     if (learning)
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeTalent);
@@ -26528,8 +26533,6 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
     if (!AddTalent(talentInfo, GetActiveTalentGroup(), true))
         return TALENT_FAILED_UNKNOWN;
 
-    LearnSpell(spellid, false);
-
     TC_LOG_DEBUG("misc", "Player::LearnTalent: TalentID: %u Spell: %u Group: %u\n", talentId, spellid, GetActiveTalentGroup());
 
     return TALENT_LEARN_OK;
@@ -26627,12 +26630,14 @@ bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup,
         return false;
     }
 
-    if (HasPvpRulesEnabled())
-        LearnSpell(talent->SpellID, false);
+    if (activeTalentGroup == GetActiveTalentGroup() && HasAuraType(SPELL_AURA_PVP_TALENTS))
+    {
+        LearnSpell(talent->SpellID, true);
 
-    // Move this to toggle ?
-    if (talent->OverridesSpellID)
-        AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
+        // Move this to toggle ?
+        if (talent->OverridesSpellID)
+            AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
+    }
 
     GetPvpTalentMap(activeTalentGroup)[slot] = talent->ID;
 
@@ -26665,9 +26670,17 @@ void Player::TogglePvpTalents(bool enable)
         if (PvpTalentEntry const* pvpTalentInfo = sPvpTalentStore.LookupEntry(pvpTalentId))
         {
             if (enable)
+            {
                 LearnSpell(pvpTalentInfo->SpellID, false);
+                if (pvpTalentInfo->OverridesSpellID)
+                    AddOverrideSpell(pvpTalentInfo->OverridesSpellID, pvpTalentInfo->SpellID);
+            }
             else
+            {
+                if (pvpTalentInfo->OverridesSpellID)
+                    RemoveOverrideSpell(pvpTalentInfo->OverridesSpellID, pvpTalentInfo->SpellID);
                 RemoveSpell(pvpTalentInfo->SpellID, true);
+            }
         }
     }
 }
@@ -27345,7 +27358,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         // if the talent can be found in the newly activated PlayerTalentMap
         if (HasTalent(talentInfo->ID, GetActiveTalentGroup()))
         {
-            LearnSpell(talentInfo->SpellID, false);      // add the talent to the PlayerSpellMap
+            LearnSpell(talentInfo->SpellID, true);      // add the talent to the PlayerSpellMap
             if (talentInfo->OverridesSpellID)
                 AddOverrideSpell(talentInfo->OverridesSpellID, talentInfo->SpellID);
         }
@@ -27368,7 +27381,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
     if (CanUseMastery())
         for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
             if (uint32 mastery = spec->MasterySpellID[i])
-                LearnSpell(mastery, false);
+                LearnSpell(mastery, true);
 
     InitTalentForLevel();
 
@@ -28427,7 +28440,7 @@ void Player::LearnSpecializationSpells()
             if (!spellInfo || spellInfo->SpellLevel > GetLevel())
                 continue;
 
-            LearnSpell(specSpell->SpellID, false);
+            LearnSpell(specSpell->SpellID, true);
             if (specSpell->OverridesSpellID)
                 AddOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);
         }
@@ -28701,13 +28714,11 @@ void Player::SetWarModeDesired(bool enabled)
     if (enabled)
     {
         SetPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
-        TogglePvpTalents(true);
         SetPvP(true);
     }
     else
     {
         RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
-        TogglePvpTalents(false);
         SetPvP(false);
     }
 
