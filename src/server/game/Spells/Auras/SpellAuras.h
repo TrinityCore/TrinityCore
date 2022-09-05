@@ -73,7 +73,7 @@ class TC_GAME_API AuraApplication
         bool IsSelfcast() const { return (_flags & AFLAG_CASTER) != 0; }
 
         uint8 GetEffectsToApply() const { return _effectsToApply; }
-        void UpdateApplyEffectMask(uint8 newEffMask);
+        void UpdateApplyEffectMask(uint8 newEffMask, bool canHandleNewEffects);
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const { return _removeMode; }
