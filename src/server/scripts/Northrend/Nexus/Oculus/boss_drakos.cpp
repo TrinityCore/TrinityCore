@@ -15,70 +15,87 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "MotionMaster.h"
-#include "oculus.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "SpellInfo.h"
+#include "oculus.h"
+
+enum Texts
+{
+    SAY_AGGRO                       = 0,
+    SAY_KILL                        = 1,
+    SAY_DEATH                       = 2,
+    SAY_PULL                        = 3,
+    SAY_STOMP                       = 4,
+    EMOTE_PULL                      = 5
+};
 
 enum Spells
 {
-    SPELL_MAGIC_PULL                              = 51336,
-    SPELL_THUNDERING_STOMP                        = 50774,
-    SPELL_UNSTABLE_SPHERE_PASSIVE                 = 50756,
-    SPELL_UNSTABLE_SPHERE_PULSE                   = 50757,
-    SPELL_UNSTABLE_SPHERE_TIMER                   = 50758,
-    NPC_UNSTABLE_SPHERE                           = 28166,
+    SPELL_SUMMON_UNSTABLE_SPHERE    = 50754,
+    SPELL_MAGIC_PULL                = 51336,
+
+    SPELL_MAGIC_PULL_EFFECT         = 50770
 };
 
-enum Yells
+#define SPELL_THUNDERING_STOMP DUNGEON_MODE<uint32>(50774, 59370)
+
+enum Events
 {
-    SAY_AGGRO                                     = 0,
-    SAY_KILL                                      = 1,
-    SAY_DEATH                                     = 2,
-    SAY_PULL                                      = 3,
-    SAY_STOMP                                     = 4
+    EVENT_BOMB_SUMMON               = 1,
+    EVENT_MAGIC_PULL,
+    EVENT_STOMP
 };
 
-enum DrakosAchievement
+enum Misc
 {
-    ACHIEV_TIMED_START_EVENT                      = 18153,
-};
-
-enum DrakosEvents
-{
-    EVENT_MAGIC_PULL = 1,
-    EVENT_STOMP,
-    EVENT_BOMB_SUMMON
+    ACHIEV_TIMED_START_EVENT        = 18153
 };
 
 struct boss_drakos : public BossAI
 {
-    boss_drakos(Creature* creature) : BossAI(creature, DATA_DRAKOS)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        postPull = false;
-    }
-
-    void Reset() override
-    {
-        _Reset();
-
-        events.ScheduleEvent(EVENT_MAGIC_PULL, 15s);
-        events.ScheduleEvent(EVENT_STOMP, 15s);
-        events.ScheduleEvent(EVENT_BOMB_SUMMON, 2s);
-
-        Initialize();
-    }
+    boss_drakos(Creature* creature) : BossAI(creature, DATA_DRAKOS) { }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_BOMB_SUMMON, 2s);
+        events.ScheduleEvent(EVENT_MAGIC_PULL, 10s, 18s);
+        events.ScheduleEvent(EVENT_STOMP, 10s, 18s);
+    }
+
+    void OnSpellStart(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_MAGIC_PULL)
+        {
+            Talk(SAY_PULL);
+            Talk(EMOTE_PULL);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_THUNDERING_STOMP)
+            if (roll_chance_i(50))
+                Talk(SAY_STOMP);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_KILL);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+
+        // start achievement timer (kill Eregos within 20 min)
+        instance->TriggerGameEvent(ACHIEV_TIMED_START_EVENT);
     }
 
     void UpdateAI(uint32 diff) override
@@ -96,24 +113,16 @@ struct boss_drakos : public BossAI
             switch (eventId)
             {
                 case EVENT_BOMB_SUMMON:
-                    {
-                        for (uint8 i = 0; i <= (postPull ? 3 : 0); i++)
-                        {
-                            Position position = me->GetRandomNearPosition(frand(0.0f, 10.0f));
-                            me->SummonCreature(NPC_UNSTABLE_SPHERE, position);
-                        }
-                    }
-                    events.ScheduleEvent(EVENT_BOMB_SUMMON, 2s);
+                    DoCastSelf(SPELL_SUMMON_UNSTABLE_SPHERE);
+                    events.Repeat(2s);
                     break;
                 case EVENT_MAGIC_PULL:
-                    DoCast(SPELL_MAGIC_PULL);
-                    postPull = true;
-                    events.ScheduleEvent(EVENT_MAGIC_PULL, 15s);
+                    DoCastSelf(SPELL_MAGIC_PULL);
+                    events.Repeat(6s, 14s);
                     break;
                 case EVENT_STOMP:
-                    Talk(SAY_STOMP);
-                    DoCast(SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_STOMP, 15s);
+                    DoCastSelf(SPELL_THUNDERING_STOMP);
+                    events.Repeat(10s, 20s);
                     break;
                 default:
                     break;
@@ -125,68 +134,39 @@ struct boss_drakos : public BossAI
 
         DoMeleeAttackIfReady();
     }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-
-        Talk(SAY_DEATH);
-
-        // start achievement timer (kill Eregos within 20 min)
-        instance->TriggerGameEvent(ACHIEV_TIMED_START_EVENT);
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_KILL);
-    }
-
-private:
-    bool postPull;
 };
 
-struct npc_unstable_sphere : public ScriptedAI
+// 51336 - Magic Pull
+class spell_drakos_magic_pull : public SpellScript
 {
-    npc_unstable_sphere(Creature* creature) : ScriptedAI(creature)
+    PrepareSpellScript(spell_drakos_magic_pull);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        Initialize();
+        return ValidateSpellInfo({ SPELL_MAGIC_PULL_EFFECT, SPELL_SUMMON_UNSTABLE_SPHERE });
     }
 
-    void Initialize()
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        pulseTimer = 3000;
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGIC_PULL_EFFECT, true);
     }
 
-    void Reset() override
+    void HandleAfterCast()
     {
-        me->SetReactState(REACT_PASSIVE);
-        me->GetMotionMaster()->MoveRandom(40.0f);
-
-        me->AddAura(SPELL_UNSTABLE_SPHERE_PASSIVE, me);
-        me->AddAura(SPELL_UNSTABLE_SPHERE_TIMER, me);
-
-        Initialize();
-
-        me->DespawnOrUnsummon(19s);
+        Unit* caster = GetCaster();
+        for (uint8 i = 0; i < 5; i++)
+            caster->CastSpell(caster, SPELL_SUMMON_UNSTABLE_SPHERE, true);
     }
 
-    void UpdateAI(uint32 diff) override
+    void Register() override
     {
-        if (pulseTimer <= diff)
-        {
-            DoCast(SPELL_UNSTABLE_SPHERE_PULSE);
-            pulseTimer = 3 * IN_MILLISECONDS;
-        }
-        else
-            pulseTimer -= diff;
+        OnEffectHitTarget += SpellEffectFn(spell_drakos_magic_pull::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_drakos_magic_pull::HandleAfterCast);
     }
-
-private:
-    uint32 pulseTimer;
 };
 
 void AddSC_boss_drakos()
 {
     RegisterOculusCreatureAI(boss_drakos);
-    RegisterOculusCreatureAI(npc_unstable_sphere);
+    RegisterSpellScript(spell_drakos_magic_pull);
 }
