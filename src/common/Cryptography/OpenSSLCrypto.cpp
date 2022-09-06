@@ -39,13 +39,19 @@ static void threadIdCallback(CRYPTO_THREADID * id)
     (void)id;
     CRYPTO_THREADID_set_numeric(id, std::hash<std::thread::id>()(std::this_thread::get_id()));
 }
+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+OSSL_PROVIDER* LegacyProvider;
+OSSL_PROVIDER* DefaultProvider;
+#endif
 
-void OpenSSLCrypto::threadsSetup()
+void OpenSSLCrypto::threadsSetup([[maybe_unused]] boost::filesystem::path const& providerModulePath)
 {
 #ifdef VALGRIND
     ValgrindRandomSetup();
 #endif
 
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
     cryptoLocks.resize(CRYPTO_num_locks());
     for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
     {
@@ -57,10 +63,18 @@ void OpenSSLCrypto::threadsSetup()
 
     (void)&lockingCallback;
     CRYPTO_set_locking_callback(lockingCallback);
+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
+#endif
+    LegacyProvider = OSSL_PROVIDER_load(nullptr, "legacy");
+    DefaultProvider = OSSL_PROVIDER_load(nullptr, "default");
+#endif
 }
 
 void OpenSSLCrypto::threadsCleanup()
 {
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
     CRYPTO_set_locking_callback(nullptr);
     CRYPTO_THREADID_set_callback(nullptr);
     for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
@@ -68,8 +82,12 @@ void OpenSSLCrypto::threadsCleanup()
         delete cryptoLocks[i];
     }
     cryptoLocks.resize(0);
-}
+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OSSL_PROVIDER_unload(LegacyProvider);
+    OSSL_PROVIDER_unload(DefaultProvider);
+    OSSL_PROVIDER_set_default_search_path(nullptr, nullptr);
 #endif
+}
 
 #ifdef VALGRIND
 #include <openssl/rand.h>

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "DB2Stores.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -737,6 +738,64 @@ class spell_sholazar_song_of_cleansing : public SpellScript
     }
 };
 
+/*######
+## Quest 12741: Strength of the Tempest
+######*/
+
+enum StrengthOfTheTempest
+{
+    SPELL_CREATE_POWER_OF_THE_TEMPEST   = 53067
+};
+
+// 53062 - Lightning Strike
+class spell_sholazar_lightning_strike : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_lightning_strike);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_POWER_OF_THE_TEMPEST });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_CREATE_POWER_OF_THE_TEMPEST);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_lightning_strike::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12521: Where in the World is Hemet Nesingwary?
+######*/
+
+// 51071 - Flight to Sholazar (Missile Warning)
+class spell_sholazar_flight_to_sholazar : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_flight_to_sholazar);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return sBroadcastTextStore.LookupEntry(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        // 51076 (triggers 51071) is Area Aura - Party and applies on player too (no aura in sniffs on player)
+        // That makes both player and creature say
+        if (Creature* caster = GetCaster()->ToCreature())
+            caster->Unit::Say(uint32(GetEffectValue()), caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sholazar_flight_to_sholazar::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     RegisterCreatureAI(npc_engineer_helice);
@@ -750,4 +809,6 @@ void AddSC_sholazar_basin()
     RegisterSpellScript(spell_sholazar_take_sputum_sample);
     RegisterSpellScript(spell_sholazar_sputum_collected);
     RegisterSpellScript(spell_sholazar_song_of_cleansing);
+    RegisterSpellScript(spell_sholazar_lightning_strike);
+    RegisterSpellScript(spell_sholazar_flight_to_sholazar);
 }
