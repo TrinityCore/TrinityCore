@@ -3075,35 +3075,6 @@ class spell_yogg_saron_keeper_aura : public SpellScriptLoader     // 62650, 6267
         }
 };
 
-// 63984 - Hate to Zero
-class spell_yogg_saron_hate_to_zero : public SpellScriptLoader    // 63984
-{
-    public:
-        spell_yogg_saron_hate_to_zero() : SpellScriptLoader("spell_yogg_saron_hate_to_zero") { }
-
-        class spell_yogg_saron_hate_to_zero_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_yogg_saron_hate_to_zero_SpellScript);
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    if (target->CanHaveThreatList())
-                        target->GetThreatManager().ModifyThreatByPercent(GetCaster(), -100);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_yogg_saron_hate_to_zero_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_yogg_saron_hate_to_zero_SpellScript();
-        }
-};
-
 // 64184 - In the Maws of the Old God
 class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    // 64184
 {
@@ -3267,7 +3238,6 @@ void AddSC_boss_yogg_saron()
     new spell_yogg_saron_insane_periodic();
     new spell_yogg_saron_lunatic_gaze();
     new spell_yogg_saron_keeper_aura();
-    new spell_yogg_saron_hate_to_zero();
     new spell_yogg_saron_in_the_maws_of_the_old_god();
     new spell_yogg_saron_titanic_storm();
     new spell_yogg_saron_hodirs_protective_gaze();

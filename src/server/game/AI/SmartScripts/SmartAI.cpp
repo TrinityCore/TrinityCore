@@ -676,6 +676,11 @@ void SmartAI::CorpseRemoved(uint32& respawnDelay)
     GetScript()->ProcessEventsFor(SMART_EVENT_CORPSE_REMOVED, nullptr, respawnDelay);
 }
 
+void SmartAI::OnDespawn()
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_DESPAWN);
+}
+
 void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 {
     GetScript()->ProcessEventsFor(apply ? SMART_EVENT_PASSENGER_BOARDED : SMART_EVENT_PASSENGER_REMOVED, who, uint32(seatId), 0, apply);
