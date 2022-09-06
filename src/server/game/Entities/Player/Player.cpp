@@ -2753,7 +2753,6 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
             AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
     }
 
-
     if (learning)
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeTalent);
 
