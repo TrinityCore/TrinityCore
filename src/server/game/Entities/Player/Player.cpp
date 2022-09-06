@@ -21622,14 +21622,6 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     }
 }
 
-bool Player::HasSpellModApplied(SpellModifier* mod, Spell* spell)
-{
-    if (!spell)
-        return false;
-
-    return spell->m_appliedMods.count(mod->ownerAura) != 0;
-}
-
 void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 {
     if (!spell)
