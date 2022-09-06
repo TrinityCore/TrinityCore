@@ -54,8 +54,10 @@ enum Talk
 
 enum Spells
 {
-    SPELL_CURSE         = 29213, // 25-man: 54835
-    SPELL_CRIPPLE       = 29212, // 25-man: 54814
+    SPELL_CURSE         = 29213,
+    SPELL_CRIPPLE       = 29212,
+    SPELL_CURSE_25      = 54835,
+    SPELL_CRIPPLE_25    = 54814,
 
     SPELL_TELEPORT      = 29216, // ground to balcony
     SPELL_TELEPORT_BACK = 29231  // balcony to ground
@@ -210,7 +212,7 @@ struct boss_noth : public BossAI
             {
                 case EVENT_CURSE:
                 {
-                    DoCastAOE(SPELL_CURSE);
+                    DoCastAOE(RAID_MODE(SPELL_CURSE, SPELL_CURSE_25));
                     events.Repeat(randtime(Seconds(50), Seconds(70)));
                     break;
                 }
@@ -223,7 +225,7 @@ struct boss_noth : public BossAI
                     events.Repeat(Seconds(40));
                     break;
                 case EVENT_BLINK:
-                    DoCastAOE(SPELL_CRIPPLE, true);
+                    DoCastAOE(RAID_MODE(SPELL_CRIPPLE, SPELL_CRIPPLE_25), true);
                     DoCastAOE(SPELL_BLINK);
                     ResetThreatList();
                     justBlinked = true;
