@@ -452,10 +452,10 @@ uint32 Battlenet::Session::HandleGetGameAccountState(account::v1::GetGameAccount
 
 std::unordered_map<std::string, Battlenet::Session::ClientRequestHandler> const Battlenet::Session::ClientRequestHandlers =
 {
-    { "Command_RealmListTicketRequest_v1_b9", &Battlenet::Session::GetRealmListTicket },
-    { "Command_LastCharPlayedRequest_v1_b9", &Battlenet::Session::GetLastCharPlayed },
-    { "Command_RealmListRequest_v1_b9", &Battlenet::Session::GetRealmList },
-    { "Command_RealmJoinRequest_v1_b9", &Battlenet::Session::JoinRealm },
+    { "Command_RealmListTicketRequest_v1", &Battlenet::Session::GetRealmListTicket },
+    { "Command_LastCharPlayedRequest_v1", &Battlenet::Session::GetLastCharPlayed },
+    { "Command_RealmListRequest_v1", &Battlenet::Session::GetRealmList },
+    { "Command_RealmJoinRequest_v1", &Battlenet::Session::JoinRealm },
 };
 
 uint32 Battlenet::Session::HandleProcessClientRequest(game_utilities::v1::ClientRequest const* request, game_utilities::v1::ClientResponse* response)
@@ -465,13 +465,25 @@ uint32 Battlenet::Session::HandleProcessClientRequest(game_utilities::v1::Client
 
     Attribute const* command = nullptr;
     std::unordered_map<std::string, Variant const*> params;
+    auto removeSuffix = [](std::string const& string) -> std::string
+    {
+        size_t pos = string.rfind('_');
+        if (pos != std::string::npos)
+            return string.substr(0, pos);
+
+        return string;
+    };
 
     for (int32 i = 0; i < request->attribute_size(); ++i)
     {
         Attribute const& attr = request->attribute(i);
-        params[attr.name()] = &attr.value();
         if (strstr(attr.name().c_str(), "Command_") == attr.name().c_str())
+        {
             command = &attr;
+            params[removeSuffix(attr.name())] = &attr.value();
+        }
+        else
+            params[attr.name()] = &attr.value();
     }
 
     if (!command)
@@ -480,17 +492,17 @@ uint32 Battlenet::Session::HandleProcessClientRequest(game_utilities::v1::Client
         return ERROR_RPC_MALFORMED_REQUEST;
     }
 
-    auto itr = ClientRequestHandlers.find(command->name());
+    auto itr = ClientRequestHandlers.find(removeSuffix(command->name()));
     if (itr == ClientRequestHandlers.end())
     {
-        TC_LOG_ERROR("session.rpc", "%s sent ClientRequest with unknown command %s.", GetClientInfo().c_str(), command->name().c_str());
+        TC_LOG_ERROR("session.rpc", "%s sent ClientRequest with unknown command %s.", GetClientInfo().c_str(), removeSuffix(command->name()).c_str());
         return ERROR_RPC_NOT_IMPLEMENTED;
     }
 
     return (this->*itr->second)(params, response);
 }
 
-inline Variant const* GetParam(std::unordered_map<std::string, Variant const*> const& params, char const* paramName)
+static Variant const* GetParam(std::unordered_map<std::string, Variant const*> const& params, char const* paramName)
 {
     auto itr = params.find(paramName);
     return itr != params.end() ? itr->second : nullptr;
@@ -553,7 +565,7 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
 
 uint32 Battlenet::Session::GetLastCharPlayed(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
-    if (Variant const* subRegion = GetParam(params, "Command_LastCharPlayedRequest_v1_b9"))
+    if (Variant const* subRegion = GetParam(params, "Command_LastCharPlayedRequest_v1"))
     {
         auto lastPlayerChar = _gameAccountInfo->LastPlayedCharacters.find(subRegion->string_value());
         if (lastPlayerChar != _gameAccountInfo->LastPlayedCharacters.end())
@@ -592,7 +604,7 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
         return ERROR_USER_SERVER_BAD_WOW_ACCOUNT;
 
     std::string subRegionId;
-    if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1_b9"))
+    if (Variant const* subRegion = GetParam(params, "Command_RealmListRequest_v1"))
         subRegionId = subRegion->string_value();
 
     std::vector<uint8> compressed = sRealmList->GetRealmList(_build, subRegionId);
@@ -640,7 +652,7 @@ uint32 Battlenet::Session::HandleGetAllValuesForAttribute(game_utilities::v1::Ge
     if (!_authed)
         return ERROR_DENIED;
 
-    if (request->attribute_key() == "Command_RealmListRequest_v1_b9")
+    if (request->attribute_key().find("Command_RealmListRequest_v1") == 0)
     {
         sRealmList->WriteSubRegions(response);
         return ERROR_OK;
