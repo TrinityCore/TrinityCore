@@ -7,14 +7,28 @@ FindOpenSSL
 
 Find the OpenSSL encryption library.
 
+This module finds an installed OpenSSL library and determines its version.
+
+.. versionadded:: 3.19
+  When a version is requested, it can be specified as a simple value or as a
+  range. For a detailed description of version range usage and capabilities,
+  refer to the :command:`find_package` command.
+
+.. versionadded:: 3.18
+  Support for OpenSSL 3.0.
+
 Optional COMPONENTS
 ^^^^^^^^^^^^^^^^^^^
+
+.. versionadded:: 3.12
 
 This module supports two optional COMPONENTS: ``Crypto`` and ``SSL``.  Both
 components have associated imported targets, as described below.
 
 Imported Targets
 ^^^^^^^^^^^^^^^^
+
+.. versionadded:: 3.4
 
 This module defines the following :prop_tgt:`IMPORTED` targets:
 
@@ -23,6 +37,8 @@ This module defines the following :prop_tgt:`IMPORTED` targets:
 ``OpenSSL::Crypto``
   The OpenSSL ``crypto`` library, if found.
 ``OpenSSL::applink``
+  .. versionadded:: 3.18
+
   The OpenSSL ``applink`` components that might be need to be compiled into
   projects under MSVC. This target is available only if found OpenSSL version
   is not less than 0.9.8. By linking this target the above OpenSSL targets can
@@ -75,11 +91,13 @@ Hints
 ^^^^^
 
 Set ``OPENSSL_ROOT_DIR`` to the root directory of an OpenSSL installation.
-Set ``OPENSSL_USE_STATIC_LIBS`` to ``TRUE`` to look for static libraries.
-Set ``OPENSSL_MSVC_STATIC_RT`` set ``TRUE`` to choose the MT version of the lib.
-#]=======================================================================]
 
-set(OPENSSL_EXPECTED_VERSION "1.0")
+.. versionadded:: 3.4
+  Set ``OPENSSL_USE_STATIC_LIBS`` to ``TRUE`` to look for static libraries.
+
+.. versionadded:: 3.5
+  Set ``OPENSSL_MSVC_STATIC_RT`` set ``TRUE`` to choose the MT version of the lib.
+#]=======================================================================]
 
 macro(_OpenSSL_test_and_find_dependencies ssl_library crypto_library)
   if((CMAKE_SYSTEM_NAME STREQUAL "Linux") AND
@@ -105,6 +123,14 @@ function(_OpenSSL_target_add_dependencies target)
     set_property( TARGET ${target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES Threads::Threads )
     set_property( TARGET ${target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS} )
   endif()
+  if(WIN32 AND OPENSSL_USE_STATIC_LIBS)
+    if(WINCE)
+      set_property( TARGET ${target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES ws2 )
+    else()
+      set_property( TARGET ${target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES ws2_32 )
+    endif()
+    set_property( TARGET ${target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES crypt32 )
+  endif()
 endfunction()
 
 if (UNIX)
@@ -125,42 +151,45 @@ endif()
 if (WIN32)
   # http://www.slproweb.com/products/Win32OpenSSL.html
   set(_OPENSSL_MSI_INSTALL_GUID "")
-  if(PLATFORM EQUAL 64)
-    set(_OPENSSL_MSI_INSTALL_GUID "117551DB-A110-4BBD-BB05-CFE0BCB3ED31")
-    set(_OPENSSL_ROOT_HINTS
-      ${OPENSSL_ROOT_DIR}
-      ENV OPENSSL_ROOT_DIR
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]"
-      )
+  set(_OPENSSL_ROOT_HINTS
+    ${OPENSSL_ROOT_DIR}
+    ENV OPENSSL_ROOT_DIR
+    )
+
+  if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
+    set(_arch "Win64")
     file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" _programfiles)
-    set(_OPENSSL_ROOT_PATHS
-      "${_programfiles}/OpenSSL"
-      "${_programfiles}/OpenSSL-Win64"
-      "C:/OpenSSL/"
-      "C:/OpenSSL-Win64/"
-      )
+    list(APPEND _OPENSSL_ROOT_HINTS "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]")
+	set(_OPENSSL_MSI_INSTALL_GUID "117551DB-A110-4BBD-BB05-CFE0BCB3ED31")
   else()
-    set(_OPENSSL_MSI_INSTALL_GUID "A1EEC576-43B9-4E75-9E02-03DA542D2A38")
-    set(_OPENSSL_ROOT_HINTS
-      ${OPENSSL_ROOT_DIR}
-      ENV OPENSSL_ROOT_DIR
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;Inno Setup: App Path]"
-      )
-    file(TO_CMAKE_PATH "$ENV{PROGRAMFILES}" _programfiles)
-    set(_OPENSSL_ROOT_PATHS
-      "${_programfiles}/OpenSSL"
-      "${_programfiles}/OpenSSL-Win32"
-      "C:/OpenSSL/"
-      "C:/OpenSSL-Win32/"
-      )
+    set(_arch "Win32")
+    set(_progfiles_x86 "ProgramFiles(x86)")
+    if(NOT "$ENV{${_progfiles_x86}}" STREQUAL "")
+      # under windows 64 bit machine
+      file(TO_CMAKE_PATH "$ENV{${_progfiles_x86}}" _programfiles)
+    else()
+      # under windows 32 bit machine
+      file(TO_CMAKE_PATH "$ENV{ProgramFiles}" _programfiles)
+    endif()
+    list(APPEND _OPENSSL_ROOT_HINTS "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;Inno Setup: App Path]")
+	set(_OPENSSL_MSI_INSTALL_GUID "A1EEC576-43B9-4E75-9E02-03DA542D2A38")
   endif()
-  unset(_programfiles)
+
   # If OpenSSL was installed using .msi package instead of .exe, Inno Setup registry values are not written to Uninstall\OpenSSL
   # but because it is only a shim around Inno Setup it does write the location of uninstaller which we can use to determine path
   get_filename_component(_OPENSSL_MSI_INSTALL_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Inno Setup MSIs\\${_OPENSSL_MSI_INSTALL_GUID};]" DIRECTORY)
   if(NOT _OPENSSL_MSI_INSTALL_PATH STREQUAL "/")
-    list(INSERT _OPENSSL_ROOT_HINTS 0 ${_OPENSSL_MSI_INSTALL_PATH})
+    list(INSERT _OPENSSL_ROOT_HINTS 2 ${_OPENSSL_MSI_INSTALL_PATH})
   endif()
+
+  set(_OPENSSL_ROOT_PATHS
+    "${_programfiles}/OpenSSL"
+    "${_programfiles}/OpenSSL-${_arch}"
+    "C:/OpenSSL/"
+    "C:/OpenSSL-${_arch}/"
+    )
+  unset(_programfiles)
+  unset(_arch)
 else ()
   set(_OPENSSL_ROOT_HINTS
     ${OPENSSL_ROOT_DIR}
@@ -215,7 +244,7 @@ if(WIN32 AND NOT CYGWIN)
     endif ()
 
     # Since OpenSSL 1.1, lib names are like libcrypto32MTd.lib and libssl32MTd.lib
-    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
+    if( "${CMAKE_SIZEOF_VOID_P}" STREQUAL "8" )
         set(_OPENSSL_MSVC_ARCH_SUFFIX "64")
     else()
         set(_OPENSSL_MSVC_ARCH_SUFFIX "32")
@@ -426,7 +455,7 @@ else()
       ${_OPENSSL_LIBDIR}
       ${_OPENSSL_LIBRARY_DIRS}
     PATH_SUFFIXES
-      lib
+      lib lib64
   )
 
   find_library(OPENSSL_CRYPTO_LIBRARY
@@ -438,42 +467,12 @@ else()
       ${_OPENSSL_LIBDIR}
       ${_OPENSSL_LIBRARY_DIRS}
     PATH_SUFFIXES
-      lib
+      lib lib64
   )
 
   mark_as_advanced(OPENSSL_CRYPTO_LIBRARY OPENSSL_SSL_LIBRARY)
 
 endif()
-function(from_hex HEX DEC)
-  string(TOUPPER "${HEX}" HEX)
-  set(_res 0)
-  string(LENGTH "${HEX}" _strlen)
-
-  while (_strlen GREATER 0)
-    math(EXPR _res "${_res} * 16")
-    string(SUBSTRING "${HEX}" 0 1 NIBBLE) 
-    string(SUBSTRING "${HEX}" 1 -1 HEX) 
-    if (NIBBLE STREQUAL "A")
-      math(EXPR _res "${_res} + 10")
-    elseif (NIBBLE STREQUAL "B")
-      math(EXPR _res "${_res} + 11")
-    elseif (NIBBLE STREQUAL "C")
-      math(EXPR _res "${_res} + 12")
-    elseif (NIBBLE STREQUAL "D")
-      math(EXPR _res "${_res} + 13")
-    elseif (NIBBLE STREQUAL "E")
-      math(EXPR _res "${_res} + 14")
-    elseif (NIBBLE STREQUAL "F")
-      math(EXPR _res "${_res} + 15")
-    else()  
-      math(EXPR _res "${_res} + ${NIBBLE}")
-    endif() 
-
-    string(LENGTH "${HEX}" _strlen)
-  endwhile()
-
-  set(${DEC} ${_res} PARENT_SCOPE)
-endfunction(from_hex)
 
 set(OPENSSL_SSL_LIBRARIES ${OPENSSL_SSL_LIBRARY})
 set(OPENSSL_CRYPTO_LIBRARIES ${OPENSSL_CRYPTO_LIBRARY})
@@ -537,7 +536,7 @@ if(OPENSSL_INCLUDE_DIR AND EXISTS "${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h")
     from_hex("${OPENSSL_VERSION_FIX}" OPENSSL_VERSION_FIX)
     list(GET OPENSSL_VERSION_LIST 3 OPENSSL_VERSION_PATCH)
 
-    if(NOT OPENSSL_VERSION_PATCH STREQUAL "00")
+    if (NOT OPENSSL_VERSION_PATCH STREQUAL "00")
       from_hex("${OPENSSL_VERSION_PATCH}" _tmp)
       # 96 is the ASCII code of 'a' minus 1
       math(EXPR OPENSSL_VERSION_PATCH_ASCII "${_tmp} + 96")
@@ -598,6 +597,7 @@ find_package_handle_standard_args(OpenSSL
     OPENSSL_INCLUDE_DIR
   VERSION_VAR
     OPENSSL_VERSION
+  HANDLE_VERSION_RANGE
   HANDLE_COMPONENTS
   FAIL_MESSAGE
     "Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR"
@@ -606,14 +606,6 @@ find_package_handle_standard_args(OpenSSL
 mark_as_advanced(OPENSSL_INCLUDE_DIR)
 
 if(OPENSSL_FOUND)
-  message(STATUS "Found OpenSSL library: ${OPENSSL_LIBRARIES}")
-  message(STATUS "Found OpenSSL headers: ${OPENSSL_INCLUDE_DIR}")
-  include(EnsureVersion)
-  ENSURE_VERSION("${OPENSSL_EXPECTED_VERSION}" "${OPENSSL_VERSION}" OPENSSL_VERSION_OK)
-  if(NOT OPENSSL_VERSION_OK)
-      message(FATAL_ERROR "TrinityCore needs OpenSSL version ${OPENSSL_EXPECTED_VERSION} but found too new version ${OPENSSL_VERSION}. TrinityCore needs OpenSSL 1.0.x or 1.1.x to work properly. If you still have problems please install OpenSSL 1.0.x if you still have problems search on forum for TCE00022")
-  endif()
-
   if(NOT TARGET OpenSSL::Crypto AND
       (EXISTS "${OPENSSL_CRYPTO_LIBRARY}" OR
         EXISTS "${LIB_EAY_LIBRARY_DEBUG}" OR
@@ -678,7 +670,7 @@ if(OPENSSL_FOUND)
     _OpenSSL_target_add_dependencies(OpenSSL::SSL)
   endif()
 
-  if("${OPENSSL_VERSION_MAJOR}.${OPENSSL_VERSION_MAJOR}.${OPENSSL_VERSION_FIX}" VERSION_GREATER_EQUAL "0.9.8")
+  if("${OPENSSL_VERSION_MAJOR}.${OPENSSL_VERSION_MINOR}.${OPENSSL_VERSION_FIX}" VERSION_GREATER_EQUAL "0.9.8")
     if(MSVC)
       if(EXISTS "${OPENSSL_INCLUDE_DIR}")
         set(_OPENSSL_applink_paths PATHS ${OPENSSL_INCLUDE_DIR})
