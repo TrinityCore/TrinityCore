@@ -21665,7 +21665,7 @@ void Player::SendSpellModifiers() const
             flatMod.ModifierData[j].ClassIndex = j;
             flatMod.ModifierData[j].ModifierValue = 0.0f;
             pctMod.ModifierData[j].ClassIndex = j;
-            pctMod.ModifierData[j].ModifierValue = 0.0f;
+            pctMod.ModifierData[j].ModifierValue = 1.0f;
 
             for (SpellModifier* mod : m_spellMods[i][SPELLMOD_FLAT])
                 if (mod->mask & mask)
