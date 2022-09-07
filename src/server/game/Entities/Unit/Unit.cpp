@@ -3023,7 +3023,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
         createInfo.CasterGUID = createInfo.Caster->GetGUID();
 
     // world gameobjects can't own auras and they send empty casterguid
-// checked on sniffs with spell 22247
+    // checked on sniffs with spell 22247
     if (createInfo.CasterGUID.IsGameObject())
     {
         createInfo.Caster = nullptr;
