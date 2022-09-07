@@ -254,6 +254,7 @@ void Player::UpdateArmor()
 
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);        // bonus armor from auras and items
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    value *= GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT);
 
     SetArmor(int32(value), int32(value - baseValue));
 
