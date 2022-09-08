@@ -315,7 +315,6 @@ DB2Storage<TaxiPathNodeEntry>                   sTaxiPathNodeStore("TaxiPathNode
 DB2Storage<TotemCategoryEntry>                  sTotemCategoryStore("TotemCategory.db2", TotemCategoryLoadInfo::Instance());
 DB2Storage<ToyEntry>                            sToyStore("Toy.db2", ToyLoadInfo::Instance());
 DB2Storage<TransmogHolidayEntry>                sTransmogHolidayStore("TransmogHoliday.db2", TransmogHolidayLoadInfo::Instance());
-DB2Storage<TransmogIllusionEntry>               sTransmogIllusionStore("TransmogIllusion.db2", TransmogIllusionLoadInfo::Instance());
 DB2Storage<TransmogSetEntry>                    sTransmogSetStore("TransmogSet.db2", TransmogSetLoadInfo::Instance());
 DB2Storage<TransmogSetGroupEntry>               sTransmogSetGroupStore("TransmogSetGroup.db2", TransmogSetGroupLoadInfo::Instance());
 DB2Storage<TransmogSetItemEntry>                sTransmogSetItemStore("TransmogSetItem.db2", TransmogSetItemLoadInfo::Instance());
@@ -325,7 +324,6 @@ DB2Storage<UiMapEntry>                          sUiMapStore("UiMap.db2", UiMapLo
 DB2Storage<UiMapAssignmentEntry>                sUiMapAssignmentStore("UiMapAssignment.db2", UiMapAssignmentLoadInfo::Instance());
 DB2Storage<UiMapLinkEntry>                      sUiMapLinkStore("UiMapLink.db2", UiMapLinkLoadInfo::Instance());
 DB2Storage<UiMapXMapArtEntry>                   sUiMapXMapArtStore("UiMapXMapArt.db2", UiMapXMapArtLoadInfo::Instance());
-DB2Storage<UISplashScreenEntry>                 sUISplashScreenStore("UISplashScreen.db2", UiSplashScreenLoadInfo::Instance());
 DB2Storage<UnitConditionEntry>                  sUnitConditionStore("UnitCondition.db2", UnitConditionLoadInfo::Instance());
 DB2Storage<UnitPowerBarEntry>                   sUnitPowerBarStore("UnitPowerBar.db2", UnitPowerBarLoadInfo::Instance());
 DB2Storage<VehicleEntry>                        sVehicleStore("Vehicle.db2", VehicleLoadInfo::Instance());
@@ -482,7 +480,6 @@ namespace
     std::unordered_map<int32, std::vector<SpellVisualMissileEntry const*>> _spellVisualMissilesBySet;
     TalentsByPosition _talentsByPosition;
     ToyItemIdsContainer _toys;
-    std::unordered_map<uint32, TransmogIllusionEntry const*> _transmogIllusionsByEnchantmentId;
     std::unordered_map<uint32, std::vector<TransmogSetEntry const*>> _transmogSetsByItemModifiedAppearance;
     std::unordered_map<uint32, std::vector<TransmogSetItemEntry const*>> _transmogSetItemsByTransmogSet;
     std::unordered_map<int32, UiMapBounds> _uiMapBounds;
@@ -889,7 +886,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTotemCategoryStore);
     LOAD_DB2(sToyStore);
     LOAD_DB2(sTransmogHolidayStore);
-    LOAD_DB2(sTransmogIllusionStore);
     LOAD_DB2(sTransmogSetStore);
     LOAD_DB2(sTransmogSetGroupStore);
     LOAD_DB2(sTransmogSetItemStore);
@@ -899,7 +895,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sUiMapAssignmentStore);
     LOAD_DB2(sUiMapLinkStore);
     LOAD_DB2(sUiMapXMapArtStore);
-    LOAD_DB2(sUISplashScreenStore);
     LOAD_DB2(sUnitConditionStore);
     LOAD_DB2(sUnitPowerBarStore);
     LOAD_DB2(sVehicleStore);
@@ -1402,9 +1397,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (ToyEntry const* toy : sToyStore)
         _toys.insert(toy->ItemID);
-
-    for (TransmogIllusionEntry const* transmogIllusion : sTransmogIllusionStore)
-        _transmogIllusionsByEnchantmentId[transmogIllusion->SpellItemEnchantmentID] = transmogIllusion;
 
     for (TransmogSetItemEntry const* transmogSetItem : sTransmogSetItemStore)
     {
@@ -3014,11 +3006,6 @@ bool DB2Manager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint3
 bool DB2Manager::IsToyItem(uint32 toy) const
 {
     return _toys.count(toy) > 0;
-}
-
-TransmogIllusionEntry const* DB2Manager::GetTransmogIllusionForEnchantment(uint32 spellItemEnchantmentId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_transmogIllusionsByEnchantmentId, spellItemEnchantmentId);
 }
 
 std::vector<TransmogSetEntry const*> const* DB2Manager::GetTransmogSetsForItemModifiedAppearance(uint32 itemModifiedAppearanceId) const

@@ -3359,11 +3359,10 @@ struct SpellItemEnchantmentEntry
     LocalizedString HordeName;
     std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectArg;
     std::array<float, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectScalingPoints;
-    uint32 IconFileDataID;
-    int32 MinItemLevel;
-    int32 MaxItemLevel;
+    uint32 GemItemID;
     uint32 TransmogUseConditionID;
     uint32 TransmogCost;
+    uint32 IconFileDataID;
     std::array<int16, MAX_ITEM_ENCHANTMENT_EFFECTS> EffectPointsMin;
     uint16 ItemVisual;
     uint16 Flags;
@@ -3411,17 +3410,16 @@ struct SpellLevelsEntry
 {
     uint32 ID;
     uint8 DifficultyID;
+    int16 BaseLevel;
     int16 MaxLevel;
+    int16 SpellLevel;
     uint8 MaxPassiveAuraLevel;
-    int32 BaseLevel;
-    int32 SpellLevel;
     uint32 SpellID;
 };
 
 struct SpellMiscEntry
 {
     uint32 ID;
-    std::array<int32, 15> Attributes;
     uint8 DifficultyID;
     uint16 CastingTimeIndex;
     uint16 DurationIndex;
@@ -3434,8 +3432,7 @@ struct SpellMiscEntry
     int32 ActiveIconFileDataID;
     int32 ContentTuningID;
     int32 ShowFutureSpellPlayerConditionID;
-    int32 SpellVisualScript;
-    int32 ActiveSpellVisualScript;
+    std::array<int32, 14> Attributes;
     uint32 SpellID;
 };
 
@@ -3482,7 +3479,7 @@ struct SpellProcsPerMinuteModEntry
 {
     uint32 ID;
     uint8 Type;
-    int32 Param;
+    int16 Param;
     float Coeff;
     uint32 SpellProcsPerMinuteID;
 };
@@ -3528,6 +3525,7 @@ struct SpellScalingEntry
 {
     uint32 ID;
     int32 SpellID;
+    int32 Class;
     uint32 MinScalingLevel;
     uint32 MaxScalingLevel;
     int16 ScalesFromItemLevel;
@@ -3603,6 +3601,8 @@ struct SpellVisualEntry
     uint32 LowViolenceSpellVisualID;
     uint32 RaidSpellVisualMissileSetID;
     int32 ReducedUnexpectedCameraMovementSpellVisualID;
+    int16 AreaModel;
+    uint8 HasMissile;
 };
 
 struct SpellVisualEffectNameEntry
@@ -3622,7 +3622,6 @@ struct SpellVisualEffectNameEntry
     uint32 RibbonQualityID;
     int32 DissolveEffectID;
     int32 ModelPosition;
-    int8 Unknown901;
 };
 
 struct SpellVisualMissileEntry
@@ -3642,8 +3641,6 @@ struct SpellVisualMissileEntry
     uint32 Flags;
     uint16 SpellMissileMotionID;
     uint32 AnimKitID;
-    int8 ClutterLevel;
-    int32 DecayTimeAfterImpact;
     uint32 SpellVisualMissileSetID;
 };
 
@@ -3663,6 +3660,7 @@ struct SpellXSpellVisualEntry
     uint8 DifficultyID;
     uint32 SpellVisualID;
     float Probability;
+    uint8 Flags;
     int32 Priority;
     int32 SpellIconFileID;
     int32 ActiveIconFileID;
@@ -3700,11 +3698,15 @@ struct TalentEntry
     uint8 TierID;
     uint8 Flags;
     uint8 ColumnIndex;
+    uint16 TabID;
     uint8 ClassID;
     uint16 SpecID;
     uint32 SpellID;
     uint32 OverridesSpellID;
-    std::array<uint8, 2> CategoryMask;
+    std::array<int32, 2> CategoryMask;
+    std::array<int32, 9> SpellRank;
+    std::array<int32, 3> PrereqTalent;
+    std::array<int32, 3> PrereqRank;
 };
 
 struct TaxiNodesEntry
@@ -3714,12 +3716,11 @@ struct TaxiNodesEntry
     DBCPosition2D MapOffset;
     DBCPosition2D FlightMapOffset;
     uint32 ID;
-    uint16 ContinentID;
-    int32 ConditionID;
+    uint32 ContinentID;
+    uint32 ConditionID;
     uint16 CharacterBitNumber;
     uint16 Flags;
     int32 UiTextureKitID;
-    int32 MinimapAtlasMemberID;
     float Facing;
     uint32 SpecialIconConditionID;
     uint32 VisibilityConditionID;
@@ -3768,17 +3769,6 @@ struct TransmogHolidayEntry
 {
     uint32 ID;
     int32 RequiredTransmogHoliday;
-};
-
-struct TransmogIllusionEntry
-{
-    uint32 ID;
-    int32 UnlockConditionID;
-    int32 TransmogCost;
-    int32 SpellItemEnchantmentID;
-    int32 Flags;
-
-    EnumFlag<TransmogIllusionFlags> GetFlags() const { return static_cast<TransmogIllusionFlags>(Flags); }
 };
 
 struct TransmogSetEntry
@@ -3883,26 +3873,6 @@ struct UiMapXMapArtEntry
     uint32 UiMapID;
 };
 
-struct UISplashScreenEntry
-{
-    uint32 ID;
-    LocalizedString Header;
-    LocalizedString TopLeftFeatureTitle;
-    LocalizedString TopLeftFeatureDesc;
-    LocalizedString BottomLeftFeatureTitle;
-    LocalizedString BottomLeftFeatureDesc;
-    LocalizedString RightFeatureTitle;
-    LocalizedString RightFeatureDesc;
-    int32 AllianceQuestID;
-    int32 HordeQuestID;
-    int8 ScreenType;
-    int32 TextureKitID;
-    int32 SoundKitID;
-    int32 PlayerConditionID;
-    int32 CharLevelConditionID;
-    int32 RequiredTimeEventPassed; // serverside TimeEvent table, see ModifierTreeType::HasTimeEventPassed
-};
-
 #define MAX_UNIT_CONDITION_VALUES 8
 
 struct UnitConditionEntry
@@ -3925,7 +3895,7 @@ struct UnitPowerBarEntry
     LocalizedString ToolTip;
     uint32 MinPower;
     uint32 MaxPower;
-    uint32 StartPower;
+    uint16 StartPower;
     uint8 CenterPower;
     float RegenerationPeace;
     float RegenerationCombat;
@@ -3957,7 +3927,7 @@ struct VehicleEntry
     float CameraYawOffset;
     uint16 VehicleUIIndicatorID;
     int32 MissileTargetingID;
-    uint16 VehiclePOITypeID;
+    uint8 VehiclePOITypeID;
     std::array<uint16, 8> SeatID;
     std::array<uint16, 3> PowerDisplayID;
 };

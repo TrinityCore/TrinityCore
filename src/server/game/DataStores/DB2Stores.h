@@ -236,14 +236,12 @@ TC_GAME_API extern DB2Storage<TalentEntry>                          sTalentStore
 TC_GAME_API extern DB2Storage<TaxiNodesEntry>                       sTaxiNodesStore;
 TC_GAME_API extern DB2Storage<TaxiPathEntry>                        sTaxiPathStore;
 TC_GAME_API extern DB2Storage<TransmogHolidayEntry>                 sTransmogHolidayStore;
-TC_GAME_API extern DB2Storage<TransmogIllusionEntry>                sTransmogIllusionStore;
 TC_GAME_API extern DB2Storage<TransmogSetEntry>                     sTransmogSetStore;
 TC_GAME_API extern DB2Storage<TransmogSetGroupEntry>                sTransmogSetGroupStore;
 TC_GAME_API extern DB2Storage<TransmogSetItemEntry>                 sTransmogSetItemStore;
 TC_GAME_API extern DB2Storage<TransportAnimationEntry>              sTransportAnimationStore;
 TC_GAME_API extern DB2Storage<TransportRotationEntry>               sTransportRotationStore;
 TC_GAME_API extern DB2Storage<UiMapEntry>                           sUiMapStore;
-TC_GAME_API extern DB2Storage<UISplashScreenEntry>                  sUISplashScreenStore;
 TC_GAME_API extern DB2Storage<UnitConditionEntry>                   sUnitConditionStore;
 TC_GAME_API extern DB2Storage<UnitPowerBarEntry>                    sUnitPowerBarStore;
 TC_GAME_API extern DB2Storage<VehicleEntry>                         sVehicleStore;
@@ -460,7 +458,6 @@ public:
     std::vector<TalentEntry const*> const& GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const;
     static bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
     bool IsToyItem(uint32 toy) const;
-    TransmogIllusionEntry const* GetTransmogIllusionForEnchantment(uint32 spellItemEnchantmentId) const;
     std::vector<TransmogSetEntry const*> const* GetTransmogSetsForItemModifiedAppearance(uint32 itemModifiedAppearanceId) const;
     std::vector<TransmogSetItemEntry const*> const* GetTransmogSetItems(uint32 transmogSetId) const;
     static bool GetUiMapPosition(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system, bool local,

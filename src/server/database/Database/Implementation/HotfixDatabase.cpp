@@ -1615,11 +1615,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_TRANSMOG_HOLIDAY, "SELECT ID, RequiredTransmogHoliday FROM transmog_holiday WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_HOLIDAY, "SELECT MAX(ID) + 1 FROM transmog_holiday", CONNECTION_SYNCH);
 
-    // TransmogIllusion.db2
-    PrepareStatement(HOTFIX_SEL_TRANSMOG_ILLUSION, "SELECT ID, UnlockConditionID, TransmogCost, SpellItemEnchantmentID, Flags FROM transmog_illusion"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_ILLUSION, "SELECT MAX(ID) + 1 FROM transmog_illusion", CONNECTION_SYNCH);
-
     // TransmogSet.db2
     PrepareStatement(HOTFIX_SEL_TRANSMOG_SET, "SELECT Name, ID, ClassMask, TrackingQuestID, Flags, TransmogSetGroupID, ItemNameDescriptionID, "
         "ParentTransmogSetID, Unknown810, ExpansionID, PatchID, UiOrder, PlayerConditionID FROM transmog_set WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -1666,15 +1661,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // UiMapXMapArt.db2
     PrepareStatement(HOTFIX_SEL_UI_MAP_X_MAP_ART, "SELECT ID, PhaseID, UiMapArtID, UiMapID FROM ui_map_x_map_art WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_UI_MAP_X_MAP_ART, "SELECT MAX(ID) + 1 FROM ui_map_x_map_art", CONNECTION_SYNCH);
-
-    // UiSplashScreen.db2
-    PrepareStatement(HOTFIX_SEL_UI_SPLASH_SCREEN, "SELECT ID, Header, TopLeftFeatureTitle, TopLeftFeatureDesc, BottomLeftFeatureTitle, "
-        "BottomLeftFeatureDesc, RightFeatureTitle, RightFeatureDesc, AllianceQuestID, HordeQuestID, ScreenType, TextureKitID, SoundKitID, "
-        "PlayerConditionID, CharLevelConditionID, RequiredTimeEventPassed FROM ui_splash_screen WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
-    PREPARE_MAX_ID_STMT(HOTFIX_SEL_UI_SPLASH_SCREEN, "SELECT MAX(ID) + 1 FROM ui_splash_screen", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_UI_SPLASH_SCREEN, "SELECT ID, Header_lang, TopLeftFeatureTitle_lang, TopLeftFeatureDesc_lang, "
-        "BottomLeftFeatureTitle_lang, BottomLeftFeatureDesc_lang, RightFeatureTitle_lang, RightFeatureDesc_lang FROM ui_splash_screen_locale"
-        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // UnitCondition.db2
     PrepareStatement(HOTFIX_SEL_UNIT_CONDITION, "SELECT ID, Flags, Variable1, Variable2, Variable3, Variable4, Variable5, Variable6, Variable7, "
