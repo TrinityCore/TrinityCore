@@ -286,7 +286,7 @@ public:
         constexpr std::array<float, 11> damageByStack = { 12.0f, 12.0f, 10.0f, 8.0f, 7.0f, 6.0f, 5.0f, 5.0f, 4.0f, 4.0f, 3.0f };
 
         for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
-            if (AuraEffect* sinOfTheMany = GetTarget()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
+            if (AuraEffect* sinOfTheMany = GetUnitOwner()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
                 sinOfTheMany->ChangeAmount(damageByStack[std::min(_appliedAtonements.size(), damageByStack.size() - 1)]);
     }
 };

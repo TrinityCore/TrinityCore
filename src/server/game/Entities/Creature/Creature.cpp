@@ -2850,7 +2850,7 @@ void Creature::UpdateMovementFlags()
         else
             SetDisableGravity(true);
 
-        if (!HasAuraType(SPELL_AURA_HOVER))
+        if (!HasAuraType(SPELL_AURA_HOVER) && GetMovementTemplate().Ground != CreatureGroundMovementType::Hover)
             SetHover(false);
     }
     else
