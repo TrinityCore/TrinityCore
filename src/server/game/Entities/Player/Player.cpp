@@ -14013,11 +14013,17 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                         canTalk = false;
                     break;
                 case GossipOptionNpc::BattleMaster:
-                case GossipOptionNpc::WorldPVPQueue:
                     if (!creature->isCanInteractWithBattleMaster(this, false))
                         canTalk = false;
                     break;
+                case GossipOptionNpc::TalentMaster:
+                case GossipOptionNpc::SpecializationMaster:
+                case GossipOptionNpc::GlyphMaster:
+                    if (!creature->CanResetTalents(this))
+                        canTalk = false;
+                    break;
                 case GossipOptionNpc::StableMaster:
+                case GossipOptionNpc::PetSpecializationMaster:
                     if (GetClass() != CLASS_HUNTER)
                         canTalk = false;
                     break;
@@ -14040,15 +14046,12 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 case GossipOptionNpc::Mailbox:
                 case GossipOptionNpc::Transmogrify:
                     break;                                         // No checks
-                case GossipOptionNpc::TalentMaster:
-                case GossipOptionNpc::PetSpecializationMaster:
-                case GossipOptionNpc::GuildBanker:
-                case GossipOptionNpc::SpellClick:
                 case GossipOptionNpc::CemeterySelect:
-                case GossipOptionNpc::SpecializationMaster:
-                case GossipOptionNpc::GlyphMaster:
                     canTalk = false;                               // Deprecated
                     break;
+                case GossipOptionNpc::GuildBanker:
+                case GossipOptionNpc::SpellClick:
+                case GossipOptionNpc::WorldPVPQueue:
                 case GossipOptionNpc::LFGDungeon:
                 case GossipOptionNpc::ArtifactRespec:
                 case GossipOptionNpc::QueueScenario:
@@ -14239,7 +14242,6 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             GetSession()->SendTabardVendorActivate(guid);
             break;
         case GossipOptionNpc::BattleMaster:
-        case GossipOptionNpc::WorldPVPQueue:
         {
             BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(source->GetEntry());
 
@@ -14255,6 +14257,10 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         }
         case GossipOptionNpc::Auctioneer:
             GetSession()->SendAuctionHello(guid, source->ToCreature());
+            break;
+        case GossipOptionNpc::TalentMaster:
+            PlayerTalkClass->SendCloseGossip();
+            SendRespecWipeConfirm(guid, sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost());
             break;
         case GossipOptionNpc::StableMaster:
             GetSession()->SendStablePet(guid);
