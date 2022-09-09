@@ -119,7 +119,7 @@ class npc_jaina_proudmoore : public CreatureScript
                     AddGossipItemFor(player, GOSSIP_ITEM_ALLY_RETREAT_MID, GOSSIP_ITEM_ALLY_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
                 if (player->IsGameMaster())
-                    AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
                 SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
@@ -196,7 +196,7 @@ class npc_thrall : public CreatureScript
                 }
 
                 if (player->IsGameMaster())
-                    AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
                 SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;

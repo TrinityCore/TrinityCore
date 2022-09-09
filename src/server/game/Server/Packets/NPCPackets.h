@@ -24,7 +24,7 @@
 #include "Position.h"
 #include <array>
 
-enum class GossipOptionIcon : uint8;
+enum class GossipOptionNpc : uint8;
 enum class GossipOptionStatus : uint8;
 enum class GossipOptionRewardType : uint8;
 
@@ -64,7 +64,7 @@ namespace WorldPackets
         struct ClientGossipOptions
         {
             int32 ClientOption  = 0;
-            GossipOptionIcon OptionNPC = GossipOptionIcon(0);
+            GossipOptionNpc OptionNPC = GossipOptionNpc(0);
             uint8 OptionFlags   = 0;
             int32 OptionCost    = 0;
             uint32 OptionLanguage = 0;
