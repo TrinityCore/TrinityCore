@@ -9611,8 +9611,8 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
-        //      0       1         2           3           4                      5           6              7         8             9            10        11        12       13
-        "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, Language, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
+        //      0       1         2           3           4                      5              6         7             8            9         10        11       12
+        "SELECT MenuID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, OptionNpcFlag, Language, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
         "FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
     if (!result)
@@ -9629,23 +9629,22 @@ void ObjectMgr::LoadGossipMenuItems()
 
         gMenuItem.MenuID                = fields[0].GetUInt32();
         gMenuItem.OptionID              = fields[1].GetUInt32();
-        gMenuItem.OptionIcon            = GossipOptionIcon(fields[2].GetUInt8());
+        gMenuItem.OptionNpc             = GossipOptionNpc(fields[2].GetUInt8());
         gMenuItem.OptionText            = fields[3].GetString();
         gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
-        gMenuItem.OptionType            = fields[5].GetUInt32();
-        gMenuItem.OptionNpcFlag         = fields[6].GetUInt64();
-        gMenuItem.Language              = fields[7].GetUInt32();
-        gMenuItem.ActionMenuID          = fields[8].GetUInt32();
-        gMenuItem.ActionPoiID           = fields[9].GetUInt32();
-        gMenuItem.BoxCoded              = fields[10].GetBool();
-        gMenuItem.BoxMoney              = fields[11].GetUInt32();
-        gMenuItem.BoxText               = fields[12].GetString();
-        gMenuItem.BoxBroadcastTextID    = fields[13].GetUInt32();
+        gMenuItem.OptionNpcFlag         = fields[5].GetUInt64();
+        gMenuItem.Language              = fields[6].GetUInt32();
+        gMenuItem.ActionMenuID          = fields[7].GetUInt32();
+        gMenuItem.ActionPoiID           = fields[8].GetUInt32();
+        gMenuItem.BoxCoded              = fields[9].GetBool();
+        gMenuItem.BoxMoney              = fields[10].GetUInt32();
+        gMenuItem.BoxText               = fields[11].GetString();
+        gMenuItem.BoxBroadcastTextID    = fields[12].GetUInt32();
 
-        if (gMenuItem.OptionIcon >= GossipOptionIcon::Count)
+        if (gMenuItem.OptionNpc >= GossipOptionNpc::Count)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown icon id %u. Replacing with GossipOptionIcon::None", gMenuItem.MenuID, gMenuItem.OptionID, uint32(gMenuItem.OptionIcon));
-            gMenuItem.OptionIcon = GossipOptionIcon::None;
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown NPC option id %u. Replacing with GossipOptionNpc::None", gMenuItem.MenuID, gMenuItem.OptionID, AsUnderlyingType(gMenuItem.OptionNpc));
+            gMenuItem.OptionNpc = GossipOptionNpc::None;
         }
 
         if (gMenuItem.OptionBroadcastTextID)
@@ -9657,18 +9656,25 @@ void ObjectMgr::LoadGossipMenuItems()
             }
         }
 
-        if (gMenuItem.OptionType >= GOSSIP_OPTION_MAX)
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown option id %u. Option will not be used", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionType);
-
         if (gMenuItem.Language && !sLanguagesStore.LookupEntry(gMenuItem.Language))
         {
             TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing Language %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.Language);
             gMenuItem.Language = 0;
         }
 
-        if (gMenuItem.ActionPoiID && !GetPointOfInterest(gMenuItem.ActionPoiID))
+        if (gMenuItem.ActionMenuID && gMenuItem.OptionNpc != GossipOptionNpc::None)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing ActionPoiID %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.ActionPoiID);
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc::None, ignoring", gMenuItem.MenuID, gMenuItem.OptionID);
+            gMenuItem.ActionMenuID = 0;
+        }
+
+        if (gMenuItem.ActionPoiID)
+        {
+            if (gMenuItem.OptionNpc != GossipOptionNpc::None)
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc::None, ignoring", gMenuItem.MenuID, gMenuItem.OptionID);
+            else if (!GetPointOfInterest(gMenuItem.ActionPoiID))
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing ActionPoiID %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.ActionPoiID);
+
             gMenuItem.ActionPoiID = 0;
         }
 
