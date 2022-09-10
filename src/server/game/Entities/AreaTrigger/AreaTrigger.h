@@ -30,8 +30,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         AreaTrigger();
         ~AreaTrigger();
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         bool CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos);
         void Update(uint32 p_time);
