@@ -101,6 +101,22 @@ namespace WorldPackets
             int32 Absorbed = 0;
             uint8 Type = 0; ///< @see enum EnviromentalDamage
         };
+
+        class SpellDamageShield final : public ServerPacket
+        {
+        public:
+            SpellDamageShield() : ServerPacket(SMSG_SPELL_DAMAGE_SHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Attacker;
+            ObjectGuid Defender;
+            int32 SpellID = 0;
+            int32 TotalDamage = 0;
+            int32 OverKill = 0;
+            int32 SchoolMask = 0;
+            int32 LogAbsorbed = 0;
+        };
     }
 }
 

@@ -1178,7 +1178,7 @@ enum OpcodeServer
     SMSG_SOCKET_GEMS_RESULT                           = 0x6014,
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE              = 0x7CA7,
     SMSG_SPELLBREAKLOG                                = 0x6B17,
-    SMSG_SPELLDAMAGESHIELD                            = 0x2927,
+    SMSG_SPELL_DAMAGE_SHIELD                          = 0x2927,
     SMSG_SPELLDISPELLOG                               = 0x4516,
     SMSG_SPELL_ENERGIZE_LOG                           = 0x0414,
     SMSG_SPELLHEALLOG                                 = 0x2816,

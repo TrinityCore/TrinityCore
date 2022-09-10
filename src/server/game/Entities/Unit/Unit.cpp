@@ -1490,20 +1490,21 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
                 damage = SpellDamageBonusTaken(caster, spellInfo, damage, SPELL_DIRECT_DAMAGE);
             }
 
-            // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
-            Unit::DealDamageMods(this, damage, nullptr);
+            DamageInfo dmgInfo(this, victim, damage, spellInfo, spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
+            victim->CalcAbsorbResist(dmgInfo);
+            damage = dmgInfo.GetDamage();
+            Unit::DealDamageMods(victim, damage, nullptr);
 
             /// @todo Move this to a packet handler
-            WorldPacket data(SMSG_SPELLDAMAGESHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
-            data << uint64(victim->GetGUID());
-            data << uint64(GetGUID());
-            data << uint32(spellInfo->Id);
-            data << uint32(damage);                  // Damage
-            int32 const overkill = int32(damage) - int32(GetHealth());
-            data << uint32(std::max(overkill, 0)); // Overkill
-            data << uint32(spellInfo->SchoolMask);
-            data << uint32(0); // FIX ME: Send resisted damage, both fully resisted and partly resisted
-            victim->SendMessageToSet(&data, true);
+            WorldPackets::CombatLog::SpellDamageShield damageShield;
+            damageShield.Attacker = victim->GetGUID();
+            damageShield.Defender = GetGUID();
+            damageShield.SpellID = spellInfo->Id;
+            damageShield.TotalDamage = damage;
+            damageShield.OverKill = std::max(int32(damage) - int32(GetHealth()), 0);
+            damageShield.SchoolMask = spellInfo->SchoolMask;
+            damageShield.LogAbsorbed = dmgInfo.GetAbsorb();
+            victim->SendMessageToSet(damageShield.Write(), true);
 
             Unit::DealDamage(victim, this, damage, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
         }

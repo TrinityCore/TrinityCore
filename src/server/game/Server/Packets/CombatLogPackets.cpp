@@ -90,3 +90,16 @@ WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellDamageShield::Write()
+{
+    _worldPacket << Defender;
+    _worldPacket << Attacker;
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(TotalDamage);
+    _worldPacket << int32(OverKill);
+    _worldPacket << int32(SchoolMask);
+    _worldPacket << int32(LogAbsorbed);
+
+    return &_worldPacket;
+}
