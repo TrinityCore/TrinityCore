@@ -1705,66 +1705,6 @@ class npc_wormhole : public CreatureScript
         }
 };
 
-/*######
-## npc_experience
-######*/
-
-enum BehstenSlahtz
-{
-    MENU_ID_XP_ON_OFF  = 10638,
-    NPC_TEXT_XP_ON_OFF = 14736,
-    OPTION_ID_XP_OFF   = 0,     // "I no longer wish to gain experience."
-    OPTION_ID_XP_ON    = 1      // "I wish to start gaining experience again."
-};
-
-class npc_experience : public CreatureScript
-{
-public:
-    npc_experience() : CreatureScript("npc_experience") { }
-
-    struct npc_experienceAI : public ScriptedAI
-    {
-        npc_experienceAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (player->HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN)) // not gaining XP
-            {
-                AddGossipItemFor(player, MENU_ID_XP_ON_OFF, OPTION_ID_XP_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, NPC_TEXT_XP_ON_OFF, me->GetGUID());
-            }
-            else // currently gaining XP
-            {
-                AddGossipItemFor(player, MENU_ID_XP_ON_OFF, OPTION_ID_XP_OFF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, NPC_TEXT_XP_ON_OFF, me->GetGUID());
-            }
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1: // XP ON selected
-                    player->RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN); // turn on XP gain
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2: // XP OFF selected
-                    player->SetPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN); // turn off XP gain
-                    break;
-            }
-            CloseGossipMenuFor(player);
-            return false;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_experienceAI(creature);
-    }
-};
-
 /*#####
 # npc_spring_rabbit
 #####*/
@@ -2368,7 +2308,6 @@ void AddSC_npcs_special()
     RegisterCreatureAI(npc_brewfest_reveler_2);
     RegisterCreatureAI(npc_training_dummy);
     new npc_wormhole();
-    new npc_experience();
     new npc_spring_rabbit();
     new npc_imp_in_a_ball();
     new npc_train_wrecker();

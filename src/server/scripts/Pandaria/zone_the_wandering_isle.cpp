@@ -16,12 +16,12 @@
  */
 
 #include "CellImpl.h"
-#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "TaskScheduler.h"
 
 enum TraineeMisc
@@ -58,7 +58,7 @@ Position const TraineeEndpoints[] = {
     { 1450.3646f, 3361.264f, 184.42484f },
 };
 
-Emote const TraineeEmotes[5] =
+Emote constexpr TraineeEmotes[5] =
 {
     EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMED,
     EMOTE_ONESHOT_MONKOFFENSE_SPECIALUNARMED,
@@ -75,7 +75,7 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
 {
     npc_tushui_huojin_trainee(Creature* creature) : ScriptedAI(creature), _defeated(false) { }
 
-    Emote PlayRandomEmote()
+    Emote PlayRandomEmote() const
     {
         Emote emote = Trinity::Containers::SelectRandomContainerElement(TraineeEmotes);
         me->HandleEmoteCommand(emote);
@@ -177,7 +177,7 @@ class HuojinTraineePartnerSearch
 public:
     HuojinTraineePartnerSearch(Creature* partner) : _partner(partner), _minDist(10.0f) { }
 
-    bool operator()(Creature* target)
+    bool operator()(Creature const* target)
     {
         if (target->GetEntry() != NPC_HUOJIN_TRAINEE_MALE && target->GetEntry() != NPC_HUOJIN_TRAINEE_FEMALE)
             return false;
@@ -254,7 +254,7 @@ struct npc_huojin_trainee : public npc_tushui_huojin_trainee
         });
     }
 
-    Creature* GetNewPartner()
+    Creature* GetNewPartner() const
     {
         Creature* partner = nullptr;
         HuojinTraineePartnerSearch check(me);
@@ -307,7 +307,7 @@ class TushuiTraineeSearch
 public:
     TushuiTraineeSearch(Creature* leader, float maxDist) : _leader(leader), _maxDist(maxDist) { }
 
-    bool operator()(Creature* target) const
+    bool operator()(Creature const* target) const
     {
         if (target->GetEntry() != NPC_TUSHUI_TRAINEE_MALE && target->GetEntry() != NPC_TUSHUI_TRAINEE_FEMALE)
             return false;

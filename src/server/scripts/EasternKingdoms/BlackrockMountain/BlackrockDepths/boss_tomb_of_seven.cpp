@@ -67,7 +67,7 @@ class boss_gloomrel : public CreatureScript
                 switch (action)
                 {
                     case GOSSIP_ACTION_INFO_DEF + 1:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_TEACH_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_TEACH_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
                         SendGossipMenuFor(player, 2606, me->GetGUID());
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 11:
@@ -75,7 +75,7 @@ class boss_gloomrel : public CreatureScript
                         player->CastSpell(player, SPELL_LEARN_SMELT, false);
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 2:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_TEACH_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_TEACH_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
                         SendGossipMenuFor(player, 2604, me->GetGUID());
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 22:
@@ -90,10 +90,10 @@ class boss_gloomrel : public CreatureScript
             bool OnGossipHello(Player* player) override
             {
                 if (player->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 1 && player->GetSkillValue(SKILL_MINING) >= DATA_SKILLPOINT_MIN && !player->HasSpell(SPELL_SMELT_DARK_IRON))
-                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_TEACH_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_TEACH_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                 if (player->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 0 && player->GetSkillValue(SKILL_MINING) >= DATA_SKILLPOINT_MIN)
-                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_TRIBUTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_TRIBUTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
                 SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                 return true;
