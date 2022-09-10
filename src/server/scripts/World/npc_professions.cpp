@@ -444,10 +444,10 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (me->IsVendor())
-                AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionNpc::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
             if (me->IsTrainer())
-                AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                AddGossipItemFor(player, GossipOptionNpc::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
             if (player->HasSkill(SKILL_ALCHEMY) && player->GetBaseSkillValue(SKILL_ALCHEMY) >= 350 && player->GetLevel() > 67)
             {
@@ -457,21 +457,21 @@ public:
                     {
                         case N_TRAINER_TRANSMUTE:                                 //Zarevhi
                             if (!HasAlchemySpell(player))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 1);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 1);
                             if (player->HasSpell(S_TRANSMUTE))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 4);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 4);
                             break;
                         case N_TRAINER_ELIXIR:                                 //Lorokeem
                             if (!HasAlchemySpell(player))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_ELIXIR, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 2);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_ELIXIR, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 2);
                             if (player->HasSpell(S_ELIXIR))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 5);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 5);
                             break;
                         case N_TRAINER_POTION:                                 //Lauranna Thar'well
                             if (!HasAlchemySpell(player))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_POTION, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 3);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_POTION, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 3);
                             if (player->HasSpell(S_POTION))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 6);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 6);
                             break;
                     }
                 }
@@ -521,17 +521,17 @@ public:
                 switch (me->GetEntry())
                 {
                     case N_TRAINER_TRANSMUTE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_ELIXIR:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_ELIXIR, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_ELIXIR, GOSSIP_SENDER_CHECK, action);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_POTION:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_POTION, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_POTION, GOSSIP_SENDER_CHECK, action);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
@@ -546,17 +546,17 @@ public:
                 switch (me->GetEntry())
                 {
                     case N_TRAINER_TRANSMUTE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_ELIXIR:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_POTION:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
@@ -621,10 +621,10 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (me->IsVendor())
-                AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionNpc::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
             if (me->IsTrainer())
-                AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                AddGossipItemFor(player, GossipOptionNpc::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
             uint32 creatureId = me->GetEntry();
             //WEAPONSMITH & ARMORSMITH
@@ -635,19 +635,19 @@ public:
                     case N_TRAINER_SMITHOMNI1:
                     case N_TRAINER_SMITHOMNI2:
                         if (!player->HasSpell(S_ARMOR) && !player->HasSpell(S_WEAPON) && player->GetReputationRank(REP_ARMOR) >= REP_FRIENDLY)
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ARMOR_LEARN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ARMOR_LEARN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                         if (!player->HasSpell(S_WEAPON) && !player->HasSpell(S_ARMOR) && player->GetReputationRank(REP_WEAPON) >= REP_FRIENDLY)
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_WEAPON_LEARN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_WEAPON_LEARN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                         break;
                     case N_TRAINER_WEAPON1:
                     case N_TRAINER_WEAPON2:
                         if (player->HasSpell(S_WEAPON))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_WEAPON_UNLEARN, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 3);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_WEAPON_UNLEARN, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 3);
                         break;
                     case N_TRAINER_ARMOR1:
                     case N_TRAINER_ARMOR2:
                         if (player->HasSpell(S_ARMOR))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ARMOR_UNLEARN, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 4);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ARMOR_UNLEARN, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 4);
                         break;
                 }
             }
@@ -658,21 +658,21 @@ public:
                 {
                     case N_TRAINER_HAMMER:
                         if (!HasWeaponSub(player))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 5);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 5);
                         if (player->HasSpell(S_HAMMER))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 8);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 8);
                         break;
                     case N_TRAINER_AXE:
                         if (!HasWeaponSub(player))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_AXE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 6);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_AXE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 6);
                         if (player->HasSpell(S_AXE))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 9);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 9);
                         break;
                     case N_TRAINER_SWORD:
                         if (!HasWeaponSub(player))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_SWORD, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 7);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_SWORD, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 7);
                         if (player->HasSpell(S_SWORD))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 10);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 10);
                         break;
                 }
             }
@@ -754,17 +754,17 @@ public:
                 switch (me->GetEntry())
                 {
                     case N_TRAINER_HAMMER:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_CHECK, action);
                         //unknown textID (TALK_HAMMER_LEARN)
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_AXE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_AXE, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_AXE, GOSSIP_SENDER_CHECK, action);
                         //unknown textID (TALK_AXE_LEARN)
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_SWORD:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_SWORD, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_SWORD, GOSSIP_SENDER_CHECK, action);
                         //unknown textID (TALK_SWORD_LEARN)
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
@@ -782,23 +782,23 @@ public:
                     case N_TRAINER_WEAPON2:
                     case N_TRAINER_ARMOR1:
                     case N_TRAINER_ARMOR2:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(player), false);
                         //unknown textID (TALK_UNLEARN_AXEORWEAPON)
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
 
                     case N_TRAINER_HAMMER:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player), false);
                         //unknown textID (TALK_HAMMER_UNLEARN)
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_AXE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player), false);
                         //unknown textID (TALK_AXE_UNLEARN)
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_SWORD:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(player), false);
                         //unknown textID (TALK_SWORD_UNLEARN)
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
@@ -922,7 +922,7 @@ public:
             }
 
             if (canLearn)
-                AddGossipItemFor(player, GossipOptionIcon::None, gossipItem, me->GetEntry(), GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionNpc::None, gossipItem, me->GetEntry(), GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, npcTextId ? npcTextId : player->GetGossipTextId(me), me->GetGUID());
             return true;
@@ -984,10 +984,10 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (me->IsVendor())
-                AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionNpc::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
             if (me->IsTrainer())
-                AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                AddGossipItemFor(player, GossipOptionNpc::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
             if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 250 && player->GetLevel() > 49)
             {
@@ -996,17 +996,17 @@ public:
                     case N_TRAINER_DRAGON1:
                     case N_TRAINER_DRAGON2:
                         if (player->HasSpell(S_DRAGON))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 1);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 1);
                         break;
                     case N_TRAINER_ELEMENTAL1:
                     case N_TRAINER_ELEMENTAL2:
                         if (player->HasSpell(S_ELEMENTAL))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 2);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 2);
                         break;
                     case N_TRAINER_TRIBAL1:
                     case N_TRAINER_TRIBAL2:
                         if (player->HasSpell(S_TRIBAL))
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 3);
+                            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 3);
                         break;
                 }
             }
@@ -1046,19 +1046,19 @@ public:
                 {
                     case N_TRAINER_DRAGON1:
                     case N_TRAINER_DRAGON2:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_ELEMENTAL1:
                     case N_TRAINER_ELEMENTAL2:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_TRIBAL1:
                     case N_TRAINER_TRIBAL2:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
@@ -1119,10 +1119,10 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (me->IsVendor())
-                AddGossipItemFor(player, GossipOptionIcon::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                AddGossipItemFor(player, GossipOptionNpc::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
             if (me->IsTrainer())
-                AddGossipItemFor(player, GossipOptionIcon::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                AddGossipItemFor(player, GossipOptionNpc::Trainer, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
             //TAILORING SPEC
             if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 350 && player->GetLevel() > 59)
@@ -1133,21 +1133,21 @@ public:
                     {
                         case N_TRAINER_SPELLFIRE:
                             if (!HasTailorSpell(player))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 1);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 1);
                             if (player->HasSpell(S_SPELLFIRE))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 4);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 4);
                             break;
                         case N_TRAINER_MOONCLOTH:
                             if (!HasTailorSpell(player))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_MOONCLOTH, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 2);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_MOONCLOTH, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 2);
                             if (player->HasSpell(S_MOONCLOTH))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 5);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 5);
                             break;
                         case N_TRAINER_SHADOWEAVE:
                             if (!HasTailorSpell(player))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_SHADOWEAVE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 3);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_SHADOWEAVE, GOSSIP_SENDER_LEARN, GOSSIP_ACTION_INFO_DEF + 3);
                             if (player->HasSpell(S_SHADOWEAVE))
-                                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 6);
+                                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 6);
                             break;
                     }
                 }
@@ -1197,17 +1197,17 @@ public:
                 switch (me->GetEntry())
                 {
                     case N_TRAINER_SPELLFIRE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_MOONCLOTH:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, action);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_SHADOWEAVE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, action);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_LEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, action);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
@@ -1222,17 +1222,17 @@ public:
                 switch (me->GetEntry())
                 {
                     case N_TRAINER_SPELLFIRE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_MOONCLOTH:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
                     case N_TRAINER_SHADOWEAVE:
-                        AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player), false);
+                        AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(player), false);
                         //unknown textID ()
                         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                         break;
