@@ -34,7 +34,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void RemoveFromWorld() override;
 
         bool CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos);
-        void Update(uint32 p_time);
+        void Update(uint32 p_time) override;
         void Remove();
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
         int32 GetDuration() const { return _duration; }
