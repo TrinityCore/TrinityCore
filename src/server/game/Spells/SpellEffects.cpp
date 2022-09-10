@@ -386,6 +386,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         damage = 2750;
                         if (m_caster->GetMap()->IsHeroic())
                             damage = 4250;
+                        break;
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {
