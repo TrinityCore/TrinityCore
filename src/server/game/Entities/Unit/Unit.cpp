@@ -10686,9 +10686,8 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
         // Generate loot before updating looter
         if (creature)
         {
-            creature->m_loot.reset(new Loot());
+            creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE));
             Loot* loot = creature->m_loot.get();
-            loot->SetGUID(ObjectGuid::Create<HighGuid::LootObject>(creature->GetMapId(), 0, creature->GetMap()->GenerateLowGuid<HighGuid::LootObject>()));
             if (creature->GetMap()->Is25ManRaid())
                 loot->maxDuplicates = 3;
 
