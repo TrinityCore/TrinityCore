@@ -1248,7 +1248,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                     if (itr->second == PASS)
                         SendLootRoll(newitemGUID, p->GetGUID(), -1, ROLL_PASS, *r);
                     else
-                        SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, lootedObject) == EQUIP_ERR_OK, *r);
+                        SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollNeedForItem(item), *r);
                 }
 
                 RollId.push_back(r);
@@ -1311,7 +1311,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                 if (itr->second == PASS)
                     SendLootRoll(newitemGUID, p->GetGUID(), -1, ROLL_PASS, *r);
                 else
-                    SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollForItemInLFG(item, lootedObject) == EQUIP_ERR_OK, *r);
+                    SendLootStartRollToPlayer(60000, lootedObject->GetMapId(), p, p->CanRollNeedForItem(item) == EQUIP_ERR_OK, *r);
             }
 
             RollId.push_back(r);

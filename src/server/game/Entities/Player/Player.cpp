@@ -11502,81 +11502,87 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObject const* lootedObject) const
+static constexpr std::array<uint32, MAX_ITEM_SUBCLASS_WEAPON> ItemWeaponSkills =
 {
-    if (!GetGroup() || !GetGroup()->isLFGGroup())
-        return EQUIP_ERR_OK;    // not in LFG group
+    SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
+    SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
+    SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
+    SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
+    SKILL_FISHING
+};
 
-    // check if looted object is inside the lfg dungeon
-    Map const* map = lootedObject->GetMap();
-    if (!sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficulty()))
-        return EQUIP_ERR_OK;
+// Patch 3.3.0 applied additional rules to ensure quality. We will go over them now.
+bool Player::CanRollNeedForItem(ItemTemplate const* itemTemplate) const
+{
+    if (!GetGroup())
+        return true;
 
-    if (!proto)
-        return EQUIP_ERR_ITEM_NOT_FOUND;
-   // Used by group, function NeedBeforeGreed, to know if a prototype can be used by a player
+    if (!itemTemplate)
+        return false;
 
-    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
+    // Race and class requirement checks
+    if ((itemTemplate->GetAllowableClass() & getClassMask()) == 0 || (itemTemplate->GetAllowableRace() & getRaceMask()) == 0)
+        return false;
+
+    // Spell requirement check
+    if (itemTemplate->GetRequiredSpell() != 0 && !HasSpell(itemTemplate->GetRequiredSpell()))
+        return false;
+
+    // Skill requirement check
+    if (itemTemplate->GetRequiredSkill() != 0 && (!GetSkillValue(itemTemplate->GetRequiredSkill()) || GetSkillValue(itemTemplate->GetRequiredSkill()) < itemTemplate->GetRequiredSkillRank()))
+        return false;
+
+    // Profiency check
+    if (itemTemplate->GetClass() == ITEM_CLASS_WEAPON && GetSkillValue(ItemWeaponSkills[itemTemplate->GetSubClass()]) == 0)
+        return false;
+
+    // Armor type checks
+    if (itemTemplate->GetClass() == ITEM_CLASS_ARMOR
+        && itemTemplate->GetSubClass() > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
+        && itemTemplate->GetSubClass() < ITEM_SUBCLASS_ARMOR_BUCKLER
+        && itemTemplate->GetInventoryType() != INVTYPE_CLOAK)
     {
-        SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
-        SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
-        SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
-        SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
-        SKILL_FISHING
-    }; //Copy from function Item::GetSkill()
-
-    if ((proto->GetAllowableClass() & getClassMask()) == 0 || (proto->GetAllowableRace() & getRaceMask()) == 0)
-        return EQUIP_ERR_CANT_EQUIP_EVER;
-
-    if (proto->GetRequiredSpell() != 0 && !HasSpell(proto->GetRequiredSpell()))
-        return EQUIP_ERR_PROFICIENCY_NEEDED;
-
-    if (proto->GetRequiredSkill() != 0)
-    {
-        if (!GetSkillValue(proto->GetRequiredSkill()))
-            return EQUIP_ERR_PROFICIENCY_NEEDED;
-        else if (GetSkillValue(proto->GetRequiredSkill()) < proto->GetRequiredSkillRank())
-            return EQUIP_ERR_CANT_EQUIP_SKILL;
+        switch (getClass())
+        {
+            // Paladins, Warriors and Death Knights can no longer roll for mail when >= level 40 and can only roll for plate
+            case CLASS_WARRIOR:
+            case CLASS_DEATH_KNIGHT:
+            case CLASS_PALADIN:
+                if (getLevel() < 40 && itemTemplate->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
+                    return false;
+                else if (itemTemplate->GetSubClass() != ITEM_SUBCLASS_ARMOR_PLATE)
+                    return false;
+                break;
+            // Hunter and Shamans can no longer roll for leather when >= level 40 and can only roll for mail
+            case CLASS_HUNTER:
+            case CLASS_SHAMAN:
+                if (getLevel() < 40 && itemTemplate->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
+                    return false;
+                else if (itemTemplate->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
+                    return false;
+                break;
+            case CLASS_DRUID:
+            case CLASS_ROGUE:
+                if (itemTemplate->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
+                    return false;
+                break;
+            case CLASS_MAGE:
+            case CLASS_PRIEST:
+            case CLASS_WARLOCK:
+                if (itemTemplate->GetSubClass() != ITEM_SUBCLASS_ARMOR_CLOTH)
+                    return false;
+                break;
+            default:
+                break;
+        }
     }
 
-    uint8 _class = getClass();
+    // Mount and companion checks. Players that already have these cannot roll need again.
+    if (itemTemplate->Effects[0].SpellID == 55884)
+        if (HasSpell(itemTemplate->Effects[1].SpellID))
+            return false;
 
-    if (proto->GetClass() == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->GetSubClass()]) == 0)
-        return EQUIP_ERR_PROFICIENCY_NEEDED;
-
-    if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->GetSubClass() < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->GetInventoryType() != INVTYPE_CLOAK)
-    {
-        if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
-        {
-            if (getLevel() < 40)
-            {
-                if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
-                    return EQUIP_ERR_CLIENT_LOCKED_OUT;
-            }
-            else if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_PLATE)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
-        }
-        else if (_class == CLASS_HUNTER || _class == CLASS_SHAMAN)
-        {
-            if (getLevel() < 40)
-            {
-                if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
-                    return EQUIP_ERR_CLIENT_LOCKED_OUT;
-            }
-            else if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
-        }
-
-        if (_class == CLASS_ROGUE || _class == CLASS_DRUID)
-            if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
-
-        if (_class == CLASS_MAGE || _class == CLASS_PRIEST || _class == CLASS_WARLOCK)
-            if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_CLOTH)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
-    }
-
-    return EQUIP_ERR_OK;
+    return true;
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
