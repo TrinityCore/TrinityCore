@@ -443,6 +443,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
+        int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo) const;
         int32 ModSpellDuration(SpellInfo const* spellProto, WorldObject const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
         void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);

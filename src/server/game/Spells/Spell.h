@@ -441,10 +441,10 @@ class TC_GAME_API Spell
         GameObject* SearchSpellFocus();
 
         SpellCastResult prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura = nullptr);
-        void cancel(Spell* interruptingSpell = nullptr);
+        void cancel();
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
-        void finish(bool ok = true, bool sendChannelUpdate = false);
+        void finish(bool ok = true);
         void TakePower();
         void TakeAmmo();
 

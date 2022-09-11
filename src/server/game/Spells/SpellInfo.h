@@ -203,8 +203,6 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_BINARY_SPELL                  = 0x00100000,
     SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC  = 0x00200000,
     SPELL_ATTR0_CU_LIQUID_AURA                   = 0x00400000,
-    SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER     = 0x00800000,
-    SPELL_ATTR0_CU_RESET_PERIODIC_TIMER          = 0x01000000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };
@@ -584,7 +582,7 @@ class TC_GAME_API SpellInfo
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
 
-        int32 CalcDuration(WorldObject const* caster, Spell* spell = nullptr) const;
+        int32 CalcDuration(WorldObject const* caster = nullptr) const;
 
         uint32 GetMaxTicks() const;
 
@@ -621,8 +619,6 @@ class TC_GAME_API SpellInfo
         uint32 GetMechanicImmunityMask(Unit* caster) const;
 
         float CalculateScaledCoefficient(Unit const* caster, float coefficient) const;
-
-        bool IsRollingDurationOver() const;
 
     private:
         // loading helpers

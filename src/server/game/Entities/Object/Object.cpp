@@ -2446,6 +2446,24 @@ float WorldObject::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effec
     return value;
 }
 
+int32 WorldObject::CalcSpellDuration(SpellInfo const* spellInfo) const
+{
+    uint8 comboPoints = 0;
+    if (Unit const* unit = ToUnit())
+        comboPoints = unit->GetComboPoints();
+
+    int32 minduration = spellInfo->GetDuration();
+    int32 maxduration = spellInfo->GetMaxDuration();
+
+    int32 duration = 0;
+    if (spellInfo->HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DURATION) && comboPoints && minduration != -1 && minduration != maxduration)
+        duration = minduration + int32((maxduration - minduration) * comboPoints / 5);
+    else
+        duration = minduration;
+
+    return duration;
+}
+
 int32 WorldObject::ModSpellDuration(SpellInfo const* spellInfo, WorldObject const* target, int32 duration, bool positive, uint32 effectMask)
 {
     // don't mod permanent auras duration

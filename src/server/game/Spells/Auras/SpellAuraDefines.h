@@ -509,6 +509,7 @@ struct TC_GAME_API AuraCreateInfo
     AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
     AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
     AuraCreateInfo& SetCastItemGUID(ObjectGuid const& guid) { CastItemGUID = guid; return *this; }
+    AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
     AuraCreateInfo& SetOwnerEffectMask(uint8 effMask) { _targetEffectMask = effMask; return *this; }
 
     SpellInfo const* GetSpellInfo() const { return _spellInfo; }
@@ -519,6 +520,7 @@ struct TC_GAME_API AuraCreateInfo
     int32 const* BaseAmount = nullptr;
     ObjectGuid CastItemGUID;
     bool* IsRefresh = nullptr;
+    bool ResetPeriodicTimer = true;
 
     private:
         SpellInfo const* _spellInfo = nullptr;

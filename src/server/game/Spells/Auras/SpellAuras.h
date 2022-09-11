@@ -153,9 +153,8 @@ class TC_GAME_API Aura
         static int32 CalcMaxDuration(SpellInfo const* spellInfo, WorldObject* caster);
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
-        int32_t GetRolledOverDuration() const { return m_rolledOverDuration; }
         void RefreshDuration(bool withMods = false);
-        void RefreshTimers();
+        void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
 
@@ -170,7 +169,7 @@ class TC_GAME_API Aura
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
-        bool ModStackAmount(int32 num, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault);
+        bool ModStackAmount(int32 num, AuraRemoveFlags removeMode = AuraRemoveFlags::ByDefault, bool resetPeriodicTimer = true);
 
         bool  CanApplyResilience() const { return _casterInfo.ApplyResilience; }
         void  SetCanApplyResilience(bool val) { _casterInfo.ApplyResilience = val; }
@@ -289,7 +288,6 @@ class TC_GAME_API Aura
 
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
-        int32 m_rolledOverDuration;                         // Duration remainder, rolled over on refresh, if the spell does not reset its periodic timer.
                                                             // This is normally the time remaining until the next tick of the dot when refreshed.
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect

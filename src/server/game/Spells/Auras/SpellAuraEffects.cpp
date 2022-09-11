@@ -443,7 +443,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 const* baseAmount, Unit* caster):
 m_base(base), m_spellInfo(base->GetSpellInfo()),
 m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[effIndex].BasePoints),
-m_spellmod(nullptr), m_periodicTimer(0), m_tickNumber(0),
+m_spellmod(nullptr), _periodicTimer(0), _period(0), _ticksDone(0),
 m_effIndex(effIndex), m_canBeRecalculated(true), m_isPeriodic(false)
 {
     CalculatePeriodic(caster, true, false);
@@ -633,8 +633,35 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     return amount;
 }
 
+uint32 AuraEffect::GetTotalTicks() const
+{
+    uint32 totalTicks = 0;
+    if (_period && !GetBase()->IsPermanent())
+    {
+        totalTicks = static_cast<uint32>(GetBase()->GetMaxDuration() / _period);
+        if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+            ++totalTicks;
+    }
+
+    return totalTicks;
+}
+
+void AuraEffect::ResetPeriodic(bool resetPeriodicTimer /*= false*/)
+{
+    _ticksDone = 0;
+    if (resetPeriodicTimer)
+    {
+        _periodicTimer = 0;
+        // Start periodic on next tick or at aura apply
+        if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+            _periodicTimer = _period;
+    }
+}
+
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer, bool load)
 {
+    _period = GetSpellInfo()->Effects[GetEffIndex()].AuraPeriod;
+
     // prepare periodics
     switch (GetAuraType())
     {
@@ -657,41 +684,48 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer, bool l
             break;
     }
 
-    int32_t newPeriod = m_spellInfo->Effects[m_effIndex].CalcPeriod(caster, nullptr);
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, _period);
 
-    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, newPeriod);
-
-    m_effectPeriodicTimer = 0;
     if (!m_isPeriodic)
         return;
 
-    m_effectPeriodicTimer = newPeriod;
+    Player* modOwner = caster ? caster->GetSpellModOwner() : nullptr;
+    // Apply casting time mods
+    if (_period)
+    {
+        // Apply periodic time mod
+        if (modOwner)
+            modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_ACTIVATION_TIME, _period);
+
+        if (caster)
+        {
+            // Haste modifies periodic time of channeled spells
+            if (m_spellInfo->IsChanneled())
+                caster->ModSpellDurationTime(m_spellInfo, _period);
+            else if (m_spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC))
+                _period = int32(_period * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+        }
+    }
+    else // prevent infinite loop on Update
+        m_isPeriodic = false;
 
     if (load) // aura loaded from db
     {
-        m_tickNumber = m_effectPeriodicTimer ? GetBase()->GetDuration() / m_effectPeriodicTimer : 0;
-        m_periodicTimer = m_effectPeriodicTimer ? GetBase()->GetDuration() % m_effectPeriodicTimer : 0;
+        if (_period && !GetBase()->IsPermanent())
+        {
+            uint32 elapsedTime = GetBase()->GetMaxDuration() - GetBase()->GetDuration();
+            _ticksDone = elapsedTime / uint32(_period);
+            _periodicTimer = elapsedTime % uint32(_period);
+        }
+
         if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-            ++m_tickNumber;
+            ++_ticksDone;
     }
     else // aura just created or reapplied
     {
-        m_tickNumber = 0;
-
         // reset periodic timer on aura create or reapply
         // we don't reset periodic timers when aura is triggered by proc
-        if (resetPeriodicTimer)
-        {
-            m_periodicTimer = 0;
-            // Start periodic on next tick or at aura apply
-            if (m_effectPeriodicTimer && !m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-                m_periodicTimer += m_effectPeriodicTimer;
-
-            // If the aura was rolled over, use that timer as the first one to ensure ticks connect properly
-            // in case of a haste proc between this cast and the previous one.
-            //if (GetBase()->GetRolledOverDuration())
-            //    m_periodicTimer = GetBase()->GetRolledOverDuration();
-        }
+        ResetPeriodic(resetPeriodicTimer);
     }
 }
 
@@ -876,14 +910,18 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
 {
     if (m_isPeriodic && (GetBase()->GetDuration() >=0 || GetBase()->IsPassive() || GetBase()->IsPermanent()))
     {
-        if (m_periodicTimer > int32(diff))
-            m_periodicTimer -= diff;
-        else // tick also at m_periodicTimer == 0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
+        uint32 totalTicks = GetTotalTicks();
+        _periodicTimer += diff;
+        while (_periodicTimer >= _period)
         {
-            ++m_tickNumber;
+            _periodicTimer -= _period;
+
+            if (!GetBase()->IsPermanent() && (_ticksDone + 1) > totalTicks)
+                break;
+
+            ++_ticksDone;
 
             // update before tick (aura can be removed in TriggerSpell or PeriodicTick calls)
-            m_periodicTimer += m_effectPeriodicTimer - diff;
             UpdatePeriodic(caster);
 
             std::vector<AuraApplication*> effectApplications;
@@ -962,7 +1000,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                                         // on 2 tick - 133% (handled in 6 second)
 
                                         // Apply bonus for 1 - 4 tick
-                                        switch (m_tickNumber)
+                                        switch (_ticksDone)
                                         {
                                             case 1:   // 0%
                                                 aurEff->ChangeAmount(0);
@@ -5603,7 +5641,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             case 46284:
             {
                 CastSpellExtraArgs args(this);
-                args.AddSpellMod(SPELLVALUE_MAX_TARGETS, int32(m_tickNumber / 10 + 1));
+                args.AddSpellMod(SPELLVALUE_MAX_TARGETS, int32(_ticksDone / 10 + 1));
                 args.SetTriggeringAura(this);
                 target->CastSpell(nullptr, triggerSpellId, args);
                 return;
@@ -5612,7 +5650,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
             case 66882:
             {
                 CastSpellExtraArgs args(this);
-                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, int32((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000 * 2 / 3));
+                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, int32((((float)_ticksDone / 60) * 0.9f + 0.1f) * 10000 * 2 / 3));
                 args.SetTriggeringAura(this);
                 target->CastSpell(nullptr, triggerSpellId, args);
                 return;
@@ -5749,7 +5787,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     case 72854: // Unbound Plague
                     case 72855: // Unbound Plague
                     case 72856: // Unbound Plague
-                        damage *= uint32(pow(1.25f, int32(m_tickNumber)));
+                        damage *= uint32(pow(1.25f, int32(_ticksDone)));
                         break;
                     default:
                         break;
@@ -5761,10 +5799,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 {
                     uint32 totalTick = GetTotalTicks();
                     // 1..4 ticks, 1/2 from normal tick damage
-                    if (m_tickNumber <= totalTick / 3)
+                    if (_ticksDone <= totalTick / 3)
                         damage = damage / 2;
                     // 9..12 ticks, 3/2 from normal tick damage
-                    else if (m_tickNumber > totalTick * 2 / 3)
+                    else if (_ticksDone > totalTick * 2 / 3)
                         damage += (damage + 1) / 2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
                                                               // 5..8 ticks have normal tick damage
                 }

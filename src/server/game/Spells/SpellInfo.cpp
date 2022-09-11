@@ -3323,20 +3323,6 @@ float SpellInfo::CalculateScaledCoefficient(Unit const* caster, float coefficien
     return coefficient *= GetSpellScalingMultiplier(caster, GetSpellScaling());
 }
 
-// As of patch 4.0.1 all DoT and HoT effects roll their ticks over. Since this behavior has also been observed for boss DoTs
-// (Reverberating Hymn at Temple Guardian Anhuur and Burning Wound at Ragnaros etc), we can assume that this is a generic feature of Cataclysm.
-bool SpellInfo::IsRollingDurationOver() const
-{
-    if (HasAttribute(SPELL_ATTR0_CU_RESET_PERIODIC_TIMER))
-        return false;
-
-    if (HasAttribute(SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER))
-        return true;
-
-    // @todo: determine further aura types that behave like this
-    return (HasAura(SPELL_AURA_PERIODIC_DAMAGE)|| HasAura(SPELL_AURA_PERIODIC_HEAL));
-}
-
 float SpellInfo::GetMinRange(bool positive) const
 {
     if (!RangeEntry)
@@ -3375,85 +3361,13 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->MaxDuration == -1) ? -1 : abs(DurationEntry->MaxDuration);
 }
 
-int32 SpellInfo::CalcDuration(WorldObject const* caster, Spell* spell) const
+int32 SpellInfo::CalcDuration(WorldObject const* caster /*= nullptr*/) const
 {
-    if (IsPassive() && !DurationEntry)
-        return -1;
+    int32 duration = GetDuration();
 
-    if (!DurationEntry)
-        return 0;
-
-    int32 duration = GetMaxDuration();
-    if (duration == -1)
-        return -1;
-
-    Unit const* unitCaster = caster ? caster->ToUnit() : nullptr;
-    if (!unitCaster)
-        return std::min(GetMaxDuration(), DurationEntry->Duration);
-
-    uint32 level = unitCaster->getLevel();
-    if (MaxLevel > 0 && level > MaxLevel)
-        level = MaxLevel;
-    if (BaseLevel > 0)
-        level -= BaseLevel;
-
-    duration = DurationEntry->Duration + DurationEntry->DurationPerLevel * level;
-    duration = std::min(GetMaxDuration(), duration);
-
-    if (duration == -1)
-        return -1;
-
-    // Increase duration based on combo points
-    if (HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DURATION))
-    {
-        if (uint8 comboPoints = unitCaster->IsMovedByClient() ? unitCaster->GetGameClientMovingMe()->GetBasePlayer()->GetComboPoints() : 0)
-        {
-            if (GetDuration() != GetMaxDuration() && GetDuration() != -1)
-                duration += int32((GetMaxDuration() - GetDuration()) * comboPoints / 5);
-        }
-    }
-
-    if (Player* modOwner = unitCaster->GetSpellModOwner())
-        modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration, spell);
-
-    bool hasteAffectsDuration = HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION);
-    bool spellHasteAffectsPeriodic = HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC);
-    // That aura is not used as of 4.3.4, but just include it, as it still is technically supported by the client, and so should we.
-    bool hasPeriodicHasteAuras = unitCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, this);
-
-    if (spellHasteAffectsPeriodic || hasteAffectsDuration)
-    {
-        // This is just a stupid way to find the first periodic effect.
-        int32 periodicEffectIndex = 0;
-        while ((Effects[periodicEffectIndex].Effect == 0 || Effects[periodicEffectIndex].AuraPeriod == 0))
-        {
-            ++periodicEffectIndex;
-            if (periodicEffectIndex >= MAX_SPELL_EFFECTS)
-                return duration;
-        }
-
-        if ((spellHasteAffectsPeriodic || hasPeriodicHasteAuras) && !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
-        {
-            float hasteValue = unitCaster->GetFloatValue(UNIT_MOD_CAST_HASTE);
-            if (hasteValue > 0.0f)
-            {
-                if (hasteAffectsDuration)
-                    return int32(duration * hasteValue);
-
-                int32 effectPeriod = Effects[periodicEffectIndex].CalcPeriod(unitCaster, spell);
-
-                if (effectPeriod > 0)
-                {
-                    // additional ticks are being added by rounding up, resulting in increased duration.
-                    float preciseTicks = (float)duration / float(effectPeriod);
-                    int32 ticks = duration / effectPeriod;
-                    if (preciseTicks - ticks >= 0.5f)
-                        ticks = int32(std::ceil(preciseTicks));
-                    duration = std::max(ticks * effectPeriod, duration);
-                }
-            }
-        }
-    }
+    if (caster)
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration);
 
     return duration;
 }

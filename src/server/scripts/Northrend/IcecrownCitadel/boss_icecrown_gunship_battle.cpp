@@ -1830,7 +1830,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
-                int32 bp = 2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriodic());
+                int32 bp = 2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetPeriod());
                 GetTarget()->CastSpell(nullptr, SPELL_ROCKET_PACK_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(bp));
                 GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
             }
