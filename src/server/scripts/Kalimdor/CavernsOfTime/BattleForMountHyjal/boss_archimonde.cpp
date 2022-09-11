@@ -301,7 +301,7 @@ public:
             _Reset();
             DoomfireSpiritGUID.Clear();
             summons.DespawnAll();
-            WorldtreeTragetGUID=instance->GetGuidData(DATA_CHANNEL_TARGET);
+            WorldtreeTragetGUID = instance->GetGuidData(DATA_CHANNEL_TARGET);
             if (Creature* WorldtreeTraget = ObjectAccessor::GetCreature(*me, WorldtreeTragetGUID))
             {
                 DoCast(WorldtreeTraget, SPELL_DRAIN_WORLD_TREE);
