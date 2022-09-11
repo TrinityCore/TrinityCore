@@ -28,9 +28,9 @@ Using diff:
 #### Usage
 Set your NPC to have gossip and vendor NPCflags (129)<br />
 Add a gossip menu for him and add a new option to it.<br />
-The option needs to have option_id set to 3 so it acts as a vendor button,<br />
-npc_option_npcflag can be 1 or 128 (shows only if the NPC has vendor flag then)<br />
-and the action_menu_id is the vendor entry from npc_vendor that you want to show to the player.<br />
+The option needs to have `OptionNpc` set to 1 so it acts as a vendor button,<br />
+`OptionNpcFlag` can be 1 or 128 (shows only if the NPC has vendor flag then)<br />
+and the `ActionMenuID` is the vendor entry from `npc_vendor` that you want to show to the player.<br />
 
 YOU CAN also send menus from C++. All you need to do is to provide the vendor entry to the<br />
 `void WorldSession::SendListInventory(ObjectGuid guid, uint32 vendorEntry)` function.
