@@ -480,7 +480,6 @@ void WorldUpdateLoop()
     if (!halfMaxCoreStuckTime)
         halfMaxCoreStuckTime = std::numeric_limits<uint32>::max();
 
-
     LoginDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
