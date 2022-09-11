@@ -14,7 +14,6 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: ''
           MYSQL_DATABASE: test_mysql
-    resource_class: large
     steps:
       - run:
           name: Checkout
@@ -93,6 +92,7 @@ jobs:
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
+    resource_class: large
     steps:
       - run:
           name: Requirements
