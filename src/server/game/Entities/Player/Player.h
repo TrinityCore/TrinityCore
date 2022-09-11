@@ -2353,7 +2353,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendLootError(ObjectGuid const& lootObj, ObjectGuid const& owner, LootError error) const;
         void SendLootRelease(ObjectGuid guid) const;
         void SendLootReleaseAll() const;
-        void SendNotifyLootItemRemoved(ObjectGuid lootObj, uint8 lootSlot) const;
+        void SendNotifyLootItemRemoved(ObjectGuid lootObj, ObjectGuid owner, uint8 lootSlot) const;
         void SendNotifyLootMoneyRemoved(ObjectGuid lootObj) const;
 
         /*********************************************************/
