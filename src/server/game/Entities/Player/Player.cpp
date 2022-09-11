@@ -26223,7 +26223,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 TC_LOG_ERROR("entities.player", "Player::_LoadSkills: Player '%s' (%s, Race: %u, Class: %u) has forbidden skill %u for his race/class combination",
                     GetName().c_str(), GetGUID().ToString().c_str(), uint32(race), uint32(GetClass()), skill);
 
-                mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(0, SKILL_DELETED)));
+                mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(mSkillStatus.size(), SKILL_DELETED)));
                 continue;
             }
 
