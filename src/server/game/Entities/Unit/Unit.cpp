@@ -4006,7 +4006,7 @@ void Unit::RemoveAllAuras()
                 << m_appliedAuras.size() << " m_appliedAuras and " << m_ownedAuras.size() << " m_ownedAuras.\n";
 
             TC_LOG_ERROR("entities.unit", "%s", sstr.str().c_str());
-            ASSERT(false, sstr.str().c_str());
+            ASSERT(false);
 
             break;
         }
