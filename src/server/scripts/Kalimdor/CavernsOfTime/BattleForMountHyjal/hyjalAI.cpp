@@ -39,7 +39,10 @@ enum Spawns
     SPAWN_NEAR_TOWER    = 2,
 };
 
-#define YELL_HURRY  "Hurry, we don't have much time"
+enum NPCTEXTS
+{
+    JAINA_RETREAT_HORDE_BASE    = 7
+};
 
 // Locations for summoning gargoyls and frost wyrms in special cases
 float SpawnPointSpecial[3][3]=
@@ -391,7 +394,7 @@ void hyjalAI::Reset()
     {
         case JAINA:
             Faction = 0;
-            DoCast(me, SPELL_BRILLIANCE_AURA, true);
+            DoCastSelf(SPELL_BRILLIANCE_AURA, true);
             break;
 
         case THRALL:
@@ -400,6 +403,7 @@ void hyjalAI::Reset()
 
         case TYRANDE:
             Faction = 2;
+            DoCastSelf(SPELL_TRUESHOT_AURA, true);
             break;
     }
 
@@ -503,6 +507,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         ++EnemyCount;
 
         creature->SetWalk(false);
+        ENSURE_AI(hyjal_trashAI, creature->AI())->SetRun();
         creature->setActive(true);
         creature->SetFarVisible(true);
         switch (entry)
@@ -830,7 +835,10 @@ void hyjalAI::UpdateAI(uint32 diff)
                     }
                     else if (BossGUID[i] == BossGUID[1])
                     {
-                        Talk(SUCCESS);
+                        if (me->GetEntry() == THRALL) // thrall yell success after boss deaded,jaina yell success after select gossip
+                        {
+                            Talk(SUCCESS);
+                        }
                         SecondBossDead = true;
                     }
                     EventBegun = false;
@@ -935,7 +943,6 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
 {
     if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
-        me->Yell(YELL_HURRY, LANG_UNIVERSAL);
         WaitForTeleport = true;
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)
@@ -945,6 +952,7 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {
                 hyjalAI* ai = ENSURE_AI(hyjalAI, creature->AI());
+                ai->Talk(JAINA_RETREAT_HORDE_BASE);
                 ai->DoMassTeleport = true;
                 ai->MassTeleportTimer = 20000;
                 creature->CastSpell(me, SPELL_MASS_TELEPORT, false);
