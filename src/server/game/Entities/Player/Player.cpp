@@ -1670,7 +1670,7 @@ void Player::SetObjectScale(float scale)
     SetBoundingRadius(scale * DEFAULT_PLAYER_BOUNDING_RADIUS);
     SetCombatReach(scale * DEFAULT_PLAYER_COMBAT_REACH);
     if (IsInWorld())
-        SendMovementSetCollisionHeight(scale * GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Scale);
+        SendMovementSetCollisionHeight(GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Scale);
 }
 
 bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster,

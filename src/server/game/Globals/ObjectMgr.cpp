@@ -9671,11 +9671,15 @@ void ObjectMgr::LoadGossipMenuItems()
         if (gMenuItem.ActionPoiID)
         {
             if (gMenuItem.OptionNpc != GossipOptionNpc::None)
+            {
                 TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc::None, ignoring", gMenuItem.MenuID, gMenuItem.OptionID);
+                gMenuItem.ActionPoiID = 0;
+            }
             else if (!GetPointOfInterest(gMenuItem.ActionPoiID))
+            {
                 TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing ActionPoiID %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.ActionPoiID);
-
-            gMenuItem.ActionPoiID = 0;
+                gMenuItem.ActionPoiID = 0;
+            }
         }
 
         if (gMenuItem.BoxBroadcastTextID)
