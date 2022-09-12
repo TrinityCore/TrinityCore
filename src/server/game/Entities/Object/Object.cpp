@@ -21,6 +21,7 @@
 #include "CellImpl.h"
 #include "Chat.h"
 #include "CinematicMgr.h"
+#include "CombatLogPackets.h"
 #include "Common.h"
 #include "Creature.h"
 #include "DBCStores.h"
@@ -2733,16 +2734,11 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
 
 void WorldObject::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 {
-    WorldPacket data(SMSG_SPELLLOGMISS, (4 + 8 + 1 + 4 + 8 + 1));
-    data << uint32(spellID);
-    data << uint64(GetGUID());
-    data << uint8(0);                                       // can be 0 or 1
-    data << uint32(1);                                      // target count
-    // for (i = 0; i < target count; ++i)
-    data << uint64(target->GetGUID());                      // target GUID
-    data << uint8(missInfo);
-    // end loop
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellMissLog spellMissLog;
+    spellMissLog.SpellID = spellID;
+    spellMissLog.Caster = GetGUID();
+    spellMissLog.Entries.emplace_back(target->GetGUID(), missInfo);
+    SendMessageToSet(spellMissLog.Write(), true);
 }
 
 FactionTemplateEntry const* WorldObject::GetFactionTemplateEntry() const

@@ -103,3 +103,32 @@ WorldPacket const* WorldPackets::CombatLog::SpellDamageShield::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::CombatLog::SpellLogMissDebug const& debug)
+{
+    data << float(debug.HitRoll);
+    data << float(debug.HitRollNeeded);
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::CombatLog::SpellLogMissEntry const& entry)
+{
+    data << entry.Victim;
+    data << uint8(entry.MissReason);
+    if (entry.Debug.has_value())
+        data << *entry.Debug;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellMissLog::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << Caster;
+    _worldPacket << uint8(0); // Debug
+    _worldPacket << uint32(Entries.size());
+
+    for (SpellLogMissEntry const& entry : Entries)
+        _worldPacket << entry;
+
+    return &_worldPacket;
+}

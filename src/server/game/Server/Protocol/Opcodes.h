@@ -1185,7 +1185,7 @@ enum OpcodeServer
     SMSG_SPELLINSTAKILLLOG                            = 0x6216,
     SMSG_SPELLINTERRUPTLOG                            = 0x1DA7,
     SMSG_SPELLLOGEXECUTE                              = 0x0626,
-    SMSG_SPELLLOGMISS                                 = 0x0625,
+    SMSG_SPELL_MISS_LOG                               = 0x0625,
     SMSG_SPELLNONMELEEDAMAGELOG                       = 0x4315,
     SMSG_SPELLORDAMAGE_IMMUNE                         = 0x4507,
     SMSG_SPELLSTEALLOG                                = 0x4E26,
