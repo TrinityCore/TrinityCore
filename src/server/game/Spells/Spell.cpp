@@ -4643,8 +4643,14 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellHitInfo& data)
             data.HitTargets.push_back(targetInfo.TargetGUID);
             m_channelTargetEffectMask |= targetInfo.EffectMask;
         }
-        else // misses
+        else
+        {
+            // Don't consider blocked ranged attacks as miss
+            if (targetInfo.TimeDelay > 0 && targetInfo.MissCondition == SPELL_MISS_BLOCK)
+                continue;
+
             data.MissStatus.emplace_back(targetInfo.TargetGUID, targetInfo.MissCondition, targetInfo.ReflectResult);
+        }
     }
 
     for (GOTargetInfo const& targetInfo : m_UniqueGOTargetInfo)
