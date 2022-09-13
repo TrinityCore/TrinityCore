@@ -446,7 +446,6 @@ class TC_GAME_API Spell
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
         void TakePower();
-        void TakeAmmo();
 
         void TakeRunePower(SpellMissInfo hitInfo);
         void TakeReagents();
