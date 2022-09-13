@@ -2477,18 +2477,19 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
     spell->m_healing = Healing;
 
     _spellHitTarget = nullptr;
-    if (MissCondition == SPELL_MISS_NONE)
+
+    if (MissCondition == SPELL_MISS_NONE || MissCondition == SPELL_MISS_BLOCK)
         _spellHitTarget = unit;
     else if (MissCondition == SPELL_MISS_REFLECT && ReflectResult == SPELL_MISS_NONE)
         _spellHitTarget = spell->m_caster->ToUnit();
 
-    // Ensure that a player target is put in combat by a taunt, even if they result immune clientside
-    if ((MissCondition == SPELL_MISS_IMMUNE || MissCondition == SPELL_MISS_IMMUNE2) && spell->m_caster->GetTypeId() == TYPEID_PLAYER && unit->GetTypeId() == TYPEID_PLAYER && spell->m_caster->IsValidAttackTarget(unit, spell->GetSpellInfo()))
-        unit->SetInCombatWith(spell->m_caster->ToPlayer());
+    if (spell->m_originalCaster && MissCondition != SPELL_MISS_EVADE && !spell->m_originalCaster->IsFriendlyTo(unit) && (!spell->m_spellInfo->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (spell->m_spellInfo->CausesInitialThreat() || unit->IsEngaged()))
+        unit->SetInCombatWith(spell->m_originalCaster);
 
     // if target is flagged for pvp also flag caster if a player
+    // but respect current pvp rules (buffing/healing npcs flagged for pvp only flags you if they are in combat)
     _enablePVP = (MissCondition == SPELL_MISS_NONE || spell->m_spellInfo->HasAttribute(SPELL_ATTR3_PVP_ENABLING))
-        && unit->IsPvP() && spell->m_caster->GetTypeId() == TYPEID_PLAYER; // need to check PvP state before spell effects, but act on it afterwards
+        && unit->IsPvP() && (unit->IsInCombat() || unit->IsCharmedOwnedByPlayerOrPlayer()) && spell->m_caster->GetTypeId() == TYPEID_PLAYER; // need to check PvP state before spell effects, but act on it afterwards
 
     if (_spellHitTarget)
     {
@@ -2557,212 +2558,211 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
     // Get original caster (if exist) and calculate damage/healing from him data
     // Skip if m_originalCaster not available
     Unit* caster = spell->m_originalCaster ? spell->m_originalCaster : spell->m_caster->ToUnit();
-    if (!caster)
-        return;
-
-    // Fill base trigger info
-    uint32 procAttacker = spell->m_procAttacker;
-    uint32 procVictim = spell->m_procVictim;
-    uint32 procSpellType = PROC_SPELL_TYPE_NONE;
-    uint32 hitMask = PROC_HIT_NONE;
-
-    // Spells with this flag cannot trigger if effect is cast on self
-    bool const canEffectTrigger = (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS) || !spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS))
-        && spell->unitTarget->CanProc()
-        && (spell->CanExecuteTriggersOnHit(EffectMask) || MissCondition == SPELL_MISS_IMMUNE || MissCondition == SPELL_MISS_IMMUNE2);
-
-    // Trigger info was not filled in Spell::prepareDataForTriggerSystem - we do it now
-    if (canEffectTrigger && !procAttacker && !procVictim)
+    if (caster)
     {
-        bool positive = true;
-        if (spell->m_damage > 0)
-            positive = false;
-        else if (!spell->m_healing)
-        {
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            {
-                // in case of immunity, check all effects to choose correct procFlags, as none has technically hit
-                if (EffectMask && !(EffectMask & (1 << i)))
-                    continue;
+        // Fill base trigger info
+        uint32 procAttacker = spell->m_procAttacker;
+        uint32 procVictim = spell->m_procVictim;
+        uint32 procSpellType = PROC_SPELL_TYPE_NONE;
+        uint32 hitMask = PROC_HIT_NONE;
 
-                if (!spell->m_spellInfo->IsPositiveEffect(i))
+        // Spells with this flag cannot trigger if effect is cast on self
+        bool const canEffectTrigger = (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS) || !spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS))
+            && spell->unitTarget->CanProc();
+
+        // Trigger info was not filled in Spell::prepareDataForTriggerSystem - we do it now
+        if (canEffectTrigger && !procAttacker && !procVictim)
+        {
+            bool positive = true;
+            if (spell->m_damage > 0)
+                positive = false;
+            else if (!spell->m_healing)
+            {
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
-                    positive = false;
-                    break;
+                    // in case of immunity, check all effects to choose correct procFlags, as none has technically hit
+                    if (EffectMask && !(EffectMask & (1 << i)))
+                        continue;
+
+                    if (!spell->m_spellInfo->IsPositiveEffect(i))
+                    {
+                        positive = false;
+                        break;
+                    }
                 }
+            }
+
+            switch (spell->m_spellInfo->DmgClass)
+            {
+                case SPELL_DAMAGE_CLASS_NONE:
+                case SPELL_DAMAGE_CLASS_MAGIC:
+                    if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
+                    {
+                        procAttacker |= PROC_FLAG_DEAL_PERIODIC;
+                        procVictim |= PROC_FLAG_TAKE_PERIODIC;
+                    }
+                    else if (spell->m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
+                    {
+                        if (positive)
+                        {
+                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
+                            procVictim |= PROC_FLAG_TAKE_HELPFUL_ABILITY;
+                        }
+                        else
+                        {
+                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
+                            procVictim |= PROC_FLAG_TAKE_HARMFUL_ABILITY;
+                        }
+                    }
+                    else
+                    {
+                        if (positive)
+                        {
+                            procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
+                            procVictim |= PROC_FLAG_TAKE_HELPFUL_SPELL;
+                        }
+                        else
+                        {
+                            procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
+                            procVictim |= PROC_FLAG_TAKE_HARMFUL_SPELL;
+                        }
+                    }
+                    break;
             }
         }
 
-        switch (spell->m_spellInfo->DmgClass)
+        // All calculated do it!
+        // Do healing
+        bool hasHealing = false;
+        std::unique_ptr<DamageInfo> spellDamageInfo;
+        std::unique_ptr<HealInfo> healInfo;
+        if (spell->m_healing > 0)
         {
-            case SPELL_DAMAGE_CLASS_NONE:
-            case SPELL_DAMAGE_CLASS_MAGIC:
-                if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_TREAT_AS_PERIODIC))
-                {
-                    procAttacker |= PROC_FLAG_DEAL_PERIODIC;
-                    procVictim |= PROC_FLAG_TAKE_PERIODIC;
-                }
-                else if (spell->m_spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY))
-                {
-                    if (positive)
-                    {
-                        procAttacker |= PROC_FLAG_DEAL_HELPFUL_ABILITY;
-                        procVictim |= PROC_FLAG_TAKE_HELPFUL_ABILITY;
-                    }
-                    else
-                    {
-                        procAttacker |= PROC_FLAG_DEAL_HARMFUL_ABILITY;
-                        procVictim |= PROC_FLAG_TAKE_HARMFUL_ABILITY;
-                    }
-                }
-                else
-                {
-                    if (positive)
-                    {
-                        procAttacker |= PROC_FLAG_DEAL_HELPFUL_SPELL;
-                        procVictim |= PROC_FLAG_TAKE_HELPFUL_SPELL;
-                    }
-                    else
-                    {
-                        procAttacker |= PROC_FLAG_DEAL_HARMFUL_SPELL;
-                        procVictim |= PROC_FLAG_TAKE_HARMFUL_SPELL;
-                    }
-                }
-                break;
+            hasHealing = true;
+            uint32 addhealth = spell->m_healing;
+            if (IsCrit)
+            {
+                hitMask |= PROC_HIT_CRITICAL;
+                addhealth = Unit::SpellCriticalHealingBonus(caster, addhealth);
+            }
+            else
+                hitMask |= PROC_HIT_NORMAL;
+
+            healInfo = std::make_unique<HealInfo>(caster, spell->unitTarget, addhealth, spell->m_spellInfo, spell->m_spellInfo->GetSchoolMask());
+            caster->HealBySpell(*healInfo, IsCrit);
+            spell->unitTarget->GetThreatManager().ForwardThreatForAssistingMe(caster, float(healInfo->GetEffectiveHeal()) * 0.5f, spell->m_spellInfo);
+            spell->m_healing = healInfo->GetEffectiveHeal();
+
+            procSpellType |= PROC_SPELL_TYPE_HEAL;
         }
-    }
 
-    // All calculated do it!
-    // Do healing
-    bool hasHealing = false;
-    std::unique_ptr<DamageInfo> spellDamageInfo;
-    std::unique_ptr<HealInfo> healInfo;
-    if (spell->m_healing > 0)
-    {
-        hasHealing = true;
-        uint32 addhealth = spell->m_healing;
-        if (IsCrit)
+        // Do damage
+        bool hasDamage = false;
+        if (spell->m_damage > 0)
         {
-            hitMask |= PROC_HIT_CRITICAL;
-            addhealth = Unit::SpellCriticalHealingBonus(caster, addhealth);
+            hasDamage = true;
+            // Fill base damage struct (unitTarget - is real spell target)
+            SpellNonMeleeDamage damageInfo(caster, spell->unitTarget, spell->m_spellInfo->Id, spell->m_spellSchoolMask);
+            // Check damage immunity
+            if (spell->unitTarget->IsImmunedToDamage(spell->m_spellInfo))
+            {
+                hitMask = PROC_HIT_IMMUNE;
+                spell->m_damage = 0;
+
+                // no packet found in sniffs
+            }
+            else
+            {
+                caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, MissCondition == SPELL_MISS_BLOCK);
+                Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
+
+                if (Creature* target = damageInfo.target->ToCreature())
+                    if (caster->IsCreature() && !caster->IsCharmedOwnedByPlayerOrPlayer())
+                        if (target->GetNoNpcDamageBelowPctHealthValue() != 0.0f)
+                            if (target->GetHealthPct() <= target->GetNoNpcDamageBelowPctHealthValue())
+                                damageInfo.damage = 0;            // Send log damage message to client
+
+                caster->SendSpellNonMeleeDamageLog(&damageInfo);
+
+                hitMask |= createProcHitMask(&damageInfo, MissCondition);
+                procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
+
+                spell->m_damage = damageInfo.damage;
+                caster->DealSpellDamage(&damageInfo, true);
+            }
+
+            // Do triggers for unit
+            if (canEffectTrigger)
+            {
+                spellDamageInfo = std::make_unique<DamageInfo>(damageInfo, SPELL_DIRECT_DAMAGE, spell->m_attackType, hitMask);
+                procSpellType |= PROC_SPELL_TYPE_DAMAGE;
+            }
         }
-        else
-            hitMask |= PROC_HIT_NORMAL;
 
-        healInfo = std::make_unique<HealInfo>(caster, spell->unitTarget, addhealth, spell->m_spellInfo, spell->m_spellInfo->GetSchoolMask());
-        caster->HealBySpell(*healInfo, IsCrit);
-        spell->unitTarget->GetThreatManager().ForwardThreatForAssistingMe(caster, float(healInfo->GetEffectiveHeal()) * 0.5f, spell->m_spellInfo);
-        spell->m_healing = healInfo->GetEffectiveHeal();
-
-        procSpellType |= PROC_SPELL_TYPE_HEAL;
-    }
-
-    // Do damage
-    bool hasDamage = false;
-    if (spell->m_damage > 0)
-    {
-        hasDamage = true;
-        // Fill base damage struct (unitTarget - is real spell target)
-        SpellNonMeleeDamage damageInfo(caster, spell->unitTarget, spell->m_spellInfo->Id, spell->m_spellSchoolMask);
-        // Check damage immunity
-        if (spell->unitTarget->IsImmunedToDamage(spell->m_spellInfo))
+        // Passive spell hits/misses or active spells only misses (only triggers)
+        if (!hasHealing && !hasDamage)
         {
-            hitMask = PROC_HIT_IMMUNE;
-            spell->m_damage = 0;
-
-            // no packet found in sniffs
-        }
-        else
-        {
-            // Add bonuses and fill damageInfo struct
-            caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, MissCondition == SPELL_MISS_BLOCK);
-            Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
-
-            if (Creature* target = damageInfo.target->ToCreature())
-                if (caster->IsCreature() && !caster->IsCharmedOwnedByPlayerOrPlayer())
-                    if (target->GetNoNpcDamageBelowPctHealthValue() != 0.0f)
-                        if (target->GetHealthPct() <= target->GetNoNpcDamageBelowPctHealthValue())
-                            damageInfo.damage = 0;            // Send log damage message to client
-            caster->SendSpellNonMeleeDamageLog(&damageInfo);
-
+            // Fill base damage struct (unitTarget - is real spell target)
+            SpellNonMeleeDamage damageInfo(caster, spell->unitTarget, spell->m_spellInfo->Id, spell->m_spellSchoolMask);
             hitMask |= createProcHitMask(&damageInfo, MissCondition);
-            procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
+            // Do triggers for unit
+            if (canEffectTrigger)
+            {
+                spellDamageInfo = std::make_unique<DamageInfo>(damageInfo, NODAMAGE, spell->m_attackType, hitMask);
+                procSpellType |= PROC_SPELL_TYPE_NO_DMG_HEAL;
+            }
 
-            spell->m_damage = damageInfo.damage;
-            caster->DealSpellDamage(&damageInfo, true);
+            // Failed Pickpocket, reveal rogue
+            if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_FAILURE_BREAKS_STEALTH) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
+            {
+                Unit* unitCaster = ASSERT_NOTNULL(spell->m_caster->ToUnit());
+                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
+                spell->unitTarget->ToCreature()->EngageWithTarget(unitCaster);
+            }
         }
 
         // Do triggers for unit
         if (canEffectTrigger)
         {
-            spellDamageInfo = std::make_unique<DamageInfo>(damageInfo, SPELL_DIRECT_DAMAGE, spell->m_attackType, hitMask);
-            procSpellType |= PROC_SPELL_TYPE_DAMAGE;
-        }
-    }
+            if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
+                procAttacker = PROC_FLAG_NONE;
 
-    // Passive spell hits/misses or active spells only misses (only triggers)
-    if (!hasHealing && !hasDamage)
-    {
-        // Fill base damage struct (unitTarget - is real spell target)
-        SpellNonMeleeDamage damageInfo(caster, spell->unitTarget, spell->m_spellInfo->Id, spell->m_spellSchoolMask);
-        hitMask |= createProcHitMask(&damageInfo, MissCondition);
-        // Do triggers for unit
-        if (canEffectTrigger)
+            if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS))
+                procVictim = PROC_FLAG_NONE;
+
+            Unit::ProcSkillsAndAuras(caster, spell->unitTarget, procAttacker, procVictim, procSpellType, PROC_SPELL_PHASE_HIT, hitMask, spell, spellDamageInfo.get(), healInfo.get());
+
+            // item spells (spell hit of non-damage spell may also activate items, for example seal of corruption hidden hit)
+            if (caster->GetTypeId() == TYPEID_PLAYER && (procSpellType & (PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL)))
+            {
+                if (spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
+                    if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT) && !spell->m_spellInfo->HasAttribute(SPELL_ATTR4_CANT_TRIGGER_ITEM_SPELLS))
+                        caster->ToPlayer()->CastItemCombatSpell(*spellDamageInfo);
+            }
+        }
+
+        // set hitmask for finish procs
+        spell->m_hitMask |= hitMask;
+
+        // Do not take combo points on dodge and miss
+        if (MissCondition != SPELL_MISS_NONE && spell->m_needComboPoints && spell->m_targets.GetUnitTargetGUID() == TargetGUID)
+            spell->m_needComboPoints = false;
+
+        // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
+        if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
         {
-            spellDamageInfo = std::make_unique<DamageInfo>(damageInfo, NODAMAGE, spell->m_attackType, hitMask);
-            procSpellType |= PROC_SPELL_TYPE_NO_DMG_HEAL;
+            if (Unit* unitCaster = spell->m_caster->ToUnit())
+                if (!unitCaster->IsCreature() || !unitCaster->ToCreature()->IsTrigger())
+                    unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->CausesInitialThreat() && !unitCaster->IsIgnoringCombat());
+
+            if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_DO_NOT_TRIGGER_TARGET_STAND) && !unit->IsStandState())
+                unit->SetStandState(UNIT_STAND_STATE_STAND);
         }
 
-        // Failed Pickpocket, reveal rogue
-        if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_FAILURE_BREAKS_STEALTH) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
-        {
-            Unit* unitCaster = ASSERT_NOTNULL(spell->m_caster->ToUnit());
-            unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
-            spell->unitTarget->ToCreature()->EngageWithTarget(unitCaster);
-        }
+        // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
+        if (MissCondition == SPELL_MISS_NONE && spell->m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
+            caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
     }
-
-    // Do triggers for unit
-    if (canEffectTrigger)
-    {
-        if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
-            procAttacker = PROC_FLAG_NONE;
-
-        if (spell->m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_TARGET_PROCS))
-            procVictim = PROC_FLAG_NONE;
-
-        Unit::ProcSkillsAndAuras(caster, spell->unitTarget, procAttacker, procVictim, procSpellType, PROC_SPELL_PHASE_HIT, hitMask, spell, spellDamageInfo.get(), healInfo.get());
-
-        // item spells (spell hit of non-damage spell may also activate items, for example seal of corruption hidden hit)
-        if (caster->GetTypeId() == TYPEID_PLAYER && (procSpellType & (PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL)))
-        {
-            if (spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
-                if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT) && !spell->m_spellInfo->HasAttribute(SPELL_ATTR4_CANT_TRIGGER_ITEM_SPELLS))
-                    caster->ToPlayer()->CastItemCombatSpell(*spellDamageInfo);
-        }
-    }
-
-    // set hitmask for finish procs
-    spell->m_hitMask |= hitMask;
-
-    // Do not take combo points on dodge and miss
-    if (MissCondition != SPELL_MISS_NONE && spell->m_needComboPoints && spell->m_targets.GetUnitTargetGUID() == TargetGUID)
-        spell->m_needComboPoints = false;
-
-    // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
-    if (MissCondition != SPELL_MISS_EVADE && _spellHitTarget && !spell->m_caster->IsFriendlyTo(unit) && (!spell->IsPositive() || spell->m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
-    {
-        if (Unit* unitCaster = spell->m_caster->ToUnit())
-            if (!unitCaster->IsCreature() || !unitCaster->ToCreature()->IsTrigger())
-                unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->CausesInitialThreat() && !unitCaster->IsIgnoringCombat());
-
-        if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_DO_NOT_TRIGGER_TARGET_STAND) && !unit->IsStandState())
-            unit->SetStandState(UNIT_STAND_STATE_STAND);
-    }
-
-    // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
-    if (MissCondition == SPELL_MISS_NONE && spell->m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
-        caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
 
     if (_spellHitTarget)
     {
@@ -2804,6 +2804,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
     if (_enablePVP)
         spell->m_caster->ToPlayer()->UpdatePvP(true);
+
     spell->_spellAura = HitAura;
     spell->CallScriptAfterHitHandlers();
     spell->_spellAura = nullptr;
@@ -7943,8 +7944,6 @@ void Spell::HandleLaunchPhase()
         HandleEffects(nullptr, nullptr, nullptr, nullptr, i, SPELL_EFFECT_HANDLE_LAUNCH);
     }
 
-    bool usesAmmo = m_spellInfo->HasAttribute(SPELL_ATTR0_CU_DIRECT_DAMAGE);
-
     PrepareTargetProcessing();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -7953,38 +7952,11 @@ void Spell::HandleLaunchPhase()
         if (m_applyMultiplierMask & (1 << i))
             multiplier = m_spellInfo->Effects[i].CalcDamageMultiplier(m_originalCaster, this);
 
-        bool ammoTaken = false;
         for (TargetInfo& target : m_UniqueTargetInfo)
         {
             uint32 mask = target.EffectMask;
             if (!(mask & (1 << i)))
                 continue;
-
-            if (usesAmmo && !ammoTaken)
-            {
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                {
-                    if (!(mask & 1 << i))
-                        continue;
-
-                    switch (m_spellInfo->Effects[i].Effect)
-                    {
-                        case SPELL_EFFECT_SCHOOL_DAMAGE:
-                        case SPELL_EFFECT_WEAPON_DAMAGE:
-                        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-                        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-                        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                            ammoTaken = true;
-                            TakeAmmo();
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (ammoTaken)
-                        break;
-                }
-            }
 
             DoEffectOnLaunchTarget(target, multiplier, i);
         }
@@ -7996,7 +7968,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, uin
 {
     Unit* unit = nullptr;
     // In case spell hit target, do all effect on that target
-    if (targetInfo.MissCondition == SPELL_MISS_NONE)
+    if (targetInfo.MissCondition == SPELL_MISS_NONE || targetInfo.MissCondition == SPELL_MISS_BLOCK)
         unit = m_caster->GetGUID() == targetInfo.TargetGUID ? m_caster->ToUnit() : ObjectAccessor::GetUnit(*m_caster, targetInfo.TargetGUID);
     // In case spell reflect from target, do all effect on caster (if hit)
     else if (targetInfo.MissCondition == SPELL_MISS_REFLECT && targetInfo.ReflectResult == SPELL_MISS_NONE)
