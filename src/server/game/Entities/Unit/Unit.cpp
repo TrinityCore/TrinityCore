@@ -2311,12 +2311,11 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         canBlock = false;
     }
 
-    // Ranged attacks can only miss, resist and deflect
+    // Ranged attacks can only miss, resist and deflect and get blocked
     if (attType == RANGED_ATTACK)
     {
         canDodge = false;
         canParry = false;
-        canBlock = false;
 
         // only if in front
         if (!victim->HasUnitState(UNIT_STATE_CONTROLLED) && (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
@@ -2326,7 +2325,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
             if (roll < tmp)
                 return SPELL_MISS_DEFLECT;
         }
-        return SPELL_MISS_NONE;
     }
 
     // Check for attack from behind
@@ -2334,10 +2332,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     {
         if (!victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            // Can`t dodge from behind in PvP (but its possible in PvE)
+            // Can't dodge from behind in PvP (but its possible in PvE)
             if (victim->GetTypeId() == TYPEID_PLAYER)
                 canDodge = false;
-            // Can`t parry or block
+            // Can't parry or block
             canParry = false;
             canBlock = false;
         }
