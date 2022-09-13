@@ -2675,7 +2675,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         else
         {
             // Add bonuses and fill damageInfo struct
-            caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit);
+            caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, MissCondition == SPELL_MISS_BLOCK);
             Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
             if (Creature* target = damageInfo.target->ToCreature())

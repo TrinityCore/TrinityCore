@@ -1030,7 +1030,7 @@ void Unit::CastStop(uint32 except_spellid)
             InterruptSpell(CurrentSpellTypes(i), false);
 }
 
-void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit, SpellMissInfo missCondition /*= SPELL_MISS_NONE*/)
+void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit, bool blocked /*= false*/)
 {
     if (damage < 0)
         return;
@@ -1080,7 +1080,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 }
 
                 // Spell weapon based damage CAN BE crit & blocked at same time
-                if (missCondition == SPELL_MISS_BLOCK)
+                if (blocked)
                 {
                     // double blocked amount if block is critical
                     uint32 value = victim->GetBlockPercent();
