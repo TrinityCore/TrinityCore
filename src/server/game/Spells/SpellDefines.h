@@ -25,6 +25,7 @@
 
 class Item;
 class AuraEffect;
+class Spell;
 
 enum class SpellInterruptFlags : uint32
 {
@@ -198,6 +199,7 @@ struct TC_GAME_API CastSpellExtraArgs
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
+    CastSpellExtraArgs& SetTriggeringSpell(Spell const* triggeringSpell) { TriggeringSpell = triggeringSpell; return *this; }
     CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura) { TriggeringAura = triggeringAura; return *this; }
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); return *this; }
@@ -205,6 +207,7 @@ struct TC_GAME_API CastSpellExtraArgs
 
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
     Item* CastItem = nullptr;
+    Spell const* TriggeringSpell = nullptr;
     AuraEffect const* TriggeringAura = nullptr;
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
     struct
@@ -220,6 +223,12 @@ struct TC_GAME_API CastSpellExtraArgs
 
             std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
+
+    CastSpellExtraArgs(CastSpellExtraArgs const&) = delete;
+    CastSpellExtraArgs(CastSpellExtraArgs&&) = delete;
+
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs const&) = delete;
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs&&) = delete;
 };
 
 enum class SummonPropertiesParamType : uint8

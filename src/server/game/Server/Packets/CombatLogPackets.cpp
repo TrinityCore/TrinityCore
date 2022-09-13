@@ -108,6 +108,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::CombatLog::SpellLogMissDe
 {
     data << float(debug.HitRoll);
     data << float(debug.HitRollNeeded);
+
+    return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::CombatLog::SpellLogMissEntry const& entry)

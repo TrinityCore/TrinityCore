@@ -567,14 +567,21 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         }
     }
 
-    CastSpellExtraArgs args(m_originalCasterGUID);
+    // original caster guid only for GO cast
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+    args.SetOriginalCaster(m_originalCasterGUID);
+
+    if (!m_castItemGUID.IsEmpty() && sSpellMgr->AssertSpellInfo(m_spellInfo->Effects[effIndex].TriggerSpell)->HasAttribute(SPELL_ATTR2_RETAIN_ITEM_CAST))
+        if (Unit const* unitAuraCaster = args.TriggeringAura->GetCaster())
+            if (Player const* triggeringAuraCaster = unitAuraCaster->ToPlayer())
+                args.CastItem = triggeringAuraCaster->GetItemByGuid(m_castItemGUID);
+
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
-    // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo->Id, args);
+    m_caster->CastSpell(std::move(targets), spellInfo->Id, args);
 }
 
 void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)

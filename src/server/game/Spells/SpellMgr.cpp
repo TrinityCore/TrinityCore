@@ -3365,7 +3365,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Tremor Totem (instant pulse)
     ApplySpellFix({ 8145 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
         spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
     });
 
@@ -4210,7 +4210,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 75509 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Combustion and Consumption Heroic versions lacks radius data
@@ -4247,7 +4247,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         57143  // Life Burst (Wyrmrest Skytalon)
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Arcane Barrage (cast by players and NONMELEEDAMAGELOG with caster Scion of Eternity (original caster)).
@@ -4429,7 +4429,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Frozen Orb
     ApplySpellFix({ 92267 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Cho'Gall
@@ -4529,7 +4529,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Fiery Blaze
@@ -4630,7 +4630,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Ride Vehicle
     ApplySpellFix({ 43671 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Devouring Flames
@@ -5237,7 +5237,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         93261
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Lightning Strike (Force Cast)
@@ -5249,7 +5249,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Lightning Strike (Visual)
     ApplySpellFix({ 88230 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Lightning Strike (Damage)
@@ -5371,7 +5371,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Static Shock
     ApplySpellFix({ 87873 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // ENDOF THRONE OF THE FOUR WINDS SPELLS
@@ -5516,7 +5516,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         94472
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     //
@@ -5526,7 +5526,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Eject Passenger
     ApplySpellFix({ 78643 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Ignition

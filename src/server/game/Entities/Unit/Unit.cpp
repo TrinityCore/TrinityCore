@@ -786,10 +786,10 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         if (spellProto)
         {
             if (!spellProto->HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
-                victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Damage, spellProto->Id);
+                victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Damage, spellProto);
         }
         else
-            victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Damage, 0);
+            victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Damage);
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
@@ -923,7 +923,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         victim->ModifyHealth(-(int32)damage);
 
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
-            victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::NonPeriodicDamage, spellProto ? spellProto->Id : 0);
+            victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::NonPeriodicDamage, spellProto);
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
         {
@@ -2880,7 +2880,7 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAu
     {
         if (!skipInstant || m_currentSpells[CURRENT_GENERIC_SPELL]->GetCastTime())
         {
-            if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS)))
+            if (!isAutoshoot || !(m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS)))
                 return true;
         }
     }
@@ -2888,7 +2888,7 @@ bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAu
     if (!skipChanneled && m_currentSpells[CURRENT_CHANNELED_SPELL] &&
         (m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED))
     {
-        if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS)))
+        if (!isAutoshoot || !(m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS)))
             return true;
     }
     // autorepeat spells may be finished or delayed, but they are still considered cast
@@ -3829,19 +3829,37 @@ void Unit::RemoveNotOwnLimitedTargetAuras(bool onPhaseChange /*= false*/)
 }
 
 template<typename InterruptFlag>
-bool IsInterruptFlagIgnoredForSpell(InterruptFlag /*flag*/, Unit const* /*unit*/, SpellInfo const* /*spellInfo*/)
+bool IsInterruptFlagIgnoredForSpell(InterruptFlag /*flag*/, Unit const* /*unit*/, SpellInfo const* /*auraSpellInfo*/, SpellInfo const* /*interruptSource*/)
 {
     return false;
 }
 
-template<>
-bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags flag, Unit const* unit, SpellInfo const* spellInfo)
+bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags flag, Unit const* unit, SpellInfo const* auraSpellInfo, SpellInfo const* interruptSource)
 {
-    return flag == SpellAuraInterruptFlags::Moving && unit->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spellInfo);
+    switch (flag)
+    {
+        case SpellAuraInterruptFlags::Moving:
+            return unit->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, auraSpellInfo);
+        case SpellAuraInterruptFlags::Action:
+        case SpellAuraInterruptFlags::ActionDelayed:
+            if (interruptSource)
+            {
+                if (interruptSource->HasAttribute(SPELL_ATTR1_ALLOW_WHILE_STEALTHED) && auraSpellInfo->HasAura(SPELL_AURA_MOD_STEALTH))
+                    return true;
+
+                if (interruptSource->HasAttribute(SPELL_ATTR2_ALLOW_WHILE_INVISIBLE) && auraSpellInfo->HasAura(SPELL_AURA_MOD_INVISIBILITY))
+                    return true;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return false;
 }
 
 template <typename InterruptFlags>
-void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except)
+void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* source)
 {
     if (!HasInterruptFlag(flag))
         return;
@@ -3852,8 +3870,8 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except)
         Aura* aura = (*iter)->GetBase();
         ++iter;
         if (aura->GetSpellInfo()->HasAuraInterruptFlag(flag)
-            && (!except || aura->GetId() != except)
-            && !IsInterruptFlagIgnoredForSpell(flag, this, aura->GetSpellInfo()))
+            && (!source || aura->GetId() != source->Id)
+            && !IsInterruptFlagIgnoredForSpell(flag, this, aura->GetSpellInfo(), source))
         {
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aura);
@@ -3866,15 +3884,15 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except)
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->getState() == SPELL_STATE_CASTING
             && spell->GetSpellInfo()->HasChannelInterruptFlag(flag)
-            && spell->GetSpellInfo()->Id != except
-            && !IsInterruptFlagIgnoredForSpell(flag, this, spell->GetSpellInfo()))
+            && (!source || spell->GetSpellInfo()->Id != source->Id)
+            && !IsInterruptFlagIgnoredForSpell(flag, this, spell->GetSpellInfo(), source))
             InterruptNonMeleeSpells(false, 0, true);
 
     UpdateInterruptMask();
 }
 
-template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags flag, uint32 except);
-template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2 flag, uint32 except);
+template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags flag, SpellInfo const* source);
+template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2 flag, SpellInfo const* source);
 
 void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID)
 {
@@ -7324,7 +7342,7 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo) const
     if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) && spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
         return false;
 
-    if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+    if (spellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
         return false;
 
     if (uint32 schoolMask = spellInfo->GetSchoolMask())
@@ -7478,7 +7496,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Worl
             if (list.count(aura) > 0)
                 return true;
 
-            if (!spellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
+            if (!spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
             {
                 // Check for immune to application of harmful magical effects
                 AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
@@ -10099,30 +10117,44 @@ void Unit::GetProcAurasTriggeredOnEvent(AuraApplicationProcContainer& aurasTrigg
 {
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
 
+    auto processAuraApplication = [&](AuraApplication* aurApp)
+    {
+        if (uint32 procEffectMask = aurApp->GetBase()->GetProcEffectMask(aurApp, eventInfo, now))
+        {
+            aurApp->GetBase()->PrepareProcToTrigger(aurApp, eventInfo, now);
+            aurasTriggeringProc.emplace_back(procEffectMask, aurApp);
+        }
+        else
+        {
+            if (aurApp->GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PROC_FAILURE_BURNS_CHARGE))
+            {
+                if (SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(aurApp->GetBase()->GetSpellInfo()->Id))
+                {
+                    aurApp->GetBase()->PrepareProcChargeDrop(procEntry, eventInfo);
+                    aurApp->GetBase()->ConsumeProcCharges(procEntry);
+                }
+            }
+
+            if (aurApp->GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR2_PROC_COOLDOWN_ON_FAILURE))
+                if (SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(aurApp->GetBase()->GetSpellInfo()->Id))
+                    aurApp->GetBase()->AddProcCooldown(procEntry, now);
+        }
+    };
+
     // use provided list of auras which can proc
     if (procAuras)
     {
         for (AuraApplication* aurApp : *procAuras)
         {
             ASSERT(aurApp->GetTarget() == this);
-            if (uint8 procEffectMask = aurApp->GetBase()->GetProcEffectMask(aurApp, eventInfo, now))
-            {
-                aurApp->GetBase()->PrepareProcToTrigger(aurApp, eventInfo, now);
-                aurasTriggeringProc.emplace_back(procEffectMask, aurApp);
-            }
+            processAuraApplication(aurApp);
         }
     }
     // or generate one on our own
     else
     {
         for (AuraApplicationMap::iterator itr = GetAppliedAuras().begin(); itr != GetAppliedAuras().end(); ++itr)
-        {
-            if (uint8 procEffectMask = itr->second->GetBase()->GetProcEffectMask(itr->second, eventInfo, now))
-            {
-                itr->second->GetBase()->PrepareProcToTrigger(itr->second, eventInfo, now);
-                aurasTriggeringProc.emplace_back(procEffectMask, itr->second);
-            }
-        }
+            processAuraApplication(itr->second);
     }
 }
 
@@ -10169,12 +10201,8 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
     if (disableProcs)
         SetCantProc(true);
 
-    for (auto const& aurAppProc : aurasTriggeringProc)
+    for (auto const& [procEffectMask, aurApp] : aurasTriggeringProc)
     {
-        AuraApplication* aurApp;
-        uint8 procEffectMask;
-        std::tie(procEffectMask, aurApp) = aurAppProc;
-
         if (aurApp->GetRemoveMode().HasAnyFlag())
             continue;
 
@@ -11934,7 +11962,7 @@ Aura* Unit::AddAura(SpellInfo const* spellInfo, uint8 effMask, Unit* target)
     if (!spellInfo)
         return nullptr;
 
-    if (!target->IsAlive() && !spellInfo->IsPassive() && !spellInfo->HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD))
+    if (!target->IsAlive() && !spellInfo->IsPassive() && !spellInfo->HasAttribute(SPELL_ATTR2_ALLOW_DEAD_TARGET))
         return nullptr;
 
     if (target->IsImmunedToSpell(spellInfo, this))

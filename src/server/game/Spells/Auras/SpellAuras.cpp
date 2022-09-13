@@ -834,7 +834,7 @@ void Aura::Update(uint32 diff, Unit* caster)
         {
             if (m_timeCla > int32(diff))
                 m_timeCla -= diff;
-            else if (caster)
+            else if (caster && (caster == GetOwner() || !GetSpellInfo()->HasAttribute(SPELL_ATTR2_NO_TARGET_PER_SECOND_COSTS)))
             {
                 if (int32 manaPerSecond = m_spellInfo->ManaPerSecond)
                 {
@@ -1110,7 +1110,7 @@ bool Aura::IsRemovedOnShapeLost(Unit* target) const
 {
     return GetCasterGUID() == target->GetGUID()
         && m_spellInfo->Stances
-        && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT)
+        && !m_spellInfo->HasAttribute(SPELL_ATTR2_ALLOW_WHILE_NOT_SHAPESHIFTED_CASTER_FORM)
         && !m_spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFTED);
 }
 
@@ -1838,9 +1838,18 @@ bool Aura::IsProcOnCooldown(std::chrono::steady_clock::time_point now) const
     return m_procCooldown > now;
 }
 
-void Aura::AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd)
+void Aura::AddProcCooldown(SpellProcEntry const* procEntry, std::chrono::steady_clock::time_point now)
 {
-    m_procCooldown = cooldownEnd;
+    // cooldowns should be added to the whole aura (see 51698 area aura)
+    int32 procCooldown = procEntry->Cooldown.count();
+
+    /*
+    if (Unit* caster = GetCaster())
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(GetSpellInfo(), SpellModOp::ProcCooldown, procCooldown);
+    */
+
+    m_procCooldown = now + Milliseconds(procCooldown);
 }
 
 void Aura::ResetProcCooldown()
@@ -1857,15 +1866,35 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
     ASSERT(procEntry);
 
+    PrepareProcChargeDrop(procEntry, eventInfo);
+
+    // cooldowns should be added to the whole aura (see 51698 area aura)
+    AddProcCooldown(procEntry, now);
+}
+
+
+void Aura::PrepareProcChargeDrop(SpellProcEntry const* procEntry, ProcEventInfo const& eventInfo)
+{
     // take one charge, aura expiration will be handled in Aura::TriggerProcOnEvent (if needed)
     if (!(procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)&& IsUsingCharges() && (!eventInfo.GetSpellInfo() || !eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR6_DONT_CONSUME_PROC_CHARGES)))
     {
         --m_procCharges;
         SetNeedClientUpdateForTargets();
     }
+}
 
-    // cooldowns should be added to the whole aura (see 51698 area aura)
-    AddProcCooldown(now + procEntry->Cooldown);
+void Aura::ConsumeProcCharges(SpellProcEntry const* procEntry)
+{
+    // Remove aura if we've used last charge to proc
+    if (procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
+    {
+        ModStackAmount(-1);
+    }
+    else if (IsUsingCharges())
+    {
+        if (!GetCharges())
+            Remove();
+    }
 }
 
 uint8 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const
@@ -2033,16 +2062,7 @@ void Aura::TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, Pro
         CallScriptAfterProcHandlers(aurApp, eventInfo);
     }
 
-    // Remove aura if we've used last charge to proc
-    if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(GetId()))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
-    {
-        ModStackAmount(-1);
-    }
-    else if (IsUsingCharges())
-    {
-        if (!GetCharges())
-            Remove();
-    }
+    ConsumeProcCharges(ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(GetSpellInfo()->Id)));
 }
 
 void Aura::_DeleteRemovedApplications()
