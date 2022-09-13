@@ -45,7 +45,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::MissileTrajectory
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellAmmo const& spellAmmo)
 {
     data << int32(spellAmmo.DisplayID);
-    data << uint8(spellAmmo.InventoryType);
+    data << int32(spellAmmo.InventoryType);
     return data;
 }
 
