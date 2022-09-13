@@ -387,9 +387,14 @@ class spell_anhuur_disable_beacon_beams : public SpellScript
 
     void Notify(SpellEffIndex /*index*/)
     {
-        if (InstanceScript * instance = GetCaster()->GetInstanceScript())
-            if (Creature * anhuur = instance->GetCreature(DATA_TEMPLE_GUARDIAN_ANHUUR))
-                anhuur->AI()->DoAction(GetEffectValue() == SPELL_BEAM_OF_LIGHT_LEFT ? ACTION_DISABLE_BEACON_L : ACTION_DISABLE_BEACON_R);
+        GameObject* caster = GetGObjCaster();
+        if (!caster)
+            return;
+
+        if (InstanceScript* instance = caster->GetInstanceScript())
+            if (Creature* anhuur = instance->GetCreature(DATA_TEMPLE_GUARDIAN_ANHUUR))
+                if (CreatureAI* ai = anhuur->AI())
+                    ai->DoAction(GetEffectValue() == SPELL_BEAM_OF_LIGHT_LEFT ? ACTION_DISABLE_BEACON_L : ACTION_DISABLE_BEACON_R);
     }
 
     void Register() override
