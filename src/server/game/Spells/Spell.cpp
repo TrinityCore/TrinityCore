@@ -580,7 +580,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     switch (m_spellInfo->DmgClass)
     {
         case SPELL_DAMAGE_CLASS_MELEE:
-            if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+            if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON))
                 m_attackType = OFF_ATTACK;
             else
                 m_attackType = BASE_ATTACK;
@@ -853,7 +853,7 @@ void Spell::SelectSpellTargets()
 
                 if (noTargetFound)
                 {
-                    SendCastResult(m_spellInfo->Id == 51690 ? SPELL_FAILED_OUT_OF_RANGE : SPELL_FAILED_BAD_TARGETS);
+                    SendCastResult(SPELL_FAILED_BAD_IMPLICIT_TARGETS);
                     finish(false);
                     return;
                 }
@@ -1953,9 +1953,9 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionConta
             break;
     }
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
         retMask &= GRID_MAP_TYPE_MASK_CORPSE | GRID_MAP_TYPE_MASK_PLAYER;
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_GHOSTS))
         retMask &= GRID_MAP_TYPE_MASK_PLAYER;
     if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TARGET_PLAYERS))
         retMask &= ~(GRID_MAP_TYPE_MASK_CORPSE | GRID_MAP_TYPE_MASK_PLAYER);
@@ -2486,14 +2486,12 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
     if ((MissCondition == SPELL_MISS_IMMUNE || MissCondition == SPELL_MISS_IMMUNE2) && spell->m_caster->GetTypeId() == TYPEID_PLAYER && unit->GetTypeId() == TYPEID_PLAYER && spell->m_caster->IsValidAttackTarget(unit, spell->GetSpellInfo()))
         unit->SetInCombatWith(spell->m_caster->ToPlayer());
 
-    _enablePVP = false; // need to check PvP state before spell effects, but act on it afterwards
+    // if target is flagged for pvp also flag caster if a player
+    _enablePVP = (MissCondition == SPELL_MISS_NONE || spell->m_spellInfo->HasAttribute(SPELL_ATTR3_PVP_ENABLING))
+        && unit->IsPvP() && spell->m_caster->GetTypeId() == TYPEID_PLAYER; // need to check PvP state before spell effects, but act on it afterwards
+
     if (_spellHitTarget)
     {
-        // if target is flagged for pvp also flag caster if a player
-        // but respect current pvp rules (buffing/healing npcs flagged for pvp only flags you if they are in combat)
-        if (unit->IsPvP() && (unit->IsInCombat() || unit->IsCharmedOwnedByPlayerOrPlayer()) && spell->m_caster->GetTypeId() == TYPEID_PLAYER)
-            _enablePVP = true; // Decide on PvP flagging now, but act on it later.
-
         SpellMissInfo missInfo = spell->PreprocessSpellHit(_spellHitTarget, ScaleAura, *this);
         if (missInfo != SPELL_MISS_NONE)
         {
@@ -2758,7 +2756,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (!unitCaster->IsCreature() || !unitCaster->ToCreature()->IsTrigger())
                 unitCaster->AtTargetAttacked(unit, spell->m_spellInfo->CausesInitialThreat() && !unitCaster->IsIgnoringCombat());
 
-        if (!unit->IsStandState())
+        if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_DO_NOT_TRIGGER_TARGET_STAND) && !unit->IsStandState())
             unit->SetStandState(UNIT_STAND_STATE_STAND);
     }
 
@@ -2802,11 +2800,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         spell->DoTriggersOnSpellHit(_spellHitTarget, EffectMask);
-
-        if (_enablePVP)
-            spell->m_caster->ToPlayer()->UpdatePvP(true);
     }
 
+    if (_enablePVP)
+        spell->m_caster->ToPlayer()->UpdatePvP(true);
     spell->_spellAura = HitAura;
     spell->CallScriptAfterHitHandlers();
     spell->_spellAura = nullptr;
@@ -5055,7 +5052,7 @@ void Spell::SendResurrectRequest(Player* target)
     resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
     resurrectRequest.Name = sentName;
     resurrectRequest.Sickness = m_caster->IsUnit() && m_caster->ToUnit()->IsSpiritHealer(); // "you'll be afflicted with resurrection sickness"
-    resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_RESURRECTION_TIMER);
+    resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_NO_RES_TIMER);
     resurrectRequest.SpellID = m_spellInfo->Id;
     target->SendDirectMessage(resurrectRequest.Write());
 }
@@ -5836,8 +5833,8 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     }
 
     // Spell cast only in battleground
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_BATTLEGROUND) && m_caster->GetTypeId() == TYPEID_PLAYER)
-        if (!m_caster->ToPlayer()->InBattleground())
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_BATTLEGROUNDS))
+        if (!m_caster->GetMap()->IsBattleground())
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
     // do not allow spells to be cast in arenas or rated battlegrounds
@@ -7461,7 +7458,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
     if (!(_triggeredCastFlags & TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT) && m_spellInfo->EquippedItemClass >=0)
     {
         // main hand weapon required
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_MAIN_HAND))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON))
         {
             Item* item = player->GetWeaponForAttack(BASE_ATTACK);
 
@@ -7475,7 +7472,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
         }
 
         // offhand hand weapon required
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON))
         {
             Item* item = m_caster->ToPlayer()->GetWeaponForAttack(OFF_ATTACK);
 
