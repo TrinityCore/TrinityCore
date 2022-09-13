@@ -2521,7 +2521,6 @@ float Unit::GetMeleeMissChance(Unit const* victim) const
 float Unit::GetUnitBlockChance(Unit const* victim) const
 {
     float chance = 0.f;
-
     if (Player const* playerVictim = victim->ToPlayer())
     {
         if (playerVictim->CanBlock())
@@ -2537,6 +2536,11 @@ float Unit::GetUnitBlockChance(Unit const* victim) const
         {
             chance = 5.0f;
             chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
+
+            int32 const levelDiff = victim->getLevelForTarget(this) - getLevelForTarget(victim);
+
+            if (levelDiff > 0)
+                chance += 0.2f * levelDiff;
         }
     }
 
