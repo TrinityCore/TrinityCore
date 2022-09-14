@@ -249,6 +249,36 @@ uint32 Battlenet::Session::HandleVerifyWebCredentials(authentication::v1::Verify
     return ERROR_DENIED;
 }
 
+uint32 Battlenet::Session::HandleGenerateWebCredentials(authentication::v1::GenerateWebCredentialsRequest const* request, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation)
+{
+    if (!_authed)
+        return ERROR_DENIED;
+
+    if (request->program() != 0x576F57)
+    {
+        auto asPrintable = [](char c) { return std::isprint(c) ? c : ' '; };
+
+        TC_LOG_DEBUG("session", "[Battlenet::HandleGenerateWebCredentials] %s attempted to generate web cretentials with game other than WoW (using %c%c%c%c)!",
+            GetClientInfo().c_str(), asPrintable((request->program() >> 24) & 0xFF), asPrintable((request->program() >> 16) & 0xFF),
+            asPrintable((request->program() >> 8) & 0xFF), asPrintable(request->program() & 0xFF));
+        return ERROR_BAD_PROGRAM;
+    }
+
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION_BY_ID);
+    stmt->setUInt32(0, _accountInfo->Id);
+
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([this, asyncContinuation = std::move(continuation)](PreparedQueryResult result)
+    {
+        // just send existing credentials back (not the best but it works for now with them being stored in db)
+        Battlenet::Services::Authentication asyncContinuationService(this);
+        authentication::v1::GenerateWebCredentialsResponse response;
+        response.set_web_credentials((*result)[0].GetCString());
+        asyncContinuation(&asyncContinuationService, ERROR_OK, &response);
+    }));
+
+    return ERROR_OK;
+}
+
 uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredentials, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
     if (webCredentials.empty())
