@@ -167,7 +167,6 @@ enum QuestTheWarchiefCometh
     TALK_GARROSH_COMETH_10                  = 10,
     TALK_CROMUSH_COMETH_0                   = 0,
     TALK_CROMUSH_COMETH_1                   = 1,
-    TALK_MORTUUS_COMETH_0                   = 0,
 
     MOVE_CROMUSH_TO_SYLVANAS                = 5405701,
     MOVE_CROMUSH_TO_HOME                    = 5405702,
@@ -481,7 +480,6 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
                     _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 13, 3s + 500ms);
                     _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 24, 10s);
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 3s + 500ms);
                     break;
                 }
 
@@ -625,7 +623,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                         garrosh->CastSpell(garrosh, SPELL_WELCOME_TO_SILVERPINE_CREDIT, true);
                     DespawnGarroshAndHisEliteGuards();
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 28, 500ms);
+                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 500ms);
                     break;
 
                 case EVENT_SCENE_TALK_COMETH + 24:
@@ -649,10 +647,6 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 26:
-                    Talk(TALK_MORTUUS_COMETH_0);
-                    break;
-
-                case EVENT_SCENE_TALK_COMETH + 28:
                     _summons.DespawnAll();
                     Reset();
                     break;
