@@ -123,6 +123,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BNET_AUTHENTICATION, "SELECT ba.id, ba.sha_pass_hash, ba.failed_logins, ba.LoginTicket, ba.LoginTicketExpiry, bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate FROM battlenet_accounts ba LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id WHERE email = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_AUTHENTICATION, "UPDATE battlenet_accounts SET LoginTicket = ?, LoginTicketExpiry = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION, "SELECT LoginTicketExpiry FROM battlenet_accounts WHERE LoginTicket = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION_BY_ID, "SELECT LoginTicket FROM battlenet_accounts WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_EXISTING_AUTHENTICATION, "UPDATE battlenet_accounts SET LoginTicketExpiry = ? WHERE LoginTicket = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_INFO, "SELECT " BnetAccountInfo ", " BnetGameAccountInfo ""
         " FROM battlenet_accounts ba LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account a ON ba.id = a.battlenet_account"
