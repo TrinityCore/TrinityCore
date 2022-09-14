@@ -384,7 +384,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
 {
     AELootResult aeResult;
 
-    if (!_player->GetGroup() || _player->GetGroup()->GetMasterLooterGuid() != _player->GetGUID() || _player->GetGroup()->GetLootMethod() != MASTER_LOOT)
+    if (!_player->GetGroup() || _player->GetGroup()->GetMasterLooterGuid() != _player->GetGUID())
     {
         _player->SendLootError(ObjectGuid::Empty, ObjectGuid::Empty, LOOT_ERROR_DIDNT_KILL);
         return;
@@ -411,7 +411,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
             return;
         }
 
-        if (!loot)
+        if (!loot || loot->GetLootMethod() != MASTER_LOOT)
             return;
 
         uint8 slotid = req.LootListID - 1;

@@ -127,9 +127,9 @@ void LootItem::AddAllowedLooter(const Player* player)
 // --------- Loot ---------
 //
 
-Loot::Loot(Map* map, ObjectGuid owner, LootType type) : gold(0), unlootedCount(0), roundRobinPlayer(), loot_type(type), maxDuplicates(1),
+Loot::Loot(Map* map, ObjectGuid owner, LootType type, LootMethod lootMethod) : gold(0), unlootedCount(0), loot_type(type), maxDuplicates(1),
     _guid(map ? ObjectGuid::Create<HighGuid::LootObject>(map->GetId(), 0, map->GenerateLowGuid<HighGuid::LootObject>()) : ObjectGuid::Empty),
-    _owner(owner), _itemContext(ItemContext::NONE)
+    _owner(owner), _itemContext(ItemContext::NONE), _lootMethod(lootMethod)
 {
 }
 
@@ -742,7 +742,7 @@ NotNormalLootItemList* Loot::FillQuestLoot(Player const* player)
     {
         LootItem &item = quest_items[i];
 
-        if (!item.is_looted && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && ((player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT))))
+        if (!item.is_looted && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && ((GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID()) || GetLootMethod() != MASTER_LOOT))))
         {
             ql->push_back(NotNormalLootItem(i));
 
@@ -752,7 +752,7 @@ NotNormalLootItemList* Loot::FillQuestLoot(Player const* player)
             // increase once if one looter only, looter-times if free for all
             if (item.freeforall || !item.is_blocked)
                 ++unlootedCount;
-            if (!player->GetGroup() || (player->GetGroup()->GetLootMethod() != GROUP_LOOT))
+            if (!player->GetGroup() || (GetLootMethod() != GROUP_LOOT))
                 item.is_blocked = true;
 
             if (items.size() + ql->size() == MAX_NR_LOOT_ITEMS)
