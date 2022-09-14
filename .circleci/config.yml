@@ -96,7 +96,7 @@ jobs:
               if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ]; then
                 docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
                 echo "Pushing docker image to dockerhub"
-                docker push $image_prefix
+                docker push --all-tags $image_prefix
               fi
             fi
       - store_artifacts:
