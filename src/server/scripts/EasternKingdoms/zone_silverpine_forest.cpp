@@ -59,7 +59,7 @@ public:
     {
         if (newArea == AREA_FORSAKEN_HIGH_COMMAND)
         {
-            if (player->GetLevel() >= 9)
+            if (player->GetLevel() >= 5)
             {
                 // Note: it seems there's an automatic detecter that basically adds the quest onto the player's questlog if they haven't completed any of the two breadcrumb quests that unlock the questline.
                 if (player->GetQuestStatus(QUEST_SILVERPINE_COMMAND_1) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_SILVERPINE_COMMAND_2) == QUEST_STATUS_NONE)
