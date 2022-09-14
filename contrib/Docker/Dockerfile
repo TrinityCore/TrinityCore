@@ -1,4 +1,4 @@
-FROM trinitycore/circle-ci:master-buildpacks-hirsute
+FROM trinitycore/circle-ci:master-base-22.04
 
 #Setup
 WORKDIR /home/circleci
