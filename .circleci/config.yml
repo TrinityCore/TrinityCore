@@ -2,11 +2,11 @@ version: 2
 jobs:
   codestyle_and_sql:
     docker:
-      - image: trinitycore/circle-ci:master-buildpacks-hirsute
+      - image: trinitycore/circle-ci:master-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-      - image: circleci/mysql:8
+      - image: cimg/mysql:8.0
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -44,7 +44,7 @@ jobs:
             cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
   pch:
     docker:
-      - image: trinitycore/circle-ci:master-buildpacks-hirsute
+      - image: trinitycore/circle-ci:master-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -103,7 +103,7 @@ jobs:
           path: docker.tar.gz
   nopch:
     docker:
-      - image: trinitycore/circle-ci:master-buildpacks-hirsute
+      - image: trinitycore/circle-ci:master-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
