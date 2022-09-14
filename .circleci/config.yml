@@ -2,11 +2,11 @@ version: 2
 jobs:
   codestyle_and_sql:
     docker:
-      - image: cataclysmpreservationproject/circle-ci:4.3.4-buildpacks-hirsute
+      - image: cataclysmpreservationproject/circle-ci:4.3.4-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-      - image: circleci/mysql:8
+      - image: cimg/mysql:8.0
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -40,7 +40,7 @@ jobs:
             cat sql/updates/hotfixes/4.3.4/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
   pch:
     docker:
-      - image: cataclysmpreservationproject/circle-ci:4.3.4-buildpacks-hirsute
+      - image: cataclysmpreservationproject/circle-ci:4.3.4-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -88,7 +88,7 @@ jobs:
           path: docker.tar.gz
   nopch:
     docker:
-      - image: cataclysmpreservationproject/circle-ci:4.3.4-buildpacks-hirsute
+      - image: cataclysmpreservationproject/circle-ci:4.3.4-base-22.04
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
