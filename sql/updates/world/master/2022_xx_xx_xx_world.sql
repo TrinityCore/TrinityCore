@@ -25,7 +25,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (44629, 3, 0, 'What you have done here, Sylvanas... it goes against the laws of nature. Disgusting is the only word I have to describe it.', 12, 0, 100, 0, 0, 20499, 0, 44714, 0, 'VO_QE_Garrosh_SPEvent04'),
 (44629, 4, 0, 'Have you given any thought to what this means, Sylvanas?', 12, 0, 100, 6, 0, 20500, 0, 44716, 0, 'VO_QE_Garrosh_SPEvent05'),
 (44629, 5, 0, 'What difference is there between you and the Lich King now?', 12, 0, 100, 6, 0, 20501, 0, 44717, 0, 'VO_QE_Garrosh_SPEvent06'),
-(44629, 6, 0, 'Watch your clever mouth, bitch.', 12, 0, 100, 397, 0, 20502, 0, 44719, 0, 'VO_QE_Garrosh_SPEvent07'),
+(44629, 6, 0, 'Watch your clever mouth.', 12, 0, 100, 397, 0, 20502, 0, 44719, 0, 'VO_QE_Garrosh_SPEvent07'),
 (44629, 7, 0, 'Cromush, you stay behind and make sure the Banshee Queen is well "guarded." I will be expecting a full report when next we meet.', 12, 0, 100, 0, 0, 20503, 0, 44720, 0, 'VO_QE_Garrosh_SPEvent08'),
 (44629, 8, 0, 'Remember, Sylvanas, eventually we all have to stand before our maker and face judgment. Your day may come sooner than others...', 12, 0, 100, 0, 0, 20504, 0, 44721, 0, 'VO_QE_Garrosh_SPEvent09');
 
