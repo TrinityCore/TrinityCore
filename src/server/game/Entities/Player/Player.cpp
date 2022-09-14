@@ -8704,31 +8704,13 @@ void Player::ApplyAllAzeriteEmpoweredItemMods(bool apply)
     }
 }
 
-ObjectGuid Player::GetLootWorldObjectGUID(ObjectGuid const& lootObjectGuid) const
+Loot* Player::GetLootByWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const
 {
-    auto itr = m_AELootView.find(lootObjectGuid);
-    if (itr != m_AELootView.end())
-        return itr->second;
-
-    return ObjectGuid::Empty;
-}
-
-void Player::RemoveAELootedWorldObject(ObjectGuid const& lootWorldObjectGuid)
-{
-    auto itr = std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, ObjectGuid> const& lootView)
+    auto itr = std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, Loot*> const& lootView)
     {
-        return lootView.second == lootWorldObjectGuid;
+        return lootView.second->GetOwnerGUID() == lootWorldObjectGuid;
     });
-    if (itr != m_AELootView.end())
-        m_AELootView.erase(itr);
-}
-
-bool Player::HasLootWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const
-{
-    return m_AELootView.end() != std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, ObjectGuid> const& lootView)
-    {
-        return lootView.second == lootWorldObjectGuid;
-    });
+    return itr != m_AELootView.end() ? itr->second : nullptr;
 }
 
 /*  If in a battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
@@ -8860,8 +8842,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
             if (lootid)
             {
-                loot->clear();
-
                 Group* group = GetGroup();
                 bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
 
@@ -9018,8 +8998,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                 if (creature->CanGeneratePickPocketLoot())
                 {
                     creature->StartPickPocketRefillTimer();
-                    loot->clear();
 
+                    loot = new Loot(GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING);
+                    creature->m_loot.reset(loot);
                     if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
                         loot->FillLoot(lootid, LootTemplates_Pickpocketing, this, true);
 
@@ -9151,7 +9132,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
         // add 'this' player as one of the players that are looting 'loot'
         loot->AddLooter(GetGUID());
-        m_AELootView[loot->GetGUID()] = guid;
+        m_AELootView[loot->GetGUID()] = loot;
 
         if (loot_type == LOOT_CORPSE && !guid.IsItem())
             SetUnitFlag(UNIT_FLAG_LOOTING);
@@ -13052,7 +13033,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (HasLootWorldObjectGUID(bagItem->GetGUID()))
+                    if (GetLootByWorldObjectGUID(bagItem->GetGUID()))
                     {
                         m_session->DoLootReleaseAll();
                         released = true;                    // so we don't need to look at dstBag
@@ -13069,7 +13050,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (HasLootWorldObjectGUID(bagItem->GetGUID()))
+                    if (GetLootByWorldObjectGUID(bagItem->GetGUID()))
                     {
                         m_session->DoLootReleaseAll();
                         break;
