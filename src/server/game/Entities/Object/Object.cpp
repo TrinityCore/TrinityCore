@@ -2749,17 +2749,26 @@ void WorldObject::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo miss
 
 FactionTemplateEntry const* WorldObject::GetFactionTemplateEntry() const
 {
-    FactionTemplateEntry const* entry = sFactionTemplateStore.LookupEntry(GetFaction());
+    uint32 factionId = GetFaction();
+    FactionTemplateEntry const* entry = sFactionTemplateStore.LookupEntry(factionId);
     if (!entry)
     {
-        if (Player const* player = ToPlayer())
-            TC_LOG_ERROR("entities", "Player %s has invalid faction (faction template id) #%u", player->GetName().c_str(), GetFaction());
-        else if (Creature const* creature = ToCreature())
-            TC_LOG_ERROR("entities", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, GetFaction());
-        else if (GameObject const* go = ToGameObject())
-            TC_LOG_ERROR("entities", "GameObject (template id: %u) has invalid faction (faction template id) #%u", go->GetGOInfo()->entry, GetFaction());
-        else
-            TC_LOG_ERROR("entities", "WorldObject (name: %s, type: %u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), GetFaction());
+        switch (GetTypeId())
+        {
+            case TYPEID_PLAYER:
+                TC_LOG_ERROR("entities.unit", "Player %s has invalid faction (faction template id) #%u", ToPlayer()->GetName().c_str(), factionId);
+                break;
+            case TYPEID_UNIT:
+                TC_LOG_ERROR("entities.unit", "Creature (template id: %u) has invalid faction (faction template Id) #%u", ToCreature()->GetCreatureTemplate()->Entry, factionId);
+                break;
+            case TYPEID_GAMEOBJECT:
+                if (factionId) // Gameobjects may have faction template id = 0
+                    TC_LOG_ERROR("entities.faction", "GameObject (template id: %u) has invalid faction (faction template Id) #%u", ToGameObject()->GetGOInfo()->entry, factionId);
+                break;
+            default:
+                TC_LOG_ERROR("entities.unit", "Object (name=%s, type=%u) has invalid faction (faction template Id) #%u", GetName().c_str(), uint32(GetTypeId()), factionId);
+                break;
+        }
     }
 
     return entry;
@@ -2861,6 +2870,8 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
         return REP_NEUTRAL;
 
     FactionTemplateEntry const* targetFactionTemplateEntry = target->GetFactionTemplateEntry();
+    if (!targetFactionTemplateEntry)
+        return REP_NEUTRAL;
 
     if (Player const* targetPlayerOwner = target->GetAffectingPlayer())
     {
@@ -3051,15 +3062,18 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
         if (!unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitOrOwner->IsImmuneToNPC())
             return false;
 
-        if (unitOrOwner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget->IsImmuneToPC())
-            return false;
+        if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG))
+        {
+            if (unitOrOwner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget->IsImmuneToPC())
+                return false;
 
-        if (unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitOrOwner->IsImmuneToPC())
-            return false;
+            if (unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitOrOwner->IsImmuneToPC())
+                return false;
+        }
     }
 
     // CvC case - can attack each other only when one of them is hostile
-    if (unit && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget && !unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (unit && !unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unitTarget && !unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         return IsHostileTo(unitTarget) || unitTarget->IsHostileTo(this);
 
     // Traps without owner or with NPC owner versus Creature case - can attack to creature only when one of them is hostile
