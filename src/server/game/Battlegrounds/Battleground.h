@@ -129,7 +129,7 @@ enum BattlegroundTimeIntervals
     BUFF_RESPAWN_TIME               = 180,                  // secs
     BATTLEGROUND_COUNTDOWN_MAX      = 120,                  // secs
     ARENA_COUNTDOWN_MAX             = 60,                   // secs
-    PLAYER_POSITION_UPDATE_INTERVAL = 5                     // secs
+    PLAYER_POSITION_UPDATE_INTERVAL = 5000,                 // ms
 };
 
 enum BattlegroundStartTimeIntervals

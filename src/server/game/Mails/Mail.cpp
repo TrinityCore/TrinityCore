@@ -113,7 +113,7 @@ void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction tran
     if (m_mailTemplateId == 123)
         m_money = 1000000;
 
-    Loot mailLoot(nullptr, ObjectGuid::Empty, LOOT_NONE);
+    Loot mailLoot(nullptr, ObjectGuid::Empty, LOOT_NONE, FREE_FOR_ALL);
 
     // can be empty
     mailLoot.FillLoot(m_mailTemplateId, LootTemplates_Mail, receiver, true, true, LOOT_MODE_DEFAULT, ItemContext::NONE);

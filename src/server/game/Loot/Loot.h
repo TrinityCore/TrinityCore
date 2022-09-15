@@ -241,11 +241,12 @@ struct TC_GAME_API Loot
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
-    explicit Loot(Map* map, ObjectGuid owner, LootType type);
+    explicit Loot(Map* map, ObjectGuid owner, LootType type, LootMethod lootMethod);
     ~Loot();
 
     ObjectGuid const& GetGUID() const { return _guid; }
     ObjectGuid const& GetOwnerGUID() const { return _owner; }
+    LootMethod GetLootMethod() const { return _lootMethod; }
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
@@ -299,6 +300,7 @@ private:
     ObjectGuid _guid;
     ObjectGuid _owner;                                              // The WorldObject that holds this loot
     ItemContext _itemContext;
+    LootMethod _lootMethod;
 };
 
 class TC_GAME_API AELootResult

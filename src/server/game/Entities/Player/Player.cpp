@@ -8704,31 +8704,13 @@ void Player::ApplyAllAzeriteEmpoweredItemMods(bool apply)
     }
 }
 
-ObjectGuid Player::GetLootWorldObjectGUID(ObjectGuid const& lootObjectGuid) const
+Loot* Player::GetLootByWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const
 {
-    auto itr = m_AELootView.find(lootObjectGuid);
-    if (itr != m_AELootView.end())
-        return itr->second;
-
-    return ObjectGuid::Empty;
-}
-
-void Player::RemoveAELootedWorldObject(ObjectGuid const& lootWorldObjectGuid)
-{
-    auto itr = std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, ObjectGuid> const& lootView)
+    auto itr = std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, Loot*> const& lootView)
     {
-        return lootView.second == lootWorldObjectGuid;
+        return lootView.second->GetOwnerGUID() == lootWorldObjectGuid;
     });
-    if (itr != m_AELootView.end())
-        m_AELootView.erase(itr);
-}
-
-bool Player::HasLootWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const
-{
-    return m_AELootView.end() != std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, ObjectGuid> const& lootView)
-    {
-        return lootView.second == lootWorldObjectGuid;
-    });
+    return itr != m_AELootView.end() ? itr->second : nullptr;
 }
 
 /*  If in a battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
@@ -8758,7 +8740,7 @@ void Player::RemovedInsignia(Player* looterPlr)
     // Now we must make bones lootable, and send player loot
     bones->SetCorpseDynamicFlag(CORPSE_DYNFLAG_LOOTABLE);
 
-    bones->m_loot.reset(new Loot(GetMap(), bones->GetGUID(), LOOT_INSIGNIA));
+    bones->m_loot.reset(new Loot(GetMap(), bones->GetGUID(), LOOT_INSIGNIA, looterPlr->GetGroup() ? looterPlr->GetGroup()->GetLootMethod() : FREE_FOR_ALL));
 
     // For AV Achievement
     if (Battleground* bg = GetBattleground())
@@ -8852,7 +8834,10 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                     return;
                 }
 
-            loot = new Loot(GetMap(), guid, loot_type);
+            Group* group = GetGroup();
+            bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
+
+            loot = new Loot(GetMap(), guid, loot_type, groupRules ? group->GetLootMethod() : FREE_FOR_ALL);
             if (go->GetMap()->Is25ManRaid())
                 loot->maxDuplicates = 3;
 
@@ -8860,11 +8845,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
             if (lootid)
             {
-                loot->clear();
-
-                Group* group = GetGroup();
-                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
-
                 // check current RR player and get next if necessary
                 if (groupRules)
                     group->UpdateLooterGuid(go, true);
@@ -8888,20 +8868,17 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
             if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules)
             {
-                if (Group* group = GetGroup())
+                switch (loot->GetLootMethod())
                 {
-                    switch (group->GetLootMethod())
-                    {
-                        case GROUP_LOOT:
-                            // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
-                            group->GroupLoot(loot, go);
-                            break;
-                        case MASTER_LOOT:
-                            group->MasterLoot(loot, go);
-                            break;
-                        default:
-                            break;
-                    }
+                    case GROUP_LOOT:
+                        // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
+                        group->GroupLoot(loot, go);
+                        break;
+                    case MASTER_LOOT:
+                        group->MasterLoot(loot, go);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -8912,7 +8889,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
         {
             if (Group* group = GetGroup())
             {
-                switch (group->GetLootMethod())
+                switch (loot->GetLootMethod())
                 {
                     case MASTER_LOOT:
                         permission = group->GetMasterLooterGuid() == GetGUID() ? MASTER_PERMISSION : RESTRICTED_PERMISSION;
@@ -8948,7 +8925,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
         if (!item->m_lootGenerated && !sLootItemStorage->LoadStoredLoot(item, this))
         {
             item->m_lootGenerated = true;
-            loot = new Loot(GetMap(), guid, loot_type);
+            loot = new Loot(GetMap(), guid, loot_type, FREE_FOR_ALL);
             item->m_loot.reset(loot);
 
             switch (loot_type)
@@ -9018,8 +8995,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                 if (creature->CanGeneratePickPocketLoot())
                 {
                     creature->StartPickPocketRefillTimer();
-                    loot->clear();
 
+                    loot = new Loot(GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING, FREE_FOR_ALL);
+                    creature->m_loot.reset(loot);
                     if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
                         loot->FillLoot(lootid, LootTemplates_Pickpocketing, this, true);
 
@@ -9059,7 +9037,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                 // for creature, loot is filled when creature is killed.
                 if (Group* group = creature->GetLootRecipientGroup())
                 {
-                    switch (group->GetLootMethod())
+                    switch (loot->GetLootMethod())
                     {
                         case GROUP_LOOT:
                             // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
@@ -9097,7 +9075,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                     Group* group = GetGroup();
                     if (group == creature->GetLootRecipientGroup())
                     {
-                        switch (group->GetLootMethod())
+                        switch (loot->GetLootMethod())
                         {
                             case MASTER_LOOT:
                                 permission = group->GetMasterLooterGuid() == GetGUID() ? MASTER_PERMISSION : RESTRICTED_PERMISSION;
@@ -9123,26 +9101,13 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
     if (permission != NONE_PERMISSION)
     {
-        LootMethod _lootMethod = FREE_FOR_ALL;
-        if (Group* group = GetGroup())
-        {
-            if (Creature* creature = GetMap()->GetCreature(guid))
-            {
-                if (Player* recipient = creature->GetLootRecipient())
-                {
-                    if (group == recipient->GetGroup())
-                        _lootMethod = group->GetLootMethod();
-                }
-            }
-        }
-
         if (!guid.IsItem() && !aeLooting)
             SetLootGUID(guid);
 
         WorldPackets::Loot::LootResponse packet;
         packet.Owner = guid;
         packet.LootObj = loot->GetGUID();
-        packet._LootMethod = _lootMethod;
+        packet._LootMethod = loot->GetLootMethod();
         packet.AcquireReason = GetLootTypeForClient(loot_type);
         packet.Acquired = true; // false == No Loot (this too^^)
         packet.AELooting = aeLooting;
@@ -9151,7 +9116,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
         // add 'this' player as one of the players that are looting 'loot'
         loot->AddLooter(GetGUID());
-        m_AELootView[loot->GetGUID()] = guid;
+        m_AELootView[loot->GetGUID()] = loot;
 
         if (loot_type == LOOT_CORPSE && !guid.IsItem())
             SetUnitFlag(UNIT_FLAG_LOOTING);
@@ -13052,7 +13017,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (HasLootWorldObjectGUID(bagItem->GetGUID()))
+                    if (GetLootByWorldObjectGUID(bagItem->GetGUID()))
                     {
                         m_session->DoLootReleaseAll();
                         released = true;                    // so we don't need to look at dstBag
@@ -13069,7 +13034,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (HasLootWorldObjectGUID(bagItem->GetGUID()))
+                    if (GetLootByWorldObjectGUID(bagItem->GetGUID()))
                     {
                         m_session->DoLootReleaseAll();
                         break;
@@ -18225,7 +18190,7 @@ bool Player::isAllowedToLoot(const Creature* creature) const
     else if (thisGroup != creature->GetLootRecipientGroup())
         return false;
 
-    switch (thisGroup->GetLootMethod())
+    switch (loot->GetLootMethod())
     {
         case PERSONAL_LOOT: /// @todo implement personal loot (http://wow.gamepedia.com/Loot#Personal_Loot)
             return false;
@@ -26062,7 +26027,7 @@ void Player::InitRunes()
 
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, ItemContext context, bool broadcast, bool createdByPlayer)
 {
-    Loot loot(nullptr, ObjectGuid::Empty, LOOT_NONE);
+    Loot loot(nullptr, ObjectGuid::Empty, LOOT_NONE, FREE_FOR_ALL);
     loot.FillLoot(loot_id, store, this, true, false, LOOT_MODE_DEFAULT, context);
 
     uint32 max_slot = loot.GetMaxSlotInLootFor(this);
