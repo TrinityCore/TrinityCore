@@ -28,6 +28,7 @@
 #include "GuildMgr.h"
 #include "Item.h"
 #include "Log.h"
+#include "Loot.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
@@ -360,9 +361,7 @@ void WorldSession::DoLootRelease(Loot* loot)
             if (player->GetGUID() == loot->roundRobinPlayer)
             {
                 loot->roundRobinPlayer.Clear();
-
-                if (Group* group = player->GetGroup())
-                    group->SendLooter(creature, nullptr);
+                loot->NotifyLootList(creature->GetMap());
             }
             // force dynflag update to update looter and lootable info
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags));
@@ -458,6 +457,15 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
         target->UpdateCriteria(CriteriaType::GetLootByType, resultValue.item->GetEntry(), resultValue.count, resultValue.lootType);
         target->UpdateCriteria(CriteriaType::LootAnyItem, resultValue.item->GetEntry(), resultValue.count);
     }
+}
+
+void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
+{
+    LootRoll* lootRoll = GetPlayer()->GetLootRoll(packet.LootObj, packet.LootListID - 1);
+    if (!lootRoll)
+        return;
+
+    lootRoll->PlayerVote(GetPlayer(), RollVote(packet.RollType));
 }
 
 void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet)

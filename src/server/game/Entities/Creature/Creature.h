@@ -292,9 +292,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
                 m_combatPulseTime = delay;
         }
 
-        uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting corpse
-
         void SendZoneUnderAttackMessage(Player* attacker);
 
         bool hasQuest(uint32 quest_id) const override;
