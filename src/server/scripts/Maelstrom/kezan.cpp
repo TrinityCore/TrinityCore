@@ -72,11 +72,6 @@ class spell_hot_rod_radio : public SpellScript
         return true;
     }
 
-    bool Load()
-    {
-        return true;
-    }
-
     void HandleOnHit()
     {
         if (radioOn)
