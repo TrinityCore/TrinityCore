@@ -177,6 +177,115 @@ void GossipMenu::ClearMenu()
     _menuItemData.clear();
 }
 
+uint64 GossipMenu::GetRequiredNpcFlagForOption(GossipOptionNpc optionNpc)
+{
+    uint64 requiredNpcFlag = UNIT_NPC_FLAG_NONE;
+
+    switch (optionNpc)
+    {
+        case GossipOptionNpc::Vendor:
+            requiredNpcFlag = UNIT_NPC_FLAG_VENDOR;
+            break;
+        case GossipOptionNpc::TaxiNode:
+            requiredNpcFlag = UNIT_NPC_FLAG_FLIGHTMASTER;
+            break;
+        case GossipOptionNpc::Trainer:
+            requiredNpcFlag = UNIT_NPC_FLAG_TRAINER;
+            break;
+        case GossipOptionNpc::SpiritHealer:
+            requiredNpcFlag = UNIT_NPC_FLAG_SPIRITHEALER;
+            break;
+        case GossipOptionNpc::Binder:
+            requiredNpcFlag = UNIT_NPC_FLAG_INNKEEPER;
+            break;
+        case GossipOptionNpc::Banker:
+            requiredNpcFlag = UNIT_NPC_FLAG_BANKER;
+            break;
+        case GossipOptionNpc::PetitionVendor:
+            requiredNpcFlag = UNIT_NPC_FLAG_PETITIONER;
+            break;
+        case GossipOptionNpc::TabardVendor:
+            requiredNpcFlag = UNIT_NPC_FLAG_TABARDDESIGNER;
+            break;
+        case GossipOptionNpc::BattleMaster:
+            requiredNpcFlag = UNIT_NPC_FLAG_BATTLEMASTER;
+            break;
+        case GossipOptionNpc::Auctioneer:
+            requiredNpcFlag = UNIT_NPC_FLAG_AUCTIONEER;
+            break;
+        case GossipOptionNpc::StableMaster:
+            requiredNpcFlag = UNIT_NPC_FLAG_STABLEMASTER;
+            break;
+        case GossipOptionNpc::GuildBanker:
+            requiredNpcFlag = UNIT_NPC_FLAG_GUILD_BANKER;
+            break;
+        case GossipOptionNpc::SpellClick:
+            requiredNpcFlag = UNIT_NPC_FLAG_SPELLCLICK;
+            break;
+        case GossipOptionNpc::Mailbox:
+            requiredNpcFlag = UNIT_NPC_FLAG_MAILBOX;
+            break;
+        // case GossipOptionNpc::ArtifactRespec:
+        //    requiredNpcFlag = UNIT_NPC_FLAG_ARTIFACT_POWER_RESPEC;
+        //    break;
+        case GossipOptionNpc::GarrisonArchitect:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_GARRISON_ARCHITECT;
+            break;
+        case GossipOptionNpc::GarrisonMission:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC;
+            break;
+        case GossipOptionNpc::ShipmentCrafter:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER;
+            break;
+        case GossipOptionNpc::GarrisonTradeskill:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_TRADESKILL_NPC;
+            break;
+        // case GossipOptionNpc::GarrisonRecruitment:
+        // case GossipOptionNpc::AdventureMap:
+        case GossipOptionNpc::GarrisonTalent:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC;
+            break;
+        case GossipOptionNpc::ContributionCollector:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR;
+            break;
+        case GossipOptionNpc::Transmogrify:
+            requiredNpcFlag = UNIT_NPC_FLAG_TRANSMOGRIFIER;
+            break;
+        case GossipOptionNpc::AzeriteRespec:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_AZERITE_RESPEC;
+            break;
+        case GossipOptionNpc::IslandsMission:
+            requiredNpcFlag = UNIT_NPC_FLAG_2_ISLANDS_QUEUE;
+            break;
+        // case GossipOptionNpc::UIItemInteraction:
+        // case GossipOptionNpc::WorldMap:
+        // case GossipOptionNpc::Soulbind:
+        // case GossipOptionNpc::CovenantPreview:
+        // case GossipOptionNpc::RuneforgeLegendaryCrafting:
+        // case GossipOptionNpc::NewPlayerGuide:
+        // case GossipOptionNpc::RuneforgeLegendaryUpgrade:
+        // case GossipOptionNpc::CovenantRenown:
+        case GossipOptionNpc::None:
+        case GossipOptionNpc::TalentMaster:
+        case GossipOptionNpc::PetSpecializationMaster:
+        case GossipOptionNpc::DisableXPGain:
+        case GossipOptionNpc::EnableXPGain:
+        case GossipOptionNpc::WorldPVPQueue:
+        case GossipOptionNpc::LFGDungeon:
+        case GossipOptionNpc::CemeterySelect:
+        case GossipOptionNpc::SpecializationMaster:
+        case GossipOptionNpc::GlyphMaster:
+        case GossipOptionNpc::QueueScenario:
+        case GossipOptionNpc::ChromieTime:
+            requiredNpcFlag = UNIT_NPC_FLAG_GOSSIP;
+            break;
+        default:
+            break;
+    }
+
+    return requiredNpcFlag;
+}
+
 PlayerMenu::PlayerMenu(WorldSession* session) : _session(session)
 {
     if (_session)
