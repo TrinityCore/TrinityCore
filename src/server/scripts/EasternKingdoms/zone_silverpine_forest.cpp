@@ -776,9 +776,9 @@ enum FallenHuman
     SPELL_FORSAKEN_TROOPER_MS_COMETH            = 83149,
 
     EVENT_ASCEND                                = 1,
-    EVENT_TRANSFORM                             = 2,
-    EVENT_FACE                                  = 3,
-    EVENT_EMOTE                                 = 4
+    EVENT_TRANSFORM_INTO_FORSAKEN               = 2,
+    EVENT_FACE_TOWARDS_SYLVANAS                 = 3,
+    EVENT_EMOTE_TO_SYLVANAS                     = 4
 };
 
 // Fallen Human - 44592, 44593
@@ -798,14 +798,14 @@ struct npc_silverpine_fallen_human : public ScriptedAI
         {
             case ACTION_RISE_DURING_RAISE:
                 me->SetAIAnimKitId(ANIMKIT_FALLEN_HUMAN);
-                _events.ScheduleEvent(EVENT_ASCEND, 750ms);
+                _events.ScheduleEvent(EVENT_ASCEND, 1s);
                 break;
 
             case ACTION_DESCEND_AFTER_RAISE:
                 me->SetWalk(false);
                 me->SetAIAnimKitId(ANIMKIT_RESET);
                 me->GetMotionMaster()->MoveFall();
-                _events.ScheduleEvent(EVENT_TRANSFORM, 1s);
+                _events.ScheduleEvent(EVENT_TRANSFORM_INTO_FORSAKEN, 1s);
                 break;
 
             default:
@@ -826,25 +826,25 @@ struct npc_silverpine_fallen_human : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(POINT_BEING_RISEN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 3.5f, false);
                     break;
 
-                case EVENT_TRANSFORM:
+                case EVENT_TRANSFORM_INTO_FORSAKEN:
                 {
                     if (_transformDone)
                         return;
 
                     DoCastSelf(SPELL_FORSAKEN_TROOPER_MS_COMETH);
 
-                    _events.ScheduleEvent(EVENT_FACE, 1s + 500ms);
-
                     _transformDone = true;
+
+                    _events.ScheduleEvent(EVENT_FACE_TOWARDS_SYLVANAS, 1s + 500ms);
                     break;
                 }
 
-                case EVENT_FACE:
+                case EVENT_FACE_TOWARDS_SYLVANAS:
                     me->SetFacingTo(0.706837f);
-                    _events.ScheduleEvent(EVENT_EMOTE, 2s + 500ms);
+                    _events.ScheduleEvent(EVENT_EMOTE_TO_SYLVANAS, 2s + 500ms);
                     break;
 
-                case EVENT_EMOTE:
+                case EVENT_EMOTE_TO_SYLVANAS:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     me->DespawnOrUnsummon(80s);
                     break;
