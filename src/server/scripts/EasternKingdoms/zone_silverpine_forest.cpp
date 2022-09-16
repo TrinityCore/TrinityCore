@@ -39,37 +39,11 @@
 #include "Unit.h"
 #include "Vehicle.h"
 
-enum SilverpineForest
+Position const OrgrimmarPortalPos[3] =
 {
-    QUEST_SILVERPINE_COMMAND_1                  = 26964,
-    QUEST_SILVERPINE_COMMAND_2                  = 28568,
-
-    ZONE_SILVERPINE                             = 130,
-
-    AREA_FORSAKEN_HIGH_COMMAND                  = 5369
-};
-
-// Silverpine Forest - 130
-class playerScript_silverpine_zone : public PlayerScript
-{
-public:
-    playerScript_silverpine_zone() : PlayerScript("playerScript_silverpine_zone") { }
-
-    void OnUpdateZone(Player* player, uint32 /*newZone*/, uint32 newArea) override
-    {
-        if (newArea == AREA_FORSAKEN_HIGH_COMMAND)
-        {
-            if (player->GetLevel() >= 5)
-            {
-                // Note: it seems there's an automatic detecter that basically adds the quest onto the player's questlog if they haven't completed any of the two breadcrumb quests that unlock the questline.
-                if (player->GetQuestStatus(QUEST_SILVERPINE_COMMAND_1) == QUEST_STATUS_NONE || player->GetQuestStatus(QUEST_SILVERPINE_COMMAND_2) == QUEST_STATUS_NONE)
-                {
-                    if (const Quest* WarchiefCommandSilverpineForest = sObjectMgr->GetQuestTemplate(QUEST_SILVERPINE_COMMAND_2))
-                        player->AddQuestAndCheckCompletion(WarchiefCommandSilverpineForest, nullptr);
-                }
-            }
-        }
-    }
+    { 1358.62f, 1054.72f, 53.1200f, 0.0f },
+    { 1393.27f, 1021.20f, 53.2225f, 0.0f },
+    { 1404.71f, 1063.73f, 60.5617f, 0.0f }
 };
 
 Position const HellscreamElitePos[16] =
@@ -93,13 +67,6 @@ Position const HellscreamElitePos[16] =
     { 1357.85f, 1050.12f, 52.99823f, 5.253441f }
 };
 
-Position const OrgrimmarPortalPos[3] =
-{
-    { 1358.62f, 1054.72f, 53.1200f, 0.0f },
-    { 1393.27f, 1021.20f, 53.2225f, 0.0f },
-    { 1404.71f, 1063.73f, 60.5617f, 0.0f }
-};
-
 Position const GarroshPos = { 1402.45f, 1061.62f, 60.56173f, 3.926991f };
 
 Position const GarroshJumpPos = { 1378.65f, 1044.23f, 53.8389f, 5.51524f };
@@ -108,7 +75,7 @@ Position const CromushPos = { 1404.71f, 1063.73f, 60.5617f, 2.827433f };
 
 Position const AgathaPreRisePos = { 1364.02f, 1028.54f, 66.99143f };
 
-Position const AgathaRisingPos = { 1368.65f, 1032.19f, 63.3033f };
+Position const AgathaRisePos = { 1368.65f, 1032.19f, 63.3033f };
 
 Position const AgathaPreResetPos = { 1364.02f, 1028.54f, 55.9914f };
 
@@ -452,7 +419,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
                     {
                         agatha->SetWalk(true);
-                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RISE_2, AgathaRisingPos, false);
+                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RISE_2, AgathaRisePos, false);
                     }
 
                     _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 2, 6s);
@@ -917,10 +884,6 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
 
 void AddSC_silverpine_forest()
 {
-    new playerScript_silverpine_zone();
-
-    /* Forsaken High Command */
-
     RegisterCreatureAI(npc_silverpine_grand_executor_mortuus);
     RegisterSpellScript(spell_silverpine_raise_forsaken_83173);
     RegisterCreatureAI(npc_silverpine_fallen_human);
