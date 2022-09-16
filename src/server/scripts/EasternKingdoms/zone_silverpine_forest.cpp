@@ -160,7 +160,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 {
     npc_silverpine_grand_executor_mortuus(Creature* creature) : ScriptedAI(creature), _summons(me), _eventInProgress(false) {}
 
-    void OnQuestAccept(Player* player, Quest const* quest) override
+    void OnQuestAccept(Player* /*player*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_THE_WARCHIEF_COMETH)
         {
