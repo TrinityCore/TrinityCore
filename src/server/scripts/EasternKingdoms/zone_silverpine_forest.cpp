@@ -106,7 +106,7 @@ enum QuestTheWarchiefCometh
     EVENT_SUMMON_PORTAL_COMETH              = 2,
     EVENT_SUMMON_GARROSH_COMETH             = 3,
     EVENT_AGATHA_RAISE_FORSAKEN             = 4,
-    EVENT_SCENE_TALK_COMETH                 = 7,
+    EVENT_SCENE_TALK_COMETH                 = 9,
 
     ACTION_START_SCENE_COMETH               = 1,
 
@@ -135,22 +135,17 @@ enum QuestTheWarchiefCometh
     TALK_CROMUSH_COMETH_0                   = 0,
     TALK_CROMUSH_COMETH_1                   = 1,
 
-    MOVE_CROMUSH_TO_SYLVANAS                = 5405701,
-    MOVE_CROMUSH_TO_HOME                    = 5405702,
-    MOVE_GARROSH_TO_HOME                    = 5405703,
-
-    PATH_CROMUSH_01                         = 446402,
-    PATH_CROMUSH_02                         = 446403,
+    PATH_CROMUSH                            = 446402,
     PATH_GARROSH                            = 446290,
 
-    POINT_AGATHA_PRE_RISE_1                 = 1,
-    POINT_AGATHA_PRE_RISE_2                 = 2,
-    POINT_AGATHA_RISING                     = 3,
+    POINT_AGATHA_PRE_RISE                   = 1,
+    POINT_AGATHA_RISE                       = 2,
+    POINT_AGATHA_PRE_RESET                  = 3,
     POINT_AGATHA_RESET                      = 4,
 
+    ANIMKIT_GENERAL_1                       = 609,
     ANIMKIT_SYLV_1                          = 595,
     ANIMKIT_SYLV_2                          = 606,
-    ANIMKIT_SYLV_3                          = 609,
     ANIMKIT_GARROSH_1                       = 662,
     ANIMKIT_GARROSH_2                       = 595
 };
@@ -258,40 +253,67 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     {
                         if (sylvanas->IsAIEnabled())
                             sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_0);
-                    }
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 1, 8s);
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 25, 4s + 500ms);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 1, 4s + 500ms);
+                    }
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 1:
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
-                        garrosh->GetMotionMaster()->MoveJump(GarroshJumpPos, 15.595897f, 15.595897f);
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 2, 3s + 500ms);
+                {
+                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    {
+                        sylvanas->SetFacingTo(0.808979f);
+
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_1);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 2, 3s + 500ms);
+                    }
                     break;
+                }
 
                 case EVENT_SCENE_TALK_COMETH + 2:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
+                    {
+                        garrosh->GetMotionMaster()->MoveJump(GarroshJumpPos, 15.595897f, 15.595897f);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 3, 2s + 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 3:
                 {
                     if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
                     {
                         sylvanas->SetFacingTo(3.924652f);
 
-                        if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
-                        {
-                            garrosh->SetFacingToObject(sylvanas);
-                            garrosh->PlayOneShotAnimKitId(ANIMKIT_GARROSH_1);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 4, 1s);
 
-                            if (garrosh->IsAIEnabled())
-                                garrosh->AI()->Talk(TALK_GARROSH_COMETH_0);
-                        }
                     }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 3, 12s);
                     break;
                 }
 
-                case EVENT_SCENE_TALK_COMETH + 3:
+                case EVENT_SCENE_TALK_COMETH + 4:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
+                    {
+                        if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                            garrosh->SetFacingToObject(sylvanas);
+
+                        garrosh->PlayOneShotAnimKitId(ANIMKIT_GARROSH_1);
+
+                        if (garrosh->IsAIEnabled())
+                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_0);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 5, 12s);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 5:
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
@@ -299,13 +321,13 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
                         if (garrosh->IsAIEnabled())
                             garrosh->AI()->Talk(TALK_GARROSH_COMETH_1);
-                    }
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 4, 7s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 6, 7s);
+                    }
                     break;
                 }
 
-                case EVENT_SCENE_TALK_COMETH + 4:
+                case EVENT_SCENE_TALK_COMETH + 6:
                 {
                     if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
                     {
@@ -313,13 +335,13 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
                         if (sylvanas->IsAIEnabled())
                             sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_2);
-                    }
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 5, 5s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 7, 5s);
+                    }
                     break;
                 }
 
-                case EVENT_SCENE_TALK_COMETH + 5:
+                case EVENT_SCENE_TALK_COMETH + 7:
                 {
                     if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
                     {
@@ -328,33 +350,9 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
                         if (sylvanas->IsAIEnabled())
                             sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_3);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 8, 16s);
                     }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 6, 16s);
-                    break;
-                }
-
-                case EVENT_SCENE_TALK_COMETH + 6:
-                {
-                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
-                    {
-                        if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_4);
-                    }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 7, 4s);
-                    break;
-                }
-
-                case EVENT_SCENE_TALK_COMETH + 7:
-                {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
-                    {
-                        if (garrosh->IsAIEnabled())
-                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_2);
-                    }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 8, 3s);
                     break;
                 }
 
@@ -363,22 +361,22 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
                     {
                         if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_5);
-                    }
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_4);
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 9, 6s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 9, 4s);
+                    }
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 9:
                 {
-                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_6);
-                    }
+                        if (garrosh->IsAIEnabled())
+                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_2);
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 10, 6s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 10, 3s);
+                    }
                     break;
                 }
 
@@ -386,13 +384,11 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                 {
                     if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
                     {
-                        sylvanas->PlayOneShotAnimKitId(ANIMKIT_SYLV_2);
-
                         if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_7);
-                    }
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_5);
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 11, 9s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 11, 6s);
+                    }
                     break;
                 }
 
@@ -401,80 +397,93 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
                     {
                         if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_8);
-                    }
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_6);
 
-                    _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN, 3s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 12, 6s);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 12:
+                {
+                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    {
+                        sylvanas->PlayOneShotAnimKitId(ANIMKIT_SYLV_2);
+
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_7);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 13, 9s);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 13:
+                {
+                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    {
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_8);
+
+                        _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN, 3s);
+                    }
                     break;
                 }
 
                 case EVENT_AGATHA_RAISE_FORSAKEN:
+                {
                     if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
-                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RISE_1, AgathaPreRisePos, false);
-                    _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 1, 2s + 500ms);
+                    {
+                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RISE, AgathaPreRisePos, false);
+
+                        _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 1, 2s + 500ms);
+                    }
                     break;
+                }
 
                 case EVENT_AGATHA_RAISE_FORSAKEN + 1:
                 {
                     if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
                     {
                         agatha->SetWalk(true);
-                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RISE_2, AgathaRisePos, false);
-                    }
+                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_RISE, AgathaRisePos, false);
 
-                    _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 2, 6s);
+                        _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 2, 6s);
+                    }
                     break;
                 }
 
                 case EVENT_AGATHA_RAISE_FORSAKEN + 2:
                 {
                     if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
+                    {
                         agatha->CastSpell(agatha, SPELL_RAISE_FORSAKEN_COMETH);
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 12, 10s);
+
+                        _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 3, 10s);
+                    }
                     break;
                 }
 
-                case EVENT_SCENE_TALK_COMETH + 12:
+                case EVENT_AGATHA_RAISE_FORSAKEN + 3:
                 {
-                    if (Creature* cromush = ObjectAccessor::GetCreature(*me, _cromushGUID))
-                    {
-                        if (cromush->IsAIEnabled())
-                            cromush->AI()->Talk(TALK_CROMUSH_COMETH_0);
-                    }
-
                     if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
-                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_RISING, AgathaPreResetPos, false, 0.855211f);
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 13, 3s + 500ms);
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 24, 10s);
-                    break;
-                }
-
-                case EVENT_SCENE_TALK_COMETH + 13:
-                {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        garrosh->PlayOneShotAnimKitId(ANIMKIT_SYLV_3);
+                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RESET, AgathaPreResetPos, false, 0.855211f);
 
-                        if (garrosh->IsAIEnabled())
-                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_3);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 14, 9s + 500ms);
                     }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 14, 13s);
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 14:
                 {
-                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    if (Creature* cromush = ObjectAccessor::GetCreature(*me, _cromushGUID))
                     {
-                        sylvanas->PlayOneShotAnimKitId(ANIMKIT_SYLV_3);
+                        if (cromush->IsAIEnabled())
+                            cromush->AI()->Talk(TALK_CROMUSH_COMETH_0);
 
-                        if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_9);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 15, 3s + 500ms);
                     }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 15, 10s);
                     break;
                 }
 
@@ -482,35 +491,50 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        if (garrosh->IsAIEnabled())
-                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_4);
-                    }
+                        garrosh->PlayOneShotAnimKitId(ANIMKIT_GENERAL_1);
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 16, 6s);
+                        if (garrosh->IsAIEnabled())
+                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_3);
+
+                        _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 4, 12s);
+                    }
+                    break;
+                }
+
+                case EVENT_AGATHA_RAISE_FORSAKEN + 4:
+                {
+                    if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
+                    {
+                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_RESET, AgathaResetPos, false, 0.7155f);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 16, 1s);
+                    }
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 16:
                 {
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
+                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
                     {
-                        if (garrosh->IsAIEnabled())
-                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_5);
-                    }
+                        sylvanas->PlayOneShotAnimKitId(ANIMKIT_GENERAL_1);
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 17, 6s);
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_9);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 17, 10s);
+                    }
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 17:
                 {
-                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_10);
-                    }
+                        if (garrosh->IsAIEnabled())
+                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_4);
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 18, 5s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 18, 6s);
+                    }
                     break;
                 }
 
@@ -518,52 +542,86 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        garrosh->SetFacingTo(5.51524f);
-
                         if (garrosh->IsAIEnabled())
-                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_6);
-                    }
+                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_5);
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 19, 5s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 19, 6s);
+                    }
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 19:
+                {
+                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    {
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_10);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 20, 5s);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 20:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
+                    {
+                        garrosh->SetFacingTo(5.51524f);
+
+                        if (garrosh->IsAIEnabled())
+                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_6);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 21, 4s + 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 21:
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
                         if (Creature* cromush = ObjectAccessor::GetCreature(*me, _cromushGUID))
                         {
                             garrosh->SetFacingToObject(cromush);
-                            garrosh->PlayOneShotAnimKitId(ANIMKIT_GARROSH_2);
 
-                            if (garrosh->IsAIEnabled())
-                                garrosh->AI()->Talk(TALK_GARROSH_COMETH_7);
+                            _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 22, 500ms);
                         }
                     }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 20, 14s);
                     break;
                 }
 
-                case EVENT_SCENE_TALK_COMETH + 20:
+                case EVENT_SCENE_TALK_COMETH + 22:
+                {
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
+                    {
+                        garrosh->PlayOneShotAnimKitId(ANIMKIT_GARROSH_2);
+
+                        if (garrosh->IsAIEnabled())
+                            garrosh->AI()->Talk(TALK_GARROSH_COMETH_7);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 23, 14s);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 23:
                 {
                     if (Creature* cromush = ObjectAccessor::GetCreature(*me, _cromushGUID))
                     {
+                        if (cromush->IsAIEnabled())
+                            cromush->AI()->Talk(TALK_CROMUSH_COMETH_1);
+
                         if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                         {
                             cromush->SetFacingToObject(garrosh);
 
-                            if (cromush->IsAIEnabled())
-                                cromush->AI()->Talk(TALK_CROMUSH_COMETH_1);
+                            _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 24, 2s + 500ms);
                         }
                     }
-
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 21, 2s + 500ms);
                     break;
                 }
 
-                case EVENT_SCENE_TALK_COMETH + 21:
+                case EVENT_SCENE_TALK_COMETH + 24:
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
@@ -572,48 +630,37 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
                         if (garrosh->IsAIEnabled())
                             garrosh->AI()->Talk(TALK_GARROSH_COMETH_8);
-                    }
 
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 22, 7s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 25, 7s);
+                    }
                     break;
                 }
 
-                case EVENT_SCENE_TALK_COMETH + 22:
-                    if (Creature* cromush = ObjectAccessor::GetCreature(*me, _cromushGUID))
-                        cromush->GetMotionMaster()->MovePath(PATH_CROMUSH_02, false);
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
-                        garrosh->GetMotionMaster()->MovePath(PATH_GARROSH, false);
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 23, 11s);
-                    break;
-
-                case EVENT_SCENE_TALK_COMETH + 23:
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
-                        garrosh->CastSpell(garrosh, SPELL_WELCOME_TO_SILVERPINE_CREDIT, true);
-                    DespawnGarroshAndHisEliteGuards();
-                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 500ms);
-                    break;
-
-                case EVENT_SCENE_TALK_COMETH + 24:
-                    if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
-                        agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_RISING, AgathaResetPos, false, 0.7155f);
-                    break;
-
                 case EVENT_SCENE_TALK_COMETH + 25:
                 {
-                    if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, _sylvanasGUID))
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        sylvanas->SetFacingTo(0.808979f);
+                        garrosh->GetMotionMaster()->MovePath(PATH_GARROSH, false);
 
-                        if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->Talk(TALK_SYLVANAS_COMETH_1);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 11s);
                     }
-
-                    if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
-                        agatha->SetWalk(false);
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 26:
+                {
+                    DespawnGarroshAndHisEliteGuards();
+
+                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
+                    {
+                        garrosh->CastSpell(garrosh, SPELL_WELCOME_TO_SILVERPINE_CREDIT, true);
+
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 27, 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_SCENE_TALK_COMETH + 27:
                     _summons.DespawnAll();
                     Reset();
                     break;
@@ -653,7 +700,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
             _cromushGUID = cromush->GetGUID();
 
             cromush->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-            cromush->GetMotionMaster()->MovePath(PATH_CROMUSH_01, false);
+            cromush->GetMotionMaster()->MovePath(PATH_CROMUSH, false);
         }
     }
 
@@ -678,7 +725,8 @@ private:
 
 enum RaiseForsakenCometh
 {
-    ACTION_TRANSFORM_INTO_FORSAKEN          = 1,
+    ACTION_ASCEND_DURING_RAISE              = 1,
+    ACTION_DESCEND_AFTER_RAISE              = 2,
 
     POINT_BEING_RISEN                       = 1,
 
@@ -697,9 +745,8 @@ class spell_silverpine_raise_forsaken_83173 : public AuraScript
         {
             if (Creature* fallenHuman = unit->ToCreature())
             {
-                fallenHuman->SetWalk(true);
-                fallenHuman->SetAIAnimKitId(ANIMKIT_FALLEN_HUMAN);
-                fallenHuman->GetMotionMaster()->MovePoint(POINT_BEING_RISEN, fallenHuman->GetPositionX(), fallenHuman->GetPositionY(), fallenHuman->GetPositionZ() + 3.5f, false);
+                if (fallenHuman->IsAIEnabled())
+                    fallenHuman->AI()->DoAction(ACTION_ASCEND_DURING_RAISE);
             }
         }
     }
@@ -710,12 +757,8 @@ class spell_silverpine_raise_forsaken_83173 : public AuraScript
         {
             if (Creature* fallenHuman = unit->ToCreature())
             {
-                fallenHuman->SetWalk(false);
-                fallenHuman->SetAIAnimKitId(ANIMKIT_RESET);
-                fallenHuman->GetMotionMaster()->MoveFall();
-
                 if (fallenHuman->IsAIEnabled())
-                    fallenHuman->AI()->DoAction(ACTION_TRANSFORM_INTO_FORSAKEN);
+                    fallenHuman->AI()->DoAction(ACTION_DESCEND_AFTER_RAISE);
             }
         }
     }
@@ -752,7 +795,16 @@ struct npc_silverpine_fallen_human : public ScriptedAI
     {
         switch (action)
         {
-            case ACTION_TRANSFORM_INTO_FORSAKEN:
+            case ACTION_ASCEND_DURING_RAISE:
+                me->SetWalk(true);
+                me->SetAIAnimKitId(ANIMKIT_FALLEN_HUMAN);
+                me->GetMotionMaster()->MovePoint(POINT_BEING_RISEN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 3.5f, false);
+                break;
+
+            case ACTION_DESCEND_AFTER_RAISE:
+                me->SetWalk(false);
+                me->SetAIAnimKitId(ANIMKIT_RESET);
+                me->GetMotionMaster()->MoveFall();
                 _events.ScheduleEvent(EVENT_TRANSFORM, 1s);
                 break;
 

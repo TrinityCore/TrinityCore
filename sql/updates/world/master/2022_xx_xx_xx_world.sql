@@ -51,15 +51,6 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (446402, 5, 1376.69, 1048.61, 53.3362, NULL, 0, 1, 0, 0, 0),
 (446402, 6, 1375.32, 1046.38, 53.2336, NULL, 0, 1, 0, 0, 0);
 
-DELETE FROM `waypoint_data` WHERE `id` = 446403;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
-(446403, 0, 1376.69, 1048.61, 53.3362, NULL, 0, 1, 0, 0, 0),
-(446403, 1, 1372.86, 1062, 53.0398, NULL, 0, 1, 0, 0, 0),
-(446403, 2, 1380.65, 1083.27, 52.6221, NULL, 0, 1, 0, 0, 0),
-(446403, 3, 1392.62, 1093.5, 56.4067, NULL, 0, 1, 0, 0, 0),
-(446403, 4, 1405.38, 1095.16, 60.4774, NULL, 0, 1, 0, 0, 0),
-(446403, 5, 1412.05, 1089.42, 60.4771, NULL, 0, 1, 0, 0, 0);
-
 -- Fallen Human
 UPDATE `creature_template` SET `ScriptName`='npc_silverpine_fallen_human' WHERE `entry` IN (44592, 44593);
 
