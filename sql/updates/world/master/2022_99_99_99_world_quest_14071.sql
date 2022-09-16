@@ -157,4 +157,4 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (66618, 'spell_hot_rod_mount'),
 (66612, 'spell_despawn_summoned_friends');
 
-UPDATE `quest_template_addon` SET `ScriptName` = `quest_rolling_with_my_homies` WHERE `ID` = 14071;
+UPDATE `quest_template_addon` SET `ScriptName` = 'quest_rolling_with_my_homies' WHERE `ID` = 14071;
