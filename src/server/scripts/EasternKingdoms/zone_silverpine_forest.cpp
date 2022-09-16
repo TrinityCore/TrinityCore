@@ -470,7 +470,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     {
                         agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RESET, AgathaPreResetPos, false, 0.855211f);
 
-                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 14, 1s + 500ms);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 14, 750ms);
                     }
                     break;
                 }
@@ -495,6 +495,9 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
                         if (garrosh->IsAIEnabled())
                             garrosh->AI()->Talk(TALK_GARROSH_COMETH_3);
+
+                        if (Creature* agatha = ObjectAccessor::GetCreature(*me, _agathaGUID))
+                            agatha->SetWalk(false);
 
                         _events.ScheduleEvent(EVENT_AGATHA_RAISE_FORSAKEN + 4, 12s);
                     }
@@ -642,7 +645,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     {
                         garrosh->GetMotionMaster()->MovePath(PATH_GARROSH, false);
 
-                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 11s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 10s);
                     }
                     break;
                 }
