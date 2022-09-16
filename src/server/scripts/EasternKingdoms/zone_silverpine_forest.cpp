@@ -470,7 +470,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                     {
                         agatha->GetMotionMaster()->MovePoint(POINT_AGATHA_PRE_RESET, AgathaPreResetPos, false, 0.855211f);
 
-                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 14, 9s + 500ms);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 14, 1s + 500ms);
                     }
                     break;
                 }
@@ -725,7 +725,7 @@ private:
 
 enum RaiseForsakenCometh
 {
-    ACTION_ASCEND_DURING_RAISE              = 1,
+    ACTION_RISE_DURING_RAISE                = 1,
     ACTION_DESCEND_AFTER_RAISE              = 2,
 
     POINT_BEING_RISEN                       = 1,
@@ -746,7 +746,7 @@ class spell_silverpine_raise_forsaken_83173 : public AuraScript
             if (Creature* fallenHuman = unit->ToCreature())
             {
                 if (fallenHuman->IsAIEnabled())
-                    fallenHuman->AI()->DoAction(ACTION_ASCEND_DURING_RAISE);
+                    fallenHuman->AI()->DoAction(ACTION_RISE_DURING_RAISE);
             }
         }
     }
@@ -775,8 +775,9 @@ enum FallenHuman
     SPELL_FEIGNED                               = 80636,
     SPELL_FORSAKEN_TROOPER_MS_COMETH            = 83149,
 
+    EVENT_ASCEND                                = 1,
     EVENT_TRANSFORM                             = 2,
-    EVENT_FACING                                = 3,
+    EVENT_FACE                                  = 3,
     EVENT_EMOTE                                 = 4
 };
 
@@ -795,10 +796,9 @@ struct npc_silverpine_fallen_human : public ScriptedAI
     {
         switch (action)
         {
-            case ACTION_ASCEND_DURING_RAISE:
-                me->SetWalk(true);
+            case ACTION_RISE_DURING_RAISE:
                 me->SetAIAnimKitId(ANIMKIT_FALLEN_HUMAN);
-                me->GetMotionMaster()->MovePoint(POINT_BEING_RISEN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 3.5f, false);
+                _events.ScheduleEvent(EVENT_ASCEND, 750ms);
                 break;
 
             case ACTION_DESCEND_AFTER_RAISE:
@@ -821,6 +821,11 @@ struct npc_silverpine_fallen_human : public ScriptedAI
         {
             switch (eventId)
             {
+                case EVENT_ASCEND:
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePoint(POINT_BEING_RISEN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 3.5f, false);
+                    break;
+
                 case EVENT_TRANSFORM:
                 {
                     if (_transformDone)
@@ -828,13 +833,13 @@ struct npc_silverpine_fallen_human : public ScriptedAI
 
                     DoCastSelf(SPELL_FORSAKEN_TROOPER_MS_COMETH);
 
-                    _events.ScheduleEvent(EVENT_FACING, 1s + 500ms);
+                    _events.ScheduleEvent(EVENT_FACE, 1s + 500ms);
 
                     _transformDone = true;
                     break;
                 }
 
-                case EVENT_FACING:
+                case EVENT_FACE:
                     me->SetFacingTo(0.706837f);
                     _events.ScheduleEvent(EVENT_EMOTE, 2s + 500ms);
                     break;
