@@ -66,7 +66,7 @@ class spell_hot_rod_radio : public SpellScript
 {
     PrepareSpellScript(spell_hot_rod_radio);
 
-    bool Validate(SpellInfo const* /*spellEntry*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         radioOn = false;
         return true;
