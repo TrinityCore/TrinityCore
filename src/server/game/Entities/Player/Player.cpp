@@ -13938,11 +13938,11 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             PlayerTalkClass->SendCloseGossip();
             SendRespecWipeConfirm(guid, 0, SPEC_RESET_GLYPHS);
             break;
-        case GossipOptionNpc::Transmogrify:
-            GetSession()->SendOpenTransmogrifier(guid);
-            break;
         case GossipOptionNpc::GarrisonTalent:
             SendGarrisonOpenTalentNpc(guid);
+            break;
+        case GossipOptionNpc::Transmogrify:
+            GetSession()->SendOpenTransmogrifier(guid);
             break;
         default:
             break;
