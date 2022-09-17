@@ -634,7 +634,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                         if (garrosh->IsAIEnabled())
                             garrosh->AI()->Talk(TALK_GARROSH_COMETH_8);
 
-                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 25, 7s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 25, 8s + 500ms);
                     }
                     break;
                 }
@@ -643,25 +643,19 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
+                        garrosh->CastSpell(garrosh, SPELL_WELCOME_TO_SILVERPINE_CREDIT, true);
+
                         garrosh->GetMotionMaster()->MovePath(PATH_GARROSH, false);
 
-                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 10s);
+                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 26, 9s);
                     }
                     break;
                 }
 
                 case EVENT_SCENE_TALK_COMETH + 26:
-                {
                     DespawnGarroshAndHisEliteGuards();
-
-                    if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
-                    {
-                        garrosh->CastSpell(garrosh, SPELL_WELCOME_TO_SILVERPINE_CREDIT, true);
-
-                        _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 27, 500ms);
-                    }
+                    _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 27, 500ms);
                     break;
-                }
 
                 case EVENT_SCENE_TALK_COMETH + 27:
                     _summons.DespawnAll();
