@@ -620,7 +620,7 @@ struct npc_gilnean_crow : public PassiveAI
 {
     npc_gilnean_crow(Creature* creature) : PassiveAI(creature) { }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(GameObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_GILNEAN_CROW)
             _events.ScheduleEvent(EVENT_APPLY_HOVER_BYTES, 500ms);
