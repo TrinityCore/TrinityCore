@@ -21,7 +21,6 @@
 #include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
 #include "GroupRefManager.h"
-#include "Loot.h"
 #include "Object.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
@@ -42,13 +41,7 @@ class WorldSession;
 struct ItemDisenchantLootEntry;
 struct MapEntry;
 
-namespace WorldPackets
-{
-    namespace Loot
-    {
-        struct LootItemData;
-    }
-}
+enum LootMethod : uint8;
 
 #define MAX_GROUP_SIZE      5
 #define MAX_RAID_SIZE       40
@@ -58,16 +51,6 @@ namespace WorldPackets
 #define RAID_MARKERS_COUNT  8
 
 #define READYCHECK_DURATION 35000
-
-enum RollVote
-{
-    PASS              = 0,
-    NEED              = 1,
-    GREED             = 2,
-    DISENCHANT        = 3,
-    NOT_EMITED_YET    = 4,
-    NOT_VALID         = 5
-};
 
 enum GroupMemberOnlineStatus
 {
@@ -171,30 +154,6 @@ enum GroupUpdatePetFlags
                             GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS // all pet flags
 };
 
-class Roll : public LootValidatorRef
-{
-    public:
-        explicit Roll(LootItem const& li);
-        ~Roll();
-        void setLoot(Loot* pLoot);
-        Loot* getLoot();
-        void targetObjectBuildLink() override;
-        void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
-        ItemDisenchantLootEntry const* GetItemDisenchantLoot(Player const* player) const;
-
-        uint32 itemid;
-        ItemRandomBonusListId itemRandomBonusListId;
-        uint8 itemCount;
-        typedef std::map<ObjectGuid, RollVote> PlayerVote;
-        PlayerVote playerVote;                              //vote position correspond with player position (in group)
-        uint8 totalPlayersRolling;
-        uint8 totalNeed;
-        uint8 totalGreed;
-        uint8 totalPass;
-        uint8 itemSlot;
-        uint8 rollVoteMask;
-};
-
 struct InstanceGroupBind
 {
     InstanceSave* save;
@@ -239,8 +198,6 @@ class TC_GAME_API Group
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
-
-        typedef std::vector<Roll*> Rolls;
 
     public:
         Group();
@@ -385,27 +342,6 @@ class TC_GAME_API Group
         void BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignoredPlayer = ObjectGuid::Empty) const;
         void BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty) const;
 
-        /*********************************************************/
-        /***                   LOOT SYSTEM                     ***/
-        /*********************************************************/
-
-        bool isRollLootActive() const { return !RollId.empty(); }
-        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const;
-        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll, bool autoPass = false) const;
-        void SendLootRollWon(ObjectGuid winnerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
-        void SendLootAllPassed(Roll const& roll) const;
-        void SendLootRollsComplete(Roll const& roll) const;
-        void SendLooter(Creature* creature, Player* pLooter);
-        void GroupLoot(Loot* loot, WorldObject* pLootedObject);
-        void MasterLoot(Loot* loot, WorldObject* pLootedObject);
-        Rolls::iterator GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId);
-        void CountTheRoll(Rolls::iterator roll, Map* allowedMap);
-        void CountRollVote(ObjectGuid playerGuid, ObjectGuid lootObjectGuid, uint8 lootListId, uint8 choice);
-        void EndRoll(Loot* loot, Map* allowedMap);
-
-        // related to disenchant rolls
-        void ResetMaxEnchantingLevel();
-
         void LinkMember(GroupReference* pRef);
         void DelinkMember(ObjectGuid guid);
 
@@ -454,11 +390,9 @@ class TC_GAME_API Group
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;
         ObjectGuid          m_masterLooterGuid;
-        Rolls               RollId;
         BoundInstancesMap   m_boundInstances;
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
-        uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         bool                m_isLeaderOffline;
         TimeTracker         m_leaderOfflineTimer;

@@ -166,7 +166,7 @@ WorldPacket const* WorldPackets::Loot::StartLootRoll::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << int32(MapID);
-    _worldPacket << uint32(RollTime);
+    _worldPacket << RollTime;
     _worldPacket << uint8(ValidRolls);
     _worldPacket << uint8(Method);
     _worldPacket << Item;

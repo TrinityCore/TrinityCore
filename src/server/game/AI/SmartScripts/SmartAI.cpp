@@ -17,6 +17,7 @@
 
 #include "SmartAI.h"
 #include "AreaTrigger.h"
+#include "ConditionMgr.h"
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "DB2Structure.h"
