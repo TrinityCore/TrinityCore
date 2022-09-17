@@ -426,7 +426,7 @@ class spell_pal_exorcism_and_holy_wrath_damage : public AuraScript
         if (!spellMod)
         {
             spellMod = new SpellModifier(aurEff->GetBase());
-            spellMod->op = SPELLMOD_DAMAGE;
+            spellMod->op = SpellModOp::HealingAndDamage;
             spellMod->type = SPELLMOD_FLAT;
             spellMod->spellId = GetId();
             spellMod->mask[1] = 0x200002;

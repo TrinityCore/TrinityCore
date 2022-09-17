@@ -609,7 +609,7 @@ void ThreatManager::ProcessAIUpdates()
                 threat *= threatEntry->pctMod;
 
         if (Player* modOwner = victim->GetSpellModOwner())
-            modOwner->ApplySpellMod(spell->Id, SPELLMOD_THREAT, threat);
+            modOwner->ApplySpellMod(spell->Id, SpellModOp::Hate, threat);
     }
 
     // modifiers by effect school

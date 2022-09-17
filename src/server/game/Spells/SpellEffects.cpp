@@ -1931,7 +1931,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     int32 duration = m_spellInfo->GetDuration();
     if (Player* modOwner = caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::Duration, duration);
 
     SummonCreatureExtraArgs extraArgs;
     extraArgs.SummonProperties = properties;
@@ -2921,15 +2921,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     weaponDamage = int32(weaponDamage * totalDamagePercentMod);
 
-    // apply spellmod to Done damage
-    if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, weaponDamage);
-
     // prevent negative damage
     weaponDamage = std::max(weaponDamage, 0);
 
     // Add melee damage bonuses (also check for negative)
-    weaponDamage = unitCaster->MeleeDamageBonusDone(unitTarget, weaponDamage, m_attackType, m_spellInfo, !useWeaponDamage);
+    weaponDamage = unitCaster->MeleeDamageBonusDone(unitTarget, weaponDamage, m_attackType, SPELL_DIRECT_DAMAGE, m_spellInfo, !useWeaponDamage);
     m_damage += unitTarget->MeleeDamageBonusTaken(unitCaster, weaponDamage, m_attackType, m_spellInfo);
 }
 

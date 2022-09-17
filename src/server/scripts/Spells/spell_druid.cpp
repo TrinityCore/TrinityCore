@@ -549,7 +549,7 @@ class spell_dru_idol_lifebloom : public AuraScript
         if (!spellMod)
         {
             spellMod = new SpellModifier(GetAura());
-            spellMod->op = SPELLMOD_DOT;
+            spellMod->op = SpellModOp::PeriodicHealingAndDamage;
             spellMod->type = SPELLMOD_FLAT;
             spellMod->spellId = GetId();
             spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;

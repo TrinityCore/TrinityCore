@@ -33,7 +33,6 @@
 enum HunterSpells
 {
     SPELL_HUNTER_AIMED_SHOT                         = 19434,
-    SPELL_HUNTER_AIMED_SHOT_INSTANT                 = 82928,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CALL_PET_1                         = 883,
     SPELL_HUNTER_CALL_PET_2                         = 83242,
@@ -239,34 +238,6 @@ class spell_hun_disengage : public SpellScript
     void Register() override
     {
         OnCheckCast.Register(&spell_hun_disengage::CheckCast);
-    }
-};
-
-// 82926 - Fire!
-class spell_hun_fire : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_HUNTER_AIMED_SHOT_INSTANT });
-    }
-
-    void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
-    {
-        if (!spellMod)
-        {
-            spellMod = new SpellModifier(GetAura());
-            spellMod->op = SPELLMOD_CASTING_TIME;
-            spellMod->type = SPELLMOD_PCT;
-            spellMod->spellId = GetId();
-            spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
-        }
-
-        spellMod->value = -aurEff->GetAmount();
-    }
-
-    void Register() override
-    {
-        DoEffectCalcSpellMod.Register(&spell_hun_fire::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1477,7 +1448,6 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_crouching_tiger_hidden_chimera);
     RegisterSpellScript(spell_hun_disengage);
     RegisterSpellScript(spell_hun_fervor);
-    RegisterSpellScript(spell_hun_fire);
     RegisterSpellAndAuraScriptPair(spell_hun_focus_fire, spell_hun_focus_fire_AuraScript);
     RegisterSpellScript(spell_hun_frenzy_effect);
     RegisterSpellScript(spell_hun_glyph_of_kill_shot);

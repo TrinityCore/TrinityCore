@@ -1711,7 +1711,7 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 {
     uint32 maxTargets = m_spellInfo->Effects[effIndex].ChainTarget;
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, maxTargets, this);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::ChainTargets, maxTargets, this);
 
     if (maxTargets > 1)
     {
@@ -3154,7 +3154,7 @@ bool Spell::UpdateChanneledTargetList()
     {
         range = m_spellInfo->GetMaxRange(IsPositive());
         if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::Range, range, this);
 
         // add little tolerance level
         range += std::min(MAX_SPELL_RANGE_TOLERANCE, range*0.1f); // 10% but no more than MAX_SPELL_RANGE_TOLERANCE
@@ -3754,7 +3754,7 @@ void Spell::handle_immediate()
             // First mod_duration then haste - see Missile Barrage
             // Apply duration mod
             if (Player* modOwner = m_caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+                modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::Duration, duration);
 
             // Apply haste mods
             m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
@@ -5157,7 +5157,7 @@ void Spell::TakePower()
                 hit = false;
                 //lower spell cost on fail (by talent aura)
                 if (Player* modOwner = unitCaster->GetSpellModOwner())
-                    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost);
+                    modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::PowerCostOnMiss, m_powerCost);
             }
         }
     }
@@ -5223,7 +5223,7 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID) const
     {
         runeCost[i] = src->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], const_cast<Spell*>(this));
+            modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::PowerCost0, runeCost[i], const_cast<Spell*>(this));
     }
 
     runeCost[RUNE_DEATH] = MAX_RUNES;                       // calculated later
@@ -5265,7 +5265,7 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
     {
         runeCost[i] = runeCostData->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], const_cast<Spell*>(this));
+            modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::PowerCost0, runeCost[i], const_cast<Spell*>(this));
     }
 
     bool consumeRunes = false;
@@ -5348,7 +5348,7 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
 
             // Apply runic power gain modifiers
             if (Player* modOwner = m_caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runicPowerGain, const_cast<Spell*>(this));
+                modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::PowerCost0, runicPowerGain, const_cast<Spell*>(this));
 
             player->ModifyPower(POWER_RUNIC_POWER, std::max(0, runicPowerGain));
         }
@@ -5484,7 +5484,7 @@ void Spell::HandleHolyPower(Player* caster)
     // The spell did hit the target, apply aura cost mods if there are any.
     if (hit)
     {
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, m_powerCost, this);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::PowerCost0, m_powerCost, this);
         caster->ModifyPower(POWER_HOLY_POWER, -m_powerCost);
     }
 }
@@ -6930,7 +6930,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
             maxRange *= ranged->GetTemplate()->GetRangedModRange() * 0.01f;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, const_cast<Spell*>(this));
+        modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::Range, maxRange, const_cast<Spell*>(this));
 
     maxRange += rangeMod;
 
@@ -7470,7 +7470,7 @@ void Spell::Delayed() // only called in DealDamage()
 
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
     if (Player* player = playerCaster->GetSpellModOwner())
-        player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+        player->ApplySpellMod(m_spellInfo->Id, SpellModOp::ResistPushback, delayReduce, this);
     delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
@@ -7511,7 +7511,7 @@ void Spell::DelayedChannel()
     int32 delaytime = CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
     if (Player* player = playerCaster->GetSpellModOwner())
-        player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+        player->ApplySpellMod(m_spellInfo->Id, SpellModOp::ResistPushback, delayReduce, this);
     delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
@@ -8478,7 +8478,7 @@ void Spell::TriggerGlobalCooldown()
 
     // gcd modifier auras are applied only to own spells and only players have such mods
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, gcd, this);
+        modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::StartCooldown, gcd, this);
 
     // Apply haste rating
     if (m_spellInfo->StartRecoveryCategory == 133 && m_spellInfo->StartRecoveryTime == 1500 &&

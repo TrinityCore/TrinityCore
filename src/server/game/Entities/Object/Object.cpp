@@ -2430,17 +2430,17 @@ float WorldObject::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effec
 {
     if (Player* modOwner = GetSpellModOwner())
     {
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_ALL_EFFECTS, value);
+        modOwner->ApplySpellMod(spellProto->Id, SpellModOp::Points, value);
         switch (effect_index)
         {
             case EFFECT_0:
-                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT1, value);
+                modOwner->ApplySpellMod(spellProto->Id, SpellModOp::PointsIndex0, value);
                 break;
             case EFFECT_1:
-                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT2, value);
+                modOwner->ApplySpellMod(spellProto->Id, SpellModOp::PointsIndex1, value);
                 break;
             case EFFECT_2:
-                modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT3, value);
+                modOwner->ApplySpellMod(spellProto->Id, SpellModOp::PointsIndex2, value);
                 break;
         }
     }
@@ -2537,7 +2537,7 @@ void WorldObject::ModSpellCastTime(SpellInfo const* spellInfo, int32& castTime, 
 
     // called from caster
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, castTime, spell);
+        modOwner->ApplySpellMod(spellInfo->Id, SpellModOp::ChangeCastTime, castTime, spell);
 
     Unit const* unitCaster = ToUnit();
     if (!unitCaster)
@@ -2562,7 +2562,7 @@ void WorldObject::ModSpellDurationTime(SpellInfo const* spellInfo, int32& durati
 
     // called from caster
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, duration, spell);
+        modOwner->ApplySpellMod(spellInfo->Id, SpellModOp::ChangeCastTime, duration, spell);
 
     Unit const* unitCaster = ToUnit();
     if (!unitCaster)
@@ -2627,9 +2627,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     else
         modHitChance = 97 - levelBasedHitDiff;
 
-    // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
+    // Spellmod from SpellModOp::HitChance
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RESIST_MISS_CHANCE, modHitChance);
+        modOwner->ApplySpellMod(spellInfo->Id, SpellModOp::HitChance, modHitChance);
 
     // Spells with SPELL_ATTR3_ALWAYS_HIT will ignore target's avoidance effects
     if (!spellInfo->HasAttribute(SPELL_ATTR3_ALWAYS_HIT))

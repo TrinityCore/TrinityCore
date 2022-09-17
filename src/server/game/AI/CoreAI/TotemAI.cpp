@@ -53,7 +53,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     // Get spell range
     float max_range = spellInfo->GetMaxRange(false);
 
-    // SPELLMOD_RANGE not applied in this place just because not existence range mods for attacking totems
+    // SpellModOp::Range not applied in this place just because not existence range mods for attacking totems
 
     // pointer to appropriate target if found any
     Unit* victim = _victimGUID ? ObjectAccessor::GetUnit(*me, _victimGUID) : nullptr;

@@ -733,7 +733,7 @@ class spell_warr_victory_rush : public SpellScript
 
                 // Glyph: Victory Rush
                 if (Player* modOwner = caster->GetSpellModOwner())
-                    modOwner->ApplySpellMod(m_scriptSpellId, SPELLMOD_EFFECT3, damage);
+                    modOwner->ApplySpellMod(m_scriptSpellId, SpellModOp::PointsIndex2, damage);
 
                 SetEffectValue(damage);
             }

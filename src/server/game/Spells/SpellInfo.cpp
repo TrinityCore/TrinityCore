@@ -433,7 +433,7 @@ uint32 SpellEffectInfo::CalcPeriod(WorldObject const* caster, Spell* spell /* = 
     if (caster != nullptr)
     {
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_ACTIVATION_TIME, period, spell);
+            modOwner->ApplySpellMod(_spellInfo->Id, SpellModOp::Period, period, spell);
 
         if (caster->IsUnit() && _spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) && !_spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS))
             period = int32(period * caster->ToUnit()->GetFloatValue(UNIT_MOD_CAST_HASTE));
@@ -612,7 +612,7 @@ float SpellEffectInfo::CalcValueMultiplier(WorldObject* caster, Spell* spell) co
 {
     float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
+        modOwner->ApplySpellMod(_spellInfo->Id, SpellModOp::Amplitude, multiplier, spell);
     return multiplier;
 }
 
@@ -620,7 +620,7 @@ float SpellEffectInfo::CalcDamageMultiplier(WorldObject* caster, Spell* spell) c
 {
     float multiplierPercent = DamageMultiplier * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
+        modOwner->ApplySpellMod(_spellInfo->Id, SpellModOp::ChainAmplitude, multiplierPercent, spell);
     return multiplierPercent / 100.0f;
 }
 
@@ -652,7 +652,7 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster, Spell* spell) const
         radius = std::min(radius, entry->RadiusMax);
 
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+            modOwner->ApplySpellMod(_spellInfo->Id, SpellModOp::Radius, radius, spell);
     }
 
     return radius;
@@ -3338,7 +3338,7 @@ float SpellInfo::GetMaxRange(bool positive, WorldObject* caster, Spell* spell) c
         range = RangeEntry->RangeMax[0];
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(Id, SPELLMOD_RANGE, range, spell);
+            modOwner->ApplySpellMod(Id, SpellModOp::Range, range, spell);
     return range;
 }
 
@@ -3362,7 +3362,7 @@ int32 SpellInfo::CalcDuration(WorldObject const* caster /*= nullptr*/) const
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration);
+            modOwner->ApplySpellMod(Id, SpellModOp::Duration, duration);
 
     return duration;
 }
@@ -3545,7 +3545,7 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
 
     // Apply cost mod by spell
     if (Player* modOwner = caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost, spell);
+        modOwner->ApplySpellMod(Id, SpellModOp::PowerCost0, powerCost, spell);
 
     if (!unitCaster->IsControlledByPlayer())
     {
@@ -4125,32 +4125,32 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             case SPELL_AURA_ADD_FLAT_MODIFIER:          // mods
             case SPELL_AURA_ADD_PCT_MODIFIER:
             {
-                switch (spellInfo->Effects[effIndex].MiscValue)
+                switch (SpellModOp(spellInfo->Effects[effIndex].MiscValue))
                 {
-                    case SPELLMOD_CASTING_TIME:             // dependent from basepoint sign (positive -> negative)
-                    case SPELLMOD_ACTIVATION_TIME:
-                    case SPELLMOD_SPELL_COST_REFUND_ON_FAIL:
-                    case SPELLMOD_GLOBAL_COOLDOWN:
+                    case SpellModOp::ChangeCastTime:             // dependent from basepoint sign (positive -> negative)
+                    case SpellModOp::Period:
+                    case SpellModOp::PowerCostOnMiss:
+                    case SpellModOp::StartCooldown:
                         if (bp > 0)
                             return false;
                         break;
-                    case SPELLMOD_COOLDOWN:
-                    case SPELLMOD_COST:
+                    case SpellModOp::Cooldown:
+                    case SpellModOp::PowerCost0:
                         if (!spellInfo->IsPositive() && bp > 0) // dependent on prev effects too (ex Arcane Power)
                             return false;
                         break;
-                    case SPELLMOD_EFFECT1:                  // always positive
-                    case SPELLMOD_EFFECT2:
-                    case SPELLMOD_EFFECT3:
-                    case SPELLMOD_ALL_EFFECTS:
-                    case SPELLMOD_THREAT:
-                    case SPELLMOD_DAMAGE_MULTIPLIER:
-                    case SPELLMOD_VALUE_MULTIPLIER:
+                    case SpellModOp::PointsIndex0:                  // always positive
+                    case SpellModOp::PointsIndex1:
+                    case SpellModOp::PointsIndex2:
+                    case SpellModOp::Points:
+                    case SpellModOp::Hate:
+                    case SpellModOp::ChainAmplitude:
+                    case SpellModOp::Amplitude:
                         return true;
-                    case SPELLMOD_DURATION:
-                    case SPELLMOD_CRITICAL_CHANCE:
-                    case SPELLMOD_DAMAGE:
-                    case SPELLMOD_JUMP_TARGETS:
+                    case SpellModOp::Duration:
+                    case SpellModOp::CritChance:
+                    case SpellModOp::HealingAndDamage:
+                    case SpellModOp::ChainTargets:
                         if (!spellInfo->IsPositive() && bp < 0) // dependent on prev effects too
                             return false;
                         break;
