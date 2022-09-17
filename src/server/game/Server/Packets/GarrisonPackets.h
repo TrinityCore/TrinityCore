@@ -158,10 +158,10 @@ namespace WorldPackets
 
         struct GarrisonTalent
         {
-            int32 GarrTalentID = 1901;
+            int32 GarrTalentID = 0;
             int32 Rank = 0;
             Timestamp<> ResearchStartTime;
-            int32 Flags = 1;
+            int32 Flags = 0;
             Optional<GarrisonTalentSocketData> Socket;
         };
 
