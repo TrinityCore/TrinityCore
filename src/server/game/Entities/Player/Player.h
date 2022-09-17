@@ -76,6 +76,7 @@ class Garrison;
 class Group;
 class Guild;
 class Item;
+class LootRoll;
 class LootStore;
 class OutdoorPvP;
 class Pet;
@@ -1401,7 +1402,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem, bool skipRequiredLevelCheck = false) const;
-        InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
+        InventoryResult CanRollForItemInLFG(ItemTemplate const* item, Map const* map) const;
         Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(), ItemContext context = ItemContext::NONE, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, ItemContext context, bool update);
@@ -2064,6 +2065,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetLootGUID(ObjectGuid const& guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::LootTargetGUID), guid); }
         Loot* GetLootByWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const;
         std::unordered_map<ObjectGuid, Loot*> const& GetAELootView() const { return m_AELootView; }
+        LootRoll* GetLootRoll(ObjectGuid const& lootObjectGuid, uint8 lootListId);
+        void AddLootRoll(LootRoll* roll) { m_lootRolls.push_back(roll); }
+        void RemoveLootRoll(LootRoll* roll);
 
         void RemovedInsignia(Player* looterPlr);
 
@@ -3177,6 +3181,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SceneMgr m_sceneMgr;
 
         std::unordered_map<ObjectGuid /*LootObject*/, Loot*> m_AELootView;
+        std::vector<LootRoll*> m_lootRolls;                                     // loot rolls waiting for answer
 
         void _InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel);
         std::unique_ptr<RestMgr> _restMgr;
