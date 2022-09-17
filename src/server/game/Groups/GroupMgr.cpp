@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "World.h"
