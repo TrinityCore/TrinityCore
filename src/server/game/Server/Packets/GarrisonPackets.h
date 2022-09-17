@@ -158,10 +158,10 @@ namespace WorldPackets
 
         struct GarrisonTalent
         {
-            int32 GarrTalentID = 0;
+            int32 GarrTalentID = 1901;
             int32 Rank = 0;
             Timestamp<> ResearchStartTime;
-            int32 Flags = 0;
+            int32 Flags = 1;
             Optional<GarrisonTalentSocketData> Socket;
         };
 
@@ -436,6 +436,18 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GarrPlotInstanceID = 0;
+        };
+
+        class GarrisonOpenTalentNpc final : public ServerPacket
+        {
+        public:
+            GarrisonOpenTalentNpc() : ServerPacket(SMSG_GARRISON_OPEN_TALENT_NPC, 16 + 4 + 4) { }
+
+            ObjectGuid NpcGUID;
+            int32 GarrTalentTreeID;
+            int32 FriendshipFactionID; // Always 0 except on The Deaths of Chromie Scenario
+
+            WorldPacket const* Write() override;
         };
     }
 }

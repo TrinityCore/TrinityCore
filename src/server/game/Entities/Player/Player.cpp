@@ -56,6 +56,7 @@
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "Garrison.h"
+#include "GarrisonMgr.h"
 #include "GitRevision.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
@@ -13939,6 +13940,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GossipOptionNpc::Transmogrify:
             GetSession()->SendOpenTransmogrifier(guid);
+            break;
+        case GossipOptionNpc::GarrisonTalent:
+            SendGarrisonOpenTalentNpc(guid);
             break;
         default:
             break;
@@ -28155,4 +28159,18 @@ void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusR
     }
 
     SendDirectMessage(displayToast.Write());
+}
+
+void Player::SendGarrisonOpenTalentNpc(ObjectGuid guid)
+{
+    WorldPackets::Garrison::GarrisonOpenTalentNpc openTalentNpc;
+    GarrisonTalentNPC const* data = sGarrisonMgr.GetTalentNPCEntry(guid.GetEntry());
+    if (!data)
+        return;
+
+    openTalentNpc.NpcGUID = guid;
+    openTalentNpc.GarrTalentTreeID = data->GarrTalentTreeID;
+    openTalentNpc.FriendshipFactionID = data->FriendshipFactionID;
+
+    SendDirectMessage(openTalentNpc.Write());
 }

@@ -78,6 +78,15 @@ enum GarrisonAbilityFlags
     GARRISON_ABILITY_FLAG_IS_EMPTY_SLOT                 = 0x0400
 };
 
+enum GarrisonTalentFlag
+{
+    GARRISON_FLAG_RESEARCHED = 0x1,
+    GARRISON_FLAG_RESPEC = 0x2,
+    GARRISON_FLAG_RESEARCHING = 0x4,
+    GARRISON_FLAG_ONGOING = 0x8,
+    GARRISON_FLAG_DONT_RESET = 0x10
+};
+
 enum GarrisonError
 {
     GARRISON_SUCCESS                                            = 0,
