@@ -93,6 +93,14 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     return true;
 }
 
+void Corpse::Update(uint32 diff)
+{
+    WorldObject::Update(diff);
+
+    if (m_loot)
+        m_loot->Update();
+}
+
 void Corpse::SaveToDB()
 {
     // prevent DB data inconsistence problems and duplicates

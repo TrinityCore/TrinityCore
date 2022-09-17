@@ -22,6 +22,7 @@
 #include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Group.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "LFG.h"

@@ -33,7 +33,7 @@ namespace
     std::unordered_map<uint64, StoredLootContainer> _lootItemStore;
 }
 
-StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), ItemIndex(lootItem.itemIndex), FollowRules(lootItem.follow_loot_rules),
+StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), ItemIndex(lootItem.LootListId), FollowRules(lootItem.follow_loot_rules),
 FFA(lootItem.freeforall), Blocked(lootItem.is_blocked), Counted(lootItem.is_counted), UnderThreshold(lootItem.is_underthreshold),
 NeedsQuest(lootItem.needs_quest), RandomBonusListId(lootItem.randomBonusListId), Context(lootItem.context), BonusListIDs(lootItem.BonusListIDs)
 {
@@ -81,7 +81,7 @@ void LootItemStorage::LoadStorageFromDB()
             LootItem lootItem;
             lootItem.itemid = fields[1].GetUInt32();
             lootItem.count = fields[2].GetUInt32();
-            lootItem.itemIndex = fields[3].GetUInt32();
+            lootItem.LootListId = fields[3].GetUInt32();
             lootItem.follow_loot_rules = fields[4].GetBool();
             lootItem.freeforall = fields[5].GetBool();
             lootItem.is_blocked = fields[6].GetBool();
@@ -161,7 +161,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
             LootItem li;
             li.itemid = storedItemPair.first;
             li.count = storedItemPair.second.Count;
-            li.itemIndex = storedItemPair.second.ItemIndex;
+            li.LootListId = storedItemPair.second.ItemIndex;
             li.follow_loot_rules = storedItemPair.second.FollowRules;
             li.freeforall = storedItemPair.second.FFA;
             li.is_blocked = storedItemPair.second.Blocked;
@@ -303,7 +303,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     stmt->setUInt64(0, _containerId);
     stmt->setUInt32(1, lootItem.itemid);
     stmt->setUInt32(2, lootItem.count);
-    stmt->setUInt32(3, lootItem.itemIndex);
+    stmt->setUInt32(3, lootItem.LootListId);
     stmt->setBool(4, lootItem.follow_loot_rules);
     stmt->setBool(5, lootItem.freeforall);
     stmt->setBool(6, lootItem.is_blocked);

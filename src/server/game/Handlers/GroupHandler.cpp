@@ -21,7 +21,7 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Log.h"
-#include "LootPackets.h"
+#include "Loot.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "PartyPackets.h"
@@ -396,25 +396,6 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     group->SetMasterLooterGuid(packet.LootMasterGUID);
     group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
-}
-
-void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
-{
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-        return;
-
-    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.LootListID - 1, packet.RollType);
-
-    switch (packet.RollType)
-    {
-        case ROLL_NEED:
-            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyNeed, 1);
-            break;
-        case ROLL_GREED:
-            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyGreed, 1);
-            break;
-    }
 }
 
 void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)
