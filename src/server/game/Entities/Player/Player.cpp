@@ -6054,6 +6054,16 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
                 return false;
             }
             break;
+        case ACTION_BUTTON_COMPANION:
+        {
+            if (!GetSession()->GetBattlePetMgr()->GetPet(ObjectGuid::Create<HighGuid::BattlePet>(action)))
+            {
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Companion action %u not added into button %u for player %s (%s): companion does not exist",
+                    action, button, GetName().c_str(), GetGUID().ToString().c_str());
+                return false;
+            }
+            break;
+        }
         case ACTION_BUTTON_MOUNT:
         {
             auto mount = sDB2Manager.GetMountById(action);
