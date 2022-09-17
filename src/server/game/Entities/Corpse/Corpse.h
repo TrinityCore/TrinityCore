@@ -81,6 +81,8 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         bool Create(ObjectGuid::LowType guidlow, Map* map);
         bool Create(ObjectGuid::LowType guidlow, Player* owner);
 
+        void Update(uint32 diff) override;
+
         void SaveToDB();
         bool LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields);
 

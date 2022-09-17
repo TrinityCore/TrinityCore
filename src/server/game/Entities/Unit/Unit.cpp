@@ -46,6 +46,7 @@
 #include "InstanceScript.h"
 #include "Item.h"
 #include "Log.h"
+#include "Loot.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
 #include "MiscPackets.h"
@@ -10660,7 +10661,6 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
         Player* looter = player;
         Group* group = player->GetGroup();
-        bool hasLooterGuid = false;
 
         if (group)
         {
@@ -10673,10 +10673,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                 {
                     looter = ObjectAccessor::FindPlayer(group->GetLooterGuid());
                     if (looter)
-                    {
-                        hasLooterGuid = true;
                         creature->SetLootRecipient(looter);   // update creature loot recipient to the allowed looter.
-                    }
                 }
             }
         }
@@ -10686,7 +10683,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
         // Generate loot before updating looter
         if (creature)
         {
-            creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, group ? group->GetLootMethod() : FREE_FOR_ALL));
+            creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, group));
             Loot* loot = creature->m_loot.get();
             if (creature->GetMap()->Is25ManRaid())
                 loot->maxDuplicates = 3;
@@ -10697,24 +10694,11 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             if (creature->GetLootMode() > 0)
                 loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
 
-            if (group)
-            {
-                if (hasLooterGuid)
-                    group->SendLooter(creature, looter);
-                else
-                    group->SendLooter(creature, nullptr);
+            loot->NotifyLootList(creature->GetMap());
 
-                // Update round robin looter only if the creature had loot
-                if (!loot->empty())
-                    group->UpdateLooterGuid(creature);
-            }
-            else
-            {
-                WorldPackets::Loot::LootList lootList;
-                lootList.Owner = creature->GetGUID();
-                lootList.LootObj = creature->m_loot->GetGUID();
-                player->SendMessageToSet(lootList.Write(), true);
-            }
+            // Update round robin looter only if the creature had loot
+            if (group && !loot->empty())
+                group->UpdateLooterGuid(creature);
         }
 
         player->RewardPlayerAndGroupAtKill(victim, false);
