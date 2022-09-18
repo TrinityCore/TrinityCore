@@ -26,6 +26,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "SharedDefines.h"
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -80,9 +81,6 @@ enum RollMask
 };
 
 #define MAX_NR_LOOT_ITEMS 18
-// note: the client cannot show more than 16 items total
-#define MAX_NR_QUEST_ITEMS 32
-// unrelated to the number of quest items shown, just for reserve
 
 enum LootMethod : uint8
 {
@@ -92,17 +90,6 @@ enum LootMethod : uint8
     GROUP_LOOT        = 3,
     NEED_BEFORE_GREED = 4,
     PERSONAL_LOOT     = 5
-};
-
-enum PermissionTypes
-{
-    ALL_PERMISSION              = 0,
-    GROUP_PERMISSION            = 1,
-    MASTER_PERMISSION           = 2,
-    RESTRICTED_PERMISSION       = 3,
-    ROUND_ROBIN_PERMISSION      = 4,
-    OWNER_PERMISSION            = 5,
-    NONE_PERMISSION             = 6
 };
 
 enum LootType : uint8
@@ -203,23 +190,24 @@ struct TC_GAME_API LootItem
     bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
+    Optional<LootSlotType> GetUiTypeForPlayer(Player const* player, Loot const& loot) const;
 };
 
 struct NotNormalLootItem
 {
-    uint8   index;                                          // position in quest_items or items;
+    uint8   LootListId;
     bool    is_looted;
 
     NotNormalLootItem()
-        : index(0), is_looted(false) { }
+        : LootListId(0), is_looted(false) { }
 
     NotNormalLootItem(uint8 _index, bool _islooted = false)
-        : index(_index), is_looted(_islooted) { }
+        : LootListId(_index), is_looted(_islooted) { }
 };
 
 typedef std::vector<NotNormalLootItem> NotNormalLootItemList;
 typedef std::vector<LootItem> LootItemList;
-typedef std::unordered_map<ObjectGuid, NotNormalLootItemList*> NotNormalLootItemMap;
+typedef std::unordered_map<ObjectGuid, std::unique_ptr<NotNormalLootItemList>> NotNormalLootItemMap;
 
 //=====================================================
 
@@ -235,7 +223,7 @@ class LootRoll
 public:
     using RollVoteMap = std::unordered_map<ObjectGuid, PlayerRollVote>;
 
-    LootRoll() : m_map(nullptr), m_isStarted(false), m_lootItem(nullptr), m_loot(nullptr), m_lootListId(0), m_voteMask(), m_endTime(TimePoint::min()) { }
+    LootRoll() : m_map(nullptr), m_isStarted(false), m_lootItem(nullptr), m_loot(nullptr), m_voteMask(), m_endTime(TimePoint::min()) { }
     ~LootRoll();
 
     LootRoll(LootRoll const&) = delete;
@@ -263,19 +251,15 @@ private:
     bool        m_isStarted;
     LootItem*   m_lootItem;
     Loot*       m_loot;
-    uint32      m_lootListId;
     RollMask    m_voteMask;
     TimePoint   m_endTime;
 };
 
 struct TC_GAME_API Loot
 {
-    NotNormalLootItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
     NotNormalLootItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
-    NotNormalLootItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
 
     std::vector<LootItem> items;
-    std::vector<LootItem> quest_items;
     uint32 gold;
     uint8 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
@@ -301,8 +285,7 @@ struct TC_GAME_API Loot
     bool isLooted() const { return gold == 0 && unlootedCount == 0; }
 
     void NotifyLootList(Map const* map) const;
-    void NotifyItemRemoved(uint8 lootIndex, Map const* map);
-    void NotifyQuestItemRemoved(uint8 questIndex, Map const* map);
+    void NotifyItemRemoved(uint8 lootListId, Map const* map);
     void NotifyMoneyRemoved(Map const* map);
     void OnLootOpened(Map* map, ObjectGuid looter);
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
@@ -312,33 +295,26 @@ struct TC_GAME_API Loot
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE);
 
     // Inserts the item into the loot (called by LootTemplate processors)
-    void AddItem(LootStoreItem const& item, Player const* player);
+    void AddItem(LootStoreItem const& item);
 
     bool AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast = false, bool createdByPlayer = false);
 
-    LootItem const* GetItemInSlot(uint32 lootSlot) const;
-    LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = nullptr, NotNormalLootItem** ffaitem = nullptr, NotNormalLootItem** conditem = nullptr);
-    uint32 GetMaxSlotInLootFor(Player* player) const;
+    LootItem const* GetItemInSlot(uint32 lootListId) const;
+    LootItem* LootItemInSlot(uint32 lootListId, Player const* player, NotNormalLootItem** ffaItem = nullptr);
     bool hasItemForAll() const;
     bool hasItemFor(Player const* player) const;
     bool hasOverThresholdItem() const;
 
     // Builds data for SMSG_LOOT_RESPONSE
-    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION) const;
+    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player const* viewer) const;
 
     void Update();
 
 private:
-
     void FillNotNormalLootFor(Player const* player);
-    NotNormalLootItemList* FillFFALoot(Player const* player);
-    NotNormalLootItemList* FillQuestLoot(Player const* player);
-    NotNormalLootItemList* FillNonQuestNonFFAConditionalLoot(Player const* player);
 
     GuidSet PlayersLooting;
-    NotNormalLootItemMap PlayerQuestItems;
     NotNormalLootItemMap PlayerFFAItems;
-    NotNormalLootItemMap PlayerNonQuestNonFFAConditionalItems;
 
     // Loot GUID
     ObjectGuid _guid;
