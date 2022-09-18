@@ -61,6 +61,12 @@ LootItem::LootItem(LootStoreItem const& li)
     rollWinnerGUID = ObjectGuid::Empty;
 }
 
+LootItem::LootItem(LootItem const&) = default;
+LootItem::LootItem(LootItem&&) noexcept = default;
+LootItem& LootItem::operator=(LootItem const&) = default;
+LootItem& LootItem::operator=(LootItem&&) noexcept = default;
+LootItem::~LootItem() = default;
+
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
 bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
 {

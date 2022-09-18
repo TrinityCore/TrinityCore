@@ -222,7 +222,10 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
             if (loot->gold > 0 || loot->unlootedCount > 0)
                 sLootItemStorage->AddNewStoredLoot(item->GetGUID().GetCounter(), loot, player);
         }
-        player->SendLoot(item->GetGUID(), LOOT_ITEM);
+        if (item->m_loot)
+            player->SendLoot(*item->m_loot);
+        else
+            player->SendLootError(ObjectGuid::Empty, item->GetGUID(), LOOT_ERROR_NO_LOOT);
     }
 }
 

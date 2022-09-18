@@ -30,7 +30,6 @@
 #include "Log.h"
 #include "Loot.h"
 #include "LootItemStorage.h"
-#include "LootMgr.h"
 #include "LootPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
@@ -233,7 +232,7 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
 
-    GetPlayer()->SendLoot(packet.Unit, LOOT_CORPSE);
+    GetPlayer()->SendLoot(*lootTarget->GetLootForPlayer(GetPlayer()));
 
     if (!corpses.empty())
     {
@@ -242,7 +241,7 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 
         for (Creature* creature : corpses)
         {
-            GetPlayer()->SendLoot(creature->GetGUID(), LOOT_CORPSE, true);
+            GetPlayer()->SendLoot(*creature->GetLootForPlayer(GetPlayer()), true);
             SendPacket(WorldPackets::Loot::AELootTargetsAck().Write());
         }
     }

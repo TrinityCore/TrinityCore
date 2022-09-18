@@ -8772,7 +8772,7 @@ void Player::RemovedInsignia(Player* looterPlr)
     // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
     bones->m_loot->gold = uint32(urand(50, 150) * 0.016f * std::pow(float(GetLevel()) / 5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
     bones->lootRecipient = looterPlr;
-    looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
+    looterPlr->SendLoot(*bones->m_loot);
 }
 
 void Player::SendLootRelease(ObjectGuid guid) const
@@ -8788,82 +8788,32 @@ void Player::SendLootReleaseAll() const
     SendDirectMessage(WorldPackets::Loot::LootReleaseAll().Write());
 }
 
-void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = false*/)
+void Player::SendLoot(Loot& loot, bool aeLooting)
 {
     if (!GetLootGUID().IsEmpty() && !aeLooting)
         m_session->DoLootReleaseAll();
 
-    Loot* loot;
-
     TC_LOG_DEBUG("loot", "Player::SendLoot: Player: '%s' (%s), Loot: %s",
-        GetName().c_str(), GetGUID().ToString().c_str(), guid.ToString().c_str());
-    if (guid.IsGameObject())
-    {
-        GameObject* go = GetMap()->GetGameObject(guid);
+        GetName().c_str(), GetGUID().ToString().c_str(), loot.GetOwnerGUID().ToString().c_str());
 
-        if (!go)
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = go->GetLootForPlayer(this);
-    }
-    else if (guid.IsItem())
-    {
-        Item* item = GetItemByGuid(guid);
-
-        if (!item)
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = item->GetLootForPlayer(this);
-    }
-    else if (guid.IsCorpse())                          // remove insignia
-    {
-        Corpse* bones = ObjectAccessor::GetCorpse(*this, guid);
-
-        if (!bones)
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = bones->GetLootForPlayer(this);
-    }
-    else
-    {
-        Creature* creature = GetMap()->GetCreature(guid);
-
-        if (!creature)
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = creature->GetLootForPlayer(this);
-    }
-
-    if (!guid.IsItem() && !aeLooting)
-        SetLootGUID(guid);
+    if (!loot.GetOwnerGUID().IsItem() && !aeLooting)
+        SetLootGUID(loot.GetOwnerGUID());
 
     WorldPackets::Loot::LootResponse packet;
-    packet.Owner = guid;
-    packet.LootObj = loot->GetGUID();
-    packet._LootMethod = loot->GetLootMethod();
-    packet.AcquireReason = GetLootTypeForClient(loot_type);
+    packet.Owner = loot.GetOwnerGUID();
+    packet.LootObj = loot.GetGUID();
+    packet._LootMethod = loot.GetLootMethod();
+    packet.AcquireReason = GetLootTypeForClient(loot.loot_type);
     packet.Acquired = true; // false == No Loot (this too^^)
     packet.AELooting = aeLooting;
-    loot->BuildLootResponse(packet, this);
+    loot.BuildLootResponse(packet, this);
     SendDirectMessage(packet.Write());
 
     // add 'this' player as one of the players that are looting 'loot'
-    loot->OnLootOpened(GetMap(), GetGUID());
-    m_AELootView[loot->GetGUID()] = loot;
+    loot.OnLootOpened(GetMap(), GetGUID());
+    m_AELootView[loot.GetGUID()] = &loot;
 
-    if (loot_type == LOOT_CORPSE && !guid.IsItem())
+    if (loot.loot_type == LOOT_CORPSE && !loot.GetOwnerGUID().IsItem())
         SetUnitFlag(UNIT_FLAG_LOOTING);
 }
 

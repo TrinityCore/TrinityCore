@@ -2351,7 +2351,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;
 
-        void SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting = false);
+        void SendLoot(Loot& loot, bool aeLooting = false);
         void SendLootError(ObjectGuid const& lootObj, ObjectGuid const& owner, LootError error) const;
         void SendLootRelease(ObjectGuid guid) const;
         void SendLootReleaseAll() const;

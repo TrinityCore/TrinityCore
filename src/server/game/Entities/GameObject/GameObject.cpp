@@ -2416,13 +2416,13 @@ void GameObject::Use(Unit* user)
                         else
                         {
                             m_loot.reset(GetFishLoot(player));
-                            player->SendLoot(GetGUID(), LOOT_FISHING);
+                            player->SendLoot(*m_loot);
                         }
                     }
                     else // If fishing skill is too low, send junk loot.
                     {
                         m_loot.reset(GetFishLootJunk(player));
-                        player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
+                        player->SendLoot(*m_loot);
                     }
                     break;
                 }
@@ -2639,7 +2639,7 @@ void GameObject::Use(Unit* user)
             loot->FillLoot(GetGOInfo()->GetLootId(), LootTemplates_Gameobject, player, true);
             m_personalLoot[player->GetGUID()].reset(loot);
 
-            player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
+            player->SendLoot(*loot);
             player->UpdateCriteria(CriteriaType::CatchFishInFishingHole, GetGOInfo()->entry);
             return;
         }
