@@ -107,7 +107,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             }
         }
 
-        player->StoreLootItem(lguid, req.LootListID - 1, loot, aeResultPtr);
+        player->StoreLootItem(lguid, req.LootListID, loot, aeResultPtr);
 
         // If player is removing the last LootItem, delete the empty container.
         if (loot->isLooted() && lguid.IsItem())
@@ -413,15 +413,14 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
         if (!loot || loot->GetLootMethod() != MASTER_LOOT)
             return;
 
-        uint8 slotid = req.LootListID - 1;
-        if (slotid >= loot->items.size() + loot->quest_items.size())
+        if (req.LootListID >= loot->items.size())
         {
-            TC_LOG_DEBUG("loot", "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",
-                GetPlayer()->GetName().c_str(), slotid, (unsigned long)loot->items.size());
+            TC_LOG_DEBUG("loot", "MasterLootItem: Player %s might be using a hack! (slot %d, size " SZFMTD ")",
+                GetPlayer()->GetName().c_str(), req.LootListID, loot->items.size());
             return;
         }
 
-        LootItem& item = slotid >= loot->items.size() ? loot->quest_items[slotid - loot->items.size()] : loot->items[slotid];
+        LootItem& item = loot->items[req.LootListID];
 
         ItemPosCountVec dest;
         InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
@@ -446,7 +445,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
         item.count = 0;
         item.is_looted = true;
 
-        loot->NotifyItemRemoved(slotid, GetPlayer()->GetMap());
+        loot->NotifyItemRemoved(req.LootListID, GetPlayer()->GetMap());
         --loot->unlootedCount;
     }
 
@@ -461,7 +460,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
 
 void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
 {
-    LootRoll* lootRoll = GetPlayer()->GetLootRoll(packet.LootObj, packet.LootListID - 1);
+    LootRoll* lootRoll = GetPlayer()->GetLootRoll(packet.LootObj, packet.LootListID);
     if (!lootRoll)
         return;
 
