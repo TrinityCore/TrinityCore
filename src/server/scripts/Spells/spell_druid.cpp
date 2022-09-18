@@ -639,7 +639,7 @@ class spell_dru_glyph_of_stars : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_STARS, SPELL_DRUID_GLYPH_OF_STARS_VISUAL });
     }
 
-    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
         if (target->HasAura(SPELL_DRUID_GLYPH_OF_STARS))

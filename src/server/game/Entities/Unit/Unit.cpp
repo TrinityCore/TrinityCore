@@ -11851,6 +11851,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         {
             if (HasAura(114301)) // Glyph of Stars
                 return 0;
+            break;
         }
         default:
             break;
