@@ -956,6 +956,8 @@ void GameObject::Update(uint32 diff)
                     // If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
                     m_restockTime = 0;
                     m_lootState = GO_READY;
+                    m_loot = nullptr;
+                    m_personalLoot.clear();
                     AddToObjectUpdateIfNeeded();
                     break;
                 default:
@@ -1176,11 +1178,16 @@ void GameObject::Update(uint32 diff)
                     if (m_loot)
                         m_loot->Update();
 
+                    for (auto&& [playerOwner, loot] : m_personalLoot)
+                        loot->Update();
+
                     // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                    if (GetGOInfo()->chest.consumable == 0 && GameTime::GetGameTime() >= m_restockTime)
+                    if (GetGOInfo()->chest.consumable == 0 && GetGOInfo()->chest.chestRestockTime && GameTime::GetGameTime() >= m_restockTime)
                     {
                         m_restockTime = 0;
                         m_lootState = GO_READY;
+                        m_loot = nullptr;
+                        m_personalLoot.clear();
                         AddToObjectUpdateIfNeeded();
                     }
                     break;
@@ -1255,6 +1262,7 @@ void GameObject::Update(uint32 diff)
             }
 
             m_loot = nullptr;
+            m_personalLoot.clear();
 
             // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
             bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
@@ -1405,44 +1413,48 @@ void GameObject::SendGameObjectDespawn()
     SendMessageToSet(packet.Write(), true);
 }
 
-void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
+Loot* GameObject::GetFishLoot(Player* lootOwner)
 {
-    fishloot->clear();
-
     uint32 zone, subzone;
     uint32 defaultzone = 1;
     GetZoneAndAreaId(zone, subzone);
 
+    Loot* fishLoot = new Loot(GetMap(), GetGUID(), LOOT_FISHING, nullptr);
+
     // if subzone loot exist use it
-    fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true);
-    if (fishloot->empty())  //use this becase if zone or subzone has set LOOT_MODE_JUNK_FISH,Even if no normal drop, fishloot->FillLoot return true. it wrong.
+    fishLoot->FillLoot(subzone, LootTemplates_Fishing, lootOwner, true, true);
+    if (fishLoot->empty())  //use this becase if zone or subzone has set LOOT_MODE_JUNK_FISH,Even if no normal drop, fishloot->FillLoot return true. it wrong.
     {
         //subzone no result,use zone loot
-        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true, true);
+        fishLoot->FillLoot(zone, LootTemplates_Fishing, lootOwner, true, true);
         //use zone 1 as default, somewhere fishing got nothing,becase subzone and zone not set, like Off the coast of Storm Peaks.
-        if (fishloot->empty())
-            fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true);
+        if (fishLoot->empty())
+            fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true);
     }
+
+    return fishLoot;
 }
 
-void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
+Loot* GameObject::GetFishLootJunk(Player* lootOwner)
 {
-    fishloot->clear();
-
     uint32 zone, subzone;
     uint32 defaultzone = 1;
     GetZoneAndAreaId(zone, subzone);
 
+    Loot* fishLoot = new Loot(GetMap(), GetGUID(), LOOT_FISHING_JUNK, nullptr);
+
     // if subzone loot exist use it
-    fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
-    if (fishloot->empty())  //use this becase if zone or subzone has normal mask drop, then fishloot->FillLoot return true.
+    fishLoot->FillLoot(subzone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
+    if (fishLoot->empty())  //use this becase if zone or subzone has normal mask drop, then fishloot->FillLoot return true.
     {
         //use zone loot
-        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
-        if (fishloot->empty())
+        fishLoot->FillLoot(zone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
+        if (fishLoot->empty())
             //use zone 1 as default
-            fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+            fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
     }
+
+    return fishLoot;
 }
 
 void GameObject::SaveToDB()
@@ -2402,10 +2414,16 @@ void GameObject::Use(Unit* user)
                             SetLootState(GO_JUST_DEACTIVATED);
                         }
                         else
+                        {
+                            m_loot.reset(GetFishLoot(player));
                             player->SendLoot(GetGUID(), LOOT_FISHING);
+                        }
                     }
                     else // If fishing skill is too low, send junk loot.
+                    {
+                        m_loot.reset(GetFishLootJunk(player));
                         player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
+                    }
                     break;
                 }
                 case GO_JUST_DEACTIVATED:                   // nothing to do, will be deleted at next update
@@ -2616,6 +2634,10 @@ void GameObject::Use(Unit* user)
                 return;
 
             Player* player = user->ToPlayer();
+
+            Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_FISHINGHOLE, nullptr);
+            loot->FillLoot(GetGOInfo()->GetLootId(), LootTemplates_Gameobject, player, true);
+            m_personalLoot[player->GetGUID()].reset(loot);
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
             player->UpdateCriteria(CriteriaType::CatchFishInFishingHole, GetGOInfo()->entry);
@@ -3222,6 +3244,17 @@ bool GameObject::IsLootAllowedFor(Player const* player) const
         return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
 
     return true;
+}
+
+Loot* GameObject::GetLootForPlayer(Player const* player) const
+{
+    if (m_personalLoot.empty())
+        return m_loot.get();
+
+    if (std::unique_ptr<Loot> const* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
+        return loot->get();
+
+    return nullptr;
 }
 
 GameObject* GameObject::GetLinkedTrap()

@@ -27,6 +27,8 @@
 #include "Item.h"
 #include "Log.h"
 #include "Loot.h"
+#include "LootItemStorage.h"
+#include "LootMgr.h"
 #include "Map.h"
 #include "Player.h"
 #include "ObjectAccessor.h"
@@ -199,10 +201,29 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
         stmt->setUInt64(0, item->GetGUID().GetCounter());
         _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
-            .WithPreparedCallback(std::bind(&WorldSession::HandleOpenWrappedItemCallback, this, item->GetPos(), item->GetGUID(), std::placeholders::_1)));
+            .WithPreparedCallback([this, pos = item->GetPos(), itemGuid = item->GetGUID()](PreparedQueryResult result)
+            {
+                HandleOpenWrappedItemCallback(pos, itemGuid, std::move(result));
+            }));
     }
     else
+    {
+        // If item doesn't already have loot, attempt to load it. If that
+        // fails then this is first time opening, generate loot
+        if (!item->m_lootGenerated && !sLootItemStorage->LoadStoredLoot(item, player))
+        {
+            Loot* loot = new Loot(player->GetMap(), item->GetGUID(), LOOT_ITEM, nullptr);
+            item->m_loot.reset(loot);
+            loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
+            loot->FillLoot(item->GetEntry(), LootTemplates_Item, player, true, loot->gold != 0);
+
+            // Force save the loot and money items that were just rolled
+            //  Also saves the container item ID in Loot struct (not to DB)
+            if (loot->gold > 0 || loot->unlootedCount > 0)
+                sLootItemStorage->AddNewStoredLoot(item->GetGUID().GetCounter(), loot, player);
+        }
         player->SendLoot(item->GetGUID(), LOOT_ITEM);
+    }
 }
 
 void WorldSession::HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid, PreparedQueryResult result)
