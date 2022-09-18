@@ -66,6 +66,7 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
+    SPELL_DRUID_GLYPH_OF_STARS_VISUAL          = 114302,
     SPELL_DRUID_GORE_PROC                      = 93622,
     SPELL_DRUID_GROWL                          = 6795,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
@@ -624,6 +625,27 @@ class spell_dru_galactic_guardian : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dru_galactic_guardian::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 24858 - Moonkin Form
+class spell_dru_glyph_of_stars : public AuraScript
+{
+    PrepareAuraScript(spell_dru_glyph_of_stars);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_STARS_VISUAL });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_GLYPH_OF_STARS_VISUAL);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_stars::OnRemove, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1595,6 +1617,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
+    RegisterSpellScript(spell_dru_glyph_of_stars);
     RegisterSpellScript(spell_dru_gore);
     RegisterSpellScript(spell_dru_incapacitating_roar);
     RegisterSpellScript(spell_dru_innervate);

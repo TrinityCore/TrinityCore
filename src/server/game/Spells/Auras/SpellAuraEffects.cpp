@@ -1736,6 +1736,14 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         // remove polymorph before changing display id to keep new display id
         switch (form)
         {
+            case FORM_MOONKIN_FORM:
+            // Glyph of Stars
+            if (AuraEffect* glyphOfStars = target->GetAuraEffect(114301, EFFECT_0))
+            {
+                target->CastSpell(target, glyphOfStars->GetAmount(), true);
+                modelid = 0;
+            }
+            // no break
             case FORM_CAT_FORM:
             case FORM_TREE_OF_LIFE:
             case FORM_TRAVEL_FORM:
@@ -1743,7 +1751,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_BEAR_FORM:
             case FORM_FLIGHT_FORM_EPIC:
             case FORM_FLIGHT_FORM:
-            case FORM_MOONKIN_FORM:
             {
                 // remove movement affects
                 target->RemoveAurasByShapeShift();
