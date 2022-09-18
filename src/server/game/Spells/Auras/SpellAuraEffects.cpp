@@ -1737,11 +1737,13 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         switch (form)
         {
             case FORM_MOONKIN_FORM:
-            // Glyph of Stars
-            if (AuraEffect* glyphOfStars = target->GetAuraEffect(114301, EFFECT_0))
             {
-                target->CastSpell(target, glyphOfStars->GetAmount(), true);
-                modelid = 0;
+                // Glyph of Stars
+                if (AuraEffect* glyphOfStars = target->GetAuraEffect(114301, EFFECT_0))
+                {
+                    target->CastSpell(target, glyphOfStars->GetAmount(), true);
+                    modelid = 0;
+                }
             }
             [[fallthrough]];
             case FORM_CAT_FORM:
