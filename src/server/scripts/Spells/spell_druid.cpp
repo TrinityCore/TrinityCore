@@ -66,6 +66,7 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
+    SPELL_DRUID_GLYPH_OF_STARS                 = 114301,
     SPELL_DRUID_GLYPH_OF_STARS_VISUAL          = 114302,
     SPELL_DRUID_GORE_PROC                      = 93622,
     SPELL_DRUID_GROWL                          = 6795,
@@ -635,7 +636,14 @@ class spell_dru_glyph_of_stars : public AuraScript
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_STARS_VISUAL });
+        return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_STARS, SPELL_DRUID_GLYPH_OF_STARS_VISUAL });
+    }
+
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_DRUID_GLYPH_OF_STARS))
+            target->CastSpell(target, SPELL_DRUID_GLYPH_OF_STARS_VISUAL, true);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -645,6 +653,7 @@ class spell_dru_glyph_of_stars : public AuraScript
 
     void Register() override
     {
+        OnEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_stars::OnApply, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
         OnEffectRemove += AuraEffectRemoveFn(spell_dru_glyph_of_stars::OnRemove, EFFECT_1, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
     }
 };

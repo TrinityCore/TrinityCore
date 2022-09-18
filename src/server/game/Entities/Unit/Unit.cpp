@@ -11843,12 +11843,17 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
     // Hardcoded cases
     switch (spellId)
     {
-    case 7090: // Bear Form
-        return 29414;
-    case 35200: // Roc Form
-        return 4877;
-    default:
-        break;
+        case 7090: // Bear Form
+            return 29414;
+        case 35200: // Roc Form
+            return 4877;
+        case 24858: // Moonkin Form
+        {
+            if (HasAura(114301)) // Glyph of Stars
+                return 0;
+        }
+        default:
+            break;
     }
 
     if (Player const* player = ToPlayer())
