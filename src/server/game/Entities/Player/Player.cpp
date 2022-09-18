@@ -6013,18 +6013,18 @@ void Player::SendActionButtons(uint32 state) const
     SendDirectMessage(packet.Write());
 }
 
-bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const
+bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) const
 {
     if (button >= MAX_ACTION_BUTTONS)
     {
-        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action %u not added into button %u for player %s (%s): button must be < %u",
+        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action " UI64FMTD " not added into button %u for player %s (%s): button must be < %u",
             action, button, GetName().c_str(), GetGUID().ToString().c_str(), MAX_ACTION_BUTTONS);
         return false;
     }
 
     if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
     {
-        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action %u not added into button %u for player %s (%s): action must be < %u",
+        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action " UI64FMTD " not added into button %u for player %s (%s): action must be < " UI64FMTD,
             action, button, GetName().c_str(), GetGUID().ToString().c_str(), MAX_ACTION_BUTTON_ACTION_VALUE);
         return false;
     }
@@ -6034,14 +6034,14 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
         case ACTION_BUTTON_SPELL:
             if (!sSpellMgr->GetSpellInfo(action, DIFFICULTY_NONE))
             {
-                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action %u not added into button %u for player %s (%s): spell does not exist. This can be due to a character imported from a different expansion",
+                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action " UI64FMTD " not added into button %u for player %s (%s): spell does not exist. This can be due to a character imported from a different expansion",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
 
             if (!HasSpell(action))
             {
-                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action %u not added into button %u for player %s (%s): player does not known this spell, this can be due to a player changing their talents",
+                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action " UI64FMTD " not added into button %u for player %s (%s): player does not known this spell, this can be due to a player changing their talents",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
@@ -6049,7 +6049,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
         case ACTION_BUTTON_ITEM:
             if (!sObjectMgr->GetItemTemplate(action))
             {
-                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Item action %u not added into button %u for player %s (%s): item not exist",
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Item action " UI64FMTD " not added into button %u for player %s (%s): item not exist",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
@@ -6058,7 +6058,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
         {
             if (!GetSession()->GetBattlePetMgr()->GetPet(ObjectGuid::Create<HighGuid::BattlePet>(action)))
             {
-                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Companion action %u not added into button %u for player %s (%s): companion does not exist",
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Companion action " UI64FMTD " not added into button %u for player %s (%s): companion does not exist",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
@@ -6069,14 +6069,14 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
             auto mount = sDB2Manager.GetMountById(action);
             if (!mount)
             {
-                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action %u not added into button %u for player %s (%s): mount does not exist",
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action " UI64FMTD " not added into button %u for player %s (%s): mount does not exist",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
 
             if (!HasSpell(mount->SourceSpellID))
             {
-                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action %u not added into button %u for player %s (%s): Player does not know this mount",
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action " UI64FMTD " not added into button %u for player %s (%s): Player does not know this mount",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
@@ -6096,7 +6096,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
     return true;
 }
 
-ActionButton* Player::AddActionButton(uint8 button, uint32 action, uint8 type)
+ActionButton* Player::AddActionButton(uint8 button, uint64 action, uint8 type)
 {
     if (!IsActionButtonDataValid(button, action, type))
         return nullptr;
@@ -6107,7 +6107,7 @@ ActionButton* Player::AddActionButton(uint8 button, uint32 action, uint8 type)
     // set data and update to CHANGED if not NEW
     ab.SetActionAndType(action, ActionButtonType(type));
 
-    TC_LOG_DEBUG("entities.player", "Player::AddActionButton: Player '%s' (%s) added action '%u' (type %u) to button '%u'",
+    TC_LOG_DEBUG("entities.player", "Player::AddActionButton: Player '%s' (%s) added action '" UI64FMTD "' (type %u) to button '%u'",
         GetName().c_str(), GetGUID().ToString().c_str(), action, type, button);
     return &ab;
 }
@@ -17932,14 +17932,14 @@ void Player::_LoadActions(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             uint8 button = fields[0].GetUInt8();
-            uint32 action = fields[1].GetUInt32();
+            uint64 action = fields[1].GetUInt64();
             uint8 type = fields[2].GetUInt8();
 
             if (ActionButton* ab = AddActionButton(button, action, type))
                 ab->uState = ACTIONBUTTON_UNCHANGED;
             else
             {
-                TC_LOG_DEBUG("entities.player", "Player::_LoadActions: Player '%s' (%s) has an invalid action button (Button: %u, Action: %u, Type: %u). It will be deleted at next save. This can be due to a player changing their talents.",
+                TC_LOG_DEBUG("entities.player", "Player::_LoadActions: Player '%s' (%s) has an invalid action button (Button: %u, Action: " UI64FMTD ", Type: %u). It will be deleted at next save. This can be due to a player changing their talents.",
                     GetName().c_str(), GetGUID().ToString().c_str(), button, action, type);
 
                 // Will be deleted in DB at next save (it can create data until save but marked as deleted).
@@ -19974,7 +19974,7 @@ void Player::_SaveActions(CharacterDatabaseTransaction trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt8(1, GetActiveTalentGroup());
                 stmt->setUInt8(2, itr->first);
-                stmt->setUInt32(3, itr->second.GetAction());
+                stmt->setUInt64(3, itr->second.GetAction());
                 stmt->setUInt8(4, uint8(itr->second.GetType()));
                 trans->Append(stmt);
 
@@ -19983,7 +19983,7 @@ void Player::_SaveActions(CharacterDatabaseTransaction trans)
                 break;
             case ACTIONBUTTON_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACTION);
-                stmt->setUInt32(0, itr->second.GetAction());
+                stmt->setUInt64(0, itr->second.GetAction());
                 stmt->setUInt8(1, uint8(itr->second.GetType()));
                 stmt->setUInt64(2, GetGUID().GetCounter());
                 stmt->setUInt8(3, itr->first);
