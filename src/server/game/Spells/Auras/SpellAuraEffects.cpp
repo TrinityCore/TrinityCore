@@ -1743,7 +1743,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 target->CastSpell(target, glyphOfStars->GetAmount(), true);
                 modelid = 0;
             }
-            // no break
+            [[fallthrough]];
             case FORM_CAT_FORM:
             case FORM_TREE_OF_LIFE:
             case FORM_TRAVEL_FORM:
