@@ -258,7 +258,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
                 {
                     if (log)
                     {
-                        sLog->outCommand(GetAccountId(), "GM %s (%s) (Account: %u) mail item: %s (Entry: %u Count: %u) "
+                        sLog->OutCommand(GetAccountId(), "GM %s (%s) (Account: %u) mail item: %s (Entry: %u Count: %u) "
                             "to: %s (%s) (Account: %u)", GetPlayerName().c_str(), _player->GetGUID().ToString().c_str(), GetAccountId(),
                             item->GetTemplate()->GetDefaultLocaleName(), item->GetEntry(), item->GetCount(),
                             mailInfo.Target.c_str(), receiverGuid.ToString().c_str(), receiverAccountId);
@@ -281,7 +281,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
 
             if (log && mailInfo.SendMoney > 0)
             {
-                sLog->outCommand(GetAccountId(), "GM %s (%s) (Account: %u) mail money: " SI64FMTD " to: %s (%s) (Account: %u)",
+                sLog->OutCommand(GetAccountId(), "GM %s (%s) (Account: %u) mail money: " SI64FMTD " to: %s (%s) (Account: %u)",
                     GetPlayerName().c_str(), _player->GetGUID().ToString().c_str(), GetAccountId(), mailInfo.SendMoney, mailInfo.Target.c_str(), receiverGuid.ToString().c_str(), receiverAccountId);
             }
         }
@@ -482,7 +482,7 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& takeItem
                     if (!sCharacterCache->GetCharacterNameByGuid(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
-                sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
+                sLog->OutCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->GetDefaultLocaleName(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
