@@ -980,7 +980,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
     MoveItemData::LogAction(pFrom);
     if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE)) /// @todo Move this to scripts
     {
-        sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
+        sLog->OutCommand(m_pPlayer->GetSession()->GetAccountId(),
             "GM %s (%s) (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank named: %s (Guild ID: " UI64FMTD ")",
             m_pPlayer->GetName().c_str(), m_pPlayer->GetGUID().ToString().c_str(), m_pPlayer->GetSession()->GetAccountId(),
             pFrom->GetItem()->GetTemplate()->GetDefaultLocaleName(), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(),
@@ -2046,7 +2046,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
 
     if (player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
-        sLog->outCommand(player->GetSession()->GetAccountId(),
+        sLog->OutCommand(player->GetSession()->GetAccountId(),
             "GM %s (Account: %u) deposit money (Amount: " UI64FMTD ") to guild bank (Guild ID " UI64FMTD ")",
             player->GetName().c_str(), player->GetSession()->GetAccountId(), amount, m_id);
     }

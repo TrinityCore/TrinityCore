@@ -61,6 +61,12 @@ LootItem::LootItem(LootStoreItem const& li)
     rollWinnerGUID = ObjectGuid::Empty;
 }
 
+LootItem::LootItem(LootItem const&) = default;
+LootItem::LootItem(LootItem&&) noexcept = default;
+LootItem& LootItem::operator=(LootItem const&) = default;
+LootItem& LootItem::operator=(LootItem&&) noexcept = default;
+LootItem::~LootItem() = default;
+
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
 bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
 {
@@ -662,7 +668,10 @@ void Loot::NotifyItemRemoved(uint8 lootListId, Map const* map)
     {
         LootItem const& item = items[lootListId];
         if (item.GetAllowedLooters().find(*itr) == item.GetAllowedLooters().end())
+        {
+            ++itr;
             continue;
+        }
 
         if (Player* player = ObjectAccessor::GetPlayer(map, *itr))
         {
@@ -769,7 +778,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     Group const* group = lootOwner->GetGroup();
     if (!personal && group)
     {
-        roundRobinPlayer = lootOwner->GetGUID();
+        if (loot_type == LOOT_CORPSE)
+            roundRobinPlayer = lootOwner->GetGUID();
 
         for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             if (Player const* player = itr->GetSource())    // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter

@@ -1547,26 +1547,61 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                 return;
 
             case GAMEOBJECT_TYPE_CHEST:
-                /// @todo possible must be moved to loot release (in different from linked triggering)
-                if (gameObjTarget->GetGOInfo()->chest.triggeredEvent)
+            {
+                if (Battleground* bg = player->GetBattleground())
                 {
-                    TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO " UI64FMTD, gameObjTarget->GetGOInfo()->chest.triggeredEvent, gameObjTarget->GetSpawnId());
-                    GameEvents::Trigger(gameObjTarget->GetGOInfo()->chest.triggeredEvent, player, gameObjTarget);
+                    if (!bg->CanActivateGO(gameObjTarget->GetEntry(), bg->GetPlayerTeam(player->GetGUID())))
+                    {
+                        player->SendLootRelease(guid);
+                        return;
+                    }
                 }
 
-                // triggering linked GO
-                if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrap)
-                    gameObjTarget->TriggeringLinkedGameObject(trapEntry, player);
+                Loot* loot = nullptr;
+                if (gameObjTarget->getLootState() == GO_READY)
+                {
+                    if (uint32 lootId = gameObjTarget->GetGOInfo()->GetLootId())
+                    {
+                        gameObjTarget->SetLootGenerationTime();
 
-                // Don't return, let loots been taken
+                        Group const* group = player->GetGroup();
+                        bool groupRules = group && gameObjTarget->GetGOInfo()->chest.usegrouplootrules;
+
+                        loot = new Loot(gameObjTarget->GetMap(), guid, loottype, groupRules ? group : nullptr);
+                        gameObjTarget->m_loot.reset(loot);
+
+                        loot->FillLoot(lootId, LootTemplates_Gameobject, player, !groupRules, false, gameObjTarget->GetLootMode(), gameObjTarget->GetMap()->GetDifficultyLootItemContext());
+
+                        if (gameObjTarget->GetLootMode() > 0)
+                            if (GameObjectTemplateAddon const* addon = gameObjTarget->GetTemplateAddon())
+                                loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
+                    }
+
+                    /// @todo possible must be moved to loot release (in different from linked triggering)
+                    if (gameObjTarget->GetGOInfo()->chest.triggeredEvent)
+                    {
+                        TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO " UI64FMTD, gameObjTarget->GetGOInfo()->chest.triggeredEvent, gameObjTarget->GetSpawnId());
+                        GameEvents::Trigger(gameObjTarget->GetGOInfo()->chest.triggeredEvent, player, gameObjTarget);
+                    }
+
+                    // triggering linked GO
+                    if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrap)
+                        gameObjTarget->TriggeringLinkedGameObject(trapEntry, player);
+
+                    gameObjTarget->SetLootState(GO_ACTIVATED, player);
+                }
+                else
+                    loot = gameObjTarget->GetLootForPlayer(player);
+
+                // Send loot
+                if (loot)
+                    player->SendLoot(*loot);
                 break;
+            }
             default:
                 break;
         }
     }
-
-    // Send loot
-    player->SendLoot(guid, loottype);
 }
 
 void Spell::EffectOpenLock()
@@ -2221,10 +2256,36 @@ void Spell::EffectPickPocket()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
+    Player* player = m_caster->ToPlayer();
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    m_caster->ToPlayer()->SendLoot(unitTarget->GetGUID(), LOOT_PICKPOCKETING);
+    Creature* creature = Object::ToCreature(unitTarget);
+    if (!creature)
+        return;
+
+    if (creature->CanGeneratePickPocketLoot())
+    {
+        creature->StartPickPocketRefillTimer();
+
+        creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING, nullptr));
+        if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
+            creature->m_loot->FillLoot(lootid, LootTemplates_Pickpocketing, player, true);
+
+        // Generate extra money for pick pocket loot
+        const uint32 a = urand(0, creature->GetLevel() / 2);
+        const uint32 b = urand(0, player->GetLevel() / 2);
+        creature->m_loot->gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
+    }
+    else if (creature->m_loot)
+    {
+        if (creature->m_loot->loot_type == LOOT_PICKPOCKETING && creature->m_loot->isLooted())
+            player->SendLootError(creature->m_loot->GetGUID(), creature->GetGUID(), LOOT_ERROR_ALREADY_PICKPOCKETED);
+
+        return;
+    }
+
+    player->SendLoot(*creature->m_loot);
 }
 
 void Spell::EffectAddFarsight()
@@ -2376,7 +2437,7 @@ void Spell::EffectEnchantItemPerm()
 
         if (item_owner != player && player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
         {
-            sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
+            sLog->OutCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
                 player->GetName().c_str(), player->GetSession()->GetAccountId(),
                 itemTarget->GetTemplate()->GetDefaultLocaleName(), itemTarget->GetEntry(),
                 item_owner->GetName().c_str(), item_owner->GetSession()->GetAccountId());
@@ -2441,7 +2502,7 @@ void Spell::EffectEnchantItemPrismatic()
 
     if (item_owner != player && player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
-        sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
+        sLog->OutCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
             player->GetName().c_str(), player->GetSession()->GetAccountId(),
             itemTarget->GetTemplate()->GetDefaultLocaleName(), itemTarget->GetEntry(),
             item_owner->GetName().c_str(), item_owner->GetSession()->GetAccountId());
@@ -2519,7 +2580,7 @@ void Spell::EffectEnchantItemTmp()
 
     if (item_owner != player && player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
-        sLog->outCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(temp): %s (Entry: %d) for player: %s (Account: %u)",
+        sLog->OutCommand(player->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(temp): %s (Entry: %d) for player: %s (Account: %u)",
             player->GetName().c_str(), player->GetSession()->GetAccountId(),
             itemTarget->GetTemplate()->GetDefaultLocaleName(), itemTarget->GetEntry(),
             item_owner->GetName().c_str(), item_owner->GetSession()->GetAccountId());
@@ -3422,7 +3483,9 @@ void Spell::EffectDisEnchant()
     if (Player* caster = m_caster->ToPlayer())
     {
         caster->UpdateCraftSkill(m_spellInfo);
-        caster->SendLoot(itemTarget->GetGUID(), LOOT_DISENCHANTING);
+        itemTarget->m_loot.reset(new Loot(caster->GetMap(), itemTarget->GetGUID(), LOOT_DISENCHANTING, nullptr));
+        itemTarget->m_loot->FillLoot(ASSERT_NOTNULL(itemTarget->GetDisenchantLoot(caster))->ID, LootTemplates_Disenchant, caster, true);
+        caster->SendLoot(*itemTarget->m_loot);
     }
 
     // item will be removed at disenchanting end
@@ -3781,7 +3844,10 @@ void Spell::EffectSkinning()
 
     creature->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
     creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
-    player->SendLoot(creature->GetGUID(), LOOT_SKINNING);
+    creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_SKINNING, nullptr));
+    creature->m_loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
+    creature->SetLootRecipient(player, false);
+    player->SendLoot(*creature->m_loot);
 
     if (skill == SKILL_SKINNING)
     {
@@ -4480,7 +4546,9 @@ void Spell::EffectProspecting()
         player->UpdateGatherSkill(SKILL_JEWELCRAFTING, SkillValue, reqSkillValue);
     }
 
-    player->SendLoot(itemTarget->GetGUID(), LOOT_PROSPECTING);
+    itemTarget->m_loot.reset(new Loot(player->GetMap(), itemTarget->GetGUID(), LOOT_PROSPECTING, nullptr));
+    itemTarget->m_loot->FillLoot(itemTarget->GetEntry(), LootTemplates_Prospecting, player, true);
+    player->SendLoot(*itemTarget->m_loot);
 }
 
 void Spell::EffectMilling()
@@ -4505,7 +4573,9 @@ void Spell::EffectMilling()
         player->UpdateGatherSkill(SKILL_INSCRIPTION, SkillValue, reqSkillValue);
     }
 
-    player->SendLoot(itemTarget->GetGUID(), LOOT_MILLING);
+    itemTarget->m_loot.reset(new Loot(player->GetMap(), itemTarget->GetGUID(), LOOT_MILLING, nullptr));
+    itemTarget->m_loot->FillLoot(itemTarget->GetEntry(), LootTemplates_Milling, player, true);
+    player->SendLoot(*itemTarget->m_loot);
 }
 
 void Spell::EffectSkill()
