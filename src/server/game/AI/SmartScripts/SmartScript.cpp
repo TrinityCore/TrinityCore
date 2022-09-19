@@ -2816,13 +2816,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
 
             if (me->IsInRange(me->GetVictim(), (float)e.event.minMaxRepeat.min, (float)e.event.minMaxRepeat.max))
                 ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
-            else
-            {
-                if (!e.event.minMaxRepeat.controller)
-                    RecalcTimer(e, 500, 500); //  // make it predictable "This seems to be done to standardize min, max start rather than using the range values for the timer."
-                else
-                    RecalcTimer(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax); // if param5 value is greater than 0 first action will not happen until after repeat timer fires.
-            }
+            else // make it predictable
+                RecalcTimer(e, 500, 500);
             break;
         }
         case SMART_EVENT_VICTIM_CASTING:
