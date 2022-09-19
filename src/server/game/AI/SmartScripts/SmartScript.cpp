@@ -3315,6 +3315,13 @@ void SmartScript::InitTimer(SmartScriptHolder& e)
     switch (e.GetEventType())
     {
         //set only events which have initial timers
+        case SMART_EVENT_RANGE:
+            // If onlyFireOnRepeat is true set to 2 before entering combat. Will be set back to 1 after entering combat to ignore initial firing.
+            if (e.event.rangeRepeat.onlyFireOnRepeat == 1)
+                e.event.rangeRepeat.onlyFireOnRepeat = 2;
+            // make it predictable
+            RecalcTimer(e, 500, 500);
+            break;
         case SMART_EVENT_UPDATE:
         case SMART_EVENT_UPDATE_IC:
         case SMART_EVENT_UPDATE_OOC:

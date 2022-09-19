@@ -314,7 +314,6 @@ void SmartAIMgr::LoadSmartAIFromDB()
             case SMART_EVENT_UPDATE_IC:
             case SMART_EVENT_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
-            case SMART_EVENT_RANGE:
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
             case SMART_EVENT_FRIENDLY_MISSING_BUFF:
             case SMART_EVENT_HAS_AURA:
@@ -325,6 +324,13 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry %d SourceType %u, Event %u, Missing Repeat flag.",
                         temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
                 }
+                break;
+            case SMART_EVENT_RANGE:
+                if (temp.event.rangeRepeat.repeatMin == 0 && temp.event.rangeRepeat.repeatMax == 0)
+                    temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+                // Will only work properly if value is 0 or 1
+                if (temp.event.rangeRepeat.onlyFireOnRepeat > 1)
+                    temp.event.rangeRepeat.onlyFireOnRepeat = 1;
                 break;
             case SMART_EVENT_VICTIM_CASTING:
                 if (temp.event.minMaxRepeat.min == 0 && temp.event.minMaxRepeat.max == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
@@ -704,7 +710,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_DEATH: return NO_PARAMS;
             case SMART_EVENT_EVADE: return NO_PARAMS;
             case SMART_EVENT_SPELLHIT: return sizeof(SmartEvent::spellHit);
-            case SMART_EVENT_RANGE: return sizeof(SmartEvent::minMaxRepeat);
+            case SMART_EVENT_RANGE: return sizeof(SmartEvent::rangeRepeat);
             case SMART_EVENT_OOC_LOS: return sizeof(SmartEvent::los);
             case SMART_EVENT_RESPAWN: return sizeof(SmartEvent::respawn);
             case SMART_EVENT_VICTIM_CASTING: return sizeof(SmartEvent::targetCasting);
@@ -1076,7 +1082,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_UPDATE_OOC:
             case SMART_EVENT_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
-            case SMART_EVENT_RANGE:
             case SMART_EVENT_DAMAGED:
             case SMART_EVENT_DAMAGED_TARGET:
             case SMART_EVENT_RECEIVE_HEAL:
@@ -1084,6 +1089,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
 
                 if (!IsMinMaxValid(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax))
+                    return false;
+                break;
+            case SMART_EVENT_RANGE:
+                if (!IsMinMaxValid(e, e.event.rangeRepeat.minRange, e.event.rangeRepeat.maxRange))
+                    return false;
+
+                if (!IsMinMaxValid(e, e.event.rangeRepeat.repeatMin, e.event.rangeRepeat.repeatMax))
                     return false;
                 break;
             case SMART_EVENT_SPELLHIT:

@@ -208,6 +208,15 @@ struct SmartEvent
 
         struct
         {
+            uint32 minRange;
+            uint32 maxRange;
+            uint32 repeatMin;
+            uint32 repeatMax;
+            uint32 onlyFireOnRepeat;
+        } rangeRepeat;
+
+        struct
+        {
             uint32 cooldownMin;
             uint32 cooldownMax;
             SAIBool playerOnly;
