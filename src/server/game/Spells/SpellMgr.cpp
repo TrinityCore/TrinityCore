@@ -2644,17 +2644,17 @@ void SpellMgr::LoadSpellInfoServerside()
 
     std::unordered_map<std::pair<uint32, Difficulty>, std::vector<SpellEffectEntry>> spellEffects;
 
-    //                                                      0        1            2             3       4           5                6
-    QueryResult effectsResult = WorldDatabase.Query("SELECT SpellID, EffectIndex, DifficultyID, Effect, EffectAura, EffectAmplitude, EffectAttributes, "
-    //   7                 8                       9                     10                  11              12              13
-        "EffectAuraPeriod, EffectBonusCoefficient, EffectChainAmplitude, EffectChainTargets, EffectItemType, EffectMechanic, EffectPointsPerResource, "
-    //   14               15                        16                  17                      18             19           20
-        "EffectPosFacing, EffectRealPointsPerLevel, EffectTriggerSpell, BonusCoefficientFromAP, PvpMultiplier, Coefficient, Variance, "
-    //   21                   22                              23                24                25                26
-        "ResourceCoefficient, GroupSizeBasePointsCoefficient, EffectBasePoints, EffectMiscValue1, EffectMiscValue2, EffectRadiusIndex1, "
-    //   27                  28                     29                     30                     31                     32
-        "EffectRadiusIndex2, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, EffectSpellClassMask4, ImplicitTarget1, "
-    //   33
+    //                                                      0        1             2            3       4                5                 6
+    QueryResult effectsResult = WorldDatabase.Query("SELECT SpellID, DifficultyID, EffectIndex, Effect, EffectAmplitude, EffectAttributes, EffectAura, "
+    //   7                 8                 9                       10                    11                  12              13              14
+        "EffectAuraPeriod, EffectBasePoints, EffectBonusCoefficient, EffectChainAmplitude, EffectChainTargets, EffectDieSides, EffectItemType, EffectMechanic, "
+    //   15                       16               17                        18                  19                      20             21           22
+        "EffectPointsPerResource, EffectPosFacing, EffectRealPointsPerLevel, EffectTriggerSpell, BonusCoefficientFromAP, PvpMultiplier, Coefficient, Variance, "
+    //   23                   24                              25                26                27                  28
+        "ResourceCoefficient, GroupSizeBasePointsCoefficient, EffectMiscValue1, EffectMiscValue2, EffectRadiusIndex1, EffectRadiusIndex2, "
+    //   29                     30                     31                     32                     33
+        "EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, EffectSpellClassMask4, ImplicitTarget1, "
+    //   34
         "ImplicitTarget2 FROM serverside_spell_effect");
     if (effectsResult)
     {
@@ -2662,37 +2662,38 @@ void SpellMgr::LoadSpellInfoServerside()
         {
             Field* fields = effectsResult->Fetch();
             uint32 spellId = fields[0].GetUInt32();
-            Difficulty difficulty = Difficulty(fields[2].GetUInt32());
+            Difficulty difficulty = Difficulty(fields[1].GetUInt32());
             SpellEffectEntry effect{ };
-            effect.EffectIndex = fields[1].GetInt32();
+            effect.EffectIndex = fields[2].GetInt32();
             effect.Effect = fields[3].GetInt32();
-            effect.EffectAura = fields[4].GetInt16();
-            effect.EffectAmplitude = fields[5].GetFloat();
-            effect.EffectAttributes = fields[6].GetInt32();
+            effect.EffectAmplitude = fields[4].GetFloat();
+            effect.EffectAttributes = fields[5].GetInt32();
+            effect.EffectAura = fields[6].GetInt16();
             effect.EffectAuraPeriod = fields[7].GetInt32();
-            effect.EffectBonusCoefficient = fields[8].GetFloat();
-            effect.EffectChainAmplitude = fields[9].GetFloat();
-            effect.EffectChainTargets = fields[10].GetInt32();
-            effect.EffectItemType = fields[11].GetInt32();
-            effect.EffectMechanic = Mechanics(fields[12].GetInt32());
-            effect.EffectPointsPerResource = fields[13].GetFloat();
-            effect.EffectPosFacing = fields[14].GetFloat();
-            effect.EffectRealPointsPerLevel = fields[15].GetFloat();
-            effect.EffectTriggerSpell = fields[16].GetInt32();
-            effect.BonusCoefficientFromAP = fields[17].GetFloat();
-            effect.PvpMultiplier = fields[18].GetFloat();
-            effect.Coefficient = fields[19].GetFloat();
-            effect.Variance = fields[20].GetFloat();
-            effect.ResourceCoefficient = fields[21].GetFloat();
-            effect.GroupSizeBasePointsCoefficient = fields[22].GetFloat();
-            effect.EffectBasePoints = fields[23].GetFloat();
-            effect.EffectMiscValue[0] = fields[24].GetInt32();
-            effect.EffectMiscValue[1] = fields[25].GetInt32();
-            effect.EffectRadiusIndex[0] = fields[26].GetUInt32();
-            effect.EffectRadiusIndex[1] = fields[27].GetUInt32();
-            effect.EffectSpellClassMask = flag128(fields[28].GetInt32(), fields[29].GetInt32(), fields[30].GetInt32(), fields[31].GetInt32());
-            effect.ImplicitTarget[0] = fields[32].GetInt16();
-            effect.ImplicitTarget[1] = fields[33].GetInt16();
+            effect.EffectBasePoints = fields[8].GetInt32();
+            effect.EffectBonusCoefficient = fields[9].GetFloat();
+            effect.EffectChainAmplitude = fields[10].GetFloat();
+            effect.EffectChainTargets = fields[11].GetInt32();
+            effect.EffectDieSides = fields[12].GetInt32();
+            effect.EffectItemType = fields[13].GetInt32();
+            effect.EffectMechanic = Mechanics(fields[14].GetInt32());
+            effect.EffectPointsPerResource = fields[15].GetFloat();
+            effect.EffectPosFacing = fields[16].GetFloat();
+            effect.EffectRealPointsPerLevel = fields[17].GetFloat();
+            effect.EffectTriggerSpell = fields[18].GetInt32();
+            effect.BonusCoefficientFromAP = fields[19].GetFloat();
+            effect.PvpMultiplier = fields[20].GetFloat();
+            effect.Coefficient = fields[21].GetFloat();
+            effect.Variance = fields[22].GetFloat();
+            effect.ResourceCoefficient = fields[23].GetFloat();
+            effect.GroupSizeBasePointsCoefficient = fields[24].GetFloat();
+            effect.EffectMiscValue[0] = fields[25].GetInt32();
+            effect.EffectMiscValue[1] = fields[26].GetInt32();
+            effect.EffectRadiusIndex[0] = fields[27].GetUInt32();
+            effect.EffectRadiusIndex[1] = fields[28].GetUInt32();
+            effect.EffectSpellClassMask = flag128(fields[29].GetInt32(), fields[30].GetInt32(), fields[31].GetInt32(), fields[32].GetInt32());
+            effect.ImplicitTarget[0] = fields[33].GetInt16();
+            effect.ImplicitTarget[1] = fields[34].GetInt16();
 
             auto existingSpellBounds = _GetSpellInfo(spellId);
             if (existingSpellBounds.begin() != existingSpellBounds.end())

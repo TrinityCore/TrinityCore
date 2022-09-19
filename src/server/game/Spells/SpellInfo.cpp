@@ -419,7 +419,6 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     TriggerSpell = _effect.EffectTriggerSpell;
     SpellClassMask = _effect.EffectSpellClassMask;
     BonusCoefficientFromAP = _effect.BonusCoefficientFromAP;
-    Scaling.Class = _effect.ScalingClass;
     Scaling.Coefficient = _effect.Coefficient;
     Scaling.Variance = _effect.Variance;
     Scaling.ResourceCoefficient = _effect.ResourceCoefficient;

@@ -3292,16 +3292,18 @@ struct SpellDurationEntry
 struct SpellEffectEntry
 {
     uint32 ID;
-    int16 EffectAura;
     int32 DifficultyID;
     int32 EffectIndex;
     uint32 Effect;
     float EffectAmplitude;
     int32 EffectAttributes;
+    int16 EffectAura;
     int32 EffectAuraPeriod;
+    int32 EffectBasePoints;
     float EffectBonusCoefficient;
     float EffectChainAmplitude;
     int32 EffectChainTargets;
+    int32 EffectDieSides;
     int32 EffectItemType;
     int32 EffectMechanic;
     float EffectPointsPerResource;
@@ -3314,8 +3316,6 @@ struct SpellEffectEntry
     float Variance;
     float ResourceCoefficient;
     float GroupSizeBasePointsCoefficient;
-    float EffectBasePoints;
-    int32 ScalingClass;
     std::array<int32, 2> EffectMiscValue;
     std::array<uint32, 2> EffectRadiusIndex;
     flag128 EffectSpellClassMask;
