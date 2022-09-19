@@ -221,12 +221,12 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
     appenderFactory[index] = appenderCreateFn;
 }
 
-void Log::outMessage(std::string_view filter, LogLevel level, std::string&& message)
+void Log::OutMessageImpl(std::string_view filter, LogLevel level, std::string&& message)
 {
     write(std::make_unique<LogMessage>(level, std::string(filter), std::move(message)));
 }
 
-void Log::outCommand(std::string&& message, std::string&& param1)
+void Log::OutCommandImpl(std::string&& message, std::string&& param1)
 {
     write(std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", std::move(message), std::move(param1)));
 }
@@ -320,7 +320,7 @@ bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /*
     return true;
 }
 
-void Log::outCharDump(char const* str, uint32 accountId, uint64 guid, char const* name)
+void Log::OutCharDump(char const* str, uint32 accountId, uint64 guid, char const* name)
 {
     if (!str || !ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
         return;

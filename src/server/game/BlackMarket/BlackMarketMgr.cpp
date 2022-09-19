@@ -307,7 +307,7 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDataba
 
     // Log trade
     if (logGmTrade)
-        sLog->outCommand(bidderAccId, "GM %s (Account: %u) won item in blackmarket auction: %s (Entry: %u Count: %u) and payed gold : %u.",
+        sLog->OutCommand(bidderAccId, "GM %s (Account: %u) won item in blackmarket auction: %s (Entry: %u Count: %u) and payed gold : %u.",
             bidderName.c_str(), bidderAccId, item->GetTemplate()->GetDefaultLocaleName(), item->GetEntry(), item->GetCount(), entry->GetCurrentBid() / GOLD);
 
     if (bidder)

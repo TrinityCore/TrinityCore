@@ -127,7 +127,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 TC_LOG_DEBUG("network", "partner storing: %s", myItems[i]->GetGUID().ToString().c_str());
                 if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
-                    sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
+                    sLog->OutCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
                         myItems[i]->GetTemplate()->GetDefaultLocaleName(), myItems[i]->GetEntry(), myItems[i]->GetCount(),
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId());
@@ -145,7 +145,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 TC_LOG_DEBUG("network", "player storing: %s", hisItems[i]->GetGUID().ToString().c_str());
                 if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
-                    sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
+                    sLog->OutCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
                         hisItems[i]->GetTemplate()->GetDefaultLocaleName(), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId());
@@ -487,7 +487,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
         {
             if (my_trade->GetMoney() > 0)
             {
-                sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: " UI64FMTD ") to player: %s (Account: %u)",
+                sLog->OutCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: " UI64FMTD ") to player: %s (Account: %u)",
                     _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
                     my_trade->GetMoney(),
                     trader->GetName().c_str(), trader->GetSession()->GetAccountId());
@@ -495,7 +495,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
 
             if (his_trade->GetMoney() > 0)
             {
-                sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: " UI64FMTD ") to player: %s (Account: %u)",
+                sLog->OutCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) give money (Amount: " UI64FMTD ") to player: %s (Account: %u)",
                     trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
                     his_trade->GetMoney(),
                     _player->GetName().c_str(), _player->GetSession()->GetAccountId());

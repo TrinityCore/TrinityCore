@@ -30,7 +30,6 @@
 #include "Log.h"
 #include "Loot.h"
 #include "LootItemStorage.h"
-#include "LootMgr.h"
 #include "LootPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
@@ -44,12 +43,14 @@ public:
 
     AELootCreatureCheck(Player* looter, ObjectGuid mainLootTarget) : _looter(looter), _mainLootTarget(mainLootTarget) { }
 
-    bool operator()(Creature* creature) const
+    bool operator()(Creature const* creature) const
+    {
+        return IsValidAELootTarget(creature);
+    }
+
+    bool IsValidLootTarget(Creature const* creature) const
     {
         if (creature->IsAlive())
-            return false;
-
-        if (creature->GetGUID() == _mainLootTarget)
             return false;
 
         if (!_looter->IsWithinDist(creature, LootDistance))
@@ -58,6 +59,15 @@ public:
         return _looter->isAllowedToLoot(creature);
     }
 
+    bool IsValidAELootTarget(Creature const* creature) const
+    {
+        if (creature->GetGUID() == _mainLootTarget)
+            return false;
+
+        return IsValidLootTarget(creature);
+    }
+
+private:
     Player* _looter;
     ObjectGuid _mainLootTarget;
 };
@@ -201,21 +211,28 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     if (!GetPlayer()->IsAlive() || !packet.Unit.IsCreatureOrVehicle())
         return;
 
+    Creature* lootTarget = ObjectAccessor::GetCreature(*GetPlayer(), packet.Unit);
+    if (!lootTarget)
+        return;
+
+    AELootCreatureCheck check(_player, packet.Unit);
+    if (!check.IsValidLootTarget(lootTarget))
+        return;
+
     // interrupt cast
     if (GetPlayer()->IsNonMeleeSpellCast(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 
     GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Looting);
 
-    std::list<Creature*> corpses;
-    AELootCreatureCheck check(_player, packet.Unit);
+    std::vector<Creature*> corpses;
     Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
     Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
 
-    GetPlayer()->SendLoot(packet.Unit, LOOT_CORPSE);
+    GetPlayer()->SendLoot(*lootTarget->GetLootForPlayer(GetPlayer()));
 
     if (!corpses.empty())
     {
@@ -224,7 +241,7 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 
         for (Creature* creature : corpses)
         {
-            GetPlayer()->SendLoot(creature->GetGUID(), LOOT_CORPSE, true);
+            GetPlayer()->SendLoot(*creature->GetLootForPlayer(GetPlayer()), true);
             SendPacket(WorldPackets::Loot::AELootTargetsAck().Write());
         }
     }
@@ -246,6 +263,8 @@ void WorldSession::DoLootRelease(Loot* loot)
     if (player->GetLootGUID() == lguid)
         player->SetLootGUID(ObjectGuid::Empty);
 
+    //Player is not looking at loot list, he doesn't need to see updates on the loot list
+    loot->RemoveLooter(player->GetGUID());
     player->SendLootRelease(lguid);
     player->m_AELootView.erase(loot->GetGUID());
 
@@ -263,12 +282,7 @@ void WorldSession::DoLootRelease(Loot* loot)
         if (!go || ((go->GetOwnerGUID() != player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(player)))
             return;
 
-        if (go->GetGoType() == GAMEOBJECT_TYPE_DOOR)
-        {
-            // locked doors are opened with spelleffect openlock, prevent remove its as looted
-            go->UseDoorOrButton();
-        }
-        else if (loot->isLooted() || go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE)
+        if (loot->isLooted() || go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE || go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
         {
             if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGHOLE)
             {                                               // The fishing hole used once more
@@ -287,10 +301,6 @@ void WorldSession::DoLootRelease(Loot* loot)
         {
             // not fully looted object
             go->SetLootState(GO_ACTIVATED, player);
-
-            // if the round robin player release, reset it.
-            if (player->GetGUID() == loot->roundRobinPlayer)
-                loot->roundRobinPlayer.Clear();
         }
     }
     else if (lguid.IsCorpse())        // ONLY remove insignia at BG
@@ -317,7 +327,7 @@ void WorldSession::DoLootRelease(Loot* loot)
         if (loot->loot_type == LOOT_PROSPECTING || loot->loot_type == LOOT_MILLING)
         {
             pItem->m_lootGenerated = false;
-            pItem->m_loot.reset();
+            pItem->m_loot = nullptr;
 
             uint32 count = pItem->GetCount();
 
@@ -341,12 +351,6 @@ void WorldSession::DoLootRelease(Loot* loot)
         if (!creature)
             return;
 
-        if (!creature->IsWithinDistInMap(player, AELootCreatureCheck::LootDistance))
-            return;
-
-        if (creature->IsAlive() != (loot && loot->loot_type == LOOT_PICKPOCKETING))
-            return;
-
         if (loot->isLooted())
         {
             creature->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
@@ -367,9 +371,6 @@ void WorldSession::DoLootRelease(Loot* loot)
             creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags));
         }
     }
-
-    //Player is not looking at loot list, he doesn't need to see updates on the loot list
-    loot->RemoveLooter(player->GetGUID());
 }
 
 void WorldSession::DoLootReleaseAll()

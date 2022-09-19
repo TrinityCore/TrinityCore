@@ -6013,18 +6013,18 @@ void Player::SendActionButtons(uint32 state) const
     SendDirectMessage(packet.Write());
 }
 
-bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) const
+bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) const
 {
     if (button >= MAX_ACTION_BUTTONS)
     {
-        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action %u not added into button %u for player %s (%s): button must be < %u",
+        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action " UI64FMTD " not added into button %u for player %s (%s): button must be < %u",
             action, button, GetName().c_str(), GetGUID().ToString().c_str(), MAX_ACTION_BUTTONS);
         return false;
     }
 
     if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
     {
-        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action %u not added into button %u for player %s (%s): action must be < %u",
+        TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Action " UI64FMTD " not added into button %u for player %s (%s): action must be < " UI64FMTD,
             action, button, GetName().c_str(), GetGUID().ToString().c_str(), MAX_ACTION_BUTTON_ACTION_VALUE);
         return false;
     }
@@ -6034,14 +6034,14 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
         case ACTION_BUTTON_SPELL:
             if (!sSpellMgr->GetSpellInfo(action, DIFFICULTY_NONE))
             {
-                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action %u not added into button %u for player %s (%s): spell does not exist. This can be due to a character imported from a different expansion",
+                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action " UI64FMTD " not added into button %u for player %s (%s): spell does not exist. This can be due to a character imported from a different expansion",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
 
             if (!HasSpell(action))
             {
-                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action %u not added into button %u for player %s (%s): player does not known this spell, this can be due to a player changing their talents",
+                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action " UI64FMTD " not added into button %u for player %s (%s): player does not known this spell, this can be due to a player changing their talents",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
@@ -6049,24 +6049,34 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
         case ACTION_BUTTON_ITEM:
             if (!sObjectMgr->GetItemTemplate(action))
             {
-                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Item action %u not added into button %u for player %s (%s): item not exist",
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Item action " UI64FMTD " not added into button %u for player %s (%s): item not exist",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
             break;
+        case ACTION_BUTTON_COMPANION:
+        {
+            if (!GetSession()->GetBattlePetMgr()->GetPet(ObjectGuid::Create<HighGuid::BattlePet>(action)))
+            {
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Companion action " UI64FMTD " not added into button %u for player %s (%s): companion does not exist",
+                    action, button, GetName().c_str(), GetGUID().ToString().c_str());
+                return false;
+            }
+            break;
+        }
         case ACTION_BUTTON_MOUNT:
         {
             auto mount = sDB2Manager.GetMountById(action);
             if (!mount)
             {
-                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action %u not added into button %u for player %s (%s): mount does not exist",
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action " UI64FMTD " not added into button %u for player %s (%s): mount does not exist",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
 
             if (!HasSpell(mount->SourceSpellID))
             {
-                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action %u not added into button %u for player %s (%s): Player does not know this mount",
+                TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action " UI64FMTD " not added into button %u for player %s (%s): Player does not know this mount",
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
@@ -6086,7 +6096,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type) co
     return true;
 }
 
-ActionButton* Player::AddActionButton(uint8 button, uint32 action, uint8 type)
+ActionButton* Player::AddActionButton(uint8 button, uint64 action, uint8 type)
 {
     if (!IsActionButtonDataValid(button, action, type))
         return nullptr;
@@ -6097,7 +6107,7 @@ ActionButton* Player::AddActionButton(uint8 button, uint32 action, uint8 type)
     // set data and update to CHANGED if not NEW
     ab.SetActionAndType(action, ActionButtonType(type));
 
-    TC_LOG_DEBUG("entities.player", "Player::AddActionButton: Player '%s' (%s) added action '%u' (type %u) to button '%u'",
+    TC_LOG_DEBUG("entities.player", "Player::AddActionButton: Player '%s' (%s) added action '" UI64FMTD "' (type %u) to button '%u'",
         GetName().c_str(), GetGUID().ToString().c_str(), action, type, button);
     return &ab;
 }
@@ -8772,7 +8782,7 @@ void Player::RemovedInsignia(Player* looterPlr)
     // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
     bones->m_loot->gold = uint32(urand(50, 150) * 0.016f * std::pow(float(GetLevel()) / 5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
     bones->lootRecipient = looterPlr;
-    looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
+    looterPlr->SendLoot(*bones->m_loot);
 }
 
 void Player::SendLootRelease(ObjectGuid guid) const
@@ -8788,254 +8798,32 @@ void Player::SendLootReleaseAll() const
     SendDirectMessage(WorldPackets::Loot::LootReleaseAll().Write());
 }
 
-void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = false*/)
+void Player::SendLoot(Loot& loot, bool aeLooting)
 {
     if (!GetLootGUID().IsEmpty() && !aeLooting)
         m_session->DoLootReleaseAll();
 
-    Loot* loot;
-
     TC_LOG_DEBUG("loot", "Player::SendLoot: Player: '%s' (%s), Loot: %s",
-        GetName().c_str(), GetGUID().ToString().c_str(), guid.ToString().c_str());
-    if (guid.IsGameObject())
-    {
-        GameObject* go = GetMap()->GetGameObject(guid);
-        auto shouldLootRelease = [this](GameObject* go, LootType lootType) -> bool
-        {
-            // not check distance for GO in case owned GO (fishing bobber case, for example)
-            // And permit out of range GO with no owner in case fishing hole
-            if (!go)
-                return true;
+        GetName().c_str(), GetGUID().ToString().c_str(), loot.GetOwnerGUID().ToString().c_str());
 
-            switch (lootType)
-            {
-                case LOOT_FISHING:
-                case LOOT_FISHING_JUNK:
-                    if (go->GetOwnerGUID() != GetGUID())
-                        return true;
-                    break;
-                case LOOT_FISHINGHOLE:
-                    break;
-                default:
-                    if (!go->IsWithinDistInMap(this))
-                        return true;
-                    break;
-            }
-
-            return false;
-        };
-
-        if (shouldLootRelease(go, loot_type))
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = go->GetLootForPlayer(this);
-
-        // loot was generated and respawntime has passed since then, allow to recreate loot
-        // to avoid bugs, this rule covers spawned gameobjects only
-        // Don't allow to regenerate chest loot inside instances and raids, to avoid exploits with duplicate boss loot being given for some encounters
-        if (go->isSpawnedByDefault() && go->getLootState() == GO_ACTIVATED && (!loot || !loot->isLooted()) && !go->GetMap()->Instanceable() && go->GetLootGenerationTime() + go->GetRespawnDelay() < GameTime::GetGameTime())
-            go->SetLootState(GO_READY);
-
-        if (go->getLootState() == GO_READY)
-        {
-            uint32 lootid = go->GetGOInfo()->GetLootId();
-            if (Battleground* bg = GetBattleground())
-                if (!bg->CanActivateGO(go->GetEntry(), bg->GetPlayerTeam(GetGUID())))
-                {
-                    SendLootRelease(guid);
-                    return;
-                }
-
-            Group* group = GetGroup();
-            bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
-
-            loot = new Loot(GetMap(), guid, loot_type, groupRules ? group : nullptr);
-            if (go->GetMap()->Is25ManRaid())
-                loot->maxDuplicates = 3;
-
-            go->m_loot.reset(loot);
-
-            if (lootid)
-            {
-                // check current RR player and get next if necessary
-                if (groupRules)
-                    group->UpdateLooterGuid(go, true);
-
-                loot->FillLoot(lootid, LootTemplates_Gameobject, this, !groupRules, false, go->GetLootMode(), GetMap()->GetDifficultyLootItemContext());
-                go->SetLootGenerationTime();
-
-                // get next RR player (for next loot)
-                if (groupRules && !loot->empty())
-                    group->UpdateLooterGuid(go);
-            }
-
-            if (go->GetLootMode() > 0)
-                if (GameObjectTemplateAddon const* addon = go->GetTemplateAddon())
-                    loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
-
-            if (loot_type == LOOT_FISHING)
-                go->getFishLoot(loot, this);
-            else if (loot_type == LOOT_FISHING_JUNK)
-                go->getFishLootJunk(loot, this);
-
-            go->SetLootState(GO_ACTIVATED, this);
-        }
-    }
-    else if (guid.IsItem())
-    {
-        Item* item = GetItemByGuid(guid);
-
-        if (!item)
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = item->GetLootForPlayer(this);
-
-        // If item doesn't already have loot, attempt to load it. If that
-        // fails then this is first time opening, generate loot
-        if (!item->m_lootGenerated && !sLootItemStorage->LoadStoredLoot(item, this))
-        {
-            item->m_lootGenerated = true;
-            loot = new Loot(GetMap(), guid, loot_type, nullptr);
-            item->m_loot.reset(loot);
-
-            switch (loot_type)
-            {
-                case LOOT_DISENCHANTING:
-                    loot->FillLoot(ASSERT_NOTNULL(item->GetDisenchantLoot(this))->ID, LootTemplates_Disenchant, this, true);
-                    break;
-                case LOOT_PROSPECTING:
-                    loot->FillLoot(item->GetEntry(), LootTemplates_Prospecting, this, true);
-                    break;
-                case LOOT_MILLING:
-                    loot->FillLoot(item->GetEntry(), LootTemplates_Milling, this, true);
-                    break;
-                default:
-                    loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
-                    loot->FillLoot(item->GetEntry(), LootTemplates_Item, this, true, loot->gold != 0);
-
-                    // Force save the loot and money items that were just rolled
-                    //  Also saves the container item ID in Loot struct (not to DB)
-                    if (loot->gold > 0 || loot->unlootedCount > 0)
-                        sLootItemStorage->AddNewStoredLoot(item->GetGUID().GetCounter(), loot, this);
-
-                    break;
-            }
-        }
-    }
-    else if (guid.IsCorpse())                          // remove insignia
-    {
-        Corpse* bones = ObjectAccessor::GetCorpse(*this, guid);
-
-        if (!bones || !(loot_type == LOOT_CORPSE || loot_type == LOOT_INSIGNIA) || bones->GetType() != CORPSE_BONES)
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = bones->GetLootForPlayer(this);
-    }
-    else
-    {
-        Creature* creature = GetMap()->GetCreature(guid);
-
-        // must be in range and creature must be alive for pickpocket and must be dead for another loot
-        if (!creature || creature->IsAlive() != (loot_type == LOOT_PICKPOCKETING) || (!aeLooting && !creature->IsWithinDistInMap(this, INTERACTION_DISTANCE)))
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        if (loot_type == LOOT_PICKPOCKETING && IsFriendlyTo(creature))
-        {
-            SendLootRelease(guid);
-            return;
-        }
-
-        loot = creature->GetLootForPlayer(this);
-
-        if (loot_type == LOOT_PICKPOCKETING)
-        {
-            if (!loot || loot->loot_type != LOOT_PICKPOCKETING)
-            {
-                if (creature->CanGeneratePickPocketLoot())
-                {
-                    creature->StartPickPocketRefillTimer();
-
-                    loot = new Loot(GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING, nullptr);
-                    creature->m_loot.reset(loot);
-                    if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
-                        loot->FillLoot(lootid, LootTemplates_Pickpocketing, this, true);
-
-                    // Generate extra money for pick pocket loot
-                    const uint32 a = urand(0, creature->GetLevel() / 2);
-                    const uint32 b = urand(0, GetLevel() / 2);
-                    loot->gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
-                }
-                else
-                {
-                    SendLootError(loot->GetGUID(), guid, LOOT_ERROR_ALREADY_PICKPOCKETED);
-                    return;
-                }
-            } // else - still has pickpocket loot generated & not fully taken
-        }
-        else
-        {
-            // exploit fix
-            if (!creature->HasDynamicFlag(UNIT_DYNFLAG_LOOTABLE))
-            {
-                SendLootError(loot->GetGUID(), guid, LOOT_ERROR_DIDNT_KILL);
-                return;
-            }
-
-            // the player whose group may loot the corpse
-            Player* recipient = creature->GetLootRecipient();
-            Group* recipientGroup = creature->GetLootRecipientGroup();
-            if (!recipient && !recipientGroup)
-            {
-                SendLootError(loot->GetGUID(), guid, LOOT_ERROR_DIDNT_KILL);
-                return;
-            }
-
-            // if loot is already skinning loot then don't do anything else
-            if (loot->loot_type == LOOT_SKINNING)
-            {
-                loot_type = LOOT_SKINNING;
-            }
-            else if (loot_type == LOOT_SKINNING)
-            {
-                loot->clear();
-                loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
-
-                // Set new loot recipient
-                creature->SetLootRecipient(this, false);
-            }
-        }
-    }
-
-    if (!guid.IsItem() && !aeLooting)
-        SetLootGUID(guid);
+    if (!loot.GetOwnerGUID().IsItem() && !aeLooting)
+        SetLootGUID(loot.GetOwnerGUID());
 
     WorldPackets::Loot::LootResponse packet;
-    packet.Owner = guid;
-    packet.LootObj = loot->GetGUID();
-    packet._LootMethod = loot->GetLootMethod();
-    packet.AcquireReason = GetLootTypeForClient(loot_type);
+    packet.Owner = loot.GetOwnerGUID();
+    packet.LootObj = loot.GetGUID();
+    packet._LootMethod = loot.GetLootMethod();
+    packet.AcquireReason = GetLootTypeForClient(loot.loot_type);
     packet.Acquired = true; // false == No Loot (this too^^)
     packet.AELooting = aeLooting;
-    loot->BuildLootResponse(packet, this);
+    loot.BuildLootResponse(packet, this);
     SendDirectMessage(packet.Write());
 
     // add 'this' player as one of the players that are looting 'loot'
-    loot->OnLootOpened(GetMap(), GetGUID());
-    m_AELootView[loot->GetGUID()] = loot;
+    loot.OnLootOpened(GetMap(), GetGUID());
+    m_AELootView[loot.GetGUID()] = &loot;
 
-    if (loot_type == LOOT_CORPSE && !guid.IsItem())
+    if (loot.loot_type == LOOT_CORPSE && !loot.GetOwnerGUID().IsItem())
         SetUnitFlag(UNIT_FLAG_LOOTING);
 }
 
@@ -18144,14 +17932,14 @@ void Player::_LoadActions(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             uint8 button = fields[0].GetUInt8();
-            uint32 action = fields[1].GetUInt32();
+            uint64 action = fields[1].GetUInt64();
             uint8 type = fields[2].GetUInt8();
 
             if (ActionButton* ab = AddActionButton(button, action, type))
                 ab->uState = ACTIONBUTTON_UNCHANGED;
             else
             {
-                TC_LOG_DEBUG("entities.player", "Player::_LoadActions: Player '%s' (%s) has an invalid action button (Button: %u, Action: %u, Type: %u). It will be deleted at next save. This can be due to a player changing their talents.",
+                TC_LOG_DEBUG("entities.player", "Player::_LoadActions: Player '%s' (%s) has an invalid action button (Button: %u, Action: " UI64FMTD ", Type: %u). It will be deleted at next save. This can be due to a player changing their talents.",
                     GetName().c_str(), GetGUID().ToString().c_str(), button, action, type);
 
                 // Will be deleted in DB at next save (it can create data until save but marked as deleted).
@@ -20186,7 +19974,7 @@ void Player::_SaveActions(CharacterDatabaseTransaction trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt8(1, GetActiveTalentGroup());
                 stmt->setUInt8(2, itr->first);
-                stmt->setUInt32(3, itr->second.GetAction());
+                stmt->setUInt64(3, itr->second.GetAction());
                 stmt->setUInt8(4, uint8(itr->second.GetType()));
                 trans->Append(stmt);
 
@@ -20195,7 +19983,7 @@ void Player::_SaveActions(CharacterDatabaseTransaction trans)
                 break;
             case ACTIONBUTTON_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACTION);
-                stmt->setUInt32(0, itr->second.GetAction());
+                stmt->setUInt64(0, itr->second.GetAction());
                 stmt->setUInt8(1, uint8(itr->second.GetType()));
                 stmt->setUInt64(2, GetGUID().GetCounter());
                 stmt->setUInt8(3, itr->first);
