@@ -105,8 +105,8 @@ enum QuestTheWarchiefCometh
     EVENT_START_SCENE_COMETH                = 1,
     EVENT_SUMMON_PORTAL_COMETH              = 2,
     EVENT_SUMMON_GARROSH_COMETH             = 3,
-    EVENT_AGATHA_RAISE_FORSAKEN             = 4,
-    EVENT_SCENE_TALK_COMETH                 = 9,
+    EVENT_AGATHA_RAISE_FORSAKEN             = 4, // Note: 4-8 are used
+    EVENT_SCENE_TALK_COMETH                 = 9, // Note: 9-36 are used
 
     ACTION_START_SCENE_COMETH               = 1,
 
@@ -291,7 +291,6 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                         sylvanas->SetFacingTo(3.924652f);
 
                         _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 4, 1s);
-
                     }
                     break;
                 }
@@ -675,19 +674,19 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
     void SummonPortalsFromOrgrimmar()
     {
-        for (auto pos : OrgrimmarPortalPos)
+        for (Position const& pos : OrgrimmarPortalPos)
             me->SummonCreature(NPC_PORTAL_FROM_ORGRIMMAR, pos, TEMPSUMMON_TIMED_DESPAWN, 300s);
 
-        std::list<Creature*> portals;
-        GetCreatureListWithEntryInGrid(portals, me, NPC_PORTAL_FROM_ORGRIMMAR, 100.0f);
+        std::list<Creature*> orgrimmarPortals;
+        GetCreatureListWithEntryInGrid(orgrimmarPortals, me, NPC_PORTAL_FROM_ORGRIMMAR, 100.0f);
 
-        for (std::list<Creature*>::const_iterator itr = portals.begin(); itr != portals.end(); ++itr)
-            (*itr)->CastSpell(*itr, SPELL_AIR_REVENANT_ENTRANCE);
+        for (Creature* portal : orgrimmarPortals)
+            portal->CastSpell(portal, SPELL_AIR_REVENANT_ENTRANCE);
     }
 
     void SummonGarroshAndHisEliteGuards()
     {
-        for (auto pos : HellscreamElitePos)
+        for (Position const& pos : HellscreamElitePos)
             me->SummonCreature(NPC_HELLSCREAM_ELITE_COMETH, pos, TEMPSUMMON_TIMED_DESPAWN, 300s);
 
         me->SummonCreature(NPC_GARROSH_HELLSCREAM, GarroshPos, TEMPSUMMON_TIMED_DESPAWN, 300s);
@@ -738,27 +737,26 @@ class spell_silverpine_raise_forsaken_83173 : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* unit = GetTarget())
+        Unit* target = GetTarget();
+
+        if (Creature* fallenHuman = target->ToCreature())
         {
-            if (Creature* fallenHuman = unit->ToCreature())
-            {
-                if (fallenHuman->IsAIEnabled())
-                    fallenHuman->AI()->DoAction(ACTION_RISE_DURING_RAISE);
-            }
+            if (fallenHuman->IsAIEnabled())
+                fallenHuman->AI()->DoAction(ACTION_RISE_DURING_RAISE);
         }
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* unit = GetTarget())
+        Unit* target = GetTarget();
+
+        if (Creature* fallenHuman = target->ToCreature())
         {
-            if (Creature* fallenHuman = unit->ToCreature())
-            {
-                if (fallenHuman->IsAIEnabled())
-                    fallenHuman->AI()->DoAction(ACTION_DESCEND_AFTER_RAISE);
-            }
+            if (fallenHuman->IsAIEnabled())
+                fallenHuman->AI()->DoAction(ACTION_DESCEND_AFTER_RAISE);
         }
     }
+
 
     void Register() override
     {
@@ -900,33 +898,26 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* unit = GetCaster())
+        if (Unit* caster = GetCaster())
         {
-            unit->RemoveAura(SPELL_FEIGNED);
+            caster->RemoveAura(SPELL_FEIGNED);
 
-            if (unit->GetDisplayId() == DISPLAY_MALE_01_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_MALE_01_HC, true);
+            static const std::unordered_map<uint32, uint32> displayIdToSpellId =
+            {
+                { DISPLAY_MALE_01_HC,     SPELL_FORSAKEN_TROOPER_MALE_01_HC },
+                { DISPLAY_MALE_02_HC,     SPELL_FORSAKEN_TROOPER_MALE_02_HC },
+                { DISPLAY_MALE_03_HC,     SPELL_FORSAKEN_TROOPER_MALE_03_HC },
+                { DISPLAY_MALE_04_HC,     SPELL_FORSAKEN_TROOPER_MALE_04_HC },
+                { DISPLAY_FEMALE_01_HC, SPELL_FORSAKEN_TROOPER_FEMALE_01_HC },
+                { DISPLAY_FEMALE_02_HC, SPELL_FORSAKEN_TROOPER_FEMALE_02_HC },
+                { DISPLAY_FEMALE_03_HC, SPELL_FORSAKEN_TROOPER_FEMALE_03_HC },
+                { DISPLAY_FEMALE_04_HC, SPELL_FORSAKEN_TROOPER_FEMALE_04_HC },
+            };
 
-            if (unit->GetDisplayId() == DISPLAY_MALE_02_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_MALE_02_HC, true);
+            auto itr = displayIdToSpellId.find(caster->GetDisplayId());
 
-            if (unit->GetDisplayId() == DISPLAY_MALE_03_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_MALE_03_HC, true);
-
-            if (unit->GetDisplayId() == DISPLAY_MALE_04_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_MALE_04_HC, true);
-
-            if (unit->GetDisplayId() == DISPLAY_FEMALE_01_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_FEMALE_01_HC, true);
-
-            if (unit->GetDisplayId() == DISPLAY_FEMALE_02_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_FEMALE_02_HC, true);
-
-            if (unit->GetDisplayId() == DISPLAY_FEMALE_03_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_FEMALE_03_HC, true);
-
-            if (unit->GetDisplayId() == DISPLAY_FEMALE_04_HC)
-                unit->CastSpell(unit, SPELL_FORSAKEN_TROOPER_FEMALE_04_HC, true);
+            if (itr != displayIdToSpellId.end())
+                caster->CastSpell(caster, itr->second, true);
         }
     }
 
