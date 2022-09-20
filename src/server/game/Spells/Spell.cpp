@@ -7458,8 +7458,8 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
 
 void Spell::Delayed() // only called in DealDamage()
 {
-    Player* playerCaster = m_caster->ToPlayer();
-    if (!playerCaster)
+    Unit* unitCaster = m_caster->ToUnit();
+    if (!unitCaster)
         return;
 
     if (IsDelayableNoMore())                                 // Spells may only be delayed twice
@@ -7469,9 +7469,9 @@ void Spell::Delayed() // only called in DealDamage()
     int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
 
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
-    if (Player* player = playerCaster->GetSpellModOwner())
+    if (Player* player = unitCaster->GetSpellModOwner())
         player->ApplySpellMod(m_spellInfo->Id, SpellModOp::ResistPushback, delayReduce, this);
-    delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
+    delayReduce += unitCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
 
@@ -7485,11 +7485,11 @@ void Spell::Delayed() // only called in DealDamage()
     else
         m_timer += delaytime;
 
-    WorldPackets::Spells::SpellDelayed packet;
-    packet.Caster = unitCaster->GetGUID();
-    packet.ActualDelay = delaytime;
+    WorldPackets::Spells::SpellDelayed spellDelayed;
+    spellDelayed.Caster = unitCaster->GetGUID();
+    spellDelayed.ActualDelay = delaytime;
 
-    unitCaster->SendMessageToSet(packet.Write(), true);
+    unitCaster->SendMessageToSet(spellDelayed.Write(), true);
 }
 
 void Spell::DelayedChannel()
