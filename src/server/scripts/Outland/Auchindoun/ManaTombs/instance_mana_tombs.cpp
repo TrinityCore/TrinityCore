@@ -31,6 +31,12 @@ class instance_mana_tombs : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
             }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                if (unit->GetEntry() == NPC_TAVAROK)
+                    SetBossState(DATA_TAVAROK, DONE);
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
