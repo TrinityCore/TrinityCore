@@ -143,6 +143,8 @@ public:
 
             HandleDoors(true);
             DestroyPortals();
+
+            instance->SetBossState(DATA_NETHERSPITE, NOT_STARTED);
         }
 
         void SummonPortals()
@@ -266,12 +268,16 @@ public:
         {
             HandleDoors(false);
             SwitchToPortalPhase();
+
+            instance->SetBossState(DATA_NETHERSPITE, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             HandleDoors(true);
             DestroyPortals();
+
+            instance->SetBossState(DATA_NETHERSPITE, DONE);
         }
 
         void UpdateAI(uint32 diff) override
