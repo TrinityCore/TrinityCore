@@ -7554,7 +7554,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 damage, WeaponAttackType 
                     if (schoolMask & (1 << i))
                         maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
             }
-            else
+            else if (spellProto)
                 maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
 
             DoneTotalMod *= maxModDamagePercentSchool;
