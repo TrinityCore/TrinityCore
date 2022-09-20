@@ -6224,8 +6224,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
     // Totems get their bonus damage from their owner
     if (IsCreature() && IsTotem())
-        if (Unit* owner = GetOwner())
-            return owner->SpellDamageBonusDone(victim, spellProto, pdamage, damagetype, effIndex, stack);
+        if (Unit* creator = ObjectAccessor::GetUnit(*this, GetCreatorGUID()))
+            return creator->SpellDamageBonusDone(victim, spellProto, pdamage, damagetype, effIndex, stack);
 
     int32 DoneTotal = 0;
     float DoneTotalMod = SpellDamagePctDone(victim, spellProto, damagetype);
@@ -6988,8 +6988,8 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 {
     // For totems get healing bonus from owner (statue isn't totem in fact)
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
-        if (Unit* owner = GetOwner())
-            return owner->SpellHealingBonusDone(victim, spellProto, healamount, damagetype, effIndex, stack);
+        if (Unit* creator = ObjectAccessor::GetUnit(*this, GetCreatorGUID()))
+            return creator->SpellHealingBonusDone(victim, spellProto, healamount, damagetype, effIndex, stack);
 
     // Some spells don't benefit from done mods
     if (spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS))
