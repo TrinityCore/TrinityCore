@@ -702,10 +702,10 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 
     void DespawnGarroshAndHisEliteGuards()
     {
-        for (std::list<ObjectGuid>::const_iterator itr = _summons.begin(); itr != _summons.end(); itr++)
+        for (ObjectGuid const& summonedCreature : _summons)
         {
-            if (Creature* npc = ObjectAccessor::GetCreature(*me, (*itr)))
-                npc->CastSpell(npc, SPELL_SIMPLE_TELEPORT);
+            if (Creature* summon = ObjectAccessor::GetCreature(*me, summonedCreature))
+                summon->CastSpell(summon, SPELL_SIMPLE_TELEPORT);
         }
     }
 
