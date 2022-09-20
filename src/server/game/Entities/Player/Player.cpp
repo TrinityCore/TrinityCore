@@ -587,6 +587,11 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     TC_LOG_DEBUG("entities.player.items", "Player::StoreNewItemInBestSlots: Player '%s' (%s) creates initial item (ItemID: %u, Count: %u)",
         GetName().c_str(), GetGUID().ToString().c_str(), titem_id, titem_amount);
 
+    ItemContext itemContext = ItemContext::New_Character;
+    std::vector<int32> bonusListIDs;
+    std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(titem_id, itemContext);
+    bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
+
     // attempt equip by one
     while (titem_amount > 0)
     {
@@ -595,7 +600,8 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
         if (msg != EQUIP_ERR_OK)
             break;
 
-        EquipNewItem(eDest, titem_id, ItemContext::NONE, true);
+        Item* item = EquipNewItem(eDest, titem_id, itemContext, true);
+        item->SetBonuses(bonusListIDs);
         AutoUnequipOffhandIfNeed();
         --titem_amount;
     }
@@ -609,7 +615,7 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, titem_id, titem_amount);
     if (msg == EQUIP_ERR_OK)
     {
-        StoreNewItem(sDest, titem_id, true, GenerateItemRandomBonusListId(titem_id));
+        StoreNewItem(sDest, titem_id, true, GenerateItemRandomBonusListId(titem_id), GuidSet(), itemContext, bonusListIDs);
         return true;                                        // stored
     }
 
