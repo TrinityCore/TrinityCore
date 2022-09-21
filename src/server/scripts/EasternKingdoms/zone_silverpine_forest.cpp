@@ -900,7 +900,7 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
         if (Unit* caster = GetCaster())
         {
             caster->RemoveAura(SPELL_FEIGNED);
-            
+
             uint32 spellId = SPELL_FORSAKEN_TROOPER_MALE_01_HC;
             switch (caster->GetDisplayId())
             {
