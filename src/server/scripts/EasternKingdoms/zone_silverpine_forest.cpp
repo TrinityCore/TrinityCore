@@ -904,14 +904,14 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
 
             static const std::unordered_map<uint32, uint32> displayIdToSpellId =
             {
-                { DISPLAY_MALE_01_HC,     SPELL_FORSAKEN_TROOPER_MALE_01_HC },
-                { DISPLAY_MALE_02_HC,     SPELL_FORSAKEN_TROOPER_MALE_02_HC },
-                { DISPLAY_MALE_03_HC,     SPELL_FORSAKEN_TROOPER_MALE_03_HC },
-                { DISPLAY_MALE_04_HC,     SPELL_FORSAKEN_TROOPER_MALE_04_HC },
                 { DISPLAY_FEMALE_01_HC, SPELL_FORSAKEN_TROOPER_FEMALE_01_HC },
                 { DISPLAY_FEMALE_02_HC, SPELL_FORSAKEN_TROOPER_FEMALE_02_HC },
                 { DISPLAY_FEMALE_03_HC, SPELL_FORSAKEN_TROOPER_FEMALE_03_HC },
                 { DISPLAY_FEMALE_04_HC, SPELL_FORSAKEN_TROOPER_FEMALE_04_HC },
+                { DISPLAY_MALE_01_HC, SPELL_FORSAKEN_TROOPER_MALE_01_HC },
+                { DISPLAY_MALE_02_HC, SPELL_FORSAKEN_TROOPER_MALE_02_HC },
+                { DISPLAY_MALE_03_HC, SPELL_FORSAKEN_TROOPER_MALE_03_HC },
+                { DISPLAY_MALE_04_HC, SPELL_FORSAKEN_TROOPER_MALE_04_HC }
             };
 
             auto itr = displayIdToSpellId.find(caster->GetDisplayId());
