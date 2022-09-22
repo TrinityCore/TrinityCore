@@ -38,6 +38,7 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "Vehicle.h"
+#include "WorldSession.h"
 
 Position const OrgrimmarPortalPos[3] =
 {
