@@ -973,7 +973,7 @@ class boss_icehowl : public CreatureScript
                 instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
                 {

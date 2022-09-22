@@ -127,7 +127,7 @@ class boss_epoch : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* info) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* info) override
             {
                 if (info->Id == SPELL_TIME_STEP_DUMMY && me->IsHostileTo(target))
                 {

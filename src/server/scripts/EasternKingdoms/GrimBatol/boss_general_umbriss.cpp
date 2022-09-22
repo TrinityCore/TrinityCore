@@ -175,7 +175,7 @@ struct boss_general_umbriss : public BossAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_FRENZY)
             Talk(SAY_ANNOUNCE_FRENZY);
@@ -244,7 +244,7 @@ struct npc_umbriss_skardyn : public ScriptedAI
             _events.ScheduleEvent(EVENT_ATTACK_PLAYER, Milliseconds(1));
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_MODGUDS_MALICE || spell->Id == SPELL_MODGUDS_MALICE_HC)
             _infected = true;

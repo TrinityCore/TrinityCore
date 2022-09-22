@@ -73,11 +73,16 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
+            if (!caster || !caster->IsUnit())
+                return;
+
+            Unit* unitCaster = caster->ToUnit();
+
             if (spell->Id == SPELL_KODO_KOMBO_ITEM)
             {
-                if (!(caster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+                if (!(unitCaster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
                     && (me->GetEntry() == NPC_AGED_KODO || me->GetEntry() == NPC_DYING_KODO || me->GetEntry() == NPC_ANCIENT_KODO))
                 {
                     caster->CastSpell(caster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
@@ -89,7 +94,7 @@ public:
 
                     EngagementOver();
 
-                    me->FollowTarget(caster);
+                    me->FollowTarget(unitCaster);
                     me->setActive(true);
                 }
             }

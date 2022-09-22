@@ -351,7 +351,7 @@ struct npc_mandokir_ohgan : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         if (target && spell->Id == SPELL_OHGAN_ORDERS)
             _events.CancelEvent(EVENT_ATTACK_PLAYERS);

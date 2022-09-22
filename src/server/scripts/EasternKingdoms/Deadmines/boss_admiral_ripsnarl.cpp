@@ -313,7 +313,7 @@ class npc_ripsnarl_vapor : public CreatureScript
                 me->DespawnOrUnsummon(Seconds(5));
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_VAPOR_ANIMUS)
                     DoCastAOE(SPELL_COALESCE, true);

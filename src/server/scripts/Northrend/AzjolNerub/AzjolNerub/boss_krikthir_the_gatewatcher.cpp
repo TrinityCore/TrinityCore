@@ -294,13 +294,13 @@ class boss_krik_thir : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHit(Unit* /*whose*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*whose*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
                     DoZoneInCombat();
             }
 
-            void SpellHitTarget(Unit* /*who*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*who*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
                     Talk(SAY_SEND_GROUP);
@@ -380,7 +380,7 @@ struct npc_gatewatcher_petAI : public ScriptedAI
             JustEngagedWith(who);
     }
 
-    void SpellHit(Unit* /*whose*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*whose*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
             DoZoneInCombat();
@@ -752,10 +752,10 @@ class npc_anub_ar_skirmisher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (spell->Id == SPELL_CHARGE && target)
-                    DoCast(target, SPELL_FIXATE_TRIGGER);
+                if (spell->Id == SPELL_CHARGE && target->IsUnit())
+                    DoCast(target->ToUnit(), SPELL_FIXATE_TRIGGER);
             }
         };
 

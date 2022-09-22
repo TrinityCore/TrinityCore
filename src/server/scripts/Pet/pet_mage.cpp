@@ -76,23 +76,25 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         me->FollowTarget(summoner);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_INHERIT_MASTERS_THREAT_LIST)
+        if (spell->Id == SPELL_INHERIT_MASTERS_THREAT_LIST && target->IsUnit())
         {
             Unit* summoner = me->ToTempSummon()->GetSummoner();
             if (!summoner)
                 return;
 
-            if (target->IsInCombatWith(summoner))
+            Unit* unitTarget = target->ToUnit();
+
+            if (unitTarget->IsInCombatWith(summoner))
             {
-                AddThreat(me, target->GetThreatManager().GetThreat(summoner), target);
-                me->EngageWithTarget(target);
+                AddThreat(me, unitTarget->GetThreatManager().GetThreat(summoner), unitTarget);
+                me->EngageWithTarget(unitTarget);
             }
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_INITIALIZE_IMAGES)
         {

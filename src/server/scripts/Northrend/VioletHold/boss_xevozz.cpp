@@ -121,7 +121,7 @@ class boss_xevozz : public CreatureScript
                     _JustDied();
             }
 
-            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*who*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_ARCANE_POWER || spell->Id == H_SPELL_ARCANE_POWER)
                     Talk(SAY_SUMMON_ENERGY);

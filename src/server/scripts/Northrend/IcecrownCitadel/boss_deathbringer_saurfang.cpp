@@ -417,7 +417,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->HandleGameObject(instance->GetGuidData(GO_SAURFANG_S_DOOR), false);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (target->GetTransport())
                 {
@@ -442,7 +442,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_BLOOD_LINK_POWER)
                     if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
@@ -714,7 +714,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -921,7 +921,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -1003,7 +1003,7 @@ class npc_saurfang_event : public CreatureScript
                 _index = data;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {

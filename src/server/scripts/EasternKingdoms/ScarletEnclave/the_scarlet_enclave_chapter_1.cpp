@@ -537,7 +537,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* pCaster, SpellInfo const* pSpell) override
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -795,22 +795,24 @@ public:
             return false;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
             {
-                if (caster->GetTypeId() == TYPEID_UNIT && caster->IsVehicle())
+                if (caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsVehicle())
                 {
-                    if (Unit* charmer = caster->GetCharmer())
+                    Creature* creatureCaster = caster->ToCreature();
+
+                    if (Unit* charmer = creatureCaster->GetCharmer())
                     {
                         if (charmer->HasAura(SPELL_EFFECT_STOLEN_HORSE))
                         {
                             charmer->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
-                            caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                            caster->SetFaction(FACTION_FRIENDLY);
-                            DoCast(caster, SPELL_CALL_DARK_RIDER, true);
+                            creatureCaster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                            creatureCaster->SetFaction(FACTION_FRIENDLY);
+                            DoCast(creatureCaster, SPELL_CALL_DARK_RIDER, true);
                             if (Creature* Dark_Rider = me->FindNearestCreature(NPC_DARK_RIDER_OF_ACHERUS, 15))
-                                ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
+                                ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(creatureCaster);
                         }
                     }
                 }

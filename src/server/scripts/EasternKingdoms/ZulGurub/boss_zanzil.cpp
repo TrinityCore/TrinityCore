@@ -408,7 +408,7 @@ struct npc_zanzil_zanzili_berserker : public ScriptedAI
         _elixirHits = 0;
     }
 
-    void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, const SpellInfo* spellInfo) override
     {
         if (spellInfo->Id == SPELL_ZANZILS_RESURRECTION_ELIXIR_TRIGGERED)
         {
@@ -426,15 +426,15 @@ struct npc_zanzil_zanzili_berserker : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* victim, const SpellInfo* spellInfo) override
+    void SpellHitTarget(WorldObject* victim, const SpellInfo* spellInfo) override
     {
-        if (!victim)
+        if (!victim || !victim->IsUnit())
             return;
 
         if (spellInfo->Id == SPELL_PURSUIT)
         {
             me->GetThreatManager().ResetAllThreat();
-            AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
+            AddThreat(victim->ToUnit(), spellInfo->Effects[EFFECT_1].CalcValue());
             Talk(SAY_WHISPER_PURSUIT_PLAYER, victim);
             Talk(SAY_ANNOUNCE_PURSUIT_PLAYER, victim);
         }

@@ -317,7 +317,7 @@ struct npc_rajh_orb_of_the_sun : public ScriptedAI
         _events.ScheduleEvent(EVENT_GROW, 1s);
     }
 
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_RIDE_VEHICLE)
             _events.ScheduleEvent(EVENT_BLAZING_INFERNO, 500ms);

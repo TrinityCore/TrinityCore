@@ -298,13 +298,13 @@ public:
                 _gender = Data;
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
-             if (Spell->Id == SPELL_OUTHOUSE_GROANS)
+             if (caster && caster->IsUnit() && spell->Id == SPELL_OUTHOUSE_GROANS)
              {
                 ++_counter;
                 if (_counter < 5)
-                    DoCast(Caster, SPELL_CAMERA_SHAKE, true);
+                    DoCast(caster->ToUnit(), SPELL_CAMERA_SHAKE, true);
                 else
                     _counter = 0;
                 DoCast(me, SPELL_DUST_FIELD, true);
@@ -493,12 +493,12 @@ public:
                 me->DespawnOrUnsummon(_despawnTimer);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
-            if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
+            if (spell->Id == SPELL_RENEW_SKIRMISHER && caster && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(QUEST_OVERWHELMED) == QUEST_STATUS_INCOMPLETE)
             {
-                DoCast(caster, SPELL_KILL_CREDIT);
+                DoCast(caster->ToUnit(), SPELL_KILL_CREDIT);
                 Talk(SAY_RANDOM);
                 if (me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
@@ -614,7 +614,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -902,7 +902,7 @@ public:
             FinishQuest(false, _faction);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* /*spellInfo*/) override
+        void SpellHit(WorldObject* caster, SpellInfo const* /*spellInfo*/) override
         {
             if (caster->GetEntry() == NPC_HORDE_LUMBERBOAT || caster->GetEntry() == NPC_ALLIANCE_LUMBERBOAT)
                 FinishQuest(true, _faction);

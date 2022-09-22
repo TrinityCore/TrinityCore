@@ -386,7 +386,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUMMON_SPIRITS)
                     _nextVengefulShadeTargetGUID.push_back(target->GetGUID());
@@ -545,7 +545,7 @@ class npc_cult_fanatic : public CreatureScript
                     });
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -652,7 +652,7 @@ class npc_cult_adherent : public CreatureScript
                    });
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -745,7 +745,7 @@ class npc_vengeful_shade : public CreatureScript
                 _targetGUID = guid;
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {

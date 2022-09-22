@@ -149,7 +149,7 @@ public:
                     creature->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*who*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_INFERNAL_RELAY)
             {

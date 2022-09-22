@@ -371,7 +371,7 @@ class npc_crystal_shard : public CreatureScript
                 _events.ScheduleEvent(EVENT_REMOVE_SHRINK_AURA, Seconds(1) + Milliseconds(200));
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_CRYSTAL_SHARDS_TARGET)
                 {

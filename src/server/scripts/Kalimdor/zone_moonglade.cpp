@@ -86,7 +86,7 @@ public:
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_ELUNE_CANDLE)
             {

@@ -73,7 +73,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
             }
 
             // Fly away when dismissed
-            void SpellHit(Unit* source, SpellInfo const* spell) override
+            void SpellHit(WorldObject* source, SpellInfo const* spell) override
             {
                 if (spell->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
                     return;

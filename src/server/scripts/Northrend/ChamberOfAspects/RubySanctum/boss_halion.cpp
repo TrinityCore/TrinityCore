@@ -309,7 +309,7 @@ class boss_halion : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*who*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*who*/, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id == SPELL_TWILIGHT_MENDING)
                     Talk(SAY_REGENERATE);
@@ -493,7 +493,7 @@ class boss_twilight_halion : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*who*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {

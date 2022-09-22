@@ -119,7 +119,7 @@ class boss_baleroc : public CreatureScript
                 me->SetCanDualWield(true);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {

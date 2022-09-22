@@ -566,7 +566,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -636,7 +636,7 @@ class npc_torturer_lecraft : public CreatureScript
                     Talk (SAY_AGGRO, player);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id != SPELL_HIGH_EXECUTORS_BRANDING_IRON)
                     return;

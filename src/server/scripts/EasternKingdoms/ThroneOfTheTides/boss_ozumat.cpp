@@ -451,7 +451,7 @@ struct npc_ozumat_neptulon : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ENTANGLING_GRASP)
         {
@@ -678,10 +678,13 @@ struct npc_ozumat_unyielding_behemoth : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
+        if (!target->IsUnit())
+            return;
+
         if (spell->Id == SPELL_SHADOW_BLAST_VISUAL)
-            target->RemoveAurasDueToSpell(SPELL_SHRINK);
+            target->ToUnit()->RemoveAurasDueToSpell(SPELL_SHRINK);
     }
 
     void UpdateAI(uint32 diff) override

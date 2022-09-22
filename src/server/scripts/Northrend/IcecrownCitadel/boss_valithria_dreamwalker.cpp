@@ -378,7 +378,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DREAM_SLIP)
                 {

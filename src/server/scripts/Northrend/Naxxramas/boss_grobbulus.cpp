@@ -63,7 +63,7 @@ class boss_grobbulus : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SLIME_SPRAY)
                     me->SummonCreature(NPC_FALLOUT_SLIME, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);

@@ -622,7 +622,7 @@ struct npc_alakir_ice_storm : public ScriptedAI
         _events.ScheduleEvent(EVENT_PING_ICE_STORM_TRIGGERS, 1s);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ICE_STORM_PING && target->GetExactDist2d(me) > 20.0f)
             _iceStormPositions.push_back(target->GetPosition());

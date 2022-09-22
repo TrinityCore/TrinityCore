@@ -235,28 +235,31 @@ class npc_tournament_training_dummy : public CreatureScript
                 events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                if (!caster || !caster->IsUnit())
+                    return;
+
                 switch (me->GetEntry())
                 {
                     case NPC_CHARGE_TARGET:
                         if (spell->Id == SPELL_PLAYER_CHARGE)
                             if (isVulnerable)
-                                DoCast(caster, SPELL_CHARGE_CREDIT, true);
+                                DoCast(caster->ToUnit(), SPELL_CHARGE_CREDIT, true);
                         break;
                     case NPC_MELEE_TARGET:
                         if (spell->Id == SPELL_PLAYER_THRUST)
                         {
-                            DoCast(caster, SPELL_MELEE_CREDIT, true);
+                            DoCast(caster->ToUnit(), SPELL_MELEE_CREDIT, true);
 
-                            if (Unit* target = caster->GetVehicleBase())
+                            if (Unit* target = caster->ToUnit()->GetVehicleBase())
                                 DoCast(target, SPELL_COUNTERATTACK, true);
                         }
                         break;
                     case NPC_RANGED_TARGET:
                         if (spell->Id == SPELL_PLAYER_BREAK_SHIELD)
                             if (isVulnerable)
-                                DoCast(caster, SPELL_RANGED_CREDIT, true);
+                                DoCast(caster->ToUnit(), SPELL_RANGED_CREDIT, true);
                         break;
                 }
 
@@ -757,7 +760,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {

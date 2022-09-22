@@ -829,7 +829,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             Player* player = caster->ToPlayer();
             if (!player || !me->IsAlive() || spell->Id != 20804)
@@ -1035,7 +1035,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_LESSER_HEAL_R2 || spell->Id == SPELL_FORTITUDE_R1)
             {
@@ -1744,7 +1744,7 @@ struct npc_training_dummy : NullCreatureAI
     }
 
     // Todo: the involved training dummys have a proc aura for that. Drop this part here, once converted.
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
@@ -3071,9 +3071,9 @@ struct npc_darkmoon_island_gnoll : public ScriptedAI
         _events.ScheduleEvent(EVENT_REGULAR_SUBMERGE, 3s + 500ms);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
-        if (_hit)
+        if (!caster || _hit)
             return;
 
         if (spell->Id == SPELL_WHACK)

@@ -631,7 +631,7 @@ struct npc_raz_the_crazed : public EscortAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_STOP_HEART)
             _events.ScheduleEvent(EVENT_KILL_RAZ, 4s);

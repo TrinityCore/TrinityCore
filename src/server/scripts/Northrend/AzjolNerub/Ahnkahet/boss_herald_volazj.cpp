@@ -111,7 +111,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_INSANITY)
             {

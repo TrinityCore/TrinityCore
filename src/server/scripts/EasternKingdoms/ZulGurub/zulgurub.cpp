@@ -135,13 +135,16 @@ struct npc_zulgurub_berserking_boulder_roller : public ScriptedAI
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
+        if (!target->IsUnit())
+            return;
+
         if (spell->Id == SPELL_ROLLING_BOULDERS_SEARCH_EFFECT)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveAurasDueToSpell(SPELL_ROLLING_BOULDERS_PERIODIC_AURA);
-            AttackStart(target);
+            AttackStart(target->ToUnit());
         }
     }
 
@@ -586,15 +589,15 @@ struct npc_zulgurub_gurubashi_berserker: public ScriptedAI
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    void SpellHitTarget(Unit* victim, const SpellInfo* spellInfo) override
+    void SpellHitTarget(WorldObject* victim, const SpellInfo* spellInfo) override
     {
-        if (!victim)
+        if (!victim->IsUnit())
             return;
 
         if (spellInfo->Id == SPELL_PURSUIT)
         {
             me->GetThreatManager().ResetAllThreat();
-            AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
+            AddThreat(victim->ToUnit(), spellInfo->Effects[EFFECT_1].CalcValue());
             Talk(SAY_WHISPER_PURSUIT_PLAYER, victim);
             Talk(SAY_ANNOUNCE_PURSUIT_PLAYER, victim);
         }

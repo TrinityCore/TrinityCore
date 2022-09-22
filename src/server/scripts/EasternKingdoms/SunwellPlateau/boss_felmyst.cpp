@@ -198,8 +198,13 @@ public:
             instance->SetBossState(DATA_FELMYST, DONE);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
+            if (!caster || !caster->IsUnit())
+                return;
+
+            Unit* unitCaster = caster->ToUnit();
+
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)
             {
@@ -209,15 +214,15 @@ public:
             if (spell->Id == SPELL_FOG_INFORM)
             {
                 float x, y, z;
-                caster->GetPosition(x, y, z);
+                unitCaster->GetPosition(x, y, z);
                 if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                 {
-                    summon->SetMaxHealth(caster->GetMaxHealth());
-                    summon->SetHealth(caster->GetMaxHealth());
+                    summon->SetMaxHealth(unitCaster->GetMaxHealth());
+                    summon->SetHealth(unitCaster->GetMaxHealth());
                     summon->CastSpell(summon, SPELL_FOG_CHARM, true);
                     summon->CastSpell(summon, SPELL_FOG_CHARM2, true);
                 }
-                Unit::DealDamage(me, caster, caster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                Unit::DealDamage(me, unitCaster, unitCaster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             }
         }
 

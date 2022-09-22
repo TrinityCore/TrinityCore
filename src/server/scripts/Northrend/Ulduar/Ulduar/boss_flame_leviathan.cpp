@@ -330,7 +330,7 @@ class boss_flame_leviathan : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_START_THE_ENGINE)
                     if (Vehicle* vehicleKit = me->GetVehicleKit())
@@ -476,16 +476,18 @@ class boss_flame_leviathan : public CreatureScript
                 DoBatteringRamIfReady();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (spell->Id != SPELL_PURSUED)
+                if (spell->Id != SPELL_PURSUED || !target->IsUnit())
                     return;
 
-                _pursueTarget = target->GetGUID();
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveChase(target);
+                Unit* unitTarget = target->ToUnit();
 
-                for (SeatMap::const_iterator itr = target->GetVehicleKit()->Seats.begin(); itr != target->GetVehicleKit()->Seats.end(); ++itr)
+                _pursueTarget = unitTarget->GetGUID();
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveChase(unitTarget);
+
+                for (SeatMap::const_iterator itr = unitTarget->GetVehicleKit()->Seats.begin(); itr != unitTarget->GetVehicleKit()->Seats.end(); ++itr)
                 {
                     if (Player* passenger = ObjectAccessor::GetPlayer(*me, itr->second.Passenger.Guid))
                     {
@@ -907,7 +909,7 @@ class npc_pool_of_tar : public CreatureScript
                 damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
                     me->CastSpell(me, SPELL_BLAZE, true);

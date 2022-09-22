@@ -187,12 +187,12 @@ class boss_sapphiron : public CreatureScript
                 EnterPhaseGround(true);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 switch(spell->Id)
                 {
                     case SPELL_CHECK_RESISTS:
-                        if (target && target->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
+                        if (target && target->IsUnit() && target->ToUnit()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
                             _canTheHundredClub = false;
                         break;
                 }

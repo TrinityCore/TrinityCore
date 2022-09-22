@@ -162,7 +162,7 @@ public:
                 caster->AI()->SetData(TYPE_INFERNAL, DATA_DIED);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_SUMMON_INFERNAL)
             {
@@ -250,7 +250,7 @@ public:
             Initialize();
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* pCaster, SpellInfo const* spell) override
         {
             if (bCanEat || bIsEating)
                 return;
@@ -382,9 +382,9 @@ public:
             me->SetDisableGravity(false);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
-            if (!caster)
+            if (!caster || !caster->IsUnit())
                 return;
 
             if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
@@ -393,7 +393,7 @@ public:
                 PlayerGUID = caster->GetGUID();
 
                 me->SetFaction(FACTION_FLAYER_HUNTER);
-                DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
+                DoCast(caster->ToUnit(), SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
                 if (Dragonmaw)
@@ -402,7 +402,7 @@ public:
                     AttackStart(Dragonmaw);
                 }
 
-                me->GetThreatManager().ClearThreat(caster);
+                me->GetThreatManager().ClearThreat(caster->ToUnit());
             }
         }
 
@@ -508,7 +508,7 @@ public:
             Initialize();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (!caster)
                 return;
@@ -1658,7 +1658,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_WHISTLE)
             {

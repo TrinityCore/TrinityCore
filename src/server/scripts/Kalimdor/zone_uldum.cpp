@@ -235,18 +235,20 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
         _pingCount = 0;
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
-        if (!caster)
+        if (!caster || !caster->IsUnit())
             return;
+
+        Unit* unitCaster = caster->ToUnit();
 
         switch (spell->Id)
         {
             case SPELL_PING_CAMERA_00:
                 if (_pingCount == PING_INDEX_PING_ALL_ACTORS)
                 {
-                    _clonedImageGUID = caster->GetGUID();
-                    DoCast(caster, SPELL_INVISIBLE_BEAM);
+                    _clonedImageGUID = unitCaster->GetGUID();
+                    DoCast(unitCaster, SPELL_INVISIBLE_BEAM);
                     DoCastSelf(SPELL_REVERSE_CAST_RIDE_VEHICLE, true);
                     DoCastSelf(SPELL_MASTER_PING_ALL_ACTORS, true);
                     _events.ScheduleEvent(EVENT_MOVE_PATH_1, 11s);
@@ -258,9 +260,9 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
                 break;
             case SPELL_PING_CAMERA_01:
                 me->CastStop();
-                DoCast(caster, SPELL_INVISIBLE_BEAM, true);
+                DoCast(unitCaster, SPELL_INVISIBLE_BEAM, true);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_CAMERA_PATH_2, true);
-                caster->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_BEAM_TARGET_PATH_1, false);
+                unitCaster->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_BEAM_TARGET_PATH_1, false);
                 _events.ScheduleEvent(EVENT_FADE_TO_BLACK_1, 8s + 500ms);
                 break;
             case SPELL_PING_CAMERA_02:
@@ -272,7 +274,7 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_PING_BEAM_TARGET)
             target->CastSpell(me, SPELL_PING_CAMERA_01, true);

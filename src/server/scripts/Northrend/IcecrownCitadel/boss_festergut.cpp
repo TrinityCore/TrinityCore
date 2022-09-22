@@ -162,10 +162,10 @@ class boss_festergut : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (spell->Id == PUNGENT_BLIGHT_HELPER)
-                    target->RemoveAurasDueToSpell(INOCULATED_HELPER);
+                if (spell->Id == PUNGENT_BLIGHT_HELPER && target->IsUnit())
+                    target->ToUnit()->RemoveAurasDueToSpell(INOCULATED_HELPER);
             }
 
             void UpdateAI(uint32 diff) override

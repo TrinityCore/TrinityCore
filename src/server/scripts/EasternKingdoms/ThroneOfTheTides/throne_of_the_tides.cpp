@@ -193,7 +193,7 @@ struct npc_tott_lady_nazjar : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         bool useLeftGUIDs = false;
         if (spell->Id == SPELL_TRIGGER_MURLOC)

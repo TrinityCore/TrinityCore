@@ -303,7 +303,7 @@ public:
                     setesh->CastSpell(me, SPELL_CHAOS_BLAST_MISSLE, true);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+        void SpellHit(WorldObject* /*caster*/, const SpellInfo* spellInfo) override
         {
             if (spellInfo->Id != SPELL_CHAOS_BLAST_MISSLE)
                 return;
@@ -392,12 +392,12 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
+        void SpellHit(WorldObject* caster, const SpellInfo* spellInfo) override
         {
-            if (spellInfo->Id != SPELL_CHANNEL_CHAOS_PORTAL)
+            if (!caster || !caster->IsUnit() || spellInfo->Id != SPELL_CHANNEL_CHAOS_PORTAL)
                 return;
 
-            caster->InterruptNonMeleeSpells(true, SPELL_CHANNEL_CHAOS_PORTAL);
+            caster->ToUnit()->InterruptNonMeleeSpells(true, SPELL_CHANNEL_CHAOS_PORTAL);
             me->RemoveAurasDueToSpell(SPELL_DUMMY_AURA);
             events.ScheduleEvent(EVENT_CAST_VISUAL, Seconds(1));
         }

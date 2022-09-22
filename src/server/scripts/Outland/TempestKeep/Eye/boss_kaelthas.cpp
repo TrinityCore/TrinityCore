@@ -358,7 +358,7 @@ struct advisorbase_ai : public ScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_RESSURECTION)
         {

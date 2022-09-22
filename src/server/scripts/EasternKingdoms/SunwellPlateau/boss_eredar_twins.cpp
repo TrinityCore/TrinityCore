@@ -162,7 +162,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -178,29 +178,42 @@ public:
             }
         }
 
-        void HandleTouchedSpells(Unit* target, uint32 TouchedType)
+        void HandleTouchedSpells(WorldObject* target, uint32 TouchedType)
         {
+            if (!target->IsUnit())
+                return;
+
             switch (TouchedType)
             {
                 case SPELL_FLAME_TOUCHED:
-                    if (!target->HasAura(SPELL_DARK_FLAME))
+                {
+                    Unit* unitTarget = target->ToUnit();
+                    if (!unitTarget->HasAura(SPELL_DARK_FLAME))
                     {
-                        if (target->HasAura(SPELL_DARK_TOUCHED))
+                        if (unitTarget->HasAura(SPELL_DARK_TOUCHED))
                         {
-                            target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
-                            target->CastSpell(target, SPELL_DARK_FLAME, true);
-                        } else target->CastSpell(target, SPELL_FLAME_TOUCHED, true);
+                            unitTarget->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
+                        }
+                        else unitTarget->CastSpell(unitTarget, SPELL_FLAME_TOUCHED, true);
                     }
                     break;
+                }
                 case SPELL_DARK_TOUCHED:
-                    if (!target->HasAura(SPELL_DARK_FLAME))
+                {
+                    Unit* unitTarget = target->ToUnit();
+                    if (!unitTarget->HasAura(SPELL_DARK_FLAME))
                     {
-                        if (target->HasAura(SPELL_FLAME_TOUCHED))
+                        if (unitTarget->HasAura(SPELL_FLAME_TOUCHED))
                         {
-                            target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                            target->CastSpell(target, SPELL_DARK_FLAME, true);
-                        } else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
+                            unitTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
+                        }
+                        else unitTarget->CastSpell(unitTarget, SPELL_DARK_TOUCHED, true);
                     }
+                    break;
+                }
+                default:
                     break;
             }
         }
@@ -438,7 +451,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -455,33 +468,44 @@ public:
             }
         }
 
-        void HandleTouchedSpells(Unit* target, uint32 TouchedType)
+        void HandleTouchedSpells(WorldObject* target, uint32 TouchedType)
         {
+            if (!target->IsUnit())
+                return;
+
             switch (TouchedType)
             {
                 case SPELL_FLAME_TOUCHED:
-                    if (!target->HasAura(SPELL_DARK_FLAME))
+                {
+                    Unit* unitTarget = target->ToUnit();
+                    if (!unitTarget->HasAura(SPELL_DARK_FLAME))
                     {
-                        if (target->HasAura(SPELL_DARK_TOUCHED))
+                        if (unitTarget->HasAura(SPELL_DARK_TOUCHED))
                         {
-                            target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
-                            target->CastSpell(target, SPELL_DARK_FLAME, true);
+                            unitTarget->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
                         }
                         else
-                            target->CastSpell(target, SPELL_FLAME_TOUCHED, true);
+                            unitTarget->CastSpell(unitTarget, SPELL_FLAME_TOUCHED, true);
                     }
                     break;
+                }
                 case SPELL_DARK_TOUCHED:
-                    if (!target->HasAura(SPELL_DARK_FLAME))
+                {
+                    Unit* unitTarget = target->ToUnit();
+                    if (!unitTarget->HasAura(SPELL_DARK_FLAME))
                     {
-                        if (target->HasAura(SPELL_FLAME_TOUCHED))
+                        if (unitTarget->HasAura(SPELL_FLAME_TOUCHED))
                         {
-                            target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                            target->CastSpell(target, SPELL_DARK_FLAME, true);
+                            unitTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
                         }
                         else
-                            target->CastSpell(target, SPELL_DARK_TOUCHED, true);
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_TOUCHED, true);
                     }
+                    break;
+                }
+                default:
                     break;
             }
         }
@@ -675,21 +699,28 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
         {
+            if (!target->IsUnit())
+                return;
+
             switch (spell->Id)
             {
                 case SPELL_SHADOW_FURY:
                 case SPELL_DARK_STRIKE:
-                    if (!target->HasAura(SPELL_DARK_FLAME))
+                {
+                    Unit* unitTarget = target->ToUnit();
+                    if (!unitTarget->HasAura(SPELL_DARK_FLAME))
                     {
-                        if (target->HasAura(SPELL_FLAME_TOUCHED))
+                        if (unitTarget->HasAura(SPELL_FLAME_TOUCHED))
                         {
-                            target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                            target->CastSpell(target, SPELL_DARK_FLAME, true);
-                        } else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
+                            unitTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                            unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
+                        }
+                        else unitTarget->CastSpell(unitTarget, SPELL_DARK_TOUCHED, true);
                     }
                     break;
+                }
             }
         }
 

@@ -266,7 +266,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                     if (spell->Id == SPELL_GPS)

@@ -732,7 +732,7 @@ class npc_putricide_oozeAI : public ScriptedAI
         npc_putricide_oozeAI(Creature* creature, uint32 auraSpellId, uint32 hitTargetSpellId) : ScriptedAI(creature),
             _auraSpellId(auraSpellId), _hitTargetSpellId(hitTargetSpellId), _newTargetSelectTimer(0), _instance(creature->GetInstanceScript()) { }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
         {
             if (!_newTargetSelectTimer && spell->Id == sSpellMgr->GetSpellIdForDifficulty(_hitTargetSpellId, me))
                 _newTargetSelectTimer = 1000;
@@ -747,7 +747,7 @@ class npc_putricide_oozeAI : public ScriptedAI
             DoCastAOE(_auraSpellId, true);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_TEAR_GAS_CREATURE)
                 _newTargetSelectTimer = 1000;

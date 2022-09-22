@@ -188,7 +188,7 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*target*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
                 {

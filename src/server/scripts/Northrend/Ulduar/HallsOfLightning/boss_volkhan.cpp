@@ -437,7 +437,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* /*pCaster*/, SpellInfo const* pSpell) override
         {
             // This is the dummy effect of the spells
             if (pSpell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))

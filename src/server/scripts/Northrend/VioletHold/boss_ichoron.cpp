@@ -248,13 +248,16 @@ class npc_ichor_globule : public CreatureScript
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
+                if (!caster || !caster->IsUnit())
+                    return;
+
                 if (spellInfo->Id == SPELL_WATER_GLOBULE_VISUAL)
                 {
                     DoCast(me, SPELL_WATER_GLOBULE_TRANSFORM);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->GetMotionMaster()->MoveFollow(caster, 0.0f, 0.0f);
+                    me->GetMotionMaster()->MoveFollow(caster->ToUnit(), 0.0f, 0.0f);
                 }
             }
 

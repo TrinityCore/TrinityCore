@@ -183,7 +183,7 @@ public:
                 DoCast(me, _spell);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_WISP_FLIGHT_PORT && Creaturetype == 4)
                 me->SetDisplayId(2027);
@@ -298,9 +298,9 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
-            if (!withbody)
+            if (!withbody || !caster->IsUnit())
                 return;
 
             if (spell->Id == SPELL_FLYING_HEAD)
@@ -319,7 +319,7 @@ public:
                 DoCast(me, SPELL_HEAD, false);
                 SaySound(SAY_LOST_HEAD);
                 me->GetMotionMaster()->Clear(false);
-                me->GetMotionMaster()->MoveFleeing(caster->GetVictim());
+                me->GetMotionMaster()->MoveFleeing(caster->ToUnit()->GetVictim());
             }
         }
 
@@ -528,7 +528,7 @@ public:
             }
         }
 
-        void SaySound(uint8 textEntry, Unit* target = 0)
+        void SaySound(uint8 textEntry, WorldObject* target = 0)
         {
             Talk(textEntry, target);
             laugh += 4000;
@@ -555,10 +555,13 @@ public:
             return nullptr;
         }
 
-        void SpellHitTarget(Unit* unit, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
         {
-            if (spell->Id == SPELL_CONFLAGRATION && unit->HasAura(SPELL_CONFLAGRATION))
-                SaySound(SAY_CONFLAGRATION, unit);
+            if (!target->IsUnit())
+                return;
+
+            if (spell->Id == SPELL_CONFLAGRATION && target->ToUnit()->HasAura(SPELL_CONFLAGRATION))
+                SaySound(SAY_CONFLAGRATION, target);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -581,8 +584,11 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
+            if (!caster->IsCreature())
+                return;
+
             if (withhead)
                 return;
 
@@ -598,8 +604,9 @@ public:
                 me->SetFullHealth();
                 SaySound(SAY_REJOINED);
                 DoCast(me, SPELL_HEAD);
-                caster->GetMotionMaster()->Clear(false);
-                caster->GetMotionMaster()->MoveFollow(me, 6, float(urand(0, 5)));
+
+                caster->ToCreature()->GetMotionMaster()->Clear(false);
+                caster->ToCreature()->GetMotionMaster()->MoveFollow(me, 6, float(urand(0, 5)));
             }
         }
 
@@ -812,7 +819,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_SPROUTING)
             {

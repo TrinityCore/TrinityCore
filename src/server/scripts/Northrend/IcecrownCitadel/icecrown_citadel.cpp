@@ -745,7 +745,7 @@ class boss_sister_svalna : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_HURL_SPEAR && me->HasAura(SPELL_AETHER_SHIELD))
                 {
@@ -766,12 +766,13 @@ class boss_sister_svalna : public CreatureScript
                 me->SetHover(false);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
                     case SPELL_IMPALING_SPEAR_KILL:
-                        Unit::Kill(me, target);
+                        if (target->IsUnit())
+                            Unit::Kill(me, target->ToUnit());
                         break;
                     case SPELL_IMPALING_SPEAR:
                         if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
@@ -1218,7 +1219,7 @@ struct npc_argent_captainAI : public ScriptedAI
             Reset();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_REVIVE_CHAMPION && !IsUndead)
             {

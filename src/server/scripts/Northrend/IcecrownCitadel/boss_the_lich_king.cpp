@@ -782,13 +782,13 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_HARVESTED_SOUL && me->IsInCombat() && !IsHeroic())
                     Talk(SAY_LK_FROSTMOURNE_KILL);
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
             {
                 if (spell->Id == REMORSELESS_WINTER_1 || spell->Id == REMORSELESS_WINTER_2)
                 {
@@ -1194,7 +1194,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_ICE_LOCK)
                     me->SetFacingTo(3.085098f);

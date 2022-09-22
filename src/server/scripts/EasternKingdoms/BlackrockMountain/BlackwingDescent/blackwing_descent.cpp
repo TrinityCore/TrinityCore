@@ -399,7 +399,7 @@ struct npc_bwd_dwarven_spirit : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         uint32 triggeredEventId = 0;
         switch (spell->Id)

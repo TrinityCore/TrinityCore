@@ -104,7 +104,7 @@ struct boss_pit_lord_argaloth : public BossAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_FEL_FIRESTORM)
         {

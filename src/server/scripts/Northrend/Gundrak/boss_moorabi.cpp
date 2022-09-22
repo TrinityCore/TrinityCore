@@ -125,7 +125,7 @@ class boss_moorabi : public CreatureScript
                 Talk(EMOTE_ACTIVATE_ALTAR);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id == SPELL_TRANSFORMATION)
                 {

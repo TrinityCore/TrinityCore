@@ -360,7 +360,7 @@ public:
                 }
         }
 
-        void SpellHit(Unit* /*whose*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*whose*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_SUBMERGE)
             {

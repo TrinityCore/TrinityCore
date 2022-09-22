@@ -440,7 +440,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_LAUNCH_HARPOON)
                 if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))

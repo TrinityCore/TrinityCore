@@ -277,15 +277,15 @@ struct boss_theralion final : public BossAI
         _DespawnAtEvade();
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
-        if (!caster)
+        if (!caster || !caster->IsUnit())
             return;
 
         switch (spell->Id)
         {
             case SPELL_SHARE_HEALTH_2:
-                if (!caster->HasAura(SPELL_SHARE_HEALTH_1))
+                if (!caster->ToUnit()->HasAura(SPELL_SHARE_HEALTH_1))
                     DoCastAOE(SPELL_SHARE_HEALTH_1, true);
                 break;
             case SPELL_TRIGGER_ACTION_THERALION:
@@ -517,15 +517,15 @@ struct boss_valiona final : public BossAI
         _DespawnAtEvade();
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
-        if (!caster)
+        if (!caster || !caster->IsUnit())
             return;
 
         switch (spell->Id)
         {
             case SPELL_SHARE_HEALTH_1:
-                if (!caster->HasAura(SPELL_SHARE_HEALTH_2))
+                if (!caster->ToUnit()->HasAura(SPELL_SHARE_HEALTH_2))
                     DoCastAOE(SPELL_SHARE_HEALTH_2, true);
                 break;
             case SPELL_TRIGGER_ACTION_VALIONA:
@@ -771,7 +771,7 @@ struct npc_theralion_and_valiona_unstable_twilight final : public ScriptedAI
         _events.ScheduleEvent(EVENT_MOVE_RANDOM, 1ms, 1s);
     }
 
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {

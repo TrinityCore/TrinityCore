@@ -306,7 +306,7 @@ struct npc_brazie_the_bonatist_vehicle : public VehicleAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
@@ -872,7 +872,7 @@ struct npc_brazie_spot : public ScriptedAI
         return 0;
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
@@ -1137,15 +1137,15 @@ struct npc_brazie_vehicle_notifier : public ScriptedAI
                 vehicle->AI()->JustSummoned(me);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
-        if (!caster)
+        if (!caster || !caster->IsUnit())
             return;
 
         switch (spell->Id)
         {
         case SPELL_GAIN_SOLAR_POWER_SPELLCLICK:
-            if (Unit* vehicle = caster->GetVehicleCreatureBase())
+            if (Unit* vehicle = caster->ToUnit()->GetVehicleCreatureBase())
                 DoCast(vehicle, SPELL_GAIN_SOLAR_POWER_ENERGIZE, true);
             me->GetMotionMaster()->MoveJump(SolarPowerJumpPos, 45.0f, 20.0f);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);

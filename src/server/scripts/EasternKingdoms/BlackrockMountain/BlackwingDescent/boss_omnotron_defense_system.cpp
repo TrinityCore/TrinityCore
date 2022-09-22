@@ -481,7 +481,7 @@ struct npc_omnotron_electron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -491,7 +491,7 @@ struct npc_omnotron_electron : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_LIGHTNING_CONDUCTOR)
             if (IsHeroic())
@@ -624,7 +624,7 @@ struct npc_omnotron_magmatron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -634,7 +634,7 @@ struct npc_omnotron_magmatron : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACQUIRING_TARGET && target)
         {
@@ -767,7 +767,7 @@ struct npc_omnotron_toxitron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -901,7 +901,7 @@ struct npc_omnotron_arcanotron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -917,7 +917,7 @@ struct npc_omnotron_arcanotron : public ScriptedAI
             me->MakeInterruptable(false);
     }
 
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ARCANE_ANNIHILATION)
             if (!_instance->instance->GetWorldStateValue(WORLD_STATE_ID_ARCANE_ANNIHILATOR))
@@ -1145,7 +1145,7 @@ struct npc_omnotron_poison_bomb : public ScriptedAI
         me->DespawnOrUnsummon(2s + 500ms);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_QUIETE_SUICIDE)
         {

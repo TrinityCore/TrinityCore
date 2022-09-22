@@ -196,7 +196,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*pCaster*/, SpellInfo const* Spell) override
         {
             if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
@@ -272,7 +272,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* Spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* Spell) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
             if (((Spell->Id >= 17086 && Spell->Id <= 17095) ||

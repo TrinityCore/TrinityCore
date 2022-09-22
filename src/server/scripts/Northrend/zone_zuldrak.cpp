@@ -77,7 +77,7 @@ public:
             DoCast(rageclaw, SPELL_RIGHT_CHAIN, true);
         }
 
-        void UnlockRageclaw(Unit* who, Creature* rageclaw)
+        void UnlockRageclaw(WorldObject* who, Creature* rageclaw)
         {
             if (!who)
                 return;
@@ -88,7 +88,7 @@ public:
             me->setDeathState(DEAD);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_UNLOCK_SHACKLE)
             {
@@ -144,7 +144,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_FREE_RAGECLAW)
             {
@@ -923,16 +923,18 @@ public:
             Reset();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
-            if (spell->Id != GYMERS_GRAB)
+            if (!caster || !caster->IsUnit() || spell->Id != GYMERS_GRAB)
                 return;
 
-            if (Vehicle* veh = caster->GetVehicleKit())
-                if (veh->GetAvailableSeatCount() != 0)
+            if (Vehicle* veh = caster->ToUnit()->GetVehicleKit())
             {
-                me->CastSpell(caster, RIDE_VEHICLE, true);
-                me->CastSpell(caster, HEALING_WINDS, true);
+                if (veh->GetAvailableSeatCount() != 0)
+                {
+                    me->CastSpell(caster, RIDE_VEHICLE, true);
+                    me->CastSpell(caster, HEALING_WINDS, true);
+                }
             }
         }
     };

@@ -743,7 +743,7 @@ struct npc_ignacious final : public ScriptedAI
             damage = me->GetHealth() - 1;
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_AEGIS_OF_FLAME)
             Talk(SAY_ABILITY);
@@ -1329,14 +1329,18 @@ struct npc_elementium_monstrosity final : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
+        Creature* creatureTarget = target->ToCreature();
+        if (!creatureTarget)
+            return;
+
         if (spell->Id == SPELL_MERGE_HEALTH)
         {
-            _mergedHealth += target->GetHealth();
+            _mergedHealth += creatureTarget->GetHealth();
             _mergedTargets++;
 
-            if (Creature* creature = target->ToCreature())
+            if (Creature* creature = creatureTarget->ToCreature())
                 creature->DespawnOrUnsummon();
 
             if (_mergedTargets == 4)
@@ -1404,7 +1408,7 @@ struct npc_ascendant_council_violent_cyclone final : public ScriptedAI
         _events.ScheduleEvent(EVENT_CYCLONE_AGGRO, 2s + 300ms);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         // According to sniffs the cyclone uses the positions of the Ascendant Council Target Stalkers
         // as potential waypoints so he stays within a certain area rather than moving arround the room
@@ -1527,7 +1531,7 @@ struct npc_ascendant_council_plume_stalker final : public NullCreatureAI
 {
     npc_ascendant_council_plume_stalker(Creature* creature) : NullCreatureAI(creature) { }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_LAVA_SEED_DUMMY)
         {
@@ -1625,7 +1629,7 @@ struct npc_ascendant_council_frozen_orb final : public ScriptedAI
             feludius->AI()->JustSummoned(me);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
@@ -1691,7 +1695,7 @@ struct npc_ascendant_council_flame_strike final : public ScriptedAI
         summoner->CastSpell(me, SPELL_FLAME_STRIKE);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_FLAME_STRIKE)
         {
@@ -1700,13 +1704,17 @@ struct npc_ascendant_council_flame_strike final : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* /*spell*/) override
     {
-        if (target->GetEntry() == NPC_FROZEN_ORB)
+        Creature* creatureTarget = target->ToCreature();
+        if (!creatureTarget)
+            return;
+
+        if (creatureTarget->GetEntry() == NPC_FROZEN_ORB)
         {
-            target->GetMotionMaster()->Clear();
-            target->RemoveAllAuras();
-            target->ToCreature()->DespawnOrUnsummon(2s + 300ms);
+            creatureTarget->GetMotionMaster()->Clear();
+            creatureTarget->RemoveAllAuras();
+            creatureTarget->DespawnOrUnsummon(2s + 300ms);
             me->RemoveAllAuras();
             me->DespawnOrUnsummon(2s + 300ms);
         }

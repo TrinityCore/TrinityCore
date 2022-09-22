@@ -68,10 +68,11 @@ public:
             _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 15 * IN_MILLISECONDS);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* /*spell*/) override
+        void SpellHit(WorldObject* caster, SpellInfo const* /*spell*/) override
         {
-            if (caster->IsVehicle())
-                Unit::Kill(me, caster);
+
+            if (caster && caster->IsUnit() && caster->ToUnit()->IsVehicle())
+                Unit::Kill(me, caster->ToUnit());
         }
 
         void UpdateAI(uint32 diff) override

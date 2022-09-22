@@ -121,7 +121,7 @@ struct boss_alizabal : public BossAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_SEETHING_HATE_TARGETING)
             Talk(SAY_SEETHING_HATE, target);

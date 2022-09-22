@@ -225,12 +225,12 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
-            if (spell->Id != SPELL_ICE_LANCE)
+            if (!caster || !caster->IsUnit() || spell->Id != SPELL_ICE_LANCE)
                 return;
 
-            if (caster->GetVehicleKit()->GetAvailableSeatCount() != 0)
+            if (caster->ToUnit()->GetVehicleKit()->GetAvailableSeatCount() != 0)
             {
                 me->CastSpell(me, SPELL_FREE_PRISONER, true);
                 me->CastSpell(caster, SPELL_RIDE_DRAKE, true);
@@ -751,7 +751,7 @@ class npc_wild_wyrm : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
                 if (_playerGuid || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
                     return;

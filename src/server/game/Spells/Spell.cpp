@@ -2768,15 +2768,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
     {
         //AI functions
         if (_spellHitTarget->GetTypeId() == TYPEID_UNIT)
-        {
             if (_spellHitTarget->ToCreature()->IsAIEnabled())
-            {
-                if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-                    _spellHitTarget->ToCreature()->AI()->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
-                else
-                    _spellHitTarget->ToCreature()->AI()->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
-            }
-        }
+                _spellHitTarget->ToCreature()->AI()->SpellHit(spell->m_caster, spell->m_spellInfo);
 
         if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
             spell->m_caster->ToCreature()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
@@ -2820,14 +2813,9 @@ void Spell::GOTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
 
     spell->HandleEffects(nullptr, nullptr, go, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
-    //AI functions
+    // AI functions
     if (go->AI())
-    {
-        if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-            go->AI()->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
-        else
-            go->AI()->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
-    }
+        go->AI()->SpellHit(spell->m_caster, spell->m_spellInfo);
 
     if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
         spell->m_caster->ToCreature()->AI()->SpellHitTarget(go, spell->m_spellInfo);

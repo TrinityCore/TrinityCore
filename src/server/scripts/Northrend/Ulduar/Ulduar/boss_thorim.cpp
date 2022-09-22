@@ -543,7 +543,7 @@ class boss_thorim : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id == SPELL_TOUCH_OF_DOMINION_TRIGGERED)
                 {
@@ -556,7 +556,7 @@ class boss_thorim : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* who, SpellInfo const* spellInfo) override
+            void SpellHitTarget(WorldObject* who, SpellInfo const* spellInfo) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_LIGHTNING_RELEASE)
                     _dontStandInTheLightning = false;
@@ -1590,7 +1590,7 @@ class npc_sif : public CreatureScript
                 _events.Reset();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id == SPELL_STORMHAMMER_SIF)
                 {

@@ -117,14 +117,16 @@ class boss_ossirian : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spell) override
             {
+                if (!caster || !caster->IsCreature() || !caster->ToCreature()->IsSummon())
+
                 for (uint8 i = 0; i < NUM_WEAKNESS; ++i)
                 {
                     if (spell->Id == SpellWeakness[i])
                     {
                         me->RemoveAurasDueToSpell(SPELL_SUPREME);
-                        caster->ToTempSummon()->UnSummon();
+                        caster->ToCreature()->ToTempSummon()->UnSummon();
                         SpawnNextCrystal();
                     }
                 }

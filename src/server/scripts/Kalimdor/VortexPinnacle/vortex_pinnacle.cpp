@@ -117,7 +117,7 @@ struct npc_lurking_tempest : public NullCreatureAI
         DoCastSelf(SPELL_LURK_SEARCH_PERIODIC);
     }
 
-    void SpellHit(Unit* /*unit*/, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*unit*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_FEIGN_DEATH)
             Talk(SAY_FEIGN_DEATH);

@@ -68,7 +68,7 @@ struct npc_grim_batol_twilight_beguiler : public ScriptedAI
         me->InterruptNonMeleeSpells(true);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_GRONN_KNOCKBACK_COSMETIC)
         {

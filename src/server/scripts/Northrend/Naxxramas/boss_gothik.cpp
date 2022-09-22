@@ -908,7 +908,7 @@ public:
 
             return nullptr;
         }
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (!spell)
                 return;

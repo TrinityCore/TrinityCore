@@ -171,11 +171,11 @@ class boss_garfrost : public CreatureScript
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
-                if (spell->Id == SPELL_PERMAFROST_HELPER)
+                if (spell->Id == SPELL_PERMAFROST_HELPER && target->IsUnit())
                 {
-                    if (Aura* aura = target->GetAura(SPELL_PERMAFROST_HELPER))
+                    if (Aura* aura = target->ToUnit()->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
             }

@@ -258,10 +258,10 @@ struct boss_helix_gearbreaker : public BossAI
             damage = me->GetHealth() - 1;
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_RIDE_VEHICLE)
-            AttackStart(target);
+        if (spell->Id == SPELL_RIDE_VEHICLE && target->IsUnit())
+            AttackStart(target->ToUnit());
     }
 
     void UpdateAI(uint32 diff) override

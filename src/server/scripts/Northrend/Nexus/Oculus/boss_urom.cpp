@@ -293,7 +293,7 @@ class boss_urom : public CreatureScript
                 EngagementOver();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 switch (spellInfo->Id)
                 {

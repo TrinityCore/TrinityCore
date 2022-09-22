@@ -248,7 +248,7 @@ struct npc_mh_faerie_dragon : public ScriptedAI
         me->GetMotionMaster()->MoveRandom(7.0f);
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (!caster)
             return;
@@ -605,7 +605,7 @@ struct npc_mh_arch_druid_fandral_staghelm : public PassiveAI
             me->FollowTarget(summoner);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_CUE_FANDRAL_TO_DESPAWN)
             me->DespawnOrUnsummon();

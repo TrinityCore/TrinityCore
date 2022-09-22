@@ -217,7 +217,7 @@ struct boss_halfus_wyrmbreaker final : public BossAI
         _DespawnAtEvade();
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (!caster)
             return;
@@ -439,7 +439,7 @@ struct npc_halfus_enslaved_dragon final : public ScriptedAI
                 protoBehemoth->AI()->DoAction(ACTION_CAST_DRAGONS_VENGEANCE);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->HasEffect(SPELL_EFFECT_SEND_EVENT))
         {

@@ -269,7 +269,7 @@ struct npc_ptah_beetle_stalker : public ScriptedAI
 {
     npc_ptah_beetle_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-    void SpellHit(Unit* /*caster*/, const SpellInfo* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, const SpellInfo* spellInfo) override
     {
         if (spellInfo->Id == SPELL_BEETLE_BURROW)
             _events.ScheduleEvent(EVENT_SUMMON_JEWELED_SCARAB, Seconds(5), Seconds(6));

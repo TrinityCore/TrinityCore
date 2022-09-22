@@ -326,7 +326,7 @@ struct npc_hogger : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_UPSET_STOMACH)
         {

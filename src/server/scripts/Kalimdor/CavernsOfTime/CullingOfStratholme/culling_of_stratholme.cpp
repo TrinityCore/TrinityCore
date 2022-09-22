@@ -1407,7 +1407,7 @@ public:
             current = candidate;
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
         {
             if (!_crateRevealed && spell->Id == SPELL_ARCANE_DISRUPTION)
             {

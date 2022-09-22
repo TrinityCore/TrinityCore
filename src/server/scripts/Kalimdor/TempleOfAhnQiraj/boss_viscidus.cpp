@@ -151,7 +151,7 @@ class boss_viscidus : public CreatureScript
                     Talk(EMOTE_CRACK);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
             {
                 if ((spell->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) && _phase == PHASE_FROST && me->GetHealthPct() > 5.0f)
                 {

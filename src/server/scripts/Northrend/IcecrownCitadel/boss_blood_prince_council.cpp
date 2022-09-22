@@ -540,7 +540,7 @@ struct BloodPrincesBossAI : public BossAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SelectInvocationSpell())
             DoAction(ACTION_CAST_INVOCATION);

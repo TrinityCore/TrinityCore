@@ -111,7 +111,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* Spell) override
         {
             if (Spell->SpellFamilyFlags[2] & 0x080000000)
             {
@@ -120,7 +120,7 @@ public:
 
                 DoCast(me, SPELL_STUNNED, true);
 
-                pCaster = Caster->GetGUID();
+                pCaster = caster->GetGUID();
 
                 SayThanksTimer = 5000;
             }

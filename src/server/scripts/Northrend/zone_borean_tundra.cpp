@@ -91,7 +91,7 @@ public:
             Initialize();
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (phase || spell->Id != SPELL_SET_CART)
                 return;
@@ -1441,7 +1441,7 @@ struct npc_beryl_sorcerer : public FollowerAI
         _enslaved = false;
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spell) override
     {
         if (spell->Id != SPELL_ARCANE_CHAINS || !caster->IsPlayer() || HealthAbovePct(50) || _enslaved)
             return;
@@ -1551,7 +1551,7 @@ public:
         {
         }
 
-        void SpellHit(Unit* unit, SpellInfo const* spell) override
+        void SpellHit(WorldObject* unit, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
                 if (Player* player = unit->ToPlayer())

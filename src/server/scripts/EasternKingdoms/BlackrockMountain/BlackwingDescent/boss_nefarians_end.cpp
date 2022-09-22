@@ -1313,7 +1313,7 @@ struct npc_nefarians_end_shadowblaze : public NullCreatureAI
                 nefarian->AI()->JustSummoned(me);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {

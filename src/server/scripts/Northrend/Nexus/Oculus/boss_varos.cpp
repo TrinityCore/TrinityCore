@@ -203,7 +203,7 @@ class npc_azure_ring_captain : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_ICE_BEAM)
                 {

@@ -350,7 +350,7 @@ struct boss_chogall final : public BossAI
             Talk(SAY_DEATH_NORMAL);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
@@ -592,7 +592,7 @@ struct npc_chogall_corrupting_adherent final : public ScriptedAI
     }
 
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_CONSUME_BLOOD_OF_THE_OLD_GODS)
         {
