@@ -29,7 +29,7 @@ DELETE FROM `spell_area` WHERE `spell`=85406 AND `area`=130 AND `quest_start`=0 
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
 (85406, 130, 0, 27518, 0, 0, 2, 3, 0, 8);
 
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+38;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+39;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (@CGUID+0, 44592, 0, 130, 5369, '0', 169, 0, 0, 0, 1378.1600341796875, 1031.7099609375, 51.37173080444335937, 0.767944872379302978, 1, 0, 0, 1604, 0, 0, 0, 0, 0, '', 45338), -- Fallen Human (Area: Forsaken High Command - Difficulty: 0) (Auras: 80636 - Feigned)
 (@CGUID+1, 44593, 0, 130, 5369, '0', 169, 0, 0, 0, 1376, 1029.6099853515625, 50.93743133544921875, 0.890117883682250976, 1, 0, 0, 1604, 0, 0, 0, 0, 0, '', 45338), -- Fallen Human (Area: Forsaken High Command - Difficulty: 0) (Auras: 80636 - Feigned)
@@ -69,7 +69,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+35, 44786, 0, 130, 5369, '0', 169, 0, 0, 0, 1422.5899658203125, 1083.0699462890625, 60.56173324584960937, 0.855211317539215087, 120, 0, 0, 1604, 1704, 0, 0, 0, 0, '', 45338), -- Apothecary Initiate (Area: Forsaken High Command - Difficulty: 0)
 (@CGUID+36, 44786, 0, 130, 5369, '0', 169, 0, 0, 0, 1427.6300048828125, 1083.510009765625, 60.56173324584960937, 0.855211317539215087, 120, 0, 0, 1604, 1704, 0, 0, 0, 0, '', 45338), -- Apothecary Initiate (Area: Forsaken High Command - Difficulty: 0)
 (@CGUID+37, 1412, 0, 130, 5369, '0', 169, 0, 0, 0, 1408.0518798828125, 954.0006103515625, 51.056793212890625, 0.975751638412475585, 120, 0, 0, 5, 0, 0, 0, 0, 0, '', 45338), -- Squirrel (Area: Forsaken High Command - Difficulty: 0)
-(@CGUID+38, 61890, 0, 130, 5369, '0', 169, 0, 0, 0, 1348.890625, 1084.1163330078125, 52.849273681640625, 5.410439968109130859, 120, 10, 0, 5, 0, 1, 0, 0, 0, '', 45338); -- Blighted Squirrel (Area: Forsaken High Command - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+38, 61890, 0, 130, 5369, '0', 169, 0, 0, 0, 1348.890625, 1084.1163330078125, 52.849273681640625, 5.410439968109130859, 120, 10, 0, 5, 0, 1, 0, 0, 0, '', 45338), -- Blighted Squirrel (Area: Forsaken High Command - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+39, 44911, 0, 130, 130, '0', 0, 169, 0, -1, 0, 1, 1492.83, 637.973, 46.429, 5.14269, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', 45338); -- Deathguard (Area: Silverpine Forest - Difficulty: 0)
 
 -- Lady Sylvanas Windrunner
 UPDATE `creature_template` SET `gossip_menu_id`=11823 WHERE `entry`=44365; -- Lady Sylvanas Windrunner
