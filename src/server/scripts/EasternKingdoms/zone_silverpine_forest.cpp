@@ -1009,7 +1009,7 @@ struct npc_silverpine_worgen_renegade : public ScriptedAI
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet.
-        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(75.0f, damage))
+        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(80.0f, damage))
             damage = 0;
     }
 
@@ -1098,7 +1098,7 @@ struct npc_silverpine_forsaken_trooper : public ScriptedAI
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet.
-        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(85.0f, damage))
+        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(80.0f, damage))
             damage = 0;
     }
 
