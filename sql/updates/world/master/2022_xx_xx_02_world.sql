@@ -8,7 +8,7 @@ SET @CGUID := 395672;
 -- The Shining Strand
 
 -- Note: deleting wrong spawns since only the vehicle should be scripted and implemented to summon its own accessories.
-DELETE FROM `creature` WHERE `guid` IN (326732, 326733, 326734, 326735, 326736, 326737, 326090, 326091, 326092, 326093, 326094, 326095, 325730, 325728, 325732, 325729, 325734, 325735, 325733, 325731, 322266, 322276, 322278, 322280, 322277, 322279, 322281);
+DELETE FROM `creature` WHERE `guid` IN (321253, 321256, 321257, 321260, 321259, 321255, 321258, 320991, 321009, 321012, 321014, 321011, 321010, 321013, 320990, 321745, 321746, 321750, 321747, 321749, 321751, 321748, 321744, 321254, 326732, 326733, 326734, 326735, 326736, 326737, 326090, 326091, 326092, 326093, 326094, 326095, 325730, 325728, 325732, 325729, 325734, 325735, 325733, 325731, 322266, 322276, 322278, 322280, 322277, 322279, 322281);
 
 -- Horde Hauler
 UPDATE `creature` SET `phaseUseFlags` = 1 WHERE `guid` = 322265;
@@ -439,6 +439,9 @@ UPDATE `creature` SET `MovementType` = 0, `unit_flags` = 768, `wander_distance` 
 DELETE FROM `creature_addon` WHERE `guid` = 321853;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (321853, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '80636');
+
+-- Gorefang
+UPDATE `creature` SET `MovementType` = 1, `wander_distance` = 5 WHERE `guid` = 322260;
 
 -- Snake
 UPDATE `creature` SET `MovementType` = 1, `wander_distance` = 5 WHERE `id` = 2914;
