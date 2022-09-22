@@ -1808,7 +1808,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                         }
                     }
 
-                    _events.ScheduleEvent(EVENT_SET_FACE_TO_BLOODFANG + 1, 2s);
+                    _events.ScheduleEvent(EVENT_SET_FACE_TO_BLOODFANG + 1, 4s);
                     break;
                 }
 
@@ -2292,7 +2292,7 @@ struct npc_silverpine_armoire : public VehicleAI
                             if (rane->IsAIEnabled())
                                 rane->GetAI()->DoAction(ACTION_RANE_JUMP_DEATH);
 
-                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 14, 1s);
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 14, 1s + 500ms);
                         }
                     }
                     break;
