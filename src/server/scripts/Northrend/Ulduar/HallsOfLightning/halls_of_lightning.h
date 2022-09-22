@@ -28,7 +28,7 @@ uint32 const EncounterCount = 4;
 enum HOLDataTypes
 {
     // Encounter States/Boss GUIDs
-    DATA_BJARNGRIM          = 0,
+    DATA_GENERAL_BJARNGRIM  = 0,
     DATA_VOLKHAN            = 1,
     DATA_IONAR              = 2,
     DATA_LOKEN              = 3,
@@ -36,15 +36,18 @@ enum HOLDataTypes
     /*Volkhan*/
     DATA_VOLKHAN_TEMPER_VISUAL,
     DATA_VOLKHANS_ANVIL,
+
+    /*Loken*/
+    DATA_LOKEN_THRONE
 };
 
 enum HOLCreaturesIds
 {
     // Bosses
-    NPC_BJARNGRIM           = 28586,
-    NPC_VOLKHAN             = 28587,
-    NPC_IONAR               = 28546,
-    NPC_LOKEN               = 28923,
+    BOSS_GENERAL_BJARNGRIM  = 28586,
+    BOSS_VOLKHAN            = 28587,
+    BOSS_IONAR              = 28546,
+    BOSS_LOKEN              = 28923,
 
     /*Volkhan*/
     NPC_VOLKHANS_ANVIL      = 28823,

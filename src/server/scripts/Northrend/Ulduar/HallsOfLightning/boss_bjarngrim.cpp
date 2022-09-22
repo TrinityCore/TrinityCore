@@ -185,7 +185,7 @@ public:
 
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
 
-            instance->SetBossState(DATA_BJARNGRIM, NOT_STARTED);
+            instance->SetBossState(DATA_GENERAL_BJARNGRIM, NOT_STARTED);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -205,7 +205,7 @@ public:
             //must get both lieutenants here and make sure they are with him
             me->CallForHelp(30.0f);
 
-            instance->SetBossState(DATA_BJARNGRIM, IN_PROGRESS);
+            instance->SetBossState(DATA_GENERAL_BJARNGRIM, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -217,7 +217,7 @@ public:
         {
             Talk(SAY_DEATH);
 
-            instance->SetBossState(DATA_BJARNGRIM, DONE);
+            instance->SetBossState(DATA_GENERAL_BJARNGRIM, DONE);
         }
 
         /// @todo remove when removal is done by the core
@@ -422,7 +422,7 @@ public:
 
         void JustEngagedWith(Unit* who) override
         {
-            if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
+            if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_BJARNGRIM)))
             {
                 if (pBjarngrim->IsAlive() && !pBjarngrim->GetVictim())
                     pBjarngrim->AI()->AttackStart(who);
@@ -445,7 +445,7 @@ public:
 
             if (m_uiRenewSteel_Timer <= uiDiff)
             {
-                if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_BJARNGRIM)))
                 {
                     if (pBjarngrim->IsAlive())
                         DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
