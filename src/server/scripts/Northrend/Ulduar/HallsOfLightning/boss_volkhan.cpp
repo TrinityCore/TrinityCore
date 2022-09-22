@@ -445,7 +445,6 @@ class spell_volkhan_cosmetic_stun_immune_permanent : public AuraScript
     {
         if (Creature* target = GetTarget()->ToCreature())
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE);
-        }
     }
 
     void Register() override
