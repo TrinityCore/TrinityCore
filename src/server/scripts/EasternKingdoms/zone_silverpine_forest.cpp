@@ -1311,6 +1311,12 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
         }
     }
 
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_GO_HOME)
+            DoAction(ACTION_GO_HOME);
+    }
+
     void DoAction(int32 param) override
     {
         switch (param)
@@ -1390,29 +1396,6 @@ private:
     ObjectGuid _playerGUID;
 };
 
-// Go Home - 83594
-class spell_silverpine_go_home : public SpellScript
-{
-    PrepareSpellScript(spell_silverpine_go_home);
-
-    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* target = GetHitUnit())
-        {
-            if (target->GetEntry() == NPC_FORSAKEN_BAT)
-            {
-                if (target->IsAIEnabled())
-                    target->GetAI()->DoAction(ACTION_GO_HOME);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_silverpine_go_home::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 void AddSC_silverpine_forest()
 {
     RegisterCreatureAI(npc_silverpine_grand_executor_mortuus);
@@ -1426,5 +1409,4 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_forsaken_trooper);
     RegisterCreatureAI(npc_silverpine_bat_handler_maggotbreath);
     RegisterCreatureAI(npc_silverpine_forsaken_bat);
-    RegisterSpellScript(spell_silverpine_go_home);
 }

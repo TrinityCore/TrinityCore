@@ -248,10 +248,6 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (44821, 0, 0, 'Eliminate all murlocs by using the Blight Concoction!$B$B|r|TInterface\\\\Icons\\\\INV_ALCHEMY_POTION_05.BLP:24|t', 42, 1, 100, 0, 0, 0, 0, 44902, 5, 'Forsaken Bat to Player'),
 (44821, 1, 0, 'Returning to Forsaken High Command!$B$B|r|TInterface\\\\Icons\\\\ACHIEVEMENT_ZONE_SILVERPINE_01.BLP:24|t', 42, 1, 100, 0, 0, 0, 0, 44903, 5, 'Forsaken Bat to Player');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` = 83594 AND `ScriptName` = 'spell_silverpine_go_home';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(83594, 'spell_silverpine_go_home');
-
 DELETE FROM `waypoint_data` WHERE `id` = 448210;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
 (448210, 1, 1374.36, 1029.12, 67.8815, NULL, 0, 2, 0, 0, 0),
