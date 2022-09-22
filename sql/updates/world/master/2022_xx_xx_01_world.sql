@@ -70,7 +70,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+36, 44786, 0, 130, 5369, '0', 169, 0, 0, 0, 1427.6300048828125, 1083.510009765625, 60.56173324584960937, 0.855211317539215087, 120, 0, 0, 1604, 1704, 0, 0, 0, 0, '', 45338), -- Apothecary Initiate (Area: Forsaken High Command - Difficulty: 0)
 (@CGUID+37, 1412, 0, 130, 5369, '0', 169, 0, 0, 0, 1408.0518798828125, 954.0006103515625, 51.056793212890625, 0.975751638412475585, 120, 0, 0, 5, 0, 0, 0, 0, 0, '', 45338), -- Squirrel (Area: Forsaken High Command - Difficulty: 0)
 (@CGUID+38, 61890, 0, 130, 5369, '0', 169, 0, 0, 0, 1348.890625, 1084.1163330078125, 52.849273681640625, 5.410439968109130859, 120, 10, 0, 5, 0, 1, 0, 0, 0, '', 45338), -- Blighted Squirrel (Area: Forsaken High Command - Difficulty: 0) (possible waypoints or random movement)
-(@CGUID+39, 44911, 0, 130, 130, '0', 0, 169, 0, -1, 0, 1, 1492.83, 637.973, 46.429, 5.14269, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', 45338); -- Deathguard (Area: Silverpine Forest - Difficulty: 0)
+(@CGUID+39, 44911, 0, 130, 130, '0', 169, 0, 0, 0, 1, 1492.83, 637.973, 46.429, 5.14269, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', 45338); -- Deathguard (Area: Silverpine Forest - Difficulty: 0)
 
 -- Lady Sylvanas Windrunner
 UPDATE `creature_template` SET `gossip_menu_id`=11823 WHERE `entry`=44365; -- Lady Sylvanas Windrunner
