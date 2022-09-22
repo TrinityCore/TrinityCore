@@ -31,24 +31,36 @@ enum HOLDataTypes
     DATA_BJARNGRIM          = 0,
     DATA_VOLKHAN            = 1,
     DATA_IONAR              = 2,
-    DATA_LOKEN              = 3
+    DATA_LOKEN              = 3,
+
+    /*Volkhan*/
+    DATA_VOLKHAN_TEMPER_VISUAL,
+    DATA_VOLKHANS_ANVIL,
 };
 
 enum HOLCreaturesIds
 {
+    // Bosses
     NPC_BJARNGRIM           = 28586,
     NPC_VOLKHAN             = 28587,
     NPC_IONAR               = 28546,
-    NPC_LOKEN               = 28923
+    NPC_LOKEN               = 28923,
+
+    /*Volkhan*/
+    NPC_VOLKHANS_ANVIL      = 28823,
+    NPC_MOLTEN_GOLEM        = 28695,
 };
 
 enum HOLGameObjectIds
 {
-    GO_BJARNGRIM_DOOR       = 191416,
-    GO_VOLKHAN_DOOR         = 191325,
-    GO_IONAR_DOOR           = 191326,
-    GO_LOKEN_DOOR           = 191324,
-    GO_LOKEN_THRONE         = 192654
+    /*Volkhan*/
+    GO_VOLKHAN_TEMPER_VISUAL    = 190858,
+
+    GO_BJARNGRIM_DOOR           = 191416,
+    GO_VOLKHAN_DOOR             = 191325,
+    GO_IONAR_DOOR               = 191326,
+    GO_LOKEN_DOOR               = 191324,
+    GO_LOKEN_THRONE             = 192654
 };
 
 template <class AI, class T>
@@ -56,5 +68,7 @@ inline AI* GetHallsOfLightningAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, HoLScriptName);
 }
+
+#define RegisterHallsOfLightningCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfLightningAI)
 
 #endif // HALLS_OF_LIGHTNING_H_
