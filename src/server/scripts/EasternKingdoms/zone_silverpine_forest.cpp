@@ -1721,6 +1721,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
+            // Note: not sure if this counts as a hackfix as she doesn't seem to inherit the non-cosmetic phase.
             if (player->GetPhaseShift().HasPhase(PHASE_WAITING_TO_EXSANGUINATE))
                 me->GetPhaseShift().AddPhase(PHASE_WAITING_TO_EXSANGUINATE, PhaseFlags::None, 0);
         }
