@@ -1,8 +1,6 @@
  --
  --
  -- Silverpine Forest
- 
-SET @CGUID := 395672;
 
 --
 -- The Shining Strand
@@ -159,19 +157,15 @@ SET @ENTRY := 44732;
 DELETE FROM `smart_scripts` WHERE `entryOrGuid` = @ENTRY AND `source_type` = 0;
 UPDATE `creature_template` SET `AIName` = "SmartAI", `ScriptName` = "" WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 0, 40, 0, 100, 0, 1, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On wapoint 1 of any path reached - Self: Despawn instantly");
+(@ENTRY, 0, 0, 0, 40, 0, 100, 0, 1, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On waypoint 1 of any path reached - Self: Despawn instantly");
 
 SET @ENTRY := 44733;
 DELETE FROM `smart_scripts` WHERE `entryOrGuid` = @ENTRY AND `source_type` = 0;
 UPDATE `creature_template` SET `AIName` = "SmartAI", `ScriptName` = "" WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 0, 40, 0, 100, 0, 1, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On wapoint 1 of any path reached - Self: Despawn instantly");
+(@ENTRY, 0, 0, 0, 40, 0, 100, 0, 1, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On waypoint 1 of any path reached - Self: Despawn instantly");
 
 -- Dreadguard
-DELETE FROM `creature` WHERE `guid`=@CGUID+0;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+0, 44911, 0, 130, 130, '0', 0, 169, 0, -1, 0, 1, 1492.83, 637.973, 46.429, 5.14269, 120, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '', 0);
-
 UPDATE `creature` SET `position_x`= 1384.912, `position_y`= 775.5963, `position_z`= 47.12907, `MovementType`= 2 WHERE `guid` = 322155;
 UPDATE `creature` SET `position_x`= 1384.912, `position_y`= 775.5963, `position_z`= 47.12907 WHERE `guid` = 322154;
 UPDATE `creature` SET `position_x`= 1384.912, `position_y`= 775.5963, `position_z`= 47.12907 WHERE `guid` = 322153;
