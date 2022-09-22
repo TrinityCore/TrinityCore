@@ -4394,7 +4394,7 @@ void Spell::SendSpellStart()
     if (Unit* unitCaster = m_caster->ToUnit())
     {
         schoolImmunityMask = m_casttime != 0 ? unitCaster->GetSchoolImmunityMask() : 0;
-        mechanicImmunityMask = m_casttime != 0 ? unitCaster->GetMechanicImmunityMask() : 0;
+        mechanicImmunityMask = m_casttime != 0 ? m_spellInfo->GetMechanicImmunityMask(unitCaster) : 0;
     }
 
     if (schoolImmunityMask || mechanicImmunityMask)
