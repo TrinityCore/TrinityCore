@@ -2497,30 +2497,6 @@ private:
     ObjectGuid _armoireGUID;
 };
 
-enum EjectPassenger1
-{
-    SEAT_BLOODFANG                          = 0
-};
-
-// Eject Passenger 1 - 80743
-class spell_silverpine_eject_passenger_1 : public SpellScript
-{
-    PrepareSpellScript(spell_silverpine_eject_passenger_1);
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (GetHitUnit()->IsVehicle())
-        {
-            if (Unit* passenger0 = GetHitUnit()->GetVehicleKit()->GetPassenger(SEAT_BLOODFANG))
-                GetHitUnit()->GetVehicleKit()->RemovePassenger(passenger0);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_silverpine_eject_passenger_1::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -2549,5 +2525,4 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_armoire);
     RegisterCreatureAI(npc_silverpine_lord_darius_crowley_exsanguinate);
     RegisterCreatureAI(npc_silverpine_packleader_ivar_bloodfang_exsanguinate);
-    RegisterSpellScript(spell_silverpine_eject_passenger_1);
 }

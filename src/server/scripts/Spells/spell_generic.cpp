@@ -5142,19 +5142,43 @@ class spell_gen_eject_passengers_3_8 : public SpellScript
 };
 
 // 83781 - Reverse Cast Ride Vehicle
-class spell_gen_reverse_cast_ride_vehicle : public SpellScript
+class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
 {
-    PrepareSpellScript(spell_gen_reverse_cast_ride_vehicle);
+    PrepareSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
 
     void HandleScript(SpellEffIndex effIndex)
     {
-        if (Unit* caster = GetCaster())
-            GetHitUnit()->CastSpell(caster, GetSpellInfo()->GetEffect(effIndex).BasePoints, true);
+        GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex).CalcValue(), true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_reverse_cast_ride_vehicle::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_gen_reverse_cast_target_to_caster_triggered::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum EjectPassenger1
+{
+    SEAT_ONE                      = 0
+};
+
+// 80743 - Eject Passenger 1
+class spell_gen_eject_passenger_1 : public SpellScript
+{
+    PrepareSpellScript(spell_gen_eject_passenger_1);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit()->IsVehicle())
+        {
+            if (Unit* passenger = GetHitUnit()->GetVehicleKit()->GetPassenger(SEAT_ONE))
+                GetHitUnit()->GetVehicleKit()->RemovePassenger(passenger);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_eject_passenger_1::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -5317,4 +5341,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_ancestral_call);
     RegisterSpellScript(spell_gen_eject_passengers_3_8);
     RegisterSpellScript(spell_gen_reverse_cast_ride_vehicle);
+    RegisterSpellScript(spell_gen_eject_passenger_1);
 }

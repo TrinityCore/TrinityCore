@@ -109,17 +109,17 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (44884, 9, 0, 'I was hoping you\'d say that...', 12, 0, 100, 0, 0, 0, 44972, 5, ''),
 (44884, 10, 0, 'I will prepare the pack. It will take some time to gather them all, but we will join... for now.', 12, 0, 100, 1, 0, 0, 44973, 5, '');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` = 83781 AND `ScriptName` = 'spell_gen_reverse_cast_ride_vehicle';
+DELETE FROM `spell_script_names` WHERE `spell_id` = 83781 AND `ScriptName` = 'spell_gen_reverse_cast_target_to_caster_triggered';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(83781, 'spell_gen_reverse_cast_ride_vehicle');
+(83781, 'spell_gen_reverse_cast_target_to_caster_triggered');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=83781 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44882 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 83781, 0, 0, 31, 0, 3, 44882, 0, 0, 0, 0, '', 'Reverse Cast Ride Vehicle - Target Deathstalker Rane Yorick');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` = 80743 AND `ScriptName` = 'spell_silverpine_eject_passenger_1';
+DELETE FROM `spell_script_names` WHERE `spell_id` = 80743 AND `ScriptName` = 'spell_gen_eject_passenger_1';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(80743, 'spell_silverpine_eject_passenger_1');
+(80743, 'spell_gen_eject_passenger_1');
 
 DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry` = 8420;
 INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES 
