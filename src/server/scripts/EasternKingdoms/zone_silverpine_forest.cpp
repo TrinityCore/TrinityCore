@@ -161,14 +161,11 @@ struct npc_silverpine_horde_hauler : public ScriptedAI
         {
             if (waypointId == WAYPOINT_ON_FORSAKEN_HIGH)
                 _events.ScheduleEvent(EVENT_YELL_ON_FORSAKEN_HIGH, 1s);
-
-            if (waypointId == WAYPOINT_ON_SEPULCHER)
+            else if (waypointId == WAYPOINT_ON_SEPULCHER)
                 _events.ScheduleEvent(EVENT_YELL_ON_SEPULCHER, 1s);
-
-            if (waypointId == WAYPOINT_ON_FORSAKEN_FRONT)
+            else if (waypointId == WAYPOINT_ON_FORSAKEN_FRONT)
                 _events.ScheduleEvent(EVENT_YELL_ON_FORSAKEN_FRONT, 1s);
-
-            if (waypointId == WAYPOINT_ON_DESPAWN_POINT_SOUTH)
+            else (waypointId == WAYPOINT_ON_DESPAWN_POINT_SOUTH)
                 me->DespawnOrUnsummon(1s);
         }
     }
