@@ -1902,10 +1902,7 @@ struct npc_silverpine_armoire : public VehicleAI
         if (Player* player = summoner->ToPlayer())
         {
             if (player->GetQuestStatus(QUEST_WAITING_TO_EXSANGUINATE) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (Vehicle* vehicle = me->GetVehicleKit())
-                    _playerGUID = player->GetGUID();
-            }
+				_playerGUID = player->GetGUID();
         }
     }
 
