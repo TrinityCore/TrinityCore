@@ -3534,7 +3534,7 @@ void ObjectMgr::LoadItemTemplates()
 
 ItemTemplate* ObjectMgr::GetItemTemplateMutable(uint32 entry)
 {
-    return &_itemTemplateStore[entry];
+    return Trinity::Containers::MapGetValuePtr(_itemTemplateStore, entry);
 }
 
 ItemTemplate* ObjectMgr::CreateItemTemplate(uint32 entry, uint32 copyID)
