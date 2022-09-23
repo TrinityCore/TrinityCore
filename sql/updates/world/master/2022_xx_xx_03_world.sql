@@ -15,6 +15,22 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 -- Abandoned Outhouse
 UPDATE `gameobject_template` SET `ScriptName` = 'go_silverpine_abandoned_outhouse' WHERE `entry` = 205143;
 
+DELETE FROM `gossip_menu` WHERE `MenuID`=11897 AND `TextID`=44939;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES 
+(11897, 44939, 45338);
+
+DELETE FROM `gossip_menu_option` WHERE `MenuID`=11897 AND `OptionID`=0;
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `OptionNpcFlag`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES 
+(11897, 0, 0, 'Yorick, you in there? I\'m ready to do this! Let\'s go!', 44940, 0, 0, 0, 0, 0, 0, NULL, 0, 45338);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=11897 AND `SourceEntry`=0 AND `SourceId`=0 AND `ElseGroup`=1 AND `ConditionTypeOrReference`=1 AND `ConditionTarget`=0 AND `ConditionValue1`=83751 AND `ConditionValue2`=1 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 11897, 0, 0, 1, 1, 0, 83751, 1, 0, 0, 0, 0, '', 'Show gossip option if player doesn\'t have aura 83751');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=11897 AND `SourceEntry`=0 AND `SourceId`=0 AND `ElseGroup`=1 AND `ConditionTypeOrReference`=9 AND `ConditionTarget`=0 AND `ConditionValue1`=27045 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 11897, 0, 0, 1, 9, 0, 27045, 0, 0, 0, 0, 0, '', 'Show gossip option if player has taken quest 27045');
+
 -- Deathstalker Rane Yorick
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_deathstalker_rane_yorick' WHERE `entry` = 44882;
 
@@ -134,24 +150,19 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 DELETE FROM `waypoint_data` WHERE `id`= 448841;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
-(448841, 0, 1309.4451, 1206.865, 58.7611, NULL, 0, 0, 0, 0, 0),
-(448841, 1, 1310.49, 1207.45, 58.5113, NULL, 0, 0, 0, 0, 0);
+(448841, 0, 1312.585, 1209.135, 58.7603, NULL, 0, 0, 0, 0, 0),
+(448841, 1, 1313.18, 1210.32, 58.5093, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id`= 448842;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
-(448842, 0, 1312.585, 1209.135, 58.7603, NULL, 0, 0, 0, 0, 0),
-(448842, 1, 1313.18, 1210.32, 58.5093, NULL, 0, 0, 0, 0, 0);
+(448842, 0, 1311.25, 1208.875, 58.7602, NULL, 0, 0, 0, 0, 0),
+(448842, 1, 1309.32, 1206.43, 58.5111, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id`= 448843;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
-(448843, 0, 1311.25, 1208.875, 58.7602, NULL, 0, 0, 0, 0, 0),
-(448843, 1, 1309.32, 1206.43, 58.5111, NULL, 0, 0, 0, 0, 0);
-
-DELETE FROM `waypoint_data` WHERE `id`= 448844;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
-(448844, 0, 1304.2949, 1207.105, 58.760803, NULL, 0, 0, 0, 0, 0),
-(448844, 1, 1299.0449, 1209.605, 58.760803, NULL, 0, 0, 0, 0, 0),
-(448844, 2, 1297.27, 1212.28, 58.5105, NULL, 0, 0, 0, 0, 0);
+(448843, 0, 1304.2949, 1207.105, 58.760803, NULL, 0, 0, 0, 0, 0),
+(448843, 1, 1299.0449, 1209.605, 58.760803, NULL, 0, 0, 0, 0, 0),
+(448843, 2, 1297.27, 1212.28, 58.5105, NULL, 0, 0, 0, 0, 0);
 
 -- Deathstalker Rane Yorick (44848)
 DELETE FROM `creature` WHERE `guid`=@CGUID+0;
