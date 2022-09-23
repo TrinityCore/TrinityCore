@@ -1608,7 +1608,7 @@ struct go_silverpine_abandoned_outhouse : public GameObjectAI
 {
     go_silverpine_abandoned_outhouse(GameObject* go) : GameObjectAI(go) { }
 
-    void OnQuestAccept(Player* player, Quest const* quest)
+    void OnQuestAccept(Player* player, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_WAITING_TO_EXSANGUINATE)
             player->CastSpell(player, SPELL_SUMMON_DEATHSTALKER_YORICK, true);
