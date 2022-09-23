@@ -490,21 +490,21 @@ struct boss_felmyst : public BossAI
 
     void DespawnSummons(uint32 entry)
     {
+        std::vector<Position> unyieldingDeadPositions;
         summons.DespawnIf([&](ObjectGuid guid)
         {
             if (guid.GetEntry() != entry)
                 return false;
 
             if (guid.GetEntry() == NPC_VAPOR_TRAIL && phase == PHASE_FLIGHT)
-            {
-                Position const* pos = ObjectAccessor::GetCreature(*me, guid);
-                if (!pos)
-                    pos = me;
+                if (Creature const* vapor = ObjectAccessor::GetCreature(*me, guid))
+                    unyieldingDeadPositions.push_back(vapor->GetPosition());
 
-                me->SummonCreature(NPC_DEAD, *pos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-            }
             return true;
         });
+
+        for (Position const& unyieldingDeadPosition : unyieldingDeadPositions)
+            me->SummonCreature(NPC_DEAD, unyieldingDeadPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
     }
 };
 
