@@ -1629,14 +1629,15 @@ enum DeathstalkerRaneYorick
     SPELL_STEALTH                           = 34189,
     SPELL_PERMANENT_FEIGN_DEATH             = 29266,
     SPELL_HIDDEN_IN_ARMOIRE                 = 83788,
+    SPELL_SUMMON_YORICK                     = 83751,
     SPELL_CANCEL_SUMMON_YORICK              = 83755,
 
     EVENT_START_QUEST_EXSANGUINATE          = 1,
     EVENT_WAIT_FOR_PLAYER_EXSANGUINATE      = 3,
     EVENT_RANE_HIDE                         = 4,
-    EVENT_SET_FACE_TO_BLOODFANG             = 5,
-    EVENT_RANE_TALK_TO_PLAYER               = 7,
-    EVENT_RANE_LAST_MOVE                    = 8,
+    EVENT_SET_GUID_FOR_ARMOIRE              = 5,
+    EVENT_RANE_TALK_TO_PLAYER               = 6,
+    EVENT_RANE_LAST_MOVE                    = 7,
 
     ACTION_RANE_JUMP_DEATH                  = 1,
     ACTION_RANE_SKIP_PATH                   = 2,
@@ -1710,7 +1711,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 _events.Reset();
 
-                _events.ScheduleEvent(EVENT_SET_FACE_TO_BLOODFANG, 1s);
+                _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
 
                 DoCastSelf(SPELL_STEALTH);
 
@@ -1729,6 +1730,9 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
+            if (!player->HasAura(SPELL_SUMMON_YORICK))
+                me->DespawnOrUnsummon();
+
             // Note: not sure if this counts as a hackfix as she doesn't seem to inherit the non-cosmetic phase.
             if (player->GetPhaseShift().HasPhase(PHASE_WAITING_TO_EXSANGUINATE))
                 me->GetPhaseShift().AddPhase(PHASE_WAITING_TO_EXSANGUINATE, PhaseFlags::None, 0);
@@ -1788,7 +1792,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                         Talk(TALK_YORICK_EXSANGUINATE_HIDE, player);
 
                         _events.ScheduleEvent(EVENT_RANE_HIDE, 3s);
-                        _events.ScheduleEvent(EVENT_SET_FACE_TO_BLOODFANG, 3s);
+                        _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
                     }
                     break;
                 }
@@ -1797,33 +1801,35 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                     me->GetMotionMaster()->MovePath(PATH_YORICK_HIDE, false);
                     break;
 
-                case EVENT_SET_FACE_TO_BLOODFANG:
+                case EVENT_SET_GUID_FOR_ARMOIRE:
                 {
                     if (!_bloodfangGUID)
                     {
-                        if (Creature* bloodfang = me->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 25.0f))
-                            _bloodfangGUID = bloodfang->GetGUID();
+                        if (Creature* bloodfang = me->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 30.0f))
+                        {
+                            if (bloodfang->GetOwnerGUID() == _playerGUID)
+                                _bloodfangGUID = bloodfang->GetGUID();
+                        }
                     }
 
                     if (!_armoireGUID)
                     {
                         if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 30.0f))
                         {
-                            _armoireGUID = armoire->GetGUID();
+                            if (armoire->GetOwnerGUID() == _playerGUID)
+                            {
+                                _armoireGUID = armoire->GetGUID();
 
-                            if (armoire->IsAIEnabled())
-                                armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+                                if (armoire->IsAIEnabled())
+                                    armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+                            }
                         }
                     }
 
-                    _events.ScheduleEvent(EVENT_SET_FACE_TO_BLOODFANG + 1, 4s);
+                    if (!_bloodfangGUID || !_armoireGUID)
+                        _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
                     break;
                 }
-
-                case EVENT_SET_FACE_TO_BLOODFANG + 1:
-                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
-                        me->SetFacingToObject(bloodfang);
-                    break;
 
                 case EVENT_RANE_LAST_MOVE:
                     me->GetMotionMaster()->MoveJump(YorickDeath, 10.0f, 10.0f);
@@ -2277,7 +2283,7 @@ struct npc_silverpine_armoire : public VehicleAI
                             if (bloodfang->IsAIEnabled())
                                 bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_6, player);
 
-                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 15, 3s + 100ms);
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 15, 3s + 500ms);
                         }
                     }
                     break;
@@ -2300,7 +2306,7 @@ struct npc_silverpine_armoire : public VehicleAI
                     {
                         bloodfang->GetMotionMaster()->MovePath(PATH_BLOODFANG_NEAR_YORICK, false);
 
-                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 16, 2s);
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 16, 3s);
                     }
                     break;
                 }
@@ -2355,7 +2361,7 @@ struct npc_silverpine_armoire : public VehicleAI
                     {
                         bloodfang->GetMotionMaster()->MovePath(PATH_BLOODFANG_WITH_YORICK, false);
 
-                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 18, 2s + 400ms);
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 18, 3s);
                     }
                     break;
                 }
