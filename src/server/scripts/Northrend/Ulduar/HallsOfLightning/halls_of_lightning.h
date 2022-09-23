@@ -40,10 +40,10 @@ enum HOLDataTypes
 enum HOLCreaturesIds
 {
     // Bosses
-    BOSS_GENERAL_BJARNGRIM  = 28586,
-    BOSS_VOLKHAN            = 28587,
-    BOSS_IONAR              = 28546,
-    BOSS_LOKEN              = 28923
+    NPC_GENERAL_BJARNGRIM   = 28586,
+    NPC_VOLKHAN             = 28587,
+    NPC_IONAR               = 28546,
+    NPC_LOKEN               = 28923
 };
 
 enum HOLGameObjectIds
