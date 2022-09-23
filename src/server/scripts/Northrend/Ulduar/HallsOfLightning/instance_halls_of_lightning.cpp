@@ -33,10 +33,10 @@ DoorData const doorData[] =
 
 ObjectData const creatureData[] =
 {
-    { BOSS_GENERAL_BJARNGRIM,   DATA_GENERAL_BJARNGRIM },
-    { BOSS_VOLKHAN,             DATA_VOLKHAN           },
-    { BOSS_IONAR,               DATA_IONAR             },
-    { BOSS_LOKEN,               DATA_LOKEN             },
+    { NPC_GENERAL_BJARNGRIM,    DATA_GENERAL_BJARNGRIM },
+    { NPC_VOLKHAN,              DATA_VOLKHAN           },
+    { NPC_IONAR,                DATA_IONAR             },
+    { NPC_LOKEN,                DATA_LOKEN             },
     { NPC_VOLKHANS_ANVIL,       DATA_VOLKHANS_ANVIL    },
     { 0,                        0                      } // END
 };
@@ -84,11 +84,6 @@ class instance_halls_of_lightning : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                InstanceScript::OnGameObjectCreate(go);
-            }
-
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -106,11 +101,6 @@ class instance_halls_of_lightning : public InstanceMapScript
                 }
 
                 return true;
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                return InstanceScript::GetGuidData(type);
             }
         };
 
