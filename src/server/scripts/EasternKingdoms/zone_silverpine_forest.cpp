@@ -1943,7 +1943,7 @@ struct npc_silverpine_armoire : public VehicleAI
                 bloodfang->DespawnOrUnsummon();
 
             if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
-                yorick->DespawnOrUnsummon();
+                yorick->CastSpell(nullptr, SPELL_CANCEL_SUMMON_YORICK, true);
 
             me->DespawnOrUnsummon(1s);
         }
