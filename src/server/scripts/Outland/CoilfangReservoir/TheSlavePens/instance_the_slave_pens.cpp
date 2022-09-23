@@ -53,6 +53,7 @@ public:
         {
             counter = DATA_FLAMECALLER_000;
             LoadObjectData(creatureData, nullptr);
+            SetBossNumber(EncounterCount);
         }
 
         void OnCreatureCreate(Creature* creature) override
