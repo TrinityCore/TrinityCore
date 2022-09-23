@@ -2262,7 +2262,7 @@ struct npc_silverpine_armoire : public VehicleAI
                             if (bloodfang->IsAIEnabled())
                                 bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_5, player);
 
-                            _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 14, 4s);
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 14, 4s);
                         }
                     }
                     break;
