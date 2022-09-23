@@ -95,12 +95,12 @@ Position const CenterPoint = { 1293.8799f, 666.942f, 189.60754f, 0.0f };
 
 struct boss_sjonnir : public BossAI
 {
-    boss_sjonnir(Creature* creature) : BossAI(creature, DATA_SJONNIR),
+    boss_sjonnir(Creature* creature) : BossAI(creature, DATA_SJONNIR_THE_IRONSHAPER),
         _sludgesKilled(0), _summonsTroggs(false), _summonsOozes(false), _summonsDwarfs(false), _frenzied(false) { }
 
     void JustEngagedWith(Unit* who) override
     {
-        if (!instance->CheckRequiredBosses(DATA_SJONNIR, who->ToPlayer()))
+        if (!instance->CheckRequiredBosses(DATA_SJONNIR_THE_IRONSHAPER, who->ToPlayer()))
         {
             EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             return;
@@ -359,8 +359,9 @@ struct npc_iron_sludge : public ScriptedAI
         me->SetCorpseDelay(4, true);
         DoCastSelf(SPELL_IRON_SLUDGE_SPAWN_VISUAL);
 
-        if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SJONNIR)))
-            sjonnir->AI()->JustSummoned(me);
+        if (Creature* sjonnir = _instance->GetCreature(DATA_SJONNIR_THE_IRONSHAPER))
+            if (CreatureAI* ai = sjonnir->AI())
+                ai->JustSummoned(me);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -374,8 +375,9 @@ struct npc_iron_sludge : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SJONNIR)))
-            sjonnir->AI()->DoAction(ACTION_SLUDGE_DEAD);
+        if (Creature* sjonnir = _instance->GetCreature(DATA_SJONNIR_THE_IRONSHAPER))
+            if (CreatureAI* ai = sjonnir->AI())
+                ai->DoAction(ACTION_SLUDGE_DEAD);
     }
 
     void UpdateAI(uint32 diff) override
