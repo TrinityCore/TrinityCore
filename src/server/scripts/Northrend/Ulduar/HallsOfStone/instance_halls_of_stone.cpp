@@ -75,7 +75,6 @@ class instance_halls_of_stone : public InstanceMapScript
                 {
                     case GO_TRIBUNAL_CHEST:
                     case GO_TRIBUNAL_CHEST_HERO:
-                        // @todo: this should be a tempsummon or a manually spawned spawngroup to avoid reset exploits
                         if (GetBossState(DATA_TRIBUNAL_OF_AGES) == DONE)
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
