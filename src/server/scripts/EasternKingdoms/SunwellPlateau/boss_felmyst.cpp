@@ -131,6 +131,17 @@ struct boss_felmyst : public BossAI
 
     float breathX, breathY;
 
+    void InitializeAI() override
+    {
+        // for intro sequence
+        if (instance->GetBossState(DATA_FELMYST) == SPECIAL)
+            if (Creature* madrigosa = instance->GetCreature(DATA_MADRIGOSA))
+                me->Relocate(madrigosa);
+
+        me->SetDisplayFromModel(0);
+        me->SetNativeDisplayId(me->GetDisplayId());
+    }
+
     void Reset() override
     {
         Initialize();
@@ -180,6 +191,12 @@ struct boss_felmyst : public BossAI
         Talk(YELL_DEATH);
 
         BossAI::JustDied(killer);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        Reset();
+        _DespawnAtEvade();
     }
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -284,7 +301,7 @@ struct boss_felmyst : public BossAI
 
                 if (!target)
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
 
@@ -310,7 +327,7 @@ struct boss_felmyst : public BossAI
 
                 if (!target)
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
 
@@ -339,7 +356,7 @@ struct boss_felmyst : public BossAI
 
                 if (!target)
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
 
@@ -379,7 +396,7 @@ struct boss_felmyst : public BossAI
                     DoStartMovement(target);
                 else
                 {
-                    EnterEvadeMode();
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
                 break;
@@ -398,7 +415,7 @@ struct boss_felmyst : public BossAI
         if (!UpdateVictim())
         {
             if (phase == PHASE_FLIGHT && !me->IsInEvadeMode())
-                EnterEvadeMode();
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
             return;
         }
 
