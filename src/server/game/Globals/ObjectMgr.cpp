@@ -2707,9 +2707,14 @@ void ObjectMgr::LoadInstanceSpawnGroups()
         }
 
         uint16 const instanceMapId = fields[0].GetUInt16();
-        auto& vector = _instanceSpawnGroupStore[instanceMapId];
-        vector.emplace_back();
-        InstanceSpawnGroupInfo& info = vector.back();
+        if (it->second.mapId != instanceMapId)
+        {
+            TC_LOG_ERROR("sql.sql", "Instance spawn group %u specified for instance %u has spawns on a different map %u. Skipped.",
+                spawnGroupId, instanceMapId, it->second.mapId);
+            continue;
+        }
+
+        InstanceSpawnGroupInfo& info = _instanceSpawnGroupStore[instanceMapId].emplace_back();
         info.SpawnGroupId = spawnGroupId;
         info.BossStateId = fields[1].GetUInt8();
 
