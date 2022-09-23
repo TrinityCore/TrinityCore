@@ -1613,6 +1613,13 @@ struct go_silverpine_abandoned_outhouse : public GameObjectAI
         if (quest->GetQuestId() == QUEST_WAITING_TO_EXSANGUINATE)
             player->CastSpell(player, SPELL_SUMMON_DEATHSTALKER_YORICK, true);
     }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        player->CastSpell(player, SPELL_SUMMON_DEATHSTALKER_YORICK, true);
+        CloseGossipMenuFor(player);
+        return false;
+    }
 };
 
 Position const YorickReady = { 1313.7f, 1211.99f, 58.5f, 4.564474f };
