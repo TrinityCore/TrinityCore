@@ -139,7 +139,7 @@ struct boss_volkhan : public BossAI
         Talk(SAY_DEATH, killer);
     }
 
-    void MovementInform(uint32 motionType, uint32 id)
+    void MovementInform(uint32 motionType, uint32 id) override
     {
         if (motionType != POINT_MOTION_TYPE)
             return;
