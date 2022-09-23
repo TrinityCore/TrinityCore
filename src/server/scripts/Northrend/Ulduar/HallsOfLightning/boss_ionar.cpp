@@ -88,7 +88,6 @@ struct boss_ionar : public BossAI
     void Reset() override
     {
         BossAI::Reset();
-        summons.DespawnAll();
 
         Initialize();
 
