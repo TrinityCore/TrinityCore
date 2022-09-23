@@ -35,7 +35,8 @@ enum Texts
     SAY_RUN_TO_ANVIL                = 2,
     SAY_SHATTERING_STOMP            = 3,
     SAY_ANNOUNCE_SHATTERING_STOMP   = 4,
-    SAY_DEATH                       = 5
+    SAY_DEATH                       = 5,
+    SAY_SLAY                        = 6
 };
 
 enum Spells
@@ -137,6 +138,12 @@ struct boss_volkhan : public BossAI
     {
         BossAI::JustDied(killer);
         Talk(SAY_DEATH, killer);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->IsPlayer())
+            Talk(SAY_SLAY, who);
     }
 
     void MovementInform(uint32 motionType, uint32 id) override
