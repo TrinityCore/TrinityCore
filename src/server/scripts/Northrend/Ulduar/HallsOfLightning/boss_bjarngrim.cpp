@@ -93,12 +93,11 @@ enum Stanges
 ## boss_bjarngrim
 ######*/
 
-struct boss_bjarngrim : public ScriptedAI
+struct boss_bjarngrim : public BossAI
 {
-    boss_bjarngrim(Creature* creature) : ScriptedAI(creature)
+    boss_bjarngrim(Creature* creature) : BossAI(creature, DATA_GENERAL_BJARNGRIM)
     {
         Initialize();
-        instance = creature->GetInstanceScript();
         m_uiStance = STANCE_DEFENSIVE;
         canBuff = true;
     }
@@ -125,33 +124,9 @@ struct boss_bjarngrim : public ScriptedAI
         m_uiSlam_Timer = 10000;
     }
 
-    InstanceScript* instance;
-
-    bool m_bIsChangingStance;
-    bool canBuff;
-
-    uint8 m_uiChargingStatus;
-    uint8 m_uiStance;
-
-    uint32 m_uiCharge_Timer;
-    uint32 m_uiChangeStance_Timer;
-
-    uint32 m_uiReflection_Timer;
-    uint32 m_uiKnockAway_Timer;
-    uint32 m_uiPummel_Timer;
-    uint32 m_uiIronform_Timer;
-
-    uint32 m_uiIntercept_Timer;
-    uint32 m_uiWhirlwind_Timer;
-    uint32 m_uiCleave_Timer;
-
-    uint32 m_uiMortalStrike_Timer;
-    uint32 m_uiSlam_Timer;
-
-    ObjectGuid m_auiStormforgedLieutenantGUID[2];
-
     void Reset() override
     {
+        BossAI::Reset();
         if (canBuff)
             if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
                 me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
@@ -160,7 +135,7 @@ struct boss_bjarngrim : public ScriptedAI
 
         for (uint8 i = 0; i < 2; ++i)
         {
-            // Something isn't right here - m_auiStormforgedLieutenantGUID is never assinged to
+            // @todo: move this to spawn groups.
             if (Creature* pStormforgedLieutenant = ObjectAccessor::GetCreature(*me, m_auiStormforgedLieutenantGUID[i]))
                 if (!pStormforgedLieutenant->IsAlive())
                     pStormforgedLieutenant->Respawn();
@@ -175,7 +150,6 @@ struct boss_bjarngrim : public ScriptedAI
 
         SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
 
-        instance->SetBossState(DATA_GENERAL_BJARNGRIM, NOT_STARTED);
     }
 
     void EnterEvadeMode(EvadeReason why) override
@@ -185,17 +159,16 @@ struct boss_bjarngrim : public ScriptedAI
         else
             canBuff = false;
 
-        ScriptedAI::EnterEvadeMode(why);
+        BossAI::EnterEvadeMode(why);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
 
         //must get both lieutenants here and make sure they are with him
         me->CallForHelp(30.0f);
-
-        instance->SetBossState(DATA_GENERAL_BJARNGRIM, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -203,11 +176,10 @@ struct boss_bjarngrim : public ScriptedAI
         Talk(SAY_SLAY);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
+        BossAI::JustDied(killer);
         Talk(SAY_DEATH);
-
-        instance->SetBossState(DATA_GENERAL_BJARNGRIM, DONE);
     }
 
     /// @todo remove when removal is done by the core
@@ -368,6 +340,30 @@ struct boss_bjarngrim : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
+ private:
+     bool m_bIsChangingStance;
+     bool canBuff;
+
+     uint8 m_uiChargingStatus;
+     uint8 m_uiStance;
+
+     uint32 m_uiCharge_Timer;
+     uint32 m_uiChangeStance_Timer;
+
+     uint32 m_uiReflection_Timer;
+     uint32 m_uiKnockAway_Timer;
+     uint32 m_uiPummel_Timer;
+     uint32 m_uiIronform_Timer;
+
+     uint32 m_uiIntercept_Timer;
+     uint32 m_uiWhirlwind_Timer;
+     uint32 m_uiCleave_Timer;
+
+     uint32 m_uiMortalStrike_Timer;
+     uint32 m_uiSlam_Timer;
+
+     ObjectGuid m_auiStormforgedLieutenantGUID[2];
 };
 
 /*######
@@ -379,7 +375,7 @@ struct npc_stormforged_lieutenant : public ScriptedAI
     npc_stormforged_lieutenant(Creature* creature) : ScriptedAI(creature)
     {
         Initialize();
-        instance = creature->GetInstanceScript();
+        _instance = creature->GetInstanceScript();
     }
 
     void Initialize()
@@ -388,11 +384,6 @@ struct npc_stormforged_lieutenant : public ScriptedAI
         m_uiRenewSteel_Timer = urand(10000, 11000);
     }
 
-    InstanceScript* instance;
-
-    uint32 m_uiArcWeld_Timer;
-    uint32 m_uiRenewSteel_Timer;
-
     void Reset() override
     {
         Initialize();
@@ -400,10 +391,10 @@ struct npc_stormforged_lieutenant : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_BJARNGRIM)))
+        if (Creature* bjarngrim = _instance->GetCreature(DATA_GENERAL_BJARNGRIM))
         {
-            if (pBjarngrim->IsAlive() && !pBjarngrim->GetVictim())
-                pBjarngrim->AI()->AttackStart(who);
+            if (bjarngrim->IsAlive() && !bjarngrim->IsEngaged())
+                bjarngrim->EngageWithTarget(who);
         }
     }
 
@@ -423,10 +414,10 @@ struct npc_stormforged_lieutenant : public ScriptedAI
 
         if (m_uiRenewSteel_Timer <= uiDiff)
         {
-            if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_BJARNGRIM)))
+            if (Creature* bjarngrim = _instance->GetCreature(DATA_GENERAL_BJARNGRIM))
             {
-                if (pBjarngrim->IsAlive())
-                    DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
+                if (bjarngrim->IsAlive())
+                    DoCast(bjarngrim, SPELL_RENEW_STEEL_N);
             }
             m_uiRenewSteel_Timer = urand(10000, 14000);
         }
@@ -435,6 +426,10 @@ struct npc_stormforged_lieutenant : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+private:
+    InstanceScript* _instance;
+    uint32 m_uiArcWeld_Timer;
+    uint32 m_uiRenewSteel_Timer;
 };
 
 void AddSC_boss_bjarngrim()
