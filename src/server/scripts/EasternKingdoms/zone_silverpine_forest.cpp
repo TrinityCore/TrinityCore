@@ -1668,6 +1668,9 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
         if (Player* player = summoner->ToPlayer())
             _playerGUID = player->GetGUID();
 
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            me->SetFacingToObject(player);
+
         _events.ScheduleEvent(EVENT_START_QUEST_EXSANGUINATE, 1s);
     }
 
@@ -2336,6 +2339,8 @@ struct npc_silverpine_armoire : public VehicleAI
                         {
                             yorick->RemoveAura(SPELL_STEALTH);
 
+                            yorick->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+
                             bloodfang->CastSpell(yorick, SPELL_REVERSE_RIDE_VEHICLE, true);
 
                             _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 3, 1s + 100ms);
@@ -2381,13 +2386,13 @@ struct npc_silverpine_armoire : public VehicleAI
                             if (yorick->IsAIEnabled())
                                 yorick->AI()->Talk(TALK_YORICK_EXSANGUINATE_DEATH, player);
 
-                            _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 20, 4s + 850ms);
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 20, 4s + 850ms);
                         }
                     }
                     break;
                 }
 
-                case EVENT_ACTION_SCENE_EXSANGUINATE + 20:
+                case EVENT_TALK_SCENE_EXSANGUINATE + 20:
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
@@ -2518,7 +2523,7 @@ struct npc_silverpine_lord_darius_crowley_exsanguinate : public ScriptedAI
 {
     npc_silverpine_lord_darius_crowley_exsanguinate(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
         me->SetReactState(REACT_PASSIVE);
     }
@@ -2528,7 +2533,11 @@ struct npc_silverpine_lord_darius_crowley_exsanguinate : public ScriptedAI
         if (Player* player = summoner->ToPlayer())
             _playerGUID = player->GetGUID();
 
-        FindAllGuid();
+        if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 100.0f))
+        {
+            if (armoire->IsAIEnabled())
+                armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+        }
     }
 
     void WaypointReached(uint32 waypointId, uint32 pathId) override
@@ -2537,31 +2546,8 @@ struct npc_silverpine_lord_darius_crowley_exsanguinate : public ScriptedAI
             me->DespawnOrUnsummon();
     }
 
-    void FindAllGuid()
-    {
-        if (!_bloodfangGUID)
-        {
-            if (Creature* bloodfang = me->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 100.0f))
-                _bloodfangGUID = bloodfang->GetGUID();
-        }
-
-        if (!_armoireGUID)
-        {
-            if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 100.0f))
-            {
-                _armoireGUID = armoire->GetGUID();
-
-                if (armoire->IsAIEnabled())
-                    armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
-            }
-        }
-    }
-
 private:
-    EventMap _events;
     ObjectGuid _playerGUID;
-    ObjectGuid _armoireGUID;
-    ObjectGuid _bloodfangGUID;
 };
 
 enum IvarBloodfangExsanguinate
@@ -2574,7 +2560,7 @@ struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
 {
     npc_silverpine_packleader_ivar_bloodfang_exsanguinate(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
         me->SetReactState(REACT_PASSIVE);
     }
@@ -2586,8 +2572,6 @@ struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
 
         if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 30.0f))
         {
-            _armoireGUID = armoire->GetGUID();
-
             if (armoire->IsAIEnabled())
                 armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
         }
@@ -2600,9 +2584,7 @@ struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
     }
 
 private:
-    EventMap _events;
     ObjectGuid _playerGUID;
-    ObjectGuid _armoireGUID;
 };
 
 void AddSC_silverpine_forest()
