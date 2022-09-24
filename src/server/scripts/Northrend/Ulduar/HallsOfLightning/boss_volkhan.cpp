@@ -325,7 +325,6 @@ struct npc_volkhan_molten_golem : public ScriptedAI
         {
             case ACTION_SHATTER:
                 me->RemoveAurasDueToSpell(SPELL_COSMETIC_STUN_IMMUNE_FREEZE_AMNIM);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE);
                 DoCastAOE(SPELL_SHATTER);
                 DoCastSelf(SPELL_INSTAKILL_SELF);
                 break;
@@ -451,22 +450,12 @@ class spell_volkhan_cosmetic_stun_immune_permanent : public AuraScript
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
-        {
             target->UpdateEntry(ENTRY_BRITTLE_GOLEM, nullptr, false);
-            target->SetUnitFlag(UNIT_FLAG_IMMUNE);
-        }
-    }
-
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Creature* target = GetTarget()->ToCreature())
-            target->RemoveUnitFlag(UNIT_FLAG_IMMUNE);
     }
 
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_volkhan_cosmetic_stun_immune_permanent::HandleApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_volkhan_cosmetic_stun_immune_permanent::HandleRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
