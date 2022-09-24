@@ -4437,9 +4437,9 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data
         }
         else // misses
         {
-            // Delayed attacks don't send their block miss result in spell_go packets unless they are completely blocked.
-            // Spells that still do hit and only deal reduced damage will send the block result in their according log packet.
-            if (targetInfo.TimeDelay > 0 && targetInfo.MissCondition == SPELL_MISS_BLOCK && !m_spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED))
+            // Only send blocks in spell_go packets if we know that the spell is not going to do anything to the target.
+            // Spells that are partially blocked will send their block result in their according combat log packet.
+            if (targetInfo.MissCondition == SPELL_MISS_BLOCK && !m_spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED))
                 continue;
 
             WorldPackets::Spells::SpellMissStatus missStatus;
