@@ -30,6 +30,21 @@ DoorData const doorData[] =
     { 0,               0,            DOOR_TYPE_ROOM    } // END
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_GENERAL_BJARNGRIM,    DATA_GENERAL_BJARNGRIM  },
+    { NPC_VOLKHAN,              DATA_VOLKHAN            },
+    { NPC_IONAR,                DATA_IONAR              },
+    { NPC_LOKEN,                DATA_LOKEN              },
+    { 0,                        0                       } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_LOKEN_THRONE,  DATA_LOKEN_GLOBE    },
+    { 0,                0                   } // END
+};
+
 class instance_halls_of_lightning : public InstanceMapScript
 {
     public:
@@ -41,42 +56,8 @@ class instance_halls_of_lightning : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_BJARNGRIM:
-                        GeneralBjarngrimGUID = creature->GetGUID();
-                        break;
-                    case NPC_VOLKHAN:
-                        VolkhanGUID = creature->GetGUID();
-                        break;
-                    case NPC_IONAR:
-                        IonarGUID = creature->GetGUID();
-                        break;
-                    case NPC_LOKEN:
-                        LokenGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                InstanceScript::OnGameObjectCreate(go);
-
-                switch (go->GetEntry())
-                {
-                    case GO_LOKEN_THRONE:
-                        LokenGlobeGUID = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -88,7 +69,7 @@ class instance_halls_of_lightning : public InstanceMapScript
                 {
                     case DATA_LOKEN:
                         if (state == DONE)
-                            if (GameObject* globe = instance->GetGameObject(LokenGlobeGUID))
+                            if (GameObject* globe = GetGameObject(DATA_LOKEN_GLOBE))
                                 globe->SendCustomAnim(0);
                         break;
                     default:
@@ -97,32 +78,6 @@ class instance_halls_of_lightning : public InstanceMapScript
 
                 return true;
             }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_BJARNGRIM:
-                        return GeneralBjarngrimGUID;
-                    case DATA_VOLKHAN:
-                        return VolkhanGUID;
-                    case DATA_IONAR:
-                        return IonarGUID;
-                    case DATA_LOKEN:
-                        return LokenGUID;
-                    default:
-                        break;
-                }
-                return ObjectGuid::Empty;
-            }
-
-        protected:
-            ObjectGuid GeneralBjarngrimGUID;
-            ObjectGuid VolkhanGUID;
-            ObjectGuid IonarGUID;
-            ObjectGuid LokenGUID;
-
-            ObjectGuid LokenGlobeGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
