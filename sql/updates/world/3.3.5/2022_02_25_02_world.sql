@@ -1,3 +1,4 @@
+--
 UPDATE `creature_template` SET `ScriptName`= 'npc_volkhan_molten_golem' WHERE `entry`= 28695;
 UPDATE `creature_template` SET `mechanic_immune_mask`= `mechanic_immune_mask` | 0x2000000 | 0x100 WHERE `entry` IN (28587, 31536);
 
