@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "halls_of_lightning.h"
 #include "InstanceScript.h"
@@ -36,13 +37,15 @@ ObjectData const creatureData[] =
     { NPC_VOLKHAN,              DATA_VOLKHAN            },
     { NPC_IONAR,                DATA_IONAR              },
     { NPC_LOKEN,                DATA_LOKEN              },
+    { NPC_VOLKHANS_ANVIL,       DATA_VOLKHANS_ANVIL     },
     { 0,                        0                       } // END
 };
 
 ObjectData const gameObjectData[] =
 {
-    { GO_LOKEN_THRONE,  DATA_LOKEN_GLOBE    },
-    { 0,                0                   } // END
+    { GO_VOLKHAN_TEMPER_VISUAL, DATA_VOLKHAN_TEMPER_VISUAL },
+    { GO_LOKEN_THRONE,          DATA_LOKEN_GLOBE           },
+    { 0,                        0                          } // END
 };
 
 class instance_halls_of_lightning : public InstanceMapScript
@@ -58,6 +61,27 @@ class instance_halls_of_lightning : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
+            }
+
+            void OnCreatureCreate(Creature* creature) override
+            {
+                InstanceScript::OnCreatureCreate(creature);
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_MOLTEN_GOLEM:
+                        if (GetBossState(DATA_VOLKHAN) == IN_PROGRESS)
+                        {
+                            if (Creature* volkhan = GetCreature(DATA_VOLKHAN))
+                                if (CreatureAI* ai = volkhan->AI())
+                                    ai->JustSummoned(creature);
+                        }
+                        else // These golems are summoned via trigger missile so we have to clean them up if they spawned during a wipe/completion
+                            creature->DespawnOrUnsummon();
+                        break;
+                    default:
+                        break;
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
