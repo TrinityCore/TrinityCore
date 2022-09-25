@@ -24,6 +24,7 @@ gets instead the deserter debuff.
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Unit.h"
 #include "the_underbog.h"
 
 class instance_the_underbog : public InstanceMapScript
