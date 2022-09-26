@@ -4634,7 +4634,7 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellHitInfo& data)
         else
         {
             // Don't consider blocked ranged attacks as miss
-            if (targetInfo.TimeDelay > 0 && targetInfo.MissCondition == SPELL_MISS_BLOCK)
+            if (targetInfo.MissCondition == SPELL_MISS_BLOCK && !m_spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED))
                 continue;
 
             data.MissStatus.emplace_back(targetInfo.TargetGUID, targetInfo.MissCondition, targetInfo.ReflectResult);
