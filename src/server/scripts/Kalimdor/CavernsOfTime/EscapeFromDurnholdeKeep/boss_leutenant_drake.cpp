@@ -31,37 +31,6 @@ EndScriptData */
 #include "ScriptedCreature.h"
 
 /*######
-## go_barrel_old_hillsbrad
-######*/
-
-class go_barrel_old_hillsbrad : public GameObjectScript
-{
-public:
-    go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
-
-    struct go_barrel_old_hillsbradAI : public GameObjectAI
-    {
-        go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
-
-        InstanceScript* instance;
-
-        bool OnGossipHello(Player* /*player*/) override
-        {
-            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
-                return false;
-
-            instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return GetOldHillsbradAI<go_barrel_old_hillsbradAI>(go);
-    }
-};
-
-/*######
 ## boss_lieutenant_drake
 ######*/
 
@@ -103,106 +72,117 @@ Position const DrakeWP[]=
     { 2128.20f, 70.9763f, 64.4221f }
 };
 
-class boss_lieutenant_drake : public CreatureScript
+struct boss_lieutenant_drake : public BossAI
 {
-public:
-    boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    boss_lieutenant_drake(Creature* creature) : BossAI(creature, DATA_LIEUTENANT_DRAKE)
     {
-        return GetOldHillsbradAI<boss_lieutenant_drakeAI>(creature);
+        Initialize();
     }
 
-    struct boss_lieutenant_drakeAI : public ScriptedAI
+    void Initialize()
     {
-        boss_lieutenant_drakeAI(Creature* creature) : ScriptedAI(creature)
+        CanPatrol = true;
+        wpId = 0;
+
+        Whirlwind_Timer = 20000;
+        Fear_Timer = 30000;
+        MortalStrike_Timer = 45000;
+        ExplodingShout_Timer = 25000;
+    }
+
+    bool CanPatrol;
+    uint32 wpId;
+
+    uint32 Whirlwind_Timer;
+    uint32 Fear_Timer;
+    uint32 MortalStrike_Timer;
+    uint32 ExplodingShout_Timer;
+
+    void Reset() override
+    {
+        BossAI::Reset();
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        BossAI::JustDied(killer);
+        Talk(SAY_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        /// @todo make this work
+        if (CanPatrol && wpId == 0)
         {
-            Initialize();
+            me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId]);
+            ++wpId;
         }
 
-        void Initialize()
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        //Whirlwind
+        if (Whirlwind_Timer <= diff)
         {
-            CanPatrol = true;
-            wpId = 0;
+            DoCastVictim(SPELL_WHIRLWIND);
+            Whirlwind_Timer = 20000 + rand32() % 5000;
+        } else Whirlwind_Timer -= diff;
 
-            Whirlwind_Timer = 20000;
-            Fear_Timer = 30000;
-            MortalStrike_Timer = 45000;
-            ExplodingShout_Timer = 25000;
-        }
-
-        bool CanPatrol;
-        uint32 wpId;
-
-        uint32 Whirlwind_Timer;
-        uint32 Fear_Timer;
-        uint32 MortalStrike_Timer;
-        uint32 ExplodingShout_Timer;
-
-        void Reset() override
+        //Fear
+        if (Fear_Timer <= diff)
         {
-            Initialize();
-        }
+            Talk(SAY_SHOUT);
+            DoCastVictim(SPELL_FRIGHTENING_SHOUT);
+            Fear_Timer = 25000 + rand32() % 10000;
+        } else Fear_Timer -= diff;
 
-        void JustEngagedWith(Unit* /*who*/) override
+        //Mortal Strike
+        if (MortalStrike_Timer <= diff)
         {
-            Talk(SAY_AGGRO);
-        }
+            Talk(SAY_MORTAL);
+            DoCastVictim(SPELL_MORTAL_STRIKE);
+            MortalStrike_Timer = 20000 + rand32() % 10000;
+        } else MortalStrike_Timer -= diff;
 
-        void KilledUnit(Unit* /*victim*/) override
-        {
-            Talk(SAY_SLAY);
-        }
+        DoMeleeAttackIfReady();
+    }
+};
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-        }
+/*######
+## go_barrel_old_hillsbrad
+######*/
 
-        void UpdateAI(uint32 diff) override
-        {
-            /// @todo make this work
-            if (CanPatrol && wpId == 0)
-            {
-                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId]);
-                ++wpId;
-            }
+struct go_barrel_old_hillsbrad : public GameObjectAI
+{
+    go_barrel_old_hillsbrad(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
+    InstanceScript* instance;
 
-            //Whirlwind
-            if (Whirlwind_Timer <= diff)
-            {
-                DoCastVictim(SPELL_WHIRLWIND);
-                Whirlwind_Timer = 20000 + rand32() % 5000;
-            } else Whirlwind_Timer -= diff;
+    bool OnGossipHello(Player* /*player*/) override
+    {
+        if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
+            return false;
 
-            //Fear
-            if (Fear_Timer <= diff)
-            {
-                Talk(SAY_SHOUT);
-                DoCastVictim(SPELL_FRIGHTENING_SHOUT);
-                Fear_Timer = 25000 + rand32() % 10000;
-            } else Fear_Timer -= diff;
-
-            //Mortal Strike
-            if (MortalStrike_Timer <= diff)
-            {
-                Talk(SAY_MORTAL);
-                DoCastVictim(SPELL_MORTAL_STRIKE);
-                MortalStrike_Timer = 20000 + rand32() % 10000;
-            } else MortalStrike_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
+        instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+        return false;
+    }
 };
 
 void AddSC_boss_lieutenant_drake()
 {
-    new go_barrel_old_hillsbrad();
-    new boss_lieutenant_drake();
+    RegisterOldHillsbradCreatureAI(boss_lieutenant_drake);
+    RegisterOldHillsbradGameObjectAI(go_barrel_old_hillsbrad);
 }
