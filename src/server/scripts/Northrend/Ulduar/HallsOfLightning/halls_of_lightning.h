@@ -33,7 +33,12 @@ enum HOLDataTypes
     DATA_IONAR              = 2,
     DATA_LOKEN              = 3,
 
-    // Misc
+    // Additional Data
+    /*Volkhan*/
+    DATA_VOLKHAN_TEMPER_VISUAL,
+    DATA_VOLKHANS_ANVIL,
+
+    /*Loken*/
     DATA_LOKEN_GLOBE
 };
 
@@ -43,16 +48,25 @@ enum HOLCreaturesIds
     NPC_GENERAL_BJARNGRIM   = 28586,
     NPC_VOLKHAN             = 28587,
     NPC_IONAR               = 28546,
-    NPC_LOKEN               = 28923
+    NPC_LOKEN               = 28923,
+
+    /*Volkhan*/
+    NPC_VOLKHANS_ANVIL      = 28823,
+    NPC_MOLTEN_GOLEM        = 28695
 };
 
 enum HOLGameObjectIds
 {
-    GO_BJARNGRIM_DOOR       = 191416,
-    GO_VOLKHAN_DOOR         = 191325,
-    GO_IONAR_DOOR           = 191326,
-    GO_LOKEN_DOOR           = 191324,
-    GO_LOKEN_THRONE         = 192654
+    GO_BJARNGRIM_DOOR           = 191416,
+    GO_VOLKHAN_DOOR             = 191325,
+    GO_IONAR_DOOR               = 191326,
+    GO_LOKEN_DOOR               = 191324,
+
+    /*Volkhan*/
+    GO_VOLKHAN_TEMPER_VISUAL    = 190858,
+
+    /*Loken*/
+    GO_LOKEN_THRONE             = 192654
 };
 
 template <class AI, class T>
