@@ -18,6 +18,7 @@
 #include "zulgurub.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 
 enum ZulGurubGameEventIds
