@@ -6484,10 +6484,10 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     // Add SPELL_AURA_MOD_DAMAGE_FROM_MANA percent bonus
     if (HasAuraType(SPELL_AURA_MOD_DAMAGE_FROM_MANA) && GetMaxPower(POWER_MANA))
     {
-        float totalBonus = (owner->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_FROM_MANA, spellProto->GetSchoolMask()) - 1.f) * 100.f;
-        float manaPct = 100.f* ((float)GetPower(POWER_MANA) / GetMaxPower(POWER_MANA));
-        if (totalBonus != 0.f && manaPct != 0.f)
-            AddPct(DoneTotalMod, CalculatePct(totalBonus, manaPct));
+        float totalBonus = owner->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_FROM_MANA, spellProto->GetSchoolMask()) - 1.f;
+        totalBonus *= ((float)GetPower(POWER_MANA) / GetMaxPower(POWER_MANA));
+        if (totalBonus != 0.f)
+            DoneTotalMod += DoneTotalMod * totalBonus;
     }
 
     // Custom scripted damage
@@ -6499,7 +6499,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 if (victim->HasAuraState(AURA_STATE_FROZEN))
                     if (aurEff->IsAffectingSpell(spellProto))
                         AddPct(DoneTotalMod, aurEff->GetAmount());
-
 
             // Ice Lance
             if (spellProto->SpellIconID == 186)
