@@ -2226,6 +2226,11 @@ void GameObject::Use(Unit* user)
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
 
+                // Check if seat is "occupied" by creature
+                if (Creature* creature = FindNearestCreatureInRange(INTERACTION_DISTANCE))
+                    if (creature->IsSitState() && creature->GetStandState() != UNIT_STAND_STATE_SIT && creature->GetExactDist2d(x_i, y_i) < 0.1f)
+                        return;
+
                 if (!itr->second.IsEmpty())
                 {
                     if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))

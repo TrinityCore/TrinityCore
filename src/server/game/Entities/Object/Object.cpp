@@ -2056,6 +2056,15 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     return creature;
 }
 
+Creature* WorldObject::FindNearestCreatureInRange(float range, bool alive) const
+{
+    Creature* creature = nullptr;
+    Trinity::NearestCreatureWithLiveStateInObjectRangeCheck checker(*this, alive, range);
+    Trinity::CreatureLastSearcher<Trinity::NearestCreatureWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
+    Cell::VisitAllObjects(this, searcher, range);
+    return creature;
+}
+
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range, bool spawnedOnly) const
 {
     GameObject* go = nullptr;
