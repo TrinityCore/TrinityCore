@@ -2750,12 +2750,14 @@ struct PhaseXPhaseGroupEntry
 
 struct PlayerConditionEntry
 {
-    uint32 ID;
     Trinity::RaceMask<int64> RaceMask;
     LocalizedString FailureDescription;
+    uint32 ID;
+    uint16 MinLevel;
+    uint16 MaxLevel;
     int32 ClassMask;
     uint32 SkillLogic;
-    int32 LanguageID;
+    uint8 LanguageID;
     uint8 MinLanguage;
     int32 MaxLanguage;
     uint16 MaxFactionID;
@@ -2771,7 +2773,7 @@ struct PlayerConditionEntry
     uint8 ItemFlags;
     uint32 AuraSpellLogic;
     uint16 WorldStateExpressionID;
-    int32 WeatherID;
+    uint8 WeatherID;
     uint8 PartyStatus;
     uint8 LifetimeMaxPVPRank;
     uint32 AchievementLogic;
@@ -2780,7 +2782,7 @@ struct PlayerConditionEntry
     uint32 AreaLogic;
     uint32 LfgLogic;
     uint32 CurrencyLogic;
-    int32 QuestKillID;
+    uint32 QuestKillID;
     uint32 QuestKillLogic;
     int8 MinExpansionLevel;
     int8 MaxExpansionLevel;
@@ -2791,7 +2793,7 @@ struct PlayerConditionEntry
     uint8 PhaseUseFlags;
     uint16 PhaseID;
     uint32 PhaseGroupID;
-    int32 Flags;
+    uint8 Flags;
     int8 ChrSpecializationIndex;
     int8 ChrSpecializationRole;
     uint32 ModifierTreeID;
@@ -2805,32 +2807,30 @@ struct PlayerConditionEntry
     int8 MinExpansionTier;
     uint8 MinPVPRank;
     uint8 MaxPVPRank;
-    int32 ContentTuningID;
-    int32 CovenantID;
-    std::array<uint16, 4> SkillID;
-    std::array<uint16, 4> MinSkill;
-    std::array<uint16, 4> MaxSkill;
-    std::array<uint32, 3> MinFactionID;
-    std::array<uint8, 3> MinReputation;
-    std::array<int32, 4> PrevQuestID;
-    std::array<int32, 4> CurrQuestID;
-    std::array<int32, 4> CurrentCompletedQuestID;
-    std::array<int32, 4> SpellID;
-    std::array<int32, 4> ItemID;
-    std::array<uint32, 4> ItemCount;
-    std::array<uint16, 2> Explored;
-    std::array<uint32, 2> Time;
-    std::array<int32, 4> AuraSpellID;
-    std::array<uint8, 4> AuraStacks;
-    std::array<uint16, 4> Achievement;
-    std::array<uint16, 4> AreaID;
-    std::array<uint8, 4> LfgStatus;
-    std::array<uint8, 4> LfgCompare;
-    std::array<uint32, 4> LfgValue;
-    std::array<uint32, 4> CurrencyID;
-    std::array<uint32, 4> CurrencyCount;
-    std::array<uint32, 6> QuestKillMonster;
-    std::array<int32, 2> MovementFlags;
+    uint16 SkillID[4];
+    uint16 MinSkill[4];
+    uint16 MaxSkill[4];
+    uint32 MinFactionID[3];
+    uint8 MinReputation[3];
+    uint32 PrevQuestID[4];
+    uint32 CurrQuestID[4];
+    uint32 CurrentCompletedQuestID[4];
+    int32 SpellID[4];
+    int32 ItemID[4];
+    uint32 ItemCount[4];
+    uint16 Explored[2];
+    uint32 Time[2];
+    int32 AuraSpellID[4];
+    uint8 AuraStacks[4];
+    uint16 Achievement[4];
+    uint16 AreaID[4];
+    uint8 LfgStatus[4];
+    uint8 LfgCompare[4];
+    uint32 LfgValue[4];
+    uint32 CurrencyID[4];
+    uint32 CurrencyCount[4];
+    uint32 QuestKillMonster[6];
+    int32 MovementFlags[2];
 };
 
 struct PowerDisplayEntry
@@ -2845,15 +2845,15 @@ struct PowerDisplayEntry
 
 struct PowerTypeEntry
 {
+    uint32 ID;
     char const* NameGlobalStringTag;
     char const* CostGlobalStringTag;
-    uint32 ID;
     int8 PowerTypeEnum;
     int8 MinPower;
-    int16 MaxBasePower;
+    uint32 MaxBasePower;
     int8 CenterPower;
     int8 DefaultPower;
-    int8 DisplayModifier;
+    uint16 DisplayModifier;
     int16 RegenInterruptTimeMS;
     float RegenPeace;
     float RegenCombat;
@@ -2921,8 +2921,8 @@ struct PvpTalentSlotUnlockEntry
 
 struct PvpTierEntry
 {
-    LocalizedString Name;
     uint32 ID;
+    LocalizedString Name;
     int16 MinRating;
     int16 MaxRating;
     int32 PrevTier;
@@ -2935,7 +2935,7 @@ struct PvpTierEntry
 struct QuestFactionRewardEntry
 {
     uint32 ID;
-    std::array<int16, 10> Difficulty;
+    int16 Difficulty[10];
 };
 
 struct QuestInfoEntry
@@ -2953,13 +2953,12 @@ struct QuestLineXQuestEntry
     uint32 QuestLineID;
     uint32 QuestID;
     uint32 OrderIndex;
-    int32 Flags;
 };
 
 struct QuestMoneyRewardEntry
 {
     uint32 ID;
-    std::array<uint32, 10> Difficulty;
+    uint32 Difficulty[10];
 };
 
 struct QuestPackageItemEntry
@@ -2987,22 +2986,16 @@ struct QuestV2Entry
 struct QuestXPEntry
 {
     uint32 ID;
-    std::array<uint16, 10> Difficulty;
+    uint16 Difficulty[10];
 };
 
 struct RandPropPointsEntry
 {
     uint32 ID;
-    float DamageReplaceStatF;
-    float DamageSecondaryF;
     int32 DamageReplaceStat;
-    int32 DamageSecondary;
-    std::array<float, 5> EpicF;
-    std::array<float, 5> SuperiorF;
-    std::array<float, 5> GoodF;
-    std::array<uint32, 5> Epic;
-    std::array<uint32, 5> Superior;
-    std::array<uint32, 5> Good;
+    uint32 Epic[5];
+    uint32 Superior[5];
+    uint32 Good[5];
 };
 
 struct RewardPackEntry
@@ -3049,7 +3042,7 @@ struct ScenarioStepEntry
     LocalizedString Title;
     uint16 ScenarioID;
     uint32 Criteriatreeid;
-    int32 RewardQuestID;
+    uint32 RewardQuestID;
     int32 RelatedStep;                                              // Bonus step can only be completed if scenario is in the step specified in this field
     uint16 Supersedes;                                              // Used in conjunction with Proving Grounds scenarios, when sequencing steps (Not using step order?)
     uint8 OrderIndex;
@@ -3108,8 +3101,6 @@ struct SkillLineEntry
     int32 ParentTierIndex;
     uint16 Flags;
     int32 SpellBookSpellID;
-
-    EnumFlag<SkillLineFlags> GetFlags() const { return static_cast<SkillLineFlags>(Flags); }
 };
 
 struct SkillLineAbilityEntry
@@ -3129,6 +3120,7 @@ struct SkillLineAbilityEntry
     int16 UniqueBit;
     int16 TradeSkillCategoryID;
     int16 SkillupSkillLineID;
+    int32 CharacterPoints[2];
 
     EnumFlag<SkillLineAbilityFlags> GetFlags() const { return EnumFlag<SkillLineAbilityFlags>(static_cast<SkillLineAbilityFlags>(Flags)); }
 };
@@ -3145,19 +3137,10 @@ struct SkillRaceClassInfoEntry
     int16 SkillTierID;
 };
 
-struct SoulbindConduitRankEntry
-{
-    uint32 ID;
-    int32 RankIndex;
-    int32 SpellID;
-    float AuraPointsOverride;
-    uint32 SoulbindConduitID;
-};
-
 struct SoundKitEntry
 {
-    uint32 ID;
-    int32 SoundType;
+    int32 ID;
+    uint8 SoundType;
     float VolumeFloat;
     uint16 Flags;
     float MinDistance;
@@ -3195,12 +3178,12 @@ struct SpellAuraOptionsEntry
 {
     uint32 ID;
     uint8 DifficultyID;
-    uint16 CumulativeAura;
+    uint32 CumulativeAura;
     int32 ProcCategoryRecovery;
     uint8 ProcChance;
     int32 ProcCharges;
     uint16 SpellProcsPerMinuteID;
-    std::array<int32, 2> ProcTypeMask;
+    int32 ProcTypeMask[2];
     uint32 SpellID;
 };
 
@@ -3223,6 +3206,7 @@ struct SpellCastTimesEntry
 {
     uint32 ID;
     int32 Base;
+    int16 PerLevel;
     int32 Minimum;
 };
 
@@ -3286,6 +3270,7 @@ struct SpellDurationEntry
 {
     uint32 ID;
     int32 Duration;
+    uint32 DurationPerLevel;
     int32 MaxDuration;
 };
 
