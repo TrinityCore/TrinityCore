@@ -77,13 +77,13 @@ public:
             Initialize();
 
             if (IsEvent)
-                instance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
+                instance->SetBossState(DATA_RAGEWINTERCHILL, NOT_STARTED);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
-                instance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_RAGEWINTERCHILL, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
@@ -106,7 +106,7 @@ public:
         {
             hyjal_trashAI::JustDied(killer);
             if (IsEvent)
-                instance->SetData(DATA_RAGEWINTERCHILLEVENT, DONE);
+                instance->SetBossState(DATA_RAGEWINTERCHILL, DONE);
             Talk(SAY_ONDEATH);
         }
 
@@ -162,7 +162,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_rage_winterchill()

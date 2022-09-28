@@ -902,15 +902,6 @@ void hyjalAI::JustDied(Unit* /*killer*/)
     RespawnTimer = 120000;
     Talk(DEATH);
     Summons.DespawnAll();//despawn all wave's summons
-    //reset encounter if boss is despawned (ex: thrall is killed, boss despawns, event stucks at inprogress)
-    if (instance->GetData(DATA_RAGEWINTERCHILLEVENT) == IN_PROGRESS)
-        instance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
-    if (instance->GetData(DATA_ANETHERONEVENT) == IN_PROGRESS)
-        instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
-    if (instance->GetData(DATA_KAZROGALEVENT) == IN_PROGRESS)
-        instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
-    if (instance->GetData(DATA_AZGALOREVENT) == IN_PROGRESS)
-        instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
     instance->SetData(DATA_RESET_RAIDDAMAGE, 0);//reset damage on die
 }
 
