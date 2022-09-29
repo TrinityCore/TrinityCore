@@ -190,10 +190,10 @@ class TC_GAME_API Aura
         bool IsRemoved() const { return m_isRemoved; }
         bool CanBeSentToClient() const;
         // Limited cast aura helpers
-        bool IsLimitedTarget() const {return m_isLimitedTarget; }
-        bool IsLimitedTargetWith(Aura const* aura) const;
-        void SetIsLimitedTarget(bool val) { m_isLimitedTarget = val; }
-        void UnregisterLimitedTarget();
+        bool IsSingleTarget() const {return m_isSingleTarget; }
+        bool IsSingleTargetWith(Aura const* aura) const;
+        void SetIsSingleTarget(bool val) { m_isSingleTarget = val; }
+        void UnregisterSingleTarget();
         int32 CalcDispelChance(Unit const* auraTarget, bool offensive) const;
 
         void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, float critChance, bool applyResilience, int32* amount);
@@ -302,7 +302,7 @@ class TC_GAME_API Aura
         ApplicationMap m_applications;
 
         bool m_isRemoved:1;
-        bool m_isLimitedTarget:1;                        // true if it's a limited target spell and registered at caster - can change at spell steal for example
+        bool m_isSingleTarget:1;                        // true if it's a limited target spell and registered at caster - can change at spell steal for example
         bool m_isUsingCharges:1;
 
         ChargeDropEvent* m_dropEvent;

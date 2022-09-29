@@ -5807,7 +5807,8 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Living Bomb
     ApplySpellFix({ 44457 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->MaxAuraTargets = 3;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_LIMIT_N;
+        spellInfo->MaxAffectedTargets = 3;
     });
 
     // Overhead Smash
@@ -6027,6 +6028,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         if (spellInfo->ActiveIconID == 2158)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
+
+        if (spellInfo->IsSingleTarget() && !spellInfo->MaxAffectedTargets)
+            spellInfo->MaxAffectedTargets = 1;
 
         switch (spellInfo->SpellFamilyName)
         {

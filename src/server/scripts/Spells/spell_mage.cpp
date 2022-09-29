@@ -982,7 +982,7 @@ class spell_mage_nether_vortex : public AuraScript
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
-        return !GetTarget()->HasLimitedTargetAuraForSpell(SPELL_MAGE_SLOW);
+        return !GetTarget()->HasSingleCastAuraOfSpell(SPELL_MAGE_SLOW);
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

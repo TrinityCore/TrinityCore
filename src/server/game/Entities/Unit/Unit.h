@@ -1347,7 +1347,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, WorldObject* stealer, int32 stolenCharges = 1);
         void RemoveAurasDueToItemSpell(uint32 spellId, ObjectGuid castItemGuid);
         void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = ObjectGuid::Empty, Aura* except = nullptr, bool negative = true, bool positive = true);
-        void RemoveNotOwnLimitedTargetAuras(bool onPhaseChange = false);
+        void RemoveNotOwnSingleTargetAuras(bool onPhaseChange = false);
         template <typename InterruptFlags>
         void RemoveAurasWithInterruptFlags(InterruptFlags flag, SpellInfo const* source = nullptr);
         void RemoveAurasWithAttribute(uint32 flags);
@@ -1371,9 +1371,9 @@ class TC_GAME_API Unit : public WorldObject
         void _ApplyAllAuraStatMods();
 
         AuraEffectList const& GetAuraEffectsByType(AuraType type) const { return m_modAuras[type]; }
-        AuraList& GetLimitedCastAuras(uint32 spellId) { return m_ltAuras[spellId]; }
-        AurasBySpellIdMap& GetAllLimitedCastAuras() { return m_ltAuras; }
-        bool HasLimitedTargetAuraForSpell(uint32 spellId) const;
+        AuraList      & GetSingleCastAuras()       { return m_scAuras; }
+        AuraList const& GetSingleCastAuras() const { return m_scAuras; }
+        bool HasSingleCastAuraOfSpell(uint32 spellId) const;
 
         AuraEffect* GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
         AuraEffect* GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
@@ -1853,7 +1853,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_removedAurasCount;
 
         AuraEffectList m_modAuras[TOTAL_AURAS];
-        AurasBySpellIdMap m_ltAuras;               // cast limited target auras
+        AuraList m_scAuras;                        // cast singlecast auras
         AuraApplicationList m_interruptableAuras;  // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         EnumFlag<SpellAuraInterruptFlags> m_interruptMask;

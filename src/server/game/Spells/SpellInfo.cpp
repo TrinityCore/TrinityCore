@@ -1061,7 +1061,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     _auraState = AURA_STATE_NONE;
 
     _allowedMechanicMask = 0;
-    MaxAuraTargets = 0;
 }
 
 SpellInfo::~SpellInfo()

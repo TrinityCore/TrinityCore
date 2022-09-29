@@ -3041,44 +3041,29 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
     if (aura->IsRemoved())
         return;
 
-    aura->SetIsLimitedTarget(caster && (aura->GetSpellInfo()->IsSingleTarget() || aura->GetSpellInfo()->GetAuraTargetLimit()));
-
-    if (aura->IsLimitedTarget())
+    aura->SetIsSingleTarget(caster && aura->GetSpellInfo()->IsSingleTarget());
+    if (aura->IsSingleTarget())
     {
-        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (aura->GetCasterGUID() == GetGUID()) ||
-                (IsLoading() && aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
-                /* @HACK: Player is not in world during loading auras.
-                 *        Single target auras are not saved or loaded from database
-                 *        but may be created as a result of aura links
-                 */
+        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || aura->GetCasterGUID() == GetGUID());
+        /* @HACK: Player is not in world during loading auras.
+         *        Single target auras are not saved or loaded from database
+         *        but may be created as a result of aura links.
+         */
 
-        // register limited target aura
-        caster->GetLimitedCastAuras(aura->GetId()).push_back(aura);
+         // register single target aura
+        caster->GetSingleCastAuras().push_back(aura);
 
-        Unit::AuraList& ltAuras = caster->GetLimitedCastAuras(aura->GetId());
-        uint32 targetLimit = aura->GetSpellInfo()->GetAuraTargetLimit();
+        std::queue<Aura*> aurasSharingLimit;
+        // remove other single target auras
+        for (Aura* scAura : caster->GetSingleCastAuras())
+            if (scAura != aura && scAura->IsSingleTargetWith(aura))
+                aurasSharingLimit.push(scAura);
 
-        // remove other limited target auras
-        for (Unit::AuraList::iterator itr = ltAuras.begin(); itr != ltAuras.end();)
+        uint32 maxOtherAuras = aura->GetSpellInfo()->MaxAffectedTargets - 1;
+        while (aurasSharingLimit.size() > maxOtherAuras)
         {
-            if ((*itr) != aura && (*itr)->IsLimitedTargetWith(aura) && !targetLimit)
-            {
-                (*itr)->Remove();
-                itr = ltAuras.begin();
-            }
-            else if ((*itr) != aura && (*itr)->IsLimitedTargetWith(aura) && targetLimit && ltAuras.size() > targetLimit)
-            {
-                // We have more auras in our target limit list than we are allowed to have so we remove the oldest entry
-                if ((*itr) == ltAuras.front())
-                {
-                    (*itr)->Remove();
-                    itr = ltAuras.begin();
-                }
-                else
-                    ++itr;
-            }
-            else
-                ++itr;
+            aurasSharingLimit.front()->Remove();
+            aurasSharingLimit.pop();
         }
     }
 }
@@ -3337,8 +3322,8 @@ void Unit::RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveFlags removeMode)
     m_removedAuras.push_back(aura);
 
     // Unregister single target aura
-    if (aura->IsLimitedTarget())
-        aura->UnregisterLimitedTarget();
+    if (aura->IsSingleTarget())
+        aura->UnregisterSingleTarget();
 
     aura->_Remove(removeMode);
 
@@ -3648,9 +3633,9 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                 }
                 else
                 {
-                    // limited target state must be removed before aura creation to preserve existing limited target aura
-                    if (aura->IsLimitedTarget())
-                        aura->UnregisterLimitedTarget();
+                    // single target state must be removed before aura creation to preserve existing single target aura
+                    if (aura->IsSingleTarget())
+                        aura->UnregisterSingleTarget();
 
                     AuraCreateInfo createInfo(aura->GetSpellInfo(), effMask, stealer);
                     createInfo
@@ -3659,13 +3644,13 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
 
                     if (Aura* newAura = Aura::TryRefreshStackOrCreate(createInfo))
                     {
-                        // created aura must not be limited target aura, so stealer won't loose it on recast
-                        if (newAura->IsLimitedTarget())
+                        // created aura must not be single target aura,, so stealer won't loose it on recast
+                        if (newAura->IsSingleTarget())
                         {
-                            newAura->UnregisterLimitedTarget();
+                            newAura->UnregisterSingleTarget();
                             // bring back single target aura status to the old aura
-                            aura->SetIsLimitedTarget(true);
-                            caster->GetLimitedCastAuras(aura->GetId()).push_back(aura);
+                            aura->SetIsSingleTarget(true);
+                            caster->GetSingleCastAuras().push_back(aura);
                         }
                         // FIXME: using aura->GetMaxDuration() maybe not blizzlike but it fixes stealing of spells like Innervate
                         newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? stolenCharges : aura->GetCharges(), stolenCharges, recalculateMask, aura->GetCritChance(), aura->CanApplyResilience(), &damage[0]);
@@ -3732,7 +3717,7 @@ void Unit::RemoveAurasWithAttribute(uint32 flags)
     }
 }
 
-void Unit::RemoveNotOwnLimitedTargetAuras(bool onPhaseChange /*= false*/)
+void Unit::RemoveNotOwnSingleTargetAuras(bool onPhaseChange /*= false*/)
 {
     // single target auras from other casters
     // Iterate m_ownedAuras - aura is marked as single target in Unit::AddAura (and pushed to m_ownedAuras).
@@ -3747,7 +3732,7 @@ void Unit::RemoveNotOwnLimitedTargetAuras(bool onPhaseChange /*= false*/)
     {
         Aura const* aura = iter->second;
 
-        if (aura->GetCasterGUID() != GetGUID() && aura->IsLimitedTarget())
+        if (aura->GetCasterGUID() != GetGUID() && aura->IsSingleTarget())
         {
             if (!onPhaseChange)
                 RemoveOwnedAura(iter);
@@ -3764,22 +3749,18 @@ void Unit::RemoveNotOwnLimitedTargetAuras(bool onPhaseChange /*= false*/)
             ++iter;
     }
 
-    // limited target auras at other targets
-    AurasBySpellIdMap& ltAurasBySpellId = GetAllLimitedCastAuras();
-    for (AurasBySpellIdMap::iterator itr = ltAurasBySpellId.begin(); itr != ltAurasBySpellId.end(); itr++)
+    // single target auras at other targets
+    AuraList& scAuras = GetSingleCastAuras();
+    for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
-        AuraList& list = itr->second;
-        for (AuraList::iterator iter = list.begin(); iter != list.end();)
+        Aura* aura = *iter;
+        if (aura->GetUnitOwner() != this && (!onPhaseChange || !aura->GetUnitOwner()->IsInPhase(this)))
         {
-            Aura* aura = *iter;
-            if (aura->GetUnitOwner() != this && (!onPhaseChange || !aura->GetUnitOwner()->IsInPhase(this)))
-            {
-                aura->Remove();
-                iter = list.begin();
-            }
-            else
-                ++iter;
+            aura->Remove();
+            iter = scAuras.begin();
         }
+        else
+            ++iter;
     }
 }
 
@@ -4161,14 +4142,14 @@ void Unit::_ApplyAllAuraStatMods()
         (*i).second->GetBase()->HandleAllEffects(i->second, AURA_EFFECT_HANDLE_STAT, true);
 }
 
-bool Unit::HasLimitedTargetAuraForSpell(uint32 spellId) const
+bool Unit::HasSingleCastAuraOfSpell(uint32 spellId) const
 {
-    AurasBySpellIdMap::const_iterator itr = m_ltAuras.find(spellId);
+    AuraList const& scAuras = GetSingleCastAuras();
+    for (Aura const* aura : scAuras)
+        if (aura->GetSpellInfo()->Id == spellId)
+            return true;
 
-    if (itr == m_ltAuras.end())
-        return false;
-
-    return !itr->second.empty();
+    return false;
 }
 
 AuraEffect* Unit::GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster) const
@@ -9547,7 +9528,7 @@ void Unit::RemoveFromWorld()
 
         RemoveCharmAuras();
         RemoveBindSightAuras();
-        RemoveNotOwnLimitedTargetAuras();
+        RemoveNotOwnSingleTargetAuras();
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LeaveWorld);
 
         RemoveAllGameObjects();

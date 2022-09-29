@@ -448,7 +448,7 @@ m_spellInfo(createInfo._spellInfo), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItemGUID), m_applyTime(GameTime::GetGameTime()),
 m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
 _casterInfo(), m_procCharges(0), m_stackAmount(1),
-m_isRemoved(false), m_isLimitedTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
+m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
 m_procCooldown(std::chrono::steady_clock::time_point::min())
 {
     if (m_spellInfo->ManaPerSecond)
@@ -1147,7 +1147,7 @@ bool Aura::CanBeSaved() const
                 return false;
         }
 
-        if (IsLimitedTarget() || GetSpellInfo()->IsSingleTarget() || GetSpellInfo()->GetAuraTargetLimit())
+        if (IsSingleTarget() || GetSpellInfo()->IsSingleTarget())
             return false;
     }
 
@@ -1222,7 +1222,7 @@ bool Aura::CanBeSentToClient() const
         || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS) || HasEffectType(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE);
 }
 
-bool Aura::IsLimitedTargetWith(Aura const* aura) const
+bool Aura::IsSingleTargetWith(Aura const* aura) const
 {
     // Same spell?
     if (GetSpellInfo()->IsRankOf(aura->GetSpellInfo()))
@@ -1232,7 +1232,6 @@ bool Aura::IsLimitedTargetWith(Aura const* aura) const
     // spell with single target specific types
     switch (spec)
     {
-        case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_MAGE_POLYMORPH:
             if (aura->GetSpellInfo()->GetSpellSpecific() == spec)
                 return true;
@@ -1244,13 +1243,13 @@ bool Aura::IsLimitedTargetWith(Aura const* aura) const
     return false;
 }
 
-void Aura::UnregisterLimitedTarget()
+void Aura::UnregisterSingleTarget()
 {
-    ASSERT(m_isLimitedTarget);
+    ASSERT(m_isSingleTarget);
     Unit* caster = GetCaster();
     ASSERT(caster);
-    caster->GetLimitedCastAuras(GetId()).remove(this);
-    SetIsLimitedTarget(false);
+    caster->GetSingleCastAuras().remove(this);
+    SetIsSingleTarget(false);
 }
 
 int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
@@ -1695,7 +1694,7 @@ bool Aura::CanBeAppliedOn(Unit* target)
         if (GetOwner() != target)
             return false;
         // do not apply non-selfcast single target auras
-        if (GetCasterGUID() != GetOwner()->GetGUID() && (GetSpellInfo()->IsSingleTarget() || GetSpellInfo()->GetAuraTargetLimit()))
+        if (GetCasterGUID() != GetOwner()->GetGUID() && GetSpellInfo()->IsSingleTarget())
             return false;
         return true;
     }

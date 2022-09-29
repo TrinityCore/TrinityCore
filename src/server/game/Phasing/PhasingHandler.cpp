@@ -72,7 +72,7 @@ void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVi
         {
             AddPhase(controlled, phaseId, updateVisibility);
         });
-        unit->RemoveNotOwnLimitedTargetAuras(true);
+        unit->RemoveNotOwnSingleTargetAuras(true);
     }
 
     UpdateVisibilityIfNeeded(object, updateVisibility, changed);
@@ -89,7 +89,7 @@ void PhasingHandler::RemovePhase(WorldObject* object, uint32 phaseId, bool updat
         {
             RemovePhase(controlled, phaseId, updateVisibility);
         });
-        unit->RemoveNotOwnLimitedTargetAuras(true);
+        unit->RemoveNotOwnSingleTargetAuras(true);
     }
 
     UpdateVisibilityIfNeeded(object, updateVisibility, changed);
@@ -112,7 +112,7 @@ void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, boo
         {
             AddPhaseGroup(controlled, phaseGroupId, updateVisibility);
         });
-        unit->RemoveNotOwnLimitedTargetAuras(true);
+        unit->RemoveNotOwnSingleTargetAuras(true);
     }
 
     UpdateVisibilityIfNeeded(object, updateVisibility, changed);
@@ -135,7 +135,7 @@ void PhasingHandler::RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, 
         {
             RemovePhaseGroup(controlled, phaseGroupId, updateVisibility);
         });
-        unit->RemoveNotOwnLimitedTargetAuras(true);
+        unit->RemoveNotOwnSingleTargetAuras(true);
     }
 
     UpdateVisibilityIfNeeded(object, updateVisibility, changed);
@@ -277,7 +277,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
         });
 
         if (changed)
-            unit->RemoveNotOwnLimitedTargetAuras(true);
+            unit->RemoveNotOwnSingleTargetAuras(true);
     }
 
     UpdateVisibilityIfNeeded(object, true, changed);
@@ -388,7 +388,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
         });
 
         if (changed)
-            unit->RemoveNotOwnLimitedTargetAuras(true);
+            unit->RemoveNotOwnSingleTargetAuras(true);
     }
 
     UpdateVisibilityIfNeeded(object, true, changed);
