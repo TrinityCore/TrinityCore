@@ -1603,14 +1603,6 @@ bool SpellInfo::IsSingleTarget() const
     if (HasAttribute(SPELL_ATTR5_LIMIT_N))
         return true;
 
-    switch (GetSpellSpecific())
-    {
-        case SPELL_SPECIFIC_JUDGEMENT:
-            return true;
-        default:
-            break;
-    }
-
     return false;
 }
 
@@ -1658,7 +1650,6 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
         case SPELL_SPECIFIC_CURSE:
         case SPELL_SPECIFIC_BANE:
         case SPELL_SPECIFIC_ASPECT:
-        case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
             return spellSpec == spellInfo->GetSpellSpecific();
         default:
@@ -2422,10 +2413,6 @@ void SpellInfo::_LoadSpellSpecific()
 
                 if (SpellFamilyFlags[0] & 0x00002190)
                     return SPELL_SPECIFIC_HAND;
-
-                // Judgement
-                if (Id == 20271)
-                    return SPELL_SPECIFIC_JUDGEMENT;
 
                 // only paladin auras have this (for palaldin class family)
                 if (SpellFamilyFlags[2] & 0x00000020)
