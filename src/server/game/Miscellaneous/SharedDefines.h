@@ -532,40 +532,40 @@ enum SpellAttr4 : uint32
     SPELL_ATTR4_USE_FACING_FROM_SPELL                               = 0x80000000  // TITLE Use Facing From Spell
 };
 
-enum SpellAttr5
+enum SpellAttr5 : uint32
 {
-    SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL     = 0x00000001, //  0 Allow Actions During Channel
-    SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, //  1 not need reagents if UNIT_FLAG_PREPARATION
-    SPELL_ATTR5_REMOVE_ON_ARENA_ENTER            = 0x00000004, //  2 remove this aura on arena enter
-    SPELL_ATTR5_USABLE_WHILE_STUNNED             = 0x00000008, //  3 usable while stunned
-    SPELL_ATTR5_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR5_SINGLE_TARGET_SPELL              = 0x00000020, //  5 Only one target can be apply at a time
-    SPELL_ATTR5_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR5_DONT_TARGET_PLAYERS              = 0x00000080, //  7 Not On Player
-    SPELL_ATTR5_DONT_ALLOW_PET_TARGET            = 0x00000100, //  8 do not allow the following spell to affect or target pets
-    SPELL_ATTR5_START_PERIODIC_AT_APPLY          = 0x00000200, //  9 begin periodic tick at aura apply
-    SPELL_ATTR5_HIDE_DURATION                    = 0x00000400, // 10 do not send duration to client
-    SPELL_ATTR5_ALLOW_TARGET_OF_TARGET_AS_TARGET = 0x00000800, // 11 (NYI) uses target's target as target if original target not valid (intervene for example)
-    SPELL_ATTR5_MELEE_CHAIN_TARGETING            = 0x00001000, // 12 Cleave related?
-    SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC     = 0x00002000, // 13 Spell Haste Affects Periodic
-    SPELL_ATTR5_NOT_USABLE_WHILE_CHARMED         = 0x00004000, // 14 Charmed units cannot cast this spell
-    SPELL_ATTR5_TREAT_AS_AREA_EFFECT             = 0x00008000, // 15 Treat As Area Effect
-    SPELL_ATTR5_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
-    SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused
-    SPELL_ATTR5_DONT_TURN_DURING_CAST            = 0x00080000, // 19 Blocks caster's turning when casting (client does not automatically turn caster's model to face UNIT_FIELD_TARGET)
-    SPELL_ATTR5_UNK20                            = 0x00100000, // 20
-    SPELL_ATTR5_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR5_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR5_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR5_UNK24                            = 0x01000000, // 24
-    SPELL_ATTR5_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK         = 0x04000000, // 26 aoe related - Boulder, Cannon, Corpse Explosion, Fire Nova, Flames, Frost Bomb, Living Bomb, Seed of Corruption, Starfall, Thunder Clap, Volley
-    SPELL_ATTR5_DONT_SHOW_AURA_IF_SELF_CAST      = 0x08000000, // 27 Auras with this attribute are not visible on units that are the caster
-    SPELL_ATTR5_DONT_SHOW_AURA_IF_NOT_SELF_CAST  = 0x10000000, // 28 Auras with this attribute are not visible on units that are not the caster
-    SPELL_ATTR5_UNK29                            = 0x20000000, // 29
-    SPELL_ATTR5_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR5_UNK31                            = 0x80000000  // 31 Forces all nearby enemies to focus attacks caster
+    SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL                        = 0x00000001, // TITLE Allow Actions During Channel
+    SPELL_ATTR5_NO_REAGENT_COST_WITH_AURA                           = 0x00000002, // TITLE No Reagent Cost With Aura
+    SPELL_ATTR5_REMOVE_ENTERING_ARENA                               = 0x00000004, // TITLE Remove Entering Arena DESCRIPTION Force this aura to be removed on entering arena, regardless of other properties
+    SPELL_ATTR5_ALLOW_WHILE_STUNNED                                 = 0x00000008, // TITLE Allow While Stunned
+    SPELL_ATTR5_TRIGGERS_CHANNELING                                 = 0x00000010, // TITLE Triggers Channeling
+    SPELL_ATTR5_LIMIT_N                                             = 0x00000020, /*INCOMPLETE IMPL*/ // TITLE Limit N DESCRIPTION Remove previous application to another unit if applied
+    SPELL_ATTR5_IGNORE_AREA_EFFECT_PVP_CHECK                        = 0x00000040, /*NYI*/ // TITLE Ignore Area Effect PvP Check
+    SPELL_ATTR5_NOT_ON_PLAYER                                       = 0x00000080, /*NYI*/ // TITLE Not On Player
+    SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC                        = 0x00000100, /*NYI*/ // TITLE Not On Player Controlled NPC
+    SPELL_ATTR5_EXTRA_INITIAL_PERIOD                                = 0x00000200, // TITLE Extra Initial Period DESCRIPTION Immediately do periodic tick on apply
+    SPELL_ATTR5_DO_NOT_DISPLAY_DURATION                             = 0x00000400, // TITLE Do Not Display Duration
+    SPELL_ATTR5_IMPLIED_TARGETING                                   = 0x00000800, // TITLE Implied Targeting (client only)
+    SPELL_ATTR5_MELEE_CHAIN_TARGETING                               = 0x00001000, // TITLE Melee Chain Targeting
+    SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC                        = 0x00002000, // TITLE Spell Haste Affects Periodic
+    SPELL_ATTR5_NOT_AVAILABLE_WHILE_CHARMED                         = 0x00004000, /*NYI*/ // TITLE Not Available While Charmed
+    SPELL_ATTR5_TREAT_AS_AREA_EFFECT                                = 0x00008000, /*NYI*/ // TITLE Treat as Area Effect
+    SPELL_ATTR5_AURA_AFFECTS_NOT_JUST_REQ_EQUIPPED_ITEM             = 0x00010000, // TITLE Aura Affects Not Just Req. Equipped Item
+    SPELL_ATTR5_ALLOW_WHILE_FLEEING                                 = 0x00020000, // TITLE Allow While Fleeing
+    SPELL_ATTR5_ALLOW_WHILE_CONFUSED                                = 0x00040000, // TITLE Allow While Confused
+    SPELL_ATTR5_AI_DOESNT_FACE_TARGET                               = 0x00080000, // TITLE AI Doesn't Face Target
+    SPELL_ATTR5_DO_NOT_ATTEMPT_A_PET_RESUMMON_WHEN_DISMOUNTING      = 0x00100000, /*NYI*/ // TITLE Do Not Attempt a Pet Resummon When Dismounting
+    SPELL_ATTR5_IGNORE_TARGET_REQUIREMENTS                          = 0x00200000, /*NYI*/ // TITLE Ignore Target Requirements
+    SPELL_ATTR5_NOT_ON_TRIVIAL                                      = 0x00400000, /*NYI*/ // TITLE Not On Trivial
+    SPELL_ATTR5_NO_PARTIAL_RESISTS                                  = 0x00800000, /*NYI*/ // TITLE No Partial Resists
+    SPELL_ATTR5_IGNORE_CASTER_REQUIREMENTS                          = 0x01000000, /*NYI*/ // TITLE Ignore Caster Requirements
+    SPELL_ATTR5_ALWAYS_LINE_OF_SIGHT                                = 0x02000000, /*NYI*/ // TITLE Always Line of Sight
+    SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT                            = 0x04000000, /*WRONG IMPL*/ // TITLE Always AOE Line of Sight DESCRIPTION Requires line of sight between caster and target in addition to between dest and target
+    SPELL_ATTR5_NO_CASTER_AURA_ICON                                 = 0x08000000, // TITLE No Caster Aura Icon (client only)
+    SPELL_ATTR5_NO_TARGET_AURA_ICON                                 = 0x10000000, // TITLE No Target Aura Icon (client only)
+    SPELL_ATTR5_AURA_UNIQUE_PER_CASTER                              = 0x20000000, /*NYI*/ // TITLE Aura Unique Per Caster
+    SPELL_ATTR5_ALWAYS_SHOW_GROUND_TEXTURE                          = 0x40000000, // TITLE Always Show Ground Texture
+    SPELL_ATTR5_ADD_MELEE_HIT_RATING                                = 0x80000000  /*NYI*/ // TITLE Add Melee Hit Rating
 };
 
 enum SpellAttr6

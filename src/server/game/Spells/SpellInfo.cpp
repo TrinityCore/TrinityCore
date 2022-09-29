@@ -1465,7 +1465,7 @@ bool SpellInfo::IsChanneled() const
 
 bool SpellInfo::IsMoveAllowedChannel() const
 {
-    return IsChanneled() && ((HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL) && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning)));
+    return IsChanneled() && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning);
 }
 
 bool SpellInfo::NeedsComboPoints() const
@@ -1600,7 +1600,7 @@ bool SpellInfo::CanDispelAura(SpellInfo const* auraSpellInfo) const
 bool SpellInfo::IsSingleTarget() const
 {
     // all other single target spells have if it has AttributesEx5
-    if (HasAttribute(SPELL_ATTR5_SINGLE_TARGET_SPELL))
+    if (HasAttribute(SPELL_ATTR5_LIMIT_N))
         return true;
 
     switch (GetSpellSpecific())
@@ -1963,7 +1963,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
         return SPELL_FAILED_BAD_TARGETS;
 
     // Do not allow pet or guardian targets if the spell is a raid buff or may not target pets at all
-    if ((HasAttribute(SPELL_ATTR7_CONSOLIDATED_RAID_BUFF) || HasAttribute(SPELL_ATTR5_DONT_ALLOW_PET_TARGET)) && (caster->IsCreature() && !caster->ToCreature()->IsPet() && !caster->ToCreature()->IsGuardian()))
+    if ((HasAttribute(SPELL_ATTR7_CONSOLIDATED_RAID_BUFF) || HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC)) && (caster->IsCreature() && !caster->ToCreature()->IsPet() && !caster->ToCreature()->IsGuardian()))
         if ((unitTarget->IsPet() || unitTarget->IsGuardian()))
             return SPELL_FAILED_BAD_TARGETS;
 
@@ -3060,7 +3060,7 @@ void SpellInfo::_LoadImmunityInfo()
         _allowedMechanicMask |= immuneInfo.MechanicImmuneMask;
     }
 
-    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_STUNNED))
+    if (HasAttribute(SPELL_ATTR5_ALLOW_WHILE_STUNNED))
     {
         switch (Id)
         {
@@ -3080,10 +3080,10 @@ void SpellInfo::_LoadImmunityInfo()
         }
     }
 
-    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED))
+    if (HasAttribute(SPELL_ATTR5_ALLOW_WHILE_CONFUSED))
         _allowedMechanicMask |= (1 << MECHANIC_DISORIENTED);
 
-    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
+    if (HasAttribute(SPELL_ATTR5_ALLOW_WHILE_FLEEING))
     {
         switch (Id)
         {
@@ -3400,17 +3400,13 @@ uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= nullptr*/) const
 
 uint32 SpellInfo::GetMaxTicks() const
 {
+    uint32 totalTicks = 0;
     int32 DotDuration = GetDuration();
-    if (DotDuration == 0)
-        return 1;
-
-    // 200% limit
-    if (DotDuration > 30000)
-        DotDuration = 30000;
 
     for (uint8 x = 0; x < MAX_SPELL_EFFECTS; x++)
     {
         if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA || Effects[x].Effect == SPELL_EFFECT_APPLY_AURA_2)
+        {
             switch (Effects[x].ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -3427,13 +3423,21 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    if (Effects[x].AuraPeriod != 0)
-                        return DotDuration / Effects[x].AuraPeriod;
+                    // skip infinite periodics
+                    if (Effects[x].AuraPeriod > 0 && DotDuration > 0)
+                    {
+                        totalTicks = static_cast<uint32>(DotDuration) / Effects[x].AuraPeriod;
+                        if (HasAttribute(SPELL_ATTR5_EXTRA_INITIAL_PERIOD))
+                            ++totalTicks;
+                    }
+                    break;
+                default:
                     break;
             }
+        }
     }
 
-    return 6;
+    return totalTicks;
 }
 
 uint32 SpellInfo::GetRecoveryTime() const

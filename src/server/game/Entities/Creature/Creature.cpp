@@ -3116,7 +3116,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     _spellFocusInfo.FocusSpell = focusSpell;
 
     // Focusing behaves different based on the given spell attributes. Tracking channel spells only face the target's direction and stay there. Normal spell casts fixate on their target instead
-    bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_AI_DOESNT_FACE_TARGET);
     bool const turnDisabled = HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
     ObjectGuid newTarget = [&]()
