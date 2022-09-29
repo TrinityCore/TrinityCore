@@ -162,7 +162,19 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) || GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
+    bool effectNeedsAmount = [this]()
+    {
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            AuraEffect const* aurEff = GetBase()->GetEffect(i);
+            if (aurEff && (GetEffectsToApply() & (1 << aurEff->GetEffIndex())) && Aura::EffectTypeNeedsSendingAmount(aurEff->GetAuraType()))
+                return true;
+        }
+
+        return false;
+    }();
+
+    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) || effectNeedsAmount)
         _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
 }
 

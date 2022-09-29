@@ -1036,7 +1036,7 @@ class spell_pal_exorcism : public SpellScript
             return;
 
         if (AuraEffect* exorcismAuraEff = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, caster->GetGUID()))
-            exorcismAuraEff->SetAmount(GetHitDamage() * 0.0688f);
+            exorcismAuraEff->ChangeAmount(GetHitDamage() * 0.0688f);
     }
 
     void Register() override
