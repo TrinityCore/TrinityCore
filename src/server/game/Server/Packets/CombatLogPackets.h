@@ -144,6 +144,30 @@ namespace WorldPackets
             ObjectGuid Caster;
             std::vector<SpellLogMissEntry> Entries;
         };
+
+        struct PeriodicAuraLogEffect
+        {
+            int32 Effect = 0;
+            int32 Amount = 0;
+            int32 OverHealOrKill = 0;
+            int32 SchoolMaskOrPower = 0;
+            int32 AbsorbedOrAmplitude = 0;
+            int32 Resisted = 0;
+            bool Crit = false;
+        };
+
+        class SpellPeriodicAuraLog final : public ServerPacket
+        {
+        public:
+            SpellPeriodicAuraLog() : ServerPacket(SMSG_PERIODIC_AURA_LOG, 8 + 8 + 4 + 4) { }
+
+            int32 SpellID = 0;
+            ObjectGuid TargetGUID;
+            ObjectGuid CasterGUID;
+            std::vector<PeriodicAuraLogEffect> Entries;
+
+            WorldPacket const* Write() override;
+        };
     }
 }
 

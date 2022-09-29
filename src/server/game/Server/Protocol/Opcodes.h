@@ -1044,7 +1044,7 @@ enum OpcodeServer
     SMSG_PARTY_MEMBER_FULL_STATE                      = 0x0215,
     SMSG_PAUSE_MIRROR_TIMER                           = 0x4015,
     SMSG_PENDING_RAID_LOCK                            = 0x4F17,
-    SMSG_PERIODICAURALOG                              = 0x0416,
+    SMSG_PERIODIC_AURA_LOG                            = 0x0416,
     SMSG_PETGODMODE                                   = 0x2E36,
     SMSG_PETITION_ALREADY_SIGNED                      = 0x5DA3,
     SMSG_PETITION_QUERY_RESPONSE                      = 0x4B37,

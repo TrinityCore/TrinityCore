@@ -134,3 +134,50 @@ WorldPacket const* WorldPackets::CombatLog::SpellMissLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
+{
+    _worldPacket << TargetGUID.WriteAsPacked();
+    _worldPacket << CasterGUID.WriteAsPacked();
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Entries.size());
+
+    for (PeriodicAuraLogEffect const& logEffect : Entries)
+    {
+        _worldPacket << int32(logEffect.Effect);
+
+        switch (logEffect.Effect)
+        {
+            case SPELL_AURA_PERIODIC_DAMAGE:
+            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+                _worldPacket << int32(logEffect.Amount);
+                _worldPacket << int32(logEffect.OverHealOrKill);
+                _worldPacket << int32(logEffect.SchoolMaskOrPower);
+                _worldPacket << int32(logEffect.AbsorbedOrAmplitude);
+                _worldPacket << int32(logEffect.Resisted);
+                _worldPacket << bool(logEffect.Crit);
+                break;
+            case SPELL_AURA_PERIODIC_HEAL:
+            case SPELL_AURA_OBS_MOD_HEALTH:
+                _worldPacket << int32(logEffect.Amount);
+                _worldPacket << int32(logEffect.OverHealOrKill);
+                _worldPacket << int32(logEffect.AbsorbedOrAmplitude);
+                _worldPacket << bool(logEffect.Crit);
+                break;
+            case SPELL_AURA_OBS_MOD_POWER:
+            case SPELL_AURA_PERIODIC_ENERGIZE:
+                _worldPacket << int32(logEffect.SchoolMaskOrPower);
+                _worldPacket << int32(logEffect.Amount);
+                break;
+            case SPELL_AURA_PERIODIC_MANA_LEECH:
+                _worldPacket << int32(logEffect.SchoolMaskOrPower);
+                _worldPacket << int32(logEffect.Amount);
+                _worldPacket << float(logEffect.AbsorbedOrAmplitude);
+                break;
+            default:
+                break;
+        }
+    }
+
+    return &_worldPacket;
+}
