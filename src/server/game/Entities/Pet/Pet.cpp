@@ -1162,7 +1162,7 @@ void Pet::_LoadAuras(uint32 timediff)
             }
 
             // negative effects should continue counting down after logout
-            if (remaintime != -1 && (!spellInfo->IsPositive() || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT)))
+            if (remaintime != -1 && (!spellInfo->IsPositive() || spellInfo->HasAttribute(SPELL_ATTR4_AURA_EXPIRES_OFFLINE)))
             {
                 if (remaintime/IN_MILLISECONDS <= int32(timediff))
                     continue;
@@ -1373,7 +1373,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     }
 
     // Store pet scaling auras in a own vector to handle the updating more efficient
-    if (spellInfo->HasAttribute(SPELL_ATTR4_IS_PET_SCALING))
+    if (spellInfo->HasAttribute(SPELL_ATTR4_OWNER_POWER_SCALING))
     {
         m_petScalingAuras.push_back(spellInfo->Id);
         return true;
@@ -1382,7 +1382,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     m_spells[spellId] = newspell;
 
     // Do not go further if this Attribute exists
-    if (spellInfo->HasAttribute(SPELL_ATTR4_HIDDEN_IN_SPELLBOOK) && !IsWarlockMinion())
+    if (spellInfo->HasAttribute(SPELL_ATTR4_NOT_IN_SPELLBOOK) && !IsWarlockMinion())
          return true;
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))

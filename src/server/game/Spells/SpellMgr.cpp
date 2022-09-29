@@ -3039,7 +3039,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         60864  // Jaws of Death
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS;
     });
 
     // Immolate
@@ -3346,7 +3346,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 64085 }, [](SpellInfo* spellInfo)
     {
         // copy from similar effect of Unstable Affliction (31117)
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS;
         spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
     });
 
@@ -4846,12 +4846,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 96942, 101009 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
-    });
-
-    // Meteor Slash
-    ApplySpellFix({ 88942, 95172 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
     });
 
     // ENDOF BARADIN HOLD SPELLS

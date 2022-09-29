@@ -2027,6 +2027,10 @@ uint8 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo,
         if (target->GetGUID() != GetCasterGUID())
             return 0;
 
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR4_ALLOW_PROC_WHILE_SITTING))
+        if (!target->IsStandState())
+            return 0;
+
     if (roll_chance_f(CalcProcChance(*procEntry, eventInfo)))
         return procEffectMask;
 
