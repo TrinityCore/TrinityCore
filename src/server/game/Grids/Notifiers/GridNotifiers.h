@@ -1080,7 +1080,7 @@ namespace Trinity
                 if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER) && u->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
-                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR5_DONT_TARGET_PLAYERS) && u->GetTypeId() == TYPEID_PLAYER)
+                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER) && u->GetTypeId() == TYPEID_PLAYER)
                     return false;
 
                 if (!i_funit->IsValidAttackTarget(u, _spellInfo))
