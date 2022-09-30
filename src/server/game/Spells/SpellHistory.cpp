@@ -305,7 +305,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
             if (cooldown >= 0)
                 modOwner->ApplySpellMod(spellInfo->Id, SpellModOp::Cooldown, cooldown, spell);
 
-            if (categoryCooldown >= 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+            if (categoryCooldown >= 0 && !spellInfo->HasAttribute(SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS))
                 modOwner->ApplySpellMod(spellInfo->Id, SpellModOp::Cooldown, categoryCooldown, spell);
         }
 

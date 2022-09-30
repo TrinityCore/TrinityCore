@@ -3252,7 +3252,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Death and Decay
     ApplySpellFix({ 52212 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
 
     // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
@@ -3347,13 +3347,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         // copy from similar effect of Unstable Affliction (31117)
         spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS;
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS;
     });
 
     // Improved Devouring Plague
     ApplySpellFix({ 63675 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS;
     });
 
     // Tremor Totem (instant pulse)
@@ -3568,7 +3568,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         41487  // Envenom
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
     // ENDOF BLACK TEMPLE SPELLS
 
@@ -4030,7 +4030,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 70106 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS;
     });
 
     // Ice Lock
@@ -4203,7 +4203,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Twilight Mending
     ApplySpellFix({ 75509 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
@@ -4895,13 +4895,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Deadly Poison - Black Temple
     ApplySpellFix({ 66551 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
 
     // Envenom - Black Temple
     ApplySpellFix({ 41487 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
 
     //
