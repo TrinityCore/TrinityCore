@@ -1065,23 +1065,26 @@ namespace Trinity
             AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, SpellInfo const* spellInfo = nullptr, bool incOwnRadius = true, bool incTargetRadius = true)
                 : i_obj(obj), i_funit(funit), _spellInfo(spellInfo), i_range(range), i_incOwnRadius(incOwnRadius), i_incTargetRadius(incTargetRadius)
             {
-                Unit const* check = i_funit;
-                Unit const* owner = i_funit->GetOwner();
-                if (owner)
-                    check = owner;
-                i_targetForPlayer = (check->GetTypeId() == TYPEID_PLAYER);
             }
             bool operator()(Unit* u)
             {
-                // Check contains checks for: live, non-selectable, non-attackable flags, flight check and GM check, ignore totems
+                // Check contains checks for: live, uninteractible, non-attackable flags, flight check and GM check, ignore totems
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
-                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER) && u->GetTypeId() != TYPEID_PLAYER)
-                    return false;
+                if (_spellInfo)
+                {
+                    if (!u->IsPlayer())
+                    {
+                        if (_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
+                            return false;
 
-                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER) && u->GetTypeId() == TYPEID_PLAYER)
-                    return false;
+                        if (_spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && u->IsControlledByPlayer())
+                            return false;
+                    }
+                    else if (_spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
+                        return false;
+                }
 
                 if (!i_funit->IsValidAttackTarget(u, _spellInfo))
                     return false;
@@ -1095,7 +1098,6 @@ namespace Trinity
                 return u->IsInMap(i_obj) && u->IsInPhase(i_obj) && u->IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius);
             }
         private:
-            bool i_targetForPlayer;
             WorldObject const* i_obj;
             Unit const* i_funit;
             SpellInfo const* _spellInfo;

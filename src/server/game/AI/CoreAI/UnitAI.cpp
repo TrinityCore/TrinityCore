@@ -133,8 +133,23 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
             {
-                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER);
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, spellInfo->GetMaxRange(false), playerOnly);
+                DefaultTargetSelector targetSelectorInner(me, spellInfo->GetMaxRange(false), false, true, 0);
+                auto targetSelector = [&](Unit const* candidate) -> bool
+                {
+                    if (!candidate->IsPlayer())
+                    {
+                        if (spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
+                            return false;
+
+                        if (spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && candidate->IsControlledByPlayer())
+                            return false;
+                    }
+                    else if (spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
+                        return false;
+
+                    return targetSelectorInner(candidate);
+                };
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
             }
             break;
         }
@@ -148,10 +163,24 @@ SpellCastResult UnitAI::DoCast(uint32 spellId)
         {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
             {
-                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER);
                 float range = spellInfo->GetMaxRange(false);
 
-                DefaultTargetSelector targetSelector(me, range, playerOnly, true, -(int32)spellId);
+                DefaultTargetSelector targetSelectorInner(me, range, false, true, -(int32)spellId);
+                auto targetSelector = [&](Unit const* candidate) -> bool
+                {
+                    if (!candidate->IsPlayer())
+                    {
+                        if (spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
+                            return false;
+
+                        if (spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && candidate->IsControlledByPlayer())
+                            return false;
+                    }
+                    else if (spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
+                        return false;
+
+                    return targetSelectorInner(candidate);
+                };
                 if (!spellInfo->HasAuraInterruptFlag(SpellAuraInterruptFlags::NOT_VICTIM) && targetSelector(me->GetVictim()))
                     target = me->GetVictim();
                 else
