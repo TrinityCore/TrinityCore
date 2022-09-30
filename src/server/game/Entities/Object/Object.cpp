@@ -3122,7 +3122,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     // additional checks - only PvP case
     if (playerAffectingAttacker && playerAffectingTarget)
     {
-        if (playerAffectingTarget->IsPvP())
+        if (playerAffectingTarget->IsPvP() || (bySpell && bySpell->HasAttribute(SPELL_ATTR5_IGNORE_AREA_EFFECT_PVP_CHECK)))
             return true;
 
         if (playerAffectingAttacker->IsFFAPvP() && playerAffectingTarget->IsFFAPvP())
