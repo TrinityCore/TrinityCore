@@ -1072,7 +1072,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveFlags removeMode /*= AuraRemoveFl
 
     EnumFlag<AuraRemoveFlags> removeFlags = removeMode;
 
-    bool refresh = stackAmount >= GetStackAmount() && (m_spellInfo->StackAmount || !m_spellInfo->HasAttribute(SPELL_ATTR1_AURA_UNIQUE));
+    bool refresh = stackAmount >= GetStackAmount() && (m_spellInfo->StackAmount || (!m_spellInfo->HasAttribute(SPELL_ATTR1_AURA_UNIQUE) && !m_spellInfo->HasAttribute(SPELL_ATTR5_AURA_UNIQUE_PER_CASTER)));
 
     // Update stack amount
     SetStackAmount(stackAmount);
