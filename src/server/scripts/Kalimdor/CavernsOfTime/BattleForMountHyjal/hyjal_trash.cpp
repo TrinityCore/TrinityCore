@@ -46,6 +46,12 @@ enum Spells
     SPELL_EXPLODING_SHOT    = 7896,
 };
 
+enum HyjalCreatureText
+{
+    TRASH_SAY_SLAY           = 0,
+    TRASH_SAY_DEATH          = 1,
+};
+
 float HordeWPs[8][3]=//basic waypoints from spawn to leader
 {
     {5492.91f,    -2404.61f,    1462.63f},
@@ -475,8 +481,6 @@ public:
             {
                 if (Creature* trigger = me->SummonCreature(NPC_WORLD_TRIGGER_TINY, me->GetPositionWithOffset({ 8.0f, 8.0f, frand(25.0f, 35.0f), 0.0f }), TEMPSUMMON_TIMED_DESPAWN, 1s))
                 {
-                    trigger->SetVisible(false);
-                    trigger->SetFaction(me->GetFaction());
                     trigger->SetDisableGravity(true);
                     trigger->CastSpell(me, SPELL_METEOR, true);
                 }
@@ -806,6 +810,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
+            Talk(TRASH_SAY_SLAY);
             switch (urand(0, 2))
             {
                 case 0:
@@ -823,6 +828,12 @@ public:
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
+
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            Talk(TRASH_SAY_DEATH);
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -920,6 +931,17 @@ public:
                         AddThreat(target, 0.0f);
                 }
             }
+        }
+
+        void KilledUnit(Unit* /*victim*/) override
+        {
+            Talk(TRASH_SAY_SLAY);
+        }
+
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            Talk(TRASH_SAY_DEATH);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -1186,7 +1208,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1230,21 +1251,20 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
+
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
                     else
                     {//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
+                    go = true;
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -1316,7 +1336,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1356,19 +1375,17 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }else{//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
+                    go = true;
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 

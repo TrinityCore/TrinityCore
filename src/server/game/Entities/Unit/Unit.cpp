@@ -7307,10 +7307,13 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
                 continue;
 
             SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->second, GetMap()->GetDifficultyID());
+            if (requireImmunityPurgesEffectAttribute)
+                if (!immuneSpellInfo || !immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
+                    continue;
+
             // Consider the school immune if any of these conditions are not satisfied.
             // In case of no immuneSpellInfo, ignore that condition and check only the other conditions
-            if ((immuneSpellInfo && !immuneSpellInfo->IsPositive() && (!requireImmunityPurgesEffectAttribute || immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT)))
-                || !spellInfo->IsPositive() || !caster || !IsFriendlyTo(caster))
+            if ((immuneSpellInfo && !immuneSpellInfo->IsPositive()) || !spellInfo->IsPositive() || !caster || !IsFriendlyTo(caster))
                 if (!spellInfo->CanPierceImmuneAura(immuneSpellInfo))
                     schoolImmunityMask |= itr->first;
         }
