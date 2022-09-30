@@ -3327,20 +3327,14 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     else
         m_casttime = m_spellInfo->CalcCastTime(m_caster->IsUnit() ? m_caster->ToUnit()->getLevel() : 0, this);
 
-    // don't allow channeled spells / spells with cast time to be cast while moving
-    // exception are only channeled spells that have no casttime and dont have movement interrupt flag
-    // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
-    // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->isMoving() &&
-        m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement)) && !m_caster->ToPlayer()->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) && (!m_caster->ToPlayer()->IsCharmed() || !m_caster->ToPlayer()->GetCharmerGUID().IsCreature()))
-    if ((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && (!m_caster->ToPlayer()->IsCharmed() || !m_caster->ToPlayer()->GetCharmerGUID().IsCreature()) && m_caster->ToPlayer()->isMoving() && m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
+    if (m_caster->IsUnit() && m_caster->ToUnit()->isMoving())
     {
-        // 1. Has casttime, 2. Or doesn't have flag to allow movement during channel
-        if (m_casttime || !m_spellInfo->IsMoveAllowedChannel())
+        result = CheckMovement();
+        if (result != SPELL_CAST_OK)
         {
-            SendCastResult(SPELL_FAILED_MOVING);
+            SendCastResult(result);
             finish(false);
-            return SPELL_FAILED_MOVING;
+            return result;
         }
     }
 
@@ -4025,20 +4019,13 @@ void Spell::update(uint32 difftime)
 
     // check if the player caster has moved before the spell finished
     // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
-    if ((m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0) &&
-        m_caster->ToPlayer()->isMoving() && (m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement) &&
-        (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->ToPlayer()->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR))) &&
-        !m_caster->ToPlayer()->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+    if (m_timer != 0 && m_caster->IsUnit() && m_caster->ToUnit()->isMoving() && CheckMovement() != SPELL_CAST_OK)
     {
-        // don't cancel for melee, autorepeat, triggered and instant spells
-        if (!m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat() && !IsTriggered() && !(IsChannelActive() && m_spellInfo->IsMoveAllowedChannel()))
-        {
-            // if charmed by creature, trust the AI not to cheat and allow the cast to proceed
-            // @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
-            // however, checking what type of movement the spline is for every single spline would be really expensive
-            if (!m_caster->ToPlayer()->GetCharmerGUID().IsCreature())
-                cancel();
-        }
+        // if charmed by creature, trust the AI not to cheat and allow the cast to proceed
+        // @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
+        // however, checking what type of movement the spline is for every single spline would be really expensive
+        if (!m_caster->ToUnit()->GetCharmerGUID().IsCreature())
+            cancel();
     }
 
     switch (m_spellState)
@@ -5697,17 +5684,6 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 return SPELL_FAILED_AFFECTING_COMBAT;
         }
 
-        // cancel autorepeat spells if cast start when moving
-        // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
-        // Do not cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-        if (unitCaster->GetTypeId() == TYPEID_PLAYER && unitCaster->ToPlayer()->isMoving() && !unitCaster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) && (!unitCaster->IsCharmed() || !unitCaster->GetCharmerGUID().IsCreature()))
-        {
-            // skip stuck spell to allow use it in falling case and apply spell limitations at movement
-            if ((!unitCaster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) || m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK) &&
-                (IsAutoRepeat() || m_spellInfo->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing)))
-                return SPELL_FAILED_MOVING;
-        }
-
         // Check vehicle flags
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE))
         {
@@ -6768,6 +6744,32 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules() const
 
     if (isRatedBattleground && spellCooldown > 15 * MINUTE * IN_MILLISECONDS)
         return SPELL_FAILED_NOT_IN_RATED_BATTLEGROUND;
+
+    return SPELL_CAST_OK;
+}
+
+SpellCastResult Spell::CheckMovement() const
+{
+    if (IsTriggered())
+        return SPELL_CAST_OK;
+
+    if (Unit* unitCaster = m_caster->ToUnit())
+    {
+        if (!unitCaster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+        {
+            if (m_casttime)
+            {
+                if (m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
+                    return SPELL_FAILED_MOVING;
+            }
+            else
+            {
+                // only fail channeled casts if they are instant but cannot be channeled while moving
+                if (m_spellInfo->IsChanneled() && !m_spellInfo->IsMoveAllowedChannel())
+                    return SPELL_FAILED_MOVING;
+            }
+        }
+    }
 
     return SPELL_CAST_OK;
 }
