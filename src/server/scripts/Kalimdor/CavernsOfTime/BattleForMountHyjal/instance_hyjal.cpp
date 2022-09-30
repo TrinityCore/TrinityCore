@@ -143,6 +143,9 @@ public:
                 case TYRANDE:
                     TyrandeWhisperwind = creature->GetGUID();
                     break;
+                case NPC_CHANNEL_TARGET:
+                    WorldtreeChannelTarget = creature->GetGUID();
+                    break;
             }
 
             InstanceScript::OnCreatureCreate(creature);
@@ -160,6 +163,7 @@ public:
                 case DATA_JAINAPROUDMOORE:    return JainaProudmoore;
                 case DATA_THRALL:             return Thrall;
                 case DATA_TYRANDEWHISPERWIND: return TyrandeWhisperwind;
+                case DATA_CHANNEL_TARGET:     return WorldtreeChannelTarget;
             }
 
             return ObjectGuid::Empty;
@@ -313,6 +317,7 @@ public:
             ObjectGuid JainaProudmoore;
             ObjectGuid Thrall;
             ObjectGuid TyrandeWhisperwind;
+            ObjectGuid WorldtreeChannelTarget;
             ObjectGuid HordeGate;
             ObjectGuid ElfGate;
             uint32 Trash;

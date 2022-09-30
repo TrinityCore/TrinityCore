@@ -28434,14 +28434,14 @@ void Player::UpdateWarModeAuras()
         if (CanEnableWarModeInArea())
         {
             RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
-            RemoveAurasDueToSpell(auraOutside);
             CastSpell(this, auraInside, true);
+            RemoveAurasDueToSpell(auraOutside);
         }
         else
         {
             SetPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
-            RemoveAurasDueToSpell(auraInside);
             CastSpell(this, auraOutside, true);
+            RemoveAurasDueToSpell(auraInside);
         }
         SetWarModeLocal(true);
         SetPvpFlag(UNIT_BYTE2_FLAG_PVP);
