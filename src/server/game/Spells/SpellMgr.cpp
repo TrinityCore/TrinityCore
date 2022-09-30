@@ -4650,12 +4650,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx2 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
-    // Shadow Gale
-    ApplySpellFix({ 75664, 91086 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx5 &= ~SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL;
-    });
-
     // Gronn Knockback Cosmetic
     ApplySpellFix({ 76138 }, [](SpellInfo* spellInfo)
     {
