@@ -295,7 +295,7 @@ bool DispelableAura::RollDispel() const
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject),  m_lastSanctuaryTime(0),
     LastCharmerGUID(), m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
-    m_AutoRepeatFirstCast(false), m_procDeep(0),  m_removedAurasCount(0),
+    m_procDeep(0),  m_removedAurasCount(0),
     m_interruptMask(SpellAuraInterruptFlags::None), m_interruptMask2(SpellAuraInterruptFlags2::None),
     m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(new MotionMaster(this)), m_vehicle(nullptr),
@@ -2611,6 +2611,8 @@ void Unit::_DeleteRemovedAuras()
 
 void Unit::_UpdateSpells(uint32 time)
 {
+    m_spellHistory->Update();
+
     if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
         _UpdateAutoRepeatSpell();
 
@@ -2663,8 +2665,6 @@ void Unit::_UpdateSpells(uint32 time)
                 ++itr;
         }
     }
-
-    m_spellHistory->Update();
 }
 
 void Unit::_UpdateAutoRepeatSpell()
@@ -2678,17 +2678,11 @@ void Unit::_UpdateAutoRepeatSpell()
         // cancel wand shoot
         if (autoRepeatSpellInfo->Id != 75)
             InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        m_AutoRepeatFirstCast = true;
         return;
     }
 
-    // apply delay (Auto Shot (spellID 75) not affected)
-    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && autoRepeatSpellInfo->Id != 75)
-        setAttackTimer(RANGED_ATTACK, 500);
-    m_AutoRepeatFirstCast = false;
-
     // castroutine
-    if (isAttackReady(RANGED_ATTACK))
+    if (isAttackReady(RANGED_ATTACK) && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->getState() != SPELL_STATE_PREPARING)
     {
         // Check if able to cast
         SpellCastResult result = m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->CheckCast(true);
@@ -2703,11 +2697,8 @@ void Unit::_UpdateAutoRepeatSpell()
         }
 
         // we want to shoot
-        Spell* spell = new Spell(this, autoRepeatSpellInfo, TRIGGERED_FULL_MASK);
+        Spell* spell = new Spell(this, autoRepeatSpellInfo, TRIGGERED_IGNORE_GCD);
         spell->prepare(m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_targets);
-
-        // all went good, reset attack
-        resetAttackTimer(RANGED_ATTACK);
     }
 }
 
@@ -2719,9 +2710,6 @@ void Unit::SetCurrentCastSpell(Spell* spell)
 
     if (spell == m_currentSpells[CSpellType])             // avoid breaking self
         return;
-
-    // break same type spell if it is not delayed
-    InterruptSpell(CSpellType, false, true);
 
     // special breakage effects:
     switch (CSpellType)
@@ -2738,7 +2726,6 @@ void Unit::SetCurrentCastSpell(Spell* spell)
                 // break autorepeat if not Auto Shot
                 if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->GetSpellInfo()->Id != 75)
                     InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                m_AutoRepeatFirstCast = true;
             }
             if (spell->GetCastTime() > 0)
                 AddUnitState(UNIT_STATE_CASTING);
@@ -2761,6 +2748,9 @@ void Unit::SetCurrentCastSpell(Spell* spell)
         }
         case CURRENT_AUTOREPEAT_SPELL:
         {
+            if (m_currentSpells[CSpellType] && m_currentSpells[CSpellType]->getState() == SPELL_STATE_IDLE)
+                m_currentSpells[CSpellType]->setState(SPELL_STATE_FINISHED);
+
             // only Auto Shoot does not break anything
             if (spell->GetSpellInfo()->Id != 75)
             {
@@ -2768,9 +2758,6 @@ void Unit::SetCurrentCastSpell(Spell* spell)
                 InterruptSpell(CURRENT_GENERIC_SPELL, false);
                 InterruptSpell(CURRENT_CHANNELED_SPELL, false);
             }
-            // special action: set first cast flag
-            m_AutoRepeatFirstCast = true;
-
             break;
         }
         default:
