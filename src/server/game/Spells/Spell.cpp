@@ -5627,6 +5627,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
     if (Unit* unitCaster = m_caster->ToUnit())
     {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR5_NOT_AVAILABLE_WHILE_CHARMED) && unitCaster->IsCharmed())
+            return SPELL_FAILED_CHARMED;
+
         // only check at first call, Stealth auras are already removed at second call
         // for now, ignore triggered spells
         if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_SHAPESHIFT))
