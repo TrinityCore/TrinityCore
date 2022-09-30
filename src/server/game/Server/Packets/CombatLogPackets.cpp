@@ -16,6 +16,7 @@
  */
 
 #include "CombatLogPackets.h"
+#include "SpellAuraDefines.h"
 #include "UnitDefines.h"
 
 WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
