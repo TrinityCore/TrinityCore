@@ -3150,7 +3150,11 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
     {
         target->ApplySpellImmune(Id, IMMUNITY_STATE, auraType, apply);
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
-            target->RemoveAurasByType(auraType);
+            target->RemoveAurasByType(auraType, [](AuraApplication const* aurApp) -> bool
+            {
+                // if the aura has SPELL_ATTR0_NO_IMMUNITIES, then it cannot be removed by immunity
+                return !aurApp->GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES);
+            });
     }
 
     for (SpellEffects effectType : immuneInfo->SpellEffectImmune)
