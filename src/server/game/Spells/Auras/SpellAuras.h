@@ -82,7 +82,7 @@ class TC_GAME_API AuraApplication
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
         bool IsSelfcast() const { return (_flags & AFLAG_CASTER) != 0; }
         uint8 GetEffectsToApply() const { return _effectsToApply; }
-        void UpdateApplyEffectMask(uint8 newEffMask);
+        void UpdateApplyEffectMask(uint8 newEffMask, bool canHandleNewEffects);
 
         void SetRemoveMode(AuraRemoveFlags mode) { _removeMode = mode; }
         EnumFlag<AuraRemoveFlags> GetRemoveMode() const { return _removeMode; }

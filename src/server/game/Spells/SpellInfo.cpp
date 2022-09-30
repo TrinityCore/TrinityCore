@@ -3117,8 +3117,23 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
             if (mechanicImmunity & (1 << i))
                 target->ApplySpellImmune(Id, IMMUNITY_MECHANIC, i, apply);
 
-        if(apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
-            target->RemoveAurasWithMechanic(mechanicImmunity, AuraRemoveFlags::ByDefault, Id);
+        if (HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
+        {
+            if (apply)
+                target->RemoveAurasWithMechanic(mechanicImmunity, AuraRemoveFlags::ByDefault, Id);
+            else
+            {
+                target->RemoveAppliedAuras([mechanicImmunity](AuraApplication const* aurApp)
+                {
+                    Aura* aura = aurApp->GetBase();
+                    if (aura->GetSpellInfo()->GetAllEffectsMechanicMask() & mechanicImmunity)
+                        aura->UpdateTargetMap(aura->GetCaster());
+
+                    // only update targets, don't remove anything
+                    return false;
+                });
+            }
+        }
     }
 
     if (uint32 dispelImmunity = immuneInfo->DispelImmune)
