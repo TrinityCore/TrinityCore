@@ -23,14 +23,15 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "Creature.h"
+#include "DynamicObject.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "DynamicObject.h"
-#include "Creature.h"
 #include "TemporarySummon.h"
 
 enum DruidSpells
