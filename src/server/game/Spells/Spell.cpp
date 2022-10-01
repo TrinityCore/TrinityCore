@@ -3037,8 +3037,8 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                             || m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_HEAL))
                             return false;
 
-                    if ((m_spellInfo->StackAmount < 2) && !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER))
-                        return true;
+                    if (m_spellInfo->StackAmount < 2)
+                        return !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
 
                     return true;
                 }();
@@ -3074,39 +3074,26 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
                     //if (!m_spellValue->Duration)
                     {
                         hitInfo.AuraDuration = caster->ModSpellDuration(hitInfo.AuraSpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura->GetEffectMask());
-
                         if (hitInfo.AuraDuration > 0)
                         {
-                            // Haste modifies duration and periodic of spells so we have to clamp the duration accordingly
-                            if (m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION)
-                                || m_spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC)
-                                || m_spellInfo->HasAttribute(SPELL_ATTR8_MELEE_HASTE_AFFECTS_PERIODIC))
+                            if (m_spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) || m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
                             {
-                                // Haste based auras need their duration adapted.
                                 int32 origDuration = hitInfo.AuraDuration;
                                 hitInfo.AuraDuration = 0;
 
+                                int32 period = 0;
                                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                                {
                                     if (AuraEffect const* aurEff = hitInfo.HitAura->GetEffect(effIndex))
-                                    {
-                                        if (int32 period = aurEff->GetPeriod())
-                                        {
-                                            hitInfo.AuraDuration = std::clamp(origDuration / period * period, 1, origDuration);
+                                        if (int32 effectPeriod = aurEff->GetPeriod())
+                                            period = effectPeriod;
 
-                                            // If the duration of the aura could fit in half of a tick, round up
-                                            if (origDuration % period >= (period / 2))
-                                                hitInfo.AuraDuration += period;
-                                            break;
-                                        }
-                                    }
-                                }
+                                if (period != 0)
+                                    hitInfo.AuraDuration = std::clamp(origDuration / period * period, 1, origDuration);
 
                                 // if there is no periodic effect
                                 if (!hitInfo.AuraDuration)
                                     hitInfo.AuraDuration = origDuration;
                             }
-
                             // Apply rolled over duration if there is any
                             hitInfo.AuraDuration += hitInfo.HitAura->GetRolledOverDuration();
                         }
@@ -4679,7 +4666,7 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellHitInfo& data)
             // possibly SPELL_MISS_IMMUNE2 for this??
             targetInfo.MissCondition = SPELL_MISS_IMMUNE2;
 
-        if (targetInfo.MissCondition == SPELL_MISS_NONE) // hits
+        if (targetInfo.MissCondition == SPELL_MISS_NONE || (targetInfo.MissCondition == SPELL_MISS_BLOCK && !m_spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED))) // hits
         {
             data.HitTargets.push_back(targetInfo.TargetGUID);
             m_channelTargetEffectMask |= targetInfo.EffectMask;

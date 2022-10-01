@@ -3353,13 +3353,102 @@ int32 SpellInfo::GetMaxDuration() const
 
 int32 SpellInfo::CalcDuration(WorldObject const* caster /*= nullptr*/) const
 {
-    int32 duration = GetDuration();
+    if (!DurationEntry)
+        return IsPassive() ? -1 : 0;
 
-    if (caster)
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(Id, SpellModOp::Duration, duration);
+    int32 duration = GetMaxDuration();
+    if (duration == -1)
+        return -1;
+
+    Unit const* unitCaster = caster ? caster->ToUnit() : nullptr;
+    if (!unitCaster)
+        return std::min(GetMaxDuration(), DurationEntry->Duration);
+
+    uint32 level = unitCaster->getLevel();
+    if (MaxLevel > 0 && level > MaxLevel)
+        level = MaxLevel;
+    if (BaseLevel > 0)
+        level -= BaseLevel;
+
+    duration = DurationEntry->Duration + DurationEntry->DurationPerLevel * level;
+    duration = std::min(GetMaxDuration(), duration);
+
+    if (duration == -1)
+        return -1;
+
+    // Increase duration based on combo points
+    if (HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DURATION))
+    {
+        if (uint8 comboPoints = unitCaster->IsMovedByClient() ? unitCaster->GetGameClientMovingMe()->GetBasePlayer()->GetComboPoints() : 0)
+        {
+            if (GetDuration() != GetMaxDuration() && GetDuration() != -1)
+                duration += int32((GetMaxDuration() - GetDuration()) * comboPoints / 5);
+        }
+    }
+
+    if (Player const* modOwner = unitCaster->GetSpellModOwner())
+        modOwner->ApplySpellMod(Id, SpellModOp::Duration, duration);
+
+    if (HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION) || HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC))
+    {
+        SpellEffIndex periodicEffectIndex = EFFECT_0;
+        bool hasPeriodicEffect = [&]()
+        {
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                if (Effects[i].IsEffect() && Effects[i].AuraPeriod)
+                {
+                    periodicEffectIndex = SpellEffIndex(i);
+                    return true;
+                }
+
+            return false;
+        }();
+
+        if (hasPeriodicEffect && HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) && !HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS))
+        {
+            float hasteMod = unitCaster->GetFloatValue(UNIT_MOD_CAST_HASTE);
+            if (hasteMod > 0.001f)
+            {
+                if (HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
+                    return int32(duration * hasteMod);
+                int32 period = CalcPeriod(caster, periodicEffectIndex);
+                if (period > 0)
+                    duration = int32(period * (duration / (float)period));
+            }
+        }
+    }
 
     return duration;
+}
+
+int32 SpellInfo::CalcPeriod(WorldObject const* caster, SpellEffIndex effIndex, Optional<int32> periodOverride /*= {}*/) const
+{
+    int32 period = 0;
+    if (periodOverride.has_value() && *periodOverride > 0)
+        period = *periodOverride;
+    else
+    {
+        if (Effects[effIndex].IsEffect() && Effects[effIndex].AuraPeriod != 0)
+            period = Effects[effIndex].AuraPeriod;
+        else
+            period = 5200;
+    }
+
+    Unit const* unitCaster = caster ? caster->ToUnit() : nullptr;
+    if (!unitCaster)
+        return period;
+
+    if (Player const* modOwner = unitCaster->GetSpellModOwner())
+        modOwner->ApplySpellMod(Id, SpellModOp::Period, period);
+
+    if (HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) && !HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS))
+    {
+        float hasteMod = unitCaster->GetFloatValue(UNIT_MOD_CAST_HASTE);
+        if (hasteMod > 0.001f)
+            period = ((float)period * hasteMod);
+    }
+
+    return period;
 }
 
 uint32 SpellInfo::CalcCastTime(uint8 level, Spell* spell /*= nullptr*/) const

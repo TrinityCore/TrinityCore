@@ -680,30 +680,15 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer, bool l
     GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, _period);
 
     if (!m_isPeriodic)
+    {
+        _period = 0;
         return;
-
-    if (_period == 0)
-        _period = 5200; // fallback value found in client
-
-    Player* modOwner = caster ? caster->GetSpellModOwner() : nullptr;
+    }
 
     if (_period)
-    {
-        // Apply periodic time mod
-        if (modOwner)
-            modOwner->ApplySpellMod(GetSpellInfo()->Id, SpellModOp::Period, _period);
+        _period = m_spellInfo->CalcPeriod(caster, SpellEffIndex(GetEffIndex()), _period);
 
-        if (caster)
-        {
-            // Apply haste modifiers
-            if (m_spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC))
-                _period = int32(_period * caster->GetFloatValue(UNIT_MOD_CAST_HASTE));
-
-            if (m_spellInfo->HasAttribute(SPELL_ATTR8_MELEE_HASTE_AFFECTS_PERIODIC) && caster->IsPlayer())
-                _period = int32(_period * caster->GetFloatValue(PLAYER_FIELD_MOD_HASTE));
-        }
-    }
-    else // prevent infinite loop on Update
+    if (!_period) // prevent infinite loop on Update
         m_isPeriodic = false;
 
     if (load) // aura loaded from db

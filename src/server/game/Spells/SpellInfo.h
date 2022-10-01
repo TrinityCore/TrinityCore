@@ -578,6 +578,7 @@ class TC_GAME_API SpellInfo
         int32 GetMaxDuration() const;
 
         int32 CalcDuration(WorldObject const* caster = nullptr) const;
+        int32 CalcPeriod(WorldObject const* caster, SpellEffIndex effIndex, Optional<int32> periodOverride = {}) const;
 
         uint32 GetMaxTicks() const;
 

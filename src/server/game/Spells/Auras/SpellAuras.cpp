@@ -885,29 +885,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
 
 /*static*/ int32 Aura::CalcMaxDuration(SpellInfo const* spellInfo, WorldObject* caster)
 {
-    Player* modOwner = nullptr;
-    int32 maxDuration = 0;
-
-    if (caster)
-    {
-        modOwner = caster->GetSpellModOwner();
-        maxDuration = caster->CalcSpellDuration(spellInfo);
-    }
-    else
-        maxDuration = spellInfo->GetDuration();
-
-    if (spellInfo->IsPassive() && !spellInfo->DurationEntry)
-        maxDuration = -1;
-
-    // IsPermanent() checks max duration (which we are supposed to calculate here)
-    if (maxDuration != -1 && modOwner)
-        modOwner->ApplySpellMod(spellInfo->Id, SpellModOp::Duration, maxDuration);
-
-    // Calculate duration of periodics affected by haste.
-    if (caster && caster->IsUnit() && spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
-        maxDuration = int32(maxDuration * caster->GetFloatValue(UNIT_MOD_CAST_HASTE));
-
-    return maxDuration;
+    return spellInfo->CalcDuration(caster);
 }
 
 void Aura::SetDuration(int32 duration, bool withMods)
