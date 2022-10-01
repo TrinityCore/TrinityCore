@@ -2307,7 +2307,7 @@ void Spell::TargetInfo::PreprocessTarget(Spell* spell)
     spell->m_healing = Healing;
 
     _spellHitTarget = nullptr;
-    if (MissCondition == SPELL_MISS_NONE)
+    if (MissCondition == SPELL_MISS_NONE || (MissCondition == SPELL_MISS_BLOCK && !spell->GetSpellInfo()->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED)))
         _spellHitTarget = unit;
     else if (MissCondition == SPELL_MISS_REFLECT && ReflectResult == SPELL_MISS_NONE)
         _spellHitTarget = spell->m_caster->ToUnit();
@@ -2499,7 +2499,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                 caster->SetLastDamagedTargetGuid(spell->unitTarget->GetGUID());
 
                 // Add bonuses and fill damageInfo struct
-                caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, spell);
+                caster->CalculateSpellDamageTaken(&damageInfo, spell->m_damage, spell->m_spellInfo, spell->m_attackType, IsCrit, MissCondition == SPELL_MISS_BLOCK, spell);
                 Unit::DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
                 // Send log damage message to client
@@ -4437,6 +4437,11 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data
         }
         else // misses
         {
+            // Only send blocks in spell_go packets if we know that the spell is not going to do anything to the target.
+            // Spells that are partially blocked will send their block result in their according combat log packet.
+            if (targetInfo.MissCondition == SPELL_MISS_BLOCK && !m_spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED))
+                continue;
+
             WorldPackets::Spells::SpellMissStatus missStatus;
             missStatus.TargetGUID = targetInfo.TargetGUID;
             missStatus.Reason = targetInfo.MissCondition;
@@ -7642,7 +7647,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
 {
     Unit* unit = nullptr;
     // In case spell hit target, do all effect on that target
-    if (targetInfo.MissCondition == SPELL_MISS_NONE)
+    if (targetInfo.MissCondition == SPELL_MISS_NONE || (targetInfo.MissCondition == SPELL_MISS_BLOCK && !m_spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED)))
         unit = m_caster->GetGUID() == targetInfo.TargetGUID ? m_caster->ToUnit() : ObjectAccessor::GetUnit(*m_caster, targetInfo.TargetGUID);
     // In case spell reflect from target, do all effect on caster (if hit)
     else if (targetInfo.MissCondition == SPELL_MISS_REFLECT && targetInfo.ReflectResult == SPELL_MISS_NONE)
