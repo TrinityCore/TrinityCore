@@ -119,23 +119,15 @@ enum CaribouTrap
 
 struct go_caribou_trap : public GameObjectAI
 {
-    go_caribou_trap(GameObject* go) : GameObjectAI(go)
-    {
-        InitializeAI();
-    }
+    go_caribou_trap(GameObject* go) : GameObjectAI(go){}
 
-    void InitializeAI() override
+    void Reset() override
     {
         _placeFir = false;
         _goFurGUID.Clear();
         _playerGUID.Clear();
         _trapperGUID.Clear();
         me->SetGoState(GO_STATE_READY);
-    }
-
-    void Reset() override
-    {
-        InitializeAI();
     }
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
