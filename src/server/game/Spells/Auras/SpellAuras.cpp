@@ -443,7 +443,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
 Aura::Aura(AuraCreateInfo const& createInfo) :
 m_spellInfo(createInfo._spellInfo), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItemGUID), m_applyTime(GameTime::GetGameTime()),
-m_owner(createInfo._owner), m_timeCla(0), m_updateTargetMapInterval(0),
+m_owner(createInfo._owner), m_rolledOverDuration(0), m_timeCla(0), m_updateTargetMapInterval(0),
 _casterInfo(), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
 m_procCooldown(std::chrono::steady_clock::time_point::min())
@@ -903,6 +903,10 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     if (maxDuration != -1 && modOwner)
         modOwner->ApplySpellMod(spellInfo->Id, SpellModOp::Duration, maxDuration);
 
+    // Calculate duration of periodics affected by haste.
+    if (caster && caster->IsUnit() && spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
+        maxDuration = int32(maxDuration * caster->GetFloatValue(UNIT_MOD_CAST_HASTE));
+
     return maxDuration;
 }
 
@@ -917,21 +921,9 @@ void Aura::SetDuration(int32 duration, bool withMods)
     SetNeedClientUpdateForTargets();
 }
 
-void Aura::RefreshDuration(bool withMods)
+void Aura::RefreshDuration()
 {
-    Unit* caster = GetCaster();
-    if (withMods && caster)
-    {
-        int32 duration = m_spellInfo->GetMaxDuration();
-        // Calculate duration of periodics affected by haste.
-        if (m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
-            duration = int32(duration * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
-
-        SetMaxDuration(duration);
-        SetDuration(duration);
-    }
-    else
-        SetDuration(GetMaxDuration());
+    SetDuration(GetMaxDuration());
 
     if (m_spellInfo->ManaPerSecond)
         m_timeCla = 1 * IN_MILLISECONDS;
@@ -946,18 +938,19 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
     m_maxDuration = CalcMaxDuration();
 
+    if (!resetPeriodicTimer)
     {
-        int32 minPeriod = m_maxDuration;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (AuraEffect const* aurEff = GetEffect(i))
-                if (int32 period = aurEff->GetPeriod())
-                    minPeriod = std::min(period, minPeriod);
-
-        // If only one tick remaining, roll it over into new duration
-        if (GetDuration() <= minPeriod)
         {
-            m_maxDuration += GetDuration();
-            resetPeriodicTimer = false;
+            if (AuraEffect const* aurEff = GetEffect(i))
+            {
+                if (int32 period = aurEff->GetPeriod())
+                {
+                    m_rolledOverDuration = period - aurEff->GetPeriodicTimer();
+                    // For now we only check for a single periodic effect since we don't have enough data regarding multiple periodic effects
+                    break;
+                }
+            }
         }
     }
 

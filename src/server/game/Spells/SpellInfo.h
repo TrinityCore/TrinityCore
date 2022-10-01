@@ -304,8 +304,6 @@ public:
     SpellEffectImplicitTargetTypes GetImplicitTargetType() const;
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
 
-    uint32 CalcPeriod(WorldObject const* caster, Spell* spell = nullptr) const;
-
 private:
     struct StaticData
     {

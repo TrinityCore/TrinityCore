@@ -3029,7 +3029,19 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
 
             if (!hitInfo.HitAura)
             {
-                bool const resetPeriodicTimer = (m_spellInfo->StackAmount < 2) && !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
+                bool const resetPeriodicTimer = [&]()
+                {
+                    // HoTs and DoTs don't reset their periodic timer and roll ther duration over
+                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                        if (m_spellInfo->Effects[i].IsEffect() && (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE
+                            || m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_HEAL))
+                            return false;
+
+                    if ((m_spellInfo->StackAmount < 2) && !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER))
+                        return true;
+
+                    return true;
+                }();
                 uint8 const allAuraEffectMask = Aura::BuildEffectMaskForOwner(hitInfo.AuraSpellInfo, MAX_EFFECT_MASK, unit);
                 int32 const* bp = hitInfo.AuraBasePoints;
                 if (hitInfo.AuraSpellInfo == m_spellInfo)
@@ -3065,23 +3077,38 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
 
                         if (hitInfo.AuraDuration > 0)
                         {
-                            // Haste modifies duration of channeled spells
-                            if (m_spellInfo->IsChanneled())
-                                caster->ModSpellDurationTime(m_spellInfo, hitInfo.AuraDuration, this);
-                            else if (m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION))
+                            // Haste modifies duration and periodic of spells so we have to clamp the duration accordingly
+                            if (m_spellInfo->HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION)
+                                || m_spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC)
+                                || m_spellInfo->HasAttribute(SPELL_ATTR8_MELEE_HASTE_AFFECTS_PERIODIC))
                             {
+                                // Haste based auras need their duration adapted.
                                 int32 origDuration = hitInfo.AuraDuration;
                                 hitInfo.AuraDuration = 0;
 
                                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                                {
                                     if (AuraEffect const* aurEff = hitInfo.HitAura->GetEffect(effIndex))
-                                        if (int32 period = aurEff->GetPeriod())  // period is hastened by UNIT_MOD_CAST_SPEED
-                                            hitInfo.AuraDuration = std::max(std::max(origDuration / period, 1) * period, hitInfo.AuraDuration);
+                                    {
+                                        if (int32 period = aurEff->GetPeriod())
+                                        {
+                                            hitInfo.AuraDuration = std::clamp(origDuration / period * period, 1, origDuration);
+
+                                            // If the duration of the aura could fit in half of a tick, round up
+                                            if (origDuration % period >= (period / 2))
+                                                hitInfo.AuraDuration += period;
+                                            break;
+                                        }
+                                    }
+                                }
 
                                 // if there is no periodic effect
                                 if (!hitInfo.AuraDuration)
-                                    hitInfo.AuraDuration = int32(origDuration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+                                    hitInfo.AuraDuration = origDuration;
                             }
+
+                            // Apply rolled over duration if there is any
+                            hitInfo.AuraDuration += hitInfo.HitAura->GetRolledOverDuration();
                         }
                     }
 
@@ -3767,17 +3794,9 @@ void Spell::handle_immediate()
     // start channeling if applicable
     if (m_spellInfo->IsChanneled())
     {
-        int32 duration = m_spellInfo->GetDuration();
+        int32 duration = Aura::CalcMaxDuration(m_spellInfo, m_caster);
         if (duration > 0)
         {
-            // First mod_duration then haste - see Missile Barrage
-            // Apply duration mod
-            if (Player* modOwner = m_caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::Duration, duration);
-
-            // Apply haste mods
-            m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
-
             m_channeledDuration = duration;
             SendChannelStart(duration);
         }

@@ -446,7 +446,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         int32 CalcSpellDuration(SpellInfo const* spellInfo) const;
         int32 ModSpellDuration(SpellInfo const* spellProto, WorldObject const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
-        void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
 
         virtual float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo = nullptr) const;
         virtual SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;

@@ -153,10 +153,11 @@ class TC_GAME_API Aura
         static int32 CalcMaxDuration(SpellInfo const* spellInfo, WorldObject* caster);
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
-        void RefreshDuration(bool withMods = false);
+        void RefreshDuration();
         void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
+        int32 GetRolledOverDuration() const { return m_rolledOverDuration; }
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);
@@ -290,6 +291,7 @@ class TC_GAME_API Aura
 
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
+        int32 m_rolledOverDuration;                         // Remaining time to next periodic tick before the aura got refreshed
                                                             // This is normally the time remaining until the next tick of the dot when refreshed.
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect

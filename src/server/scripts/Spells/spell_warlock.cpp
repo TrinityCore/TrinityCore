@@ -456,7 +456,7 @@ class spell_warl_everlasting_affliction : public SpellScript
             {
                 aurEff->RecalculateAmount(caster);
                 aurEff->CalculatePeriodic(caster, false, false);
-                aurEff->GetBase()->RefreshDuration(true);
+                aurEff->GetBase()->RefreshDuration();
             }
         }
     }
@@ -1631,7 +1631,7 @@ class spell_warl_pandemic_script : public SpellScript
         {
             aurEff->RecalculateAmount(caster);
             aurEff->CalculatePeriodic(caster, false, false);
-            aurEff->GetBase()->RefreshDuration(true);
+            aurEff->GetBase()->RefreshDuration();
         }
     }
 

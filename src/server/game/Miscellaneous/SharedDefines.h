@@ -664,7 +664,7 @@ enum SpellAttr8
     SPELL_ATTR8_USE_COMBO_POINTS_ON_ANY_TARGET   = 0x00080000, // 19 allows to consume combo points from dead targets
     SPELL_ATTR8_ARMOR_SPECIALIZATION             = 0x00100000, // 20
     SPELL_ATTR8_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR8_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR8_MELEE_HASTE_AFFECTS_PERIODIC     = 0x00400000, // 22 Melee Haste Affects Periodic
     SPELL_ATTR8_BATTLE_RESURRECTION              = 0x00800000, // 23 Used to limit the Amount of Resurrections in Boss Encounters
     SPELL_ATTR8_HEAL_PREDICTION                  = 0x01000000, // 24 Displays a predicted health amount on the targets frame
     SPELL_ATTR8_UNK25                            = 0x02000000, // 25

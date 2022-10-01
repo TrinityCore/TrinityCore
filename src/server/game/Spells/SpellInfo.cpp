@@ -423,25 +423,6 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_2;
 }
 
-uint32 SpellEffectInfo::CalcPeriod(WorldObject const* caster, Spell* spell /* = nullptr */) const
-{
-    // Default value found in client.
-    uint32 period = AuraPeriod;
-    if (period == 0)
-        period = 5200;
-
-    if (caster != nullptr)
-    {
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo->Id, SpellModOp::Period, period, spell);
-
-        if (caster->IsUnit() && _spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) && !_spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS))
-            period = int32(period * caster->ToUnit()->GetFloatValue(UNIT_MOD_CAST_HASTE));
-    }
-
-    return period;
-}
-
 int32 SpellEffectInfo::CalcValue(WorldObject const* caster, int32 const* bp, Unit const* target) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
