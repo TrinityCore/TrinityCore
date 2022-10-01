@@ -132,6 +132,9 @@ struct go_caribou_trap : public GameObjectAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
+        if (_placeFir)
+            return;
+
         Player* playerCaster = caster->ToPlayer();
         if (!playerCaster)
             return;
@@ -161,7 +164,7 @@ struct go_caribou_trap : public GameObjectAI
                 _events.ScheduleEvent(EVENT_SPAWN_TRAPPER, 1s);
                 break;
             case EVENT_SPAWN_TRAPPER:
-                if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetPositionX() + (std::cos(me->GetOrientation()) * 21), me->GetPositionY() + (std::sin(me->GetOrientation()) * 21), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 6s))
+                if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetFirstCollisionPosition(21.0f, me->GetOrientation()), TEMPSUMMON_DEAD_DESPAWN, 6s))
                 {
                     trapper->SetFacingToObject(me);
                     _trapperGUID = trapper->GetGUID();
