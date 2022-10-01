@@ -294,6 +294,7 @@ struct boss_muru : public BossAI
         {
             me->SetVisible(false);
             _entropiusGUID = summon->GetGUID();
+            DoZoneInCombat(summon);
             if (_hasEnraged)
                 summon->CastSpell(summon, SPELL_ENRAGE, true);
             return;
