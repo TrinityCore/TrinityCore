@@ -137,9 +137,9 @@ DELETE FROM `spell_script_names` WHERE `spell_id` = 80743 AND `ScriptName` = 'sp
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (80743, 'spell_gen_eject_passenger_1');
 
-DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry` = 8420;
+DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry`=8420;
 INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES 
-(8420, 1, 0, 0, 0, 0, 0);
+(8420, 1, 1312.67, 1208.86, 58.5123, 2.5, 2);
 
 DELETE FROM `waypoint_data` WHERE `id`= 448840;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
