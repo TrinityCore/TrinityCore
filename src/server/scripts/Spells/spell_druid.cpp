@@ -107,6 +107,7 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_BEAM_SILENCE          = 81261,
     SPELL_DRUID_STRENGTH_OF_THE_PANTHER     = 90166,
     SPELL_DRUID_SUNFIRE                     = 93402,
+    SPELL_DRUID_REJUVENATION                = 774,
     SPELL_DRUID_REJUVENATION_DIRECT_HEAL    = 64801,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
     SPELL_DRUID_TREE_OF_LIFE                = 33891,
@@ -1245,31 +1246,7 @@ class spell_dru_rejuvenation : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_DRUID_NATURES_BOUNTY,
-                SPELL_DRUID_REJUVENATION_DIRECT_HEAL
-            });
-    }
-
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Unit* caster = GetCaster())
-        {
-            if (AuraEffect* naturesBountyAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, SPELL_ICON_ID_NATURES_BOUNTY, EFFECT_0))
-            {
-                /*
-                * @todo: rework
-                // a bit cheaty here but as long as we don't have a unit internal aura count...
-                naturesBountyAurEff->SetBonusAmount(naturesBountyAurEff->GetBonusAmount() + 1);
-                if (naturesBountyAurEff->GetBonusAmount() >= 3)
-                {
-                    int32 bp0 = -naturesBountyAurEff->GetSpellInfo()->Effects[EFFECT_1].BasePoints;
-                    caster->CastSpell(caster, SPELL_DRUID_NATURES_BOUNTY, CastSpellExtraArgs(true).AddSpellBP0(bp0));
-                }
-                */
-            }
-        }
+        return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION_DIRECT_HEAL });
     }
 
     void HandleGiftOfTheEarthmother(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1284,27 +1261,9 @@ class spell_dru_rejuvenation : public AuraScript
         }
     }
 
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Unit* caster = GetCaster())
-        {
-            if (AuraEffect* naturesBountyAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, SPELL_ICON_ID_NATURES_BOUNTY, EFFECT_0))
-            {
-                /*
-                * @todo: rework
-                naturesBountyAurEff->SetBonusAmount(naturesBountyAurEff->GetBonusAmount() > 0 ? naturesBountyAurEff->GetBonusAmount() - 1 : 0);
-                if (naturesBountyAurEff->GetBonusAmount() < 3 && caster->HasAura(SPELL_DRUID_NATURES_BOUNTY))
-                    caster->RemoveAurasDueToSpell(SPELL_DRUID_NATURES_BOUNTY);
-                */
-            }
-        }
-    }
-
     void Register() override
     {
-        AfterEffectApply.Register(&spell_dru_rejuvenation::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
         AfterEffectApply.Register(&spell_dru_rejuvenation::HandleGiftOfTheEarthmother, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        AfterEffectRemove.Register(&spell_dru_rejuvenation::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2058,6 +2017,68 @@ class spell_dru_firebloom : public SpellScript
     }
 };
 
+// -17074 Nature's Bounty
+class spell_dru_natures_bounty : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_NATURES_BOUNTY,
+                SPELL_DRUID_REJUVENATION
+            });
+    }
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& period)
+    {
+        isPeriodic = true;
+        period = 1 * IN_MILLISECONDS;
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        if (Unit* target = eventInfo.GetProcTarget())
+            _activeRejuvenationTargetGUIDs.push_back(target->GetGUID());
+
+        if (_activeRejuvenationTargetGUIDs.size() >= 3 && !_bountyActive)
+        {
+            int32 bp = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+            GetTarget()->CastSpell(nullptr, SPELL_DRUID_NATURES_BOUNTY, CastSpellExtraArgs(true).AddSpellBP0(bp));
+            _bountyActive = true;
+        }
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        for (auto itr = _activeRejuvenationTargetGUIDs.begin(); itr != _activeRejuvenationTargetGUIDs.end();)
+        {
+            Unit* healTarget = ObjectAccessor::GetUnit(*target, *itr);
+            if (!healTarget || !healTarget->HasAura(SPELL_DRUID_REJUVENATION, target->GetGUID()))
+                itr = _activeRejuvenationTargetGUIDs.erase(itr);
+            else
+                ++itr;
+        }
+
+        if (_bountyActive && _activeRejuvenationTargetGUIDs.size() < 3)
+        {
+            target->RemoveAurasDueToSpell(SPELL_DRUID_NATURES_BOUNTY, target->GetGUID());
+            _bountyActive = false;
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic.Register(&spell_dru_natures_bounty::CalcPeriodic, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+        OnEffectProc.Register(&spell_dru_natures_bounty::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+        OnEffectPeriodic.Register(&spell_dru_natures_bounty::HandlePeriodic, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+    }
+private:
+    std::vector<ObjectGuid> _activeRejuvenationTargetGUIDs;
+    bool _bountyActive = false;
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -2089,6 +2110,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_living_seed_proc);
     RegisterSpellScript(spell_dru_maul);
     RegisterSpellScript(spell_dru_moonfire);
+    RegisterSpellScript(spell_dru_natures_bounty);
     RegisterSpellScript(spell_dru_nourish);
     RegisterSpellScript(spell_dru_pulverize);
     RegisterSpellScript(spell_dru_rejuvenation);
