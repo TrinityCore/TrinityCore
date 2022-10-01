@@ -1603,7 +1603,7 @@ enum AbandonedOuthouse
     SPELL_SUMMON_DEATHSTALKER_YORICK        = 83751
 };
 
-// Abandoned Outhouse - 205143
+// 205143 - Abandoned Outhouse
 struct go_silverpine_abandoned_outhouse : public GameObjectAI
 {
     go_silverpine_abandoned_outhouse(GameObject* go) : GameObjectAI(go) { }
@@ -1622,9 +1622,9 @@ struct go_silverpine_abandoned_outhouse : public GameObjectAI
     }
 };
 
-Position const YorickReady = { 1313.7f, 1211.99f, 58.5f, 4.564474f };
+Position const YorickReadyPosition = { 1313.7f, 1211.99f, 58.5f, 4.564474f };
 
-Position const YorickDeath = { 1295.52f, 1206.58f, 58.501f };
+Position const YorickDeathPosition = { 1295.52f, 1206.58f, 58.501f };
 
 enum DeathstalkerRaneYorick
 {
@@ -1659,7 +1659,7 @@ enum DeathstalkerRaneYorick
     WAYPOINT_HIDDEN_NEXT_TO_ARMOIRE         = 2
 };
 
-// Deathstalker Rane Yorick - 44882
+// 44882 - Deathstalker Rane Yorick
 struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 {
     npc_silverpine_deathstalker_rane_yorick(Creature* creature) : ScriptedAI(creature), _playerArrived(false), _playerSkipped(false) { }
@@ -1714,7 +1714,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 me->GetMotionMaster()->Clear();
 
-                me->NearTeleportTo(YorickReady, false);
+                me->NearTeleportTo(YorickReadyPosition, false);
 
                 _events.Reset();
 
@@ -1839,7 +1839,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                 }
 
                 case EVENT_RANE_LAST_MOVE:
-                    me->GetMotionMaster()->MoveJump(YorickDeath, 10.0f, 10.0f);
+                    me->GetMotionMaster()->MoveJump(YorickDeathPosition, 10.0f, 10.0f);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                     _events.ScheduleEvent(EVENT_RANE_LAST_MOVE + 1, 2s);
                     break;
@@ -1910,7 +1910,7 @@ enum WaitingToExsanguinate
     PATH_CROWLEY_EXIT                        = 448831
 };
 
-// Armoire - 44893
+// 44893 - Armoire
 struct npc_silverpine_armoire : public VehicleAI
 {
     npc_silverpine_armoire(Creature* creature) : VehicleAI(creature) { }
@@ -2531,7 +2531,7 @@ enum DariusCrowleyExsanguinate
     WAYPOINT_ON_CROWLEY_DESPAWN              = 2
 };
 
-// Lord Darius Crowley - 44883
+// 44883 - Lord Darius Crowley
 struct npc_silverpine_lord_darius_crowley_exsanguinate : public ScriptedAI
 {
     npc_silverpine_lord_darius_crowley_exsanguinate(Creature* creature) : ScriptedAI(creature) { }
@@ -2541,11 +2541,8 @@ struct npc_silverpine_lord_darius_crowley_exsanguinate : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
-        if (Player* player = summoner->ToPlayer())
-            _playerGUID = player->GetGUID();
-
         if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 100.0f))
         {
             if (armoire->IsAIEnabled())
@@ -2558,9 +2555,6 @@ struct npc_silverpine_lord_darius_crowley_exsanguinate : public ScriptedAI
         if (pathId == PATH_CROWLEY_EXIT && waypointId == WAYPOINT_ON_CROWLEY_DESPAWN)
             me->DespawnOrUnsummon();
     }
-
-private:
-    ObjectGuid _playerGUID;
 };
 
 enum IvarBloodfangExsanguinate
@@ -2568,7 +2562,7 @@ enum IvarBloodfangExsanguinate
     WAYPOINT_ON_BLOODFANG_DESPAWN            = 3
 };
 
-// Packleader Ivar Bloodfang - 44884
+// 44884 - Packleader Ivar Bloodfang
 struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
 {
     npc_silverpine_packleader_ivar_bloodfang_exsanguinate(Creature* creature) : ScriptedAI(creature) { }
@@ -2578,11 +2572,8 @@ struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
-        if (Player* player = summoner->ToPlayer())
-            _playerGUID = player->GetGUID();
-
         if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 30.0f))
         {
             if (armoire->IsAIEnabled())
@@ -2595,9 +2586,6 @@ struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
         if (pathId == PATH_BLOODFANG_EXIT && waypointId == WAYPOINT_ON_BLOODFANG_DESPAWN)
             me->DespawnOrUnsummon();
     }
-
-private:
-    ObjectGuid _playerGUID;
 };
 
 void AddSC_silverpine_forest()

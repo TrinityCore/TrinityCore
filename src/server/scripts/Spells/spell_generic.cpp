@@ -5315,5 +5315,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_mount_check_aura);
     RegisterSpellScript(spell_gen_ancestral_call);
     RegisterSpellScript(spell_gen_eject_passengers_3_8);
-    RegisterSpellScript(spell_gen_reverse_cast_ride_vehicle);
+    RegisterSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
 }
