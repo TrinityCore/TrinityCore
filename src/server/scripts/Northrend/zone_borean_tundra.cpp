@@ -121,7 +121,7 @@ struct go_caribou_trap : public GameObjectAI
 {
     go_caribou_trap(GameObject* go) : GameObjectAI(go){}
 
-    void Reset() override
+    void JustAppeared()
     {
         _placeFir = false;
         _goFurGUID.Clear();
