@@ -81,29 +81,14 @@ enum HordeHauler
     SEAT_HAULER_TROOPER_5                   = 7
 };
 
-// Horde Hauler - 44731
+// 44731 - Horde Hauler
 struct npc_silverpine_horde_hauler : public ScriptedAI
 {
-    npc_silverpine_horde_hauler(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        // Note: it needs to be active to be able to travel the map correctly.
-        me->setActive(true);
-    }
+    npc_silverpine_horde_hauler(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
         _events.ScheduleEvent(EVENT_START_PATH, 8s);
-    }
-
-    void JustSummoned(Creature* summon) override
-    {
-        // Note: its summons need to be active to be able to perform their actions correctly.
-        summon->setActive(true);
     }
 
     void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
@@ -233,7 +218,7 @@ enum MagicalChainsHauler
     SPELL_CHAIN_LEFT_HAULER                 = 83464
 };
 
-// Magical Chains (Hauler) - 84238
+// 84238 - Magical Chains (Hauler)
 class spell_silverpine_magical_chains_hauler : public AuraScript
 {
     PrepareAuraScript(spell_silverpine_magical_chains_hauler);
@@ -256,29 +241,6 @@ class spell_silverpine_magical_chains_hauler : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_silverpine_magical_chains_hauler::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
-// Eject Passengers 3-8 - 83477
-class spell_silverpine_eject_passengers_3_8 : public SpellScript
-{
-    PrepareSpellScript(spell_silverpine_eject_passengers_3_8);
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (GetHitUnit()->IsAIEnabled())
-        {
-            for (uint8 i = 0; i < 5; i++)
-            {
-                if (Unit* passenger = GetHitUnit()->GetVehicleKit()->GetPassenger(SEAT_HAULER_PLAYER + i))
-                    passenger->ExitVehicle();
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_silverpine_eject_passengers_3_8::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -393,7 +355,7 @@ enum QuestTheWarchiefCometh
     ANIMKIT_GARROSH_2                       = 595
 };
 
-// Grand Executor Mortuus - 44615
+// 44615 - Grand Executor Mortuus
 struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 {
     npc_silverpine_grand_executor_mortuus(Creature* creature) : ScriptedAI(creature), _summons(me), _eventInProgress(false) {}
@@ -973,7 +935,7 @@ enum RaiseForsakenCometh
     ANIMKIT_FALLEN_HUMAN                    = 721
 };
 
-// Raise Forsaken - 83173
+// 83173 - Raise Forsaken
 class spell_silverpine_raise_forsaken_83173 : public AuraScript
 {
     PrepareAuraScript(spell_silverpine_raise_forsaken_83173);
@@ -1018,7 +980,7 @@ enum FallenHuman
     EVENT_EMOTE_TO_SYLVANAS                     = 4
 };
 
-// Fallen Human - 44592, 44593
+// 44592, 44593 - Fallen Human
 struct npc_silverpine_fallen_human : public ScriptedAI
 {
     npc_silverpine_fallen_human(Creature* creature) : ScriptedAI(creature), _transformDone(false) {}
@@ -1118,7 +1080,7 @@ enum SpellForsakenTrooperMasterScriptCometh
     DISPLAY_FEMALE_04_HC                    = 33985
 };
 
-// Forsaken Trooper Master Script (Forsaken High Command) - 83149
+// 83149 - Forsaken Trooper Master Script (Forsaken High Command)
 class spell_silverpine_forsaken_trooper_masterscript_high_command : public SpellScript
 {
     PrepareSpellScript(spell_silverpine_forsaken_trooper_masterscript_high_command);
@@ -1195,7 +1157,7 @@ enum SylvanasForsakenHighCommand
     SPELL_APPLY_INVIS_ZONE_4                    = 84183
 };
 
-// Lady Sylvanas Windrunner (Forsaken High Command) - 44365
+// 44365 - Lady Sylvanas Windrunner (Forsaken High Command)
 struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
 {
     npc_silverpine_sylvanas_windrunner_high_command(Creature* creature) : ScriptedAI(creature) { }
@@ -1210,7 +1172,7 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
     }
 };
 
-// Deathstalker and Deathstalker Commander Belmont - 44789, 44790
+// 44789, 44790 - Deathstalker and Deathstalker Commander Belmont
 struct npc_silverpine_deathstalker : public ScriptedAI
 {
     npc_silverpine_deathstalker(Creature* creature) : ScriptedAI(creature) { }
@@ -1233,7 +1195,7 @@ enum WorgenRenegade
     EVENT_FLURRY_OF_CLAWS                       = 1
 };
 
-// Worgen Renegade - 44793
+// 44793 - Worgen Renegade
 struct npc_silverpine_worgen_renegade : public ScriptedAI
 {
     npc_silverpine_worgen_renegade(Creature* creature) : ScriptedAI(creature) { }
@@ -1289,7 +1251,7 @@ private:
     EventMap _events;
 };
 
-// Flurry of Claws - 80365
+// 80365 - Flurry of Claws
 class spell_silverpine_flurry_of_claws : public AuraScript
 {
     PrepareAuraScript(spell_silverpine_flurry_of_claws);
@@ -1321,7 +1283,7 @@ enum ForsakenTrooper
     TALK_TROOPER_RESET                          = 0
 };
 
-// Forsaken Trooper - 44791, 44792
+// 44791, 44792 - Forsaken Trooper
 struct npc_silverpine_forsaken_trooper : public ScriptedAI
 {
     npc_silverpine_forsaken_trooper(Creature* creature) : ScriptedAI(creature) { }
@@ -1389,7 +1351,7 @@ enum BatHandlerMaggothbreath
     DATA_GOSSIP_MENU_MAGGOT                     = 11892
 };
 
-// Bat Handler Maggotbreath - 44825
+// 44825 - Bat Handler Maggotbreath
 struct npc_silverpine_bat_handler_maggotbreath : public ScriptedAI
 {
     npc_silverpine_bat_handler_maggotbreath(Creature* creature) : ScriptedAI(creature) { }
@@ -1459,7 +1421,7 @@ enum ForsakenBat
     DATA_ITERATING_UPON_SUCCESS_QUEST_REQ       = 50
 };
 
-// Forsaken Bat - 44821
+// 44821 - Forsaken Bat
 struct npc_silverpine_forsaken_bat : public VehicleAI
 {
     npc_silverpine_forsaken_bat(Creature* creature) : VehicleAI(creature)
@@ -1640,7 +1602,6 @@ void AddSC_silverpine_forest()
 
     RegisterCreatureAI(npc_silverpine_horde_hauler);
     RegisterSpellScript(spell_silverpine_magical_chains_hauler);
-    RegisterSpellScript(spell_silverpine_eject_passengers_3_8);
 
     /* Forsaken High Command */
 

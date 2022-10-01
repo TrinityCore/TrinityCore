@@ -29,9 +29,9 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 83467, 0, 2, 31, 0, 3, 44737, 0, 0, 0, 0, '', 'Magical Chains - Target Subdued Forest Ettin');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` = 83477 AND `ScriptName` = 'spell_silverpine_eject_passengers_3_8';
+DELETE FROM `spell_script_names` WHERE `spell_id` = 83477 AND `ScriptName` = 'spell_gen_eject_passengers_3_8';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(83477, 'spell_silverpine_eject_passengers_3_8');
+(83477, 'spell_gen_eject_passengers_3_8');
 
 DELETE FROM `vehicle_template_accessory` WHERE `entry` = 44731;
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
