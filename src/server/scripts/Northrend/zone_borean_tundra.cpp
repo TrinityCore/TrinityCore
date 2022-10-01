@@ -171,7 +171,6 @@ struct go_caribou_trap : public GameObjectAI
             case EVENT_SPAWN_TRAPPER:
                 if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetPositionX() + (std::cos(me->GetOrientation()) * 21), me->GetPositionY() + (std::sin(me->GetOrientation()) * 21), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 6s))
                 {
-                    //trapper->SetVisible(false);
                     trapper->SetFacingToObject(me);
                     _trapperGUID = trapper->GetGUID();
                 }
@@ -179,10 +178,7 @@ struct go_caribou_trap : public GameObjectAI
                 break;
             case EVENT_TRAPPER_MOVE:
                 if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                {
                     trapper->GetMotionMaster()->MovePoint(0, trapper->GetPositionX() + (std::cos(trapper->GetOrientation()) * 20), trapper->GetPositionY() + (std::sin(trapper->GetOrientation()) * 20), me->GetPositionZ());
-                    //trapper->SetVisible(true);
-                }
                 _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
                 break;
             case EVENT_TRAPPER_TEXT:
