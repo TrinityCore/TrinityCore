@@ -4429,7 +4429,7 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data
             // possibly SPELL_MISS_IMMUNE2 for this??
             targetInfo.MissCondition = SPELL_MISS_IMMUNE2;
 
-        if (targetInfo.MissCondition == SPELL_MISS_NONE)       // Add only hits
+        if (targetInfo.MissCondition == SPELL_MISS_NONE || (targetInfo.MissCondition == SPELL_MISS_BLOCK && !m_spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED)) // Add only hits and partial blocked
         {
             data.HitTargets->push_back(targetInfo.TargetGUID);
 
