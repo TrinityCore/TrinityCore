@@ -139,7 +139,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry`=8420;
 INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES 
-(8420, 1, 1312.67, 1208.86, 58.5123, 2.5, 2);
+(8420, 1, 1311.91, 1207.39, 58.477764, 1.5707, 2);
 
 DELETE FROM `waypoint_data` WHERE `id`= 448840;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
