@@ -975,6 +975,7 @@ struct npc_silverpine_deathstalker : public ScriptedAI
 
     void JustAppeared() override
     {
+        // @TODO: figure out some common thing why powertype energy is used here
         me->SetPowerType(POWER_ENERGY);
         me->SetMaxPower(POWER_ENERGY, 100);
         me->SetPower(POWER_ENERGY, 100, true);
@@ -1020,6 +1021,9 @@ struct npc_silverpine_worgen_renegade : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        if (!UpdateVictim())
+            return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -1035,9 +1039,6 @@ struct npc_silverpine_worgen_renegade : public ScriptedAI
                     break;
             }
         }
-
-        if (!UpdateVictim())
-            return;
 
         DoMeleeAttackIfReady();
     }
@@ -1109,6 +1110,9 @@ struct npc_silverpine_forsaken_trooper : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        if (!UpdateVictim())
+            return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -1124,9 +1128,6 @@ struct npc_silverpine_forsaken_trooper : public ScriptedAI
                     break;
             }
         }
-
-        if (!UpdateVictim())
-            return;
 
         DoMeleeAttackIfReady();
     }
@@ -1250,7 +1251,6 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
                     me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 17.794235f);
-
                     me->GetMotionMaster()->MovePath(PATH_BAT_TO_LAKE, false);
 
                     _events.ScheduleEvent(EVENT_CHECK_FINISH_ITERATING, 500ms);
@@ -1268,7 +1268,6 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
                 if (waypointId == WAYPOINT_LAST_POINT_TO_LAKE)
                 {
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 17.982668f);
-
                     me->GetMotionMaster()->MovePath(PATH_BAT_AROUND_LAKE, false);
 
                     SetCircularActionBar();
@@ -1301,7 +1300,6 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
                 if (waypointId == WAYPOINT_LAST_POINT_TO_HOME)
                 {
                     me->GetVehicleKit()->RemoveAllPassengers();
-
                     me->DespawnOrUnsummon();
                 }
                 break;
@@ -1327,14 +1325,11 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                 {
                     me->PauseMovement();
-
                     me->GetMotionMaster()->Clear();
-
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 35.78791f);
-
                     me->GetMotionMaster()->MovePath(PATH_BAT_TO_HOME, false);
 
-                    SetupFinishActionBar();
+                    SetFinishActionBar();
 
                     player->VehicleSpellInitialize();
 
@@ -1386,7 +1381,7 @@ struct npc_silverpine_forsaken_bat : public VehicleAI
         me->m_spells[1] = SPELL_GO_HOME;
     }
 
-    void SetupFinishActionBar()
+    void SetFinishActionBar()
     {
         me->m_spells[0] = 0;
         me->m_spells[1] = 0;
