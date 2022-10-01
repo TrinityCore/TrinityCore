@@ -18,7 +18,13 @@
 #include "zulgurub.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
+
+enum ZulGurubGameEventIds
+{
+    EVENT_MUDSKUNK_LURE = 9104
+};
 
 DoorData const doorData[] =
 {
@@ -35,6 +41,7 @@ ObjectData const creatureData[] =
     { NPC_ARLOKK,             DATA_ARLOKK },
     { NPC_PRIESTESS_MARLI,    DATA_MARLI },
     { NPC_VILEBRANCH_SPEAKER, DATA_VILEBRANCH_SPEAKER },
+    { NPC_GAHZRANKA,          DATA_GAHZRANKA },
     { NPC_HAKKAR,             DATA_HAKKAR },
     { 0,                      0 } // END
 };
@@ -80,6 +87,12 @@ class instance_zulgurub : public InstanceMapScript
                     default:
                         break;
                 }
+            }
+
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+            {
+                if (eventId == EVENT_MUDSKUNK_LURE && GetBossState(DATA_GAHZRANKA) != DONE && !GetCreature(DATA_GAHZRANKA))
+                    instance->SummonCreature(NPC_GAHZRANKA, { -11688.5f, -1737.74f, 2.6789f, 3.9f });
             }
         };
 

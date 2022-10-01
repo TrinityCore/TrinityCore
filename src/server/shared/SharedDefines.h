@@ -517,7 +517,7 @@ enum SpellAttr3 : uint32
     SPELL_ATTR3_UNK0                             = 0x00000001, // TITLE Unknown attribute 0@Attr3
     SPELL_ATTR3_IGNORE_PROC_SUBCLASS_MASK        = 0x00000002, //  1 Ignores subclass mask check when checking proc
     SPELL_ATTR3_UNK2                             = 0x00000004, // TITLE Unknown attribute 2@Attr3
-    SPELL_ATTR3_BLOCKABLE_SPELL                  = 0x00000008, // TITLE Blockable spell
+    SPELL_ATTR3_COMPLETELY_BLOCKED               = 0x00000008, // TITLE Completely Blocked
     SPELL_ATTR3_IGNORE_RESURRECTION_TIMER        = 0x00000010, // TITLE Ignore resurrection timer
     SPELL_ATTR3_UNK5                             = 0x00000020, // TITLE Unknown attribute 5@Attr3
     SPELL_ATTR3_UNK6                             = 0x00000040, // TITLE Unknown attribute 6@Attr3
