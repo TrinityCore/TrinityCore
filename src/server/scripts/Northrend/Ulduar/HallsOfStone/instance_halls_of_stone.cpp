@@ -25,7 +25,30 @@
 DoorData const doorData[] =
 {
     { GO_SJONNIR_DOOR, DATA_TRIBUNAL_OF_AGES, DOOR_TYPE_PASSAGE },
-    { 0,               0,                     DOOR_TYPE_ROOM } // END
+    { 0,               0,                     DOOR_TYPE_ROOM    } // END
+};
+
+ObjectData const creatureData[] =
+{
+    { NPC_KRYSTALLUS,               DATA_KRYSTALLUS             },
+    { NPC_MAIDEN_OF_GRIEF,          DATA_MAIDEN_OF_GRIEF        },
+    { NPC_SJONNIR_THE_IRONSHAPER,   DATA_SJONNIR_THE_IRONSHAPER },
+    { NPC_KADDRAK,                  DATA_KADDRAK                },
+    { NPC_MARNAK,                   DATA_MARNAK                 },
+    { NPC_ABEDNEUM,                 DATA_ABEDNEUM               },
+    { 0,                            0                           } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_KADDRAK,               DATA_GO_KADDRAK             },
+    { GO_MARNAK,                DATA_GO_MARNAK              },
+    { GO_ABEDNEUM,              DATA_GO_ABEDNEUM            },
+    { GO_TRIBUNAL_CONSOLE,      DATA_GO_TRIBUNAL_CONSOLE    },
+    { GO_TRIBUNAL_SKY_FLOOR,    DATA_GO_SKY_FLOOR           },
+    { GO_TRIBUNAL_CHEST,        DATA_GO_TRIBUNAL_CHEST      },
+    { GO_TRIBUNAL_CHEST_HERO,   DATA_GO_TRIBUNAL_CHEST      },
+    { 0,                        0                           } // END
 };
 
 class instance_halls_of_stone : public InstanceMapScript
@@ -39,37 +62,8 @@ class instance_halls_of_stone : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_KRYSTALLUS:
-                        KrystallusGUID = creature->GetGUID();
-                        break;
-                    case NPC_MAIDEN:
-                        MaidenOfGriefGUID = creature->GetGUID();
-                        break;
-                    case NPC_SJONNIR:
-                        SjonnirGUID = creature->GetGUID();
-                        break;
-                    case NPC_MARNAK:
-                        MarnakGUID = creature->GetGUID();
-                        break;
-                    case NPC_KADDRAK:
-                        KaddrakGUID = creature->GetGUID();
-                        break;
-                    case NPC_ABEDNEUM:
-                        AbedneumGUID = creature->GetGUID();
-                        break;
-                    case NPC_BRANN:
-                        BrannGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -78,63 +72,14 @@ class instance_halls_of_stone : public InstanceMapScript
 
                 switch (go->GetEntry())
                 {
-                    case GO_ABEDNEUM:
-                        AbedneumGoGUID = go->GetGUID();
-                        break;
-                    case GO_MARNAK:
-                        MarnakGoGUID = go->GetGUID();
-                        break;
-                    case GO_KADDRAK:
-                        KaddrakGoGUID = go->GetGUID();
-                        break;
-                    case GO_TRIBUNAL_CONSOLE:
-                        TribunalConsoleGUID = go->GetGUID();
-                        break;
                     case GO_TRIBUNAL_CHEST:
                     case GO_TRIBUNAL_CHEST_HERO:
-                        TribunalChestGUID = go->GetGUID();
                         if (GetBossState(DATA_TRIBUNAL_OF_AGES) == DONE)
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
-                    case GO_TRIBUNAL_SKY_FLOOR:
-                        TribunalSkyFloorGUID = go->GetGUID();
-                        break;
                     default:
                         break;
                 }
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_MAIDEN_OF_GRIEF:
-                        return MaidenOfGriefGUID;
-                    case DATA_KRYSTALLUS:
-                        return KrystallusGUID;
-                    case DATA_SJONNIR:
-                        return SjonnirGUID;
-                    case DATA_KADDRAK:
-                        return KaddrakGUID;
-                    case DATA_MARNAK:
-                        return MarnakGUID;
-                    case DATA_ABEDNEUM:
-                        return AbedneumGUID;
-                    case DATA_GO_TRIBUNAL_CONSOLE:
-                        return TribunalConsoleGUID;
-                    case DATA_GO_KADDRAK:
-                        return KaddrakGoGUID;
-                    case DATA_GO_ABEDNEUM:
-                        return AbedneumGoGUID;
-                    case DATA_GO_MARNAK:
-                        return MarnakGoGUID;
-                    case DATA_GO_SKY_FLOOR:
-                        return TribunalSkyFloorGUID;
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -146,10 +91,8 @@ class instance_halls_of_stone : public InstanceMapScript
                 {
                     case DATA_TRIBUNAL_OF_AGES:
                         if (state == DONE)
-                        {
-                            if (GameObject* go = instance->GetGameObject(TribunalChestGUID))
+                            if (GameObject* go = GetGameObject(DATA_GO_TRIBUNAL_CHEST))
                                 go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
-                        }
                         break;
                     default:
                         break;
@@ -165,7 +108,7 @@ class instance_halls_of_stone : public InstanceMapScript
 
                 switch (bossId)
                 {
-                    case DATA_SJONNIR:
+                    case DATA_SJONNIR_THE_IRONSHAPER:
                         if (GetBossState(DATA_TRIBUNAL_OF_AGES) != DONE)
                             return false;
                         break;
@@ -175,23 +118,6 @@ class instance_halls_of_stone : public InstanceMapScript
 
                 return true;
             }
-
-        protected:
-            ObjectGuid KrystallusGUID;
-            ObjectGuid MaidenOfGriefGUID;
-            ObjectGuid SjonnirGUID;
-
-            ObjectGuid KaddrakGUID;
-            ObjectGuid AbedneumGUID;
-            ObjectGuid MarnakGUID;
-            ObjectGuid BrannGUID;
-
-            ObjectGuid TribunalConsoleGUID;
-            ObjectGuid TribunalChestGUID;
-            ObjectGuid TribunalSkyFloorGUID;
-            ObjectGuid KaddrakGoGUID;
-            ObjectGuid AbedneumGoGUID;
-            ObjectGuid MarnakGoGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

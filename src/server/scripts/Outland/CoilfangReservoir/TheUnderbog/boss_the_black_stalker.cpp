@@ -61,37 +61,19 @@ enum Events
     EVENT_SUMMON_SPORE_STRIDER
 };
 
-struct boss_the_black_stalker : public ScriptedAI
+struct boss_the_black_stalker : public BossAI
 {
-    boss_the_black_stalker(Creature* creature) : ScriptedAI(creature), _summons(creature) { }
+    boss_the_black_stalker(Creature* creature) : BossAI(creature, DATA_THE_BLACK_STALKER), _summons(creature) { }
 
-    void Reset() override
+    void JustEngagedWith(Unit* who) override
     {
-        _events.Reset();
-        _summons.DespawnAll();
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
+        BossAI::JustEngagedWith(who);
         _events.ScheduleEvent(EVENT_LEASH_CHECK, 5s);
         _events.ScheduleEvent(EVENT_LEVITATE, 8s, 18s);
         _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 0s, 3s);
         _events.ScheduleEvent(EVENT_STATIC_CHARGE, 10s);
         if (IsHeroic())
             _events.ScheduleEvent(EVENT_SUMMON_SPORE_STRIDER, 20s, 30s);
-    }
-
-    void JustSummoned(Creature* summon) override
-    {
-        _summons.Summon(summon);
-
-        if (me->IsEngaged())
-            DoZoneInCombat(summon);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _summons.DespawnAll();
     }
 
     void UpdateAI(uint32 diff) override

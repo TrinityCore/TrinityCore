@@ -135,6 +135,12 @@ class instance_shattered_halls : public InstanceMapScript
                 }
             }
 
+            void OnUnitDeath(Unit* unit) override
+            {
+                if (unit->GetEntry() == NPC_BLOOD_GUARD_PORUNG)
+                    SetBossState(DATA_PORUNG, DONE);
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))

@@ -207,7 +207,9 @@ enum Misc
     DATA_MADE_A_MESS                    = 45374613, // 4537, 4613 are achievement IDs
 
     GOSSIP_MENU_MURADIN_BRONZEBEARD     = 10934,
-    GOSSIP_MENU_HIGH_OVERLORD_SAURFANG  = 10952
+    GOSSIP_MENU_HIGH_OVERLORD_SAURFANG  = 10952,
+
+    SPAWN_GROUP_ENTRANCE_THE_DAMNED_EVENT   = 275,
 };
 
 enum MovePoints
@@ -747,11 +749,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
         }
         else if (type == WAYPOINT_MOTION_TYPE && id == POINT_EXIT)
         {
-            std::list<Creature*> guards;
-            GetCreatureListWithEntryInGrid(guards, me, NPC_KOR_KRON_GENERAL, 50.0f);
-            for (std::list<Creature*>::iterator itr = guards.begin(); itr != guards.end(); ++itr)
-                (*itr)->DespawnOrUnsummon();
-            me->DespawnOrUnsummon();
+            me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_ENTRANCE_THE_DAMNED_EVENT);
         }
     }
 
@@ -918,11 +916,7 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
         }
         else if (type == WAYPOINT_MOTION_TYPE && id == POINT_EXIT)
         {
-            std::list<Creature*> guards;
-            GetCreatureListWithEntryInGrid(guards, me, NPC_ALLIANCE_COMMANDER, 50.0f);
-            for (std::list<Creature*>::iterator itr = guards.begin(); itr != guards.end(); ++itr)
-                (*itr)->DespawnOrUnsummon();
-            me->DespawnOrUnsummon();
+            me->GetMap()->SpawnGroupDespawn(SPAWN_GROUP_ENTRANCE_THE_DAMNED_EVENT);
         }
     }
 
