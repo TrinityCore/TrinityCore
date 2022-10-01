@@ -123,7 +123,8 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                         break;
 
                     case DATA_BUG_TRIO_DEATH:
-                        ++BugTrioDeathCount;
+                        if (++BugTrioDeathCount >= 3)
+                            SetBossState(DATA_BUG_TRIO, DONE);
                         break;
 
                     case DATA_VEKLOR_DEATH:

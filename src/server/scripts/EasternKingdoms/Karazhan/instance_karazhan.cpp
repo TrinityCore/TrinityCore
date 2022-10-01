@@ -131,6 +131,11 @@ public:
                         }
                     }
                     break;
+                case NPC_HYAKISS_THE_LURKER:
+                case NPC_SHADIKITH_THE_GLIDER:
+                case NPC_ROKAD_THE_RAVAGER:
+                    SetBossState(DATA_OPTIONAL_BOSS, DONE);
+                    break;
                 default:
                     break;
             }

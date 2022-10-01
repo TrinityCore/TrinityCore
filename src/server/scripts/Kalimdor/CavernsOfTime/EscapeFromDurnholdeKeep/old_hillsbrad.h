@@ -23,19 +23,19 @@
 #define OHScriptName "instance_old_hillsbrad"
 #define DataHeader "OH"
 
+constexpr uint32 OldHillsbradFoothillsBossCount = 3;
+
 enum OHDataTypes
 {
-    TYPE_BARREL_DIVERSION   = 1,
-    TYPE_THRALL_EVENT       = 2,
-    TYPE_THRALL_PART1       = 3,
-    TYPE_THRALL_PART2       = 4,
-    TYPE_THRALL_PART3       = 5,
-    TYPE_THRALL_PART4       = 6,
+    DATA_LIEUTENANT_DRAKE   = 0,
+    DATA_CAPTAIN_SKARLOC    = 1,
+    DATA_EPOCH_HUNTER       = 2,
 
-    DATA_THRALL             = 7,
-    DATA_TARETHA            = 8,
-    DATA_EPOCH              = 9
+    TYPE_BARREL_DIVERSION   = 3,
+    TYPE_THRALL_EVENT       = 4,
 
+    DATA_THRALL             = 5,
+    DATA_TARETHA            = 6
 };
 
 enum OHWorldStateIds
@@ -43,10 +43,24 @@ enum OHWorldStateIds
     WORLD_STATE_OH              = 2436
 };
 
+enum OHThrallEscortStates
+{
+    OH_ESCORT_PRISON_TO_SKARLOC,
+    OH_ESCORT_HORSE_RIDE,
+    OH_ESCORT_BARN_TO_TARETHA,
+    OH_ESCORT_EPOCH_HUNTER,
+    OH_ESCORT_FINISHED,
+
+    OH_ESCORT_DEATH_EVENT           // increment wipe counter
+};
+
 template <class AI, class T>
 inline AI* GetOldHillsbradAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, OHScriptName);
 }
+
+#define RegisterOldHillsbradCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetOldHillsbradAI)
+#define RegisterOldHillsbradGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetOldHillsbradAI)
 
 #endif

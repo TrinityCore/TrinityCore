@@ -140,7 +140,7 @@ public:
         return DoTeleport(handler, spawnpoint->spawnPoint, spawnpoint->mapId);
     }
 
-    static bool HandleGoGameObjectSpawnIdCommand(ChatHandler* handler, uint32 spawnId)
+    static bool HandleGoGameObjectSpawnIdCommand(ChatHandler* handler, Variant<Hyperlink<gameobject>, ObjectGuid::LowType> spawnId)
     {
         GameObjectData const* spawnpoint = sObjectMgr->GetGameObjectData(spawnId);
         if (!spawnpoint)
@@ -153,12 +153,12 @@ public:
         return DoTeleport(handler, spawnpoint->spawnPoint, spawnpoint->mapId);
     }
 
-    static bool HandleGoGameObjectGOIdCommand(ChatHandler* handler, uint32 goId)
+    static bool HandleGoGameObjectGOIdCommand(ChatHandler* handler, Variant<Hyperlink<gameobject_entry>, uint32> goId)
     {
         GameObjectData const* spawnpoint = nullptr;
         for (auto const& pair : sObjectMgr->GetAllGameObjectData())
         {
-            if (pair.second.id != goId)
+            if (pair.second.id != *goId)
                 continue;
 
             if (!spawnpoint)
