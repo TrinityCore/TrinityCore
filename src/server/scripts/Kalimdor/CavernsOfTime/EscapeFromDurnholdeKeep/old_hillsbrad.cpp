@@ -49,60 +49,53 @@ enum Erozion
 };
 #define GOSSIP_HELLO_EROZION2   "[PH] Teleport please, i'm tired." //not in DB,maybe incorrect?
 
+Position const ThrallRespawnPositionAfterSkarloc(2062.934f, 229.14508f, 64.57113f, 2.338741064071655273);
+Position const ThrallRespawnPositionAfterHorseRide(2486.5637f, 624.09796f, 57.95088f, 4.136430263519287109);
+Position const ThrallRespawnPositionAfterMeetingTaretha(2660.0847f, 659.54816f, 62.020317f, 5.864306449890136718);
+
 /*######
 ## npc_erozion
 ######*/
 
-class npc_erozion : public CreatureScript
+struct npc_erozion : public ScriptedAI
 {
-public:
-    npc_erozion() : CreatureScript("npc_erozion") { }
+    npc_erozion(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
-    struct npc_erozionAI : public ScriptedAI
+    InstanceScript* instance;
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
-        npc_erozionAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
-
-        InstanceScript* instance;
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        ClearGossipMenuFor(player);
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            ItemPosCountVec dest;
+            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_ENTRY_BOMBS, 1);
+            if (msg == EQUIP_ERR_OK)
             {
-                ItemPosCountVec dest;
-                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_ENTRY_BOMBS, 1);
-                if (msg == EQUIP_ERR_OK)
-                {
-                    player->StoreNewItem(dest, ITEM_ENTRY_BOMBS, true);
-                }
-                SendGossipMenuFor(player, 9515, me->GetGUID());
+                player->StoreNewItem(dest, ITEM_ENTRY_BOMBS, true);
             }
-            if (action == GOSSIP_ACTION_INFO_DEF + 2)
-                CloseGossipMenuFor(player);
-            return true;
+            SendGossipMenuFor(player, 9515, me->GetGUID());
         }
+        if (action == GOSSIP_ACTION_INFO_DEF + 2)
+            CloseGossipMenuFor(player);
+        return true;
+    }
 
-        bool OnGossipHello(Player* player) override
-        {
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            if (instance->GetData(TYPE_BARREL_DIVERSION) != DONE && !player->HasItemCount(ITEM_ENTRY_BOMBS))
-                AddGossipItemFor(player, GOSSIP_MENU_EROZION, GOSSIP_OPTION_BOMB, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            if (player->GetQuestStatus(QUEST_ENTRY_RETURN) == QUEST_STATUS_COMPLETE)
-                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-            SendGossipMenuFor(player, 9778, me->GetGUID());
-
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    bool OnGossipHello(Player* player) override
     {
-        return GetOldHillsbradAI<npc_erozionAI>(creature);
+        if (me->IsQuestGiver())
+            player->PrepareQuestMenu(me->GetGUID());
+
+        if (instance->GetData(TYPE_BARREL_DIVERSION) != DONE && !player->HasItemCount(ITEM_ENTRY_BOMBS))
+            AddGossipItemFor(player, GOSSIP_MENU_EROZION, GOSSIP_OPTION_BOMB, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        if (player->GetQuestStatus(QUEST_ENTRY_RETURN) == QUEST_STATUS_COMPLETE)
+            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+        SendGossipMenuFor(player, 9778, me->GetGUID());
+
+        return true;
     }
 };
 
@@ -191,359 +184,381 @@ enum ThrallOldHillsbrad
 #define SPEED_RUN               (1.0f)
 #define SPEED_MOUNT             (1.6f)
 
-class npc_thrall_old_hillsbrad : public CreatureScript
+struct npc_thrall_old_hillsbrad : public EscortAI
 {
-public:
-    npc_thrall_old_hillsbrad() : CreatureScript("npc_thrall_old_hillsbrad") { }
-
-    struct npc_thrall_old_hillsbradAI : public EscortAI
+    npc_thrall_old_hillsbrad(Creature* creature) : EscortAI(creature)
     {
-        npc_thrall_old_hillsbradAI(Creature* creature) : EscortAI(creature)
+        Initialize();
+        instance = creature->GetInstanceScript();
+        HadMount = false;
+        me->setActive(true);
+        me->SetFarVisible(true);
+    }
+
+    void Initialize()
+    {
+        LowHp = false;
+    }
+
+    void InitializeAI() override
+    {
+        /* correct respawn positions after wipe cannot be used because of how waypoints are set up for this creature
+         * it would require splitting the path into 4 segments, moving it out of script_waypoint table and changing
+         * all waypoint ids in WaypointReached function
+        switch (instance->GetData(TYPE_THRALL_EVENT))
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
-            HadMount = false;
-            me->setActive(true);
-            me->SetFarVisible(true);
+            case OH_ESCORT_HORSE_RIDE:
+                me->Relocate(ThrallRespawnPositionAfterSkarloc);
+                break;
+            case OH_ESCORT_BARN_TO_TARETHA:
+                me->Relocate(ThrallRespawnPositionAfterHorseRide);
+                break;
+            case OH_ESCORT_EPOCH_HUNTER:
+                me->Relocate(ThrallRespawnPositionAfterMeetingTaretha);
+                break;
+            default:
+                break;
         }
 
-        void Initialize()
+        if (instance->GetData(TYPE_THRALL_EVENT) != OH_ESCORT_PRISON_TO_SKARLOC)
         {
-            LowHp = false;
+            me->SetVirtualItem(0, THRALL_WEAPON_ITEM);
+            me->SetVirtualItem(1, THRALL_SHIELD_ITEM);
+            me->SetDisplayId(THRALL_MODEL_EQUIPPED);
         }
+        */
 
-        InstanceScript* instance;
+        EscortAI::InitializeAI();
+        me->SetRespawnCompatibilityMode(true);
+    }
 
-        bool LowHp;
-        bool HadMount;
+    InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+    bool LowHp;
+    bool HadMount;
+
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+    {
+        switch (waypointId)
         {
-            switch (waypointId)
-            {
-                case 8:
-                    SetRun(false);
-                    me->SummonCreature(18764, 2181.87f, 112.46f, 89.45f, 0.26f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 9:
-                    Talk(SAY_TH_ARMORY);
-                    me->SetVirtualItem(0, THRALL_WEAPON_ITEM);
-                    //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, THRALL_WEAPON_INFO);
-                    //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+1, 781);
-                    me->SetVirtualItem(1, THRALL_SHIELD_ITEM);
-                    //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, THRALL_SHIELD_INFO);
-                    //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+3, 1038);
-                    break;
-                case 10:
-                    me->SetDisplayId(THRALL_MODEL_EQUIPPED);
-                    break;
-                case 11:
-                    SetRun();
-                    break;
-                case 15:
-                    me->SummonCreature(NPC_RIFLE, 2200.28f, 137.37f, 87.93f, 5.07f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_WARDEN, 2197.44f, 131.83f, 87.93f, 0.78f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_VETERAN, 2203.62f, 135.40f, 87.93f, 3.70f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_VETERAN, 2200.75f, 130.13f, 87.93f, 1.48f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 21:
-                    me->SummonCreature(NPC_RIFLE, 2135.80f, 154.01f, 67.45f, 4.98f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_WARDEN, 2144.36f, 151.87f, 67.74f, 4.46f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_VETERAN, 2142.12f, 154.41f, 67.12f, 4.56f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_VETERAN, 2138.08f, 155.38f, 67.24f, 4.60f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 25:
-                    me->SummonCreature(NPC_RIFLE, 2102.98f, 192.17f, 65.24f, 6.02f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_WARDEN, 2108.48f, 198.75f, 65.18f, 5.15f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_VETERAN, 2106.11f, 197.29f, 65.18f, 5.63f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_VETERAN, 2104.18f, 194.82f, 65.18f, 5.75f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 29:
-                    Talk(SAY_TH_SKARLOC_MEET);
+            case 8:
+                SetRun(false);
+                me->SummonCreature(18764, 2181.87f, 112.46f, 89.45f, 0.26f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                break;
+            case 9:
+                Talk(SAY_TH_ARMORY);
+                me->SetVirtualItem(0, THRALL_WEAPON_ITEM);
+                me->SetVirtualItem(1, THRALL_SHIELD_ITEM);
+                break;
+            case 10:
+                me->SetDisplayId(THRALL_MODEL_EQUIPPED);
+                break;
+            case 11:
+                SetRun();
+                break;
+            case 15:
+                me->SummonCreature(NPC_RIFLE, 2200.28f, 137.37f, 87.93f, 5.07f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_WARDEN, 2197.44f, 131.83f, 87.93f, 0.78f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_VETERAN, 2203.62f, 135.40f, 87.93f, 3.70f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_VETERAN, 2200.75f, 130.13f, 87.93f, 1.48f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                break;
+            case 21:
+                me->SummonCreature(NPC_RIFLE, 2135.80f, 154.01f, 67.45f, 4.98f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_WARDEN, 2144.36f, 151.87f, 67.74f, 4.46f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_VETERAN, 2142.12f, 154.41f, 67.12f, 4.56f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_VETERAN, 2138.08f, 155.38f, 67.24f, 4.60f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                break;
+            case 25:
+                me->SummonCreature(NPC_RIFLE, 2102.98f, 192.17f, 65.24f, 6.02f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_WARDEN, 2108.48f, 198.75f, 65.18f, 5.15f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_VETERAN, 2106.11f, 197.29f, 65.18f, 5.63f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_VETERAN, 2104.18f, 194.82f, 65.18f, 5.75f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                break;
+            case 29:
+                Talk(SAY_TH_SKARLOC_MEET);
+                if (instance->GetBossState(DATA_CAPTAIN_SKARLOC) != DONE)
                     me->SummonCreature(ENTRY_SCARLOC, 2036.48f, 271.22f, 63.43f, 5.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
-                    //temporary, skarloc should rather be triggered to walk up to thrall
-                    break;
-                case 30:
-                    SetEscortPaused(true);
-                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    SetRun(false);
-                    break;
-                case 31:
-                    Talk(SAY_TH_MOUNTS_UP);
-                    DoMount();
-                    SetRun();
-                    break;
-                case 37:
-                    //possibly regular patrollers? If so, remove this and let database handle them
-                    me->SummonCreature(NPC_WATCHMAN, 2124.26f, 522.16f, 56.87f, 3.99f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_WATCHMAN, 2121.69f, 525.37f, 57.11f, 4.01f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_SENTRY, 2124.65f, 524.55f, 56.63f, 3.98f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 59:
-                    me->SummonCreature(SKARLOC_MOUNT, 2488.64f, 625.77f, 58.26f, 4.71f, TEMPSUMMON_TIMED_DESPAWN, 10s);
-                    DoUnmount();
-                    HadMount = false;
-                    SetRun(false);
-                    break;
-                case 60:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                    //make horsie run off
-                    SetEscortPaused(true);
-                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    instance->SetData(TYPE_THRALL_PART2, DONE);
-                    SetRun();
-                    break;
-                case 64:
-                    SetRun(false);
-                    break;
-                case 68:
-                    me->SummonCreature(NPC_BARN_PROTECTOR, 2500.22f, 692.60f, 55.50f, 2.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_BARN_LOOKOUT, 2500.13f, 696.55f, 55.51f, 3.38f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_BARN_GUARDSMAN, 2500.55f, 693.64f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_BARN_GUARDSMAN, 2500.94f, 695.81f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 71:
-                    SetRun();
-                    break;
-                case 81:
-                    SetRun(false);
-                    break;
-                case 83:
-                    me->SummonCreature(NPC_CHURCH_PROTECTOR, 2627.33f, 646.82f, 56.03f, 4.28f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
-                    me->SummonCreature(NPC_CHURCH_LOOKOUT, 2624.14f, 648.03f, 56.03f, 4.50f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
-                    me->SummonCreature(NPC_CHURCH_GUARDSMAN, 2625.32f, 649.60f, 56.03f, 4.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
-                    me->SummonCreature(NPC_CHURCH_GUARDSMAN, 2627.22f, 649.00f, 56.03f, 4.34f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
-                    break;
-                case 84:
-                    Talk(SAY_TH_CHURCH_END);
-                    SetRun();
-                    break;
-                case 91:
-                    me->SetWalk(true);
-                    SetRun(false);
-                    break;
-                case 93:
-                    me->SummonCreature(NPC_INN_PROTECTOR, 2652.71f, 660.31f, 61.93f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_INN_LOOKOUT, 2648.96f, 662.59f, 61.93f, 0.79f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_INN_GUARDSMAN, 2657.36f, 662.34f, 61.93f, 2.68f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    me->SummonCreature(NPC_INN_GUARDSMAN, 2656.39f, 659.77f, 61.93f, 2.61f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 94:
-                    if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
-                        Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
-                    break;
-                case 95:
-                    Talk(SAY_TH_MEET_TARETHA);
-                    instance->SetData(TYPE_THRALL_PART3, DONE);
-                    SetEscortPaused(true);
-                    break;
-                case 96:
-                    Talk(SAY_TH_EPOCH_WONDER);
-                    break;
-                case 97:
-                    Talk(SAY_TH_EPOCH_KILL_TARETHA);
-                    SetRun();
-                    break;
-                case 98:
-                    //trigger epoch Yell("Thrall! Come outside and face your fate! ....")
-                    //from here, thrall should not never be allowed to move to point 106 which he currently does.
-                    break;
-                case 106:
-                    {
-                        //trigger taretha to run down outside
-                        if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
-                        {
-                            if (Player* player = GetPlayerForEscort())
-                                ENSURE_AI(EscortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
-                        }
-
-                        //kill credit Creature for quest
-                        Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        {
-                            if (Player* player = itr->GetSource())
-                                player->KilledMonsterCredit(20156);
-                        }
-
-                        //alot will happen here, thrall and taretha talk, erozion appear at spot to explain
-                        me->SummonCreature(EROZION_ENTRY, 2646.47f, 680.416f, 55.38f, 4.16f, TEMPSUMMON_TIMED_DESPAWN, 2min);
-                    }
-                    break;
-                case 108:
-                    //last waypoint, just set Thrall invisible, respawn is turned off
-                    me->SetVisible(false);
-                    break;
-            }
-        }
-
-        void Reset() override
-        {
-            Initialize();
-
-            if (HadMount)
+                else
+                {
+                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP); // wipe recovery, prevent repeatedly farming the boss
+                    instance->SetData(TYPE_THRALL_EVENT, OH_ESCORT_HORSE_RIDE);
+                }
+                SetEscortPaused(true);
+                //temporary, skarloc should rather be triggered to walk up to thrall
+                break;
+            case 30:
+                SetRun(false);
+                break;
+            case 31:
+                Talk(SAY_TH_MOUNTS_UP);
+                HadMount = true;
                 DoMount();
-
-            if (!HasEscortState(STATE_ESCORT_ESCORTING))
-            {
+                SetRun();
+                break;
+            case 37:
+                //possibly regular patrollers? If so, remove this and let database handle them
+                me->SummonCreature(NPC_WATCHMAN, 2124.26f, 522.16f, 56.87f, 3.99f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_WATCHMAN, 2121.69f, 525.37f, 57.11f, 4.01f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_SENTRY, 2124.65f, 524.55f, 56.63f, 3.98f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                break;
+            case 59:
+                me->SummonCreature(SKARLOC_MOUNT, 2488.64f, 625.77f, 58.26f, 4.71f, TEMPSUMMON_TIMED_DESPAWN, 10s);
                 DoUnmount();
                 HadMount = false;
-                me->SetVirtualItem(0, 0);
-                me->SetVirtualItem(1, 0);
-                me->SetDisplayId(THRALL_MODEL_UNEQUIPPED);
-            }
-            if (HasEscortState(STATE_ESCORT_ESCORTING))
-            {
-                Talk(SAY_TH_LEAVE_COMBAT);
-            }
+                SetRun(false);
+                break;
+            case 60:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                //make horsie run off
+                SetEscortPaused(true);
+                instance->SetData(TYPE_THRALL_EVENT, OH_ESCORT_BARN_TO_TARETHA);
+                SetRun();
+                break;
+            case 64:
+                SetRun(false);
+                break;
+            case 68:
+                me->SummonCreature(NPC_BARN_PROTECTOR, 2500.22f, 692.60f, 55.50f, 2.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_BARN_LOOKOUT, 2500.13f, 696.55f, 55.51f, 3.38f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_BARN_GUARDSMAN, 2500.55f, 693.64f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_BARN_GUARDSMAN, 2500.94f, 695.81f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                break;
+            case 71:
+                SetRun();
+                break;
+            case 81:
+                SetRun(false);
+                break;
+            case 83:
+                me->SummonCreature(NPC_CHURCH_PROTECTOR, 2627.33f, 646.82f, 56.03f, 4.28f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
+                me->SummonCreature(NPC_CHURCH_LOOKOUT, 2624.14f, 648.03f, 56.03f, 4.50f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
+                me->SummonCreature(NPC_CHURCH_GUARDSMAN, 2625.32f, 649.60f, 56.03f, 4.38f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
+                me->SummonCreature(NPC_CHURCH_GUARDSMAN, 2627.22f, 649.00f, 56.03f, 4.34f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
+                break;
+            case 84:
+                Talk(SAY_TH_CHURCH_END);
+                SetRun();
+                break;
+            case 91:
+                me->SetWalk(true);
+                SetRun(false);
+                break;
+            case 93:
+                me->SummonCreature(NPC_INN_PROTECTOR, 2652.71f, 660.31f, 61.93f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_INN_LOOKOUT, 2648.96f, 662.59f, 61.93f, 0.79f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_INN_GUARDSMAN, 2657.36f, 662.34f, 61.93f, 2.68f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                me->SummonCreature(NPC_INN_GUARDSMAN, 2656.39f, 659.77f, 61.93f, 2.61f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                break;
+            case 94:
+                if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
+                    Taretha->AI()->Talk(SAY_TA_ESCAPED, me);
+                break;
+            case 95:
+                Talk(SAY_TH_MEET_TARETHA);
+                instance->SetData(TYPE_THRALL_EVENT, OH_ESCORT_EPOCH_HUNTER);
+                SetEscortPaused(true);
+                break;
+            case 96:
+                Talk(SAY_TH_EPOCH_WONDER);
+                break;
+            case 97:
+                Talk(SAY_TH_EPOCH_KILL_TARETHA);
+                SetRun();
+                break;
+            case 98:
+                //trigger epoch Yell("Thrall! Come outside and face your fate! ....")
+                //from here, thrall should not never be allowed to move to point 106 which he currently does.
+                break;
+            case 106:
+                {
+                    //trigger taretha to run down outside
+                    if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
+                    {
+                        if (Player* player = GetPlayerForEscort())
+                            ENSURE_AI(EscortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
+                    }
+
+                    //kill credit Creature for quest
+                    Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if (Player* player = itr->GetSource())
+                            player->KilledMonsterCredit(20156);
+                    }
+
+                    //alot will happen here, thrall and taretha talk, erozion appear at spot to explain
+                    me->SummonCreature(EROZION_ENTRY, 2646.47f, 680.416f, 55.38f, 4.16f, TEMPSUMMON_TIMED_DESPAWN, 2min);
+                }
+                break;
+            case 108:
+                //last waypoint, just set Thrall invisible, respawn is turned off
+                me->SetVisible(false);
+                break;
         }
-        void StartWP()
-        {
-            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            SetEscortPaused(false);
-        }
-        void DoMount()
-        {
-            me->Mount(SKARLOC_MOUNT_MODEL);
-            me->SetSpeedRate(MOVE_RUN, SPEED_MOUNT);
-        }
-        void DoUnmount()
-        {
-            me->Dismount();
-            me->SetSpeedRate(MOVE_RUN, SPEED_RUN);
-        }
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            Talk(SAY_TH_RANDOM_AGGRO);
-            if (me->IsMounted())
-            {
-                DoUnmount();
-                HadMount = true;
-            }
-        }
+    }
 
-        void JustSummoned(Creature* summoned) override
-        {
-             switch (summoned->GetEntry())
-             {
-            /// @todo make Scarloc start into event instead, and not start attack directly
-             case NPC_BARN_GUARDSMAN:
-             case NPC_BARN_PROTECTOR:
-             case NPC_BARN_LOOKOUT:
-             case SKARLOC_MOUNT:
-             case EROZION_ENTRY:
-                 break;
-             default:
-                 summoned->AI()->AttackStart(me);
-                 break;
-             }
-        }
-
-        void KilledUnit(Unit* /*victim*/) override
-        {
-            Talk(SAY_TH_RANDOM_KILL);
-        }
-        void JustDied(Unit* killer) override
-        {
-            instance->SetData(TYPE_THRALL_EVENT, FAIL);
-
-            // Don't do a yell if he kills self (if player goes too far or at the end).
-            if (killer == me)
-                return;
-
-            Talk(SAY_TH_RANDOM_DIE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            EscortAI::UpdateAI(diff);
-
-            if (!UpdateVictim())
-                return;
-
-            /// @todo add his abilities'n-crap here
-            if (!LowHp && HealthBelowPct(20))
-            {
-                Talk(SAY_TH_RANDOM_LOW_HP);
-                LowHp = true;
-            }
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    CloseGossipMenuFor(player);
-                    instance->SetData(TYPE_THRALL_EVENT, IN_PROGRESS);
-                    instance->SetData(TYPE_THRALL_PART1, IN_PROGRESS);
-
-                    Talk(SAY_TH_START_EVENT_PART1);
-
-                    Start(true, true, player->GetGUID());
-
-                    SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
-                    SetDespawnAtEnd(false);
-                    SetDespawnAtFar(false);
-                    break;
-
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC2_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
-                    SendGossipMenuFor(player, GOSSIP_ID_SKARLOC2, me->GetGUID());
-                    break;
-
-                case GOSSIP_ACTION_INFO_DEF + 20:
-                    SendGossipMenuFor(player, GOSSIP_ID_SKARLOC3, me->GetGUID());
-                    me->SummonCreature(SKARLOC_MOUNT, 2038.81f, 270.26f, 63.20f, 5.41f, TEMPSUMMON_TIMED_DESPAWN, 12s);
-                    instance->SetData(TYPE_THRALL_PART2, IN_PROGRESS);
-
-                    Talk(SAY_TH_START_EVENT_PART2);
-
-                    StartWP();
-                    break;
-
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    CloseGossipMenuFor(player);
-                    instance->SetData(TYPE_THRALL_PART3, IN_PROGRESS);
-                    StartWP();
-                    break;
-            }
-            return true;
-        }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (me->IsQuestGiver())
-            {
-                player->PrepareQuestMenu(me->GetGUID());
-                player->SendPreparedQuest(me);
-            }
-
-            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE && !instance->GetData(TYPE_THRALL_EVENT))
-            {
-                AddGossipItemFor(player, GOSSIP_ITEM_WALKING_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, GOSSIP_ID_START, me->GetGUID());
-            }
-
-            if (instance->GetData(TYPE_THRALL_PART1) == DONE && !instance->GetData(TYPE_THRALL_PART2))
-            {
-                AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC1_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, GOSSIP_ID_SKARLOC1, me->GetGUID());
-            }
-
-            if (instance->GetData(TYPE_THRALL_PART2) == DONE && !instance->GetData(TYPE_THRALL_PART3))
-            {
-                AddGossipItemFor(player, GOSSIP_ITEM_TARREN_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                SendGossipMenuFor(player, GOSSIP_ID_TARREN, me->GetGUID());
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetOldHillsbradAI<npc_thrall_old_hillsbradAI>(creature);
+        Initialize();
+
+        if (HadMount)
+            DoMount();
+
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            DoUnmount();
+            HadMount = false;
+            me->SetVirtualItem(0, 0);
+            me->SetVirtualItem(1, 0);
+            me->SetDisplayId(THRALL_MODEL_UNEQUIPPED);
+        }
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            Talk(SAY_TH_LEAVE_COMBAT);
+        }
+    }
+    void StartWP()
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        SetEscortPaused(false);
+    }
+    void DoMount()
+    {
+        me->Mount(SKARLOC_MOUNT_MODEL);
+        me->SetSpeedRate(MOVE_RUN, SPEED_MOUNT);
+    }
+    void DoUnmount()
+    {
+        me->Dismount();
+        me->SetSpeedRate(MOVE_RUN, SPEED_RUN);
+    }
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_TH_RANDOM_AGGRO);
+        if (me->IsMounted())
+            DoUnmount();
+    }
+
+    void JustReachedHome() override
+    {
+        EscortAI::JustReachedHome();
+        if (HadMount)
+            DoMount();
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+         switch (summoned->GetEntry())
+         {
+        /// @todo make Scarloc start into event instead, and not start attack directly
+         case NPC_BARN_GUARDSMAN:
+         case NPC_BARN_PROTECTOR:
+         case NPC_BARN_LOOKOUT:
+         case SKARLOC_MOUNT:
+         case EROZION_ENTRY:
+             break;
+         default:
+             summoned->AI()->AttackStart(me);
+             break;
+         }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_TH_RANDOM_KILL);
+    }
+    void JustDied(Unit* killer) override
+    {
+        instance->SetData(TYPE_THRALL_EVENT, OH_ESCORT_DEATH_EVENT);
+
+        // Don't do a yell if he kills self (if player goes too far or at the end).
+        if (killer == me)
+            return;
+
+        Talk(SAY_TH_RANDOM_DIE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        EscortAI::UpdateAI(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        /// @todo add his abilities'n-crap here
+        if (!LowHp && HealthBelowPct(20))
+        {
+            Talk(SAY_TH_RANDOM_LOW_HP);
+            LowHp = true;
+        }
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        ClearGossipMenuFor(player);
+        switch (action)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                CloseGossipMenuFor(player);
+
+                Talk(SAY_TH_START_EVENT_PART1);
+
+                Start(true, true, player->GetGUID());
+
+                SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
+                SetDespawnAtEnd(false);
+                SetDespawnAtFar(false);
+                break;
+
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC2_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
+                SendGossipMenuFor(player, GOSSIP_ID_SKARLOC2, me->GetGUID());
+                break;
+
+            case GOSSIP_ACTION_INFO_DEF + 20:
+                SendGossipMenuFor(player, GOSSIP_ID_SKARLOC3, me->GetGUID());
+                me->SummonCreature(SKARLOC_MOUNT, 2038.81f, 270.26f, 63.20f, 5.41f, TEMPSUMMON_TIMED_DESPAWN, 12s);
+
+                Talk(SAY_TH_START_EVENT_PART2);
+
+                StartWP();
+                break;
+
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                CloseGossipMenuFor(player);
+                StartWP();
+                break;
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (me->IsQuestGiver())
+        {
+            player->PrepareQuestMenu(me->GetGUID());
+            player->SendPreparedQuest(me);
+        }
+
+        if (instance->GetBossState(DATA_LIEUTENANT_DRAKE) == DONE && instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_PRISON_TO_SKARLOC)
+        {
+            AddGossipItemFor(player, GOSSIP_ITEM_WALKING_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, GOSSIP_ID_START, me->GetGUID());
+        }
+
+        if (instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_HORSE_RIDE)
+        {
+            AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC1_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            SendGossipMenuFor(player, GOSSIP_ID_SKARLOC1, me->GetGUID());
+        }
+
+        if (instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_BARN_TO_TARETHA)
+        {
+            AddGossipItemFor(player, GOSSIP_ITEM_TARREN_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            SendGossipMenuFor(player, GOSSIP_ID_TARREN, me->GetGUID());
+        }
+        return true;
     }
 };
 
@@ -560,82 +575,64 @@ enum Taretha
     GOSSIP_ITEM_EPOCH2_OID  = 0                            //We'll get you out, Taretha. Don't worry. I doubt the wizard would wander too far away.
 };
 
-class npc_taretha : public CreatureScript
+struct npc_taretha : public EscortAI
 {
-public:
-    npc_taretha() : CreatureScript("npc_taretha") { }
-
-    struct npc_tarethaAI : public EscortAI
+    npc_taretha(Creature* creature) : EscortAI(creature)
     {
-        npc_tarethaAI(Creature* creature) : EscortAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
+        instance = creature->GetInstanceScript();
+    }
 
-        InstanceScript* instance;
+    InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 6:
-                    Talk(SAY_TA_FREE);
-                    break;
-                case 7:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
-                    break;
-            }
-        }
-
-        void Reset() override { }
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            EscortAI::UpdateAI(diff);
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                AddGossipItemFor(player, GOSSIP_ITEM_EPOCH2_MID, GOSSIP_ITEM_EPOCH2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, GOSSIP_ID_EPOCH2, me->GetGUID());
-            }
-            if (action == GOSSIP_ACTION_INFO_DEF + 2)
-            {
-                CloseGossipMenuFor(player);
-
-                if (instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
-                {
-                    instance->SetData(TYPE_THRALL_PART4, IN_PROGRESS);
-                    if (instance->GetGuidData(DATA_EPOCH).IsEmpty())
-                        me->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 2min);
-
-                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
-                        ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
-                }
-            }
-            return true;
-        }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (instance->GetData(TYPE_THRALL_PART3) == DONE && instance->GetData(TYPE_THRALL_PART4) == NOT_STARTED)
-            {
-                AddGossipItemFor(player, GOSSIP_ITEM_EPOCH1_MID, GOSSIP_ITEM_EPOCH1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, GOSSIP_ID_EPOCH1, me->GetGUID());
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
-        return GetOldHillsbradAI<npc_tarethaAI>(creature);
+        switch (waypointId)
+        {
+            case 6:
+                Talk(SAY_TA_FREE);
+                break;
+            case 7:
+                me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
+                break;
+        }
+    }
+
+    void Reset() override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        ClearGossipMenuFor(player);
+
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            AddGossipItemFor(player, GOSSIP_ITEM_EPOCH2_MID, GOSSIP_ITEM_EPOCH2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            SendGossipMenuFor(player, GOSSIP_ID_EPOCH2, me->GetGUID());
+        }
+        if (action == GOSSIP_ACTION_INFO_DEF + 2)
+        {
+            CloseGossipMenuFor(player);
+
+            if (instance->GetGuidData(DATA_EPOCH_HUNTER).IsEmpty())
+                me->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 2min);
+
+            if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
+                ENSURE_AI(npc_thrall_old_hillsbrad, thrall->AI())->StartWP();
+
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_EPOCH_HUNTER && instance->GetBossState(DATA_EPOCH_HUNTER) != DONE)
+        {
+            AddGossipItemFor(player, GOSSIP_ITEM_EPOCH1_MID, GOSSIP_ITEM_EPOCH1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, GOSSIP_ID_EPOCH1, me->GetGUID());
+        }
+        return true;
     }
 };
 
@@ -645,7 +642,7 @@ public:
 
 void AddSC_old_hillsbrad()
 {
-    new npc_erozion();
-    new npc_thrall_old_hillsbrad();
-    new npc_taretha();
+    RegisterOldHillsbradCreatureAI(npc_erozion);
+    RegisterOldHillsbradCreatureAI(npc_thrall_old_hillsbrad);
+    RegisterOldHillsbradCreatureAI(npc_taretha);
 }

@@ -530,7 +530,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 {
                     // spawning all wave npcs at once
                     case EVENT_SPAWN_WAVES:
-                        _waveCount = 1;
+                        _waveCount = GetBossState(DATA_FALRIC) == DONE ? 6 : 1;
                         DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
                         DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
                         {
@@ -544,7 +544,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             possibilityList.push_back(NPC_WAVE_MAGE);
 
                             // iterate each wave
-                            for (uint8 i = 0; i < 8; ++i)
+                            for (uint8 i = GetBossState(DATA_FALRIC) == DONE ? 4 : 0; i < 8; ++i)
                             {
                                 tempList = possibilityList;
 

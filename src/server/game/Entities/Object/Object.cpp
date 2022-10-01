@@ -878,6 +878,25 @@ void WorldObject::SetVisibilityDistanceOverride(VisibilityDistanceType type)
     if (GetTypeId() == TYPEID_PLAYER)
         return;
 
+    if (Creature* creature = ToCreature())
+    {
+        creature->RemoveUnitFlag2(UNIT_FLAG2_LARGE_AOI | UNIT_FLAG2_GIGANTIC_AOI | UNIT_FLAG2_INFINITE_AOI);
+        switch (type)
+        {
+            case VisibilityDistanceType::Large:
+                creature->SetUnitFlag2(UNIT_FLAG2_LARGE_AOI);
+                break;
+            case VisibilityDistanceType::Gigantic:
+                creature->SetUnitFlag2(UNIT_FLAG2_GIGANTIC_AOI);
+                break;
+            case VisibilityDistanceType::Infinite:
+                creature->SetUnitFlag2(UNIT_FLAG2_INFINITE_AOI);
+                break;
+            default:
+                break;
+        }
+    }
+
     m_visibilityDistanceOverride = VisibilityDistances[AsUnderlyingType(type)];
 }
 
