@@ -164,7 +164,7 @@ struct go_caribou_trap : public GameObjectAI
                     _events.ScheduleEvent(EVENT_SPAWN_TRAPPER, 1s);
                     break;
                 case EVENT_SPAWN_TRAPPER:
-                    if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetFirstCollisionPosition(21.0f, me->GetOrientation()), TEMPSUMMON_DEAD_DESPAWN, 6s))
+                    if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetFirstCollisionPosition(21.0f, 0), TEMPSUMMON_DEAD_DESPAWN, 6s))
                     {
                         trapper->SetFacingToObject(me);
                         _trapperGUID = trapper->GetGUID();
@@ -177,10 +177,15 @@ struct go_caribou_trap : public GameObjectAI
                     _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
                     break;
                 case EVENT_TRAPPER_TEXT:
+                {
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                        trapper->AI()->Talk(SAY_NESINGWARY_1);
+                    {
+                        if (trapper->IsAIEnabled())
+                            trapper->AI()->Talk(SAY_NESINGWARY_1);
+                    }
                     _events.ScheduleEvent(EVENT_TRAPPER_LOOT, 2s);
                     break;
+                }
                 case EVENT_TRAPPER_LOOT:
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
                         trapper->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
