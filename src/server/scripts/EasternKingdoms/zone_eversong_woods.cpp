@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
 
 enum Partygoer_Pather
 {
