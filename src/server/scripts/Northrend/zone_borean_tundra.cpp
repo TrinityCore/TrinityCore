@@ -19,6 +19,7 @@
 #include "CreatureAIImpl.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
@@ -95,183 +96,133 @@ struct npc_corastrasza : public ScriptedAI
     }
 };
 
-enum NesingwaryTrapper
+/*######
+## Quest 11865: Unfit for Death
+######*/
+
+// Gameobjects 187982,187995,187996,187997,187998,187999,188000,188001,188002,188003,188004,188005,188006,188007,188008: Caribou Trap
+enum CaribouTrap
 {
+    EVENT_FUR_SPAWN        = 1,
+    EVENT_SPAWN_TRAPPER,
+    EVENT_TRAPPER_MOVE,
+    EVENT_TRAPPER_TEXT,
+    EVENT_TRAPPER_LOOT,
+    EVENT_FUR_DESPAWN,
+    EVENT_TRAPPER_DIE,
+    EVENT_DESPAWN_ALL,
+
+    GO_HIGH_QUALITY_FUR    = 187983,
+
     NPC_NESINGWARY_TRAPPER = 25835,
 
-    GO_HIGH_QUALITY_FUR = 187983,
+    SAY_NESINGWARY_1       = 0,
 
-    GO_CARIBOU_TRAP_1   = 187982,
-    GO_CARIBOU_TRAP_2   = 187995,
-    GO_CARIBOU_TRAP_3   = 187996,
-    GO_CARIBOU_TRAP_4   = 187997,
-    GO_CARIBOU_TRAP_5   = 187998,
-    GO_CARIBOU_TRAP_6   = 187999,
-    GO_CARIBOU_TRAP_7   = 188000,
-    GO_CARIBOU_TRAP_8   = 188001,
-    GO_CARIBOU_TRAP_9   = 188002,
-    GO_CARIBOU_TRAP_10  = 188003,
-    GO_CARIBOU_TRAP_11  = 188004,
-    GO_CARIBOU_TRAP_12  = 188005,
-    GO_CARIBOU_TRAP_13  = 188006,
-    GO_CARIBOU_TRAP_14  = 188007,
-    GO_CARIBOU_TRAP_15  = 188008,
-
-    SPELL_TRAPPED       = 46104,
-
-    // Texts
-    SAY_NESINGWARY_1    = 0
+    SPELL_PLACE_FAKE_FUR   = 46085,
+    SPELL_TRAPPED          = 46104,
 };
 
-#define CaribouTrapsNum 15
-const uint32 CaribouTraps[CaribouTrapsNum] =
+struct go_caribou_trap : public GameObjectAI
 {
-    GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
-    GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
-    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
-};
-
-// 46085 - Place Fake Fur
-class spell_q11865_place_fake_fur : public SpellScript
-{
-    PrepareSpellScript(spell_q11865_place_fake_fur);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void ActivateGameObject(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        GameObject* go = GetHitGObj();
-        Player* player = GetCaster()->ToPlayer();
-
-        if (go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || go->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
-            return;
-
-        float x, y, z;
-        go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
-
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 20s);
-        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1s))
-        {
-            summon->SetVisible(false);
-            summon->SetReactState(REACT_PASSIVE);
-            summon->SetImmuneToPC(true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q11865_place_fake_fur::ActivateGameObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
-    }
-};
-
-struct npc_nesingwary_trapper : public ScriptedAI
-{
-    npc_nesingwary_trapper(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        me->SetVisible(false);
-        phaseTimer = 2500;
-        phase = 1;
-        go_caribouGUID.Clear();
-    }
-
-    ObjectGuid go_caribouGUID;
-    uint8  phase;
-    uint32 phaseTimer;
+    go_caribou_trap(GameObject* go) : GameObjectAI(go), _placedFur(false) { }
 
     void Reset() override
     {
-        Initialize();
+        me->SetGoState(GO_STATE_READY);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override { }
-    void MoveInLineOfSight(Unit* /*who*/) override { }
-
-    void JustDied(Unit* /*killer*/) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (GameObject* go_caribou = ObjectAccessor::GetGameObject(*me, go_caribouGUID))
-            go_caribou->SetLootState(GO_JUST_DEACTIVATED);
+        if (_placedFur)
+            return;
 
-        if (TempSummon* summon = me->ToTempSummon())
-            if (summon->IsSummon())
-                if (Unit* temp = summon->GetSummonerUnit())
-                    if (Player* player = temp->ToPlayer())
-                        player->KilledMonsterCredit(me->GetEntry());
+        Player* playerCaster = caster->ToPlayer();
+        if (!playerCaster)
+            return;
 
-        if (GameObject* go_caribou = ObjectAccessor::GetGameObject(*me, go_caribouGUID))
-            go_caribou->SetGoState(GO_STATE_READY);
+        if (spellInfo->Id == SPELL_PLACE_FAKE_FUR)
+        {
+            _playerGUID = caster->GetGUID();
+            _placedFur = true;
+            _events.ScheduleEvent(EVENT_FUR_SPAWN, 1s);
+        }
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (phaseTimer <= diff)
+        if (!_placedFur)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            switch (phase)
+            switch (eventId)
             {
-                case 1:
-                    me->SetVisible(true);
-                    phaseTimer = 2000;
-                    phase = 2;
+                case EVENT_FUR_SPAWN:
+                    if (GameObject* fur = me->SummonGameObject(GO_HIGH_QUALITY_FUR, me->GetPosition(), QuaternionData(0.0f, 0.0f, 0.77162457f, 0.63607824f), 20s))
+                        _goFurGUID = fur->GetGUID();
+                    _events.ScheduleEvent(EVENT_SPAWN_TRAPPER, 1s);
                     break;
-                case 2:
-                    if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
-                        me->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
-                    phaseTimer = 1500;
-                    phase = 3;
-                    break;
-                case 3:
-                    Talk(SAY_NESINGWARY_1);
-                    phaseTimer = 2000;
-                    phase = 4;
-                    break;
-                case 4:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
-                    phaseTimer = 1000;
-                    phase = 5;
-                    break;
-                case 5:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
-                    phaseTimer = 500;
-                    phase = 6;
-                    break;
-                case 6:
-                    if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
-                        go_fur->Delete();
-                    phaseTimer = 500;
-                    phase = 7;
-                    break;
-                case 7:
-                {
-                    GameObject* go_caribou = nullptr;
-                    for (uint8 i = 0; i < CaribouTrapsNum; ++i)
+                case EVENT_SPAWN_TRAPPER:
+                    if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetFirstCollisionPosition(21.0f, 0), TEMPSUMMON_DEAD_DESPAWN, 6s))
                     {
-                        go_caribou = me->FindNearestGameObject(CaribouTraps[i], 5.0f);
-                        if (go_caribou)
-                        {
-                            go_caribou->SetGoState(GO_STATE_ACTIVE);
-                            go_caribouGUID = go_caribou->GetGUID();
-                            break;
-                        }
+                        trapper->SetFacingToObject(me);
+                        _trapperGUID = trapper->GetGUID();
                     }
-                    phase = 8;
-                    phaseTimer = 1000;
+                    _events.ScheduleEvent(EVENT_TRAPPER_MOVE, 1s);
+                    break;
+                case EVENT_TRAPPER_MOVE:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->GetMotionMaster()->MovePoint(0, trapper->GetFirstCollisionPosition(20.0f, 0));
+                    _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
+                    break;
+                case EVENT_TRAPPER_TEXT:
+                {
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                    {
+                        if (trapper->IsAIEnabled())
+                            trapper->AI()->Talk(SAY_NESINGWARY_1);
+                    }
+                    _events.ScheduleEvent(EVENT_TRAPPER_LOOT, 2s);
+                    break;
                 }
-                break;
-                case 8:
-                    DoCast(me, SPELL_TRAPPED, true);
-                    phase = 0;
+                case EVENT_TRAPPER_LOOT:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+                    _events.ScheduleEvent(EVENT_FUR_DESPAWN, 1s);
+                    break;
+                case EVENT_FUR_DESPAWN:
+                    if (GameObject* fur = ObjectAccessor::GetGameObject(*me, _goFurGUID))
+                        fur->Delete();
+                    _events.ScheduleEvent(EVENT_TRAPPER_DIE, 1s);
+                    break;
+                case EVENT_TRAPPER_DIE:
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                            player->KilledMonsterCredit(trapper->GetEntry(), trapper->GetGUID());
+                        trapper->CastSpell(trapper, SPELL_TRAPPED);
+                    }
+                    _events.ScheduleEvent(EVENT_DESPAWN_ALL, 1s);
+                    break;
+                case EVENT_DESPAWN_ALL:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->DespawnOrUnsummon();
+                    me->DespawnOrUnsummon(0s, 50s);
+                    break;
+                default:
                     break;
             }
-        } else phaseTimer -= diff;
+        }
     }
+private:
+    EventMap _events;
+    bool _placedFur;
+    ObjectGuid _goFurGUID;
+    ObjectGuid _playerGUID;
+    ObjectGuid _trapperGUID;
 };
 
 enum red_dragonblood
@@ -1918,8 +1869,7 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_corastrasza);
-    RegisterSpellScript(spell_q11865_place_fake_fur);
-    RegisterCreatureAI(npc_nesingwary_trapper);
+    RegisterGameObjectAI(go_caribou_trap);
     RegisterSpellScript(spell_red_dragonblood);
     new npc_thassarian();
     new npc_image_lich_king();
