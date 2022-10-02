@@ -38,6 +38,211 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "Vehicle.h"
+#include "WorldSession.h"
+
+enum HordeHauler
+{
+    NPC_HORDE_ENGINEER_HAULER               = 44734,
+    NPC_SUBDUED_FOREST_ETTIN_HAULER         = 44737,
+    NPC_FORSAKEN_TROOPER_F                  = 44732,
+    NPC_FORSAKEN_TROOPER_M                  = 44733,
+
+    SPELL_EJECT_PASSENGERS_3_8              = 83477,
+
+    EVENT_START_PATH                        = 1,
+    EVENT_YELL_ON_FORSAKEN_HIGH             = 2,
+    EVENT_YELL_ON_SEPULCHER                 = 3,
+    EVENT_YELL_ON_FORSAKEN_FRONT            = 4,
+    EVENT_TROOPERS_RUN                      = 5,
+
+    TALK_HAULER_BOARDED                     = 0,
+    TALK_ON_FORSAKEN_HIGH                   = 1,
+    TALK_ON_SEPULCHER                       = 2,
+    TALK_ON_FORSAKEN_FRONT                  = 3,
+
+    PATH_FROM_NORTH_TO_SOUTH                = 447310,
+    PATH_TROOPER_1                          = 447320,
+    PATH_TROOPER_2                          = 447321,
+    PATH_TROOPER_3                          = 447322,
+    PATH_TROOPER_4                          = 447323,
+    PATH_TROOPER_5                          = 447324,
+
+    WAYPOINT_ON_FORSAKEN_HIGH               = 11,
+    WAYPOINT_ON_SEPULCHER                   = 35,
+    WAYPOINT_ON_FORSAKEN_FRONT              = 60,
+    WAYPOINT_ON_DESPAWN_POINT_SOUTH         = 63,
+    WAYPOINT_ON_TROOPER_DESPAWN             = 1,
+
+    SEAT_HAULER_PLAYER                      = 2,
+    SEAT_HAULER_TROOPER_1                   = 3,
+    SEAT_HAULER_TROOPER_2                   = 4,
+    SEAT_HAULER_TROOPER_3                   = 5,
+    SEAT_HAULER_TROOPER_4                   = 6,
+    SEAT_HAULER_TROOPER_5                   = 7
+};
+
+// 44731 - Horde Hauler
+struct npc_silverpine_horde_hauler : public ScriptedAI
+{
+    npc_silverpine_horde_hauler(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_START_PATH, 8s);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    {
+        if (apply && passenger->IsPlayer())
+        {
+            _playerGUID = passenger->GetGUID();
+
+            if (seatId == SEAT_HAULER_PLAYER)
+            {
+                if (Creature* engineer = me->FindNearestCreature(NPC_HORDE_ENGINEER_HAULER, 15.0f, true))
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (engineer->IsAIEnabled())
+                            engineer->AI()->Talk(TALK_HAULER_BOARDED, player);
+                    }
+                }
+            }
+        }
+
+        if (!apply && !passenger->IsPlayer())
+        {
+            uint32 pathId = 0;
+
+            switch (seatId)
+            {
+                case SEAT_HAULER_TROOPER_1:
+                    pathId = PATH_TROOPER_1;
+                    break;
+                case SEAT_HAULER_TROOPER_2:
+                    pathId = PATH_TROOPER_2;
+                    break;
+                case SEAT_HAULER_TROOPER_3:
+                    pathId = PATH_TROOPER_3;
+                    break;
+                case SEAT_HAULER_TROOPER_4:
+                    pathId = PATH_TROOPER_4;
+                    break;
+                case SEAT_HAULER_TROOPER_5:
+                    pathId = PATH_TROOPER_5;
+                    break;
+
+                default:
+                    break;
+            }
+
+            passenger->GetMotionMaster()->MovePath(pathId, false);
+        }
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_FROM_NORTH_TO_SOUTH)
+        {
+            if (waypointId == WAYPOINT_ON_FORSAKEN_HIGH)
+                _events.ScheduleEvent(EVENT_YELL_ON_FORSAKEN_HIGH, 1s);
+            else if (waypointId == WAYPOINT_ON_SEPULCHER)
+                _events.ScheduleEvent(EVENT_YELL_ON_SEPULCHER, 1s);
+            else if (waypointId == WAYPOINT_ON_FORSAKEN_FRONT)
+                _events.ScheduleEvent(EVENT_YELL_ON_FORSAKEN_FRONT, 1s);
+            else if (waypointId == WAYPOINT_ON_DESPAWN_POINT_SOUTH)
+                me->DespawnOrUnsummon(1s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_PATH:
+                    me->GetMotionMaster()->MovePath(PATH_FROM_NORTH_TO_SOUTH, false);
+                    break;
+
+                case EVENT_YELL_ON_FORSAKEN_HIGH:
+                {
+                    if (Creature* engineer = me->FindNearestCreature(NPC_HORDE_ENGINEER_HAULER, 15.0f, true))
+                    {
+                        if (engineer->IsAIEnabled())
+                            engineer->AI()->Talk(TALK_ON_FORSAKEN_HIGH);
+                    }
+                    break;
+                }
+
+                case EVENT_YELL_ON_SEPULCHER:
+                {
+                    if (Creature* engineer = me->FindNearestCreature(NPC_HORDE_ENGINEER_HAULER, 15.0f, true))
+                    {
+                        if (engineer->IsAIEnabled())
+                            engineer->AI()->Talk(TALK_ON_SEPULCHER);
+                    }
+                    break;
+                }
+
+                case EVENT_YELL_ON_FORSAKEN_FRONT:
+                {
+                    if (Creature* engineer = me->FindNearestCreature(NPC_HORDE_ENGINEER_HAULER, 15.0f, true))
+                    {
+                        if (engineer->IsAIEnabled())
+                            engineer->AI()->Talk(TALK_ON_FORSAKEN_FRONT);
+                    }
+
+                    DoCastSelf(SPELL_EJECT_PASSENGERS_3_8);
+
+                    me->SetUnitFlag3(UnitFlags3::UNIT_FLAG3_UNTARGETABLE_FROM_UI);
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+};
+
+enum MagicalChainsHauler
+{
+    SPELL_CHAIN_RIGHT_HAULER                = 83467,
+    SPELL_CHAIN_LEFT_HAULER                 = 83464
+};
+
+// 84238 - Magical Chains (Hauler)
+class spell_silverpine_magical_chains_hauler : public AuraScript
+{
+    PrepareAuraScript(spell_silverpine_magical_chains_hauler);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_CHAIN_RIGHT_HAULER,
+            SPELL_CHAIN_LEFT_HAULER
+        });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_CHAIN_RIGHT_HAULER, true);
+        GetTarget()->CastSpell(nullptr, SPELL_CHAIN_LEFT_HAULER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_silverpine_magical_chains_hauler::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
 
 Position const OrgrimmarPortalPos[3] =
 {
@@ -150,7 +355,7 @@ enum QuestTheWarchiefCometh
     ANIMKIT_GARROSH_2                       = 595
 };
 
-// Grand Executor Mortuus - 44615
+// 44615 - Grand Executor Mortuus
 struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
 {
     npc_silverpine_grand_executor_mortuus(Creature* creature) : ScriptedAI(creature), _summons(me), _eventInProgress(false) {}
@@ -730,7 +935,7 @@ enum RaiseForsakenCometh
     ANIMKIT_FALLEN_HUMAN                    = 721
 };
 
-// Raise Forsaken - 83173
+// 83173 - Raise Forsaken
 class spell_silverpine_raise_forsaken_83173 : public AuraScript
 {
     PrepareAuraScript(spell_silverpine_raise_forsaken_83173);
@@ -775,7 +980,7 @@ enum FallenHuman
     EVENT_EMOTE_TO_SYLVANAS                     = 4
 };
 
-// Fallen Human - 44592, 44593
+// 44592, 44593 - Fallen Human
 struct npc_silverpine_fallen_human : public ScriptedAI
 {
     npc_silverpine_fallen_human(Creature* creature) : ScriptedAI(creature), _transformDone(false) {}
@@ -875,7 +1080,7 @@ enum SpellForsakenTrooperMasterScriptCometh
     DISPLAY_FEMALE_04_HC                    = 33985
 };
 
-// Forsaken Trooper Master Script (Forsaken High Command) - 83149
+// 83149 - Forsaken Trooper Master Script (Forsaken High Command)
 class spell_silverpine_forsaken_trooper_masterscript_high_command : public SpellScript
 {
     PrepareSpellScript(spell_silverpine_forsaken_trooper_masterscript_high_command);
@@ -902,6 +1107,7 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
             caster->RemoveAura(SPELL_FEIGNED);
 
             uint32 spellId = SPELL_FORSAKEN_TROOPER_MALE_01_HC;
+
             switch (caster->GetDisplayId())
             {
                 case DISPLAY_MALE_01_HC:
@@ -931,6 +1137,7 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
                 default:
                     break;
             }
+
             caster->CastSpell(caster, spellId, true);
         }
     }
@@ -941,10 +1148,472 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
     }
 };
 
+enum SylvanasForsakenHighCommand
+{
+    NPC_FORSAKEN_WARHORSE                       = 73595,
+
+    SPELL_SUMMON_FORSAKEN_WARHORSE              = 148164,
+    SPELL_APPLY_INVIS_ZONE_1                    = 83231,
+    SPELL_APPLY_INVIS_ZONE_4                    = 84183
+};
+
+// 44365 - Lady Sylvanas Windrunner (Forsaken High Command)
+struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
+{
+    npc_silverpine_sylvanas_windrunner_high_command(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_SUMMON_FORSAKEN_WARHORSE);
+
+        // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
+        if (Creature* forsakenWarhorse = me->FindNearestCreature(NPC_FORSAKEN_WARHORSE, 5.0f, true))
+            forsakenWarhorse->CastSpell(forsakenWarhorse, me->HasAura(SPELL_APPLY_INVIS_ZONE_1) ? SPELL_APPLY_INVIS_ZONE_1 : SPELL_APPLY_INVIS_ZONE_4, true);
+    }
+};
+
+// 44789, 44790 - Deathstalker and Deathstalker Commander Belmont
+struct npc_silverpine_deathstalker : public ScriptedAI
+{
+    npc_silverpine_deathstalker(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        // @TODO: figure out some common thing why powertype energy is used here
+        me->SetPowerType(POWER_ENERGY);
+        me->SetMaxPower(POWER_ENERGY, 100);
+        me->SetPower(POWER_ENERGY, 100, true);
+    }
+};
+
+enum WorgenRenegade
+{
+    SPELL_HEARTSTRIKE                           = 84182,
+    SPELL_KILL_ME_AURA                          = 84181,
+    SPELL_FLURRY_OF_CLAWS                       = 80365,
+
+    EVENT_FLURRY_OF_CLAWS                       = 1
+};
+
+// 44793 - Worgen Renegade
+struct npc_silverpine_worgen_renegade : public ScriptedAI
+{
+    npc_silverpine_worgen_renegade(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        // Note: this is for a later usage during Lordaeron (questId 27098).
+        if (me->IsSummon())
+            DoCastSelf(SPELL_KILL_ME_AURA);
+
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        // HACKFIX: sparring system is not implemented yet.
+        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(80.0f, damage))
+            damage = 0;
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_FLURRY_OF_CLAWS, 3s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FLURRY_OF_CLAWS:
+                    DoCastVictim(SPELL_FLURRY_OF_CLAWS);
+                    _events.Repeat(15s, 18s);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+// 80365 - Flurry of Claws
+class spell_silverpine_flurry_of_claws : public AuraScript
+{
+    PrepareAuraScript(spell_silverpine_flurry_of_claws);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_0).TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_silverpine_flurry_of_claws::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+enum ForsakenTrooper
+{
+    NPC_WORGEN_RENEGADE                         = 44793,
+
+    SPELL_CLEAVE                                = 19983,
+
+    EVENT_CLEAVE                                = 1,
+
+    TALK_TROOPER_RESET                          = 0
+};
+
+// 44791, 44792 - Forsaken Trooper
+struct npc_silverpine_forsaken_trooper : public ScriptedAI
+{
+    npc_silverpine_forsaken_trooper(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        // Note: these texts are not sent by summoned creatures from Lordaeron (questId 27098).
+        if (!me->IsSummon())
+        {
+            if (urand(0, 1))
+                Talk(TALK_TROOPER_RESET);
+        }
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        // HACKFIX: sparring system is not implemented yet.
+        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(80.0f, damage))
+            damage = 0;
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CLEAVE, 5s, 8s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    _events.Repeat(5s, 8s);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+enum BatHandlerMaggothbreath
+{
+    QUEST_ITERATING_UPON_SUCCESS                = 26998,
+
+    SPELL_SUMMON_FORSAKEN_BAT                   = 83584,
+
+    TALK_MAGGOTHBREATH_ITERATING_UPON_SUCCESS   = 0,
+
+    DATA_GOSSIP_MENU_MAGGOT                     = 11892
+};
+
+// 44825 - Bat Handler Maggotbreath
+struct npc_silverpine_bat_handler_maggotbreath : public ScriptedAI
+{
+    npc_silverpine_bat_handler_maggotbreath(Creature* creature) : ScriptedAI(creature) { }
+
+    bool OnGossipHello(Player* player) override
+    {
+        if (player->GetQuestStatus(QUEST_ITERATING_UPON_SUCCESS) == QUEST_STATUS_INCOMPLETE)
+            AddGossipItemFor(player, DATA_GOSSIP_MENU_MAGGOT, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        if (me->IsTaxi())
+            AddGossipItemFor(player, DATA_GOSSIP_MENU_MAGGOT, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        switch (player->PlayerTalkClass->GetGossipOptionAction(gossipListId))
+        {
+            case GOSSIP_ACTION_INFO_DEF:
+                Talk(TALK_MAGGOTHBREATH_ITERATING_UPON_SUCCESS, player);
+                player->CastSpell(player, SPELL_SUMMON_FORSAKEN_BAT, true);
+                break;
+
+            // Note: Blizzard messed up this OptionNpc. It sends GossipOptionNpc::None rather than GossipOptionNpc::TaxiNode,
+            // making it useless. To keep it blizzlike, we're just sending TaxiMenu forcefully as well.
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                player->GetSession()->SendTaxiMenu(me);
+                break;
+
+            default:
+                break;
+        }
+
+        CloseGossipMenuFor(player);
+        return true;
+    }
+};
+
+enum ForsakenBat
+{
+    NPC_VILE_FIN_ORACLE                         = 1908,
+    NPC_BAT_HANDLER_MAGGOTBREATH                = 44825,
+    NPC_FORSAKEN_BAT                            = 44821,
+
+    SPELL_BLIGHT_CONCOCTION                     = 83573,
+    SPELL_GO_HOME                               = 83594,
+
+    EVENT_CHECK_FINISH_ITERATING                = 1,
+    EVENT_START_MOVEMENT_ITERATING              = 2,
+    EVENT_GO_HOME_ITERATING                     = 3,
+
+    ACTION_GO_HOME                              = 1,
+
+    TALK_BAT_ARRIVED_TO_ISLE                    = 0,
+    TALK_BAT_GOING_HOME                         = 1,
+
+    PATH_BAT_TO_LAKE                            = 448210,
+    PATH_BAT_AROUND_LAKE                        = 448211,
+    PATH_BAT_TO_HOME                            = 448212,
+
+    WAYPOINT_LAST_POINT_TO_LAKE                 = 8,
+    WAYPOINT_LAST_POINT_AROUND_LAKE             = 32,
+    WAYPOINT_LAST_POINT_TO_HOME                 = 7,
+
+    DATA_ITERATING_UPON_SUCCESS_QUEST_REQ       = 50
+};
+
+// 44821 - Forsaken Bat
+struct npc_silverpine_forsaken_bat : public VehicleAI
+{
+    npc_silverpine_forsaken_bat(Creature* creature) : VehicleAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        SetInitialActionBar();
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
+            _playerGUID = player->GetGUID();
+
+        me->SetDisableGravity(true);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply)
+        {
+            if (Player* player = passenger->ToPlayer())
+            {
+                if (player->GetQuestStatus(QUEST_ITERATING_UPON_SUCCESS) == QUEST_STATUS_INCOMPLETE)
+                {
+                    player->KilledMonsterCredit(NPC_BAT_HANDLER_MAGGOTBREATH);
+
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 17.794235f);
+                    me->GetMotionMaster()->MovePath(PATH_BAT_TO_LAKE, false);
+
+                    _events.ScheduleEvent(EVENT_CHECK_FINISH_ITERATING, 500ms);
+                }
+            }
+        }
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        switch (pathId)
+        {
+            case PATH_BAT_TO_LAKE:
+            {
+                if (waypointId == WAYPOINT_LAST_POINT_TO_LAKE)
+                {
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 17.982668f);
+                    me->GetMotionMaster()->MovePath(PATH_BAT_AROUND_LAKE, false);
+
+                    SetCircularActionBar();
+
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        Talk(TALK_BAT_ARRIVED_TO_ISLE, player);
+
+                        player->VehicleSpellInitialize();
+                    }
+                }
+                break;
+            }
+
+            case PATH_BAT_AROUND_LAKE:
+            {
+                if (waypointId == WAYPOINT_LAST_POINT_AROUND_LAKE)
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (player->GetQuestStatus(QUEST_ITERATING_UPON_SUCCESS) == QUEST_STATUS_INCOMPLETE)
+                            me->GetMotionMaster()->MovePath(PATH_BAT_AROUND_LAKE, false);
+                    }
+                }
+                break;
+            }
+
+            case PATH_BAT_TO_HOME:
+            {
+                if (waypointId == WAYPOINT_LAST_POINT_TO_HOME)
+                {
+                    me->GetVehicleKit()->RemoveAllPassengers();
+                    me->DespawnOrUnsummon();
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_GO_HOME)
+            DoAction(ACTION_GO_HOME);
+    }
+
+    void DoAction(int32 param) override
+    {
+        switch (param)
+        {
+            case ACTION_GO_HOME:
+            {
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                {
+                    me->PauseMovement();
+                    me->GetMotionMaster()->Clear();
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 35.78791f);
+                    me->GetMotionMaster()->MovePath(PATH_BAT_TO_HOME, false);
+
+                    SetFinishActionBar();
+
+                    player->VehicleSpellInitialize();
+
+                    Talk(TALK_BAT_GOING_HOME, player);
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHECK_FINISH_ITERATING:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (player->GetReqKillOrCastCurrentCount(QUEST_ITERATING_UPON_SUCCESS, NPC_VILE_FIN_ORACLE) == DATA_ITERATING_UPON_SUCCESS_QUEST_REQ)
+                            player->CastSpell(me, SPELL_GO_HOME, true);
+                        else
+                            _events.ScheduleEvent(EVENT_CHECK_FINISH_ITERATING, 500ms);
+                    }
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    void SetInitialActionBar()
+    {
+        me->m_spells[0] = SPELL_BLIGHT_CONCOCTION;
+        me->m_spells[1] = 0;
+    }
+
+    void SetCircularActionBar()
+    {
+        me->m_spells[0] = SPELL_BLIGHT_CONCOCTION;
+        me->m_spells[1] = SPELL_GO_HOME;
+    }
+
+    void SetFinishActionBar()
+    {
+        me->m_spells[0] = 0;
+        me->m_spells[1] = 0;
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+};
+
 void AddSC_silverpine_forest()
 {
+    /* Vehicles */
+
+    RegisterCreatureAI(npc_silverpine_horde_hauler);
+    RegisterSpellScript(spell_silverpine_magical_chains_hauler);
+
+    /* Forsaken High Command */
+
     RegisterCreatureAI(npc_silverpine_grand_executor_mortuus);
     RegisterSpellScript(spell_silverpine_raise_forsaken_83173);
     RegisterCreatureAI(npc_silverpine_fallen_human);
     RegisterSpellScript(spell_silverpine_forsaken_trooper_masterscript_high_command);
+    RegisterCreatureAI(npc_silverpine_sylvanas_windrunner_high_command);
+    RegisterCreatureAI(npc_silverpine_deathstalker);
+    RegisterCreatureAI(npc_silverpine_worgen_renegade);
+    RegisterSpellScript(spell_silverpine_flurry_of_claws);
+    RegisterCreatureAI(npc_silverpine_forsaken_trooper);
+    RegisterCreatureAI(npc_silverpine_bat_handler_maggotbreath);
+    RegisterCreatureAI(npc_silverpine_forsaken_bat);
 }
