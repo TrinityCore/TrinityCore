@@ -84,7 +84,7 @@ struct npc_partygoer_pather : public ScriptedAI
                     _events.ScheduleEvent(EVENT_REMOVE_EQUIPMENT_PATHER, 4s);
                     break;
                 case 5:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                    me->SetEmoteState(EMOTE_STATE_DANCE);
                     _events.ScheduleEvent(EVENT_STOP_DANCING_PATHER, 6s);
                     break;
                 }
@@ -95,7 +95,7 @@ struct npc_partygoer_pather : public ScriptedAI
                 _events.ScheduleEvent(EVENT_PATH, 8s);
                 break;
             case EVENT_STOP_DANCING_PATHER:
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                 _events.ScheduleEvent(EVENT_PATH, 5s);
                 break;
                 break;
@@ -168,7 +168,7 @@ struct npc_partygoer : public ScriptedAI
                     _events.ScheduleEvent(EVENT_REMOVE_EQUIPMENT, 4s);
                     break;
                 case 5:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                    me->SetEmoteState(EMOTE_STATE_DANCE);
                     _events.ScheduleEvent(EVENT_STOP_DANCING, 8s, 16s);
                     break;
                 case 6:
@@ -184,7 +184,7 @@ struct npc_partygoer : public ScriptedAI
                 _events.ScheduleEvent(EVENT_RANDOM_ACTION, 10s, 20s);
                 break;
             case EVENT_STOP_DANCING:
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                 _events.ScheduleEvent(EVENT_RANDOM_ACTION, 10s, 20s);
                 break;
             case EVENT_THROW_FIREWORKS:
