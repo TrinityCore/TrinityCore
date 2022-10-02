@@ -110,17 +110,15 @@ enum CaribouTrap
     EVENT_FUR_DESPAWN,
     EVENT_TRAPPER_DIE,
     EVENT_DESPAWN_ALL,
-    
+
     GO_HIGH_QUALITY_FUR    = 187983,
-    
+
     NPC_NESINGWARY_TRAPPER = 25835,
-    
+
     SAY_NESINGWARY_1       = 0,
-    
+
     SPELL_PLACE_FAKE_FUR   = 46085,
     SPELL_TRAPPED          = 46104,
-    
-    POINT_REACHED_TRAP     = 0,
 };
 
 struct go_caribou_trap : public GameObjectAI
@@ -175,7 +173,7 @@ struct go_caribou_trap : public GameObjectAI
                     break;
                 case EVENT_TRAPPER_MOVE:
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                        trapper->GetMotionMaster()->MovePoint(POINT_REACHED_TRAP, trapper->GetFirstCollisionPosition(20.0f, 0));
+                        trapper->GetMotionMaster()->MovePoint(0, trapper->GetFirstCollisionPosition(20.0f, 0));
                     _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
                     break;
                 case EVENT_TRAPPER_TEXT:
