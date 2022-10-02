@@ -351,6 +351,14 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 83840, 0, 1, 31, 0, 3, 44914, 0, 0, 0, 0, '', 'Despawn All Summons - Target Orc Sea Dog');
 
+DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry` IN (8421, 8422, 8423, 8424, 8425);
+INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES 
+(8421, 0, 1, 1.4, 0, 0, 1);
+(8422, 0, 1.5, -2.3, 0, 0, 1),
+(8423, 0, 1.8, -1.8, 0, 0, 1),
+(8424, 0, 2.1, 1.5, 0, 0, 1),
+(8425, 0, 2.3, -2, 0, 0, 1);
+
 -- Orc Crate
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_orc_crate' WHERE `entry` = 44915;
 
