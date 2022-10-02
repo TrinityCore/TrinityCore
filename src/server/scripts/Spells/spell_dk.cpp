@@ -48,6 +48,7 @@ enum DeathKnightSpells
     SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DANCING_RUNE_WEAPON_PARRY_BONUS    = 81256,
+    SPELL_DK_DARK_SIMULACRUM_OVERRIDE_BAR       = 77616,
     SPELL_DK_DARK_TRANSFORMATION                = 63560,
     SPELL_DK_DARK_TRANSFORMATION_DUMMY          = 93426,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
@@ -1779,6 +1780,48 @@ class spell_dk_dancing_rune_weapon : public AuraScript
     }
 };
 
+// 77606 - Dark Simulacrum
+class spell_dk_dark_simulacrum : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_DARK_SIMULACRUM_OVERRIDE_BAR });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        // Spells with the attribute or player spells can be copied. Other abilities will have their damage negated
+        if (eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR9_ALLOW_DARK_SIMULACRUM) || eventInfo.GetActor()->IsPlayer())
+        {
+            if (eventInfo.GetActor()->IsPlayer())
+            {
+                Spell const* spell = eventInfo.GetProcSpell();
+                if (!spell || !spell->GetPowerCost() || !eventInfo.GetSpellInfo()->PowerType != POWER_MANA || spell->IsTriggered())
+                    return false;
+            }
+            else // Creature spells are simply defined by the attribute
+                return true;
+        }
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        if (int32 spellId = eventInfo.GetSpellInfo()->Id)
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(nullptr, SPELL_DK_DARK_SIMULACRUM_OVERRIDE_BAR, CastSpellExtraArgs(aurEff).AddSpellBP0(spellId));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc.Register(&spell_dk_dark_simulacrum::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc.Register(&spell_dk_dark_simulacrum::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_anti_magic_shell);
@@ -1790,6 +1833,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_butchery);
     RegisterSpellScript(spell_dk_crimson_scourge);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);
+    RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_transformation);
     RegisterSpellScript(spell_dk_dark_transformation_aura);
     RegisterSpellScript(spell_dk_death_and_decay);
