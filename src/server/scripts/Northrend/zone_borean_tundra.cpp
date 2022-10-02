@@ -119,20 +119,16 @@ enum CaribouTrap
 
 struct go_caribou_trap : public GameObjectAI
 {
-    go_caribou_trap(GameObject* go) : GameObjectAI(go){}
+    go_caribou_trap(GameObject* go) : GameObjectAI(go), _placedFur(false) { }
 
-    void JustAppeared()
+    void Reset() override
     {
-        _placedFir = false;
-        _goFurGUID.Clear();
-        _playerGUID.Clear();
-        _trapperGUID.Clear();
         me->SetGoState(GO_STATE_READY);
     }
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (_placedFir)
+        if (_placedFur)
             return;
 
         Player* playerCaster = caster->ToPlayer();
@@ -142,14 +138,14 @@ struct go_caribou_trap : public GameObjectAI
         if (spellInfo->Id == SPELL_PLACE_FAKE_FUR)
         {
             _playerGUID = caster->GetGUID();
-            _placedFir = true;
+            _placedFur = true;
             _events.ScheduleEvent(EVENT_FUR_SPAWN, 1s);
         }
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (!_placedFir)
+        if (!_placedFur)
             return;
 
         _events.Update(diff);
@@ -213,7 +209,7 @@ struct go_caribou_trap : public GameObjectAI
     }
 private:
     EventMap _events;
-    bool _placedFir;
+    bool _placedFur;
     ObjectGuid _goFurGUID;
     ObjectGuid _playerGUID;
     ObjectGuid _trapperGUID;
