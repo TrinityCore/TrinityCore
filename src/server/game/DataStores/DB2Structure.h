@@ -40,10 +40,8 @@ struct AchievementEntry
     int32 Flags;
     int16 UiOrder;
     int32 IconFileID;
-    int32 RewardItemID;
     uint32 CriteriaTree;
     int16 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
-    int32 CovenantID;
 };
 
 struct Achievement_CategoryEntry
@@ -496,6 +494,8 @@ struct BattlemasterListEntry
     int16 HolidayWorldState;
     int8 Flags;
     int32 IconFileDataID;
+    int32 RequiredPlayerConditionID;
+    std::array<int16, 16> MapID;
 
     EnumFlag<BattlemasterListFlags> GetFlags() const { return static_cast<BattlemasterListFlags>(Flags); }
 };
@@ -1712,6 +1712,7 @@ struct GlyphPropertiesEntry
     uint8 GlyphType;
     uint8 GlyphExclusiveCategoryID;
     int32 SpellIconFileDataID;
+    uint32 GlyphSlotFlags;
 };
 
 struct GlyphRequiredSpecEntry
@@ -1766,7 +1767,7 @@ struct HeirloomEntry
 };
 
 #define MAX_HOLIDAY_DURATIONS 10
-#define MAX_HOLIDAY_DATES 26
+#define MAX_HOLIDAY_DATES 16
 #define MAX_HOLIDAY_FLAGS 10
 
 struct HolidaysEntry
