@@ -36,67 +36,6 @@
 #include "WorldSession.h"
 
 /*######
-## npc_corastrasza
-######*/
-
-enum Corastrasza
-{
-    GOSSIP_MENU_ID_CORASTRASZA            = 10204,
-    GOSSIP_MENU_ITEM_ID_I_I_THINK_SO      = 0,
-    GOSSIP_MENU_ITEM_ID_I_AM_READY        = 1,
-
-    NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO   = 14168,
-    NPC_TEXT_DO_YOU_POSSESS_THE_COURAGE   = 14169,
-    NPC_TEXT_EAGERLY_AWAITING_YOUR_RETURN = 14170,
-
-    QUEST_ACES_HIGH                       = 13413,
-    QUEST_ACES_HIGH_DAILY                 = 13414,
-
-    SPELL_SUMMON_WYRMREST_SKYTALON        = 61240,
-    SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC = 61244
-};
-
-struct npc_corastrasza : public ScriptedAI
-{
-    npc_corastrasza(Creature* creature) : ScriptedAI(creature) { }
-
-    bool OnGossipHello(Player* player) override
-    {
-        if (me->IsQuestGiver())
-            player->PrepareQuestMenu(me->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE)
-        {
-            AddGossipItemFor(player, GOSSIP_MENU_ID_CORASTRASZA, GOSSIP_MENU_ITEM_ID_I_I_THINK_SO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, NPC_TEXT_DO_YOU_POSSESS_THE_COURAGE, me->GetGUID());
-        }
-        else if (player->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE)
-        {
-            AddGossipItemFor(player, GOSSIP_MENU_ID_CORASTRASZA, GOSSIP_MENU_ITEM_ID_I_AM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, NPC_TEXT_EAGERLY_AWAITING_YOUR_RETURN, me->GetGUID());
-        }
-        else
-            SendGossipMenuFor(player, NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO, me->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-    {
-        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            CloseGossipMenuFor(player);
-            player->CastSpell(player, SPELL_SUMMON_WYRMREST_SKYTALON, true);
-            player->CastSpell(player, SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC, true);
-        }
-
-        return true;
-    }
-};
-
-/*######
 ## Quest 11865: Unfit for Death
 ######*/
 
@@ -1868,7 +1807,6 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
 
 void AddSC_borean_tundra()
 {
-    RegisterCreatureAI(npc_corastrasza);
     RegisterGameObjectAI(go_caribou_trap);
     RegisterSpellScript(spell_red_dragonblood);
     new npc_thassarian();
