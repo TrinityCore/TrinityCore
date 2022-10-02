@@ -43,7 +43,6 @@ enum BerylSorcerer
 {
     EVENT_FROSTBOLT                                = 1,
     EVENT_ARCANE_CHAINS,
-    EVENT_DESPAWN,
 
     NPC_LIBRARIAN_DONATHAN                         = 25262,
     NPC_CAPTURED_BERLY_SORCERER                    = 25474,
@@ -104,12 +103,10 @@ struct npc_beryl_sorcerer : public CreatureAI
                 break;
             case EVENT_ARCANE_CHAINS:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                {
                     me->CastSpell(player, SPELL_ARCANE_CHAINS_CHARACTER_FORCE_CAST);
-                _events.ScheduleEvent(EVENT_DESPAWN, 1s);
-                break;
-            case EVENT_DESPAWN:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
+                }
                 me->DespawnOrUnsummon();
                 break;
             default:
