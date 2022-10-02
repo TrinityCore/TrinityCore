@@ -353,7 +353,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry` IN (8421, 8422, 8423, 8424, 8425);
 INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES 
-(8421, 0, 1, 1.4, 0, 0, 1);
+(8421, 0, 1, 1.4, 0, 0, 1),
 (8422, 0, 1.5, -2.3, 0, 0, 1),
 (8423, 0, 1.8, -1.8, 0, 0, 1),
 (8424, 0, 2.1, 1.5, 0, 0, 1),
