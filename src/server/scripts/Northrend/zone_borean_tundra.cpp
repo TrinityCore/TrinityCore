@@ -242,11 +242,8 @@ struct go_mammoth_trap : public GameObjectAI
                     _events.ScheduleEvent(EVENT_QUEST_CREDIT, 1s);
                     break;
                 case EVENT_QUEST_CREDIT:
-                    if (Creature* mammoth = ObjectAccessor::GetCreature(*me, _mammothGUID))
-                    {
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                            player->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH);
-                    }
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        player->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH);
                     _events.ScheduleEvent(EVENT_MAMMOTH_TEXT, 1s);
                     break;
                 case EVENT_MAMMOTH_TEXT:
