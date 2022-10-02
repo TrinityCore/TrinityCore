@@ -1081,7 +1081,7 @@ void Unit::CastStop(uint32 except_spellid)
             InterruptSpell(CurrentSpellTypes(i), false);
 }
 
-void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit, Spell* spell /*= nullptr*/)
+void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit /*= false*/, bool blocked /*= false*/, Spell* spell /*= nullptr*/)
 {
     if (damage < 0)
         return;
@@ -1098,7 +1098,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         if (Unit::IsDamageReducedByArmor(damageSchoolMask, spellInfo))
             damage = Unit::CalcArmorReducedDamage(damageInfo->attacker, victim, damage, spellInfo, attackType);
 
-        bool blocked = false;
         // Per-school calc
         switch (spellInfo->DmgClass)
         {
@@ -1106,17 +1105,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             case SPELL_DAMAGE_CLASS_RANGED:
             case SPELL_DAMAGE_CLASS_MELEE:
             {
-                // Physical Damage
-                if (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
-                {
-                    // Spells with this attribute were already calculated in MeleeSpellHitResult
-                    if (!spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED))
-                    {
-                        // Get blocked status
-                        blocked = isSpellBlocked(victim, spellInfo, attackType);
-                    }
-                }
-
                 if (crit)
                 {
                     damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
@@ -1140,7 +1128,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 {
                     // double blocked amount if block is critical
                     uint32 value = victim->GetBlockPercent(GetLevel());
-                    if (victim->isBlockCritical())
+                    if (victim->IsBlockCritical())
                         value *= 2; // double blocked percent
                     damageInfo->blocked = CalculatePct(damage, value);
                     if (damage <= int32(damageInfo->blocked))
@@ -1355,7 +1343,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             damageInfo->HitInfo    |= HITINFO_BLOCK;
             // 30% damage blocked, double blocked amount if block is critical
             damageInfo->Blocked = CalculatePct(damageInfo->Damage, damageInfo->Target->GetBlockPercent(GetLevel()));
-            if (damageInfo->Target->isBlockCritical())
+            if (damageInfo->Target->IsBlockCritical())
                 damageInfo->Blocked *= 2;
 
             damageInfo->OriginalDamage = damageInfo->Damage;
@@ -2353,27 +2341,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
         TC_LOG_DEBUG("entities.unit", "%s stopped attacking", GetGUID().ToString().c_str());
 }
 
-bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType)
-{
-    // These spells can't be blocked
-    if (spellProto && (spellProto->HasAttribute(SPELL_ATTR0_NO_ACTIVE_DEFENSE) || spellProto->HasAttribute(SPELL_ATTR3_ALWAYS_HIT)))
-        return false;
-
-    // Can't block when casting/controlled
-    if (victim->IsNonMeleeSpellCast(false) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
-        return false;
-
-    if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(float(M_PI), this))
-    {
-        float blockChance = GetUnitBlockChance(attackType, victim);
-        if (blockChance && roll_chance_f(blockChance))
-            return true;
-    }
-
-    return false;
-}
-
-bool Unit::isBlockCritical()
+bool Unit::IsBlockCritical()
 {
     if (roll_chance_i(GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)))
         return true;
@@ -2452,7 +2420,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 
     bool canDodge = !spellInfo->HasAttribute(SPELL_ATTR7_NO_ATTACK_DODGE);
     bool canParry = !spellInfo->HasAttribute(SPELL_ATTR7_NO_ATTACK_PARRY);
-    bool canBlock = spellInfo->HasAttribute(SPELL_ATTR3_COMPLETELY_BLOCKED);
+    bool canBlock = true; // all melee and ranged attacks can be blocked
 
     // if victim is casting or cc'd it can't avoid attacks
     if (victim->IsNonMeleeSpellCast(false, false, true) || victim->HasUnitState(UNIT_STATE_CONTROLLED))
@@ -2462,7 +2430,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         canBlock = false;
     }
 
-    // Ranged attacks can only miss, resist and deflect
+    // Ranged attacks can only miss, resist and deflect and get blocked
     if (attType == RANGED_ATTACK)
     {
         canParry = false;
@@ -2476,7 +2444,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
             if (roll < tmp)
                 return SPELL_MISS_DEFLECT;
         }
-        return SPELL_MISS_NONE;
     }
 
     // Check for attack from behind

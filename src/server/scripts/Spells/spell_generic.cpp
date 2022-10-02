@@ -5117,6 +5117,30 @@ class spell_gen_ancestral_call : public SpellScript
     }
 };
 
+// 83477 - Eject Passengers 3-8
+class spell_gen_eject_passengers_3_8 : public SpellScript
+{
+    PrepareSpellScript(spell_gen_eject_passengers_3_8);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Vehicle* vehicle = GetHitUnit()->GetVehicleKit();
+        if (!vehicle)
+            return;
+
+        for (uint8 i = 2; i < 8; i++)
+        {
+            if (Unit* passenger = vehicle->GetPassenger(i))
+                passenger->ExitVehicle();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_eject_passengers_3_8::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5274,4 +5298,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_anchor_here);
     RegisterSpellScript(spell_gen_mount_check_aura);
     RegisterSpellScript(spell_gen_ancestral_call);
+    RegisterSpellScript(spell_gen_eject_passengers_3_8);
 }
