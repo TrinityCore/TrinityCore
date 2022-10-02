@@ -1796,7 +1796,7 @@ class spell_dk_dark_simulacrum : public AuraScript
             if (eventInfo.GetActor()->IsPlayer())
             {
                 Spell const* spell = eventInfo.GetProcSpell();
-                if (!spell || !spell->GetPowerCost() || !eventInfo.GetSpellInfo()->PowerType != POWER_MANA || spell->IsTriggered())
+                if (!spell || !spell->GetPowerCost() || eventInfo.GetSpellInfo()->PowerType != POWER_MANA || spell->IsTriggered())
                     return false;
             }
             else // Creature spells are simply defined by the attribute
