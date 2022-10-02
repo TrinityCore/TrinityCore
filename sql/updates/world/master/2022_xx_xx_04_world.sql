@@ -221,6 +221,16 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 --
 -- North Tide's Beachhead
 
+-- Rabid Dog
+DELETE FROM `creature_loot_template` WHERE `Entry`=1766 AND `Item`=60793;
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES 
+(1766, 60793, 0, 40, 1, 1, 0, 1, 1, 'Item for questId 27082');
+
+-- Giant Rabid Bear
+DELETE FROM `creature_loot_template` WHERE `Entry`=1797 AND `Item`=60793;
+INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES 
+(1797, 60793, 0, 40, 1, 1, 0, 1, 1, 'Item for questId 27082');
+
 -- Reef Frenzy
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry` = 2173;
 
