@@ -5176,49 +5176,50 @@ float Player::GetRatingBonusValue(CombatRating cr) const
 float Player::ApplyRatingDiminishing(CombatRating cr, float bonusValue) const
 {
     uint32 diminishingCurveId = 0;
-    switch (cr)
-    {
-        case CR_DODGE:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::DodgeDiminishing);
-            break;
-        case CR_PARRY:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::ParryDiminishing);
-            break;
-        case CR_BLOCK:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::BlockDiminishing);
-            break;
-        case CR_CRIT_MELEE:
-        case CR_CRIT_RANGED:
-        case CR_CRIT_SPELL:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::CritDiminishing);
-            break;
-        case CR_SPEED:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::SpeedDiminishing);
-            break;
-        case CR_LIFESTEAL:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::LifestealDiminishing);
-            break;
-        case CR_HASTE_MELEE:
-        case CR_HASTE_RANGED:
-        case CR_HASTE_SPELL:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::HasteDiminishing);
-            break;
-        case CR_AVOIDANCE:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::AvoidanceDiminishing);
-            break;
-        case CR_MASTERY:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::MasteryDiminishing);
-            break;
-        case CR_VERSATILITY_DAMAGE_DONE:
-        case CR_VERSATILITY_HEALING_DONE:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::VersatilityDoneDiminishing);
-            break;
-        case CR_VERSATILITY_DAMAGE_TAKEN:
-            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::VersatilityTakenDiminishing);
-            break;
-        default:
-            break;
-    }
+    // @TODO wotlk_classic
+    // switch (cr)
+    // {
+    //     case CR_DODGE:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::DodgeDiminishing);
+    //         break;
+    //     case CR_PARRY:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::ParryDiminishing);
+    //         break;
+    //     case CR_BLOCK:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::BlockDiminishing);
+    //         break;
+    //     case CR_CRIT_MELEE:
+    //     case CR_CRIT_RANGED:
+    //     case CR_CRIT_SPELL:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::CritDiminishing);
+    //         break;
+    //     case CR_SPEED:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::SpeedDiminishing);
+    //         break;
+    //     case CR_LIFESTEAL:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::LifestealDiminishing);
+    //         break;
+    //     case CR_HASTE_MELEE:
+    //     case CR_HASTE_RANGED:
+    //     case CR_HASTE_SPELL:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::HasteDiminishing);
+    //         break;
+    //     case CR_AVOIDANCE:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::AvoidanceDiminishing);
+    //         break;
+    //     case CR_MASTERY:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::MasteryDiminishing);
+    //         break;
+    //     case CR_VERSATILITY_DAMAGE_DONE:
+    //     case CR_VERSATILITY_HEALING_DONE:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::VersatilityDoneDiminishing);
+    //         break;
+    //     case CR_VERSATILITY_DAMAGE_TAKEN:
+    //         diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::VersatilityTakenDiminishing);
+    //         break;
+    //     default:
+    //         break;
+    // }
 
     if (diminishingCurveId)
         return sDB2Manager.GetCurveValueAt(diminishingCurveId, bonusValue);
@@ -5352,7 +5353,6 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_CORRUPTION:
         case CR_CORRUPTION_RESISTANCE:
-            UpdateCorruption();
             break;
         case CR_SPEED:
         case CR_RESILIENCE_PLAYER_DAMAGE:
@@ -6231,45 +6231,43 @@ void Player::CheckAreaExploreAndOutdoor()
 
         UpdateCriteria(CriteriaType::RevealWorldMapOverlay, GetAreaId());
 
-        if (Optional<ContentTuningLevels> areaLevels = sDB2Manager.GetContentTuningData(areaEntry->ContentTuningID, 0))
+        if (IsMaxLevel())
         {
-            if (IsMaxLevel())
+            SendExplorationExperience(areaId, 0);
+        }
+        else
+        {
+            // int16 areaLevel = std::min(std::max(int16(GetLevel()), areaLevels->MinLevel), areaLevels->MaxLevel); // @TODO wotlk_classic
+            int16 areaLevel = GetLevel();
+            int32 diff = int32(GetLevel()) - areaLevel;
+            uint32 XP;
+            if (diff < -5)
             {
-                SendExplorationExperience(areaId, 0);
+                XP = uint32(sObjectMgr->GetBaseXP(GetLevel() + 5) * sWorld->getRate(RATE_XP_EXPLORE));
+            }
+            else if (diff > 5)
+            {
+                int32 exploration_percent = 100 - ((diff - 5) * 5);
+                if (exploration_percent < 0)
+                    exploration_percent = 0;
+
+                XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * exploration_percent / 100 * sWorld->getRate(RATE_XP_EXPLORE));
             }
             else
             {
-                int16 areaLevel = std::min(std::max(int16(GetLevel()), areaLevels->MinLevel), areaLevels->MaxLevel);
-                int32 diff = int32(GetLevel()) - areaLevel;
-                uint32 XP;
-                if (diff < -5)
-                {
-                    XP = uint32(sObjectMgr->GetBaseXP(GetLevel() + 5) * sWorld->getRate(RATE_XP_EXPLORE));
-                }
-                else if (diff > 5)
-                {
-                    int32 exploration_percent = 100 - ((diff - 5) * 5);
-                    if (exploration_percent < 0)
-                        exploration_percent = 0;
-
-                    XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * exploration_percent / 100 * sWorld->getRate(RATE_XP_EXPLORE));
-                }
-                else
-                {
-                    XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * sWorld->getRate(RATE_XP_EXPLORE));
-                }
-
-                if (sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO))
-                {
-                    uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaLevel)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
-                    XP = std::max(minScaledXP, XP);
-                }
-
-                GiveXP(XP, nullptr);
-                SendExplorationExperience(areaId, XP);
+                XP = uint32(sObjectMgr->GetBaseXP(areaLevel) * sWorld->getRate(RATE_XP_EXPLORE));
             }
-            TC_LOG_DEBUG("entities.player", "Player '%s' (%s) discovered a new area: %u", GetName().c_str(),GetGUID().ToString().c_str(), areaId);
+
+            if (sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO))
+            {
+                uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaLevel)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
+                XP = std::max(minScaledXP, XP);
+            }
+
+            GiveXP(XP, nullptr);
+            SendExplorationExperience(areaId, XP);
         }
+        TC_LOG_DEBUG("entities.player", "Player '%s' (%s) discovered a new area: %u", GetName().c_str(),GetGUID().ToString().c_str(), areaId);
     }
 }
 
@@ -6325,24 +6323,14 @@ ReputationRank Player::GetReputationRank(uint32 faction) const
 // Calculate total reputation percent player gain with quest/creature level
 int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus)
 {
-    bool noBonuses = false;
-    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction))
-        if (FriendshipReputationEntry const* friendshipReputation = sFriendshipReputationStore.LookupEntry(factionEntry->FriendshipRepID))
-            if (friendshipReputation->GetFlags().HasFlag(FriendshipReputationFlags::NoRepGainModifiers))
-                noBonuses = true;
-
     float percent = 100.0f;
+    float repMod = noQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
 
-    if (!noBonuses)
-    {
-        float repMod = noQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
+    // faction specific auras only seem to apply to kills
+    if (source == REPUTATION_SOURCE_KILL)
+        repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
 
-        // faction specific auras only seem to apply to kills
-        if (source == REPUTATION_SOURCE_KILL)
-            repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
-
-        percent += rep > 0 ? repMod : -repMod;
-    }
+    percent += rep > 0 ? repMod : -repMod;
 
     float rate;
     switch (source)

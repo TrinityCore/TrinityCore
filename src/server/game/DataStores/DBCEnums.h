@@ -285,14 +285,6 @@ enum class ContentTuningFlag : int32
 
 DEFINE_ENUM_FLAG(ContentTuningFlag);
 
-enum class CorruptionEffectsFlag
-{
-    None        = 0,
-    Disabled    = 0x1
-};
-
-DEFINE_ENUM_FLAG(CorruptionEffectsFlag);
-
 enum class CreatureModelDataFlags : uint32
 {
     NoFootprintParticles                    = 0x00001,
@@ -756,25 +748,25 @@ enum class FriendshipReputationFlags : int32
 
 DEFINE_ENUM_FLAG(FriendshipReputationFlags);
 
-enum class GlobalCurve : int32
-{
-    CritDiminishing = 0,
-    MasteryDiminishing = 1,
-    HasteDiminishing = 2,
-    SpeedDiminishing = 3,
-    AvoidanceDiminishing = 4,
-    VersatilityDoneDiminishing = 5,
-    LifestealDiminishing = 6,
-    DodgeDiminishing = 7,
-    BlockDiminishing = 8,
-    ParryDiminishing = 9,
-
-    VersatilityTakenDiminishing = 11,
-
-    ContentTuningPvpItemLevelHealthScaling = 13,
-    ContentTuningPvpLevelDamageScaling = 14,
-    ContentTuningPvpItemLevelDamageScaling = 15,
-};
+// enum class GlobalCurve : int32
+// {
+//     CritDiminishing = 0,
+//     MasteryDiminishing = 1,
+//     HasteDiminishing = 2,
+//     SpeedDiminishing = 3,
+//     AvoidanceDiminishing = 4,
+//     VersatilityDoneDiminishing = 5,
+//     LifestealDiminishing = 6,
+//     DodgeDiminishing = 7,
+//     BlockDiminishing = 8,
+//     ParryDiminishing = 9,
+//
+//     VersatilityTakenDiminishing = 11,
+//
+//     ContentTuningPvpItemLevelHealthScaling = 13,
+//     ContentTuningPvpLevelDamageScaling = 14,
+//     ContentTuningPvpItemLevelDamageScaling = 15,
+// };
 
 #define MAX_ITEM_PROTO_FLAGS 4
 #define MAX_ITEM_PROTO_ZONES 2

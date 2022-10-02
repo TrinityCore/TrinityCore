@@ -670,9 +670,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     if (itemModifiedAppearance->TransmogSourceTypeEnum == 6 || itemModifiedAppearance->TransmogSourceTypeEnum == 9)
         return false;
 
-    if (!sItemSearchNameStore.LookupEntry(itemModifiedAppearance->ItemID))
-        return false;
-
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemModifiedAppearance->ItemID);
     if (!itemTemplate)
         return false;

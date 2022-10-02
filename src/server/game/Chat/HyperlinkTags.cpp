@@ -124,15 +124,6 @@ bool Trinity::Hyperlinks::LinkTags::battlepet::StoreTo(BattlePetLinkData& val, s
         && t.IsEmpty();
 }
 
-bool Trinity::Hyperlinks::LinkTags::conduit::StoreTo(SoulbindConduitRankEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 soulbindConduitId, rank;
-    if (!(t.TryConsumeTo(soulbindConduitId) && t.TryConsumeTo(rank) && t.IsEmpty()))
-        return false;
-    return !!(val = sDB2Manager.GetSoulbindConduitRank(soulbindConduitId, rank));
-}
-
 bool Trinity::Hyperlinks::LinkTags::currency::StoreTo(CurrencyLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -338,15 +329,6 @@ bool Trinity::Hyperlinks::LinkTags::keystone::StoreTo(KeystoneLinkData& val, std
         if (keystoneAffix && !sKeystoneAffixStore.LookupEntry(keystoneAffix))
             return false;
     return true;
-}
-
-bool Trinity::Hyperlinks::LinkTags::mawpower::StoreTo(MawPowerEntry const*& val, std::string_view text)
-{
-    HyperlinkDataTokenizer t(text);
-    uint32 mawPowerId;
-    if (!t.TryConsumeTo(mawPowerId))
-        return false;
-    return !!(val = sMawPowerStore.LookupEntry(mawPowerId)) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::pvptal::StoreTo(PvpTalentEntry const*& val, std::string_view text)

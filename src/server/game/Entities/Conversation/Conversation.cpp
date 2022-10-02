@@ -208,9 +208,6 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
             if (locale == DEFAULT_LOCALE)
                 lineField.StartTime = _lastLineEndTimes[locale].count();
 
-            if (int32 const* broadcastTextDuration = sDB2Manager.GetBroadcastTextDuration(convoLine->BroadcastTextID, locale))
-                _lastLineEndTimes[locale] += Milliseconds(*broadcastTextDuration);
-
             _lastLineEndTimes[locale] += Milliseconds(convoLine->AdditionalDuration);
         }
     }

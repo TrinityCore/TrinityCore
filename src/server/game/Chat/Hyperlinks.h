@@ -285,13 +285,6 @@ namespace Trinity::Hyperlinks
             static bool StoreTo(BattlePetLinkData& val, std::string_view text);
         };
 
-        struct TC_GAME_API conduit
-        {
-            using value_type = SoulbindConduitRankEntry const*;
-            static constexpr std::string_view tag() { return "conduit"; }
-            static bool StoreTo(SoulbindConduitRankEntry const*& val, std::string_view text);
-        };
-
         struct TC_GAME_API currency
         {
             using value_type = CurrencyLinkData const&;
@@ -353,13 +346,6 @@ namespace Trinity::Hyperlinks
             using value_type = KeystoneLinkData const&;
             static constexpr std::string_view tag() { return "keystone"; }
             static bool StoreTo(KeystoneLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API mawpower
-        {
-            using value_type = MawPowerEntry const*;
-            static constexpr std::string_view tag() { return "mawpower"; }
-            static bool StoreTo(MawPowerEntry const*& val, std::string_view text);
         };
 
         struct TC_GAME_API pvptal

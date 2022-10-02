@@ -518,14 +518,6 @@ struct BroadcastTextEntry
     std::array<uint16, MAX_BROADCAST_TEXT_EMOTES> EmoteDelay;
 };
 
-struct BroadcastTextDurationEntry
-{
-    uint32 ID;
-    int32 BroadcastTextID;
-    int32 Locale;
-    int32 Duration;
-};
-
 struct Cfg_RegionsEntry
 {
     uint32 ID;
@@ -665,7 +657,7 @@ struct ChrCustomizationOptionEntry
     int32 OptionType;
     float BarberShopCostModifier;
     int32 ChrCustomizationID;
-    int32 Requirement;
+    int32 ChrCustomizationReqID;
     int32 UiOrderIndex;
 };
 
@@ -1249,20 +1241,20 @@ struct DestructibleModelDataEntry
     uint32 ID;
     int8 State0ImpactEffectDoodadSet;
     uint8 State0AmbientDoodadSet;
-    uint32 State1WMO;
+    uint32 State1Wmo;
     int8 State1DestructionDoodadSet;
     int8 State1ImpactEffectDoodadSet;
     uint8 State1AmbientDoodadSet;
-    uint32 State2WMO;
+    uint32 State2Wmo;
     int8 State2DestructionDoodadSet;
     int8 State2ImpactEffectDoodadSet;
     uint8 State2AmbientDoodadSet;
-    uint32 State3WMO;
+    uint32 State3Wmo;
     uint8 State3InitDoodadSet;
     uint8 State3AmbientDoodadSet;
     uint8 EjectDirection;
     uint8 DoNotHighlight;
-    uint32 State0WMO;
+    uint32 State0Wmo;
     uint8 HealEffect;
     uint16 HealEffectSpeed;
     int8 State0NameSet;
@@ -2096,24 +2088,6 @@ struct ItemPriceBaseEntry
     float Weapon;
 };
 
-struct ItemSearchNameEntry
-{
-    uint32 ID;
-    Trinity::RaceMask<int64> AllowableRace;
-    LocalizedString Display;
-    uint8 OverallQualityID;
-    int32 ExpansionID;
-    uint16 MinFactionID;
-    uint8 MinReputation;
-    int32 AllowableClass;
-    int8 RequiredLevel;
-    uint16 RequiredSkill;
-    uint16 RequiredSkillRank;
-    uint32 RequiredAbility;
-    uint16 ItemLevel;
-    std::array<int32, 4> Flags;
-};
-
 #define MAX_ITEM_SET_ITEMS 17
 
 struct ItemSetEntry
@@ -2235,13 +2209,6 @@ struct ItemXBonusTreeEntry
 {
     uint32 ID;
     uint16 ItemBonusTreeID;
-    uint32 ItemID;
-};
-
-struct ItemXItemEffectEntry
-{
-    uint32 ID;
-    int32 ItemEffectID;
     uint32 ItemID;
 };
 
@@ -2465,17 +2432,6 @@ struct MapEntry
     bool IsBattlegroundOrArena() const { return InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
     bool IsScenario() const { return InstanceType == MAP_SCENARIO; }
     bool IsWorldMap() const { return InstanceType == MAP_COMMON; }
-
-    bool GetEntrancePos(int32& mapid, float& x, float& y) const
-    {
-        if (CorpseMapID < 0)
-            return false;
-
-        mapid = CorpseMapID;
-        x = Corpse.X;
-        y = Corpse.Y;
-        return true;
-    }
 
     bool IsContinent() const
     {
@@ -3237,7 +3193,7 @@ struct SpellEffectEntry
     std::array<uint32, 2> EffectRadiusIndex;
     std::array<int32, 4> EffectSpellClassMask;
     std::array<int16, 2> ImplicitTarget;
-    int32 SpellID;
+    uint32 SpellID;
 
     SpellEffectAttributes GetEffectAttributes() const { return static_cast<SpellEffectAttributes>(EffectAttributes); }
 };
@@ -3290,7 +3246,7 @@ struct SpellItemEnchantmentEntry
     std::array<uint8, MAX_ITEM_ENCHANTMENT_EFFECTS> Effect;
     int8 ScalingClass;
     int8 ScalingClassRestricted;
-    uint8 Condition_ID;
+    uint8 ConditionID;
     uint8 MinLevel;
     uint8 MaxLevel;
 
@@ -3715,7 +3671,7 @@ struct TransmogSetItemEntry
     uint32 TransmogSetID;
     uint32 ItemModifiedAppearanceID;
     int32 Flags;
-}
+};
 
 struct TransportAnimationEntry
 {

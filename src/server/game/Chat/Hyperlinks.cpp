@@ -200,22 +200,6 @@ struct LinkValidator<LinkTags::battlepet>
 };
 
 template <>
-struct LinkValidator<LinkTags::conduit>
-{
-    static bool IsTextValid(SoulbindConduitRankEntry const* rank, std::string_view text)
-    {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(rank->SpellID, DIFFICULTY_NONE))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
-    }
-
-    static bool IsColorValid(SoulbindConduitRankEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_SPELL;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::currency>
 {
     static bool IsTextValid(CurrencyLinkData const& data, std::string_view text)
@@ -464,22 +448,6 @@ struct LinkValidator<LinkTags::quest>
 };
 
 template <>
-struct LinkValidator<LinkTags::mawpower>
-{
-    static bool IsTextValid(MawPowerEntry const* mawPower, std::string_view text)
-    {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(mawPower->SpellID, DIFFICULTY_NONE))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
-    }
-
-    static bool IsColorValid(MawPowerEntry const*, HyperlinkColor c)
-    {
-        return c == CHAT_LINK_COLOR_SPELL;
-    }
-};
-
-template <>
 struct LinkValidator<LinkTags::outfit>
 {
     static bool IsTextValid(std::string const&, std::string_view)
@@ -625,7 +593,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(area);
     TryValidateAs(areatrigger);
     TryValidateAs(battlepet);
-    TryValidateAs(conduit);
     TryValidateAs(creature);
     TryValidateAs(creature_entry);
     TryValidateAs(currency);
@@ -641,7 +608,6 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
     TryValidateAs(itemset);
     TryValidateAs(journal);
     TryValidateAs(keystone);
-    TryValidateAs(mawpower);
     TryValidateAs(outfit);
     TryValidateAs(player);
     TryValidateAs(pvptal);
