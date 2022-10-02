@@ -3007,16 +3007,16 @@ struct npc_silverpine_admiral_hatchet : public ScriptedAI
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (player->HasAura(SPELL_SUMMON_ORC_SEA_PUP))
-                player->RemoveAura(SPELL_SUMMON_ORC_SEA_PUP);
-
             player->CastSpell(player, SPELL_SUMMON_ORC_SEA_PUP);
-            return true;
-        }
 
         CloseGossipMenuFor(player);
         return false;
+    }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_STEEL_THUNDER)
+            player->CastSpell(player, SPELL_SUMMON_ORC_SEA_PUP);
     }
 
     void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
@@ -3248,15 +3248,7 @@ enum OrcSeaPup
 // 44914 - Orc Sea Pup
 struct npc_silverpine_orc_sea_pup : public VehicleAI
 {
-    npc_silverpine_orc_sea_pup(Creature* creature) : VehicleAI(creature), _isJustSummoned(true), _isJustTriggered(false)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _playerGUID = me->GetOwnerGUID();
-    }
+    npc_silverpine_orc_sea_pup(Creature* creature) : VehicleAI(creature), _isJustSummoned(true), _isJustTriggered(false) { }
 
     void JustAppeared() override
     {
@@ -3267,9 +3259,11 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
     {
         if (Player* player = summoner->ToPlayer())
         {
+            _playerGUID = player->GetGUID();
+
             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
-            me->GetMotionMaster()->MoveFollow(player, 5.0f, float(M_PI / 2.0f));
+            me->GetMotionMaster()->MoveFollow(player, 2.0f, float(M_PI / 2.0f));
 
             if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
             {
@@ -3287,15 +3281,12 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
     void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
     {
-        if (passenger->GetEntry() == NPC_ORC_CRATE)
+        if (passenger->GetEntry() == NPC_ORC_CRATE && !_isJustSummoned)
         {
             if (apply)
             {
-                if (!_isJustSummoned)
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(seatId + 1, player);
-                }
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    Talk(seatId + 1, player);
             }
         }
     }
@@ -3305,18 +3296,12 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
         switch (spellInfo->Id)
         {
             case SPELL_SEA_PUP_TRIGGER:
-            {
                 _isJustTriggered = true;
-
-                _events.CancelEvent(EVENT_ORC_PUP_TALK);
-
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     Talk(TALK_ORC_PUP_DELIVER_CRATES, player);
-
+                _events.CancelEvent(EVENT_ORC_PUP_TALK);
                 _events.ScheduleEvent(EVENT_ORC_PUP_DELIVER_CRATES, 3s);
                 break;
-            }
-
             default:
                 break;
         }
@@ -3327,7 +3312,10 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             if (!_isJustTriggered && !player->HasAura(SPELL_SUMMON_ORC_SEA_PUP))
-                me->DespawnOrUnsummon();
+            {
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS, true);
+            }
         }
 
         _events.Update(diff);
@@ -3348,7 +3336,7 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             Talk(TALK_ORC_PUP_WORN_OFF, player);
                     }
-                    _events.ScheduleEvent(EVENT_ORC_PUP_TALK, 45s, 65s);
+                    _events.ScheduleEvent(EVENT_ORC_PUP_TALK, 30s, 75s);
                     break;
                 }
 
@@ -3357,16 +3345,12 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
                     break;
 
                 case EVENT_ORC_PUP_DELIVER_CRATES:
-                {
                     DoCastSelf(SPELL_EJECT_ALL_PASSENGERS);
                     DoCastSelf(SPELL_ANIM_DEAD);
-
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS, true);
-
+                        player->CastSpell(nullptr, SPELL_DESPAWN_ALL_SUMMONS, true);
                     me->DespawnOrUnsummon(4s);
                     break;
-                }
 
                 default:
                     break;
@@ -3447,10 +3431,22 @@ class spell_silverpine_despawn_all_summons_rear_guard : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
+        Unit* caster = GetCaster();
+
+        if (Creature* target = GetHitCreature())
         {
-            if (GetHitCreature()->GetOwnerGUID() == caster->GetGUID())
-                GetHitCreature()->DespawnOrUnsummon();
+            if (target->GetOwnerGUID() == caster->GetGUID())
+            {
+                Vehicle* vehicle = target->GetVehicleKit();
+
+                for (uint8 i = 0; i < 5; i++)
+                {
+                    if (Unit* orcCrate = vehicle->GetPassenger(i))
+                        orcCrate->ToCreature()->DespawnOrUnsummon();
+                }
+
+                target->DespawnOrUnsummon();
+            }
         }
     }
 

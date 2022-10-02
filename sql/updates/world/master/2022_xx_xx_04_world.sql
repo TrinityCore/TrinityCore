@@ -321,27 +321,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id` = 83904 AND `ScriptName` = 'sp
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (83904, 'spell_gen_reverse_cast_target_to_caster_triggered');
 
--- Summon Orc Sea Pup
-DELETE FROM `spell_area` WHERE `spell`=83839 AND `area`=5386 AND `quest_start`=27069 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
-INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
-(83839, 5386, 27069, 0, 0, 0, 2, 3, 10, 0);
-
-DELETE FROM `spell_area` WHERE `spell`=83839 AND `area`=130 AND `quest_start`=27069 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
-INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
-(83839, 130, 27069, 0, 0, 0, 2, 3, 10, 0);
-
-DELETE FROM `spell_area` WHERE `spell`=83839 AND `area`=928 AND `quest_start`=27069 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
-INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
-(83839, 928, 27069, 0, 0, 0, 2, 3, 10, 0);
-
-DELETE FROM `spell_area` WHERE `spell`=83839 AND `area`=305 AND `quest_start`=27069 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
-INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
-(83839, 305, 27069, 0, 0, 0, 2, 3, 10, 0);
-
-DELETE FROM `spell_area` WHERE `spell`=83839 AND `area`=226 AND `quest_start`=27069 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
-INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
-(83839, 226, 27069, 0, 0, 0, 2, 3, 10, 0);
-
 -- Orc Sea Pup (44914)
 UPDATE `creature_template` SET `unit_flags` = 33288, `VehicleId` = 1060, `ScriptName` = 'npc_silverpine_orc_sea_pup' WHERE `entry` = 44914;
 
