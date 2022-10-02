@@ -403,6 +403,7 @@ class TC_GAME_API Spell
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
         void EffectLearnTransmogIllusion();
+        void EffectSetChromieTime();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
