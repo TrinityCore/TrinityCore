@@ -3281,10 +3281,13 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
     void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
     {
-        if (passenger->GetEntry() == NPC_ORC_CRATE && !_isJustSummoned)
+        if (passenger->GetEntry() == NPC_ORC_CRATE)
         {
             if (apply)
             {
+                if (_isJustSummoned)
+                    return;
+
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     Talk(seatId + 1, player);
             }
