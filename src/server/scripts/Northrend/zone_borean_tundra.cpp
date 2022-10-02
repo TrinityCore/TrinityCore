@@ -105,6 +105,7 @@ enum CaribouTrap
     EVENT_FUR_SPAWN        = 1,
     EVENT_SPAWN_TRAPPER,
     EVENT_TRAPPER_MOVE,
+    EVENT_TRAPPER_TEXT,
     EVENT_TRAPPER_LOOT,
     EVENT_FUR_DESPAWN,
     EVENT_TRAPPER_DIE,
@@ -148,22 +149,6 @@ struct go_caribou_trap : public GameObjectAI
         }
     }
 
-    void MovementInform(uint32 /*type*/, uint32 id) override
-    {
-        if (type != POINT_MOTION_TYPE)
-            return;
-
-        if (id != POINT_REACHED_TRAP)
-            return;
-
-        if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-        {
-            if (trapper->IsAIEnabled())
-                trapper->AI()->Talk(SAY_NESINGWARY_1);
-        }
-        _events.ScheduleEvent(EVENT_TRAPPER_LOOT, 2s);
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!_placedFur)
@@ -191,8 +176,12 @@ struct go_caribou_trap : public GameObjectAI
                 case EVENT_TRAPPER_MOVE:
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
                         trapper->GetMotionMaster()->MovePoint(POINT_REACHED_TRAP, trapper->GetFirstCollisionPosition(20.0f, trapper->GetOrientation()));
-                    // next step is happening in MovementInform
+                    _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
                     break;
+                case EVENT_TRAPPER_TEXT:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->AI()->Talk(SAY_NESINGWARY_1);
+                    _events.ScheduleEvent(EVENT_TRAPPER_LOOT, 2s);
                 case EVENT_TRAPPER_LOOT:
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
                         trapper->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
