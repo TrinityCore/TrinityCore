@@ -11,7 +11,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (45625, 'spell_arcane_chains_character_force_cast');
 
 -- Update creatures
-UPDATE `creature_template` SET `minlevel`=69, `maxlevel`=70, `unit_flags`=32768, `unit_class`=8, `ScriptName`='npc_captured_beryl_sorcerer' WHERE `entry`=25474;
+UPDATE `creature_template` SET `minlevel`=69, `maxlevel`=70, `unit_flags`=32768, `unit_class`=2, `ScriptName`='npc_captured_beryl_sorcerer' WHERE `entry`=25474;
 UPDATE `creature_template` SET `AIName`='' WHERE `entry`=25316;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=25316;
 
