@@ -357,7 +357,7 @@ INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, 
 (8422, 0, -2.3, 2.1, 0, 0, 1),
 (8423, 0, 3.3, -1.2, 0, 0, 1),
 (8424, 0, -2.8, -2.2, 0, 0, 1),
-(8425, 0, 3, 4.1, -2.7, 0, 1);
+(8425, 0, 4.1, -2.7, 0, 0, 1);
 
 -- Orc Crate
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_orc_crate' WHERE `entry` = 44915;
