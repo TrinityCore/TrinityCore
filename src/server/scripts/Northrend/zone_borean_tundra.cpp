@@ -1806,7 +1806,6 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
 
 void AddSC_borean_tundra()
 {
-    RegisterCreatureAI(npc_corastrasza);
     RegisterGameObjectAI(go_caribou_trap);
     RegisterSpellScript(spell_red_dragonblood);
     new npc_thassarian();
