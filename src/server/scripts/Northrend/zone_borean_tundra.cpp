@@ -175,13 +175,14 @@ struct go_caribou_trap : public GameObjectAI
                     break;
                 case EVENT_TRAPPER_MOVE:
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                        trapper->GetMotionMaster()->MovePoint(POINT_REACHED_TRAP, trapper->GetFirstCollisionPosition(20.0f, trapper->GetOrientation()));
+                        trapper->GetMotionMaster()->MovePoint(POINT_REACHED_TRAP, trapper->GetFirstCollisionPosition(20.0f, 0));
                     _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
                     break;
                 case EVENT_TRAPPER_TEXT:
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
                         trapper->AI()->Talk(SAY_NESINGWARY_1);
                     _events.ScheduleEvent(EVENT_TRAPPER_LOOT, 2s);
+                    break;
                 case EVENT_TRAPPER_LOOT:
                     if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
                         trapper->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
