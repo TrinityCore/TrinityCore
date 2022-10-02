@@ -475,7 +475,7 @@ int main(int argc, char ** argv)
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__) || defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
                     , 0711
 #endif
                     ))
