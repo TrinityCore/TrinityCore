@@ -123,7 +123,7 @@ struct go_caribou_trap : public GameObjectAI
 
     void JustAppeared()
     {
-        _placeFir = false;
+        _placedFir = false;
         _goFurGUID.Clear();
         _playerGUID.Clear();
         _trapperGUID.Clear();
@@ -132,7 +132,7 @@ struct go_caribou_trap : public GameObjectAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (_placeFir)
+        if (_placedFir)
             return;
 
         Player* playerCaster = caster->ToPlayer();
@@ -142,14 +142,14 @@ struct go_caribou_trap : public GameObjectAI
         if (spellInfo->Id == SPELL_PLACE_FAKE_FUR)
         {
             _playerGUID = caster->GetGUID();
-            _placeFir = true;
+            _placedFir = true;
             _events.ScheduleEvent(EVENT_FUR_SPAWN, 1s);
         }
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (!_placeFir)
+        if (!_placedFir)
             return;
 
         _events.Update(diff);
@@ -158,62 +158,62 @@ struct go_caribou_trap : public GameObjectAI
         {
             switch (eventId)
             {
-            case EVENT_FUR_SPAWN:
-                if (GameObject* fur = me->SummonGameObject(GO_HIGH_QUALITY_FUR, me->GetPosition(), QuaternionData(0.0f, 0.0f, 0.77162457f, 0.63607824f), 20s))
-                    _goFurGUID = fur->GetGUID();
-                _events.ScheduleEvent(EVENT_SPAWN_TRAPPER, 1s);
-                break;
-            case EVENT_SPAWN_TRAPPER:
-                if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetFirstCollisionPosition(21.0f, me->GetOrientation()), TEMPSUMMON_DEAD_DESPAWN, 6s))
-                {
-                    trapper->SetFacingToObject(me);
-                    _trapperGUID = trapper->GetGUID();
-                }
-                _events.ScheduleEvent(EVENT_TRAPPER_MOVE, 1s);
-                break;
-            case EVENT_TRAPPER_MOVE:
-                if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                    trapper->GetMotionMaster()->MovePoint(0, trapper->GetPositionX() + (std::cos(trapper->GetOrientation()) * 20), trapper->GetPositionY() + (std::sin(trapper->GetOrientation()) * 20), me->GetPositionZ());
-                _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
-                break;
-            case EVENT_TRAPPER_TEXT:
-                if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                    trapper->AI()->Talk(SAY_NESINGWARY_1);
-                _events.ScheduleEvent(EVENT_TRAPPER_LOOT, 2s);
-                break;
-            case EVENT_TRAPPER_LOOT:
-                if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                    trapper->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
-                _events.ScheduleEvent(EVENT_FUR_DESPAWN, 1s);
-                break;
-            case EVENT_FUR_DESPAWN:
-                if (GameObject* fur = ObjectAccessor::GetGameObject(*me, _goFurGUID))
-                    fur->Delete();
-                _events.ScheduleEvent(EVENT_TRAPPER_DIE, 1s);
-                break;
-            case EVENT_TRAPPER_DIE:
-                me->SetGoState(GO_STATE_ACTIVE);
-                if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        player->KilledMonsterCredit(trapper->GetEntry(), trapper->GetGUID());
-                    trapper->CastSpell(trapper, SPELL_TRAPPED);
-                }
-                _events.ScheduleEvent(EVENT_DESPAWN_ALL, 1s);
-                break;
-            case EVENT_DESPAWN_ALL:
-                if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
-                    trapper->DespawnOrUnsummon();
-                me->DespawnOrUnsummon(0s, 50s);
-                break;
-            default:
-                break;
+                case EVENT_FUR_SPAWN:
+                    if (GameObject* fur = me->SummonGameObject(GO_HIGH_QUALITY_FUR, me->GetPosition(), QuaternionData(0.0f, 0.0f, 0.77162457f, 0.63607824f), 20s))
+                        _goFurGUID = fur->GetGUID();
+                    _events.ScheduleEvent(EVENT_SPAWN_TRAPPER, 1s);
+                    break;
+                case EVENT_SPAWN_TRAPPER:
+                    if (TempSummon* trapper = me->SummonCreature(NPC_NESINGWARY_TRAPPER, me->GetFirstCollisionPosition(21.0f, me->GetOrientation()), TEMPSUMMON_DEAD_DESPAWN, 6s))
+                    {
+                        trapper->SetFacingToObject(me);
+                        _trapperGUID = trapper->GetGUID();
+                    }
+                    _events.ScheduleEvent(EVENT_TRAPPER_MOVE, 1s);
+                    break;
+                case EVENT_TRAPPER_MOVE:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->GetMotionMaster()->MovePoint(0, trapper->GetPositionX() + (std::cos(trapper->GetOrientation()) * 20), trapper->GetPositionY() + (std::sin(trapper->GetOrientation()) * 20), me->GetPositionZ());
+                    _events.ScheduleEvent(EVENT_TRAPPER_TEXT, 5s);
+                    break;
+                case EVENT_TRAPPER_TEXT:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->AI()->Talk(SAY_NESINGWARY_1);
+                    _events.ScheduleEvent(EVENT_TRAPPER_LOOT, 2s);
+                    break;
+                case EVENT_TRAPPER_LOOT:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+                    _events.ScheduleEvent(EVENT_FUR_DESPAWN, 1s);
+                    break;
+                case EVENT_FUR_DESPAWN:
+                    if (GameObject* fur = ObjectAccessor::GetGameObject(*me, _goFurGUID))
+                        fur->Delete();
+                    _events.ScheduleEvent(EVENT_TRAPPER_DIE, 1s);
+                    break;
+                case EVENT_TRAPPER_DIE:
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                            player->KilledMonsterCredit(trapper->GetEntry(), trapper->GetGUID());
+                        trapper->CastSpell(trapper, SPELL_TRAPPED);
+                    }
+                    _events.ScheduleEvent(EVENT_DESPAWN_ALL, 1s);
+                    break;
+                case EVENT_DESPAWN_ALL:
+                    if (Creature* trapper = ObjectAccessor::GetCreature(*me, _trapperGUID))
+                        trapper->DespawnOrUnsummon();
+                    me->DespawnOrUnsummon(0s, 50s);
+                    break;
+                default:
+                    break;
             }
         }
     }
 private:
     EventMap _events;
-    bool _placeFir;
+    bool _placedFir;
     ObjectGuid _goFurGUID;
     ObjectGuid _playerGUID;
     ObjectGuid _trapperGUID;
