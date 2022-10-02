@@ -2580,6 +2580,1447 @@ struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
     }
 };
 
+enum SaltyRocka
+{
+    NPC_SALTY_GORGAR                            = 45497,
+
+    EVENT_ROCKA_CHECK_CONVERSATION              = 1,
+    EVENT_ROCKA_CHOOSE_CONVERSATION             = 2,
+    EVENT_ROCKA_CONVERSATION_COOLDOWN           = 3,
+    EVENT_ROCKA_TALK                            = 4,
+
+    TALK_ROCKA_0                                = 0,
+    TALK_ROCKA_1                                = 1,
+    TALK_ROCKA_2                                = 2,
+    TALK_ROCKA_3                                = 3,
+    TALK_ROCKA_4                                = 4,
+    TALK_ROCKA_5                                = 5,
+    TALK_ROCKA_6                                = 6,
+    TALK_ROCKA_7                                = 7,
+    TALK_ROCKA_8                                = 8,
+    TALK_ROCKA_9                                = 9,
+    TALK_GORGAR_0                               = 0,
+    TALK_GORGAR_1                               = 1,
+    TALK_GORGAR_2                               = 2,
+    TALK_GORGAR_3                               = 3,
+    TALK_GORGAR_4                               = 4,
+    TALK_GORGAR_5                               = 5
+};
+
+// 45498 - "Salty" Rocka
+struct npc_silverpine_salty_rocka : public ScriptedAI
+{
+    npc_silverpine_salty_rocka(Creature* creature) : ScriptedAI(creature), _playerNear(false) { }
+
+    void JustAppeared() override
+    {
+        CheckForGorgor();
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_ROCKA_CHECK_CONVERSATION, 1s);
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            _playerGUID = who->GetGUID();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ROCKA_CHECK_CONVERSATION:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (player->GetDistance2d(me) < 20.0f && !_playerNear)
+                        {
+                            _events.ScheduleEvent(EVENT_ROCKA_CHOOSE_CONVERSATION, 1s);
+                            _events.ScheduleEvent(EVENT_ROCKA_CONVERSATION_COOLDOWN, 180s);
+
+                            _playerNear = true;
+                        }
+                        else
+                        {
+                            _playerNear = false;
+                            _events.ScheduleEvent(EVENT_ROCKA_CHECK_CONVERSATION, 1s);
+                        }
+                    }
+
+                    break;
+                }
+
+                case EVENT_ROCKA_CHOOSE_CONVERSATION:
+                {
+                    if (roll_chance_i(50))
+                    {
+                        if (roll_chance_i(50))
+                        {
+                            if (roll_chance_i(50))
+                                _events.ScheduleEvent(EVENT_ROCKA_TALK, 1s);
+                            else
+                                _events.ScheduleEvent(EVENT_ROCKA_TALK + 10, 1s);
+                        }
+                        else
+                        {
+                            if (roll_chance_i(50))
+                                _events.ScheduleEvent(EVENT_ROCKA_TALK + 20, 1s);
+                            else
+                                _events.ScheduleEvent(EVENT_ROCKA_TALK + 30, 1s);
+                        }
+                    }
+                    else
+                        _events.ScheduleEvent(EVENT_ROCKA_TALK + 40, 1s);
+
+                    break;
+                }
+
+                case EVENT_ROCKA_TALK:
+                    Talk(TALK_ROCKA_0);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 1, 20s);
+                    break;
+
+                case EVENT_ROCKA_TALK + 1:
+                {
+                    if (Creature* gorgar = ObjectAccessor::GetCreature(*me, _gorgarGUID))
+                    {
+                        if (gorgar->IsAIEnabled())
+                            gorgar->AI()->Talk(TALK_GORGAR_0);
+                    }
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 2, 20s);
+                    break;
+                }
+
+                case EVENT_ROCKA_TALK + 2:
+                    Talk(TALK_ROCKA_1);
+                    break;
+
+                case EVENT_ROCKA_TALK + 10:
+                    Talk(TALK_ROCKA_2);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 11, 20s);
+                    break;
+
+                case EVENT_ROCKA_TALK + 11:
+                {
+                    if (Creature* gorgar = ObjectAccessor::GetCreature(*me, _gorgarGUID))
+                    {
+                        if (gorgar->IsAIEnabled())
+                            gorgar->AI()->Talk(TALK_GORGAR_1);
+                    }
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 12, 20s);
+                    break;
+                }
+
+                case EVENT_ROCKA_TALK + 12:
+                    Talk(TALK_ROCKA_3);
+                    break;
+
+                case EVENT_ROCKA_TALK + 20:
+                    Talk(TALK_ROCKA_4);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 21, 20s);
+                    break;
+
+                case EVENT_ROCKA_TALK + 21:
+                {
+                    if (Creature* gorgar = ObjectAccessor::GetCreature(*me, _gorgarGUID))
+                    {
+                        if (gorgar->IsAIEnabled())
+                            gorgar->AI()->Talk(TALK_GORGAR_2);
+                    }
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 22, 20s);
+                    break;
+                }
+
+                case EVENT_ROCKA_TALK + 22:
+                    Talk(TALK_ROCKA_5);
+                    break;
+
+                case EVENT_ROCKA_TALK + 30:
+                    Talk(TALK_ROCKA_6);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 31, 20s);
+                    break;
+
+                case EVENT_ROCKA_TALK + 31:
+                {
+                    if (Creature* gorgar = ObjectAccessor::GetCreature(*me, _gorgarGUID))
+                    {
+                        if (gorgar->IsAIEnabled())
+                            gorgar->AI()->Talk(TALK_GORGAR_3);
+                    }
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 32, 20s);
+                    break;
+                }
+
+                case EVENT_ROCKA_TALK + 32:
+                    Talk(TALK_ROCKA_7);
+                    break;
+
+                case EVENT_ROCKA_TALK + 40:
+                    Talk(TALK_ROCKA_8);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 1, 20s);
+                    break;
+
+                case EVENT_ROCKA_TALK + 41:
+                {
+                    if (Creature* gorgar = ObjectAccessor::GetCreature(*me, _gorgarGUID))
+                    {
+                        if (gorgar->IsAIEnabled())
+                            gorgar->AI()->Talk(TALK_GORGAR_4);
+                    }
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + 2, 20s);
+                    break;
+                }
+
+                case EVENT_ROCKA_TALK + 42:
+                    Talk(TALK_ROCKA_9);
+                    break;
+
+                case EVENT_ROCKA_CONVERSATION_COOLDOWN:
+                    Reset();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    void CheckForGorgor()
+    {
+        if (!_gorgarGUID)
+        {
+            if (Creature* gorgar = me->FindNearestCreature(NPC_SALTY_GORGAR, 50.0f))
+                _gorgarGUID = gorgar->GetGUID();
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+    ObjectGuid _gorgarGUID;
+    bool _playerNear;
+};
+
+enum AtForsakenRearGuard
+{
+    QUEST_ORCS_ARE_IN_ORDER                     = 27096,
+
+    NPC_ADMIRAL_HATCHET                         = 44916,
+    NPC_APOTHECARY_WORMCRUD                     = 44912,
+
+    ACTION_HATCHET_START_CONVERSATION           = 1,
+    ACTION_WORMCRUD_START_CONVERSATION          = 2
+};
+
+// 6222 - Forsaken Rear Guard
+class at_silverpine_forsaken_rear_guard : public AreaTriggerScript
+{
+public:
+    at_silverpine_forsaken_rear_guard() : AreaTriggerScript("at_silverpine_forsaken_rear_guard") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+    {
+        if (player->IsAlive())
+        {
+            if (player->GetQuestStatus(QUEST_ORCS_ARE_IN_ORDER) != QUEST_STATUS_REWARDED)
+            {
+                if (Creature* hatchet = player->FindNearestCreature(NPC_ADMIRAL_HATCHET, 50.0f))
+                {
+                    if (hatchet->IsAIEnabled())
+                        hatchet->AI()->DoAction(ACTION_HATCHET_START_CONVERSATION);
+                }
+
+                if (Creature* wormcrud = player->FindNearestCreature(NPC_APOTHECARY_WORMCRUD, 50.0f))
+                {
+                    if (wormcrud->IsAIEnabled())
+                        wormcrud->AI()->DoAction(ACTION_WORMCRUD_START_CONVERSATION);
+                }
+            }
+        }
+
+        return true;
+    }
+};
+
+enum ApothecaryWormcrud
+{
+    NPC_DRUNKEN_ORC_SEA_DOG                     = 44913,
+
+    EVENT_WORMCRUD_CHECK_CONVERSATION           = 1,
+    EVENT_WORMCRUD_CHOOSE_CONVERSATION          = 2,
+    EVENT_WORMCRUD_CONVERSATION_COOLDOWN        = 3,
+    EVENT_WORMCRUD_TALK                         = 4,
+
+    TALK_ORCSEA_0                               = 0,
+    TALK_ORCSEA_1                               = 1,
+    TALK_ORCSEA_2                               = 2,
+    TALK_WORMCRUD_0                             = 0
+};
+
+// 44912 - Apothecary Wormcrud
+struct npc_silverpine_apothecary_wormcrud : public ScriptedAI
+{
+    npc_silverpine_apothecary_wormcrud(Creature* creature) : ScriptedAI(creature), _drunkenOrcSeaDog(), _orcSeaDogList(), _eventCD(false) { }
+
+    void JustAppeared() override
+    {
+        CheckForSeaOrcs();
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        _eventCD = false;
+    }
+
+    void DoAction(int32 param) override
+    {
+        if (param == ACTION_WORMCRUD_START_CONVERSATION)
+        {
+            if (!_eventCD)
+            {
+                _eventCD = true;
+
+                _events.ScheduleEvent(EVENT_WORMCRUD_TALK, 15s);
+                _events.ScheduleEvent(EVENT_WORMCRUD_CONVERSATION_COOLDOWN, 215s);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_WORMCRUD_TALK:
+                {
+                    if (Creature* orcsea1 = ObjectAccessor::GetCreature(*me, _drunkenOrcSeaDog[0]))
+                    {
+                        if (orcsea1->IsAIEnabled())
+                            orcsea1->AI()->Talk(TALK_ORCSEA_0);
+                    }
+                    _events.ScheduleEvent(EVENT_WORMCRUD_TALK + 1, 12s);
+                    break;
+                }
+
+                case EVENT_WORMCRUD_TALK + 1:
+                {
+                    if (Creature* orcsea2 = ObjectAccessor::GetCreature(*me, _drunkenOrcSeaDog[1]))
+                    {
+                        if (orcsea2->IsAIEnabled())
+                            orcsea2->AI()->Talk(TALK_ORCSEA_1);
+                    }
+                    _events.ScheduleEvent(EVENT_WORMCRUD_TALK + 2, 12s);
+                    break;
+                }
+
+                case EVENT_WORMCRUD_TALK + 2:
+                {
+                    if (Creature* orcsea3 = ObjectAccessor::GetCreature(*me, _drunkenOrcSeaDog[2]))
+                    {
+                        if (orcsea3->IsAIEnabled())
+                            orcsea3->AI()->Talk(TALK_ORCSEA_2);
+                    }
+                    _events.ScheduleEvent(EVENT_WORMCRUD_TALK + 3, 12s);
+                    break;
+                }
+
+                case EVENT_WORMCRUD_TALK + 3:
+                    Talk(TALK_WORMCRUD_0);
+                    break;
+
+                case EVENT_WORMCRUD_CONVERSATION_COOLDOWN:
+                    Reset();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    void CheckForSeaOrcs()
+    {
+        me->GetCreatureListWithEntryInGrid(_orcSeaDogList, NPC_DRUNKEN_ORC_SEA_DOG, 5.0f);
+
+        for (uint8 i = 0; i < 3; i++)
+        {
+            for (Creature* seaDogOrc : _orcSeaDogList)
+                _drunkenOrcSeaDog[i] = seaDogOrc->GetGUID();
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+    std::array<ObjectGuid, 3> _drunkenOrcSeaDog;
+    std::vector<Creature*> _orcSeaDogList;
+    bool _eventCD;
+};
+
+enum HatchetRearGuard
+{
+    QUEST_STEEL_THUNDER                         = 27069,
+    QUEST_LOST_IN_THE_DARKNESS                  = 27093,
+
+    NPC_ORC_SEA_DOG                             = 44942,
+    NPC_WARLORD_TOROK                           = 44917,
+
+    SPELL_SUMMON_ORC_SEA_PUP                    = 83839,
+    SPELL_SEA_PUP_TRIGGER                       = 83865,
+
+    EVENT_HATCHET_CHECK_CONVERSATION            = 1,
+    EVENT_HATCHET_CONVERSATION_COOLDOWN         = 2,
+    EVENT_HATCHET_TALK                          = 3,
+
+    TALK_HATCHET_0                              = 0,
+    TALK_HATCHET_1                              = 1,
+    TALK_TOROK_0                                = 0,
+    TALK_TOROK_1                                = 1,
+    TALK_TOROK_2                                = 2,
+
+    ANIMKIT_TOROK                               = 594
+};
+
+// 44916 - Admiral Hatchet
+struct npc_silverpine_admiral_hatchet : public ScriptedAI
+{
+    npc_silverpine_admiral_hatchet(Creature* creature) : ScriptedAI(creature), _eventCD(false) { }
+
+    void JustAppeared() override
+    {
+        CheckForTorok();
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
+        {
+            if (player->HasAura(SPELL_SUMMON_ORC_SEA_PUP))
+                player->RemoveAura(SPELL_SUMMON_ORC_SEA_PUP);
+
+            player->CastSpell(player, SPELL_SUMMON_ORC_SEA_PUP);
+            return true;
+        }
+
+        CloseGossipMenuFor(player);
+        return false;
+    }
+
+    void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+    {
+        if (quest->GetQuestId() == QUEST_STEEL_THUNDER)
+            player->CastSpell(player, SPELL_SEA_PUP_TRIGGER, true);
+
+        if (quest->GetQuestId() == QUEST_LOST_IN_THE_DARKNESS)
+        {
+            me->GetCreatureListWithEntryInGrid(_seaDogList, NPC_ORC_SEA_DOG, 25.0f);
+
+            for (Creature* seadog : _seaDogList)
+            {
+                if (seadog->GetOwner()->ToPlayer()->IsQuestRewarded(QUEST_LOST_IN_THE_DARKNESS))
+                    seadog->DespawnOrUnsummon();
+            }
+        }
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _eventCD = false;
+    }
+
+    void DoAction(int32 param) override
+    {
+        if (param == ACTION_HATCHET_START_CONVERSATION)
+        {
+            if (!_eventCD)
+            {
+                _eventCD = true;
+
+                _events.ScheduleEvent(EVENT_HATCHET_TALK, 1s);
+                _events.ScheduleEvent(EVENT_HATCHET_CONVERSATION_COOLDOWN, 230s);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HATCHET_TALK:
+                    Talk(TALK_HATCHET_0);
+                    _events.ScheduleEvent(EVENT_HATCHET_TALK + 1, 8s);
+                    break;
+
+                case EVENT_HATCHET_TALK + 1:
+                {
+                    if (Creature* torok = ObjectAccessor::GetCreature(*me, _torokGUID))
+                    {
+                        if (torok->IsAIEnabled())
+                            torok->AI()->Talk(TALK_TOROK_0);
+                    }
+                    _events.ScheduleEvent(EVENT_HATCHET_TALK + 2, 6s);
+                    break;
+                }
+
+                case EVENT_HATCHET_TALK + 2:
+                    Talk(TALK_HATCHET_1);
+                    _events.ScheduleEvent(EVENT_HATCHET_TALK + 3, 6s);
+                    break;
+
+                case EVENT_HATCHET_TALK + 3:
+                {
+                    if (Creature* torok = ObjectAccessor::GetCreature(*me, _torokGUID))
+                    {
+                        torok->PlayOneShotAnimKitId(ANIMKIT_TOROK);
+
+                        if (torok->IsAIEnabled())
+                            torok->AI()->Talk(TALK_TOROK_1);
+                    }
+                    break;
+                }
+
+                case EVENT_HATCHET_CONVERSATION_COOLDOWN:
+                    Reset();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    void CheckForTorok()
+    {
+        if (!_torokGUID)
+        {
+            if (Creature* torok = me->FindNearestCreature(NPC_WARLORD_TOROK, 30.0f))
+                _torokGUID = torok->GetGUID();
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+    ObjectGuid _torokGUID;
+    std::list<Player*> _playerList;
+    std::vector<Creature*> _seaDogList;
+    bool _eventCD;
+};
+
+enum OrcSeaDog
+{
+    SPELL_DRINK_TANKARD                         = 42871,
+    SPELL_COSMETIC_SLEEP                        = 84186,
+    SPELL_COSMETIC_FEELING_SICK                 = 83832,
+    SPELL_COSMETIC_NOT_FEELING_SICK             = 83829,
+    SPELL_SICK                                  = 83885,
+
+    EVENT_SEA_DOG_SIT                           = 1,
+    EVENT_SEA_DOG_SIT_TWICE                     = 2,
+    EVENT_SEA_DOG_SLEEP                         = 3,
+    EVENT_SEA_DOG_UNEASY                        = 4,
+    EVENT_SEA_DOG_DRINK                         = 5,
+    EVENT_SEA_DOG_ROAM                          = 6,
+    EVENT_SEA_DOG_VOMIT                         = 7
+};
+
+// 44913 - Orc Sea Dog
+struct npc_silverpine_orc_sea_dog_not_sick : public ScriptedAI
+{
+    npc_silverpine_orc_sea_dog_not_sick(Creature* creature) : ScriptedAI(creature) {}
+
+    void JustAppeared() override
+    {
+        switch (urand(EVENT_SEA_DOG_SIT, EVENT_SEA_DOG_UNEASY))
+        {
+            case EVENT_SEA_DOG_SIT:
+            case EVENT_SEA_DOG_SIT_TWICE:
+                DoCastSelf(SPELL_COSMETIC_NOT_FEELING_SICK, false);
+                _events.ScheduleEvent(EVENT_SEA_DOG_DRINK, 1s, 2s);
+                break;
+            case EVENT_SEA_DOG_SLEEP:
+                DoCastSelf(SPELL_COSMETIC_SLEEP, false);
+                break;
+            case EVENT_SEA_DOG_UNEASY:
+                DoCastSelf(SPELL_COSMETIC_FEELING_SICK, false);
+                _events.ScheduleEvent(EVENT_SEA_DOG_ROAM, 1s, 5s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SEA_DOG_DRINK:
+                    DoCastSelf(SPELL_DRINK_TANKARD, false);
+                    _events.Repeat(6s, 20s);
+                    break;
+                case EVENT_SEA_DOG_ROAM:
+                    me->GetMotionMaster()->MoveCirclePath(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 1.5f, true, 4);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_silverpine_orc_sea_dog_sick : public ScriptedAI
+{
+    npc_silverpine_orc_sea_dog_sick(Creature* creature) : ScriptedAI(creature) {}
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_COSMETIC_FEELING_SICK, false);
+
+        _events.ScheduleEvent(EVENT_SEA_DOG_VOMIT, 5s, 20s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SEA_DOG_VOMIT:
+                    DoCastSelf(SPELL_SICK, false);
+                    _events.Repeat(25s, 50s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+enum OrcSeaPup
+{
+    NPC_ORC_CRATE                               = 44915,
+
+    SPELL_SUMMON_ORC_CRATE                      = 83835,
+    SPELL_EJECT_ALL_PASSENGERS                  = 68576,
+    SPELL_ANIM_DEAD                             = 98190,
+    SPELL_DESPAWN_ALL_SUMMONS                   = 83840,
+
+    EVENT_ORC_PUP_JUST_SUMMONED                 = 1,
+    EVENT_ORC_PUP_REMOVE_PROTECTION             = 2,
+    EVENT_ORC_PUP_TALK                          = 3,
+    EVENT_ORC_PUP_DELIVER_CRATES                = 4,
+
+    TALK_ORC_PUP_SUMMONED                       = 0,
+    TALK_ORC_PUP_DELIVER_CRATES                 = 6,
+    TALK_ORC_PUP_WORN_OFF                       = 7
+};
+
+// 44914 - Orc Sea Pup
+struct npc_silverpine_orc_sea_pup : public VehicleAI
+{
+    npc_silverpine_orc_sea_pup(Creature* creature) : VehicleAI(creature), _isJustSummoned(true), _isJustTriggered(false)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _playerGUID = me->GetOwnerGUID();
+    }
+
+    void JustAppeared() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
+        {
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+
+            me->GetMotionMaster()->MoveFollow(player, 5.0f, float(M_PI / 2.0f));
+
+            if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
+            {
+                _events.ScheduleEvent(EVENT_ORC_PUP_JUST_SUMMONED, 1s);
+                _events.ScheduleEvent(EVENT_ORC_PUP_REMOVE_PROTECTION, 1s + 500ms);
+                _events.ScheduleEvent(EVENT_ORC_PUP_TALK, 5s);
+
+                int c = player->GetReqKillOrCastCurrentCount(QUEST_STEEL_THUNDER, NPC_ORC_CRATE);
+
+                for (int i = 0; i < c; i++)
+                    DoCastSelf(SPELL_SUMMON_ORC_CRATE);
+            }
+        }
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    {
+        if (passenger->GetEntry() == NPC_ORC_CRATE)
+        {
+            if (apply)
+            {
+                if (!_isJustSummoned)
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        Talk(seatId + 1, player);
+                }
+            }
+        }
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_SEA_PUP_TRIGGER:
+            {
+                _isJustTriggered = true;
+
+                _events.CancelEvent(EVENT_ORC_PUP_TALK);
+
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    Talk(TALK_ORC_PUP_DELIVER_CRATES, player);
+
+                _events.ScheduleEvent(EVENT_ORC_PUP_DELIVER_CRATES, 3s);
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        {
+            if (!_isJustTriggered && !player->HasAura(SPELL_SUMMON_ORC_SEA_PUP))
+                me->DespawnOrUnsummon();
+        }
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ORC_PUP_JUST_SUMMONED:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        Talk(TALK_ORC_PUP_SUMMONED, player);
+                    break;
+
+                case EVENT_ORC_PUP_TALK:
+                {
+                    if (me->GetVehicleKit()->IsVehicleInUse())
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                            Talk(TALK_ORC_PUP_WORN_OFF, player);
+                    }
+                    _events.ScheduleEvent(EVENT_ORC_PUP_TALK, 45s, 65s);
+                    break;
+                }
+
+                case EVENT_ORC_PUP_REMOVE_PROTECTION:
+                    _isJustSummoned = false;
+                    break;
+
+                case EVENT_ORC_PUP_DELIVER_CRATES:
+                {
+                    DoCastSelf(SPELL_EJECT_ALL_PASSENGERS);
+                    DoCastSelf(SPELL_ANIM_DEAD);
+
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS, true);
+
+                    me->DespawnOrUnsummon(4s);
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+    bool _isJustSummoned;
+    bool _isJustTriggered;
+};
+
+enum OrcCrate
+{
+    NPC_ORC_SEA_PUP                             = 44914
+};
+
+// 44915 - Orc Crate
+struct npc_silverpine_orc_crate : public ScriptedAI
+{
+    npc_silverpine_orc_crate(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (summoner->GetEntry() == NPC_ORC_SEA_PUP)
+        {
+            _orcGUID = summoner->GetGUID();
+
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+
+            if (Creature* orc = ObjectAccessor::GetCreature(*me, _orcGUID))
+                me->EnterVehicle(orc);
+
+        }
+    }
+
+private:
+    ObjectGuid _orcGUID;
+};
+
+enum PickUpOrcCrate
+{
+    SPELL_KILL_CREDIT_SEA_DOG_CRATE             = 83843
+};
+
+// 83838 - Pick Up Orc Crate
+class spell_silverpine_pick_up_orc_crate : public SpellScript
+{
+    PrepareSpellScript(spell_silverpine_pick_up_orc_crate);
+
+    bool Validate(SpellInfo const* /*spellInfi*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SUMMON_ORC_CRATE,
+            SPELL_KILL_CREDIT_SEA_DOG_CRATE
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(nullptr, SPELL_SUMMON_ORC_CRATE);
+        GetHitUnit()->CastSpell(nullptr, SPELL_KILL_CREDIT_SEA_DOG_CRATE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_silverpine_pick_up_orc_crate::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 83840 - Despawn All Summons
+class spell_silverpine_despawn_all_summons_rear_guard : public SpellScript
+{
+    PrepareSpellScript(spell_silverpine_despawn_all_summons_rear_guard);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (GetHitCreature()->GetOwnerGUID() == caster->GetGUID())
+                GetHitCreature()->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_silverpine_despawn_all_summons_rear_guard::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum MutantBushChicken
+{
+    QUEST_POISONOUS_IF_YOU_INGEST_IT            = 27088,
+
+    NPC_FOREST_ETTIN                            = 44367,
+
+    EVENT_CHECK_ETTIN                           = 1,
+
+    ACTION_GRAB_CHICKEN                         = 1,
+
+    SOUND_CHICKEN_MOUNT_WOUND                   = 15936
+};
+
+// 44935 - Mutant Bush Chicken
+struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
+{
+    npc_silverpine_mutant_bush_chicken(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+
+        _events.ScheduleEvent(EVENT_CHECK_ETTIN, 1s);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
+        {
+            _playerGUID = player->GetGUID();
+
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            {
+                if (player->GetQuestStatus(QUEST_POISONOUS_IF_YOU_INGEST_IT) == QUEST_STATUS_INCOMPLETE)
+                    me->PlayDirectSound(SOUND_CHICKEN_MOUNT_WOUND, player);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHECK_ETTIN:
+                {
+                    if (Creature* ettin = me->FindNearestCreature(NPC_FOREST_ETTIN, 40.0f))
+                    {
+                        me->SetFacingToObject(ettin);
+
+                        _events.ScheduleEvent(EVENT_CHECK_ETTIN + 1, 1s);
+                    }
+                    else
+                        me->DespawnOrUnsummon(2s);
+                    break;
+                }
+
+                case EVENT_CHECK_ETTIN + 1:
+                    if (Creature* ettin = me->FindNearestCreature(NPC_FOREST_ETTIN, 40.0f))
+                        me->GetMotionMaster()->MoveFollow(ettin, 2.0f, float(M_PI * 2));
+                    _events.ScheduleEvent(EVENT_CHECK_ETTIN + 2, 1s);
+                    break;
+
+                case EVENT_CHECK_ETTIN + 2:
+                {
+                    if (Creature* ettin = me->FindNearestCreature(NPC_FOREST_ETTIN, 3.0f))
+                    {
+                        ettin->SetFacingToObject(me);
+
+                        ettin->PauseMovement();
+
+                        _events.ScheduleEvent(EVENT_CHECK_ETTIN + 3, 2s);
+                    }
+                    else
+                        _events.ScheduleEvent(EVENT_CHECK_ETTIN + 2, 1s);
+                    break;
+                }
+
+                case EVENT_CHECK_ETTIN + 3:
+                {
+                    if (Creature* ettin = me->FindNearestCreature(NPC_FOREST_ETTIN, 5.0f))
+                    {
+                        if (ettin->IsAIEnabled())
+                            ettin->GetAI()->DoAction(ACTION_GRAB_CHICKEN);
+                    }
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+};
+
+enum ForestEttin
+{
+    NPC_MUTANT_BUSH_CHICKEN                     = 44935,
+
+    SPELL_HAULING_TIMBER                        = 88361,
+    SPELL_REVERSE_CAST_RIDE_VEHICLE_ETTIN       = 83904,
+    SPELL_ETTIN_MOUTH                           = 83907,
+    SPELL_BUSH_EXPLOSION                        = 83903,
+    SPELL_BONK                                  = 80146,
+    SPELL_LOG_SMASH                             = 88421,
+
+    EVENT_LOG_SMASH                             = 1,
+    EVENT_BONK                                  = 2,
+    EVENT_CHICKEN_EXPLODE                       = 3,
+
+    SEAT_ETTIN_ARM                              = 0,
+    SEAT_ETTIN_MOUTH                            = 1
+};
+
+// 44367 - Forest Ettin
+struct npc_silverpine_forest_ettin : public ScriptedAI
+{
+    npc_silverpine_forest_ettin(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->setActive(true);
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_HAULING_TIMBER, false);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        me->ResumeMovement();
+
+        _chickenGUID.Clear();
+        _playerGUID.Clear();
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    {
+        if (apply)
+        {
+            if (seatId == SEAT_ETTIN_ARM)
+            {
+                if (passenger->GetEntry() == NPC_MUTANT_BUSH_CHICKEN)
+                {
+                    _chickenGUID = passenger->GetGUID();
+
+                    _playerGUID = passenger->GetOwner()->GetGUID();
+
+                    _events.ScheduleEvent(EVENT_CHICKEN_EXPLODE, 2s);
+                }
+            }
+
+            if (seatId == SEAT_ETTIN_MOUTH)
+            {
+                if (passenger->GetEntry() == NPC_MUTANT_BUSH_CHICKEN)
+                    _events.ScheduleEvent(EVENT_CHICKEN_EXPLODE + 2, 2s);
+            }
+        }
+    }
+
+    void DoAction(int32 param) override
+    {
+        switch (param)
+        {
+            case ACTION_GRAB_CHICKEN:
+                if (Creature* mutantBushChicken = me->FindNearestCreature(NPC_MUTANT_BUSH_CHICKEN, 10.0f))
+                    me->CastSpell(mutantBushChicken, SPELL_REVERSE_CAST_RIDE_VEHICLE_ETTIN, true);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_BONK, 2s);
+        _events.ScheduleEvent(EVENT_LOG_SMASH, 8s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BONK:
+                    DoCastVictim(SPELL_BONK);
+                    _events.Repeat(9s, 11s);
+                    break;
+
+                case EVENT_LOG_SMASH:
+                    DoCastVictim(SPELL_LOG_SMASH);
+                    _events.Repeat(15s, 16s);
+                    break;
+
+                case EVENT_CHICKEN_EXPLODE:
+                    me->ResumeMovement();
+                    _events.ScheduleEvent(EVENT_CHICKEN_EXPLODE + 1, 2s);
+                    break;
+
+                case EVENT_CHICKEN_EXPLODE + 1:
+                {
+                    if (Creature* chicken = ObjectAccessor::GetCreature(*me, _chickenGUID))
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        {
+                            if (player->GetQuestStatus(QUEST_POISONOUS_IF_YOU_INGEST_IT) == QUEST_STATUS_INCOMPLETE)
+                                chicken->PlayDirectSound(SOUND_CHICKEN_MOUNT_WOUND, player);
+
+                            chicken->CastSpell(me, SPELL_ETTIN_MOUTH, true);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_CHICKEN_EXPLODE + 2:
+                {
+                    if (Unit* chicken = me->GetVehicleKit()->GetPassenger(SEAT_ETTIN_MOUTH))
+                    {
+                        chicken->CastSpell(me, SPELL_BUSH_EXPLOSION, true);
+
+                        AttackStart(chicken->GetOwner());
+                    }
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _chickenGUID;
+    ObjectGuid _playerGUID;
+};
+
+enum WebbedVictim
+{
+    SPELL_FREE_WEBBED_VICTIM                    = 83927,
+    SPELL_FREE_WEBBED_VICTIM_RANDOM             = 83919
+};
+
+// 44941 - Webbed Victim
+struct npc_silverpine_webbed_victim : public ScriptedAI
+{
+    npc_silverpine_webbed_victim(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (Player* player = killer->ToPlayer())
+        {
+            if (player->GetQuestStatus(QUEST_LOST_IN_THE_DARKNESS) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_LOST_IN_THE_DARKNESS) != QUEST_STATUS_REWARDED)
+            {
+                if (roll_chance_i(50))
+                    player->CastSpell(me, SPELL_FREE_WEBBED_VICTIM, true);
+                else
+                    player->CastSpell(me, SPELL_FREE_WEBBED_VICTIM_RANDOM, true);
+            }
+        }
+    }
+};
+
+enum FreeWebbedVictim
+{
+    NPC_BLOODFANG_SCAVENGER                     = 44547,
+    NPC_RABID_DOG                               = 1766,
+    NPC_GIANT_RABBID_BEAR                       = 1797,
+
+    DATA_RANDOM_0                               = 0,
+    DATA_RANDOM_1                               = 1,
+    DATA_RANDOM_2                               = 2,
+    DATA_RANDOM_3                               = 3
+};
+
+// 83919 - Free Webbed Victim
+class spell_silverpine_free_webbed_victim_random : public SpellScript
+{
+    PrepareSpellScript(spell_silverpine_free_webbed_victim_random);
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            uint32 randomCreature = 0;
+
+            switch (urand(DATA_RANDOM_0, DATA_RANDOM_3))
+            {
+                case DATA_RANDOM_0:
+                    randomCreature = NPC_BLOODFANG_SCAVENGER;
+                    break;
+                case DATA_RANDOM_1:
+                    randomCreature = NPC_RABID_DOG;
+                    break;
+                case DATA_RANDOM_2:
+                    randomCreature = NPC_GIANT_RABBID_BEAR;
+                    break;
+                case DATA_RANDOM_3:
+                    randomCreature = 0;
+                    break;
+                default:
+                    break;
+            }
+
+            if (randomCreature != 0)
+            {
+                if (Creature* randomAggresiveCreature = caster->SummonCreature(randomCreature, GetHitUnit()->GetPosition()))
+                    randomAggresiveCreature->Attack(caster, true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_silverpine_free_webbed_victim_random::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum WebbedOrcSeaDog
+{
+    SPELL_SINISTER_STRIKE                       = 60195,
+
+    EVENT_WEBBEB_ORC_CHECK_PLAYER               = 1,
+    EVENT_WEBBEB_ORC_TALK                       = 2,
+    EVENT_SINISTER_STRIKE                       = 3,
+
+    TALK_WEBBEB_ORC_FREED                       = 0
+};
+
+// 44942 - Orc Sea Dog
+struct npc_silverpine_orc_sea_dog : public ScriptedAI
+{
+    npc_silverpine_orc_sea_dog(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_ASSIST);
+    }
+
+    void JustAppeared() override
+    {
+        me->SetPowerType(POWER_ENERGY);
+        me->SetMaxPower(POWER_ENERGY, 100);
+        me->SetPower(POWER_ENERGY, 100, true);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
+        {
+            _playerGUID = player->GetGUID();
+
+            player->KilledMonsterCredit(NPC_ORC_SEA_DOG, _playerGUID);
+
+            me->GetMotionMaster()->MoveFollow(player, 5.0f, frand(1.57f, 4.71f));
+
+            _events.ScheduleEvent(EVENT_WEBBEB_ORC_CHECK_PLAYER, 1s);
+            _events.ScheduleEvent(EVENT_WEBBEB_ORC_TALK, 1s + 500ms);
+        }
+    }
+
+    void Reset() override
+    {
+        _events.CancelEvent(EVENT_SINISTER_STRIKE);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 2s, 4s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_WEBBEB_ORC_CHECK_PLAYER:
+                {
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (player->IsAlive() && player->IsInWorld() && player->hasQuest(QUEST_LOST_IN_THE_DARKNESS) && !player->IsQuestRewarded(QUEST_LOST_IN_THE_DARKNESS))
+                            _events.ScheduleEvent(EVENT_WEBBEB_ORC_CHECK_PLAYER, 1s);
+                    }
+                    else
+                        me->DespawnOrUnsummon();
+                    break;
+                }
+
+                case EVENT_WEBBEB_ORC_TALK:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        Talk(TALK_WEBBEB_ORC_FREED, player);
+                    break;
+
+                case EVENT_SINISTER_STRIKE:
+                    DoCastVictim(SPELL_SINISTER_STRIKE);
+                    _events.Repeat(6s, 8s);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+};
+
+enum SkitterwebMatriarch
+{
+    NPC_SKITTERWEB_STALKER                      = 44908,
+
+    SPELL_SKITTERWEB                            = 83827,
+    SPELL_SUMMNON_SPIDERLINGS                   = 87084,
+    SPELL_VENOM_SPLASH                          = 79607,
+
+    EVENT_MATRIARCH_AGGRO                       = 1,
+    EVENT_SUMMON_SPIDERLINGS                    = 4,
+    EVENT_VENOM_SPLASH                          = 5,
+
+    ANIMKIT_MATRIARCH_INTERACT                  = 1,
+    ANIMKIT_MATRIARCH_POSITION1                 = 865,
+    ANIMKIT_MATRIARCH_POSITION2                 = 866
+};
+
+// 44906 - Skitterweb Matriarch
+struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
+{
+    npc_silverpine_skitterweb_matriarch(Creature* creature) : ScriptedAI(creature), _alreadyPulled(false) { }
+
+    void JustAppeared() override
+    {
+        _alreadyPulled = false;
+
+        me->SetDisableGravity(true);
+        me->SetHover(true);
+
+        me->SetAIAnimKitId(ANIMKIT_MATRIARCH_POSITION1);
+
+        me->SetReactState(REACT_PASSIVE);
+
+        me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        if (!_alreadyPulled)
+        {
+            _alreadyPulled = true;
+
+            me->SetAIAnimKitId(ANIMKIT_RESET);
+            me->PlayOneShotAnimKitId(ANIMKIT_MATRIARCH_POSITION2);
+
+            _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO, 2s + 500ms);
+        }
+        else
+        {
+            _events.ScheduleEvent(EVENT_SUMMON_SPIDERLINGS, 2s);
+            _events.ScheduleEvent(EVENT_VENOM_SPLASH, 4s, 7s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MATRIARCH_AGGRO:
+                    me->SetDisableGravity(false);
+                    me->SetHover(false);
+                    me->GetMotionMaster()->MoveFall();
+                    _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 1, 1s);
+                    break;
+
+                case EVENT_MATRIARCH_AGGRO + 1:
+                    for (Creature* stalker : _stalkerList)
+                        stalker->RemoveAura(SPELL_SKITTERWEB);
+                    me->SetAIAnimKitId(ANIMKIT_MATRIARCH_INTERACT);
+                    me->SetHomePosition(me->GetPosition());
+                    _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 2, 1s);
+                    break;
+
+                case EVENT_MATRIARCH_AGGRO + 2:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    _events.ScheduleEvent(EVENT_SUMMON_SPIDERLINGS, 2s);
+                    _events.ScheduleEvent(EVENT_VENOM_SPLASH, 4s, 7s);
+                    break;
+
+                case EVENT_SUMMON_SPIDERLINGS:
+                    DoCastSelf(SPELL_SUMMNON_SPIDERLINGS);
+                    break;
+
+                case EVENT_VENOM_SPLASH:
+                    DoCastVictim(SPELL_VENOM_SPLASH);
+                    _events.Repeat(15s, 18s);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    bool _alreadyPulled;
+    std::vector<Creature*> _stalkerList;
+};
+
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -2608,4 +4049,29 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_armoire);
     RegisterCreatureAI(npc_silverpine_lord_darius_crowley_exsanguinate);
     RegisterCreatureAI(npc_silverpine_packleader_ivar_bloodfang_exsanguinate);
+
+    /* Forsaken Rear Guard */
+
+    new at_silverpine_forsaken_rear_guard();
+    RegisterCreatureAI(npc_silverpine_salty_rocka);
+    RegisterCreatureAI(npc_silverpine_apothecary_wormcrud);
+    RegisterCreatureAI(npc_silverpine_admiral_hatchet);
+    RegisterCreatureAI(npc_silverpine_orc_sea_dog_sick);
+    RegisterCreatureAI(npc_silverpine_orc_sea_dog_not_sick);
+
+    /* North Tide's Beachhead */
+
+    RegisterCreatureAI(npc_silverpine_orc_sea_pup);
+    RegisterCreatureAI(npc_silverpine_orc_crate);
+    RegisterSpellScript(spell_silverpine_pick_up_orc_crate);
+    RegisterSpellScript(spell_silverpine_despawn_all_summons_rear_guard);
+    RegisterCreatureAI(npc_silverpine_mutant_bush_chicken);
+    RegisterCreatureAI(npc_silverpine_forest_ettin);
+
+    /* The Skittering Dark */
+
+    RegisterCreatureAI(npc_silverpine_webbed_victim);
+    RegisterSpellScript(spell_silverpine_free_webbed_victim_random);
+    RegisterCreatureAI(npc_silverpine_orc_sea_dog);
+    RegisterCreatureAI(npc_silverpine_skitterweb_matriarch);
 }
