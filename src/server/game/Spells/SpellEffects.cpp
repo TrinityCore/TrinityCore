@@ -5933,6 +5933,6 @@ void Spell::EffectSetChromieTime()
     Player* caster = m_caster->ToPlayer();
     if (!caster)
         return;
-    
+
     caster->SetChromieTimeExpansion(effectInfo->MiscValue);
 }
