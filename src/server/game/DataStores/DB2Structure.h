@@ -3194,7 +3194,7 @@ struct SpellEffectEntry
     float GroupSizeBasePointsCoefficient;
     std::array<int32, 2> EffectMiscValue;
     std::array<uint32, 2> EffectRadiusIndex;
-    std::array<int32, 4> EffectSpellClassMask;
+    flag128 EffectSpellClassMask;
     std::array<int16, 2> ImplicitTarget;
     uint32 SpellID;
 
