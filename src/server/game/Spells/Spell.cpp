@@ -4534,6 +4534,15 @@ void Spell::SendSpellGo()
 
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
 
+
+    if (Unit* unitCaster = m_caster->ToUnit())
+    {
+        uint32 schoolImmunityMask = m_casttime != 0 ? unitCaster->GetSchoolImmunityMask() : 0;
+        uint32 mechanicImmunityMask = m_casttime != 0 ? m_spellInfo->GetMechanicImmunityMask(unitCaster) : 0;
+        if (schoolImmunityMask || mechanicImmunityMask)
+            castFlags |= CAST_FLAG_IMMUNITY;
+    }
+
     // triggered spells with spell visual != 0
     if (((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell) && !m_cast_count)
         castFlags |= CAST_FLAG_PENDING;
