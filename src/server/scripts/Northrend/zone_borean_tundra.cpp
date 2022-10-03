@@ -130,7 +130,7 @@ struct npc_captured_beryl_sorcerer : public FollowerAI
     void JustAppeared() override
     {
         me->SetReactState(REACT_DEFENSIVE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetImmuneToAll(true);
         if (Player* summoner = me->ToTempSummon()->GetSummonerUnit()->ToPlayer())
         {
             summoner->CastSpell(summoner, SPELL_ARCANE_CHAINS_CHANNEL_II);
