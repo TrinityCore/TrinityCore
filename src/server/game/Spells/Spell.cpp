@@ -6860,13 +6860,13 @@ SpellCastResult Spell::CheckMovement() const
     {
         if (!unitCaster->CanCastSpellWhileMoving(m_spellInfo))
         {
-            if (unitCaster->GetCurrentSpell(CURRENT_GENERIC_SPELL) == this)
+            if (getState() == SPELL_STATE_PREPARING)
             {
                 if (m_casttime > 0)
                     if (m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
                         return SPELL_FAILED_MOVING;
             }
-            else if (unitCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL) == this)
+            else if (getState() == SPELL_STATE_CASTING)
                 if (!m_spellInfo->IsMoveAllowedChannel())
                     return SPELL_FAILED_MOVING;
         }
