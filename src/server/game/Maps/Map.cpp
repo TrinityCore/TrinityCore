@@ -2473,6 +2473,10 @@ void Map::UpdateSpawnGroupConditions()
 
     for (uint32 spawnGroupId : *spawnGroups)
     {
+        SpawnGroupTemplateData const* spawnGroupTemplate = ASSERT_NOTNULL(GetSpawnGroupData(spawnGroupId));
+        if (spawnGroupTemplate->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN)
+            continue;
+
         bool isActive = IsSpawnGroupActive(spawnGroupId);
         bool shouldBeActive = sConditionMgr->IsMapMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPAWN_GROUP, spawnGroupId, this);
         if (isActive == shouldBeActive)
@@ -2480,7 +2484,7 @@ void Map::UpdateSpawnGroupConditions()
 
         if (shouldBeActive)
             SpawnGroupSpawn(spawnGroupId);
-        else if (ASSERT_NOTNULL(GetSpawnGroupData(spawnGroupId))->flags & SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE)
+        else if (spawnGroupTemplate->flags & SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE)
             SpawnGroupDespawn(spawnGroupId, true);
         else
             SetSpawnGroupInactive(spawnGroupId);
