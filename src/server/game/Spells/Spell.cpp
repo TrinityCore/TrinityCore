@@ -6860,17 +6860,15 @@ SpellCastResult Spell::CheckMovement() const
     {
         if (!unitCaster->CanCastSpellWhileMoving(m_spellInfo))
         {
-            if (m_casttime)
+            if (getState() == SPELL_STATE_PREPARING)
             {
-                if (m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
-                    return SPELL_FAILED_MOVING;
+                if (m_casttime > 0)
+                    if (m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
+                        return SPELL_FAILED_MOVING;
             }
-            else
-            {
-                // only fail channeled casts if they are instant but cannot be channeled while moving
-                if (m_spellInfo->IsChanneled() && !m_spellInfo->IsMoveAllowedChannel())
+            else if (getState() == SPELL_STATE_CASTING)
+                if (!m_spellInfo->IsMoveAllowedChannel())
                     return SPELL_FAILED_MOVING;
-            }
         }
     }
 
