@@ -11211,6 +11211,11 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         {
             if (Player* killed = victim->ToPlayer())
                 sScriptMgr->OnPlayerKilledByCreature(killerCre, killed);
+            else if (Creature* killedCre = victim->ToCreature())
+            {
+                if (killerCre->IsNPCBotOrPet() && !killerCre->IsFreeBot())
+                    sScriptMgr->OnCreatureKill(killerCre->GetBotOwner(), killedCre);
+            }
         }
     }
 }
