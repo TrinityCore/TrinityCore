@@ -766,7 +766,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     if (UnitAI* victimAI = victim->GetAI())
         victimAI->DamageTaken(attacker, damage);
 
-    if (UnitAI* attackerAI = attacker->GetAI())
+    if (UnitAI* attackerAI = attacker ? attacker->GetAI() : nullptr)
         attackerAI->DamageDealt(victim, damage, damagetype);
 
     // Hook for OnDamage Event
