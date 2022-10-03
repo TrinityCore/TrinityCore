@@ -3077,7 +3077,7 @@ void Creature::SetTarget(ObjectGuid guid)
 void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 {
     // Pointer validation
-    if (!focusSpell || !target)
+    if (!focusSpell)
         return;
 
     // Creature already has a spell focus
@@ -3092,13 +3092,13 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
         return;
 
-    // some spells shouldn't track targets
+    // Ignore casts with the according trigger flag
     if (focusSpell->IsFocusDisabled())
         return;
 
     SpellInfo const* spellInfo = focusSpell->GetSpellInfo();
 
-    // don't use spell focus for vehicle spells
+    // Don't use spell focus for vehicle spells
     if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
         return;
 
@@ -3116,43 +3116,28 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 
     _spellFocusInfo.FocusSpell = focusSpell;
 
-    // Focusing behaves different based on the given spell attributes. Tracking channel spells only face the target's direction and stay there. Normal spell casts fixate on their target instead
-    bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_AI_DOESNT_FACE_TARGET);
-    bool const turnDisabled = HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
+    // Block target based focusing when the attributes or unit flags say so.
+    bool dontFaceTarget = spellInfo->HasAttribute(SPELL_ATTR5_AI_DOESNT_FACE_TARGET)|| spellInfo->HasAttribute(SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) || HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
 
-    ObjectGuid newTarget = [&]()
-    {
-        // Spells that do not allow turning or channeled spells that will track their channel target do not set a unit field target
-        if (turnDisabled || noTurnDuringCast || spellInfo->HasAttribute(SPELL_ATTR1_TRACK_TARGET_IN_CHANNEL) || target == this)
-            return ObjectGuid::Empty;
-
-        return target->GetGUID();
-    }();
+    ObjectGuid newTarget = (dontFaceTarget || target == this || target == nullptr) ? ObjectGuid::Empty : target->GetGUID();
 
     if (GetTarget() != newTarget)
     {
+        // Sniffs imply that UNIT_FIELD_TARGET via spell focusing is being sent out in an extra packet so we do so as well.
         SetGuidValue(UNIT_FIELD_TARGET, newTarget);
-
-        // Sniffs indicate that UNIT_FIELD_TARGET is being updated outside of the regular update object interval so we squeeze the packet out as well
-        std::vector<Player*> playersNearby;
-        GetPlayerListInGrid(playersNearby, GetVisibilityRange());
-        for (Player* player : playersNearby)
-        {
-            // only update players that are known to the client (have already been created)
-            if (player->HaveAtClient(this))
-                SendUpdateToPlayer(player);
-        }
+        SendUpdateToSet();
+        ClearUpdateMask(true);
     }
 
     // Spells that do not face via UNIT_FIELD_TARGET and can turn, will face their target one last time
-    if (newTarget.IsEmpty() && !turnDisabled && target != this)
+    if (!newTarget.IsEmpty() && target != this)
     {
         SetFacingTo(GetAngle(target));
-        // We to manually update the orientation as the spline does so on the next update tick while we need a updated position now for further spell target selection
+        // Update the orentation right away. Splines take one tick to update which might become a problem in scripts.
         SetOrientationTowards(target);
     }
 
-    if (noTurnDuringCast || (!turnDisabled && newTarget.IsEmpty()))
+    if (newTarget.IsEmpty())
         AddUnitState(UNIT_STATE_FOCUSING);
 }
 
@@ -3219,21 +3204,38 @@ void Creature::ReacquireSpellFocusTarget()
 
 bool Creature::IsMovementPreventedByCasting() const
 {
-    // first check if currently a movement allowed channel is active and we're not casting
-    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+    // Creature is not casting. This state check is needed for scripted casting states which are usually considered hacks but for now we keep it.
+    if (!HasUnitState(UNIT_STATE_CASTING))
+        return false;
+
+    Spell* spellToCheck = nullptr;
+    bool needsMovementCheck = [&]()
     {
-        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
-            if (spell->CheckMovement() != SPELL_CAST_OK)
-                return false;
-    }
+        // Check for active channeled spells
+        if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+        {
+            if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
+            {
+                spellToCheck = spell;
+                return true;
+            }
+        }
 
-    if (HasSpellFocus())
-        return true;
+        // Check for ongoing spell casts
+        if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
+        {
+            spellToCheck = spell;
+            return true;
+        }
 
-    if (HasUnitState(UNIT_STATE_CASTING))
-        return true;
+        return false;
+    }();
 
-    return false;
+
+    if (!spellToCheck || !needsMovementCheck)
+        return false;
+
+    return (spellToCheck->CheckMovement() != SPELL_CAST_OK);
 }
 
 void Creature::StartPickPocketRefillTimer()
