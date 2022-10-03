@@ -3509,7 +3509,7 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
 
                 case EVENT_CHECK_ETTIN + 2:
                 {
-                    if (Creature* ettin = me->FindNearestCreature(NPC_FOREST_ETTIN, 3.0f))
+                    if (Creature* ettin = me->FindNearestCreature(NPC_FOREST_ETTIN, 15.0f))
                     {
                         ettin->SetFacingToObject(me);
 
@@ -3527,7 +3527,7 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
                     if (Creature* ettin = me->FindNearestCreature(NPC_FOREST_ETTIN, 5.0f))
                     {
                         if (ettin->IsAIEnabled())
-                            ettin->GetAI()->DoAction(ACTION_GRAB_CHICKEN);
+                            ettin->AI()->DoAction(ACTION_GRAB_CHICKEN);
                     }
                     break;
                 }
@@ -3605,8 +3605,7 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
                     _events.ScheduleEvent(EVENT_CHICKEN_EXPLODE, 2s);
                 }
             }
-
-            if (seatId == SEAT_ETTIN_MOUTH)
+            else if (seatId == SEAT_ETTIN_MOUTH)
             {
                 if (passenger->GetEntry() == NPC_MUTANT_BUSH_CHICKEN)
                     _events.ScheduleEvent(EVENT_CHICKEN_EXPLODE + 2, 2s);
@@ -3619,7 +3618,7 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
         switch (param)
         {
             case ACTION_GRAB_CHICKEN:
-                if (Creature* mutantBushChicken = me->FindNearestCreature(NPC_MUTANT_BUSH_CHICKEN, 10.0f))
+                if (Creature* mutantBushChicken = me->FindNearestCreature(NPC_MUTANT_BUSH_CHICKEN, 15.0f))
                     me->CastSpell(mutantBushChicken, SPELL_REVERSE_CAST_RIDE_VEHICLE_ETTIN, true);
                 break;
 
@@ -3753,6 +3752,15 @@ class spell_silverpine_free_webbed_victim_random : public SpellScript
         if (Unit* caster = GetCaster())
         {
             uint32 randomCreature = 0;
+
+            /*
+             * Note: this spell is always cast when there's nothing in the web or there's a foe. Also,
+             * there are 4 serverside spells for this, but we're unable to know which one does what exactly:
+             * 83922 - (Serverside/Non-DB2) Free Webbed Victim, 83923 - (Serverside/Non-DB2) Free Webbed Victim,
+             * 83924 - (Serverside/Non-DB2) Free Webbed Victim, 83925 - (Serverside/Non-DB2) Free Webbed Victim.
+             * It is safe to assume that each summons one of the three foes, and the other summons nothing.
+             * 83927 - Free Webbed Victim summons orcs. We could try finding summonProperties, but it is hard.
+             */
 
             switch (urand(DATA_RANDOM_0, DATA_RANDOM_3))
             {
