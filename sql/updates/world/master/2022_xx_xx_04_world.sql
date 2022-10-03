@@ -464,16 +464,40 @@ DELETE FROM `creature_addon` WHERE `guid` = 321729;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (321729, 3217290, 0, 0, 0, 1, 0, 0, 0, 0, 0, '');
 
+DELETE FROM `waypoint_data` WHERE `id` = 3217290;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+(3217290, 1, 885.007, 1731.87, 15.9815, NULL, 0, 0, 0, 0, 0),
+(3217290, 2, 877.171, 1737.25, 15.2819, NULL, 0, 0, 0, 0, 0),
+(3217290, 3, 865.628, 1758.11, 13.3475, NULL, 0, 0, 0, 0, 0),
+(3217290, 4, 864.333, 1768.15, 12.6892, NULL, 0, 0, 0, 0, 0),
+(3217290, 5, 857.621, 1776.82, 11.6192, NULL, 0, 0, 0, 0, 0),
+(3217290, 6, 847.002, 1790.71, 9.27837, NULL, 0, 0, 0, 0, 0),
+(3217290, 7, 843.96, 1805.72, 6.38237, NULL, 0, 0, 0, 0, 0),
+(3217290, 8, 837.155, 1828.31, 3.93294, NULL, 0, 0, 0, 0, 0),
+(3217290, 9, 830.699, 1846.04, 2.36316, NULL, 0, 0, 0, 0, 0),
+(3217290, 10, 837.155, 1828.31, 3.93294, NULL, 0, 0, 0, 0, 0),
+(3217290, 11, 843.96, 1805.72, 6.38237, NULL, 0, 0, 0, 0, 0),
+(3217290, 12, 847.002, 1790.71, 9.27837, NULL, 0, 0, 0, 0, 0),
+(3217290, 13, 857.621, 1776.82, 11.6192, NULL, 0, 0, 0, 0, 0),
+(3217290, 14, 864.333, 1768.15, 12.6892, NULL, 0, 0, 0, 0, 0),
+(3217290, 15, 865.628, 1758.11, 13.3475, NULL, 0, 0, 0, 0, 0),
+(3217290, 16, 877.171, 1737.25, 15.2819, NULL, 0, 0, 0, 0, 0);
+
 SET @ENTRY := 44547;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ENTRY, 0, 0, 0, 0, 0, 100, 0, 4000, 6000, 25000, 30000, 11, 84308, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 30 seconds (4 - 6s initially) (IC) - Self: Cast spell 84308 on Self'),
 (@ENTRY, 0, 1, 0, 9, 0, 100, 0, 0, 30, 14000, 15000, 11, 78509, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'When victim in range 0 - 30 yards (cooldown 14000 - 15000 ms) - Self: Cast spell 78509 on Victim'),
-(@ENTRY, 0, 2, 0, 1, 0, 100, 0, 4000, 25000, 40000, 70000, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 40 - 70 seconds (4 - 25s initially) (OOC) - Self: Play emote 15'),
-(@ENTRY, 0, 3, 4, 1, 0, 50, 0, 4000, 14000, 25000, 55000, 11, 83860, 0, 0, 1, 0, 0, 9, 44920, 0, 20, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (44920) in 0 - 20 yards (limit to 1 target)'),
-(@ENTRY, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 83860, 0, 0, 1, 0, 0, 9, 44923, 0, 20, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (Large) (44923) in 0 - 20 yards (limit to 1 target)'),
-(@ENTRY, 0, 5, 0, 1, 0, 30, 0, 0, 30000, 10000, 60000, 4, 9036, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 10 - 60 seconds (0 - 30s initially) (OOC) - Self: Play direct sound 9036 to every player in visibility range of Self');
+(@ENTRY, 0, 2, 3, 1, 0, 50, 0, 4000, 14000, 25000, 55000, 127, 0, 5500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Self: Pause movement for 5.5sec on movement slot 0'),
+(@ENTRY, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 67, 1, 500, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Trigger timed event timedEvent[1] in 500 - 500 ms // -meta_wait'),
+(@ENTRY, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 67, 2, 1500, 1500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Trigger timed event timedEvent[2] in 1500 - 1500 ms // -meta_wait'),
+(@ENTRY, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 67, 3, 4000, 4000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Trigger timed event timedEvent[3] in 4000 - 4000 ms // -meta_wait'),
+(@ENTRY, 0, 6, 0, 59, 0, 100, 0, 1, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 11, 44920, 20, 0, 0, 0, 0, 0, 'On timed event timedEvent[1] triggered - Self: Look at Creature North Tide\'s Invisible Stalker (44920) in 20 yd'),
+(@ENTRY, 0, 7, 8, 59, 0, 100, 0, 2, 0, 0, 0, 11, 83860, 0, 0, 1, 0, 0, 9, 44920, 0, 20, 0, 0, 0, 0, 'On timed event timedEvent[2] triggered - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (44920) in 0 - 20 yards (limit to 1 target)'),
+(@ENTRY, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 83860, 0, 0, 1, 0, 0, 9, 44923, 0, 20, 0, 0, 0, 0, 'On timed event timedEvent[2] triggered - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (Large) (44923) in 0 - 20 yards (limit to 1 target)'),
+(@ENTRY, 0, 9, 0, 59, 0, 100, 0, 3, 0, 0, 0, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On timed event timedEvent[3] triggered - Self: Play emote 15'),
+(@ENTRY, 0, 10, 0, 83, 0, 30, 0, 83860, 30000, 40000, 0, 4, 17671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell 83860 cast (wait 30000 - 40000 ms before next trigger) - Self: Play direct sound 17671 to every player in visibility range of Self');
 
 SET @ENTRY := 44549;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
@@ -481,10 +505,15 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ENTRY, 0, 0, 0, 0, 0, 100, 0, 4000, 6000, 25000, 30000, 11, 84308, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 30 seconds (4 - 6s initially) (IC) - Self: Cast spell 84308 on Self'),
 (@ENTRY, 0, 1, 0, 9, 0, 100, 0, 0, 30, 14000, 15000, 11, 78509, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'When victim in range 0 - 30 yards (cooldown 14000 - 15000 ms) - Self: Cast spell 78509 on Victim'),
-(@ENTRY, 0, 2, 0, 1, 0, 100, 0, 4000, 25000, 40000, 70000, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 40 - 70 seconds (4 - 25s initially) (OOC) - Self: Play emote 15'),
-(@ENTRY, 0, 3, 4, 1, 0, 50, 0, 4000, 14000, 25000, 55000, 11, 83860, 0, 0, 1, 0, 0, 9, 44920, 0, 20, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (44920) in 0 - 20 yards (limit to 1 target)'),
-(@ENTRY, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 83860, 0, 0, 1, 0, 0, 9, 44923, 0, 20, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (Large) (44923) in 0 - 20 yards (limit to 1 target)'),
-(@ENTRY, 0, 5, 0, 1, 0, 30, 0, 0, 30000, 10000, 60000, 4, 9036, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 10 - 60 seconds (0 - 30s initially) (OOC) - Self: Play direct sound 9036 to every player in visibility range of Self');
+(@ENTRY, 0, 2, 3, 1, 0, 50, 0, 4000, 14000, 25000, 55000, 127, 0, 5500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Self: Pause movement for 5.5sec on movement slot 0'),
+(@ENTRY, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 67, 1, 500, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Trigger timed event timedEvent[1] in 500 - 500 ms // -meta_wait'),
+(@ENTRY, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 67, 2, 1500, 1500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Trigger timed event timedEvent[2] in 1500 - 1500 ms // -meta_wait'),
+(@ENTRY, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 67, 3, 4000, 4000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Every 25 - 55 seconds (4 - 14s initially) (OOC) - Trigger timed event timedEvent[3] in 4000 - 4000 ms // -meta_wait'),
+(@ENTRY, 0, 6, 0, 59, 0, 100, 0, 1, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 11, 44920, 20, 0, 0, 0, 0, 0, 'On timed event timedEvent[1] triggered - Self: Look at Creature North Tide\'s Invisible Stalker (44920) in 20 yd'),
+(@ENTRY, 0, 7, 8, 59, 0, 100, 0, 2, 0, 0, 0, 11, 83860, 0, 0, 1, 0, 0, 9, 44920, 0, 20, 0, 0, 0, 0, 'On timed event timedEvent[2] triggered - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (44920) in 0 - 20 yards (limit to 1 target)'),
+(@ENTRY, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 83860, 0, 0, 1, 0, 0, 9, 44923, 0, 20, 0, 0, 0, 0, 'On timed event timedEvent[2] triggered - Self: Cast spell 83860 on Creature North Tide\'s Invisible Stalker (Large) (44923) in 0 - 20 yards (limit to 1 target)'),
+(@ENTRY, 0, 9, 0, 59, 0, 100, 0, 3, 0, 0, 0, 5, 15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On timed event timedEvent[3] triggered - Self: Play emote 15'),
+(@ENTRY, 0, 10, 0, 83, 0, 30, 0, 83860, 30000, 40000, 0, 4, 17671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell 83860 cast (wait 30000 - 40000 ms before next trigger) - Self: Play direct sound 17671 to every player in visibility range of Self');
 
 -- Mutant Bush Chicken
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_mutant_bush_chicken'  WHERE `entry` = 44935;
