@@ -11220,7 +11220,6 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     }
 }
 
-
 void Unit::SetControlled(bool apply, UnitState state)
 {
     if (apply)
