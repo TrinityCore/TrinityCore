@@ -966,7 +966,11 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         if (battlemaster->MaxPlayers < battlemaster->MinPlayers)
         {
             TC_LOG_ERROR("db2.hotfix.battlemaster_list", "Battlemaster (%u) contains bad values for MinPlayers (%u) and MaxPlayers (%u). Swapping values.", battlemaster->ID, battlemaster->MinPlayers, battlemaster->MaxPlayers);
-            std::swap(const_cast<BattlemasterListEntry*>(battlemaster)->MaxPlayers, const_cast<BattlemasterListEntry*>(battlemaster)->MinPlayers);
+            int32 oldMaxPlayers = battlemaster->MaxPlayers;
+            int32 oldMinPlayers = battlemaster->MinPlayers;
+
+            const_cast<BattlemasterListEntry*>(battlemaster)->MaxPlayers = oldMinPlayers;
+            const_cast<BattlemasterListEntry*>(battlemaster)->MinPlayers = oldMaxPlayers;
         }
     }
 

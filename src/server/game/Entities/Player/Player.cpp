@@ -6420,9 +6420,8 @@ void Player::RewardReputation(Unit* victim, float rate)
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
             if (LFGDungeonsEntry const* dungeon = DB2Manager::GetLfgDungeon(map->GetId(), map->GetDifficultyID()))
-                if (Optional<ContentTuningLevels> dungeonLevels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, 0))
-                    if (dungeonLevels->TargetLevelMax == int16(GetMaxLevelForExpansion(EXPANSION_WRATH_OF_THE_LICH_KING)))
-                        ChampioningFaction = GetChampioningFaction();
+                if (dungeon->TargetLevel == 80)
+                    ChampioningFaction = GetChampioningFaction();
     }
 
     uint32 team = GetTeam();
