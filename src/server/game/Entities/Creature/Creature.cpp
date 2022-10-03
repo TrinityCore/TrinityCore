@@ -3209,30 +3209,13 @@ bool Creature::IsMovementPreventedByCasting() const
         return false;
 
     Spell* spellToCheck = nullptr;
-    bool needsMovementCheck = [&]()
-    {
-        // Check for active channeled spells
-        if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        {
-            if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
-            {
-                spellToCheck = spell;
-                return true;
-            }
-        }
 
-        // Check for ongoing spell casts
-        if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
-        {
-            spellToCheck = spell;
-            return true;
-        }
+   if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL]) // Check for active channeled spells
+       spellToCheck = spell;
+   else if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL]) // Check for ongoing spell casts
+       spellToCheck = spell;
 
-        return false;
-    }();
-
-
-    if (!spellToCheck || !needsMovementCheck)
+    if (!spellToCheck)
         return false;
 
     return (spellToCheck->CheckMovement() != SPELL_CAST_OK);
