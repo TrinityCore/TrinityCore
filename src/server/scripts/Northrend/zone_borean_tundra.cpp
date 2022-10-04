@@ -55,9 +55,9 @@ enum BerylSorcerer
     SPELL_ARCANE_CHAINS_CHANNEL_II                 = 45735
 };
 
-struct npc_beryl_sorcerer : public CreatureAI
+struct npc_beryl_sorcerer : public ScriptedAI
 {
-    npc_beryl_sorcerer(Creature* creature) : CreatureAI(creature), _chainsCast(false) { }
+    npc_beryl_sorcerer(Creature* creature) : ScriptedAI(creature), _chainsCast(false) { }
 
     void JustAppeared() override
     {
