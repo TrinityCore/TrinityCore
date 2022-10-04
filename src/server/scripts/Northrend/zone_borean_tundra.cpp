@@ -774,9 +774,9 @@ enum Thassarian
     PATH_LERYSSA                = 1013034
 };
 
-struct npc_thassarian : public CreatureAI
+struct npc_thassarian : public ScriptedAI
 {
-    npc_thassarian(Creature* creature) : CreatureAI(creature), _preFightComplete(false), _arlosInPosition(false), _leryssaInPosition(false), _talbotJustDied(false) { }
+    npc_thassarian(Creature* creature) : ScriptedAI(creature), _preFightComplete(false), _arlosInPosition(false), _leryssaInPosition(false), _talbotJustDied(false) { }
 
     void JustAppeared() override
     {
