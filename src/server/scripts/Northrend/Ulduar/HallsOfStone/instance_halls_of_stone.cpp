@@ -51,6 +51,14 @@ ObjectData const gameObjectData[] =
     { 0,                        0                           } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_KRYSTALLUS, {{ 1994 }} },
+    { DATA_MAIDEN_OF_GRIEF, {{ 1996 }} },
+    { DATA_TRIBUNAL_OF_AGES, {{ 1995 }} },
+    { DATA_SJONNIR_THE_IRONSHAPER, {{ 1998 }} }
+};
+
 class instance_halls_of_stone : public InstanceMapScript
 {
     public:
@@ -64,6 +72,7 @@ class instance_halls_of_stone : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override

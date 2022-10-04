@@ -285,7 +285,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_INSTANCE_LISTBINDS                     = 413,
     RBAC_PERM_COMMAND_INSTANCE_UNBIND                        = 414,
     RBAC_PERM_COMMAND_INSTANCE_STATS                         = 415,
-    RBAC_PERM_COMMAND_INSTANCE_SAVEDATA                      = 416,
+    // 416 previously used, do not reuse
     RBAC_PERM_COMMAND_LEARN                                  = 417,
     // 418 previously used, do not reuse
     RBAC_PERM_COMMAND_LEARN_ALL_MY                           = 419,

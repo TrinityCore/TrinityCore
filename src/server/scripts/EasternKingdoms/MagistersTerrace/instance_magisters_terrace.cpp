@@ -60,6 +60,14 @@ DoorData const doorData[] =
     { 0,                        0,                          DOOR_TYPE_ROOM      } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_SELIN_FIREHEART, {{ 1897 }} },
+    { DATA_VEXALLUS, {{ 1898 }} },
+    { DATA_PRIESTESS_DELRISSA, {{ 1895 }} },
+    { DATA_KAELTHAS_SUNSTRIDER, {{ 1894 }} }
+};
+
 Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f };
 Position const KaelthasTrashGroupDistanceComparisonPos = { 150.0f, 141.0f, -14.4f };
 
@@ -76,6 +84,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
             }
 
             uint32 GetData(uint32 type) const override
