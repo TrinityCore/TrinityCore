@@ -7065,7 +7065,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
             if (!mapEntry
                 || mapEntry->CorpseMapID < 0
                 || uint32(mapEntry->CorpseMapID) != entry->Loc.GetMapId()
-                || (mapEntry->Corpse.X == 0 && mapEntry->Corpse.Y == 0)) // Check X and Y
+                || (GetMapCorpsePosition(mapEntry->ID).X == 0 && GetMapCorpsePosition(mapEntry->ID).Y == 0)) // Check X and Y
             {
                 // not have any corrdinates for check distance anyway
                 entryFar = entry;
@@ -7073,8 +7073,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->Loc.GetPositionX() - mapEntry->Corpse.X) * (entry->Loc.GetPositionX() - mapEntry->Corpse.X)
-                + (entry->Loc.GetPositionY() - mapEntry->Corpse.Y) * (entry->Loc.GetPositionY() - mapEntry->Corpse.Y);
+            float dist2 = (entry->Loc.GetPositionX() - GetMapCorpsePosition(mapEntry->ID).X) * (entry->Loc.GetPositionX() - GetMapCorpsePosition(mapEntry->ID).X)
+                + (entry->Loc.GetPositionY() - GetMapCorpsePosition(mapEntry->ID).Y) * (entry->Loc.GetPositionY() - GetMapCorpsePosition(mapEntry->ID).Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -11543,4 +11543,49 @@ std::string ObjectMgr::GetPhaseName(uint32 phaseId) const
 {
     PhaseNameContainer::const_iterator iter = _phaseNameStore.find(phaseId);
     return iter != _phaseNameStore.end() ? iter->second : "Unknown Name";
+}
+
+void ObjectMgr::LoadMapCorpsePositions()
+{
+    uint32 oldMSTime = getMSTime();
+    _mapCorpsePositionStore.clear();
+
+    //                                                0     1
+    QueryResult result = WorldDatabase.Query("SELECT `ID`, `X`, `Y` FROM `map_corpse_position`");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 map corpse positions. DB table `map_corpse_position` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 mapId = fields[0].GetUInt32();
+        float x = fields[1].GetFloat();
+        float y = fields[2].GetFloat();
+
+        DBCPosition2D corpse;
+        corpse.X = x;
+        corpse.Y = y;
+
+        _mapCorpsePositionStore[mapId] = corpse;
+
+        ++count;
+    } while (result->NextRow());
+    TC_LOG_INFO("server.loading", ">> Loaded %u map corpse positions in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+DBCPosition2D ObjectMgr::GetMapCorpsePosition(uint32 mapId) const
+{
+    MapCorpsePositionContainer::const_iterator iter = _mapCorpsePositionStore.find(mapId);
+
+    DBCPosition2D corpse;
+    corpse.X = 0.0f;
+    corpse.Y = 0.0f;
+
+    return iter != _mapCorpsePositionStore.end() ? iter->second : corpse;
 }

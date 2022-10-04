@@ -149,8 +149,8 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                 if (std::shared_ptr<TerrainInfo> entranceTerrain = sTerrainMgr.LoadTerrain(corpseMapEntry->CorpseMapID))
                 {
                     mapID = corpseMapEntry->CorpseMapID;
-                    x = corpseMapEntry->Corpse.X;
-                    y = corpseMapEntry->Corpse.Y;
+                    x = sObjectMgr->GetMapCorpsePosition(corpseMapEntry->ID).X;
+                    y = sObjectMgr->GetMapCorpsePosition(corpseMapEntry->ID).Y;
                     z = entranceTerrain->GetStaticHeight(player->GetPhaseShift(), x, y, MAX_HEIGHT);
                 }
             }

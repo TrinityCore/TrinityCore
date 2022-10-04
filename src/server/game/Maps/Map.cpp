@@ -3248,7 +3248,15 @@ bool Map::GetEntrancePos(int32 &mapid, float &x, float &y)
 {
     if (!i_mapEntry)
         return false;
-    return i_mapEntry->GetEntrancePos(mapid, x, y);
+
+    if (i_mapEntry->CorpseMapID < 0)
+        return false;
+
+    DBCPosition2D Corpse = sObjectMgr->GetMapCorpsePosition(i_mapEntry->ID);
+    mapid = i_mapEntry->CorpseMapID;
+    x = Corpse.X;
+    y = Corpse.Y;
+    return true;
 }
 
 bool InstanceMap::HasPermBoundPlayers() const

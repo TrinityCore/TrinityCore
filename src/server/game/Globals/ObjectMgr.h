@@ -861,6 +861,7 @@ struct SceneTemplate
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
 typedef std::unordered_map<uint32, std::string> PhaseNameContainer;
+typedef std::unordered_map<uint32, DBCPosition2D> MapCorpsePositionContainer;
 
 struct PlayerChoiceResponseRewardItem
 {
@@ -1421,6 +1422,8 @@ class TC_GAME_API ObjectMgr
         void LoadJumpChargeParams();
         void LoadPhaseNames();
 
+        void LoadMapCorpsePositions();
+
         void InitializeQueriesData(QueryDataGroup mask);
 
         std::string GeneratePetName(uint32 entry);
@@ -1762,6 +1765,8 @@ class TC_GAME_API ObjectMgr
 
         std::string GetPhaseName(uint32 phaseId) const;
 
+        DBCPosition2D GetMapCorpsePosition(uint32 mapId) const;
+
         std::unordered_map<uint8, RaceUnlockRequirement> const& GetRaceUnlockRequirements() const { return _raceUnlockRequirementStore; }
         RaceUnlockRequirement const* GetRaceUnlockRequirement(uint8 race) const
         {
@@ -1977,6 +1982,8 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<int32, JumpChargeParams> _jumpChargeParams;
 
         PhaseNameContainer _phaseNameStore;
+
+        MapCorpsePositionContainer _mapCorpsePositionStore;
 
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
         VehicleSeatAddonContainer _vehicleSeatAddonStore;

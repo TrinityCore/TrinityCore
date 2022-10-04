@@ -609,8 +609,6 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
             // TODO - add expansion and content tuning id args?
             uint32 contentTuningId = _spellInfo->ContentTuningId; // content tuning should be passed as arg, the one stored in SpellInfo is fallback
             int32 expansion = -2;
-            if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
-                expansion = contentTuning->ExpansionID;
 
             int32 level = caster && caster->IsUnit() ? int32(caster->ToUnit()->GetLevel()) : 1;
             value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE) * BasePoints / 100.0f;

@@ -2498,6 +2498,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading phase names...");
     sObjectMgr->LoadPhaseNames();
 
+    TC_LOG_INFO("server.loading", "Loading map corpse positions...");
+    sObjectMgr->LoadMapCorpsePositions();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
