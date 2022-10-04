@@ -23,6 +23,15 @@
 #include "nexus.h"
 #include "Player.h"
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_COMMANDER, {{ 519 }} },
+    { DATA_MAGUS_TELESTRA, {{ 520, 521, 2010 }} },
+    { DATA_ANOMALUS, {{ 522, 523, 2009 }} },
+    { DATA_ORMOROK, {{ 524, 525, 2012 }} },
+    { DATA_KERISTRASZA, {{ 526, 527, 2011 }} }
+};
+
 class instance_nexus : public InstanceMapScript
 {
     public:
@@ -34,6 +43,7 @@ class instance_nexus : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
                 _teamInInstance = 0;
             }
 

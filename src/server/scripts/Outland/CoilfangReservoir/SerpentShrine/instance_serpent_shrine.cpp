@@ -26,12 +26,10 @@ EndScriptData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
-#include <sstream>
 
 #define MAX_ENCOUNTER 6
 
@@ -61,6 +59,16 @@ enum Misc
 4 - Morogrim Tidewalker Event
 5 - Lady Vashj Event
 */
+
+DungeonEncounterData const encounters[] =
+{
+    { BOSS_HYDROSS_THE_UNSTABLE, {{ 623 }} },
+    { BOSS_THE_LURKER_BELOW, {{ 624 }} },
+    { BOSS_LEOTHERAS_THE_BLIND, {{ 625 }} },
+    { BOSS_FATHOM_LORD_KARATHRESS, {{ 626 }} },
+    { BOSS_MOROGRIM_TIDEWALKER, {{ 627 }} },
+    { BOSS_LADY_VASHJ, {{ 628 }} }
+};
 
 class go_bridge_console : public GameObjectScript
 {
@@ -98,6 +106,7 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadDungeonEncounterData(encounters);
 
                 StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
@@ -285,7 +294,6 @@ class instance_serpent_shrine : public InstanceMapScript
                     case DATA_TRASH:
                         if (data == 1 && TrashCount < MIN_KILLS)
                             ++TrashCount;//+1 died
-                        SaveToDB();
                         break;
                     case DATA_WATER:
                         Water = data;
@@ -348,16 +356,6 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
 
                 return 0;
-            }
-
-            void WriteSaveDataMore(std::ostringstream& stream) override
-            {
-                stream << TrashCount;
-            }
-
-            void ReadSaveDataMore(std::istringstream& stream) override
-            {
-                stream >> TrashCount;
             }
 
         private:

@@ -45,6 +45,13 @@ ObjectData const gameObjectData[] =
     { 0,                     0                  } //END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_THE_MAKER, {{ 1922 }} },
+    { DATA_BROGGOK, {{ 1924 }} },
+    { DATA_KELIDAN_THE_BREAKER, {{ 1923 }} }
+};
+
 class instance_blood_furnace : public InstanceMapScript
 {
     public:
@@ -58,6 +65,7 @@ class instance_blood_furnace : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
 
                 PrisonerCounter5        = 0;
                 PrisonerCounter6        = 0;

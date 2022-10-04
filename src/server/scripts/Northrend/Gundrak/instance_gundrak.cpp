@@ -23,7 +23,6 @@
 #include "gundrak.h"
 #include "Map.h"
 #include "ScriptMgr.h"
-#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -55,6 +54,15 @@ ObjectData const gameObjectData[] =
     { 0,                           0                             } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_SLAD_RAN, {{ 1978 }} },
+    { DATA_DRAKKARI_COLOSSUS, {{ 1983 }} },
+    { DATA_MOORABI, {{ 1980 }} },
+    { DATA_GAL_DARAH, {{ 1981 }} },
+    { DATA_ECK_THE_FEROCIOUS, {{ 1988 }} }
+};
+
 Position const EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
 
 class instance_gundrak : public InstanceMapScript
@@ -70,6 +78,7 @@ class instance_gundrak : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
 
                 SladRanStatueState = GO_STATE_ACTIVE;
                 DrakkariColossusStatueState = GO_STATE_ACTIVE;
@@ -242,25 +251,14 @@ class instance_gundrak : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << uint32(SladRanStatueState) << ' ';
-                data << uint32(DrakkariColossusStatueState) << ' ';
-                data << uint32(MoorabiStatueState) << ' ';
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 temp;
-
-                data >> temp;
-                SladRanStatueState = GOState(temp);
-
-                data >> temp;
-                DrakkariColossusStatueState = GOState(temp);
-
-                data >> temp;
-                MoorabiStatueState = GOState(temp);
+                if (GetBossState(DATA_SLAD_RAN) == DONE)
+                    SladRanStatueState = GO_STATE_DESTROYED;
+                if (GetBossState(DATA_DRAKKARI_COLOSSUS) == DONE)
+                    DrakkariColossusStatueState = GO_STATE_DESTROYED;
+                if (GetBossState(DATA_MOORABI) == DONE)
+                    MoorabiStatueState = GO_STATE_DESTROYED;
 
                 if (IsBridgeReady())
                     Events.ScheduleEvent(DATA_BRIDGE, TIMER_STATUE_ACTIVATION);
@@ -314,7 +312,6 @@ class instance_gundrak : public InstanceMapScript
                                 ToggleGameObject(type, GO_STATE_DESTROYED);
                             ToggleGameObject(DATA_TRAPDOOR, GO_STATE_READY);
                             ToggleGameObject(DATA_COLLISION, GO_STATE_ACTIVE);
-                            SaveToDB();
                             return;
                         default:
                             return;
@@ -329,8 +326,6 @@ class instance_gundrak : public InstanceMapScript
 
                     if (IsBridgeReady())
                         Events.ScheduleEvent(DATA_BRIDGE, TIMER_STATUE_ACTIVATION);
-
-                    SaveToDB();
                 }
             }
 

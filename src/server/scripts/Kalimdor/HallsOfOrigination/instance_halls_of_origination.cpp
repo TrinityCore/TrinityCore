@@ -22,7 +22,6 @@
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -41,6 +40,17 @@ DoorData const doorData[] =
     {0,                              0,                            DOOR_TYPE_ROOM   }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_TEMPLE_GUARDIAN_ANHUUR, {{ 1080 }} },
+    { DATA_EARTHRAGER_PTAH, {{ 1076 }} },
+    { DATA_ANRAPHET, {{ 1075 }} },
+    { DATA_ISISET, {{ 1077 }} },
+    { DATA_AMMUNAE, {{ 1074 }} },
+    { DATA_SETESH, {{ 1079 }} },
+    { DATA_RAJH, {{ 1078 }} }
+};
+
 class instance_halls_of_origination : public InstanceMapScript
 {
     public:
@@ -53,6 +63,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
                 _deadElementals = 0;
             }
 
@@ -201,16 +212,10 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << _deadElementals;
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 deadElementals;
-                data >> deadElementals;
-                IncreaseDeadElementals(deadElementals);
+                if (GetBossState(BOSS_ANRAPHET) == DONE)
+                    IncreaseDeadElementals(4);
             }
 
         protected:

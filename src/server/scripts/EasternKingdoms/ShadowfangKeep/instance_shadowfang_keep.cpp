@@ -30,7 +30,6 @@ EndScriptData */
 #include "Map.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
-#include <sstream>
 
 #define MAX_ENCOUNTER              4
 
@@ -84,14 +83,11 @@ public:
         instance_shadowfang_keep_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+            SetBossNumber(MAX_ENCOUNTER);
 
             uiPhase = 0;
             uiTimer = 0;
         }
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-        std::string str_data;
 
         ObjectGuid uiAshGUID;
         ObjectGuid uiAdaGUID;
@@ -120,17 +116,17 @@ public:
             {
                 case GO_COURTYARD_DOOR:
                     DoorCourtyardGUID = go->GetGUID();
-                    if (m_auiEncounter[0] == DONE)
+                    if (GetBossState(0) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SORCERER_DOOR:
                     DoorSorcererGUID = go->GetGUID();
-                    if (m_auiEncounter[2] == DONE)
+                    if (GetBossState(2) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_ARUGAL_DOOR:
                     DoorArugalGUID = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE)
+                    if (GetBossState(3) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
             }
@@ -155,12 +151,12 @@ public:
                 case TYPE_FREE_NPC:
                     if (data == DONE)
                         DoUseDoorOrButton(DoorCourtyardGUID);
-                    m_auiEncounter[0] = data;
+                    SetBossState(0, EncounterState(data));
                     break;
                 case TYPE_RETHILGORE:
                     if (data == DONE)
                         DoSpeech();
-                    m_auiEncounter[1] = data;
+                    SetBossState(1, EncounterState(data));
                     break;
                 case TYPE_FENRUS:
                     switch (data)
@@ -173,26 +169,13 @@ public:
                             DoUseDoorOrButton(DoorSorcererGUID);
                             break;
                     }
-                    m_auiEncounter[2] = data;
+                    SetBossState(2, EncounterState(data));
                     break;
                 case TYPE_NANDOS:
                     if (data == DONE)
                         DoUseDoorOrButton(DoorArugalGUID);
-                    m_auiEncounter[3] = data;
+                    SetBossState(3, EncounterState(data));
                     break;
-            }
-
-            if (data == DONE)
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
-
-                str_data = saveStream.str();
-
-                SaveToDB();
-                OUT_SAVE_INST_DATA_COMPLETE;
             }
         }
 
@@ -201,42 +184,15 @@ public:
             switch (type)
             {
                 case TYPE_FREE_NPC:
-                    return m_auiEncounter[0];
+                    return GetBossState(0);
                 case TYPE_RETHILGORE:
-                    return m_auiEncounter[1];
+                    return GetBossState(1);
                 case TYPE_FENRUS:
-                    return m_auiEncounter[2];
+                    return GetBossState(2);
                 case TYPE_NANDOS:
-                    return m_auiEncounter[3];
+                    return GetBossState(3);
             }
             return 0;
-        }
-
-        std::string GetSaveData() override
-        {
-            return str_data;
-        }
-
-        void Load(char const* in) override
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            std::istringstream loadStream(in);
-            loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            {
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
-            }
-
-            OUT_LOAD_INST_DATA_COMPLETE;
         }
 
         void Update(uint32 uiDiff) override

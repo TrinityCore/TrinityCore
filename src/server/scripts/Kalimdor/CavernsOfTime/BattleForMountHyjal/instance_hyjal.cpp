@@ -30,7 +30,6 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include <sstream>
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -59,6 +58,15 @@ ObjectData const creatureData[] =
     { 0,                  0                       } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_RAGEWINTERCHILL, {{ 618 }} },
+    { DATA_ANETHERON, {{ 619 }} },
+    { DATA_KAZROGAL, {{ 620 }} },
+    { DATA_AZGALOR, {{ 621 }} },
+    { DATA_ARCHIMONDE, {{ 622 }} }
+};
+
 class instance_hyjal : public InstanceMapScript
 {
 public:
@@ -76,6 +84,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
+            LoadDungeonEncounterData(encounters);
 
             RaidDamage = 0;
             Trash = 0;
@@ -157,12 +166,10 @@ public:
                 case DATA_ALLIANCE_RETREAT:
                     allianceRetreat = data;
                     HandleGameObject(HordeGate, true);
-                    SaveToDB();
                     break;
                 case DATA_HORDE_RETREAT:
                     hordeRetreat = data;
                     HandleGameObject(ElfGate, true);
-                    SaveToDB();
                     break;
                 case DATA_RAIDDAMAGE:
                     RaidDamage += data;
@@ -206,16 +213,6 @@ public:
             return true;
         }
 
-        void ReadSaveDataMore(std::istringstream& loadStream) override
-        {
-            loadStream >> allianceRetreat >> hordeRetreat >> RaidDamage;
-        }
-
-        void WriteSaveDataMore(std::ostringstream& saveStream) override
-        {
-            saveStream << allianceRetreat << ' ' << hordeRetreat << ' ' << RaidDamage;
-        }
-
         uint32 GetData(uint32 type) const override
         {
             switch (type)
@@ -226,6 +223,14 @@ public:
                 case DATA_RAIDDAMAGE:           return RaidDamage;
             }
             return 0;
+        }
+
+        void AfterDataLoad() override
+        {
+            if (GetBossState(DATA_ANETHERON) == DONE)
+                allianceRetreat = 1;
+            if (GetBossState(DATA_AZGALOR) == DONE)
+                hordeRetreat = 1;
         }
 
         protected:
