@@ -607,7 +607,6 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 stat = ExpectedStatType::CreatureAutoAttackDps;
 
             // TODO - add expansion and content tuning id args?
-            uint32 contentTuningId = _spellInfo->ContentTuningId; // content tuning should be passed as arg, the one stored in SpellInfo is fallback
             int32 expansion = -2;
 
             int32 level = caster && caster->IsUnit() ? int32(caster->ToUnit()->GetLevel()) : 1;
