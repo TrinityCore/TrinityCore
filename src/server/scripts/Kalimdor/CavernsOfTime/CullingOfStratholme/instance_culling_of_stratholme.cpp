@@ -128,6 +128,14 @@ DoorData const doorData[] =
     { 0,                  0,              DOOR_TYPE_ROOM } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_MEATHOOK, {{ 2002 }} },
+    { DATA_SALRAMM, {{ 2004 }} },
+    { DATA_EPOCH, {{ 2003 }} },
+    { DATA_MAL_GANIS, {{ 2005 }} }
+};
+
 COSProgressStates GetStableStateFor(COSProgressStates const state)
 {
     switch (state)
@@ -265,40 +273,31 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
         struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
         {
-            instance_culling_of_stratholme_InstanceMapScript(InstanceMap* map) : InstanceScript(map), _currentState(JUST_STARTED), _infiniteGuardianTimeout(0), _waveCount(0), _currentSpawnLoc(0)
+            instance_culling_of_stratholme_InstanceMapScript(InstanceMap* map) : InstanceScript(map),
+                _currentState(*this, "currentState", JUST_STARTED),
+                _infiniteGuardianTimeout(*this, "infiniteGuardianTimeout", 0),
+                _waveCount(0),
+                _currentSpawnLoc(0)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
 
                 _currentWorldStates[WORLDSTATE_SHOW_CRATES] = _currentWorldStates[WORLDSTATE_CRATES_REVEALED] = _currentWorldStates[WORLDSTATE_WAVE_COUNT] = _currentWorldStates[WORLDSTATE_TIME_GUARDIAN_SHOW] = _currentWorldStates[WORLDSTATE_TIME_GUARDIAN] = 0;
                 _plagueCrates.reserve(NUM_PLAGUE_CRATES);
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << _currentState << ' ' << _infiniteGuardianTimeout;
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                // read current instance progress from save data, then regress to the previous stable state
-                uint32 state = JUST_STARTED;
-                time_t infiniteGuardianTime = 0;
-                data >> state;
-                data >> infiniteGuardianTime; // UNIX timestamp
-
-                COSProgressStates loadState = GetStableStateFor(COSProgressStates(state));
+                COSProgressStates loadState = GetStableStateFor(_currentState);
                 SetInstanceProgress(loadState, true);
 
-                if (infiniteGuardianTime)
-                {
-                    _infiniteGuardianTimeout = infiniteGuardianTime;
+                if (_infiniteGuardianTimeout)
                     events.ScheduleEvent(EVENT_GUARDIAN_TICK, 0s);
-                }
 
-                time_t timediff = (infiniteGuardianTime - GameTime::GetGameTime());
-                if (!infiniteGuardianTime)
+                time_t timediff = (_infiniteGuardianTimeout - GameTime::GetGameTime());
+                if (!_infiniteGuardianTimeout)
                     timediff = -1;
 
                 TC_LOG_DEBUG("scripts.cos", "instance_culling_of_stratholme::ReadSaveDataMore: Loaded with state %u and guardian timeout at %zu minutes %zu seconds from now", (uint32)loadState, timediff / MINUTE, timediff % MINUTE);
@@ -752,8 +751,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     SpawnInfiniteCorruptor();
                     events.RescheduleEvent(EVENT_RESPAWN_ARTHAS, 1s);
                 }
-
-                SaveToDB();
             }
 
         private:
@@ -791,9 +788,9 @@ class instance_culling_of_stratholme : public InstanceMapScript
             }
 
             EventMap events;
-            COSProgressStates _currentState;
+            PersistentInstanceScriptValue<COSProgressStates> _currentState;
             std::unordered_map<uint32, uint32> _currentWorldStates;
-            time_t _infiniteGuardianTimeout;
+            PersistentInstanceScriptValue<time_t> _infiniteGuardianTimeout;
 
             // Generic
             ObjectGuid _chromieGUID;

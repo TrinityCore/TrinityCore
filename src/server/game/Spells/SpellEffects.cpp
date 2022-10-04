@@ -1575,6 +1575,8 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                         if (gameObjTarget->GetLootMode() > 0)
                             if (GameObjectTemplateAddon const* addon = gameObjTarget->GetTemplateAddon())
                                 loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
+
+                        loot->SetDungeonEncounterId(gameObjTarget->GetGOInfo()->chest.DungeonEncounter);
                     }
 
                     /// @todo possible must be moved to loot release (in different from linked triggering)

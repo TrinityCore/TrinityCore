@@ -25,6 +25,7 @@
 #include "DynamicTree.h"
 #include "GridDefines.h"
 #include "GridRefManager.h"
+#include "GroupInstanceReference.h"
 #include "MapDefines.h"
 #include "MapReference.h"
 #include "MapRefManager.h"
@@ -49,8 +50,8 @@ class BattlegroundMap;
 class CreatureGroup;
 class GameObjectModel;
 class Group;
+class InstanceLock;
 class InstanceMap;
-class InstanceSave;
 class InstanceScript;
 class InstanceScenario;
 class Object;
@@ -63,6 +64,7 @@ class Unit;
 class Weather;
 class WorldObject;
 class WorldPacket;
+struct DungeonEncounterEntry;
 struct MapDifficultyEntry;
 struct MapEntry;
 struct Position;
@@ -70,6 +72,8 @@ struct ScriptAction;
 struct ScriptInfo;
 struct SmoothPhasingInfo;
 struct SummonPropertiesEntry;
+struct UpdateAdditionalSaveDataEvent;
+struct UpdateBossStateSaveDataEvent;
 class Transport;
 enum Difficulty : uint8;
 enum WeatherState : uint32;
@@ -268,9 +272,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             CANNOT_ENTER_NOT_IN_RAID, // Target instance is a raid instance and the player is not in a raid group
             CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE, // Player is dead and their corpse is not in target instance
             CANNOT_ENTER_INSTANCE_BIND_MISMATCH, // Player's permanent instance save is not compatible with their group's current instance bind
+            CANNOT_ENTER_ALREADY_COMPLETED_ENCOUNTER, // Player is locked to encounter that wasn't defeated in the instance yet
             CANNOT_ENTER_TOO_MANY_INSTANCES, // Player has entered too many instances recently
             CANNOT_ENTER_MAX_PLAYERS, // Target map already has the maximum number of players allowed
             CANNOT_ENTER_ZONE_IN_COMBAT, // A boss encounter is currently in progress on the target map
+            CANNOT_ENTER_INSTANCE_SHUTTING_DOWN,
             CANNOT_ENTER_UNSPECIFIED_REASON
         };
         static EnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);
@@ -287,7 +293,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsDungeon() const;
         bool IsNonRaidDungeon() const;
         bool IsRaid() const;
-        bool IsRaidOrHeroicDungeon() const;
         bool IsHeroic() const;
         bool Is25ManRaid() const;
         bool IsBattleground() const;
@@ -441,8 +446,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, CharacterDatabaseTransaction dbTrans = nullptr, bool startup = false);
         void SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransaction dbTrans = nullptr);
         void LoadRespawnTimes();
-        void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(GetId(), GetInstanceId()); }
-        static void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
+        void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(); }
+        void DeleteRespawnTimesInDB();
 
         void LoadCorpseData();
         void DeleteCorpseData();
@@ -783,26 +788,30 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         WorldStateValueContainer _worldStateValues;
 };
 
-enum InstanceResetMethod
+enum class InstanceResetMethod : uint8
 {
-    INSTANCE_RESET_ALL,
-    INSTANCE_RESET_CHANGE_DIFFICULTY,
-    INSTANCE_RESET_GLOBAL,
-    INSTANCE_RESET_GROUP_DISBAND,
-    INSTANCE_RESET_GROUP_JOIN,
-    INSTANCE_RESET_RESPAWN_DELAY
+    Manual,
+    OnChangeDifficulty,
+    Expire
+};
+
+enum class InstanceResetResult : uint8
+{
+    Success,
+    NotEmpty,
+    CannotReset
 };
 
 class TC_GAME_API InstanceMap : public Map
 {
     public:
-        InstanceMap(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam);
+        InstanceMap(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock);
         ~InstanceMap();
         bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
         void RemovePlayerFromMap(Player*, bool) override;
         void Update(uint32) override;
-        void CreateInstanceData(bool load);
-        bool Reset(uint8 method);
+        void CreateInstanceData();
+        InstanceResetResult Reset(InstanceResetMethod method);
         uint32 GetScriptId() const { return i_script_id; }
         std::string const& GetScriptName() const;
         InstanceScript* GetInstanceScript() { return i_data; }
@@ -810,29 +819,29 @@ class TC_GAME_API InstanceMap : public Map
         InstanceScenario* GetInstanceScenario() { return i_scenario; }
         InstanceScenario const* GetInstanceScenario() const { return i_scenario; }
         void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
-        void PermBindAllPlayers();
-        void UnloadAll() override;
+        InstanceLock const* GetInstanceLock() const { return i_instanceLock; }
+        void UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent);
+        void UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& updateSaveDataEvent);
+        void CreateInstanceLockForPlayer(Player* player);
         EnterState CannotEnter(Player* player) override;
-        void SendResetWarnings(uint32 timeLeft) const;
-        void SetResetSchedule(bool on);
 
-        /* this checks if any players have a permanent bind (included reactivatable expired binds) to the instance ID
-        it needs a DB query, so use sparingly */
-        bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
-        uint32 GetMaxResetDelay() const;
         TeamId GetTeamIdInInstance() const;
         Team GetTeamInInstance() const { return GetTeamIdInInstance() == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
 
         virtual void InitVisibilityDistance() override;
 
+        Group* GetOwningGroup() const { return i_owningGroupRef.getTarget(); }
+        void TrySetOwningGroup(Group* group);
+
         std::string GetDebugInfo() const override;
     private:
-        bool m_resetAfterUnload;
-        bool m_unloadWhenEmpty;
+        Optional<SystemTimePoint> i_instanceExpireEvent;
         InstanceScript* i_data;
         uint32 i_script_id;
         InstanceScenario* i_scenario;
+        InstanceLock* i_instanceLock;
+        GroupInstanceReference i_owningGroupRef;
 };
 
 class TC_GAME_API BattlegroundMap : public Map

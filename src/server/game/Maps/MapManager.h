@@ -30,8 +30,9 @@
 class Battleground;
 class BattlegroundMap;
 class GarrisonMap;
+class Group;
+class InstanceLock;
 class InstanceMap;
-class InstanceSave;
 class Map;
 class Player;
 enum Difficulty : uint8;
@@ -49,8 +50,9 @@ class TC_GAME_API MapManager
 
         static MapManager* instance();
 
-        Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId = 0);
+        Map* CreateMap(uint32 mapId, Player* player);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
+        uint32 FindInstanceIdForPlayer(uint32 mapId, Player const* player) const;
 
         void Initialize();
         void Update(uint32 diff);
@@ -136,7 +138,7 @@ class TC_GAME_API MapManager
         Map* FindMap_i(uint32 mapId, uint32 instanceId) const;
 
         Map* CreateWorldMap(uint32 mapId, uint32 instanceId);
-        InstanceMap* CreateInstance(uint32 mapId, uint32 instanceId, InstanceSave* save, Difficulty difficulty, TeamId team);
+        InstanceMap* CreateInstance(uint32 mapId, uint32 instanceId, InstanceLock* instanceLock, Difficulty difficulty, TeamId team, Group* group);
         BattlegroundMap* CreateBattleground(uint32 mapId, uint32 instanceId, Battleground* bg);
         GarrisonMap* CreateGarrison(uint32 mapId, uint32 instanceId, Player* owner);
 

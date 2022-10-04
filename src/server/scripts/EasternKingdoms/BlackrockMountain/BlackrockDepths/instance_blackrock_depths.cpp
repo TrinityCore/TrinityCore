@@ -22,7 +22,6 @@
 #include "Log.h"
 #include "Map.h"
 #include "ScriptedCreature.h"
-#include <sstream>
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
@@ -84,16 +83,13 @@ public:
         instance_blackrock_depths_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            memset(&encounter, 0, sizeof(encounter));
+            SetBossNumber(MAX_ENCOUNTER);
 
             BarAleCount = 0;
             GhostKillCount = 0;
             TombTimer = TIMER_TOMBOFTHESEVEN;
             TombEventCounter = 0;
         }
-
-        uint32 encounter[MAX_ENCOUNTER];
-        std::string str_data;
 
         ObjectGuid EmperorGUID;
         ObjectGuid PhalanxGUID;
@@ -210,43 +206,29 @@ public:
             switch (type)
             {
                 case TYPE_RING_OF_LAW:
-                    encounter[0] = data;
+                    SetBossState(0, EncounterState(data));
                     break;
                 case TYPE_VAULT:
-                    encounter[1] = data;
+                    SetBossState(1, EncounterState(data));
                     break;
                 case TYPE_BAR:
                     if (data == SPECIAL)
                         ++BarAleCount;
                     else
-                        encounter[2] = data;
+                        SetBossState(2, EncounterState(data));
                     break;
                 case TYPE_TOMB_OF_SEVEN:
-                    encounter[3] = data;
+                    SetBossState(3, EncounterState(data));
                     break;
                 case TYPE_LYCEUM:
-                    encounter[4] = data;
+                    SetBossState(4, EncounterState(data));
                     break;
                 case TYPE_IRON_HALL:
-                    encounter[5] = data;
+                    SetBossState(5, EncounterState(data));
                     break;
                 case DATA_GHOSTKILL:
                     GhostKillCount += data;
                     break;
-            }
-
-            if (data == DONE || GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << encounter[0] << ' ' << encounter[1] << ' ' << encounter[2] << ' '
-                    << encounter[3] << ' ' << encounter[4] << ' ' << encounter[5] << ' ' << GhostKillCount;
-
-                str_data = saveStream.str();
-
-                SaveToDB();
-                OUT_SAVE_INST_DATA_COMPLETE;
             }
         }
 
@@ -255,20 +237,20 @@ public:
             switch (type)
             {
                 case TYPE_RING_OF_LAW:
-                    return encounter[0];
+                    return GetBossState(0);
                 case TYPE_VAULT:
-                    return encounter[1];
+                    return GetBossState(1);
                 case TYPE_BAR:
-                    if (encounter[2] == IN_PROGRESS && BarAleCount == 3)
+                    if (GetBossState(2) == IN_PROGRESS && BarAleCount == 3)
                         return SPECIAL;
                     else
-                        return encounter[2];
+                        return GetBossState(2);
                 case TYPE_TOMB_OF_SEVEN:
-                    return encounter[3];
+                    return GetBossState(3);
                 case TYPE_LYCEUM:
-                    return encounter[4];
+                    return GetBossState(4);
                 case TYPE_IRON_HALL:
-                    return encounter[5];
+                    return GetBossState(5);
                 case DATA_GHOSTKILL:
                     return GhostKillCount;
             }
@@ -317,36 +299,6 @@ public:
                     return GoSpectralChaliceGUID;
             }
             return ObjectGuid::Empty;
-        }
-
-        std::string GetSaveData() override
-        {
-            return str_data;
-        }
-
-        void Load(char const* in) override
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            std::istringstream loadStream(in);
-            loadStream >> encounter[0] >> encounter[1] >> encounter[2] >> encounter[3]
-            >> encounter[4] >> encounter[5] >> GhostKillCount;
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (encounter[i] == IN_PROGRESS)
-                    encounter[i] = NOT_STARTED;
-            if (GhostKillCount > 0 && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
-                GhostKillCount = 0;//reset tomb of seven event
-            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
-                GhostKillCount = TOMB_OF_SEVEN_BOSS_NUM;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
         }
 
         void TombOfSevenEvent()

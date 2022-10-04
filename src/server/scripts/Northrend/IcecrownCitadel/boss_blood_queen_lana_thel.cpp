@@ -69,7 +69,6 @@ enum Spells
     SPELL_TWILIGHT_BLOODBOLT                = 71446,
     SPELL_INCITE_TERROR                     = 73070,
     SPELL_BLOODBOLT_WHIRL                   = 71772,
-    SPELL_ANNIHILATE                        = 71322,
     SPELL_CLEAR_ALL_STATUS_AILMENTS         = 70939,
 
     // Blood Infusion
@@ -125,12 +124,10 @@ enum Points
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
     POINT_GROUND    = 3,
-    POINT_MINCHAR   = 4,
 };
 
 Position const centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};
 Position const airPos     = {4595.7090f, 2769.4190f, 422.3893f, 0.000000f};
-Position const mincharPos = {4629.3711f, 2782.6089f, 424.6390f, 0.000000f};
 
 bool IsVampire(Unit const* unit)
 {
@@ -150,8 +147,6 @@ struct boss_blood_queen_lana_thel : public BossAI
     void Initialize()
     {
         _offtankGUID.Clear();
-        _creditBloodQuickening = false;
-        _killMinchar = false;
     }
 
     void Reset() override
@@ -188,7 +183,6 @@ struct boss_blood_queen_lana_thel : public BossAI
         DoCast(me, SPELL_SHROUD_OF_SORROW, true);
         DoCast(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
         DoCastSelf(SPELL_CLEAR_ALL_STATUS_AILMENTS, true);
-        _creditBloodQuickening = instance->GetData(DATA_BLOOD_QUICKENING_STATE) == IN_PROGRESS;
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -200,22 +194,6 @@ struct boss_blood_queen_lana_thel : public BossAI
             DoCastAOE(SPELL_BLOOD_INFUSION_CREDIT, true);
 
         CleanAuras();
-
-        // Blah, credit the quest
-        if (_creditBloodQuickening)
-        {
-            instance->SetData(DATA_BLOOD_QUICKENING_STATE, DONE);
-            if (Player* player = me->GetLootRecipient())
-                player->RewardPlayerAndGroupAtEvent(Is25ManRaid() ? NPC_INFILTRATOR_MINCHAR_BQ_25 : NPC_INFILTRATOR_MINCHAR_BQ, player);
-            if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
-            {
-                minchar->SetEmoteState(EMOTE_ONESHOT_NONE);
-                minchar->SetAnimTier(AnimTier::Ground);
-                minchar->SetCanFly(false);
-                minchar->RemoveAllAuras();
-                minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE / 3.0f);
-            }
-        }
     }
 
     void CleanAuras()
@@ -232,38 +210,15 @@ struct boss_blood_queen_lana_thel : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(PRESENCE_OF_THE_DARKFALLEN);
     }
 
-    void DoAction(int32 action) override
-    {
-        if (action != ACTION_KILL_MINCHAR)
-            return;
-
-        if (instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == IN_PROGRESS)
-            _killMinchar = true;
-        else
-        {
-            me->SetDisableGravity(true);
-            me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
-        }
-    }
-
     void EnterEvadeMode(EvadeReason why) override
     {
         if (!_EnterEvadeMode(why))
             return;
 
         CleanAuras();
-        if (_killMinchar)
-        {
-            _killMinchar = false;
-            me->SetDisableGravity(true);
-            me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
-        }
-        else
-        {
-            me->AddUnitState(UNIT_STATE_EVADE);
-            me->GetMotionMaster()->MoveTargetedHome();
-            Reset();
-        }
+        me->AddUnitState(UNIT_STATE_EVADE);
+        me->GetMotionMaster()->MoveTargetedHome();
+        Reset();
     }
 
     void JustReachedHome() override
@@ -322,12 +277,6 @@ struct boss_blood_queen_lana_thel : public BossAI
                 if (Unit* victim = me->SelectVictim())
                     AttackStart(victim);
                 events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
-                break;
-            case POINT_MINCHAR:
-                DoCast(me, SPELL_ANNIHILATE, true);
-                // already in evade mode
-                me->GetMotionMaster()->MoveTargetedHome();
-                Reset();
                 break;
             default:
                 break;
@@ -508,8 +457,6 @@ private:
     GuidSet _vampires;
     GuidSet _bloodboltedPlayers;
     ObjectGuid _offtankGUID;
-    bool _creditBloodQuickening;
-    bool _killMinchar;
 };
 
 // helper for shortened code
