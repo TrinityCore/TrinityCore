@@ -1553,6 +1553,23 @@ class spell_rog_vanish : public AuraScript
     }
 };
 
+// 921 - Pick Pocket
+class spell_rog_pickpocket : public SpellScript
+{
+    SpellCastResult CheckCast()
+    {
+        if (!GetExplTargetUnit() || !GetCaster()->IsValidAttackTarget(GetExplTargetUnit(), GetSpellInfo()))
+            return SPELL_FAILED_BAD_TARGETS;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast.Register(&spell_rog_pickpocket::CheckCast);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_bandits_guile);
@@ -1574,6 +1591,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_murderous_intent);
     new spell_rog_nerves_of_steel();
     new spell_rog_overkill();
+    RegisterSpellScript(spell_rog_pickpocket);
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
     RegisterSpellScript(spell_rog_recuperate);

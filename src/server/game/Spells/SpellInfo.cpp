@@ -25,6 +25,7 @@
 #include "Item.h"
 #include "ItemTemplate.h"
 #include "Log.h"
+#include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
@@ -1882,9 +1883,11 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
 
                 if (HasAttribute(SPELL_ATTR0_CU_PICKPOCKET))
                 {
-                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                    Creature const* targetCreature = unitTarget->ToCreature();
+                    if (!targetCreature)
                         return SPELL_FAILED_BAD_TARGETS;
-                    else if ((unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
+
+                    if (!LootTemplates_Pickpocketing.HaveLootFor(targetCreature->GetCreatureTemplate()->pickpocketLootId))
                         return SPELL_FAILED_TARGET_NO_POCKETS;
                 }
 
