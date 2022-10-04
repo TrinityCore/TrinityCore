@@ -32,7 +32,7 @@
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
 #include "GitRevision.h"
-#include "InstanceSaveMgr.h"
+#include "InstanceLockMgr.h"
 #include "IoContext.h"
 #include "MapManager.h"
 #include "Metric.h"
@@ -316,10 +316,10 @@ extern int main(int argc, char** argv)
         // unload battleground templates before different singletons destroyed
         sBattlegroundMgr->DeleteAllBattlegrounds();
 
-        sInstanceSaveMgr->Unload();
         sOutdoorPvPMgr->Die();                    // unload it before MapManager
         sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
         sTerrainMgr.UnloadAll();
+        sInstanceLockMgr.Unload();
     });
 
     // Start the Remote Access port (acceptor) if enabled

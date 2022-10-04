@@ -1094,29 +1094,35 @@ LOCK TABLES `character_homebind` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `character_instance`
+-- Table structure for table `character_instance_lock`
 --
 
-DROP TABLE IF EXISTS `character_instance`;
+DROP TABLE IF EXISTS `character_instance_lock`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `character_instance` (
-  `guid` bigint unsigned NOT NULL DEFAULT '0',
-  `instance` int unsigned NOT NULL DEFAULT '0',
-  `permanent` tinyint unsigned NOT NULL DEFAULT '0',
-  `extendState` tinyint unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`guid`,`instance`),
-  KEY `instance` (`instance`)
+CREATE TABLE `character_instance_lock` (
+  `guid` bigint unsigned NOT NULL,
+  `mapId` int unsigned NOT NULL,
+  `lockId` int unsigned NOT NULL,
+  `instanceId` int unsigned DEFAULT NULL,
+  `difficulty` tinyint unsigned DEFAULT NULL,
+  `data` text COLLATE utf8mb4_unicode_ci,
+  `completedEncountersMask` int unsigned DEFAULT NULL,
+  `entranceWorldSafeLocId` int unsigned DEFAULT NULL,
+  `expiryTime` bigint unsigned DEFAULT NULL,
+  `extended` tinyint unsigned DEFAULT NULL,
+  PRIMARY KEY (`guid`,`mapId`,`lockId`),
+  UNIQUE KEY `uk_character_instanceId` (`guid`,`instanceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `character_instance`
+-- Dumping data for table `character_instance_lock`
 --
 
-LOCK TABLES `character_instance` WRITE;
-/*!40000 ALTER TABLE `character_instance` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_instance` ENABLE KEYS */;
+LOCK TABLES `character_instance_lock` WRITE;
+/*!40000 ALTER TABLE `character_instance_lock` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_instance_lock` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2143,31 +2149,6 @@ LOCK TABLES `gm_suggestion` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `group_instance`
---
-
-DROP TABLE IF EXISTS `group_instance`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `group_instance` (
-  `guid` int unsigned NOT NULL DEFAULT '0',
-  `instance` int unsigned NOT NULL DEFAULT '0',
-  `permanent` tinyint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`instance`),
-  KEY `instance` (`instance`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `group_instance`
---
-
-LOCK TABLES `group_instance` WRITE;
-/*!40000 ALTER TABLE `group_instance` DISABLE KEYS */;
-/*!40000 ALTER TABLE `group_instance` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `group_member`
 --
 
@@ -2588,17 +2569,11 @@ DROP TABLE IF EXISTS `instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `instance` (
-  `id` int unsigned NOT NULL DEFAULT '0',
-  `map` smallint unsigned NOT NULL DEFAULT '0',
-  `resettime` bigint NOT NULL DEFAULT '0',
-  `difficulty` tinyint unsigned NOT NULL DEFAULT '0',
-  `completedEncounters` int unsigned NOT NULL DEFAULT '0',
-  `data` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `entranceId` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `map` (`map`),
-  KEY `resettime` (`resettime`),
-  KEY `difficulty` (`difficulty`)
+  `instanceId` int unsigned NOT NULL,
+  `data` text COLLATE utf8mb4_unicode_ci,
+  `completedEncountersMask` int unsigned DEFAULT NULL,
+  `entranceWorldSafeLocId` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`instanceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2609,56 +2584,6 @@ CREATE TABLE `instance` (
 LOCK TABLES `instance` WRITE;
 /*!40000 ALTER TABLE `instance` DISABLE KEYS */;
 /*!40000 ALTER TABLE `instance` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `instance_reset`
---
-
-DROP TABLE IF EXISTS `instance_reset`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `instance_reset` (
-  `mapid` smallint unsigned NOT NULL DEFAULT '0',
-  `difficulty` tinyint unsigned NOT NULL DEFAULT '0',
-  `resettime` bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (`mapid`,`difficulty`),
-  KEY `difficulty` (`difficulty`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `instance_reset`
---
-
-LOCK TABLES `instance_reset` WRITE;
-/*!40000 ALTER TABLE `instance_reset` DISABLE KEYS */;
-/*!40000 ALTER TABLE `instance_reset` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `instance_scenario_progress`
---
-
-DROP TABLE IF EXISTS `instance_scenario_progress`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `instance_scenario_progress` (
-  `id` int unsigned NOT NULL,
-  `criteria` int unsigned NOT NULL,
-  `counter` bigint unsigned NOT NULL,
-  `date` bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`,`criteria`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `instance_scenario_progress`
---
-
-LOCK TABLES `instance_scenario_progress` WRITE;
-/*!40000 ALTER TABLE `instance_scenario_progress` DISABLE KEYS */;
-/*!40000 ALTER TABLE `instance_scenario_progress` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3677,7 +3602,10 @@ INSERT INTO `updates` VALUES
 ('2022_07_25_00_characters.sql','3159BB2F3C346A7881920AB2B1F8108247CF13EE','ARCHIVED','2022-07-25 18:44:10',0),
 ('2022_08_19_00_characters.sql','1C076A24F2B48F32E8EF835C01F8907CA9E86491','ARCHIVED','2022-08-19 23:43:01',0),
 ('2022_08_21_00_characters.sql','1D75688392FBDA18CD8494F32CF682DCB49642EC','ARCHIVED','2022-08-21 00:02:03',0),
-('2022_09_18_00_characters.sql','A7DF0C1F0E074F3E63A6CDD0AF873A1F3DC33B29','RELEASED','2022-09-18 21:48:42',0);
+('2022_09_18_00_characters.sql','A7DF0C1F0E074F3E63A6CDD0AF873A1F3DC33B29','RELEASED','2022-09-18 21:48:42',0),
+('2022_10_03_00_characters.sql','7B062787230D9158A622EB4AFE7FA6D18AB47BB3','RELEASED','2022-10-03 22:32:58',0),
+('2022_10_03_01_characters.sql','7CF58BD9CC366301CC992017028568C8774C4BC2','RELEASED','2022-10-03 22:36:38',0),
+('2022_10_03_02_characters.sql','33135AB3132943F15F4849A16EC5EFEA402F24F6','RELEASED','2022-10-03 22:38:27',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

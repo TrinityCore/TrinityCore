@@ -21,7 +21,6 @@
 #include "gnomeregan.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include <sstream>
 
 class instance_gnomeregan : public InstanceMapScript
 {

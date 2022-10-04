@@ -30,9 +30,16 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "trial_of_the_champion.h"
-#include <sstream>
 
 constexpr uint32 ToCEncounterCount = 4;
+
+DungeonEncounterData const encounters[] =
+{
+    { BOSS_GRAND_CHAMPIONS, {{ 2022 }} },
+    { BOSS_ARGENT_CHALLENGE_E, {{ 2023 }} },
+    { BOSS_ARGENT_CHALLENGE_P, {{ 2023 }} },
+    { BOSS_BLACK_KNIGHT, {{ 2021 }} }
+};
 
 class instance_trial_of_the_champion : public InstanceMapScript
 {
@@ -46,12 +53,12 @@ public:
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
-        instance_trial_of_the_champion_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+        instance_trial_of_the_champion_InstanceMapScript(InstanceMap* map) : InstanceScript(map),
+            uiMovementDone(*this, "uiMovementDone"), uiGrandChampionsDeaths(*this, "uiGrandChampionsDeaths")
         {
             SetHeaders(DataHeader);
             SetBossNumber(ToCEncounterCount);
-            uiMovementDone = 0;
-            uiGrandChampionsDeaths = 0;
+            LoadDungeonEncounterData(encounters);
             uiArgentSoldierDeaths = 0;
             teamInInstance = 0;
 
@@ -59,8 +66,8 @@ public:
         }
 
         uint32 teamInInstance;
-        uint16 uiMovementDone;
-        uint16 uiGrandChampionsDeaths;
+        PersistentInstanceScriptValue<uint16> uiMovementDone;
+        PersistentInstanceScriptValue<uint16> uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
 
         ObjectGuid uiAnnouncerGUID;
@@ -165,7 +172,7 @@ public:
                     }
                     else if (state == DONE)
                     {
-                        ++uiGrandChampionsDeaths;
+                        uiGrandChampionsDeaths = uiGrandChampionsDeaths + 1;
                         if (uiGrandChampionsDeaths == 3)
                         {
                             if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
@@ -227,10 +234,10 @@ public:
                         }
                     }
                     break;
+                case BOSS_BLACK_KNIGHT:
+                    SetBossState(BOSS_BLACK_KNIGHT, EncounterState(uiData));
+                    break;
             }
-
-            if (uiData == DONE)
-                SaveToDB();
         }
 
         uint32 GetData(uint32 uiData) const override
@@ -273,16 +280,6 @@ public:
                     uiGrandChampion3GUID = uiData;
                     break;
             }
-        }
-
-        void WriteSaveDataMore(std::ostringstream& stream) override
-        {
-            stream << uiGrandChampionsDeaths << ' ' << uiMovementDone;
-        }
-
-        void ReadSaveDataMore(std::istringstream& stream) override
-        {
-            stream >> uiGrandChampionsDeaths >> uiMovementDone;
         }
     };
 };

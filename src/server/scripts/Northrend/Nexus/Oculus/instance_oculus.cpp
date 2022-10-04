@@ -33,6 +33,14 @@ DoorData const doorData[] =
     { 0,                    0,              DOOR_TYPE_ROOM }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_DRAKOS, {{ 528, 529, 2016 }} },
+    { DATA_VAROS, {{ 530, 531, 2015 }} },
+    { DATA_UROM, {{ 532, 533, 2014 }} },
+    { DATA_EREGOS, {{ 534, 535, 2013 }} }
+};
+
 Position const VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };
 Position const BelgaristraszMove = { 941.453f, 1044.1f,  359.967f, 0.1984709f };
 Position const EternosMove       = { 943.202f, 1059.35f, 359.967f, 5.757278f  };
@@ -49,6 +57,7 @@ class instance_oculus : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
 
                 CentrifugueConstructCounter = 0;
             }

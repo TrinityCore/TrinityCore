@@ -22,7 +22,7 @@
 #include "Position.h"
 
 #define SHScriptName "instance_shattered_halls"
-#define DataHeader "SH"
+#define DataHeader "SHv1"
 
 uint32 const EncounterCount          = 4;
 uint32 const VictimCount             = 3;
