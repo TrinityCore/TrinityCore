@@ -1257,7 +1257,10 @@ struct MapEntry
         return ID == 0 || ID == 1 || ID == 530 || ID == 571;
     }
 
-    bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_DYNAMIC_DIFFICULTY) != 0; }
+    bool IsDynamicDifficultyMap() const { return GetFlags().HasFlag(MapFlags::DynamicDifficulty); }
+    bool IsFlexLocking() const { return GetFlags().HasFlag(MapFlags::FlexibleRaidLocking); }
+
+    EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags); }
 };
 
 struct MapDifficultyEntry
