@@ -398,13 +398,13 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
 #ifndef LIBMARIADB
         else if (connection->GetServerVersion() < MIN_MYSQL_SERVER_VERSION)
 #else
-        else if (connection->GetServerVersion() < MIN_MARIADB_SERVER_VERSION)
+        else if (connection->Version() < MIN_MARIADB_SERVER_VERSION)
 #endif
         {
 #ifndef LIBMARIADB
             TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below " MIN_MYSQL_SERVER_VERSION_STRING " (found id %u, need id >= %u), please update your MySQL server", connection->GetServerVersion(), MIN_MYSQL_SERVER_VERSION);
 #else
-            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MariaDB versions below " MIN_MARIADB_SERVER_VERSION_STRING " (found id %u, need id >= %u), please update your MySQL server", connection->GetServerVersion(), MIN_MARIADB_SERVER_VERSION);
+            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MariaDB versions below " MIN_MARIADB_SERVER_VERSION_STRING " (found id %u, need id >= %u), please update your MySQL server", connection->Version(), MIN_MARIADB_SERVER_VERSION);
 #endif
 
             return 1;
