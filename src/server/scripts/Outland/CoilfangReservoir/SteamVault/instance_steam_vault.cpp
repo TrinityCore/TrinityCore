@@ -58,6 +58,13 @@ ObjectData const creatureData[] =
     { 0,                            0                          } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_HYDROMANCER_THESPIA, {{ 1942 }} },
+    { DATA_MEKGINEER_STEAMRIGGER, {{ 1943 }} },
+    { DATA_WARLORD_KALITHRESH, {{ 1944 }} }
+};
+
 class instance_steam_vault : public InstanceMapScript
 {
     public:
@@ -70,6 +77,7 @@ class instance_steam_vault : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
                 distillerState = 0;
             }
 

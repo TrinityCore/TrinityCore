@@ -781,24 +781,6 @@ enum class GlobalCurve : int32
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
-enum MapTypes                                               // Lua_IsInInstance
-{
-    MAP_COMMON          = 0,                                // none
-    MAP_INSTANCE        = 1,                                // party
-    MAP_RAID            = 2,                                // raid
-    MAP_BATTLEGROUND    = 3,                                // pvp
-    MAP_ARENA           = 4,                                // arena
-    MAP_SCENARIO        = 5                                 // scenario
-};
-
-enum MapFlags
-{
-    MAP_FLAG_CAN_TOGGLE_DIFFICULTY  = 0x0100,
-    MAP_FLAG_FLEX_LOCKING           = 0x8000, // All difficulties share completed encounters lock, not bound to a single instance id
-                                              // heroic difficulty flag overrides it and uses instance id bind
-    MAP_FLAG_GARRISON               = 0x4000000
-};
-
 enum GlyphSlotType
 {
     GLYPH_SLOT_MAJOR = 0,
@@ -1019,9 +1001,97 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_NONE             = 40
 };
 
-enum MapDifficultyFlags : uint8
+enum MapTypes                                               // Lua_IsInInstance
 {
-    MAP_DIFFICULTY_FLAG_CANNOT_EXTEND   = 0x10
+    MAP_COMMON          = 0,                                // none
+    MAP_INSTANCE        = 1,                                // party
+    MAP_RAID            = 2,                                // raid
+    MAP_BATTLEGROUND    = 3,                                // pvp
+    MAP_ARENA           = 4,                                // arena
+    MAP_SCENARIO        = 5                                 // scenario
+};
+
+enum class MapFlags : uint32
+{
+    Optimize                    = 0x00000001,
+    DevelopmentMap              = 0x00000002,
+    WeightedBlend               = 0x00000004,
+    VertexColoring              = 0x00000008,
+    SortObjects                 = 0x00000010,
+    LimitToPlayersFromOneRealm  = 0x00000020,
+    EnableLighting              = 0x00000040,
+    InvertedTerrain             = 0x00000080,
+    DynamicDifficulty           = 0x00000100,
+    ObjectFile                  = 0x00000200,
+    TextureFile                 = 0x00000400,
+    GenerateNormals             = 0x00000800,
+    FixBorderShadowSeams        = 0x00001000,
+    InfiniteOcean               = 0x00002000,
+    UnderwaterMap               = 0x00004000,
+    FlexibleRaidLocking         = 0x00008000,
+    LimitFarclip                = 0x00010000,
+    UseParentMapFlightBounds    = 0x00020000,
+    NoRaceChangeOnThisMap       = 0x00040000,
+    DisabledForNonGMs           = 0x00080000,
+    WeightedNormals1            = 0x00100000,
+    DisableLowDetailTerrain     = 0x00200000,
+    EnableOrgArenaBlinkRule     = 0x00400000,
+    WeightedHeightBlend         = 0x00800000,
+    CoalescingAreaSharing       = 0x01000000,
+    ProvingGrounds              = 0x02000000,
+    Garrison                    = 0x04000000,
+    EnableAINeedSystem          = 0x08000000,
+    SingleVServer               = 0x10000000,
+    UseInstancePool             = 0x20000000,
+    MapUsesRaidGraphics         = 0x40000000,
+    ForceCustomUIMap            = 0x80000000,
+};
+
+DEFINE_ENUM_FLAG(MapFlags);
+
+enum class MapFlags2 : uint32
+{
+    DontActivateShowMap                         = 0x00000001,
+    NoVoteKicks                                 = 0x00000002,
+    NoIncomingTransfers                         = 0x00000004,
+    DontVoxelizePathData                        = 0x00000008,
+    TerrainLOD                                  = 0x00000010,
+    UnclampedPointLights                        = 0x00000020,
+    PVP                                         = 0x00000040,
+    IgnoreInstanceFarmLimit                     = 0x00000080,
+    DontInheritAreaLightsFromParent             = 0x00000100,
+    ForceLightBufferOn                          = 0x00000200,
+    WMOLiquidScale                              = 0x00000400,
+    SpellClutterOn                              = 0x00000800,
+    SpellClutterOff                             = 0x00001000,
+    ReducedPathMapHeightValidation              = 0x00002000,
+    NewMinimapGeneration                        = 0x00004000,
+    AIBotsDetectedLikePlayers                   = 0x00008000,
+    LinearlyLitTerrain                          = 0x00010000,
+    FogOfWar                                    = 0x00020000,
+    DisableSharedWeatherSystems                 = 0x00040000,
+    HonorSpellAttribute11LosHitsNocamcollide    = 0x00080000,
+    BelongsToLayer                              = 0x00100000,
+};
+
+DEFINE_ENUM_FLAG(MapFlags2);
+
+enum class MapDifficultyFlags : uint8
+{
+    LimitToPlayersFromOneRealm              = 0x01,
+    UseLootBasedLockInsteadOfInstanceLock   = 0x02, // Lock to single encounters
+    LockedToSoloOwner                       = 0x04,
+    ResumeDungeonProgressBasedOnLockout     = 0x08, // Mythic dungeons with this flag zone into leaders instance instead of always using a fresh one (Return to Karazhan, Operation: Mechagon)
+    DisableLockExtension                    = 0x10,
+};
+
+DEFINE_ENUM_FLAG(MapDifficultyFlags);
+
+enum MapDifficultyResetInterval : uint8
+{
+    MAP_DIFFICULTY_RESET_ANYTIME    = 0,
+    MAP_DIFFICULTY_RESET_DAILY      = 1,
+    MAP_DIFFICULTY_RESET_WEEKLY     = 2
 };
 
 enum class ModifierTreeType : int32

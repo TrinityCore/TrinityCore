@@ -68,6 +68,26 @@ enum Events
     EVENT_CRYSTAL_CREATURE_CHECK                = 2
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { 1, {{ 345 }} },
+    { 2, {{ 344 }} },
+    { 3, {{ 343 }} },
+    { 4, {{ 346 }} },
+    { 5, {{ 350 }} },
+    { 6, {{ 348 }} },
+    { 8, {{ 347 }} },
+    { 9, {{ 349 }} },
+    { 10, {{ 361 }} },
+    { 11, {{ 362 }} },
+    { 12, {{ 363 }} },
+    { 13, {{ 364 }} },
+    { 14, {{ 365 }} },
+    { 15, {{ 366 }} },
+    // { , {{ 367 }}}, Cho'Rush the Observer
+    { 16, {{ 368 }} }
+};
+
 class instance_dire_maul : public InstanceMapScript
 {
 public:
@@ -79,6 +99,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDungeonEncounterData(encounters);
         }
 
         void OnCreatureCreate(Creature* creature) override
