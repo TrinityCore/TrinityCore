@@ -25698,6 +25698,17 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 }
 
 // @tswow-begin
+void Player::UnlockAchievement(uint32 entry)
+{
+    AchievementEntry const* achievement = sAchievementMgr->GetAchievement(entry);
+    if (!achievement)
+        return;
+
+    CompletedAchievement(achievement);
+}
+// @tswow-end
+
+// @tswow-begin
 uint32 Player::GetTalentPointsInTree(uint32 tabId)
 {
     uint32 spentPoints = 0;
