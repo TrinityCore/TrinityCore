@@ -776,7 +776,7 @@ enum Thassarian
 
 struct npc_thassarian : public CreatureAI
 {
-    npc_thassarian(Creature* creature) : CreatureAI(creature), _arlosInPosition(false), _leryssaInPosition(false), _preFightComplete(false), _talbotJustDied(false) { }
+    npc_thassarian(Creature* creature) : CreatureAI(creature), _preFightComplete(false), _arlosInPosition(false), _leryssaInPosition(false), _talbotJustDied(false) { }
 
     void JustAppeared() override
     {
@@ -1094,16 +1094,16 @@ struct npc_thassarian : public CreatureAI
     void Cleanup()
     {
         if (Creature* talbot = ObjectAccessor::GetCreature(*me, _talbotGUID))
-            talbot->RemoveFromWorld();
+            talbot->DespawnOrUnsummon();
 
         if (Creature* leryssa = ObjectAccessor::GetCreature(*me, _leryssaGUID))
-            leryssa->RemoveFromWorld();
+            leryssa->DespawnOrUnsummon();
 
         if (Creature* arlos = ObjectAccessor::GetCreature(*me, _arlosGUID))
-            arlos->RemoveFromWorld();
+            arlos->DespawnOrUnsummon();
 
         if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
-            arthas->RemoveFromWorld();
+            arthas->DespawnOrUnsummon();
     }
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -1158,7 +1158,7 @@ struct npc_leryssa : public ScriptedAI
     {
         if (pathId == PATH_LERYSSA)
         {
-            me->SetOrientation(4.537856f);
+            me->SetFacingTo(4.537856f);
             me->AddUnitState(UNIT_STATE_STUNNED);
             DoCastSelf(SPELL_STUN);
             if (me->IsSummon())
