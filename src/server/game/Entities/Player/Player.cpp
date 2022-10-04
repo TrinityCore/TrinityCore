@@ -5173,7 +5173,7 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
 }
 
-float Player::ApplyRatingDiminishing(CombatRating cr, float bonusValue) const
+float Player::ApplyRatingDiminishing(CombatRating /*cr*/, float bonusValue) const
 {
     uint32 diminishingCurveId = 0;
     // @TODO wotlk_classic

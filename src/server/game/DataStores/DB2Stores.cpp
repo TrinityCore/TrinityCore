@@ -1921,20 +1921,20 @@ Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTun
     if (forItem && contentTuning->GetFlags().HasFlag(ContentTuningFlag::DisabledForItem))
         return {};
 
-    auto getLevelAdjustment = [](ContentTuningCalcType type) -> int32
-    {
-        switch (type)
-        {
-            case ContentTuningCalcType::PlusOne:
-                return 1;
-            case ContentTuningCalcType::PlusMaxLevelForExpansion:
-                return GetMaxLevelForExpansion(sWorld->getIntConfig(CONFIG_EXPANSION));
-            default:
-                break;
-        }
-
-        return 0;
-    };
+    //auto getLevelAdjustment = [](ContentTuningCalcType type) -> int32
+    //{
+    //    switch (type)
+    //    {
+    //        case ContentTuningCalcType::PlusOne:
+    //            return 1;
+    //        case ContentTuningCalcType::PlusMaxLevelForExpansion:
+    //            return GetMaxLevelForExpansion(sWorld->getIntConfig(CONFIG_EXPANSION));
+    //        default:
+    //            break;
+    //    }
+    //
+    //    return 0;
+    //};
 
     ContentTuningLevels levels;
     levels.MinLevel = contentTuning->MinLevel;
@@ -2148,7 +2148,7 @@ EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8
     return nullptr;
 }
 
-float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass) const
+float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 /*contentTuningId*/, Classes unitClass) const
 {
     auto expectedStatItr = _expectedStatsByLevel.find(std::make_pair(level, expansion));
     if (expectedStatItr == _expectedStatsByLevel.end())
