@@ -1570,13 +1570,13 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                         loot = new Loot(gameObjTarget->GetMap(), guid, loottype, groupRules ? group : nullptr);
                         gameObjTarget->m_loot.reset(loot);
 
+                        loot->SetDungeonEncounterId(gameObjTarget->GetGOInfo()->chest.DungeonEncounter);
                         loot->FillLoot(lootId, LootTemplates_Gameobject, player, !groupRules, false, gameObjTarget->GetLootMode(), gameObjTarget->GetMap()->GetDifficultyLootItemContext());
 
                         if (gameObjTarget->GetLootMode() > 0)
                             if (GameObjectTemplateAddon const* addon = gameObjTarget->GetTemplateAddon())
                                 loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
 
-                        loot->SetDungeonEncounterId(gameObjTarget->GetGOInfo()->chest.DungeonEncounter);
                     }
 
                     /// @todo possible must be moved to loot release (in different from linked triggering)
