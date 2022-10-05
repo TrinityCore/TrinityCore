@@ -1920,7 +1920,7 @@ class spell_silverpine_notify_agatha : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        ValidateSpellInfo({ SPELL_RISE_FORSAKEN_FENRIS });
+        return ValidateSpellInfo({ SPELL_RISE_FORSAKEN_FENRIS });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
