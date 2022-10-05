@@ -35,6 +35,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "ScriptedCreature.h"
 #include "ScriptReloadMgr.h"
 #include "SmartEnum.h"
 #include "SpellMgr.h"
@@ -727,6 +728,14 @@ bool InstanceScript::ServerAllowsTwoSideGroups()
 DungeonEncounterEntry const* InstanceScript::GetBossDungeonEncounter(uint32 id) const
 {
     return id < bosses.size() ? bosses[id].GetDungeonEncounterForDifficulty(instance->GetDifficultyID()) : nullptr;
+}
+
+DungeonEncounterEntry const* InstanceScript::GetBossDungeonEncounter(Creature const* creature) const
+{
+    if (BossAI const* bossAi = dynamic_cast<BossAI const*>(creature->GetAI()))
+        return GetBossDungeonEncounter(bossAi->GetBossId());
+
+    return nullptr;
 }
 
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= nullptr*/, uint32 /*miscvalue1*/ /*= 0*/)
