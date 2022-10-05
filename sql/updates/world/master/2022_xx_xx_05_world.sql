@@ -510,21 +510,21 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 -- Worgen Sentry
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_worgen_sentry', `AIName` = '' WHERE `entry` = 44987;
 
-DELETE FROM `creature` WHERE `guid` IN (@CGUID+92, @CGUID+93, @CGUID+94, @CGUID+95, @CGUID+96);
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+4;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+92, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 985.293, 689.312, 59.4764, 3.19127, 120, 0, 0, 683, 0, 0, 0, 0, 0, 0, 0, '', 45745),
-(@CGUID+93, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 979.146, 666.453, 60.9757, 6.27395, 120, 0, 0, 683, 0, 2, 0, 0, 0, 0, 0, '', 45745),
-(@CGUID+94, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 999.823, 712.408, 60.9755, 3.14414, 120, 0, 0, 683, 0, 2, 0, 0, 0, 0, 0, '', 45745),
-(@CGUID+95, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 1011.31, 695.133, 60.9755, 3.15591, 120, 0, 0, 683, 0, 0, 0, 0, 0, 0, 0, '', 45745),
-(@CGUID+96, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 996.279, 690.808, 69.7955, 0.163545, 120, 0, 0, 683, 0, 0, 0, 0, 0, 0, 0, '', 45745);
+(@CGUID+0, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 985.293, 689.312, 59.4764, 3.19127, 120, 0, 0, 683, 0, 0, 0, 0, 0, 0, 0, '', 45745),
+(@CGUID+1, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 979.146, 666.453, 60.9757, 6.27395, 120, 0, 0, 683, 0, 2, 0, 0, 0, 0, 0, '', 45745),
+(@CGUID+2, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 999.823, 712.408, 60.9755, 3.14414, 120, 0, 0, 683, 0, 2, 0, 0, 0, 0, 0, '', 45745),
+(@CGUID+3, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 1011.31, 695.133, 60.9755, 3.15591, 120, 0, 0, 683, 0, 0, 0, 0, 0, 0, 0, '', 45745),
+(@CGUID+4, 44987, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 996.279, 690.808, 69.7955, 0.163545, 120, 0, 0, 683, 0, 0, 0, 0, 0, 0, 0, '', 45745);
 
-DELETE FROM `creature_addon` WHERE `guid` IN (@CGUID+92, @CGUID+93, @CGUID+94, @CGUID+95, @CGUID+96);
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+4;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+92, 0, 0, 0, 0, 1, 27, 0, 0, 0, 0, ''),
-(@CGUID+93, 3990930, 0, 0, 0, 1, 0, 0, 0, 0, 0, ''),
-(@CGUID+94, 3990940, 0, 0, 0, 1, 0, 0, 0, 0, 0, ''),
-(@CGUID+95, 0, 0, 0, 0, 1, 27, 0, 0, 0, 0, ''),
-(@CGUID+96, 0, 0, 0, 0, 1, 27, 0, 0, 0, 0, '');
+(@CGUID+0, 0, 0, 0, 0, 1, 27, 0, 0, 0, 0, ''),
+(@CGUID+1, 3990930, 0, 0, 0, 1, 0, 0, 0, 0, 0, ''),
+(@CGUID+2, 3990940, 0, 0, 0, 1, 0, 0, 0, 0, 0, ''),
+(@CGUID+3, 0, 0, 0, 0, 1, 27, 0, 0, 0, 0, ''),
+(@CGUID+4, 0, 0, 0, 0, 1, 27, 0, 0, 0, 0, '');
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 44987;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -554,9 +554,9 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 -- Fenris Keep Stalker
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_fenris_keep_stalker' WHERE `entry` = 45032;
 
-DELETE FROM `creature` WHERE `guid` = @CGUID+103;
+DELETE FROM `creature` WHERE `guid` = @CGUID+5;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+103, 45032, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 978.801, 689.085, 74.8985, 0.021992, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 45745);
+(@CGUID+5, 45032, 0, 130, 235, '', 0, 266, 0, -1, 0, 0, 978.801, 689.085, 74.8985, 0.021992, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 45745);
 
 UPDATE `creature` SET `PhaseId` = 266 WHERE `id` = 45032;
 
