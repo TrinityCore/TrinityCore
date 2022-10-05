@@ -2302,7 +2302,7 @@ public:
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (!player->IsAlive() || player->GetQuestStatus(QUEST_NO_ESCAPE) != QUEST_STATUS_INCOMPLETE)
-            return false;
+            return true;
 
         if (Creature* agatha = player->FindNearestCreature(NPC_AGATHA_FENRIS, 10.0f, true))
         {
