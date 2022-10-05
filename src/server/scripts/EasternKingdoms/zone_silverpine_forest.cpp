@@ -1960,14 +1960,6 @@ private:
     ObjectGuid _ownerGUID;
 };
 
-/*
- * HACKFIX: The next spell is a masterscript which is cast by the creature once it dies, which uses 8 different spells that summon 8 different npcs (4 male, 4 female).
- * However, according to sniffs, each 4 of them share the same displayIds on their creature_template. This means that, for example, no matter what spell the male npc uses,
- * the summoned npc will have a random displayId, which may or may not match its displayId. I could modify their creature_templates so that each of them
- * has a unique displayId, which would fix the problem, but Funjoker would kill me. Basically, the only way to fix this for now is making a hackfix to ignore the spells,
- * and simply change their displayIds on summon until proper support for disabling displayId probabilities gets implemented into TrinityCore.
- */
-
 enum SpellForsakenTrooperMasterScriptFenrisIsle
 {
     SPELL_FORSAKEN_TROOPER_MALE_01_F            = 83998,
@@ -2132,7 +2124,7 @@ private:
     EventMap _events;
 };
 
-enum ForsakenTrooperFenris
+enum ForsakenTrooperFenrisIsle
 {
     EVENT_REFUGEE_JUST_RISEN                    = 1,
 
@@ -2650,9 +2642,9 @@ enum DariusCrowleyFenris
 };
 
 // 44989 - Lord Darius Crowley, 44990 - Packleader Ivar Bloodfang
-struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
+struct npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep : public ScriptedAI
 {
-    npc_silverpine_crowley_bloodfang_fenris_keep(Creature* creature) : ScriptedAI(creature) { }
+    npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -2940,6 +2932,6 @@ void AddSC_silverpine_forest()
     RegisterSpellScript(spell_silverpine_despawn_all_summons_fenris_keep);
     RegisterCreatureAI(npc_silverpine_fenris_keep_stalker);
     RegisterCreatureAI(npc_silverpine_fenris_keep_camera);
-    RegisterCreatureAI(npc_silverpine_crowley_bloodfang_fenris_keep);
+    RegisterCreatureAI(npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep);
     RegisterCreatureAI(npc_silverpine_generic_actor_fenris_keep);
 }
