@@ -2007,7 +2007,7 @@ class spell_silverpine_forsaken_trooper_masterscript_fenris_isle : public SpellS
 
         if (Creature* hillsbradRefugee = unit->ToCreature())
         {
-            uint32 spellId = SPELL_FORSAKEN_TROOPER_MALE_01_HC;
+            uint32 spellId = 0;
 
             switch (hillsbradRefugee->GetDisplayId())
             {
@@ -2153,33 +2153,33 @@ struct npc_silverpine_forsaken_trooper_fenris_isle : public ScriptedAI
 
         me->SetReactState(REACT_PASSIVE);
 
-        uint32 displayId = DISPLAY_MALE_01_F;
+        uint32 displayId = 0;
 
         switch (summoner->ToCreature()->GetDisplayId())
         {
-            case DISPLAY_MALE_01_D_F:
-                displayId = DISPLAY_MALE_01_F;
+            case DISPLAY_MALE_01_F:
+                displayId = DISPLAY_MALE_01_D_F;
                 break;
-            case DISPLAY_MALE_02_D_F:
-                displayId = DISPLAY_MALE_02_F;
+            case DISPLAY_MALE_02_F:
+                displayId = DISPLAY_MALE_02_D_F;
                 break;
-            case DISPLAY_MALE_03_D_F:
-                displayId = DISPLAY_MALE_03_F;
+            case DISPLAY_MALE_03_F:
+                displayId = DISPLAY_MALE_03_D_F;
                 break;
-            case DISPLAY_MALE_04_D_F:
-                displayId = DISPLAY_MALE_04_F;
+            case DISPLAY_MALE_04_F:
+                displayId = DISPLAY_MALE_04_D_F;
                 break;
-            case DISPLAY_FEMALE_01_D_F:
-                displayId = DISPLAY_FEMALE_01_F;
+            case DISPLAY_FEMALE_01_F:
+                displayId = DISPLAY_FEMALE_01_D_F;
                 break;
-            case DISPLAY_FEMALE_02_D_F:
-                displayId = DISPLAY_FEMALE_02_F;
+            case DISPLAY_FEMALE_02_F:
+                displayId = DISPLAY_FEMALE_02_D_F;
                 break;
-            case DISPLAY_FEMALE_03_D_F:
-                displayId = DISPLAY_FEMALE_03_F;
+            case DISPLAY_FEMALE_03_F:
+                displayId = DISPLAY_FEMALE_03_D_F;
                 break;
-            case DISPLAY_FEMALE_04_D_F:
-                displayId = DISPLAY_FEMALE_04_F;
+            case DISPLAY_FEMALE_04_F:
+                displayId = DISPLAY_FEMALE_04_D_F;
                 break;
             default:
                 break;
@@ -2187,8 +2187,7 @@ struct npc_silverpine_forsaken_trooper_fenris_isle : public ScriptedAI
 
         me->SetDisplayId(displayId);
 
-        if (roll_chance_i(50))
-            _events.ScheduleEvent(EVENT_REFUGEE_JUST_RISEN, 1s);
+        _events.ScheduleEvent(EVENT_REFUGEE_JUST_RISEN, 1s);
 
         me->DespawnOrUnsummon(4s);
     }
