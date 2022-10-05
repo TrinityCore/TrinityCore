@@ -68,7 +68,6 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (44951, 3, 0, 'Run...', 12, 0, 100, 457, 0, 0, 0, 45184, 5, ''),
 (44951, 4, 0, 'RUN!', 12, 0, 100, 457, 0, 0, 0, 45185, 5, '');
 
--- @TODO: add 7.7937083 speed until point 15 which is 15.880999
 DELETE FROM `waypoint_data` WHERE `id` = 449510;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
 (449510, 1, 978.75, 682.571, 74.9817, NULL, 0, 1, 0, 0, 0),
@@ -148,9 +147,10 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`,
 (44966, 7, 3346, 0, 0, 45745),
 (44966, 8, 1906, 0, 0, 45745);
 
-UPDATE `creature` SET `equipment_id`=FLOOR(RAND()*(7-1+1)+1), `MovementType` = 1, `wander_distance` = 5 WHERE `guid` IN (321951, 321953, 321550, 321551, 321549, 321766, 321771, 321765, 321773, 321827, 321828, 321829, 321952, 321824);
+UPDATE `creature` SET `equipment_id`=FLOOR(RAND()*(7-1+1)+1) WHERE `id` IN (44954, 44966);
+UPDATE `creature` SET `MovementType` = 1, `wander_distance` = 5 WHERE `guid` IN (321951, 321953, 321550, 321551, 321549, 321766, 321771, 321765, 321773, 321827, 321828, 321829, 321952, 321824);
 UPDATE `creature` SET `position_x` = 858.1942, `position_y` = 596.9427, `position_z` = 36.42773, `MovementType` = 2 WHERE `guid` IN (321553, 321554);
-UPDATE `creature` SET `position_x`= 740.559, `position_y`= 704.448, `position_z`= 38.42833, `MovementType` = 2, `equipment_id`=8 WHERE `guid` = 321555;
+UPDATE `creature` SET `equipment_id`=8, `position_x`= 740.559, `position_y`= 704.448, `position_z`= 38.42833, `MovementType` = 2 WHERE `guid` = 321555;
 UPDATE `creature` SET `position_x`= 714.8848, `position_y`= 681.1774, `position_z`= 44.46771, `MovementType` = 2 WHERE `guid` IN (321453, 321454);
 UPDATE `creature` SET `equipment_id`=8, `position_x`= 948.477, `position_y`= 634.106, `position_z`= 53.4356, `MovementType` = 2 WHERE `guid`=321767;
 

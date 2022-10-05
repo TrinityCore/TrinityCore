@@ -1662,6 +1662,7 @@ enum AgathaFenrisIsle
 
     PATH_AGATHA_TO_FORSAKEN                     = 449510,
 
+    WAYPOINT_SPEED_UP                           = 15,
     WAYPOINT_ARRIVED_TO_FORSAKEN                = 19,
 
     POINT_AGATHA_BACK_FRONTYARD                 = 1
@@ -1737,8 +1738,13 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
     void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
-        if (pathId == PATH_AGATHA_TO_FORSAKEN && waypointId == WAYPOINT_ARRIVED_TO_FORSAKEN)
-            _events.ScheduleEvent(EVENT_FLEE_FROM_FENRIS + 3, 100ms);
+        if (pathId == PATH_AGATHA_TO_FORSAKEN)
+        {
+            if (waypointId == WAYPOINT_SPEED_UP)
+                me->SetSpeed(MOVE_RUN, 15.880999f);
+            else if (waypointId == WAYPOINT_ARRIVED_TO_FORSAKEN)
+                _events.ScheduleEvent(EVENT_FLEE_FROM_FENRIS + 3, 100ms);
+        }
     }
 
     void Reset() override
@@ -1841,6 +1847,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                         me->SetDisableGravity(true);
                         me->SetCanFly(true);
 
+                        me->SetSpeed(MOVE_RUN, 7.7937083f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePath(PATH_AGATHA_TO_FORSAKEN, false);
                     }
