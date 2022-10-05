@@ -1646,6 +1646,7 @@ enum AgathaFenrisIsle
     SPELL_ARMORE_CAMERA_1                       = 84112,
     SPELL_ARMORE_CAMERA_4                       = 84111,
     SPELL_GENERAL_TRIGGER_84079                 = 84079,
+    // TODO: remove this since it is already enumerated on previous PR.
     SPELL_RIDE_REVERSE_CAST_RIDE_VEHICLE        = 84109,
 
     EVENT_AGATHA_CHECK_PLAYER                   = 1,
@@ -1781,14 +1782,16 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
-                        if (_healCD || player->GetHealthPct() > 75.0f)
-                            return;
+                        if (!_healCD && player->GetHealthPct() < 75.0f)
+                        {
+                            me->CastSpell(player, SPELL_UNHOLY_DARKNESS, false);
 
-                        me->CastSpell(player, SPELL_UNHOLY_DARKNESS, false);
+                            _healCD = true;
 
-                        _healCD = true;
-
-                        _events.ScheduleEvent(EVENT_UNHOLY_DARKNESS_COOLDOWN, 8s);
+                            _events.ScheduleEvent(EVENT_UNHOLY_DARKNESS_COOLDOWN, 8s);
+                        }
+                        else
+                            _events.Repeat(1s);
                     }
                     break;
                 }
@@ -2521,19 +2524,23 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
 
     void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
     {
-        if (apply && seatId == SEAT_FENRIS_CAMERA)
+        if (apply)
         {
-            _events.ScheduleEvent(EVENT_MOVE_TO_START_POINT, 10ms);
+            if (seatId == SEAT_FENRIS_CAMERA)
+            {
+                _events.ScheduleEvent(EVENT_MOVE_TO_START_POINT, 10ms);
 
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                me->CastSpell(player, SPELL_SUMMON_FENRIS_ACTORS, true);
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    me->CastSpell(player, SPELL_SUMMON_FENRIS_ACTORS, true);
+            }
+            else if (seatId == SEAT_FENRIS_CAMERA_FORCE)
+                passenger->SetFacingTo(0.0f);
         }
-
-        if (apply && seatId == SEAT_FENRIS_CAMERA_FORCE)
-            passenger->SetFacingTo(0.0f);
-
-        if (!apply && seatId == SEAT_FENRIS_CAMERA_FORCE)
-            _events.ScheduleEvent(EVENT_SCENE_FINISH_FENRIS, 1s);
+        else
+        {
+            if (seatId == SEAT_FENRIS_CAMERA_FORCE)
+                _events.ScheduleEvent(EVENT_SCENE_FINISH_FENRIS, 1s);
+        }
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -2710,6 +2717,16 @@ private:
 
 enum GeneralActorFenris
 {
+    NPC_BLOODFANG_FENRIS                        = 44990,
+    NPC_CROWLEY_FENRIS                          = 44989,
+    NPC_PHIN_ODELIC                             = 44993,
+    NPC_BARTOLO_GINSETTI                        = 44994,
+    NPC_LOREMASTER_DIBBS                        = 44995,
+    NPC_MAGISTRATE_HENRY_MALEB                  = 44996,
+    NPC_CARETAKER_SMITHERS                      = 44997,
+    NPC_SOPHIA_ZWOSKI                           = 45002,
+    NPC_FENRIS_KEEP_CAMERA                      = 45003,
+
     SPELL_CONVERSATION_TRIGGER_84077            = 84077,
     SPELL_ARMORE_CAMERA_2                       = 84104,
     SPELL_ARMORE_CAMERA_3                       = 84103,
