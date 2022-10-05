@@ -776,7 +776,7 @@ enum Thassarian
 
 struct npc_thassarian : public ScriptedAI
 {
-    npc_thassarian(Creature* creature) : ScriptedAI(creature), _preFightComplete(false), _arlosInPosition(false), _leryssaInPosition(false), _talbotJustDied(false) { }
+    npc_thassarian(Creature* creature) : ScriptedAI(creature), _questEventStarted(false), _preFightComplete(false), _arlosInPosition(false), _leryssaInPosition(false), _talbotJustDied(false) { }
 
     void JustAppeared() override
     {
@@ -798,6 +798,9 @@ struct npc_thassarian : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        if (!_questEventStarted)
+            return;
+
         if (_arlosInPosition && _leryssaInPosition)
         {
             _arlosInPosition = false;
@@ -1113,6 +1116,7 @@ struct npc_thassarian : public ScriptedAI
             _playerGUID = player->GetGUID();
             CloseGossipMenuFor(player);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            _questEventStarted = true;
             me->GetMotionMaster()->MovePath(PATH_THASSARIAN, false);
         }
         return false;
@@ -1124,6 +1128,7 @@ private:
     ObjectGuid _talbotGUID;
     ObjectGuid _leryssaGUID;
     ObjectGuid _arlosGUID;
+    bool _questEventStarted;
     bool _preFightComplete;
 public:
     bool _arlosInPosition;
