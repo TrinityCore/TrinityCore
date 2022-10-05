@@ -1680,7 +1680,6 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
         me->GetMotionMaster()->Clear();
-
         me->GetMotionMaster()->MoveFollow(me->GetOwner(), 3.0f, float(M_PI / 2.0f));
 
         _events.ScheduleEvent(EVENT_AGATHA_CHECK_PLAYER, 1s);
@@ -1697,11 +1696,11 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         {
             case SPELL_AGATHA_BROADCAST:
             {
-                if (!_sceneStarted)
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_AGATHA_BROADCAST, player);
-                }
+                if (_sceneStarted)
+                    return;
+
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    Talk(TALK_AGATHA_BROADCAST, player);
                 break;
             }
 
@@ -1764,24 +1763,13 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!me->GetOwner())
-        {
-            if (Player* player = me->SelectNearestPlayer(5.0f))
-            {
-                if (player->HasAura(SPELL_BOND_OF_THE_VALKYR))
-                    player->RemoveAura(SPELL_BOND_OF_THE_VALKYR);
-
-                player->CastSpell(player, SPELL_BOND_OF_THE_VALKYR, true);
-
-                me->DespawnOrUnsummon();
-            }
-        }
-
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             if (!player->HasAura(SPELL_SUMMON_AGATHA_FENRIS) || !player->IsInWorld())
                 me->DespawnOrUnsummon();
         }
+        else
+            me->DespawnOrUnsummon();
 
         _events.Update(diff);
 
@@ -1793,19 +1781,15 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
-                        if (player->IsAlive() || player->IsInWorld())
-                        {
-                            if (!_healCD && player->GetHealthPct() < 75.0f)
-                            {
-                                me->CastSpell(player, SPELL_UNHOLY_DARKNESS, false);
+                        if (_healCD || player->GetHealthPct() > 75.0f)
+                            return;
 
-                                _healCD = true;
+                        me->CastSpell(player, SPELL_UNHOLY_DARKNESS, false);
 
-                                _events.ScheduleEvent(EVENT_UNHOLY_DARKNESS_COOLDOWN, 8s);
-                            }
-                        }
+                        _healCD = true;
+
+                        _events.ScheduleEvent(EVENT_UNHOLY_DARKNESS_COOLDOWN, 8s);
                     }
-                    _events.Repeat(1s);
                     break;
                 }
 
@@ -1821,6 +1805,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
                 case EVENT_UNHOLY_DARKNESS_COOLDOWN:
                     _healCD = false;
+                    _events.ScheduleEvent(EVENT_AGATHA_CHECK_PLAYER, 500ms);
                     break;
 
                 case EVENT_FLEE_FROM_FENRIS + 1:
@@ -1862,6 +1847,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
                         _sceneStarted = false;
 
+                        me->SetSpeed(MOVE_RUN, 1.14286f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveFollow(player, 3.0f, float(M_PI / 2.0f));
 
@@ -1870,7 +1856,6 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
                         me->SetReactState(REACT_ASSIST);
                     }
-
                     break;
                 }
 
@@ -2289,7 +2274,7 @@ class spell_silverpine_undying_frenzy : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        GetCaster()->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_1).TriggerSpell, true);
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_1).TriggerSpell, true);
     }
 
     void Register() override
@@ -2313,20 +2298,17 @@ public:
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
-        if (player->IsAlive())
+        if (!player->IsAlive() || player->GetQuestStatus(QUEST_NO_ESCAPE) != QUEST_STATUS_INCOMPLETE)
+            return;
+
+        if (Creature* agatha = player->FindNearestCreature(NPC_AGATHA_FENRIS, 10.0f, true))
         {
-            if (player->GetQuestStatus(QUEST_NO_ESCAPE) == QUEST_STATUS_INCOMPLETE)
+            if (agatha->GetOwner() == player)
             {
-                if (Creature* agatha = player->FindNearestCreature(NPC_AGATHA_FENRIS, 10.0f, true))
+                if (Creature* fenrisStalker = player->FindNearestCreature(NPC_FENRIS_KEEP_STALKER, 50.0f, true))
                 {
-                    if (agatha->GetOwner() == player)
-                    {
-                        if (Creature* fenrisStalker = player->FindNearestCreature(NPC_FENRIS_KEEP_STALKER, 50.0f, true))
-                        {
-                            if (fenrisStalker->IsAIEnabled())
-                                fenrisStalker->AI()->SetGUID(player->GetGUID());
-                        }
-                    }
+                    if (fenrisStalker->IsAIEnabled())
+                        fenrisStalker->AI()->SetGUID(player->GetGUID());
                 }
             }
         }
@@ -2385,19 +2367,6 @@ class spell_silverpine_summon_fenris_keep_actors : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_silverpine_summon_fenris_keep_actors::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
-};
-
-enum DespawnAllSummonsFenris
-{
-    NPC_BLOODFANG_FENRIS                        = 44990,
-    NPC_CROWLEY_FENRIS                          = 44989,
-    NPC_PHIN_ODELIC                             = 44993,
-    NPC_BARTOLO_GINSETTI                        = 44994,
-    NPC_LOREMASTER_DIBBS                        = 44995,
-    NPC_MAGISTRATE_HENRY_MALEB                  = 44996,
-    NPC_CARETAKER_SMITHERS                      = 44997,
-    NPC_SOPHIA_ZWOSKI                           = 45002,
-    NPC_FENRIS_KEEP_CAMERA                      = 45003
 };
 
 // 84065 - Despawn All Summons
@@ -2592,14 +2561,9 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
                     break;
 
                 case EVENT_TRIGGER_84102:
-                {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        if (Creature* crowley = player->FindNearestCreature(NPC_CROWLEY_FENRIS, 50.0f))
-                            player->CastSpell(player, SPELL_GENERAL_TRIGGER_84102, true);
-                    }
+                        player->CastSpell(player, SPELL_GENERAL_TRIGGER_84102, true);
                     break;
-                }
 
                 case EVENT_SCENE_FINISH_FENRIS:
                     if (Creature* agatha = me->FindNearestCreature(NPC_AGATHA_FENRIS, 60.0f))
