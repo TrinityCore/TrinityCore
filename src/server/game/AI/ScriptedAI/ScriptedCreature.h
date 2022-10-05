@@ -336,6 +336,8 @@ class TC_GAME_API BossAI : public ScriptedAI
 
         bool CanAIAttack(Unit const* target) const override;
 
+        uint32 GetBossId() const { return _bossId; }
+
     protected:
         void _Reset();
         void _JustEngagedWith(Unit* who);
