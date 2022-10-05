@@ -801,9 +801,9 @@ class spell_dk_rime : public AuraScript
 {
     PrepareAuraScript(spell_dk_rime);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DK_FROST_SCYTHE });
+        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_DK_FROST_SCYTHE });
     }
 
     bool CheckProck(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
