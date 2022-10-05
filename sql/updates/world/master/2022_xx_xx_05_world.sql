@@ -149,7 +149,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 84011, 0, 0, 31, 0, 3, 44951, 0, 0, 0, 0, '', 'Despawn All Summons - Target Agatha');
 
 -- Hillsbrad Refugee (44954, 44966)
-UPDATE `creature_template` SET `ScriptName`= 'npc_silverpine_hillsbrad_refugee' WHERE `entry` IN (44954, 44966);
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_silverpine_hillsbrad_refugee' WHERE `entry` IN (44954, 44966);
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 44954;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`, `ItemID3`, `VerifiedBuild`) VALUES 
@@ -631,7 +631,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_fenris_keep_camera', `VehicleID` = 1070 WHERE `entry` = 45003;
 
 -- Lord Darius Crowley
-UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep' WHERE `entry` = 44989;
+UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_crowley_bloodfang_fenris_keep' WHERE `entry` = 44989;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 44989;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -653,7 +653,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 83763, 0, 0, 31, 0, 3, 44989, 0, 0, 0, 0, '', 'Armoire Camera - Target Lord Darius Crowley');
 
 -- Packleader Ivar Bloodfang
-UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep' WHERE `entry` = 44990;
+UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_crowley_bloodfang_fenris_keep' WHERE `entry` = 44990;
 
 -- Phin Odelic
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_generic_actor_fenris_keep' WHERE `entry` = 44993;

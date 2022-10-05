@@ -2642,9 +2642,9 @@ enum DariusCrowleyFenris
 };
 
 // 44989 - Lord Darius Crowley, 44990 - Packleader Ivar Bloodfang
-struct npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep : public ScriptedAI
+struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
 {
-    npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep(Creature* creature) : ScriptedAI(creature) { }
+    npc_silverpine_crowley_bloodfang_fenris_keep(Creature* creature) : ScriptedAI(creature) { }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -2932,6 +2932,6 @@ void AddSC_silverpine_forest()
     RegisterSpellScript(spell_silverpine_despawn_all_summons_fenris_keep);
     RegisterCreatureAI(npc_silverpine_fenris_keep_stalker);
     RegisterCreatureAI(npc_silverpine_fenris_keep_camera);
-    RegisterCreatureAI(npc_silverpine_lord_darius_crowley_packleader_ivar_bloodfang_fenris_keep);
+    RegisterCreatureAI(npc_silverpine_crowley_bloodfang_fenris_keep);
     RegisterCreatureAI(npc_silverpine_generic_actor_fenris_keep);
 }
