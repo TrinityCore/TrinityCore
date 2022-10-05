@@ -95,6 +95,30 @@ DELETE FROM `spell_script_names` WHERE `spell_id` = 83979 AND `ScriptName` = 'sp
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (83979, 'spell_silverpine_bond_of_the_valkyr');
 
+DELETE FROM `spell_area` WHERE `spell`=83979 AND `area`=5369 AND `quest_start`=27097 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(83979, 5369, 27097, 27099, 0, 0, 2, 3, 74, 11);
+
+DELETE FROM `spell_area` WHERE `spell`=83979 AND `area`=130 AND `quest_start`=27097 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(83979, 130, 27097, 27099, 0, 0, 2, 3, 74, 11);
+
+DELETE FROM `spell_area` WHERE `spell`=83979 AND `area`=927 AND `quest_start`=27097 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(83979, 927, 27097, 27099, 0, 0, 2, 3, 74, 11);
+
+DELETE FROM `spell_area` WHERE `spell`=83979 AND `area`=1338 AND `quest_start`=27097 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(83979, 1338, 27097, 27099, 0, 0, 2, 3, 74, 11);
+
+DELETE FROM `spell_area` WHERE `spell`=83979 AND `area`=172 AND `quest_start`=27097 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(83979, 172, 27097, 27099, 0, 0, 2, 3, 74, 11);
+
+DELETE FROM `spell_area` WHERE `spell`=83979 AND `area`=235 AND `quest_start`=27097 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(83979, 235, 27097, 27099, 0, 0, 2, 3, 74, 11);
+
 -- Agatha Broadcast
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=83978 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44951 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
