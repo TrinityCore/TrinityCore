@@ -48,7 +48,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatu
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId` = 44951;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Random`, `InteractionPauseTimer`) VALUES 
-(44951, 2, 1, 1, NULL, NULL, NULL);
+(44951, 2, 1, 1, 0, 0, NULL);
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 44951;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
