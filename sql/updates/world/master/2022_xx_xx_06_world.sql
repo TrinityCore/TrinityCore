@@ -112,7 +112,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Orc Sea Orc
 DELETE FROM `waypoint_data` WHERE `id` = 4494200;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `velocity`, `delay`, `smoothTransition`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 (4494200, 1, 1002.19, 1305.97, 45.9039, NULL, 0, 0, 0, 0, 0),
 (4494200, 2, 974.613, 1323.48, 45.6693, NULL, 0, 0, 0, 0, 0),
 (4494200, 3, 941.259, 1342.61, 46.7854, NULL, 0, 0, 0, 0, 0),
@@ -124,7 +124,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (4494200, 9, 1025.23, 1291.7, 45.9554, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id` = 4494201;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `velocity`, `delay`, `smoothTransition`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
 (4494201, 0, 1031.23, 1332.41, 37.9303, NULL, 0, 0, 0, 0, 0),
 (4494201, 1, 1014.11, 1326.63, 41.121, NULL, 0, 0, 0, 0, 0),
 (4494201, 2, 994.812, 1331.02, 45.0159, NULL, 0, 0, 0, 0, 0),
