@@ -35,7 +35,6 @@ UPDATE `creature_template` SET `VehicleId` = 1076, `ScriptName` = 'npc_silverpin
 -- Forsaken Warhorse
 UPDATE `creature_template` SET `VehicleId` = 1077, `ScriptName` = 'npc_silverpine_warhorse_sylvanas_lordaeron' WHERE `entry` = 45057;
 
--- @TODO: add 6.3564 speed on the warhorse of sylvanas
 DELETE FROM `waypoint_data` WHERE `id` = 450570;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
 (450570, 1, 1361.34, 1026.57, 52.7564, NULL, 0, 1, 0, 0, 0),

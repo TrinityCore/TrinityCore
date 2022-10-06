@@ -1740,6 +1740,8 @@ struct npc_silverpine_warhorse_sylvanas_lordaeron : public ScriptedAI
             if (Creature* playerhorse = me->FindNearestCreature(NPC_FORSAKEN_WARHORSE_PLAYER, 10.0f))
                 _playerHorseGUID = playerhorse->GetGUID();
 
+            me->SetSpeed(MOVE_RUN, 6.3564f);
+
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 
