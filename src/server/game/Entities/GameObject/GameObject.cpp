@@ -2225,17 +2225,18 @@ void GameObject::Use(Unit* user)
 
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
+                Position const slotPos(x_i, y_i, GetPositionZ());
 
                 // Check if seat is "occupied" by creature
-                if (Creature* creature = FindNearestCreatureInRange(INTERACTION_DISTANCE))
-                    if (creature->IsSitState() && creature->GetStandState() != UNIT_STAND_STATE_SIT && creature->GetExactDist2d(x_i, y_i) < 0.1f)
+                if (Creature* creature = FindNearestCreatureToPosition(&slotPos, CONTACT_DISTANCE))
+                    if (creature->IsSitState() && creature->GetStandState() != UNIT_STAND_STATE_SIT && creature->GetExactDist2d(slotPos) < 0.1f)
                         continue;
 
                 if (!itr->second.IsEmpty())
                 {
                     if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))
                     {
-                        if (ChairUser->IsSitState() && ChairUser->GetStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
+                        if (ChairUser->IsSitState() && ChairUser->GetStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(slotPos) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->GetStandState() != UNIT_STAND_STATE_SIT check is required.
                         else
                             itr->second.Clear(); // This seat is unoccupied.

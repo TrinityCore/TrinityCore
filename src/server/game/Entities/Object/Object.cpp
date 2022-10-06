@@ -2056,11 +2056,11 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     return creature;
 }
 
-Creature* WorldObject::FindNearestCreatureInRange(float range, bool alive) const
+Creature* WorldObject::FindNearestCreatureToPosition(Position const* pos, float range, bool alive) const
 {
     Creature* creature = nullptr;
-    Trinity::NearestCreatureWithLiveStateInObjectRangeCheck checker(*this, alive, range);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
+    Trinity::NearestCreatureWithLiveStateToPositionCheck checker(pos, alive, range);
+    Trinity::CreatureLastSearcher<Trinity::NearestCreatureWithLiveStateToPositionCheck> searcher(this, creature, checker);
     Cell::VisitAllObjects(this, searcher, range);
     return creature;
 }

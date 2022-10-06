@@ -1402,6 +1402,32 @@ namespace Trinity
             NearestAssistCreatureInCreatureRangeCheck(NearestAssistCreatureInCreatureRangeCheck const&) = delete;
     };
 
+    class NearestCreatureWithLiveStateToPositionCheck
+    {
+        public:
+            NearestCreatureWithLiveStateToPositionCheck(Position const* pos, bool alive, float range) : i_pos(pos), i_alive(alive), i_range(range) { }
+
+            bool operator()(Creature* u)
+            {
+                if (u->getDeathState() != DEAD
+                    && u->IsAlive() == i_alive
+                    && u->IsWithinDist3d(i_pos, i_range))
+                {
+                    i_range = u->GetDistance(*i_pos);        // use found unit range as new range limit for next check
+                    return true;
+                }
+                return false;
+            }
+
+        private:
+            Position const* i_pos;
+            bool   i_alive;
+            float  i_range;
+
+            // prevent clone this object
+            NearestCreatureWithLiveStateToPositionCheck(NearestCreatureWithLiveStateToPositionCheck const&) = delete;
+    };
+
     // Success at unit in range, range update for next check (this can be use with CreatureLastSearcher to find nearest creature)
     class NearestCreatureEntryWithLiveStateInObjectRangeCheck
     {
@@ -1432,35 +1458,6 @@ namespace Trinity
 
             // prevent clone this object
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&) = delete;
-    };
-
-    class NearestCreatureWithLiveStateInObjectRangeCheck
-    {
-        public:
-            NearestCreatureWithLiveStateInObjectRangeCheck(WorldObject const& obj, bool alive, float range)
-                : i_obj(obj), i_alive(alive), i_range(range) { }
-
-            bool operator()(Creature* u)
-            {
-                if (u->getDeathState() != DEAD
-                    && u->IsAlive() == i_alive
-                    && u->GetGUID() != i_obj.GetGUID()
-                    && i_obj.IsWithinDistInMap(u, i_range)
-                    && u->CheckPrivateObjectOwnerVisibility(&i_obj))
-                {
-                    i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
-                    return true;
-                }
-                return false;
-            }
-
-        private:
-            WorldObject const& i_obj;
-            bool   i_alive;
-            float  i_range;
-
-            // prevent clone this object
-            NearestCreatureWithLiveStateInObjectRangeCheck(NearestCreatureWithLiveStateInObjectRangeCheck const&) = delete;
     };
 
     class AnyPlayerInObjectRangeCheck
