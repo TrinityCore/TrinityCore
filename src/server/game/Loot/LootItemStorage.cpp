@@ -272,7 +272,7 @@ void LootItemStorage::AddNewStoredLoot(uint64 containerId, Loot* loot, Player* p
         // saved to the DB that the player never should have gotten. This check prevents that, so that only
         // items that the player should get in loot are in the DB.
         // IE: Horde items are not saved to the DB for Ally players.
-        if (!li.AllowedForPlayer(player))
+        if (!li.AllowedForPlayer(player, *loot))
             continue;
 
         // Don't save currency tokens
