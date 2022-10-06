@@ -1155,7 +1155,7 @@ enum SylvanasForsakenHighCommand
 
     NPC_FORSAKEN_WARHORSE                       = 73595,
 
-    SPELL_SUMMON_FORSAKEN_WARHORSE              = 148164,
+    SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
     SPELL_APPLY_INVIS_ZONE_4                    = 84183,
     SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,

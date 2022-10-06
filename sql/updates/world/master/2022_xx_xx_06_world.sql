@@ -29,9 +29,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Lady Sylvanas Windrunner
 UPDATE `creature` SET `ScriptName`='npc_silverpine_sylvanas_windrunner_high_command_sepulcher' WHERE `guid`=395637;
 
--- Summon Sylvanas + Horse
-UPDATE `spell_target_position` SET `Orientation` = 3.73064 WHERE `ID` = 84128 AND `EffectIndex` BETWEEN 0 AND 1;
-
 -- Forsaken Warhorse
 UPDATE `creature_template` SET `VehicleId` = 1076, `ScriptName` = 'npc_silverpine_warhorse_player_lordaeron' WHERE `entry` = 45041;
 
