@@ -2598,6 +2598,7 @@ private:
 enum DariusCrowleyFenris
 {
     NPC_CROWLEY_FENRIS                          = 44989,
+    NPC_MAGISTRATE_HENRY_MALEB                  = 44996,
 
     SPELL_ARMORE_CAMERA_FENRIS                  = 83768,
     SPELL_CONVERSATION_TRIGGER_84076            = 84076,
@@ -2723,7 +2724,6 @@ enum GeneralActorFenris
     NPC_PHIN_ODELIC                             = 44993,
     NPC_BARTOLO_GINSETTI                        = 44994,
     NPC_LOREMASTER_DIBBS                        = 44995,
-    NPC_MAGISTRATE_HENRY_MALEB                  = 44996,
     NPC_CARETAKER_SMITHERS                      = 44997,
     NPC_SOPHIA_ZWOSKI                           = 45002,
     NPC_FENRIS_KEEP_CAMERA                      = 45003,
