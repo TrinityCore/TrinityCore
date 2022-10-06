@@ -39,12 +39,19 @@ if (NOT WIN32)
   )
 endif()
 
+if( UNIX AND NOT NOJEM AND NOT APPLE )
+  set(bnetserver_LINK_FLAGS "-pthread -lncurses ${bnetserver_LINK_FLAGS}")
+endif()
+
+set_target_properties(bnetserver PROPERTIES LINK_FLAGS "${bnetserver_LINK_FLAGS}")
+
 target_link_libraries(bnetserver
   PRIVATE
     trinity-core-interface
   PUBLIC
     shared
-    ipc)
+    ipc
+    ${READLINE_LIBRARY})
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
