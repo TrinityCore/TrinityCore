@@ -1158,10 +1158,7 @@ enum SylvanasForsakenHighCommand
     SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
     SPELL_APPLY_INVIS_ZONE_4                    = 84183,
-    SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,
-    SPELL_SUMMON_FORSAKEN_WARHORSE              = 84164,
-    SPELL_LORDAERON_AURA                        = 84189, // Note: NYI, after researching thoroughly, nothing seems to point what this SPELL_AURA_DUMMY should do. Maybe it is what forces the player to cast the rest of the spells.
-    SPELL_SUMMON_LORDAERON_ACTORS               = 84127,
+    SPELL_LORDAERON_AURA                        = 84189,
     SPELL_FLIGHT_OF_THE_VALKYR_FORWARD          = 84695
 };
 
@@ -1185,9 +1182,6 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
         {
             case QUEST_LORDAERON:
                 player->CastSpell(player, SPELL_LORDAERON_AURA, true);
-                player->CastSpell(player, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
-                player->CastSpell(player, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
-                player->CastSpell(player, SPELL_SUMMON_LORDAERON_ACTORS, true);
                 break;
 
             case QUEST_TO_FORSAKEN_HIGH_COMMAND:
@@ -2074,6 +2068,33 @@ private:
     bool _done;
 };
 
+enum LordaeronAreaAura
+{
+    SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,
+    SPELL_SUMMON_FORSAKEN_WARHORSE              = 84164,
+    SPELL_SUMMON_LORDAERON_ACTORS               = 84127
+};
+
+// 84189 - Lordaeron Area Aura
+class spell_silverpine_lordaeron_area_aura : public AuraScript
+{
+    PrepareAuraScript(spell_silverpine_lordaeron_area_aura);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+
+        caster->CastSpell(caster, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
+        caster->CastSpell(caster, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
+        caster->CastSpell(caster, SPELL_SUMMON_LORDAERON_ACTORS, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_silverpine_lordaeron_area_aura::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 Position const ForsakenTrooperMPos[8] =
 {
     { 1278.29f, 1053.83f, 54.284f, 3.16124f },
@@ -2245,25 +2266,6 @@ class spell_silverpine_summon_lordaeron_actors : public SpellScript
     }
 };
 
-// 84173 - Despawn All Summons
-class spell_silverpine_despawn_all_summons_lordaeron : public SpellScript
-{
-    PrepareSpellScript(spell_silverpine_despawn_all_summons_lordaeron);
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        Creature* target = GetHitCreature();
-
-        if (target->GetOwner() == GetCaster())
-            target->DespawnOrUnsummon();
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_silverpine_despawn_all_summons_lordaeron::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -2288,6 +2290,6 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_warhorse_sylvanas_lordaeron);
     RegisterCreatureAI(npc_silverpine_sylvanas_lordaeron);
     RegisterCreatureAI(npc_silverpine_dreadguard_lordaeron);
+    RegisterSpellScript(spell_silverpine_lordaeron_area_aura);
     RegisterSpellScript(spell_silverpine_summon_lordaeron_actors);
-    RegisterSpellScript(spell_silverpine_despawn_all_summons_lordaeron);
 }
