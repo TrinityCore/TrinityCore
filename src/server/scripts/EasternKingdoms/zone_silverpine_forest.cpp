@@ -2090,7 +2090,7 @@ struct npc_silverpine_dreadguard_lordaeron : public ScriptedAI
         _events.Reset();
     }
 
-    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
         {
