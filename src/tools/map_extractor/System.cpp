@@ -48,7 +48,6 @@ std::shared_ptr<CASC::Storage> CascStorage;
 struct MapEntry
 {
     uint32 Id = 0;
-    int32 WdtFileDataId = 0;
     std::string Name;
     std::string Directory;
 };
@@ -283,7 +282,6 @@ void ReadMapDBC()
 
         MapEntry map;
         map.Id = record.GetId();
-        map.WdtFileDataId = record.GetInt32("WdtFileDataID");
         map.Name = record.GetString("MapName");
         map.Directory = record.GetString("Directory");
         idToIndex[map.Id] = map_ids.size();
@@ -298,14 +296,11 @@ void ReadMapDBC()
         {
             MapEntry map;
             map.Id = copy.NewRowId;
-            map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
             map.Name = map_ids[itr->second].Name;
             map.Directory = map_ids[itr->second].Directory;
             map_ids.push_back(map);
         }
     }
-
-    map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
 
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
@@ -1085,7 +1080,8 @@ void ExtractMaps(uint32 build)
         // Loadup map grid data
         ChunkedFile wdt;
         std::bitset<(WDT_MAP_SIZE) * (WDT_MAP_SIZE)> existingTiles;
-        if (wdt.loadFile(CascStorage, map_ids[z].WdtFileDataId, Trinity::StringFormat("WDT for map %u", map_ids[z].Id), false))
+        std::string fileName = Trinity::StringFormat(R"(World\Maps\%s\%s.wdt)", map_ids[z].Directory.c_str(), map_ids[z].Directory.c_str());
+        if (wdt.loadFile(CascStorage, fileName, false))
         {
             FileChunk* mphd = wdt.GetChunk("MPHD");
             FileChunk* main = wdt.GetChunk("MAIN");
