@@ -595,9 +595,10 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (84053, 'spell_silverpine_summon_fenris_keep_actors');
 
 -- Despawn All Summons
-DELETE FROM `spell_script_names` WHERE `spell_id` = 84065 AND `ScriptName` = 'spell_silverpine_despawn_all_summons_fenris_keep';
+
+DELETE FROM `spell_script_names` WHERE `spell_id` = 84065 AND `ScriptName` = 'spell_gen_despawn_all_summons_owned_by_caster';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(84065, 'spell_silverpine_despawn_all_summons_fenris_keep');
+(84065, 'spell_gen_despawn_all_summons_owned_by_caster');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=84065 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44990 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES 
