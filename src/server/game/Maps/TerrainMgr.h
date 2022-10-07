@@ -19,6 +19,7 @@
 #define TERRAIN_MGR_H
 
 #include "Define.h"
+#include "Duration.h"
 #include "GridDefines.h"
 #include "MapDefines.h"
 #include "Position.h"
