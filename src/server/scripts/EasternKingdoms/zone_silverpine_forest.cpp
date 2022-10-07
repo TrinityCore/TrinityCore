@@ -3548,7 +3548,7 @@ enum ForestEttin
     NPC_MUTANT_BUSH_CHICKEN                     = 44935,
 
     SPELL_HAULING_TIMBER                        = 88361,
-    SPELL_REVERSE_CAST_RIDE_VEHICLE_ETTIN       = 83904,
+    SPELL_RIDE_REVERSE_CAST_ITS_POISONOUS       = 83904,
     SPELL_ETTIN_MOUTH                           = 83907,
     SPELL_BUSH_EXPLOSION                        = 83903,
     SPELL_BONK                                  = 80146,
@@ -3619,7 +3619,7 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
         {
             case ACTION_GRAB_CHICKEN:
                 if (Creature* mutantBushChicken = me->FindNearestCreature(NPC_MUTANT_BUSH_CHICKEN, 15.0f))
-                    me->CastSpell(mutantBushChicken, SPELL_REVERSE_CAST_RIDE_VEHICLE_ETTIN, true);
+                    me->CastSpell(mutantBushChicken, SPELL_RIDE_REVERSE_CAST_ITS_POISONOUS, true);
                 break;
 
             default:
