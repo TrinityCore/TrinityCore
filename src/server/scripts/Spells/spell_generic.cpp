@@ -5141,28 +5141,6 @@ class spell_gen_eject_passengers_3_8 : public SpellScript
     }
 };
 
-// Note: this spell unsummons any creature owned by the caster. Set appropriate target conditions on the DB.
-// 84173 - Despawn All Summons
-// 84065 - Despawn All Summons
-// 83840 - Despawn All Summons
-class spell_gen_despawn_all_summons_owned_by_caster : public SpellScript
-{
-    PrepareSpellScript(spell_gen_despawn_all_summons_owned_by_caster);
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        Creature* target = GetHitCreature();
-
-        if (target->GetOwner() == GetCaster())
-            target->DespawnOrUnsummon();
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_all_summons_owned_by_caster::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5321,5 +5299,4 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_mount_check_aura);
     RegisterSpellScript(spell_gen_ancestral_call);
     RegisterSpellScript(spell_gen_eject_passengers_3_8);
-    RegisterSpellScript(spell_gen_despawn_all_summons_owned_by_caster);
 }

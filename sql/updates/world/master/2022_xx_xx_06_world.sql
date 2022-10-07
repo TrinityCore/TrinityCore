@@ -148,9 +148,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (84127, 'spell_silverpine_summon_lordaeron_actors');
 
 -- Despawn All Summons
-DELETE FROM `spell_script_names` WHERE `spell_id` = 84173 AND `ScriptName` = 'spell_gen_despawn_all_summons_owned_by_caster';
+DELETE FROM `spell_script_names` WHERE `spell_id` = 84173 AND `ScriptName` = 'spell_silverpine_despawn_all_summons_lordaeron';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(84173, 'spell_gen_despawn_all_summons_owned_by_caster');
+(84173, 'spell_silverpine_despawn_all_summons_lordaeron');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=84173 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=45051 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
