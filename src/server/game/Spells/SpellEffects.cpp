@@ -2020,14 +2020,6 @@ void Spell::EffectSummonType()
                         if (properties->Control == SUMMON_CATEGORY_ALLY)
                             summon->SetOwnerGUID(caster->GetGUID());
 
-                        uint32 faction = properties->Faction;
-                        if (properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
-                            if (WorldObject const* summoner = summon->GetSummoner())
-                                faction = summoner->GetFaction();
-
-                        if (faction)
-                            summon->SetFaction(faction);
-
                         ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
                     }
                     return;
