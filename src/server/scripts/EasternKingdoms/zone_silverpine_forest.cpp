@@ -1150,11 +1150,14 @@ class spell_silverpine_forsaken_trooper_masterscript_high_command : public Spell
 
 enum SylvanasForsakenHighCommand
 {
+    QUEST_NO_ESCAPE                             = 27099,
+
     NPC_FORSAKEN_WARHORSE                       = 73595,
 
     SPELL_SUMMON_FORSAKEN_WARHORSE              = 148164,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
-    SPELL_APPLY_INVIS_ZONE_4                    = 84183
+    SPELL_APPLY_INVIS_ZONE_4                    = 84183,
+    SPELL_DESPAWN_ALL_SUMMONS_AGATHA            = 84011
 };
 
 // 44365 - Lady Sylvanas Windrunner (Forsaken High Command)
@@ -1169,6 +1172,18 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
         // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
         if (Creature* forsakenWarhorse = me->FindNearestCreature(NPC_FORSAKEN_WARHORSE, 5.0f, true))
             forsakenWarhorse->CastSpell(forsakenWarhorse, me->HasAura(SPELL_APPLY_INVIS_ZONE_1) ? SPELL_APPLY_INVIS_ZONE_1 : SPELL_APPLY_INVIS_ZONE_4, true);
+    }
+
+    void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+    {
+        switch (quest->GetQuestId())
+        {
+            case QUEST_NO_ESCAPE:
+                player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_AGATHA, true);
+                break;
+            default:
+                break;
+        }
     }
 };
 
@@ -1635,7 +1650,6 @@ enum AgathaFenrisIsle
     NPC_AGATHA_FENRIS                           = 44951,
 
     SPELL_BOND_OF_THE_VALKYR                    = 83979,
-    SPELL_DESPAWN_ALL_SUMMONS_AGATHA            = 84011,
     SPELL_MARK_MASTER_AS_DESUMMONED             = 80929,
     SPELL_AGATHA_BROADCAST                      = 83978,
     SPELL_DOOMHOWL                              = 84012,
@@ -1646,8 +1660,8 @@ enum AgathaFenrisIsle
     SPELL_ARMORE_CAMERA_1                       = 84112,
     SPELL_ARMORE_CAMERA_4                       = 84111,
     SPELL_GENERAL_TRIGGER_84079                 = 84079,
-    // TODO: remove this since it is already enumerated on previous PR.
-    SPELL_RIDE_REVERSE_CAST_RIDE_VEHICLE        = 84109,
+
+    SPELL_RIDE_REVERSE_CAST_NO_ESCAPE           = 84109,
 
     EVENT_AGATHA_CHECK_PLAYER                   = 1,
     EVENT_UNHOLY_SMITE                          = 2,
@@ -1725,10 +1739,6 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
             case SPELL_DESPAWN_ALL_SUMMONS_AGATHA:
                 DoCastSelf(SPELL_MARK_MASTER_AS_DESUMMONED);
-                break;
-
-            case SPELL_MARK_MASTER_AS_DESUMMONED:
-                me->DespawnOrUnsummon();
                 break;
 
             default:
@@ -1826,7 +1836,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
-                        me->CastSpell(player, SPELL_RIDE_REVERSE_CAST_RIDE_VEHICLE, true);
+                        me->CastSpell(player, SPELL_RIDE_REVERSE_CAST_NO_ESCAPE, true);
 
                         Talk(TALK_AGATHA_POST_EVENT2, player);
 
