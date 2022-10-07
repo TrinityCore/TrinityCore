@@ -16,8 +16,8 @@
  */
 
 #include "MapBuilder.h"
-#include "MapDefines.h"
 #include "MapTree.h"
+#include "MMapDefines.h"
 #include "ModelInstance.h"
 #include "PathCommon.h"
 #include "IntermediateValues.h"
