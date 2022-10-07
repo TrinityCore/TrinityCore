@@ -58,12 +58,6 @@
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
 
-u_map_magic MapMagic        = { {'M','A','P','S'} };
-uint32 MapVersionMagic      = 10;
-u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
-u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
-u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
-
 static uint16 const holetab_h[4] = { 0x1111, 0x2222, 0x4444, 0x8888 };
 static uint16 const holetab_v[4] = { 0x000F, 0x00F0, 0x0F00, 0xF000 };
 
@@ -110,12 +104,12 @@ void Map::DiscoverGridMapFiles()
     // tile list is optional
     if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
     {
-        u_map_magic mapMagic;
-        uint32 versionMagic;
+        u_map_magic mapMagic = { };
+        uint32 versionMagic = { };
         uint32 build;
-        char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS];
-        if (fread(&mapMagic.asUInt, sizeof(u_map_magic), 1, tileList) == 1
-            && mapMagic.asUInt == MapMagic.asUInt
+        char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS] = { };
+        if (fread(mapMagic.data(), mapMagic.size(), 1, tileList) == 1
+            && mapMagic == MapMagic
             && fread(&versionMagic, sizeof(versionMagic), 1, tileList) == 1
             && versionMagic == MapVersionMagic
             && fread(&build, sizeof(build), 1, tileList) == 1
@@ -162,11 +156,11 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy, bool log /*= true*/)
         map_fileheader header;
         if (fread(&header, sizeof(header), 1, file) == 1)
         {
-            if (header.mapMagic.asUInt != MapMagic.asUInt || header.versionMagic != MapVersionMagic)
+            if (header.mapMagic != MapMagic || header.versionMagic != MapVersionMagic)
             {
                 if (log)
                     TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s v%u), %.*s v%u is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
-                        fileName.c_str(), 4, header.mapMagic.asChar, header.versionMagic, 4, MapMagic.asChar, MapVersionMagic);
+                    fileName.c_str(), 4, header.mapMagic.data(), header.versionMagic, 4, MapMagic.data(), MapVersionMagic);
             }
             else
                 ret = true;
@@ -1764,7 +1758,7 @@ GridMap::GridMap()
     _minHeightPlanes = nullptr;
     // Liquid data
     _liquidGlobalEntry = 0;
-    _liquidGlobalFlags = 0;
+    _liquidGlobalFlags = map_liquidHeaderTypeFlags::NoWater;
     _liquidOffX   = 0;
     _liquidOffY   = 0;
     _liquidWidth  = 0;
@@ -1798,7 +1792,7 @@ GridMap::LoadResult GridMap::loadData(const char* filename)
         return LoadResult::InvalidFile;
     }
 
-    if (header.mapMagic.asUInt == MapMagic.asUInt && header.versionMagic == MapVersionMagic)
+    if (header.mapMagic == MapMagic && header.versionMagic == MapVersionMagic)
     {
         // load up area data
         if (header.areaMapOffset && !loadAreaData(in, header.areaMapOffset, header.areaMapSize))
@@ -1833,7 +1827,7 @@ GridMap::LoadResult GridMap::loadData(const char* filename)
     }
 
     TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s v%u), %.*s v%u is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
-        filename, 4, header.mapMagic.asChar, header.versionMagic, 4, MapMagic.asChar, MapVersionMagic);
+        filename, 4, header.mapMagic.data(), header.versionMagic, 4, MapMagic.data(), MapVersionMagic);
     fclose(in);
     return LoadResult::InvalidFile;
 }
@@ -1864,11 +1858,11 @@ bool GridMap::loadAreaData(FILE* in, uint32 offset, uint32 /*size*/)
     map_areaHeader header;
     fseek(in, offset, SEEK_SET);
 
-    if (fread(&header, sizeof(header), 1, in) != 1 || header.fourcc != MapAreaMagic.asUInt)
+    if (fread(&header, sizeof(header), 1, in) != 1 || header.areaMagic != MapAreaMagic)
         return false;
 
     _gridArea = header.gridArea;
-    if (!(header.flags & MAP_AREA_NO_AREA))
+    if (!header.flags.HasFlag(map_areaHeaderFlags::NoArea))
     {
         _areaMap = new uint16[16 * 16];
         if (fread(_areaMap, sizeof(uint16), 16 * 16, in) != 16 * 16)
@@ -1882,13 +1876,13 @@ bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
     map_heightHeader header;
     fseek(in, offset, SEEK_SET);
 
-    if (fread(&header, sizeof(header), 1, in) != 1 || header.fourcc != MapHeightMagic.asUInt)
+    if (fread(&header, sizeof(header), 1, in) != 1 || header.heightMagic != MapHeightMagic)
         return false;
 
     _gridHeight = header.gridHeight;
-    if (!(header.flags & MAP_HEIGHT_NO_HEIGHT))
+    if (!header.flags.HasFlag(map_heightHeaderFlags::NoHeight))
     {
-        if ((header.flags & MAP_HEIGHT_AS_INT16))
+        if (header.flags.HasFlag(map_heightHeaderFlags::HeightAsInt16))
         {
             m_uint16_V9 = new uint16 [129*129];
             m_uint16_V8 = new uint16 [128*128];
@@ -1898,7 +1892,7 @@ bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
             _gridIntHeightMultiplier = (header.gridMaxHeight - header.gridHeight) / 65535;
             _gridGetHeight = &GridMap::getHeightFromUint16;
         }
-        else if ((header.flags & MAP_HEIGHT_AS_INT8))
+        else if (header.flags.HasFlag(map_heightHeaderFlags::HeightAsInt8))
         {
             m_uint8_V9 = new uint8 [129*129];
             m_uint8_V8 = new uint8 [128*128];
@@ -1921,7 +1915,7 @@ bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
     else
         _gridGetHeight = &GridMap::getHeightFromFlat;
 
-    if (header.flags & MAP_HEIGHT_HAS_FLIGHT_BOUNDS)
+    if (header.flags.HasFlag(map_heightHeaderFlags::HasFlightBounds))
     {
         std::array<int16, 9> maxHeights;
         std::array<int16, 9> minHeights;
@@ -1971,7 +1965,7 @@ bool GridMap::loadLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
     map_liquidHeader header;
     fseek(in, offset, SEEK_SET);
 
-    if (fread(&header, sizeof(header), 1, in) != 1 || header.fourcc != MapLiquidMagic.asUInt)
+    if (fread(&header, sizeof(header), 1, in) != 1 || header.liquidMagic != MapLiquidMagic)
         return false;
 
     _liquidGlobalEntry = header.liquidType;
@@ -1982,17 +1976,17 @@ bool GridMap::loadLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
     _liquidHeight = header.height;
     _liquidLevel  = header.liquidLevel;
 
-    if (!(header.flags & MAP_LIQUID_NO_TYPE))
+    if (!header.flags.HasFlag(map_liquidHeaderFlags::NoType))
     {
         _liquidEntry = new uint16[16*16];
         if (fread(_liquidEntry, sizeof(uint16), 16*16, in) != 16*16)
             return false;
 
-        _liquidFlags = new uint8[16*16];
-        if (fread(_liquidFlags, sizeof(uint8), 16*16, in) != 16*16)
+        _liquidFlags = new map_liquidHeaderTypeFlags[16*16];
+        if (fread(_liquidFlags, sizeof(map_liquidHeaderTypeFlags), 16*16, in) != 16*16)
             return false;
     }
-    if (!(header.flags & MAP_LIQUID_NO_HEIGHT))
+    if (!header.flags.HasFlag(map_liquidHeaderFlags::NoHeight))
     {
         _liquidMap = new float[uint32(_liquidWidth) * uint32(_liquidHeight)];
         if (fread(_liquidMap, sizeof(float), _liquidWidth*_liquidHeight, in) != (uint32(_liquidWidth) * uint32(_liquidHeight)))
@@ -2321,10 +2315,10 @@ float GridMap::getLiquidLevel(float x, float y) const
 }
 
 // Get water state on map
-inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data, float collisionHeight)
+inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, Optional<map_liquidHeaderTypeFlags> ReqLiquidType, LiquidData* data, float collisionHeight)
 {
     // Check water type (if no water return)
-    if (!_liquidGlobalFlags && !_liquidFlags)
+    if (_liquidGlobalFlags == map_liquidHeaderTypeFlags::NoWater && !_liquidFlags)
         return LIQUID_MAP_NO_WATER;
 
     // Get cell
@@ -2336,11 +2330,11 @@ inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 R
 
     // Check water type in cell
     int idx=(x_int>>3)*16 + (y_int>>3);
-    uint8 type = _liquidFlags ? _liquidFlags[idx] : _liquidGlobalFlags;
+    map_liquidHeaderTypeFlags type = _liquidFlags ? _liquidFlags[idx] : _liquidGlobalFlags;
     uint32 entry = _liquidEntry ? _liquidEntry[idx] : _liquidGlobalEntry;
     if (LiquidTypeEntry const* liquidEntry = sLiquidTypeStore.LookupEntry(entry))
     {
-        type &= MAP_LIQUID_TYPE_DARK_WATER;
+        type &= map_liquidHeaderTypeFlags::DarkWater;
         uint32 liqTypeIdx = liquidEntry->SoundBank;
         if (entry < 21)
         {
@@ -2362,14 +2356,14 @@ inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 R
             }
         }
 
-        type |= 1 << liqTypeIdx;
+        type |= map_liquidHeaderTypeFlags(1 << liqTypeIdx);
     }
 
-    if (type == 0)
+    if (type == map_liquidHeaderTypeFlags::NoWater)
         return LIQUID_MAP_NO_WATER;
 
     // Check req liquid type mask
-    if (ReqLiquidType && !(ReqLiquidType&type))
+    if (ReqLiquidType && (*ReqLiquidType & type) == map_liquidHeaderTypeFlags::NoWater)
         return LIQUID_MAP_NO_WATER;
 
     // Check water level:
@@ -2394,7 +2388,7 @@ inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 R
     if (data)
     {
         data->entry = entry;
-        data->type_flags  = type;
+        data->type_flags = type;
         data->level = liquid_level;
         data->depth_level = ground_level;
     }
@@ -2446,7 +2440,7 @@ float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y,
 
         LiquidData liquid_status;
 
-        ZLiquidStatus res = GetLiquidStatus(phaseShift, x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status, collisionHeight);
+        ZLiquidStatus res = GetLiquidStatus(phaseShift, x, y, ground_z, map_liquidHeaderTypeFlags::AllLiquids, &liquid_status, collisionHeight);
         switch (res)
         {
             case LIQUID_MAP_ABOVE_WATER:
@@ -2576,7 +2570,7 @@ void Map::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32&
             zoneid = area->ParentAreaID;
 }
 
-ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data, float collisionHeight)
+ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data, float collisionHeight)
 {
     ZLiquidStatus result = LIQUID_MAP_NO_WATER;
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
@@ -2586,7 +2580,7 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     uint32 mogpFlags = 0;
     bool useGridLiquid = true;
-    if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, ReqLiquidType, liquid_level, ground_level, liquid_type, mogpFlags))
+    if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, AsUnderlyingType(ReqLiquidType), liquid_level, ground_level, liquid_type, mogpFlags))
     {
         useGridLiquid = !IsInWMOInterior(mogpFlags);
         TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: %f ground: %f type: %u", liquid_level, ground_level, liquid_type);
@@ -2628,7 +2622,7 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
                 data->depth_level = ground_level;
 
                 data->entry = liquid_type;
-                data->type_flags = 1 << liquidFlagType;
+                data->type_flags = map_liquidHeaderTypeFlags(1 << liquidFlagType);
             }
 
             float delta = liquid_level - z;
@@ -2668,13 +2662,13 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
     return result;
 }
 
-void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType, float collisionHeight)
+void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType, float collisionHeight)
 {
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     GridMap* gmap = GetGrid(terrainMapId, x, y);
-    vmgr->getAreaAndLiquidData(terrainMapId, x, y, z, reqLiquidType, vmapData);
+    vmgr->getAreaAndLiquidData(terrainMapId, x, y, z, AsUnderlyingType(reqLiquidType), vmapData);
 
     uint32 gridAreaId = 0;
     float gridMapHeight = INVALID_HEIGHT;
@@ -2768,7 +2762,7 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
         data.liquidInfo->level = vmapData.liquidInfo->level;
         data.liquidInfo->depth_level = vmapData.floorZ;
         data.liquidInfo->entry = liquidType;
-        data.liquidInfo->type_flags = 1 << liquidFlagType;
+        data.liquidInfo->type_flags = map_liquidHeaderTypeFlags(1 << liquidFlagType);
 
         float delta = vmapData.liquidInfo->level - z;
         if (delta > collisionHeight)
@@ -2832,12 +2826,12 @@ bool Map::IsInWater(PhaseShift const& phaseShift, float x, float y, float pZ, Li
 {
     LiquidData liquid_status;
     LiquidData* liquid_ptr = data ? data : &liquid_status;
-    return (GetLiquidStatus(phaseShift, x, y, pZ, MAP_ALL_LIQUIDS, liquid_ptr) & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
+    return (GetLiquidStatus(phaseShift, x, y, pZ, map_liquidHeaderTypeFlags::AllLiquids, liquid_ptr) & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
 }
 
 bool Map::IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z)
 {
-    return (GetLiquidStatus(phaseShift, x, y, z, MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN) & LIQUID_MAP_UNDER_WATER) != 0;
+    return (GetLiquidStatus(phaseShift, x, y, z, map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean) & LIQUID_MAP_UNDER_WATER) != 0;
 }
 
 char const* Map::GetMapName() const

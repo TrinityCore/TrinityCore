@@ -25,6 +25,8 @@
 #include "G3D/Vector3.h"
 #include "G3D/Matrix3.h"
 
+enum class map_liquidHeaderTypeFlags : uint8;
+
 namespace MMAP
 {
     enum Spot
@@ -118,7 +120,8 @@ namespace MMAP
             void getLiquidCoord(int index, int index2, float xOffset, float yOffset, float* coord, float* v);
 
             /// Get the liquid type for a specific position
-            uint8 getLiquidType(int square, const uint8 liquid_type[16][16]);
+            map_liquidHeaderTypeFlags getLiquidType(int square, map_liquidHeaderTypeFlags const (&liquid_type)[16][16]);
+
     };
 }
 
