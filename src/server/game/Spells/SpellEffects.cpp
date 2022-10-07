@@ -2079,6 +2079,7 @@ void Spell::EffectSummonType()
 
     if (summon)
     {
+        PhasingHandler::InheritPhaseShift(summon, m_caster);
         summon->SetCreatorGUID(caster->GetGUID());
         ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
     }
