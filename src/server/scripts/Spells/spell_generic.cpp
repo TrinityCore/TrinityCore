@@ -5167,13 +5167,13 @@ class spell_gen_despawn_all_summons_owned_by_caster : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        if (Unit* caster = GetCaster())
+        {
+            Creature* target = GetHitCreature();
 
-        Creature* target = GetHitCreature();
-        if (target->GetOwner() == caster)
-            target->DespawnOrUnsummon();
+            if (target->GetOwner() == caster)
+                target->DespawnOrUnsummon();
+        }
     }
 
     void Register() override
