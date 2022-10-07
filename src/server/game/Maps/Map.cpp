@@ -2943,20 +2943,26 @@ void InstanceMap::CreateInstanceData()
     if (!i_data)
         return;
 
-    if (i_instanceLock)
+    if (!i_instanceLock || !i_instanceLock->GetInstanceId())
     {
-        MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
-        if (entries.IsInstanceIdBound() || IsRaid() || entries.MapDifficulty->IsRestoringDungeonState() || !i_owningGroupRef.isValid())
-        {
-            InstanceLockData const* lockData = i_instanceLock->GetInstanceInitializationData();
-            i_data->SetCompletedEncountersMask(lockData->CompletedEncountersMask);
-            i_data->SetEntranceLocation(lockData->EntranceWorldSafeLocId);
-            if (!lockData->Data.empty())
-            {
-                TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id).c_str(), i_InstanceId);
-                i_data->Load(lockData->Data.c_str());
-            }
-        }
+        i_data->Create();
+        return;
+    }
+
+    MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
+    if (!entries.IsInstanceIdBound() && !IsRaid() && !entries.MapDifficulty->IsRestoringDungeonState() && i_owningGroupRef.isValid())
+    {
+        i_data->Create();
+        return;
+    }
+
+    InstanceLockData const* lockData = i_instanceLock->GetInstanceInitializationData();
+    i_data->SetCompletedEncountersMask(lockData->CompletedEncountersMask);
+    i_data->SetEntranceLocation(lockData->EntranceWorldSafeLocId);
+    if (!lockData->Data.empty())
+    {
+        TC_LOG_DEBUG("maps", "Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id).c_str(), i_InstanceId);
+        i_data->Load(lockData->Data.c_str());
     }
     else
         i_data->Create();

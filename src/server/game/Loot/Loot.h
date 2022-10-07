@@ -192,10 +192,11 @@ struct TC_GAME_API LootItem
     LootItem& operator=(LootItem&&) noexcept;
     ~LootItem();
 
-    // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-    bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
+    // Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
+    bool AllowedForPlayer(Player const* player, Loot const& loot) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
+    bool HasAllowedLooter(ObjectGuid const& looter) const;
     Optional<LootSlotType> GetUiTypeForPlayer(Player const* player, Loot const& loot) const;
 };
 
@@ -298,6 +299,8 @@ struct TC_GAME_API Loot
     void OnLootOpened(Map* map, ObjectGuid looter);
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
+
+    bool HasAllowedLooter(ObjectGuid const& looter) const;
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE);
