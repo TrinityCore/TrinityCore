@@ -2091,6 +2091,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendResetInstanceSuccess(uint32 MapId) const;
         void SendResetInstanceFailed(ResetFailedReason reason, uint32 mapID) const;
         void SendResetFailedNotify(uint32 mapid) const;
+        bool IsLockedToDungeonEncounter(uint32 dungeonEncounterId) const;
 
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
         bool UpdatePosition(Position const& pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
