@@ -342,10 +342,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=83865 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44914 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 83865, 0, 0, 31, 0, 3, 44914, 0, 0, 0, 0, '', 'Sea Pup Trigger - Target Orc Sea Pup');
-
-DELETE FROM `spell_script_names` WHERE `spell_id` = 83840 AND `ScriptName` = 'spell_silverpine_despawn_all_summons_rear_guard';
+ 
+DELETE FROM `spell_script_names` WHERE `spell_id` = 83840 AND `ScriptName` = 'spell_gen_despawn_all_summons_owned_by_caster';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(83840, 'spell_silverpine_despawn_all_summons_rear_guard');
+(83840, 'spell_gen_despawn_all_summons_owned_by_caster');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=83840 AND `SourceId`=0 AND `ElseGroup`=1 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44914 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -577,7 +577,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 -- Webbed Victim
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_webbed_victim' WHERE `entry` = 44941;
 
-DELETE FROM `creature` WHERE `guid` IN (@CGUID+0, @CGUID+1, @CGUID+2, @CGUID+3, @CGUID+4, @CGUID+5, @CGUID+6, @CGUID+7, @CGUID+8);
+DELETE FROM `creature` WHERE `guid` IN (@CGUID+23, @CGUID+24, @CGUID+25, @CGUID+26, @CGUID+27, @CGUID+28, @CGUID+29, @CGUID+30, @CGUID+31);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
 (@CGUID+23, 44941, 0, 130, 226, 0, 0, 169, 0, -1, 0, 0, 1285.29, 1866.04, 24.8907, 2.51675, 300, 0, 0, 2, 0, 0, 0, 0, 0, '', 45745),
 (@CGUID+24, 44941, 0, 130, 226, 0, 0, 169, 0, -1, 0, 0, 1252.66, 1857.56, 14.3729, 3.42388, 300, 0, 0, 2, 0, 0, 0, 0, 0, '', 45745),
