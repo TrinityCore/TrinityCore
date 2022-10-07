@@ -1184,10 +1184,10 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
         switch (quest->GetQuestId())
         {
             case QUEST_LORDAERON:
-                player->CastSpell(player, SPELL_LORDAERON_AURA, true);
                 player->CastSpell(player, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
                 player->CastSpell(player, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
                 player->CastSpell(player, SPELL_SUMMON_LORDAERON_ACTORS, true);
+                player->CastSpell(player, SPELL_LORDAERON_AURA, true);
                 break;
 
             case QUEST_TO_FORSAKEN_HIGH_COMMAND:
@@ -2245,25 +2245,6 @@ class spell_silverpine_summon_lordaeron_actors : public SpellScript
     }
 };
 
-// 84173 - Despawn All Summons
-class spell_silverpine_despawn_all_summons_lordaeron : public SpellScript
-{
-    PrepareSpellScript(spell_silverpine_despawn_all_summons_lordaeron);
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        Creature* target = GetHitCreature();
-
-        if (target->GetOwner() == GetCaster())
-            target->DespawnOrUnsummon();
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_silverpine_despawn_all_summons_lordaeron::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -2289,5 +2270,4 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_sylvanas_lordaeron);
     RegisterCreatureAI(npc_silverpine_dreadguard_lordaeron);
     RegisterSpellScript(spell_silverpine_summon_lordaeron_actors);
-    RegisterSpellScript(spell_silverpine_despawn_all_summons_lordaeron);
 }
