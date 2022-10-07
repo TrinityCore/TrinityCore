@@ -806,7 +806,7 @@ class spell_dk_rime : public AuraScript
         return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_DK_FROST_SCYTHE });
     }
 
-    bool CheckProck(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         float chance = static_cast<float>(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetTarget()));
         if (eventInfo.GetSpellInfo()->Id == SPELL_DK_FROST_SCYTHE)
@@ -817,7 +817,7 @@ class spell_dk_rime : public AuraScript
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_rime::CheckProck, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_rime::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
