@@ -1867,7 +1867,7 @@ enum WaitingToExsanguinate
     SPELL_SUMMON_CROWLEY_BLOODFANG_MASTER   = 83762,
     SPELL_ARMOIRE_CAMERA_ON_CROWLEY         = 83763,
     SPELL_ARMOIRE_CAMERA_ON_BLOODFANG       = 83764,
-    SPELL_REVERSE_RIDE_VEHICLE              = 83781,
+    SPELL_RIDE_REVERSE_CAST_EXSANGUINATE    = 83781,
     SPELL_EJECT_PASSENGER_01                = 80743,
     SPELL_KILL_CREDIT_YORICK                = 83786,
     SPELL_HIDE_IN_ARMOIRE                   = 83788,
@@ -2350,7 +2350,7 @@ struct npc_silverpine_armoire : public VehicleAI
 
                             yorick->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
-                            bloodfang->CastSpell(yorick, SPELL_REVERSE_RIDE_VEHICLE, true);
+                            bloodfang->CastSpell(yorick, SPELL_RIDE_REVERSE_CAST_EXSANGUINATE, true);
 
                             _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 3, 1s + 100ms);
                         }
