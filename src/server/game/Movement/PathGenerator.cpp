@@ -40,7 +40,7 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
 
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::PathGenerator for %u", _source->GetGUID().GetCounter());
 
-    uint32 mapId = PhasingHandler::GetTerrainMapId(_source->GetPhaseShift(), _source->GetMap(), _source->GetPositionX(), _source->GetPositionY());
+    uint32 mapId = PhasingHandler::GetTerrainMapId(_source->GetPhaseShift(), _source->GetMap()->GetTerrain(), _source->GetPositionX(), _source->GetPositionY());
     if (DisableMgr::IsPathfindingEnabled(mapId))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();

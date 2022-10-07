@@ -38,7 +38,6 @@ namespace MMAP
 
     void MMapManager::InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
     {
-        childMapData = mapData;
         // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
         for (std::pair<uint32 const, std::vector<uint32>> const& mapId : mapData)
         {
@@ -119,21 +118,6 @@ namespace MMAP
     }
 
     bool MMapManager::loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y)
-    {
-        if (!loadMapImpl(basePath, mapId, x, y))
-            return false;
-
-        bool success = true;
-        auto childMaps = childMapData.find(mapId);
-        if (childMaps != childMapData.end())
-            for (uint32 childMapId : childMaps->second)
-                if (!loadMapImpl(basePath, childMapId, x, y))
-                    success = false;
-
-        return success;
-    }
-
-    bool MMapManager::loadMapImpl(std::string const& basePath, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(basePath, mapId))
@@ -229,21 +213,6 @@ namespace MMAP
 
     bool MMapManager::loadMapInstance(std::string const& basePath, uint32 mapId, uint32 instanceId)
     {
-        if (!loadMapInstanceImpl(basePath, mapId, instanceId))
-            return false;
-
-        bool success = true;
-        auto childMaps = childMapData.find(mapId);
-        if (childMaps != childMapData.end())
-            for (uint32 childMapId : childMaps->second)
-                if (!loadMapInstanceImpl(basePath, childMapId, instanceId))
-                    success = false;
-
-        return success;
-    }
-
-    bool MMapManager::loadMapInstanceImpl(std::string const& basePath, uint32 mapId, uint32 instanceId)
-    {
         if (!loadMapData(basePath, mapId))
             return false;
 
@@ -267,16 +236,6 @@ namespace MMAP
     }
 
     bool MMapManager::unloadMap(uint32 mapId, int32 x, int32 y)
-    {
-        auto childMaps = childMapData.find(mapId);
-        if (childMaps != childMapData.end())
-            for (uint32 childMapId : childMaps->second)
-                unloadMapImpl(childMapId, x, y);
-
-        return unloadMapImpl(mapId, x, y);
-    }
-
-    bool MMapManager::unloadMapImpl(uint32 mapId, int32 x, int32 y)
     {
         // check if we have this map loaded
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
@@ -320,16 +279,6 @@ namespace MMAP
     }
 
     bool MMapManager::unloadMap(uint32 mapId)
-    {
-        auto childMaps = childMapData.find(mapId);
-        if (childMaps != childMapData.end())
-            for (uint32 childMapId : childMaps->second)
-                unloadMapImpl(childMapId);
-
-        return unloadMapImpl(mapId);
-    }
-
-    bool MMapManager::unloadMapImpl(uint32 mapId)
     {
         MMapDataSet::iterator itr = loadedMMaps.find(mapId);
         if (itr == loadedMMaps.end() || !itr->second)

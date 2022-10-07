@@ -68,7 +68,6 @@ namespace VMAP
             // Tree to check collision
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
-            std::unordered_map<uint32, std::vector<uint32>> iChildMapData;
             std::unordered_map<uint32, uint32> iParentMapData;
             bool thread_safe_environment;
             // Mutex for iLoadedModelFiles
@@ -89,14 +88,11 @@ namespace VMAP
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
 
-            int loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
-            bool loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
+            LoadResult loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
 
             void unloadMap(unsigned int mapId, int x, int y) override;
-            void unloadSingleMap(uint32 mapId, int x, int y);
 
             void unloadMap(unsigned int mapId) override;
-            void unloadSingleMap(uint32 mapId);
 
             bool isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags) override ;
             /**

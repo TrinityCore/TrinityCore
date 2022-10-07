@@ -139,7 +139,7 @@ public:
         handler->PSendSysMessage("gridloc [%i, %i]", gy, gx);
 
         // calculate navmesh tile location
-        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap(), x, y);
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap()->GetTerrain(), x, y);
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(terrainMapId);
         dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(terrainMapId, player->GetInstanceId());
         if (!navmesh || !navmeshquery)
@@ -190,7 +190,7 @@ public:
     static bool HandleMmapLoadedTilesCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap(), player->GetPositionX(), player->GetPositionY());
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap()->GetTerrain(), player->GetPositionX(), player->GetPositionY());
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(terrainMapId);
         dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(terrainMapId, player->GetInstanceId());
         if (!navmesh || !navmeshquery)
@@ -216,7 +216,7 @@ public:
     static bool HandleMmapStatsCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap(), player->GetPositionX(), player->GetPositionY());
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMap()->GetTerrain(), player->GetPositionX(), player->GetPositionY());
         handler->PSendSysMessage("mmap stats:");
         handler->PSendSysMessage("  global mmap pathfinding is %sabled", DisableMgr::IsPathfindingEnabled(player->GetMapId()) ? "en" : "dis");
 

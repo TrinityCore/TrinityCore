@@ -78,6 +78,7 @@
 #include "SkillExtraItems.h"
 #include "SmartScriptMgr.h"
 #include "SpellMgr.h"
+#include "TerrainMgr.h"
 #include "TicketMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
@@ -1646,15 +1647,15 @@ void World::SetInitialWorldSettings()
     sObjectMgr->SetHighestGuids();
 
     ///- Check the existence of the map files for all races' startup areas.
-    if (!MapManager::ExistMapAndVMap(0, -6240.32f, 331.033f)
-        || !MapManager::ExistMapAndVMap(0, -8949.95f, -132.493f)
-        || !MapManager::ExistMapAndVMap(1, -618.518f, -4251.67f)
-        || !MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f)
-        || !MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f)
-        || !MapManager::ExistMapAndVMap(1, -2917.58f, -257.98f)
+    if (!TerrainMgr::ExistMapAndVMap(0, -6240.32f, 331.033f)
+        || !TerrainMgr::ExistMapAndVMap(0, -8949.95f, -132.493f)
+        || !TerrainMgr::ExistMapAndVMap(1, -618.518f, -4251.67f)
+        || !TerrainMgr::ExistMapAndVMap(0, 1676.35f, 1677.45f)
+        || !TerrainMgr::ExistMapAndVMap(1, 10311.3f, 832.463f)
+        || !TerrainMgr::ExistMapAndVMap(1, -2917.58f, -257.98f)
         || (m_int_configs[CONFIG_EXPANSION] && (
-            !MapManager::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
-            !MapManager::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
+        !TerrainMgr::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
+        !TerrainMgr::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
     {
         TC_LOG_FATAL("server.loading", "Unable to load critical files - server shutting down !!!");
         exit(1);
@@ -1711,7 +1712,8 @@ void World::SetInitialWorldSettings()
             mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
     }
 
-    sMapMgr->InitializeParentMapData(mapData);
+    sTerrainMgr.InitializeParentMapData(mapData);
+
     vmmgr2->InitializeThreadUnsafe(mapData);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
@@ -2498,6 +2500,10 @@ void World::Update(uint32 diff)
     sWorldUpdateTime.RecordUpdateTimeReset();
     sMapMgr->Update(diff);
     sWorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
+
+    sWorldUpdateTime.RecordUpdateTimeReset();
+    sTerrainMgr.Update(diff);
+    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateTerrainMgr");
 
     if (sWorld->getBoolConfig(CONFIG_AUTOBROADCAST))
     {

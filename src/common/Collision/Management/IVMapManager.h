@@ -31,19 +31,13 @@ This is the minimum interface to the VMapMamager.
 
 namespace VMAP
 {
-
-    enum VMAP_LOAD_RESULT
-    {
-        VMAP_LOAD_RESULT_ERROR,
-        VMAP_LOAD_RESULT_OK,
-        VMAP_LOAD_RESULT_IGNORED
-    };
-
     enum class LoadResult : uint8
     {
         Success,
         FileNotFound,
-        VersionMismatch
+        VersionMismatch,
+        ReadFromFileFailed,
+        DisabledInConfig
     };
 
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
@@ -83,7 +77,7 @@ namespace VMAP
 
             virtual ~IVMapManager(void) { }
 
-            virtual int loadMap(char const* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            virtual LoadResult loadMap(char const* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual LoadResult existsMap(char const* pBasePath, unsigned int pMapId, int x, int y) = 0;
 

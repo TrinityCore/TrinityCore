@@ -38,6 +38,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "Random.h"
+#include "TerrainMgr.h"
 #include "SpellAuras.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
@@ -2388,7 +2389,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                     {
                         WorldLocation graveyard = WorldLocation(instanceEntrance->target_mapId, instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z);
                         WorldSafeLocsEntry const* graveyardLocation = sObjectMgr->GetClosestGraveyard(graveyard, SendMsgTo->GetTeam(), nullptr);
-                        uint32 const zoneId = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), graveyardLocation->Continent, graveyardLocation->Loc.X, graveyardLocation->Loc.Y, graveyardLocation->Loc.Z);
+                        uint32 const zoneId = sTerrainMgr.GetZoneId(PhasingHandler::GetEmptyPhaseShift(), graveyardLocation->Continent, graveyardLocation->Loc.X, graveyardLocation->Loc.Y, graveyardLocation->Loc.Z);
 
                         for (const MemberSlot &member : this->GetMemberSlots())
                         {

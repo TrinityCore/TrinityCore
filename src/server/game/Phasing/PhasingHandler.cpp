@@ -23,11 +23,13 @@
 #include "Language.h"
 #include "Map.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PartyPackets.h"
 #include "PhaseShift.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
+#include "TerrainMgr.h"
 
 namespace
 {
@@ -56,7 +58,7 @@ inline void ForAllControlled(Unit* unit, Func&& func)
 
     for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
         if (!unit->m_SummonSlot[i].IsEmpty())
-            if (Creature* summon = unit->GetMap()->GetCreature(unit->m_SummonSlot[i]))
+            if (Creature* summon = ObjectAccessor::GetCreature(*unit, unit->m_SummonSlot[i]))
                 func(summon);
 }
 }
@@ -472,10 +474,10 @@ bool PhasingHandler::InDbPhaseShift(WorldObject const* object, uint8 phaseUseFla
     return object->GetPhaseShift().CanSee(phaseShift);
 }
 
-uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* map, float x, float y)
+uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, TerrainInfo const* terrain, float x, float y)
 {
     if (phaseShift.VisibleMapIds.empty())
-        return map->GetId();
+        return terrain->GetId();
 
     if (phaseShift.VisibleMapIds.size() == 1)
         return phaseShift.VisibleMapIds.begin()->first;
@@ -485,10 +487,10 @@ uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* 
     int32 gy = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
 
     for (std::pair<uint32 const, PhaseShift::VisibleMapIdRef> const& visibleMap : phaseShift.VisibleMapIds)
-        if (map->HasChildMapGridFile(visibleMap.first, gx, gy))
+        if (terrain->HasChildTerrainGridFile(visibleMap.first, gx, gy))
             return visibleMap.first;
 
-    return map->GetId();
+    return terrain->GetId();
 }
 
 void PhasingHandler::SetAlwaysVisible(PhaseShift& phaseShift, bool apply)

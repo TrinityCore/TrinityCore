@@ -34,6 +34,7 @@ EndScriptData */
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "TerrainMgr.h"
 #include "WorldSession.h"
 
 using namespace Trinity::ChatCommands;
@@ -200,7 +201,7 @@ public:
 
             CharacterDatabaseTransaction dummy;
             Player::SavePositionInDB(WorldLocation(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation),
-                sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid, dummy);
+                sTerrainMgr.GetZoneId(PhasingHandler::GetEmptyPhaseShift(), tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid, dummy);
         }
 
         return true;

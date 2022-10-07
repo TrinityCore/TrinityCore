@@ -101,6 +101,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "TerrainMgr.h"
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
@@ -7037,7 +7038,7 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
         if (!sMapStore.LookupEntry(map))
             return 0;
 
-        zone = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), map, posx, posy, posz);
+        zone = sTerrainMgr.GetZoneId(PhasingHandler::GetEmptyPhaseShift(), map, posx, posy, posz);
 
         if (zone > 0)
         {

@@ -3452,7 +3452,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Unit is flying. Do a VMap check to avoid moving the position into walls or obstacles
     if (path.GetPathType() & PATHFIND_NOT_USING_PATH)
     {
-        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap(), pos.m_positionX, pos.m_positionY);
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap()->GetTerrain(), pos.m_positionX, pos.m_positionY);
         col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(terrainMapId,
             pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
             destx, desty, destz + halfHeight,
@@ -3503,8 +3503,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
                 return;
 
             // fall back to gridHeight if any
-            uint32 terrainMapId = PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap(), pos.m_positionX, pos.m_positionY);
-            float gridHeight = GetMap()->GetGridHeight(terrainMapId, pos.m_positionX, pos.m_positionY);
+            float gridHeight = GetMap()->GetGridHeight(GetPhaseShift(), pos.m_positionX, pos.m_positionY);
             if (gridHeight > INVALID_HEIGHT)
                 pos.m_positionZ = gridHeight + unit->GetHoverOffset();
         }
