@@ -602,6 +602,8 @@ enum AuraType : uint32
     SPELL_AURA_508                                          = 508,
     SPELL_AURA_509                                          = 509,
     SPELL_AURA_MODIFIED_RAID_INSTANCE                       = 510, // Related to "Fated" raid affixes
+    SPELL_AURA_511                                          = 511,
+    SPELL_AURA_512                                          = 512,
     TOTAL_AURAS
 };
 

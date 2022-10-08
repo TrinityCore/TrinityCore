@@ -38,7 +38,6 @@ GameTable<GtOCTRegenHPEntry>                    sOCTRegenHPGameTable;
 GameTable<GtRegenHPPerSptEntry>                 sRegenHPPerSptGameTable;
 GameTable<GtRegenMPPerSptEntry>                 sRegenMPPerSptGameTable;
 GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
-GameTable<GtStaminaMultByILvl>                  sStaminaMultByILvlGameTable;
 GameTable<GtXpEntry>                            sXpGameTable;
 
 template<class T>
@@ -127,7 +126,6 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sRegenHPPerSptGameTable, "RegenHPPerSpt.txt");
     LOAD_GT(sRegenMPPerSptGameTable, "RegenMPPerSpt.txt");
     LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
-    LOAD_GT(sStaminaMultByILvlGameTable, "StaminaMultByILvl.txt");
     LOAD_GT(sXpGameTable, "xp.txt");
 
 #undef LOAD_GT
@@ -174,4 +172,3 @@ float GetIlvlStatMultiplier(T const* row, InventoryType invType)
 }
 
 template float GetIlvlStatMultiplier(GtCombatRatingsMultByILvl const* row, InventoryType invType);
-template float GetIlvlStatMultiplier(GtStaminaMultByILvl const* row, InventoryType invType);

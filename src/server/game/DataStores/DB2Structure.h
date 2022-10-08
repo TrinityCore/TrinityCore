@@ -66,14 +66,14 @@ struct AdventureJournalEntry
     uint8 ButtonActionType;
     int32 TextureFileDataID;
     uint16 LfgDungeonID;
-    int32 QuestID;
+    uint32 QuestID;
     uint16 BattleMasterListID;
     uint8 PriorityMin;
     uint8 PriorityMax;
     int32 ItemID;
     uint32 ItemQuantity;
     uint16 CurrencyType;
-    uint32 CurrencyQuantity;
+    uint8 CurrencyQuantity;
     uint16 UiMapID;
     std::array<uint32, 2> BonusPlayerConditionID;
     std::array<uint8, 2> BonusValue;
@@ -780,7 +780,7 @@ struct ChrSpecializationEntry
     LocalizedString FemaleName;
     LocalizedString Description;
     uint32 ID;
-    int8 ClassID;
+    uint8 ClassID;
     int8 OrderIndex;
     int8 PetTalentType;
     int8 Role;
@@ -1832,7 +1832,7 @@ struct ItemEntry
     int32 ContentTuningID;
     uint32 MaxDurability;
     uint8 AmmunitionType;
-    int32 Field_3_4_0_45704_015;
+    int32 ScalingStatValue;
     std::array<uint8, 5> DamageType;
     std::array<int16, 7> Resistances;
     std::array<uint16, 5> MinDamage;
@@ -1911,7 +1911,7 @@ struct ItemBonusTreeNodeEntry
     uint16 ChildItemBonusTreeID;
     uint16 ChildItemBonusListID;
     uint16 ChildItemLevelSelectorID;
-    int32 ParentItemBonusTreeID;
+    uint32 ParentItemBonusTreeID;
 };
 
 struct ItemChildEquipmentEntry
@@ -1919,7 +1919,7 @@ struct ItemChildEquipmentEntry
     uint32 ID;
     int32 ChildItemID;
     uint8 ChildItemEquipSlot;
-    int32 ParentItemID;
+    uint32 ParentItemID;
 };
 
 struct ItemClassEntry
@@ -1995,7 +1995,7 @@ struct ItemEffectEntry
     uint16 SpellCategoryID;
     int32 SpellID;
     uint16 ChrSpecializationID;
-    int32 ParentItemID;
+    uint32 ParentItemID;
 };
 
 #define MAX_ITEM_EXT_COST_ITEMS         5
@@ -2309,7 +2309,7 @@ struct LFGDungeonsEntry
     uint8 MinLevel;
     uint16 MaxLevel;
     uint8 TypeID;
-    int8 Subtype;
+    uint8 Subtype;
     int8 Faction;
     int32 IconTextureFileID;
     int32 RewardsBgTextureFileID;
@@ -2482,7 +2482,7 @@ struct MapDifficultyEntry
     uint8 MaxPlayers;
     uint8 ItemContext;
     uint8 Flags;
-    int32 MapID;
+    uint32 MapID;
 
     uint32 GetRaidDuration() const
     {
@@ -2785,7 +2785,7 @@ struct PvpTalentEntry
 {
     LocalizedString Description;
     uint32 ID;
-    int32 SpecID;
+    uint32 SpecID;
     int32 SpellID;
     int32 OverridesSpellID;
     int32 Flags;
@@ -2817,7 +2817,7 @@ struct PvpTierEntry
     int16 MaxRating;
     int32 PrevTier;
     int32 NextTier;
-    int8 BracketID;
+    uint8 BracketID;
     int8 Rank;
     int32 RankIconFileDataID;
 };
@@ -3075,7 +3075,7 @@ struct SpellAuraOptionsEntry
     int32 ProcCharges;
     uint16 SpellProcsPerMinuteID;
     std::array<int32, 2> ProcTypeMask;
-    int32 SpellID;
+    uint32 SpellID;
 };
 
 struct SpellAuraRestrictionsEntry
@@ -3290,7 +3290,7 @@ struct SpellLevelsEntry
     int16 MaxLevel;
     int16 SpellLevel;
     uint8 MaxPassiveAuraLevel;
-    int32 SpellID;
+    uint32 SpellID;
 };
 
 struct SpellMiscEntry
@@ -3309,7 +3309,7 @@ struct SpellMiscEntry
     int32 ContentTuningID;
     int32 ShowFutureSpellPlayerConditionID;
     std::array<int32, 14> Attributes;
-    int32 SpellID;
+    uint32 SpellID;
 };
 
 struct SpellNameEntry
@@ -3357,7 +3357,7 @@ struct SpellProcsPerMinuteModEntry
     uint8 Type;
     int16 Param;
     float Coeff;
-    int32 SpellProcsPerMinuteID;
+    uint32 SpellProcsPerMinuteID;
 };
 
 struct SpellRadiusEntry
@@ -3392,7 +3392,7 @@ struct SpellReagentsEntry
 struct SpellReagentsCurrencyEntry
 {
     uint32 ID;
-    int32 SpellID;
+    uint32 SpellID;
     uint16 CurrencyTypesID;
     uint16 CurrencyCount;
 };
@@ -3527,7 +3527,7 @@ struct SpellVisualMissileEntry
     uint32 Flags;
     uint16 SpellMissileMotionID;
     uint32 AnimKitID;
-    int16 SpellVisualMissileSetID;
+    uint32 SpellVisualMissileSetID;
 };
 
 struct SpellXSpellVisualEntry
@@ -3544,7 +3544,7 @@ struct SpellXSpellVisualEntry
     uint32 ViewerPlayerConditionID;
     uint16 CasterUnitConditionID;
     uint32 CasterPlayerConditionID;
-    int32 SpellID;
+    uint32 SpellID;
 };
 
 struct SummonPropertiesEntry
@@ -3699,7 +3699,7 @@ struct UiMapEntry
     uint32 ID;
     int32 ParentUiMapID;
     int32 Flags;
-    uint32 System;
+    int32 System;
     uint32 Type;
     int32 BountySetID;
     uint32 BountyDisplayLocation;

@@ -8786,7 +8786,7 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_RAGE:
         case UNIT_MOD_FOCUS:
         case UNIT_MOD_ENERGY:
-        case UNIT_MOD_COMBO_POINTS:
+        case UNIT_MOD_HAPPINESS:
         case UNIT_MOD_RUNES:
         case UNIT_MOD_RUNIC_POWER:
         case UNIT_MOD_SOUL_SHARDS:
@@ -8796,11 +8796,15 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_MAELSTROM:
         case UNIT_MOD_CHI:
         case UNIT_MOD_INSANITY:
-        case UNIT_MOD_BURNING_EMBERS:
+        case UNIT_MOD_COMBO_POINTS:
         case UNIT_MOD_DEMONIC_FURY:
         case UNIT_MOD_ARCANE_CHARGES:
         case UNIT_MOD_FURY:
-        case UNIT_MOD_PAIN:                UpdateMaxPower(Powers(unitMod - UNIT_MOD_POWER_START));     break;
+        case UNIT_MOD_PAIN:
+        case UNIT_MOD_UNUSED_19:
+        case UNIT_MOD_RUNE_BLOOD:
+        case UNIT_MOD_RUNE_FROST:
+        case UNIT_MOD_RUNE_UNHOLY:         UpdateMaxPower(Powers(unitMod - UNIT_MOD_POWER_START));     break;
 
         case UNIT_MOD_RESISTANCE_HOLY:
         case UNIT_MOD_RESISTANCE_FIRE:

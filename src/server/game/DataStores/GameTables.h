@@ -186,16 +186,6 @@ struct GtSpellScalingEntry
     float Gem2 = 0.0f;
     float Gem3 = 0.0f;
     float Health = 0.0f;
-    float DamageReplaceStat = 0.0f;
-    float DamageSecondary = 0.0f;
-};
-
-struct GtStaminaMultByILvl
-{
-    float ArmorMultiplier = 0.0f;
-    float WeaponMultiplier = 0.0f;
-    float TrinketMultiplier = 0.0f;
-    float JewelryMultiplier = 0.0f;
 };
 
 struct GtXpEntry
@@ -241,7 +231,6 @@ TC_GAME_API extern GameTable<GtOCTRegenHPEntry>                     sOCTRegenHPG
 TC_GAME_API extern GameTable<GtRegenHPPerSptEntry>                  sRegenHPPerSptGameTable;
 TC_GAME_API extern GameTable<GtRegenMPPerSptEntry>                  sRegenMPPerSptGameTable;
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
-TC_GAME_API extern GameTable<GtStaminaMultByILvl>                   sStaminaMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
 
 TC_GAME_API void LoadGameTables(std::string const& dataPath);
@@ -323,10 +312,6 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Gem3;
         case -6:
             return row->Health;
-        case -8:
-            return row->DamageReplaceStat;
-        case -9:
-            return row->DamageSecondary;
         default:
             break;
     }

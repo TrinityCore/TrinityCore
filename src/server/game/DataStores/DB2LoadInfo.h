@@ -85,14 +85,14 @@ struct AdventureJournalLoadInfo
             { false, FT_BYTE, "ButtonActionType" },
             { true, FT_INT, "TextureFileDataID" },
             { false, FT_SHORT, "LfgDungeonID" },
-            { true, FT_INT, "QuestID" },
+            { false, FT_INT, "QuestID" },
             { false, FT_SHORT, "BattleMasterListID" },
             { false, FT_BYTE, "PriorityMin" },
             { false, FT_BYTE, "PriorityMax" },
             { true, FT_INT, "ItemID" },
             { false, FT_INT, "ItemQuantity" },
             { false, FT_SHORT, "CurrencyType" },
-            { false, FT_INT, "CurrencyQuantity" },
+            { false, FT_BYTE, "CurrencyQuantity" },
             { false, FT_SHORT, "UiMapID" },
             { false, FT_INT, "BonusPlayerConditionID1" },
             { false, FT_INT, "BonusPlayerConditionID2" },
@@ -1279,7 +1279,7 @@ struct ChrSpecializationLoadInfo
             { false, FT_STRING, "FemaleName" },
             { false, FT_STRING, "Description" },
             { false, FT_INT, "ID" },
-            { true, FT_BYTE, "ClassID" },
+            { false, FT_BYTE, "ClassID" },
             { true, FT_BYTE, "OrderIndex" },
             { true, FT_BYTE, "PetTalentType" },
             { true, FT_BYTE, "Role" },
@@ -2656,7 +2656,7 @@ struct ItemLoadInfo
             { true, FT_INT, "ContentTuningID" },
             { false, FT_INT, "MaxDurability" },
             { false, FT_BYTE, "AmmunitionType" },
-            { true, FT_INT, "Field_3_4_0_45704_015" },
+            { true, FT_INT, "ScalingStatValue" },
             { false, FT_BYTE, "DamageType1" },
             { false, FT_BYTE, "DamageType2" },
             { false, FT_BYTE, "DamageType3" },
@@ -2820,7 +2820,7 @@ struct ItemBonusTreeNodeLoadInfo
             { false, FT_SHORT, "ChildItemBonusTreeID" },
             { false, FT_SHORT, "ChildItemBonusListID" },
             { false, FT_SHORT, "ChildItemLevelSelectorID" },
-            { true, FT_INT, "ParentItemBonusTreeID" },
+            { false, FT_INT, "ParentItemBonusTreeID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), ItemBonusTreeNodeMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
         return &loadInfo;
@@ -2836,7 +2836,7 @@ struct ItemChildEquipmentLoadInfo
             { false, FT_INT, "ID" },
             { true, FT_INT, "ChildItemID" },
             { false, FT_BYTE, "ChildItemEquipSlot" },
-            { true, FT_INT, "ParentItemID" },
+            { false, FT_INT, "ParentItemID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), ItemChildEquipmentMeta::Instance(), HOTFIX_SEL_ITEM_CHILD_EQUIPMENT);
         return &loadInfo;
@@ -3014,7 +3014,7 @@ struct ItemEffectLoadInfo
             { false, FT_SHORT, "SpellCategoryID" },
             { true, FT_INT, "SpellID" },
             { false, FT_SHORT, "ChrSpecializationID" },
-            { true, FT_INT, "ParentItemID" },
+            { false, FT_INT, "ParentItemID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), ItemEffectMeta::Instance(), HOTFIX_SEL_ITEM_EFFECT);
         return &loadInfo;
@@ -3641,7 +3641,7 @@ struct LfgDungeonsLoadInfo
             { false, FT_BYTE, "MinLevel" },
             { false, FT_SHORT, "MaxLevel" },
             { false, FT_BYTE, "TypeID" },
-            { true, FT_BYTE, "Subtype" },
+            { false, FT_BYTE, "Subtype" },
             { true, FT_BYTE, "Faction" },
             { true, FT_INT, "IconTextureFileID" },
             { true, FT_INT, "RewardsBgTextureFileID" },
@@ -3904,7 +3904,7 @@ struct MapDifficultyLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "ItemContext" },
             { false, FT_BYTE, "Flags" },
-            { true, FT_INT, "MapID" },
+            { false, FT_INT, "MapID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), MapDifficultyMeta::Instance(), HOTFIX_SEL_MAP_DIFFICULTY);
         return &loadInfo;
@@ -4446,7 +4446,7 @@ struct PvpTalentLoadInfo
         {
             { false, FT_STRING, "Description" },
             { false, FT_INT, "ID" },
-            { true, FT_INT, "SpecID" },
+            { false, FT_INT, "SpecID" },
             { true, FT_INT, "SpellID" },
             { true, FT_INT, "OverridesSpellID" },
             { true, FT_INT, "Flags" },
@@ -4502,7 +4502,7 @@ struct PvpTierLoadInfo
             { true, FT_SHORT, "MaxRating" },
             { true, FT_INT, "PrevTier" },
             { true, FT_INT, "NextTier" },
-            { true, FT_BYTE, "BracketID" },
+            { false, FT_BYTE, "BracketID" },
             { true, FT_BYTE, "Rank" },
             { true, FT_INT, "RankIconFileDataID" },
         };
@@ -4991,7 +4991,7 @@ struct SpellAuraOptionsLoadInfo
             { false, FT_SHORT, "SpellProcsPerMinuteID" },
             { true, FT_INT, "ProcTypeMask1" },
             { true, FT_INT, "ProcTypeMask2" },
-            { true, FT_INT, "SpellID" },
+            { false, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SpellAuraOptionsMeta::Instance(), HOTFIX_SEL_SPELL_AURA_OPTIONS);
         return &loadInfo;
@@ -5129,7 +5129,7 @@ struct SpellCooldownsLoadInfo
             { true, FT_INT, "CategoryRecoveryTime" },
             { true, FT_INT, "RecoveryTime" },
             { true, FT_INT, "StartRecoveryTime" },
-            { true, FT_INT, "SpellID" },
+            { false, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SpellCooldownsMeta::Instance(), HOTFIX_SEL_SPELL_COOLDOWNS);
         return &loadInfo;
@@ -5379,7 +5379,7 @@ struct SpellLevelsLoadInfo
             { true, FT_SHORT, "MaxLevel" },
             { true, FT_SHORT, "SpellLevel" },
             { false, FT_BYTE, "MaxPassiveAuraLevel" },
-            { true, FT_INT, "SpellID" },
+            { false, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SpellLevelsMeta::Instance(), HOTFIX_SEL_SPELL_LEVELS);
         return &loadInfo;
@@ -5419,7 +5419,7 @@ struct SpellMiscLoadInfo
             { true, FT_INT, "Attributes12" },
             { true, FT_INT, "Attributes13" },
             { true, FT_INT, "Attributes14" },
-            { true, FT_INT, "SpellID" },
+            { false, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SpellMiscMeta::Instance(), HOTFIX_SEL_SPELL_MISC);
         return &loadInfo;
@@ -5506,7 +5506,7 @@ struct SpellProcsPerMinuteModLoadInfo
             { false, FT_BYTE, "Type" },
             { true, FT_SHORT, "Param" },
             { false, FT_FLOAT, "Coeff" },
-            { true, FT_INT, "SpellProcsPerMinuteID" },
+            { false, FT_INT, "SpellProcsPerMinuteID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SpellProcsPerMinuteModMeta::Instance(), HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD);
         return &loadInfo;
@@ -5587,7 +5587,7 @@ struct SpellReagentsCurrencyLoadInfo
         static constexpr DB2FieldMeta fields[] =
         {
             { false, FT_INT, "ID" },
-            { true, FT_INT, "SpellID" },
+            { false, FT_INT, "SpellID" },
             { false, FT_SHORT, "CurrencyTypesID" },
             { false, FT_SHORT, "CurrencyCount" },
         };
@@ -5811,7 +5811,7 @@ struct SpellVisualMissileLoadInfo
             { false, FT_INT, "Flags" },
             { false, FT_SHORT, "SpellMissileMotionID" },
             { false, FT_INT, "AnimKitID" },
-            { true, FT_SHORT, "SpellVisualMissileSetID" },
+            { false, FT_INT, "SpellVisualMissileSetID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SpellVisualMissileMeta::Instance(), HOTFIX_SEL_SPELL_VISUAL_MISSILE);
         return &loadInfo;
@@ -5836,7 +5836,7 @@ struct SpellXSpellVisualLoadInfo
             { false, FT_INT, "ViewerPlayerConditionID" },
             { false, FT_SHORT, "CasterUnitConditionID" },
             { false, FT_INT, "CasterPlayerConditionID" },
-            { true, FT_INT, "SpellID" },
+            { false, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SpellXSpellVisualMeta::Instance(), HOTFIX_SEL_SPELL_X_SPELL_VISUAL);
         return &loadInfo;
@@ -6148,7 +6148,7 @@ struct UiMapLoadInfo
             { false, FT_INT, "ID" },
             { true, FT_INT, "ParentUiMapID" },
             { true, FT_INT, "Flags" },
-            { false, FT_INT, "System" },
+            { true, FT_INT, "System" },
             { false, FT_INT, "Type" },
             { true, FT_INT, "BountySetID" },
             { false, FT_INT, "BountyDisplayLocation" },

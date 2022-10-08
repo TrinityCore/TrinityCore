@@ -584,11 +584,6 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
                     if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
                         value *= GetIlvlStatMultiplier(ratingMult, InventoryType(itemSparse->InventoryType));
-
-            if (Scaling.Class == -6)
-                if (GtStaminaMultByILvl const* staminaMult = sStaminaMultByILvlGameTable.GetRow(effectiveItemLevel))
-                    if (ItemSparseEntry const* itemSparse = sItemSparseStore.LookupEntry(itemId))
-                        value *= GetIlvlStatMultiplier(staminaMult, InventoryType(itemSparse->InventoryType));
         }
 
         value *= Scaling.Coefficient;
