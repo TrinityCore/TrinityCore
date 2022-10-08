@@ -70,6 +70,7 @@ struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
 struct Position;
+struct WorldStateTemplate;
 
 enum BattlegroundTypeId : uint32;
 enum ContentLevels : uint8;
@@ -792,6 +793,20 @@ class TC_GAME_API GroupScript : public ScriptObject
         virtual void OnDisband(Group* /*group*/) { }
 };
 
+class TC_GAME_API WorldStateScript : public ScriptObject
+{
+    protected:
+
+        WorldStateScript(char const* name);
+
+    public:
+
+        ~WorldStateScript();
+
+        // Called when worldstate changes value, map is optional
+        virtual void OnValueChange([[maybe_unused]] int32 worldStateId, [[maybe_unused]] int32 oldValue, [[maybe_unused]] int32 newValue, [[maybe_unused]] Map const* map) { }
+};
+
 // Manages registration, loading, and execution of scripts.
 class TC_GAME_API ScriptMgr
 {
@@ -1045,6 +1060,10 @@ class TC_GAME_API ScriptMgr
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+
+    public: /* WorldStateScript */
+
+        void OnWorldStateValueChange(WorldStateTemplate const* worldStateTemplate, int32 oldValue, int32 newValue, Map const* map);
 
     private:
         uint32 _scriptCount;

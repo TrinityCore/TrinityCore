@@ -8800,6 +8800,8 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     packet.AreaID = zoneId;
     packet.SubareaID = areaId;
 
+    sWorldStateMgr->FillInitialWorldStates(packet, GetMap());
+
     packet.Worldstates.emplace_back(2264, 0);              // 1
     packet.Worldstates.emplace_back(2263, 0);              // 2
     packet.Worldstates.emplace_back(2262, 0);              // 3
@@ -9419,13 +9421,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             packet.Worldstates.emplace_back(0x915, 0x0);           // 10
             break;
     }
-
-    // insert realm wide world states
-    sWorldStateMgr->AppendRealmWorldStates(packet.Worldstates);
-
-    // insert map world states
-    if (Map* map = GetMap())
-        map->AppendWorldStates(packet.Worldstates);
 
     SendDirectMessage(packet.Write());
     SendBGWeekendWorldStates();

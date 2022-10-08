@@ -235,7 +235,7 @@ struct boss_magmaw : public BossAI
 
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_PRIORITY_MAGMAW);
-        instance->instance->SetWorldState(WORLD_STATE_ID_PARASITE_EVENING, 0);
+        instance->instance->SetWorldStateValue(WORLD_STATE_ID_PARASITE_EVENING, 0);
         me->SetReactState(REACT_AGGRESSIVE);
 
         events.SetPhase(PHASE_COMBAT);
@@ -702,7 +702,7 @@ struct npc_magmaw_lava_parasite : public ScriptedAI
             me->SetReactState(REACT_PASSIVE);
             me->DespawnOrUnsummon(4s);
             if (!_instance->instance->GetWorldStateValue(WORLD_STATE_ID_PARASITE_EVENING))
-                _instance->instance->SetWorldState(WORLD_STATE_ID_PARASITE_EVENING, 1);
+                _instance->instance->SetWorldStateValue(WORLD_STATE_ID_PARASITE_EVENING, 1);
         }
     }
 

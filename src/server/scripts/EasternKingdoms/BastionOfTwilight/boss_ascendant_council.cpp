@@ -333,7 +333,7 @@ struct boss_ascendant_council_controller final : public BossAI
                     break;
 
                 instance->SetBossState(DATA_ASCENDANT_COUNCIL, IN_PROGRESS);
-                instance->instance->SetWorldState(WORLD_STATE_ID_ELEMENTARY, 0);
+                instance->instance->SetWorldStateValue(WORLD_STATE_ID_ELEMENTARY, 0);
 
                 if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
                 {
@@ -1325,7 +1325,7 @@ struct npc_elementium_monstrosity final : public ScriptedAI
         {
             ++_liquidIceCount;
             if (_liquidIceCount == 2)
-                _instance->instance->SetWorldState(WORLD_STATE_ID_ELEMENTARY, 1);
+                _instance->instance->SetWorldStateValue(WORLD_STATE_ID_ELEMENTARY, 1);
         }
     }
 

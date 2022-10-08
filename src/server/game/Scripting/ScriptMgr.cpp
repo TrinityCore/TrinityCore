@@ -105,6 +105,10 @@ template<>
 struct is_script_database_bound<WorldMapScript>
     : std::true_type { };
 
+template<>
+struct is_script_database_bound<WorldStateScript>
+    : std::true_type { };
+
 enum Spells
 {
     SPELL_HOTSWAP_VISUAL_SPELL_EFFECT = 40162 // 59084
@@ -1919,6 +1923,7 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
 }
 
+// Quest
 void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
@@ -2072,6 +2077,15 @@ void ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage)
 void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage);
+}
+
+// WorldState
+void ScriptMgr::OnWorldStateValueChange(WorldStateTemplate const* worldStateTemplate, int32 oldValue, int32 newValue, Map const* map)
+{
+    ASSERT(worldStateTemplate);
+
+    GET_SCRIPT(WorldStateScript, worldStateTemplate->ScriptId, tmpscript);
+    tmpscript->OnValueChange(worldStateTemplate->Id, oldValue, newValue, map);
 }
 
 SpellScriptLoader::SpellScriptLoader(char const* name)
@@ -2264,6 +2278,14 @@ GroupScript::GroupScript(char const* name)
     ScriptRegistry<GroupScript>::Instance()->AddScript(this);
 }
 
+WorldStateScript::WorldStateScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<WorldStateScript>::Instance()->AddScript(this);
+}
+
+WorldStateScript::~WorldStateScript() = default;
+
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;
 template class TC_GAME_API ScriptRegistry<ServerScript>;
@@ -2291,3 +2313,4 @@ template class TC_GAME_API ScriptRegistry<GuildScript>;
 template class TC_GAME_API ScriptRegistry<GroupScript>;
 template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
+template class TC_GAME_API ScriptRegistry<WorldStateScript>;

@@ -31,6 +31,7 @@
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "Timer.h"
+#include "WorldStateDefines.h"
 #include "Transaction.h"
 #include "Weather.h"
 #include <boost/heap/fibonacci_heap.hpp>
@@ -648,11 +649,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         typedef std::function<void(Map*)> FarSpellCallback;
         void AddFarSpellCallback(FarSpellCallback&& callback);
 
-        // Sets and stores world state values that will be used by the AchievementMgr to check additional criterias that require world state values
-        void SetWorldState(uint32 worldStateId, int32 value, bool withUpdatePacket = true);
-        int32 GetWorldStateValue(uint32 worldStateId) const;
-        void AppendWorldStates(std::vector<WorldPackets::WorldState::WorldStateInfo>& worldStates);
-
     private:
         // Type specific code for add/remove to/from grid
         template<class T>
@@ -739,9 +735,18 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         std::unordered_set<Object*> _updateObjects;
 
-        std::unordered_map<uint32 /*worldStateId*/, int32 /*value*/> _worldStates;
-
         MPSCQueue<FarSpellCallback> _farSpellCallbacks;
+
+        /*********************************************************/
+        /***                   WorldStates                     ***/
+        /*********************************************************/
+    public:
+        int32 GetWorldStateValue(int32 worldStateId) const;
+        void SetWorldStateValue(int32 worldStateId, int32 value);
+        WorldStateValueContainer const& GetWorldStateValues() const { return _worldStateValues; }
+
+    private:
+        WorldStateValueContainer _worldStateValues;
 };
 
 enum InstanceResetMethod

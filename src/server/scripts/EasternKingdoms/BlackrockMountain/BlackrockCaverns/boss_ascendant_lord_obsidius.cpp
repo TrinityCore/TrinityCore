@@ -109,7 +109,7 @@ struct boss_ascendant_lord_obsidius : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        instance->instance->SetWorldState(WORLD_STATE_ID_ASCENDANT_DESCENDING, 0);
+        instance->instance->SetWorldStateValue(WORLD_STATE_ID_ASCENDANT_DESCENDING, 0);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_STONE_BLOW, 8s);
         events.ScheduleEvent(EVENT_TWILIGHT_CORRUPTION, 12s);
@@ -321,7 +321,7 @@ class spell_obsidius_crepuscular_veil : public SpellScript
         if (aura->GetStackAmount() == GetSpellInfo()->StackAmount)
             if (InstanceScript* instance = target->GetInstanceScript())
                 if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_ASCENDANT_DESCENDING))
-                    instance->instance->SetWorldState(WORLD_STATE_ID_ASCENDANT_DESCENDING, 1);
+                    instance->instance->SetWorldStateValue(WORLD_STATE_ID_ASCENDANT_DESCENDING, 1);
     }
 
     void Register() override

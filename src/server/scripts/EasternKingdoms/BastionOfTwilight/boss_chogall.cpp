@@ -239,7 +239,7 @@ namespace CorruptionHandler
         if (power > CORRUPTION_ACHIEVEMENT_CAP)
             if (InstanceScript* instance = target->GetInstanceScript())
                 if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU))
-                    instance->instance->SetWorldState(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU, 1);
+                    instance->instance->SetWorldStateValue(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU, 1);
     }
 }
 
@@ -299,7 +299,7 @@ struct boss_chogall final : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        instance->instance->SetWorldState(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU, 0);
+        instance->instance->SetWorldStateValue(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU, 0);
         DoCastSelf(SPELL_CORRUPTED_BLOOD);
         events.SetPhase(PHASE_1);
         events.ScheduleEvent(EVENT_FURY_OF_CHOGALL, 33s);

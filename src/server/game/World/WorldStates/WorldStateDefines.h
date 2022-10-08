@@ -15,36 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WorldStateMgr_h__
-#define WorldStateMgr_h__
+#ifndef WorldStateDefines_h__
+#define WorldStateDefines_h__
 
 #include "Define.h"
-#include "WorldStateDefines.h"
+#include "Optional.h"
+#include <unordered_map>
 
-class Map;
-
-namespace WorldPackets::WorldState
+struct WorldStateTemplate
 {
-    class InitWorldStates;
-}
+    int32 Id = 0;
+    int32 DefaultValue = 0;
+    uint32 ScriptId = 0;
 
-class TC_GAME_API WorldStateMgr
-{
-public:
-    static WorldStateMgr* instance();
-
-    void LoadFromDB();
-
-    WorldStateTemplate const* GetWorldStateTemplate(int32 worldStateId) const;
-
-    int32 GetValue(int32 worldStateId, Map const* map) const;
-    void SetValue(int32 worldStateId, int32 value, Map* map);
-
-    WorldStateValueContainer GetInitialWorldStatesForMap(Map const* map) const;
-
-    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& initWorldStates, Map const* map) const;
+    Optional<uint32> MapId;
 };
 
-#define sWorldStateMgr WorldStateMgr::instance()
+using WorldStateValueContainer = std::unordered_map<int32 /*worldStateId*/, int32 /*value*/>;
 
-#endif
+#endif // WorldStateDefines_h__

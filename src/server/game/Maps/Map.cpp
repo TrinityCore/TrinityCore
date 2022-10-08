@@ -145,9 +145,9 @@ i_scriptLock(false), _respawnCheckTimer(0)
 
     MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), i_InstanceId);
 
-    sScriptMgr->OnCreateMap(this);
+    _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
 
-    sWorldStateMgr->FillDefaultWorldStatesForMap(_worldStates, id);
+    sScriptMgr->OnCreateMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -3524,36 +3524,26 @@ void Map::UpdateAreaDependentAuras()
             }
 }
 
-void Map::SetWorldState(uint32 worldStateId, int32 value, bool withUpdatePacket /*= true*/)
+int32 Map::GetWorldStateValue(int32 worldStateId) const
 {
-    _worldStates[worldStateId] = value;
-
-    if (!withUpdatePacket)
-        return;
-
-    // Notify all players on the map
-    WorldPackets::WorldState::UpdateWorldState updateWorldState;
-    updateWorldState.VariableID = worldStateId;
-    updateWorldState.Value = value;
-    updateWorldState.Write();
-
-    Map::PlayerList const& players = GetPlayers();
-    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        if (Player* player = itr->GetSource())
-            player->SendDirectMessage(updateWorldState.GetRawPacket());
-}
-
-int32 Map::GetWorldStateValue(uint32 worldStateId) const
-{
-    std::unordered_map<uint32, int32>::const_iterator itr = _worldStates.find(worldStateId);
-    if (itr != _worldStates.end())
-        return itr->second;
+    if (int32 const* value = Trinity::Containers::MapGetValuePtr(_worldStateValues, worldStateId))
+        return *value;
 
     return 0;
 }
 
-void Map::AppendWorldStates(std::vector<WorldPackets::WorldState::WorldStateInfo>& worldStates)
+void Map::SetWorldStateValue(int32 worldStateId, int32 value)
 {
-    for (std::pair<uint32, int32> worldState : _worldStates)
-        worldStates.emplace_back(worldState.first, worldState.second);
+    auto itr = _worldStateValues.try_emplace(worldStateId, 0).first;
+    int32 oldValue = itr->second;
+    itr->second = value;
+
+    if (WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId))
+        sScriptMgr->OnWorldStateValueChange(worldStateTemplate, oldValue, value, this);
+
+    // Broadcast update to all players on the map
+    WorldPackets::WorldState::UpdateWorldState updateWorldState;
+    updateWorldState.VariableID = worldStateId;
+    updateWorldState.Value = value;
+    SendToPlayers(updateWorldState.Write());
 }
