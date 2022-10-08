@@ -8,10 +8,12 @@ SET @OGUID := 239587;
 -- 
 -- The Sepulcher
 
+-- Detect: Quest Invis Zone 4
 DELETE FROM `spell_area` WHERE `spell` = 84184 AND `area` = 228 AND `quest_start` = 27098 AND `aura_spell`=0 AND `racemask` = 0 AND `gender` = 2;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
 (84184, 228, 27098, 0, 0, 0, 2, 3, 66, 1);
 
+-- Detect: Quest Invis Zone 8
 DELETE FROM `spell_area` WHERE `spell` = 84706 AND `area` = 228 AND `quest_start` = 27098 AND `aura_spell`=0 AND `racemask` = 0 AND `gender` = 2;
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
 (84706, 228, 27098, 27290, 0, 0, 2, 3, 66, 11);
