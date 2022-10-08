@@ -79,7 +79,7 @@ struct is_script_database_bound<AreaTriggerScript>
 
 template<>
 struct is_script_database_bound<BattlefieldScript>
-        : std::true_type { };
+    : std::true_type { };
 
 template<>
 struct is_script_database_bound<BattlegroundScript>
@@ -611,7 +611,6 @@ class ScriptRegistrySwapHooks<GameObjectScript, Base>
 template<typename Base>
 class ScriptRegistrySwapHooks<BattlefieldScript, Base>
         : public UnsupportedScriptRegistrySwapHooks<Base> { };
-
 
 /// This hook is responsible for swapping BattlegroundScript's
 template<typename Base>
