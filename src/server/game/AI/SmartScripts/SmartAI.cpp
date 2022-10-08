@@ -753,7 +753,7 @@ void SmartAI::SetRun(bool run)
     me->SetWalk(!run);
     _run = run;
     for (auto& node : _path.Nodes)
-        node.moveType = run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+        node.MoveType = run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 }
 
 void SmartAI::SetDisableGravity(bool fly)

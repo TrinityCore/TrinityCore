@@ -142,7 +142,7 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
         ASSERT(id < _path.Nodes.size(), "EscortAI::MovementInform: referenced movement id (%u) points to non-existing node in loaded path (%s)", id, me->GetGUID().ToString().c_str());
         WaypointNode waypoint = _path.Nodes[id];
 
-        TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::MovementInform: waypoint node %u reached (%s)", waypoint.id, me->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::MovementInform: waypoint node %u reached (%s)", waypoint.Id, me->GetGUID().ToString().c_str());
 
         // last point
         if (id == _path.Nodes.size() - 1)
@@ -328,7 +328,7 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
     }
 
     TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::Start: (script: %s) started with %u waypoints. ActiveAttacker = %d, Run = %d, Player = %s (%s)",
-        me->GetScriptName().c_str(), uint32(_path.nodes.size()), _activeAttacker, _running, _playerGUID.ToString().c_str(), me->GetGUID().ToString().c_str());
+        me->GetScriptName().c_str(), uint32(_path.Nodes.size()), _activeAttacker, _running, _playerGUID.ToString().c_str(), me->GetGUID().ToString().c_str());
 
     // set initial speed
     me->SetWalk(!_running);
@@ -443,8 +443,8 @@ void EscortAI::FillPointMovementListForCreature()
     for (WaypointNode const& value : path->Nodes)
     {
         WaypointNode node = value;
-        Trinity::NormalizeMapCoord(node.x);
-        Trinity::NormalizeMapCoord(node.y);
+        Trinity::NormalizeMapCoord(node.X);
+        Trinity::NormalizeMapCoord(node.Y);
         node.MoveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 
         _path.Nodes.push_back(std::move(node));
