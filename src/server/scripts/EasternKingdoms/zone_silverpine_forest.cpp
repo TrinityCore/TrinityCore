@@ -1626,20 +1626,20 @@ class spell_silverpine_bond_of_the_valkyr : public AuraScript
         return ValidateSpellInfo({ SPELL_SUMMON_AGATHA_FENRIS });
     }
 
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_SUMMON_AGATHA_FENRIS, true);
     }
 
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAura(SPELL_SUMMON_AGATHA_FENRIS);
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_silverpine_bond_of_the_valkyr::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_silverpine_bond_of_the_valkyr::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_silverpine_bond_of_the_valkyr::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_silverpine_bond_of_the_valkyr::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1774,12 +1774,8 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-        {
-            if (!player->HasAura(SPELL_SUMMON_AGATHA_FENRIS) || !player->IsInWorld())
-                me->DespawnOrUnsummon();
-        }
-        else
+        // Note: SummonPropertiesFlags::DespawnOnSummonerDeath, SummonPropertiesFlags::DespawnOnSummonerLogout and SummonPropertiesFlags::DespawnWhenExpired are NYI.
+        if (!me->GetOwner()->IsAlive() || !me->GetOwner()->IsInWorld() || !me->GetOwner()->HasAura(SPELL_SUMMON_AGATHA_FENRIS))
             me->DespawnOrUnsummon();
 
         _events.Update(diff);
@@ -1926,7 +1922,7 @@ class spell_silverpine_notify_agatha : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetExplTargetUnit();
 
-        if (caster && target)
+        if (caster)
         {
             _ownerGUID = target->ToPlayer()->GetGUID();
 
@@ -2005,7 +2001,7 @@ class spell_silverpine_forsaken_trooper_masterscript_fenris_isle : public SpellS
 
         if (Creature* hillsbradRefugee = unit->ToCreature())
         {
-            uint32 spellId = 0;
+            uint32 spellId = unit->GetGender() == GENDER_MALE ? SPELL_FORSAKEN_TROOPER_MALE_01_F : SPELL_FORSAKEN_TROOPER_FEMALE_01_F;
 
             switch (hillsbradRefugee->GetDisplayId())
             {
@@ -2099,6 +2095,9 @@ struct npc_silverpine_hillsbrad_refugee : public ScriptedAI
     {
         _events.Update(diff);
 
+        if (!UpdateVictim())
+            return;
+
         while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
@@ -2111,9 +2110,6 @@ struct npc_silverpine_hillsbrad_refugee : public ScriptedAI
                     break;
             }
         }
-
-        if (!UpdateVictim())
-            return;
 
         DoMeleeAttackIfReady();
     }
@@ -2146,12 +2142,15 @@ struct npc_silverpine_forsaken_trooper_fenris_isle : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summoner) override
     {
+        if (!summoner->IsCreature())
+            return;
+
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 
         me->SetReactState(REACT_PASSIVE);
 
-        uint32 displayId = 0;
+        uint32 displayId = me->GetGender() == GENDER_MALE ? DISPLAY_MALE_01_D_F : DISPLAY_FEMALE_01_D_F;
 
         switch (summoner->ToCreature()->GetDisplayId())
         {
@@ -2275,31 +2274,49 @@ private:
     EventMap _events;
 };
 
-// 80515 - Undying Frenzy
-class spell_silverpine_undying_frenzy : public AuraScript
+// 45032 - Fenris Keep Stalker
+struct npc_silverpine_fenris_keep_stalker : public ScriptedAI
 {
-    PrepareAuraScript(spell_silverpine_undying_frenzy);
+    npc_silverpine_fenris_keep_stalker(Creature* creature) : ScriptedAI(creature), eventIsTriggered(false) { }
 
-    bool Validate(SpellInfo const* spellInfo) override
+    void Reset() override
     {
-        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
+        eventIsTriggered = false;
     }
 
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        GetTarget()->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_1).TriggerSpell, true);
+        switch (spellInfo->Id)
+        {
+            case SPELL_GENERAL_TRIGGER_84107:
+                Reset();
+                break;
+            default:
+                break;
+        }
     }
 
-    void Register() override
+    void OnTriggerNoEscape(ObjectGuid playerGuid)
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_silverpine_undying_frenzy::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        if (eventIsTriggered)
+            return;
+
+        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+        {
+            eventIsTriggered = true;
+
+            me->CastSpell(player, SPELL_FORCE_CAST_FENRIS_CAMERA, true);
+
+            player->NearTeleportTo(NoEscapeStartPos, true);
+        }
     }
+
+private:
+    bool eventIsTriggered;
 };
 
 enum AtNoEscape
 {
-    QUEST_NO_ESCAPE                             = 27099,
-
     NPC_FENRIS_KEEP_STALKER                     = 45032
 };
 
@@ -2320,8 +2337,8 @@ public:
             {
                 if (Creature* fenrisStalker = player->FindNearestCreature(NPC_FENRIS_KEEP_STALKER, 50.0f, true))
                 {
-                    if (fenrisStalker->IsAIEnabled())
-                        fenrisStalker->AI()->SetGUID(player->GetGUID());
+                    if (npc_silverpine_fenris_keep_stalker* fenrisKeepStalkerAI = CAST_AI(npc_silverpine_fenris_keep_stalker, fenrisStalker->AI()))
+                        fenrisKeepStalkerAI->OnTriggerNoEscape(player->GetGUID());
                 }
             }
         }
@@ -2382,101 +2399,11 @@ class spell_silverpine_summon_fenris_keep_actors : public SpellScript
     }
 };
 
-// 84065 - Despawn All Summons
-class spell_silverpine_despawn_all_summons_fenris_keep : public SpellScript
-{
-    PrepareSpellScript(spell_silverpine_despawn_all_summons_fenris_keep);
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        Creature* target = GetHitCreature();
-
-        if (target->GetOwner() == GetCaster())
-            target->DespawnOrUnsummon();
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_silverpine_despawn_all_summons_fenris_keep::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 Position const NoEscapeStartPos = { 981.782f, 670.953f, 74.898f, 3.1887f };
 
 enum FenrisKeepStalker
 {
-    SPELL_FORCE_CAST_FENRIS_CAMERA              = 84113,
-
-    EVENT_RESET_SCENE_FENRIS                    = 1,
-
-    ACTION_START_SCENE_FENRIS                   = 1
-};
-
-// 45032 - Fenris Keep Stalker
-struct npc_silverpine_fenris_keep_stalker : public ScriptedAI
-{
-    npc_silverpine_fenris_keep_stalker(Creature* creature) : ScriptedAI(creature) { }
-
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
-    {
-        if (!_playerGUID.IsEmpty())
-            return;
-
-        _playerGUID = guid;
-
-        DoAction(ACTION_START_SCENE_FENRIS);
-    }
-
-    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-    {
-        switch (spellInfo->Id)
-        {
-            case SPELL_GENERAL_TRIGGER_84107:
-                _events.RescheduleEvent(EVENT_RESET_SCENE_FENRIS, 30s);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void DoAction(int32 param) override
-    {
-        switch (param)
-        {
-            case ACTION_START_SCENE_FENRIS:
-            {
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                {
-                    me->CastSpell(player, SPELL_FORCE_CAST_FENRIS_CAMERA, true);
-                    player->NearTeleportTo(NoEscapeStartPos, true);
-                }
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_RESET_SCENE_FENRIS:
-                    Reset();
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-private:
-    EventMap _events;
-    ObjectGuid _playerGUID;
+    SPELL_FORCE_CAST_FENRIS_CAMERA              = 84113
 };
 
 Position const CameraFrontyardPos = { 980.7f, 689.14f, 76.9f };
@@ -2510,8 +2437,7 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
         {
             _playerGUID = player->GetGUID();
 
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                player->EnterVehicle(me, SEAT_FENRIS_CAMERA);
+            player->EnterVehicle(me, SEAT_FENRIS_CAMERA);
         }
 
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
@@ -2540,8 +2466,7 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
             {
                 _events.ScheduleEvent(EVENT_MOVE_TO_START_POINT, 10ms);
 
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    me->CastSpell(player, SPELL_SUMMON_FENRIS_ACTORS, true);
+                me->CastSpell(passenger, SPELL_SUMMON_FENRIS_ACTORS, true);
             }
             else if (seatId == SEAT_FENRIS_CAMERA_FORCE)
                 passenger->SetFacingTo(0.0f);
@@ -2917,10 +2842,8 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_hillsbrad_refugee);
     RegisterCreatureAI(npc_silverpine_forsaken_trooper_fenris_isle);
     RegisterCreatureAI(npc_silverpine_worgen_sentry);
-    RegisterSpellScript(spell_silverpine_undying_frenzy);
     new at_silverpine_no_escape();
     RegisterSpellScript(spell_silverpine_summon_fenris_keep_actors);
-    RegisterSpellScript(spell_silverpine_despawn_all_summons_fenris_keep);
     RegisterCreatureAI(npc_silverpine_fenris_keep_stalker);
     RegisterCreatureAI(npc_silverpine_fenris_keep_camera);
     RegisterCreatureAI(npc_silverpine_crowley_bloodfang_fenris_keep);

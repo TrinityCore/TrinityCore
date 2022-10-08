@@ -40,7 +40,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 266, 235, 0, 0, 47, 0, 27097, 64, 0, 0, 0, 0, '', 'Fenris Keep - Add phase 266 - 27097 rewarded');
 
 -- Agatha (44951)
-UPDATE `creature_template` SET `unit_class` = 2, unit_flags = 8, `VehicleId` = 1109, `HoverHeight` = 2.20000004768371582, `ScriptName` = 'npc_silverpine_agatha_fenris_isle' WHERE `entry` = 44951;
+UPDATE `creature_template` SET `unit_class` = 2, `unit_flags` = 8, `VehicleId` = 1109, `HoverHeight` = 2.20000004768371582, `ScriptName` = 'npc_silverpine_agatha_fenris_isle' WHERE `entry` = 44951;
 
 DELETE FROM `creature_template_addon` WHERE `entry` = 44951;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
@@ -564,11 +564,6 @@ DELETE FROM `waypoint_data` WHERE `id` = 3990930;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
 (3990930, 0, 1001.85, 667.365, 60.9754, NULL, 0, 0, 0, 0, 0),
 (3990930, 1, 979.146, 666.453, 60.9757, NULL, 0, 0, 0, 0, 0);
-
--- Undying Frenzy
-DELETE FROM `spell_script_names` WHERE `spell_id` = 80515 AND `ScriptName` = 'spell_silverpine_undying_frenzy';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(80515, 'spell_silverpine_undying_frenzy');
 
 -- AreaTrigger 6230 (Fenris Keep)
 DELETE FROM `areatrigger_scripts` WHERE `entry` = 6230;
