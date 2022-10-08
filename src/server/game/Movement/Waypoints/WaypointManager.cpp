@@ -45,6 +45,7 @@ void WaypointMgr::Load()
         Optional<float> o;
         if (!fields[5].IsNull())
             o = fields[5].GetFloat();
+
         float velocity = fields[6].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
@@ -106,6 +107,7 @@ void WaypointMgr::ReloadPath(uint32 id)
         Optional<float> o;
         if (!fields[4].IsNull())
             o = fields[4].GetFloat();
+
         float velocity = fields[5].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
