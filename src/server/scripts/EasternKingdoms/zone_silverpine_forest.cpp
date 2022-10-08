@@ -1192,6 +1192,18 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
                 break;
         }
     }
+
+    void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+    {
+        switch (quest->GetQuestId())
+        {
+            case QUEST_LORDAERON:
+                player->RemoveAura(SPELL_LORDAERON_AURA);
+                break;
+            default:
+                break;
+        }
+    }
 };
 
 // 44789, 44790 - Deathstalker and Deathstalker Commander Belmont
@@ -2080,18 +2092,26 @@ class spell_silverpine_lordaeron_area_aura : public AuraScript
 {
     PrepareAuraScript(spell_silverpine_lordaeron_area_aura);
 
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
 
-        caster->CastSpell(caster, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
-        caster->CastSpell(caster, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
-        caster->CastSpell(caster, SPELL_SUMMON_LORDAERON_ACTORS, true);
+        target->CastSpell(target, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
+        target->CastSpell(target, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
+        target->CastSpell(target, SPELL_SUMMON_LORDAERON_ACTORS, true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->RemoveAura(SPELL_SUMMON_FORSAKEN_WARHORSE);
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_silverpine_lordaeron_area_aura::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_silverpine_lordaeron_area_aura::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_silverpine_lordaeron_area_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
