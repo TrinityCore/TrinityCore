@@ -1158,7 +1158,9 @@ enum SylvanasForsakenHighCommand
     SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
     SPELL_APPLY_INVIS_ZONE_4                    = 84183,
-    SPELL_LORDAERON_AURA                        = 84189,
+    SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,
+    SPELL_SUMMON_FORSAKEN_WARHORSE              = 84164,
+    SPELL_SUMMON_LORDAERON_ACTORS               = 84127,
     SPELL_FLIGHT_OF_THE_VALKYR_FORWARD          = 84695
 };
 
@@ -1181,7 +1183,9 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
         switch (quest->GetQuestId())
         {
             case QUEST_LORDAERON:
-                player->CastSpell(player, SPELL_LORDAERON_AURA, true);
+                player->CastSpell(player, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
+                player->CastSpell(player, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
+                player->CastSpell(player, SPELL_SUMMON_LORDAERON_ACTORS, true);
                 break;
 
             case QUEST_TO_FORSAKEN_HIGH_COMMAND:
@@ -1198,7 +1202,7 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
         switch (quest->GetQuestId())
         {
             case QUEST_LORDAERON:
-                player->RemoveAura(SPELL_LORDAERON_AURA);
+                player->RemoveAura(SPELL_SUMMON_FORSAKEN_WARHORSE);
                 break;
             default:
                 break;
@@ -1641,7 +1645,9 @@ enum ForsakenWarhorsePlayer
     SPELL_DESPAWN_ALL_SUMMONS_LORDAERON         = 84173,
     SPELL_FADE_TO_BLACK                         = 89092,
 
-    EVENT_ACTIVATE_SKIP                         = 1
+    EVENT_ACTIVATE_SKIP                         = 1,
+
+    SEAT_WARHORSE_SYLVANAS_PLAYER               = 1
 };
 
 // 45041 - Forsaken Warhorse (Player)
@@ -1655,8 +1661,7 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
 
         me->CastSpell(nullptr, SPELL_RIDE_SYLVANAS_HORSE, true);
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
         me->SetReactState(REACT_PASSIVE);
     }
@@ -1721,8 +1726,7 @@ struct npc_silverpine_warhorse_sylvanas_lordaeron : public ScriptedAI
 
         me->SetSpeed(MOVE_RUN, 6.3564f);
 
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
         me->SetReactState(REACT_PASSIVE);
     }
@@ -1787,6 +1791,11 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
             _events.ScheduleEvent(EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON, 500ms);
         }
 
+        me->SetUnitFlag(UNIT_FLAG_UNK_6);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetUnitFlag3(UNIT_FLAG3_UNK0);
+
         DoCastSelf(SPELL_DREADGUARD_SALUTE_AURA);
     }
 
@@ -1801,19 +1810,16 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
         {
             case SPELL_KILL_ME:
             {
-                if (_heartstrikeCD || me->HasUnitState(UNIT_STATE_CASTING))
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
-                else
-                {
-                    me->HandleEmoteCommand(EMOTE_STATE_HOLD_BOW);
+                if (_heartstrikeCD)
+                    return;
 
-                    if (caster->GetEntry() == NPC_WORGEN_RENEGADE)
-                        me->CastSpell(caster, SPELL_HEARTSTRIKE, false);
+                _heartstrikeCD = true;
 
-                    _heartstrikeCD = true;
+                me->HandleEmoteCommand(EMOTE_STATE_HOLD_BOW);
 
-                    _events.ScheduleEvent(EVENT_SYLVANAS_HEARTSTRIKE_COOLDOWN, 2s);
-                }
+                me->CastSpell(caster, SPELL_HEARTSTRIKE, false);
+
+                _events.ScheduleEvent(EVENT_SYLVANAS_HEARTSTRIKE_COOLDOWN, 2s);
                 break;
             }
 
@@ -2080,41 +2086,6 @@ private:
     bool _done;
 };
 
-enum LordaeronAreaAura
-{
-    SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,
-    SPELL_SUMMON_FORSAKEN_WARHORSE              = 84164,
-    SPELL_SUMMON_LORDAERON_ACTORS               = 84127
-};
-
-// 84189 - Lordaeron Area Aura
-class spell_silverpine_lordaeron_area_aura : public AuraScript
-{
-    PrepareAuraScript(spell_silverpine_lordaeron_area_aura);
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-
-        target->CastSpell(target, SPELL_SUMMON_SYLVANAS_AND_HORSE, true);
-        target->CastSpell(target, SPELL_SUMMON_FORSAKEN_WARHORSE, true);
-        target->CastSpell(target, SPELL_SUMMON_LORDAERON_ACTORS, true);
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-
-        target->RemoveAura(SPELL_SUMMON_FORSAKEN_WARHORSE);
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_silverpine_lordaeron_area_aura::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_silverpine_lordaeron_area_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 Position const ForsakenTrooperMPos[8] =
 {
     { 1278.29f, 1053.83f, 54.284f, 3.16124f },
@@ -2310,6 +2281,5 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_warhorse_sylvanas_lordaeron);
     RegisterCreatureAI(npc_silverpine_sylvanas_lordaeron);
     RegisterCreatureAI(npc_silverpine_dreadguard_lordaeron);
-    RegisterSpellScript(spell_silverpine_lordaeron_area_aura);
     RegisterSpellScript(spell_silverpine_summon_lordaeron_actors);
 }

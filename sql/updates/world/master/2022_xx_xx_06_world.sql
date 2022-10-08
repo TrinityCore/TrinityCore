@@ -26,14 +26,39 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=26
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (26, 267, 228, 0, 2, 47, 0, 27098, 8, 0, 0, 0, 0, '', 'The Sepulcher - Add phase 267 - 27098 taken');
 
+-- Lordaeron Area Aura
+DELETE FROM `spell_area` WHERE `spell`=84189 AND `area`=130 AND `quest_start`=27099 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(84189, 130, 27099, 27098, 0, 0, 2, 3, 64, 11);
+
+DELETE FROM `spell_area` WHERE `spell`=84189 AND `area`=5369 AND `quest_start`=27099 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(84189, 5369, 27099, 27098, 0, 0, 2, 3, 64, 11);
+
+DELETE FROM `spell_area` WHERE `spell`=84189 AND `area`=228 AND `quest_start`=27099 AND `aura_spell`=0 AND `racemask`=0 AND `gender`=2;
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `flags`, `quest_start_status`, `quest_end_status`) VALUES 
+(84189, 228, 27099, 27098, 0, 0, 2, 3, 64, 11);
+
 -- Lady Sylvanas Windrunner
 UPDATE `creature` SET `ScriptName`='npc_silverpine_sylvanas_windrunner_high_command_sepulcher' WHERE `guid`=395637;
+
+DELETE FROM `creature_template_addon` WHERE `entry`=45051;
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(45051, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, '');
 
 -- Forsaken Warhorse
 UPDATE `creature_template` SET `VehicleId` = 1076, `ScriptName` = 'npc_silverpine_warhorse_player_lordaeron' WHERE `entry` = 45041;
 
+DELETE FROM `creature_template_addon` WHERE `entry`=45041;
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(45041, 0, 0, 0, 0, 1, 0, 0, 0, 0, 5, '');
+
 -- Forsaken Warhorse
 UPDATE `creature_template` SET `VehicleId` = 1077, `ScriptName` = 'npc_silverpine_warhorse_sylvanas_lordaeron' WHERE `entry` = 45057;
+
+DELETE FROM `creature_template_addon` WHERE `entry`=45057;
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(45057, 0, 0, 0, 0, 1, 0, 0, 0, 0, 5, '');
 
 DELETE FROM `waypoint_data` WHERE `id` = 450570;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
@@ -141,11 +166,6 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_dreadguard_lordaer
 DELETE FROM `creature_template_addon` WHERE `entry` = 44911;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (44911, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '18950');
-
--- Lordaeron Area Aura
-DELETE FROM `spell_script_names` WHERE `spell_id` = 84189 AND `ScriptName` = 'spell_silverpine_lordaeron_area_aura';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(84189, 'spell_silverpine_lordaeron_area_aura');
 
 -- Summon Lordaeron Actors
 DELETE FROM `spell_script_names` WHERE `spell_id` = 84127 AND `ScriptName` = 'spell_silverpine_summon_lordaeron_actors';
