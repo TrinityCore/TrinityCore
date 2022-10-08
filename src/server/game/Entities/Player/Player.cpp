@@ -9410,7 +9410,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
                 bf->FillInitialWorldStates(packet);
             break;
         // Wintergrasp
-        case 4197:
+        case AREA_WINTERGRASP:
             if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
                 bf->FillInitialWorldStates(packet);
             [[fallthrough]];
