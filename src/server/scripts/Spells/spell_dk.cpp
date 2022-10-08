@@ -52,6 +52,7 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_FESTERING_WOUND                    = 194310,
     SPELL_DK_FROST                              = 137006,
+    SPELL_DK_FROST_SCYTHE                       = 207230,
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
@@ -795,6 +796,31 @@ class spell_dk_raise_dead : public SpellScript
     }
 };
 
+// 59057 - Rime
+class spell_dk_rime : public AuraScript
+{
+    PrepareAuraScript(spell_dk_rime);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_DK_FROST_SCYTHE });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        float chance = static_cast<float>(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetTarget()));
+        if (eventInfo.GetSpellInfo()->Id == SPELL_DK_FROST_SCYTHE)
+            chance /= 2.f;
+
+        return roll_chance_f(chance);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_rime::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public AuraScript
 {
@@ -834,5 +860,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_pet_skeleton_transform);
     RegisterSpellScript(spell_dk_pvp_4p_bonus);
     RegisterSpellScript(spell_dk_raise_dead);
+    RegisterSpellScript(spell_dk_rime);
     RegisterSpellScript(spell_dk_vampiric_blood);
 }

@@ -409,17 +409,19 @@ template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
 {
     public:
+        static_assert(sizeof(T_FLAGS) * 8 > ARRAY_SIZE, "Fix T_FLAGS");
+
         FlaggedValuesArray32()
         {
             for (uint32 i = 0; i < ARRAY_SIZE; ++i)
                 m_values[i] = T_VALUES(0);
-            m_flags = 0;
+            m_flags = T_FLAGS(0);
         }
 
         T_FLAGS GetFlags() const { return m_flags; }
-        bool HasFlag(FLAG_TYPE flag) const { return m_flags & (1 << flag); }
-        void AddFlag(FLAG_TYPE flag) { m_flags |= (1 << flag); }
-        void DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
+        bool HasFlag(FLAG_TYPE flag) const { return m_flags & (T_FLAGS(1) << flag); }
+        void AddFlag(FLAG_TYPE flag) { m_flags |= (T_FLAGS(1) << flag); }
+        void DelFlag(FLAG_TYPE flag) { m_flags &= ~(T_FLAGS(1) << flag); }
 
         T_VALUES GetValue(FLAG_TYPE flag) const { return m_values[flag]; }
         void SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
@@ -547,8 +549,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         FlaggedValuesArray32<int32, uint32, StealthType, TOTAL_STEALTH_TYPES> m_stealth;
         FlaggedValuesArray32<int32, uint32, StealthType, TOTAL_STEALTH_TYPES> m_stealthDetect;
 
-        FlaggedValuesArray32<int32, uint32, InvisibilityType, TOTAL_INVISIBILITY_TYPES> m_invisibility;
-        FlaggedValuesArray32<int32, uint32, InvisibilityType, TOTAL_INVISIBILITY_TYPES> m_invisibilityDetect;
+        FlaggedValuesArray32<int32, uint64, InvisibilityType, TOTAL_INVISIBILITY_TYPES> m_invisibility;
+        FlaggedValuesArray32<int32, uint64, InvisibilityType, TOTAL_INVISIBILITY_TYPES> m_invisibilityDetect;
 
         FlaggedValuesArray32<int32, uint32, ServerSideVisibilityType, TOTAL_SERVERSIDE_VISIBILITY_TYPES> m_serverSideVisibility;
         FlaggedValuesArray32<int32, uint32, ServerSideVisibilityType, TOTAL_SERVERSIDE_VISIBILITY_TYPES> m_serverSideVisibilityDetect;
