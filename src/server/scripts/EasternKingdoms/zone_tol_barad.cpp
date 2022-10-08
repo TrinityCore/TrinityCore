@@ -16,7 +16,7 @@
  */
 
 #include "ScriptMgr.h"
-#include "BattlefieldTB.h"
+#include "Battlefield/BattlefieldTB.h"
 #include "DBCStores.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

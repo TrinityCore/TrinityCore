@@ -167,90 +167,6 @@ enum TolBaradGOArtKit
     TB_GO_ARTKIT_FLAG_ALLIANCE = 2,
 };
 
-enum TolBaradWorldStates
-{
-    TB_WS_ALLIANCE_CONTROLS_SHOW = 5385,
-    TB_WS_HORDE_CONTROLS_SHOW = 5384,
-    TB_WS_ALLIANCE_ATTACKING_SHOW = 5546,
-    TB_WS_HORDE_ATTACKING_SHOW = 5547,
-
-    TB_WS_BUILDINGS_CAPTURED = 5348,
-    TB_WS_BUILDINGS_CAPTURED_SHOW = 5349,
-    TB_WS_TOWERS_DESTROYED = 5347,
-    TB_WS_TOWERS_DESTROYED_SHOW = 5350,
-
-    TB_WS_FACTION_CONTROLLING = 5334, // 1 -> Alliance, 2 -> Horde
-
-    TB_WS_TIME_NEXT_BATTLE = 5332,
-    TB_WS_TIME_NEXT_BATTLE_SHOW = 5387,
-    TB_WS_TIME_BATTLE_END = 5333,
-    TB_WS_TIME_BATTLE_END_SHOW = 5346,
-
-    TB_WS_STATE_PREPARATIONS = 5684,
-    TB_WS_STATE_BATTLE = 5344,
-
-    /* Not Sure if TB
-    TB_WS_0_UNKNOWN = 5587,
-    TB_WS_9_UNKNOWN = 5508,
-    TB_WS_35_UNKNOWN = 5679,
-    TB_WS_36_UNKNOWN = 5678,
-    TB_WS_37_UNKNOWN = 5677,
-    TB_WS_60_UNKNOWN = 5361,
-    TB_WS_61_UNKNOWN = 5360,
-    TB_WS_65_UNKNOWN = 5195,
-    TB_WS_66_UNKNOWN = 5193,
-    */
-
-    TB_WS_PROGRESS_SHOW = 5376,
-    TB_WS_PROGRESS = 5377, // 0 horde, 100 alliance
-    TB_WS_PROGRESS_PERCENT_GREY = 5378,
-
-    TB_WS_KEEP_HORDE = 5469,
-    TB_WS_KEEP_ALLIANCE = 5470,
-
-    TB_WS_GARRISON_HORDE_CONTROLLED = 5418,
-    TB_WS_GARRISON_HORDE_CAPTURING = 5419,
-    TB_WS_GARRISON_NEUTRAL = 5420, // unused
-    TB_WS_GARRISON_ALLIANCE_CAPTURING = 5421,
-    TB_WS_GARRISON_ALLIANCE_CONTROLLED = 5422,
-
-    TB_WS_VIGIL_HORDE_CONTROLLED = 5423,
-    TB_WS_VIGIL_HORDE_CAPTURING = 5424,
-    TB_WS_VIGIL_NEUTRAL = 5425, // unused
-    TB_WS_VIGIL_ALLIANCE_CAPTURING = 5426,
-    TB_WS_VIGIL_ALLIANCE_CONTROLLED = 5427,
-
-    TB_WS_SLAGWORKS_HORDE_CONTROLLED = 5428,
-    TB_WS_SLAGWORKS_HORDE_CAPTURING = 5429,
-    TB_WS_SLAGWORKS_NEUTRAL = 5430, // unused
-    TB_WS_SLAGWORKS_ALLIANCE_CAPTURING = 5431,
-    TB_WS_SLAGWORKS_ALLIANCE_CONTROLLED = 5432,
-
-    TB_WS_WEST_INTACT_HORDE = 5433,
-    TB_WS_WEST_DAMAGED_HORDE = 5434,
-    TB_WS_WEST_DESTROYED_NEUTRAL = 5435,
-    TB_WS_WEST_INTACT_ALLIANCE = 5436,
-    TB_WS_WEST_DAMAGED_ALLIANCE = 5437,
-    TB_WS_WEST_INTACT_NEUTRAL = 5453, // unused
-    TB_WS_WEST_DAMAGED_NEUTRAL = 5454, // unused
-
-    TB_WS_SOUTH_INTACT_HORDE = 5438,
-    TB_WS_SOUTH_DAMAGED_HORDE = 5439,
-    TB_WS_SOUTH_DESTROYED_NEUTRAL = 5440,
-    TB_WS_SOUTH_INTACT_ALLIANCE = 5441,
-    TB_WS_SOUTH_DAMAGED_ALLIANCE = 5442,
-    TB_WS_SOUTH_INTACT_NEUTRAL = 5455, // unused
-    TB_WS_SOUTH_DAMAGED_NEUTRAL = 5456, // unused
-
-    TB_WS_EAST_INTACT_HORDE = 5443,
-    TB_WS_EAST_DAMAGED_HORDE = 5444,
-    TB_WS_EAST_DESTROYED_NEUTRAL = 5445,
-    TB_WS_EAST_INTACT_ALLIANCE = 5446,
-    TB_WS_EAST_DAMAGED_ALLIANCE = 5447,
-    TB_WS_EAST_INTACT_NEUTRAL = 5451,
-    TB_WS_EAST_DAMAGED_NEUTRAL = 5452,
-};
-
 enum TolBaradText
 {
     // DEBUG Announcer
@@ -429,7 +345,7 @@ class TolBaradCapturePoint : public BfCapturePoint
  * Tol Barad battlefield *
  * ##################### */
 
-class TC_GAME_API BattlefieldTB : public Battlefield
+class BattlefieldTB : public Battlefield
 {
     public:
         ~BattlefieldTB();
@@ -461,7 +377,6 @@ class TC_GAME_API BattlefieldTB : public Battlefield
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
-        void UpdateWorldStates();
 
         void HandleKill(Player* killer, Unit* victim) override;
         //void OnUnitDeath(Unit* unit) override;
@@ -477,7 +392,6 @@ class TC_GAME_API BattlefieldTB : public Battlefield
         //uint8 GetSpiritGraveyardId(uint32 areaId) const;
 
         void UpdateNPCsAndGameObjects();
-        void CreateCapturePoints();
 
     protected:
         // Minutes till battle preparation warnings

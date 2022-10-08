@@ -1240,6 +1240,20 @@ void WorldObject::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
+bool WorldObject::IsInWorldPvpZone() const
+{
+    switch (GetZoneId())
+    {
+        case 4197: // Wintergrasp
+        case 5095: // Tol Barad
+            return true;
+            break;
+        default:
+            return false;
+            break;
+    }
+}
+
 InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();

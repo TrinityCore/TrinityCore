@@ -24,8 +24,6 @@
 #include "Bag.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldTB.h"
-#include "BattlefieldWG.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundScore.h"
@@ -8315,8 +8313,8 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
 {
-    // If player is not in battleground and not in wintergrasp
-    if (!GetBattlegroundId() && GetZoneId() != AREA_WINTERGRASP && GetZoneId() != BATTLEFIELD_TB_ZONEID)
+    // If player is not in battleground and not in worldpvpzone
+    if (!GetBattlegroundId() && !IsInWorldPvpZone())
         return;
 
     // If not released spirit, do it !
@@ -8566,7 +8564,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             else if (GetZoneId() == AREA_WINTERGRASP)
                 loot->FillLoot(PLAYER_CORPSE_LOOT_ENTRY, LootTemplates_Creature, this, true);
             // For Tol Barad Quests
-            else if (GetZoneId() == BATTLEFIELD_TB_ZONEID)
+            else if (GetZoneId() == AREA_TOLBARAD)
                 loot->FillLoot(PLAYER_CORPSE_LOOT_ENTRY, LootTemplates_Creature, this, true);
 
             // It may need a better formula
@@ -9397,11 +9395,11 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
         case 5389:
             if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
             {
-                packet.Worldstates.emplace_back(5385u, sWorld->getWorldState(5385)); // TB_WS_ALLIANCE_CONTROLS_SHOW
-                packet.Worldstates.emplace_back(5384u, sWorld->getWorldState(5384)); // TB_WS_HORDE_CONTROLS_SHOW
-                packet.Worldstates.emplace_back(5387u, sWorld->getWorldState(5387)); // TB_WS_TIME_NEXT_BATTLE_SHOW
-                packet.Worldstates.emplace_back(5546u, sWorld->getWorldState(5546)); // TB_WS_ALLIANCE_ATTACKING_SHOW
-                packet.Worldstates.emplace_back(5547u, sWorld->getWorldState(5547)); // TB_WS_HORDE_ATTACKING_SHOW
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_ALLIANCE_CONTROLS_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_HORDE_CONTROLS_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_ALLIANCE_ATTACKING_SHOW));
+                packet.Worldstates.emplace_back(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW, sWorld->getWorldState(WS_BATTLEFIELD_TB_HORDE_ATTACKING_SHOW));
             }
             break;
         // Tol Barad
@@ -9447,11 +9445,11 @@ void Player::SendBattlefieldWorldStates() const
     /// Send misc stuff that needs to be sent on every login, like the battle timers.
     if (sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE))
     {
-        if (BattlefieldWG* wg = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG)))
+        if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
         {
             SendUpdateWorldState(WS_BATTLEFIELD_WG_ACTIVE, wg->IsWarTime() ? 0 : 1);
             uint32 timer = wg->IsWarTime() ? 0 : (wg->GetTimer() / 1000); // 0 - Time to next battle
-            SendUpdateWorldState(ClockWorldState[1], uint32(GameTime::GetGameTime() + timer));
+            SendUpdateWorldState(WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE, uint32(GameTime::GetGameTime() + timer));
         }
     }
 
@@ -9459,10 +9457,10 @@ void Player::SendBattlefieldWorldStates() const
     {
         if (Battlefield* tb = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_TB))
         {
-            SendUpdateWorldState(TB_WS_FACTION_CONTROLLING, uint32(tb->GetDefenderTeam() + 1));
+            SendUpdateWorldState(WS_BATTLEFIELD_TB_FACTION_CONTROLLING, uint32(tb->GetDefenderTeam() + 1));
             uint32 timer = tb->GetTimer() / 1000;
-            SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
-            SendUpdateWorldState(TB_WS_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
+            SendUpdateWorldState(WS_BATTLEFIELD_TB_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
+            SendUpdateWorldState(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
         }
     }
 }
