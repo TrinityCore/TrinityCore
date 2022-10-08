@@ -34,6 +34,7 @@
 #include "Random.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 
 const uint32 TBFactions[BG_TEAMS_COUNT] = { 1610, 1732 };
@@ -672,6 +673,8 @@ void BattlefieldTB::OnBattleEnd(bool endByTimer)
     warnedFiveMinutes = false;
     warnedTwoMinutes = false;
     warnedOneMinute = false;
+
+    sWorldStateMgr->SetValue(WS_BATTLEFIELD_TB_TIME_NEXT_BATTLE, GameTime::GetGameTime() + m_NoWarBattleTime / IN_MILLISECONDS, m_Map);
 };
 
 void BattlefieldTB::UpdateNPCsAndGameObjects()

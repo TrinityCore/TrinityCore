@@ -247,6 +247,8 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
+        uint32 GetMapId() const { return m_MapId; }
+        Map* GetMap() const { return m_Map; }
         ObjectGuid GetGUID()   { return m_Guid; }
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);

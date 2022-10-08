@@ -9407,16 +9407,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             if (bf && bf->GetTypeId() == BATTLEFIELD_TB)
                 bf->FillInitialWorldStates(packet);
             break;
-        // Wintergrasp
-        case AREA_WINTERGRASP:
-            if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
-                bf->FillInitialWorldStates(packet);
-            [[fallthrough]];
         default:
-            packet.Worldstates.emplace_back(0x914, 0x0);           // 7
-            packet.Worldstates.emplace_back(0x913, 0x0);           // 8
-            packet.Worldstates.emplace_back(0x912, 0x0);           // 9
-            packet.Worldstates.emplace_back(0x915, 0x0);           // 10
             break;
     }
 
@@ -9443,16 +9434,6 @@ void Player::SendBGWeekendWorldStates() const
 void Player::SendBattlefieldWorldStates() const
 {
     /// Send misc stuff that needs to be sent on every login, like the battle timers.
-    if (sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE))
-    {
-        if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
-        {
-            SendUpdateWorldState(WS_BATTLEFIELD_WG_ACTIVE, wg->IsWarTime() ? 0 : 1);
-            uint32 timer = wg->IsWarTime() ? 0 : (wg->GetTimer() / 1000); // 0 - Time to next battle
-            SendUpdateWorldState(WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE, uint32(GameTime::GetGameTime() + timer));
-        }
-    }
-
     if (sWorld->getBoolConfig(CONFIG_TOLBARAD_ENABLE))
     {
         if (Battlefield* tb = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_TB))
