@@ -79,8 +79,8 @@ void SystemMgr::LoadScriptWaypoints()
             TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", entry);
 
         WaypointPath& path = _waypointStore[entry];
-        path.id = entry;
-        path.nodes.emplace_back(id, x, y, z, std::nullopt, waitTime);
+        path.Id = entry;
+        path.Nodes.emplace_back(id, x, y, z, std::nullopt, waitTime);
 
         ++count;
     } while (result->NextRow());

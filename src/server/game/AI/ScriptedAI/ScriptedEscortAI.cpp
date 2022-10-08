@@ -139,13 +139,13 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
     }
     else if (type == WAYPOINT_MOTION_TYPE)
     {
-        ASSERT(id < _path.nodes.size(), "EscortAI::MovementInform: referenced movement id (%u) points to non-existing node in loaded path (%s)", id, me->GetGUID().ToString().c_str());
-        WaypointNode waypoint = _path.nodes[id];
+        ASSERT(id < _path.Nodes.size(), "EscortAI::MovementInform: referenced movement id (%u) points to non-existing node in loaded path (%s)", id, me->GetGUID().ToString().c_str());
+        WaypointNode waypoint = _path.Nodes[id];
 
         TC_LOG_DEBUG("scripts.ai.escortai", "EscortAI::MovementInform: waypoint node %u reached (%s)", waypoint.id, me->GetGUID().ToString().c_str());
 
         // last point
-        if (id == _path.nodes.size() - 1)
+        if (id == _path.Nodes.size() - 1)
         {
             _started = false;
             _ended = true;
@@ -258,16 +258,16 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     Trinity::NormalizeMapCoord(y);
 
     WaypointNode waypoint;
-    waypoint.id = id;
-    waypoint.x = x;
-    waypoint.y = y;
-    waypoint.z = z;
-    waypoint.orientation = orientation;
-    waypoint.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-    waypoint.delay = waitTime.count();
-    waypoint.eventId = 0;
-    waypoint.eventChance = 100;
-    _path.nodes.push_back(std::move(waypoint));
+    waypoint.Id = id;
+    waypoint.X = x;
+    waypoint.Y = y;
+    waypoint.Z = z;
+    waypoint.Orientation = orientation;
+    waypoint.MoveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+    waypoint.Delay = waitTime.count();
+    waypoint.EventId = 0;
+    waypoint.EventChance = 100;
+    _path.Nodes.push_back(std::move(waypoint));
 
     _manualPath = true;
 }
@@ -299,7 +299,7 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
     if (!_manualPath && resetWaypoints)
         FillPointMovementListForCreature();
 
-    if (_path.nodes.empty())
+    if (_path.Nodes.empty())
     {
         TC_LOG_ERROR("scripts.ai.escortai", "EscortAI::Start: (script: %s) is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn (%s)", me->GetScriptName().c_str(), me->GetGUID().ToString().c_str());
         return;
@@ -342,8 +342,8 @@ void EscortAI::SetRun(bool on)
     if (on == _running)
         return;
 
-    for (auto& node : _path.nodes)
-        node.moveType = on ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+    for (auto& node : _path.Nodes)
+        node.MoveType = on ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 
     me->SetWalk(!on);
     _running = on;
@@ -440,13 +440,13 @@ void EscortAI::FillPointMovementListForCreature()
     if (!path)
         return;
 
-    for (WaypointNode const& value : path->nodes)
+    for (WaypointNode const& value : path->Nodes)
     {
         WaypointNode node = value;
         Trinity::NormalizeMapCoord(node.x);
         Trinity::NormalizeMapCoord(node.y);
-        node.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+        node.MoveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 
-        _path.nodes.push_back(std::move(node));
+        _path.Nodes.push_back(std::move(node));
     }
 }
