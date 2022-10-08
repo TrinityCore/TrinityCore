@@ -6593,15 +6593,15 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     SpellCastResult result = SPELL_CAST_OK;
 
     // Get unit state
-    uint32 const unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);
+    uint32 const unitflag = unitCaster->GetUInt32Value(UNIT_FIELD_FLAGS);
 
     // this check should only be done when player does cast directly
     // (ie not when it's called from a script) Breaks for example PlayerAI when charmed
     /*
-    if (m_caster->GetCharmerGUID())
+    if (unitCaster->GetCharmerGUID())
     {
-        if (Unit* charmer = m_caster->GetCharmer())
-            if (charmer->GetUnitBeingMoved() != m_caster && !CheckSpellCancelsCharm(param1))
+        if (Unit* charmer = unitCaster->GetCharmer())
+            if (charmer->GetUnitBeingMoved() != unitCaster && !CheckSpellCancelsCharm(param1))
                 result = SPELL_FAILED_CHARMED;
     }
     */
