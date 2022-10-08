@@ -2274,6 +2274,13 @@ private:
     EventMap _events;
 };
 
+Position const NoEscapeStartPos = { 981.782f, 670.953f, 74.898f, 3.1887f };
+
+enum FenrisKeepStalker
+{
+    SPELL_FORCE_CAST_FENRIS_CAMERA              = 84113
+};
+
 // 45032 - Fenris Keep Stalker
 struct npc_silverpine_fenris_keep_stalker : public ScriptedAI
 {
@@ -2397,13 +2404,6 @@ class spell_silverpine_summon_fenris_keep_actors : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_silverpine_summon_fenris_keep_actors::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
-};
-
-Position const NoEscapeStartPos = { 981.782f, 670.953f, 74.898f, 3.1887f };
-
-enum FenrisKeepStalker
-{
-    SPELL_FORCE_CAST_FENRIS_CAMERA              = 84113
 };
 
 Position const CameraFrontyardPos = { 980.7f, 689.14f, 76.9f };
