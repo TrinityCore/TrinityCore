@@ -1654,8 +1654,6 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
         _playerGUID = summoner->GetGUID();
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override { }
-
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
@@ -1666,10 +1664,10 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
             {
                 case EVENT_ACTIVATE_SKIP:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     {
-                        player->NearTeleportTo(LordaeronCancelScenePos, false);
-                        player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
+                        summoner->NearTeleportTo(LordaeronCancelScenePos, false);
+                        summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
                     }
                     break;
                 }
@@ -1797,7 +1795,7 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
                 {
                     me->HandleEmoteCommand(EMOTE_STATE_HOLD_BOW);
 
-                    if (caster->ToUnit()->GetEntry() == NPC_WORGEN_RENEGADE)
+                    if (caster->GetEntry() == NPC_WORGEN_RENEGADE)
                         me->CastSpell(caster, SPELL_HEARTSTRIKE, false);
 
                     _heartstrikeCD = true;
@@ -2020,6 +2018,8 @@ struct npc_silverpine_dreadguard_lordaeron : public ScriptedAI
     void Reset() override
     {
         _events.Reset();
+
+        _done = false;
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
