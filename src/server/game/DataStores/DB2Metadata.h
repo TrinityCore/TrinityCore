@@ -5702,7 +5702,7 @@ struct ItemMeta
 {
     static DB2Meta const* Instance()
     {
-        static constexpr DB2MetaField fields[19] =
+        static constexpr DB2MetaField fields[20] =
         {
             { FT_BYTE, 1, false },
             { FT_BYTE, 1, false },
@@ -5719,12 +5719,13 @@ struct ItemMeta
             { FT_INT, 1, true },
             { FT_INT, 1, false },
             { FT_BYTE, 1, false },
+            { FT_INT, 1, true },
             { FT_BYTE, 5, false },
             { FT_SHORT, 7, true },
             { FT_SHORT, 5, false },
             { FT_SHORT, 5, false },
         };
-        static constexpr DB2Meta instance(841626, -1, 19, 19, 0x1535DBFE, fields, -1);
+        static constexpr DB2Meta instance(841626, -1, 20, 20, 0x72A6F1C2, fields, -1);
         return &instance;
     }
 };
@@ -9159,13 +9160,50 @@ struct ScalingStatDistributionMeta
 {
     static DB2Meta const* Instance()
     {
-        static constexpr DB2MetaField fields[3] =
+        static constexpr DB2MetaField fields[5] =
         {
             { FT_SHORT, 1, false },
             { FT_INT, 1, true },
             { FT_INT, 1, true },
+            { FT_INT, 10, true },
+            { FT_INT, 10, true },
         };
-        static constexpr DB2Meta instance(1141728, -1, 3, 3, 0x89982213, fields, -1);
+        static constexpr DB2Meta instance(1141728, -1, 5, 5, 0x2F06EE49, fields, -1);
+        return &instance;
+    }
+};
+
+struct ScalingStatValuesMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static constexpr DB2MetaField fields[23] =
+        {
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+            { FT_INT, 1, true },
+        };
+        static constexpr DB2Meta instance(4719537, -1, 23, 23, 0x7037AEF9, fields, -1);
         return &instance;
     }
 };
