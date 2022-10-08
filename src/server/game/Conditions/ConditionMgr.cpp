@@ -27,13 +27,14 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
-#include "Player.h"
 #include "Pet.h"
+#include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldStateMgr.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -410,7 +411,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_WORLD_STATE:
         {
-            condMeets = ConditionValue2 == sWorld->getWorldState(ConditionValue1);
+            condMeets = sWorldStateMgr->GetValue(ConditionValue1, object->GetMap()) == int32(ConditionValue2);
             break;
         }
         case CONDITION_PHASEID:
