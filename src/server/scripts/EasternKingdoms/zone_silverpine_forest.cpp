@@ -1596,6 +1596,201 @@ private:
     ObjectGuid _playerGUID;
 };
 
+enum BloodfangStalker
+{
+    QUEST_EXCISING_THE_TAINT                    = 27181,
+
+    NPC_DARKTUSK_BOAR                           = 46575,
+
+    SPELL_STALKING                              = 86237,
+    SPELL_SHADOWSTEP                            = 79864,
+    SPELL_KILL_ME_QUEST                         = 86559,
+    SPELL_BLOOD_STRIKE                          = 87359,
+    SPELL_PERMANENT_FEIGN_DEATH                 = 80636,
+
+    EVENT_SNIFFING                              = 1,
+    EVENT_STRIKE_BOAR                           = 2,
+    EVENT_SHADOWSTEP                            = 4
+};
+
+// 45195 - Bloodfang Stalker
+struct npc_silverpine_bloodfang_stalker : public ScriptedAI
+{
+    npc_silverpine_bloodfang_stalker(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetPowerType(POWER_ENERGY);
+        me->SetMaxPower(POWER_ENERGY, 100);
+        me->SetPower(POWER_ENERGY, 100, true);
+
+        DoCastSelf(SPELL_STALKING);
+        DoCastSelf(SPELL_KILL_ME_QUEST);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        DoCastSelf(SPELL_STALKING);
+        DoCastSelf(SPELL_KILL_ME_QUEST);
+
+        if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
+        {
+            if (boar->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+                _events.ScheduleEvent(EVENT_STRIKE_BOAR, 2s, 12s);
+            else
+                _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
+        }
+        else
+            _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        me->RemoveAura(SPELL_STALKING);
+        me->RemoveAura(SPELL_KILL_ME_QUEST);
+
+        _events.CancelEvent(EVENT_SNIFFING);
+        _events.CancelEvent(EVENT_STRIKE_BOAR);
+
+        _events.ScheduleEvent(EVENT_SHADOWSTEP, 250ms);
+        _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 6s, 8s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        if (Player* player = killer->ToPlayer())
+        {
+            if (player->GetQuestStatus(QUEST_EXCISING_THE_TAINT) == QUEST_STATUS_NONE)
+            {
+                if (const Quest* ExcisingTheTaint = sObjectMgr->GetQuestTemplate(QUEST_EXCISING_THE_TAINT))
+                    player->AddQuest(ExcisingTheTaint, nullptr);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SNIFFING:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SNIFF);
+                    _events.Repeat(18s, 25s);
+                    break;
+
+                case EVENT_STRIKE_BOAR:
+                    if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
+                        me->CastSpell(boar, SPELL_BLOOD_STRIKE, true);
+                    _events.Repeat(5s, 7s);
+                    break;
+
+                case EVENT_SHADOWSTEP:
+                    DoCastVictim(SPELL_SHADOWSTEP);
+                    _events.Repeat(14s, 15s);
+                    break;
+
+                case EVENT_SINISTER_STRIKE:
+                    DoCastVictim(SPELL_SINISTER_STRIKE);
+                    _events.Repeat(6s, 8s);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+enum CaretakerSmithers
+{
+    SPELL_FACE_RIP                              = 84440,
+    SPELL_THROW_LANTERN                         = 81764,
+    SPELL_FRENZY                                = 81173,
+
+    EVENT_SMITHERS_THROW_LANTERN                = 1,
+    EVENT_SMITHERS_FRENZY                       = 2,
+
+    TALK_SMITHERS_AGROO                         = 0,
+    TALK_SMITHERS_LANTERN                       = 1,
+    TALK_SMITHERS_FRENZY                        = 2
+};
+
+// 45219 - Caretaker Smithers
+struct npc_silverpine_caretaker_smithers : public ScriptedAI
+{
+    npc_silverpine_caretaker_smithers(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _homePosition = me->GetPosition();
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        me->NearTeleportTo(_homePosition, false);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        me->CastSpell(who, SPELL_FACE_RIP, false);
+
+        Talk(TALK_SMITHERS_AGROO);
+
+        _events.ScheduleEvent(EVENT_SMITHERS_THROW_LANTERN, 4s, 5s);
+        _events.ScheduleEvent(EVENT_SMITHERS_FRENZY, 12s, 13s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SMITHERS_THROW_LANTERN:
+                    DoCastVictim(SPELL_THROW_LANTERN);
+                    Talk(TALK_SMITHERS_LANTERN);
+                    _events.Repeat(14s, 16s);
+                    break;
+
+                case EVENT_SMITHERS_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
+                    Talk(TALK_SMITHERS_FRENZY);
+                    _events.Repeat(20s, 25s);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    Position _homePosition;
+};
+
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -1616,4 +1811,9 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_forsaken_trooper);
     RegisterCreatureAI(npc_silverpine_bat_handler_maggotbreath);
     RegisterCreatureAI(npc_silverpine_forsaken_bat);
+
+    /* The Sepulcher */
+
+    RegisterCreatureAI(npc_silverpine_bloodfang_stalker);
+    RegisterCreatureAI(npc_silverpine_caretaker_smithers);
 }
