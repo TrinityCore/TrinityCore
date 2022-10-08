@@ -342,7 +342,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=83865 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44914 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 83865, 0, 0, 31, 0, 3, 44914, 0, 0, 0, 0, '', 'Sea Pup Trigger - Target Orc Sea Pup');
- 
+
+-- Despawn All Summons
 DELETE FROM `spell_script_names` WHERE `spell_id` = 83840 AND `ScriptName` = 'spell_gen_despawn_all_summons_owned_by_caster';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (83840, 'spell_gen_despawn_all_summons_owned_by_caster');
@@ -530,6 +531,15 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (44942, 0, 1, 'Thank you, friend. Let\'s kill us some overgrown... spiders. Sounded better in my head.', 12, 1, 100, 5, 0, 0, 0, 45078, 5, 'Orc Sea Dog to Player'),
 (44942, 0, 2, 'I need a drink!', 12, 1, 100, 5, 0, 0, 0, 45080, 5, 'Orc Sea Dog to Player'),
 (44942, 0, 3, 'Welcome to the party, $g pal:lady;!', 12, 1, 100, 5, 0, 0, 0, 45077, 5, 'Orc Sea Dog to Player');
+
+-- Despawn All Summons
+DELETE FROM `spell_script_names` WHERE `spell_id` = 83935 AND `ScriptName` = 'spell_gen_despawn_all_summons_owned_by_caster';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(83935, 'spell_gen_despawn_all_summons_owned_by_caster');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=83935 AND `SourceId`=0 AND `ElseGroup`=1 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44942 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 83935, 0, 1, 31, 0, 3, 44942, 0, 0, 0, 0, '', 'Despawn All Summons - Target Orc Sea Dog');
 
 -- Skitterweb Lurker
 UPDATE `creature` SET `wander_distance`= 10, `MovementType`= 1 WHERE `id` = 1781;
