@@ -98,7 +98,10 @@ class FreezeDetector
         static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
         {
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
-            freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, std::weak_ptr<FreezeDetector>(freezeDetector), std::placeholders::_1));
+            freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr<FreezeDetector>(freezeDetector)](boost::system::error_code const& error)
+            {
+                return Handler(freezeDetectorRef, error);
+            });
         }
 
         static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
@@ -119,7 +122,7 @@ void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
 bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext);
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& cfg_service);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
@@ -135,12 +138,12 @@ extern int main(int argc, char** argv)
         return 0;
 
 #ifdef _WIN32
-    if (configService.compare("install") == 0)
-        return WinServiceInstall() == true ? 0 : 1;
-    else if (configService.compare("uninstall") == 0)
-        return WinServiceUninstall() == true ? 0 : 1;
-    else if (configService.compare("run") == 0)
-        WinServiceRun();
+    if (configService == "install")
+        return WinServiceInstall() ? 0 : 1;
+    else if (configService == "uninstall")
+        return WinServiceUninstall() ? 0 : 1;
+    else if (configService == "run")
+        return WinServiceRun() ? 0 : 1;
 
     Optional<UINT> newTimerResolution;
     boost::system::error_code dllError;
@@ -529,7 +532,10 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
             }
 
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
-            freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, freezeDetectorRef, std::placeholders::_1));
+            freezeDetector->_timer.async_wait([freezeDetectorRef](boost::system::error_code const& timerError)
+            {
+                return Handler(freezeDetectorRef, timerError);
+            });
         }
     }
 }
