@@ -307,7 +307,7 @@ class npc_wg_queue : public CreatureScript
                 else
                 {
                     uint32 timer = wintergrasp->GetTimer() / 1000;
-                    player->SendUpdateWorldState(4354, GameTime::GetGameTime() + timer);
+                    player->SendUpdateWorldState(WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE, GameTime::GetGameTime() + timer);
                     if (timer < 15 * MINUTE)
                     {
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
