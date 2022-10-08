@@ -3836,16 +3836,12 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_WEBBEB_ORC_CHECK_PLAYER:
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        if (player->IsAlive() && player->IsInWorld() && player->hasQuest(QUEST_LOST_IN_THE_DARKNESS) && !player->IsQuestRewarded(QUEST_LOST_IN_THE_DARKNESS))
-                            _events.ScheduleEvent(EVENT_WEBBEB_ORC_CHECK_PLAYER, 1s);
-                    }
+                    // Note: SummonPropertiesFlags::DespawnOnSummonerDeath and SummonPropertiesFlags::DespawnOnSummonerLogout are NYI.
+                    if (me->GetOwner()->IsAlive() || me->GetOwner()->IsInWorld())
+                        _events.ScheduleEvent(EVENT_WEBBEB_ORC_CHECK_PLAYER, 1s);
                     else
                         me->DespawnOrUnsummon();
                     break;
-                }
 
                 case EVENT_WEBBEB_ORC_TALK:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
