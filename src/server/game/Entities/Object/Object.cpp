@@ -1566,7 +1566,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth, bool che
 
 bool WorldObject::CanDetectInvisibilityOf(WorldObject const* obj) const
 {
-    uint32 mask = obj->m_invisibility.GetFlags() & m_invisibilityDetect.GetFlags();
+    uint64 mask = obj->m_invisibility.GetFlags() & m_invisibilityDetect.GetFlags();
 
     // Check for not detected types
     if (mask != obj->m_invisibility.GetFlags())
@@ -1574,7 +1574,7 @@ bool WorldObject::CanDetectInvisibilityOf(WorldObject const* obj) const
 
     for (uint32 i = 0; i < TOTAL_INVISIBILITY_TYPES; ++i)
     {
-        if (!(mask & (1 << i)))
+        if (!(mask & (uint64(1) << i)))
             continue;
 
         int32 objInvisibilityValue = obj->m_invisibility.GetValue(InvisibilityType(i));
