@@ -108,28 +108,28 @@ TC_API_EXPORT EnumText EnumUtils<Powers>::ToString(Powers value)
         case POWER_HAPPINESS: return { "POWER_HAPPINESS", "Happiness", "" };
         case POWER_RUNES: return { "POWER_RUNES", "Runes", "" };
         case POWER_RUNIC_POWER: return { "POWER_RUNIC_POWER", "Runic Power", "" };
-        case POWER_SOUL_SHARDS: return { "POWER_SOUL_SHARDS", "Soul Shards", "" };
-        case POWER_LUNAR_POWER: return { "POWER_LUNAR_POWER", "Lunar Power", "" };
-        case POWER_HOLY_POWER: return { "POWER_HOLY_POWER", "Holy Power", "" };
-        case POWER_ALTERNATE_POWER: return { "POWER_ALTERNATE_POWER", "Alternate", "" };
-        case POWER_MAELSTROM: return { "POWER_MAELSTROM", "Maelstrom", "" };
-        case POWER_CHI: return { "POWER_CHI", "Chi", "" };
-        case POWER_INSANITY: return { "POWER_INSANITY", "Insanity", "" };
+        case POWER_SOUL_SHARDS: return { "POWER_SOUL_SHARDS", "Soul Shards (unused 3.4.0)", "" };
+        case POWER_LUNAR_POWER: return { "POWER_LUNAR_POWER", "Lunar Power (unused 3.4.0)", "" };
+        case POWER_HOLY_POWER: return { "POWER_HOLY_POWER", "Holy Power (unused 3.4.0)", "" };
+        case POWER_ALTERNATE_POWER: return { "POWER_ALTERNATE_POWER", "Alternate (unused 3.4.0)", "" };
+        case POWER_MAELSTROM: return { "POWER_MAELSTROM", "Maelstrom (unused 3.4.0)", "" };
+        case POWER_CHI: return { "POWER_CHI", "Chi (unused 3.4.0)", "" };
+        case POWER_INSANITY: return { "POWER_INSANITY", "Insanity (unused 3.4.0)", "" };
         case POWER_COMBO_POINTS: return { "POWER_COMBO_POINTS", "Combo Points", "" };
-        case POWER_DEMONIC_FURY: return { "POWER_DEMONIC_FURY", "Demonic Fury (Obsolete)", "" };
-        case POWER_ARCANE_CHARGES: return { "POWER_ARCANE_CHARGES", "Arcane Charges", "" };
-        case POWER_FURY: return { "POWER_FURY", "Fury", "" };
-        case POWER_PAIN: return { "POWER_PAIN", "Pain", "" };
-        case POWER_UNUSED_19: return { "POWER_UNUSED_19", "Unused19", "" };
-        case POWER_RUNE_BLOOD: return { "POWER_RUNE_BLOOD", "Rune Blood", "" };
-        case POWER_RUNE_FROST: return { "POWER_RUNE_FROST", "Rune Frost", "" };
-        case POWER_RUNE_UNHOLY: return { "POWER_RUNE_UNHOLY", "Rune Unholy", "" };
+        case POWER_DEMONIC_FURY: return { "POWER_DEMONIC_FURY", "Demonic Fury (Obsolete) (unused 3.4.0)", "" };
+        case POWER_ARCANE_CHARGES: return { "POWER_ARCANE_CHARGES", "Arcane Charges (unused 3.4.0)", "" };
+        case POWER_FURY: return { "POWER_FURY", "Fury (unused 3.4.0)", "" };
+        case POWER_PAIN: return { "POWER_PAIN", "Pain (unused 3.4.0)", "" };
+        case POWER_UNUSED_19: return { "POWER_UNUSED_19", "Pain (unused 3.4.0)", "" };
+        case POWER_RUNE_BLOOD: return { "POWER_RUNE_BLOOD", "COMBAT_TEXT_RUNE_BLOOD", "" };
+        case POWER_RUNE_FROST: return { "POWER_RUNE_FROST", "COMBAT_TEXT_RUNE_FROST", "" };
+        case POWER_RUNE_UNHOLY: return { "POWER_RUNE_UNHOLY", "COMBAT_TEXT_RUNE_UNHOLY", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Powers>::Count() { return 20; }
+TC_API_EXPORT size_t EnumUtils<Powers>::Count() { return 24; }
 
 template <>
 TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
