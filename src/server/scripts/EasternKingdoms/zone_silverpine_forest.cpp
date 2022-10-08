@@ -3610,16 +3610,13 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
 
                 case EVENT_GRAB_BUSH_CHICKEN:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Creature* mutantBushChicken = ObjectAccessor::GetCreature(*me, _chickenGUID))
                     {
-                        if (Creature* mutantBushChicken = ObjectAccessor::GetCreature(*me, _chickenGUID))
-                        {
-                            me->CastSpell(mutantBushChicken, SPELL_RIDE_REVERSE_CAST_ITS_POISONOUS, true);
+                        me->CastSpell(mutantBushChicken, SPELL_RIDE_REVERSE_CAST_ITS_POISONOUS, true);
 
-                            _isGrabbingBushChicken = true;
+                        _isGrabbingBushChicken = true;
 
-                            _events.ScheduleEvent(EVENT_RESET_BUSH_CHICKEN_BOOL, 25s);
-                        }
+                        _events.ScheduleEvent(EVENT_RESET_BUSH_CHICKEN_BOOL, 25s);
                     }
                     break;
                 }
