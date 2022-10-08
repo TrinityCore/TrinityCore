@@ -513,7 +513,7 @@ UPDATE `creature` SET `MovementType`= 1, `wander_distance`= 5 WHERE `id` = 46575
 UPDATE `creature` SET `unit_flags` = 768, `MovementType`= 0, `wander_distance`= 0 WHERE `guid` = 321101;
 
 DELETE FROM `creature_addon` WHERE `guid` = 321101;
-INSERT INTO `creature_addon` (`guid`, `waypointPathId`, `cyclicSplinePathId`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (321101, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, '80636');
 
 -- Caretaker Smithers
@@ -527,7 +527,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Forsaken Catapult
 DELETE FROM `creature_addon` WHERE `guid` IN (321185, 321177, 321159, 321154, 321143, 321142, 321119, 321103);
-INSERT INTO `creature_addon` (`guid`, `waypointPathId`, `cyclicSplinePathId`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (321185, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '29266 84386'),
 (321177, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '29266 84386'),
 (321159, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '29266 84386'),
