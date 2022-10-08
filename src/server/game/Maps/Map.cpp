@@ -1754,75 +1754,51 @@ bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, floa
     return result;
 }
 
-Map::EnterState Map::PlayerCannotEnter(uint32 mapid, Player* player, bool /*loginCheck*/)
+TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
     if (!entry)
-        return CANNOT_ENTER_NO_ENTRY;
+        return TRANSFER_ABORT_MAP_NOT_ALLOWED;
 
     if (!entry->IsDungeon())
-        return CAN_ENTER;
+        return TRANSFER_ABORT_NONE;
 
-    Difficulty targetDifficulty, requestedDifficulty;
-    targetDifficulty = requestedDifficulty = player->GetDifficultyID(entry);
+    Difficulty targetDifficulty = player->GetDifficultyID(entry);
     // Get the highest available difficulty if current setting is higher than the instance allows
     MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, targetDifficulty);
     if (!mapDiff)
-        return CANNOT_ENTER_DIFFICULTY_UNAVAILABLE;
+        return TRANSFER_ABORT_DIFFICULTY;
 
     //Bypass checks for GMs
     if (player->IsGameMaster())
-        return CAN_ENTER;
+        return TRANSFER_ABORT_NONE;
 
     //Other requirements
-    if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
-        return CANNOT_ENTER_UNSPECIFIED_REASON;
-
-    char const* mapName = entry->MapName[sWorld->GetDefaultDbcLocale()];
+    {
+        TransferAbortParams params(TRANSFER_ABORT_NONE);
+        if (!player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, &params, true))
+            return params;
+    }
 
     Group* group = player->GetGroup();
     if (entry->IsRaid() && entry->Expansion() >= sWorld->getIntConfig(CONFIG_EXPANSION)) // can only enter in a raid group but raids from old expansion don't need a group
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
-            return CANNOT_ENTER_NOT_IN_RAID;
-
-    if (!player->IsAlive())
-    {
-        if (player->HasCorpse())
-        {
-            // let enter in ghost mode in instance that connected to inner instance with corpse
-            uint32 corpseMap = player->GetCorpseLocation().GetMapId();
-            do
-            {
-                if (corpseMap == mapid)
-                    break;
-
-                InstanceTemplate const* corpseInstance = sObjectMgr->GetInstanceTemplate(corpseMap);
-                corpseMap = corpseInstance ? corpseInstance->Parent : 0;
-            } while (corpseMap);
-
-            if (!corpseMap)
-                return CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE;
-
-            TC_LOG_DEBUG("maps", "MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName().c_str(), mapName);
-        }
-        else
-            TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName().c_str());
-    }
+            return TRANSFER_ABORT_NEED_GROUP;
 
     if (entry->Instanceable())
     {
         //Get instance where player's group is bound & its map
         uint32 instanceIdToCheck = sMapMgr->FindInstanceIdForPlayer(mapid, player);
         if (Map* boundMap = sMapMgr->FindMap(mapid, instanceIdToCheck))
-            if (EnterState denyReason = boundMap->CannotEnter(player))
+            if (TransferAbortParams denyReason = boundMap->CannotEnter(player))
                 return denyReason;
 
         // players are only allowed to enter 10 instances per hour
         if (!entry->GetFlags2().HasFlag(MapFlags2::IgnoreInstanceFarmLimit) && entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
-            return CANNOT_ENTER_TOO_MANY_INSTANCES;
+            return TRANSFER_ABORT_TOO_MANY_INSTANCES;
     }
 
-    return CAN_ENTER;
+    return TRANSFER_ABORT_NONE;
 }
 
 char const* Map::GetMapName() const
@@ -2807,13 +2783,13 @@ void InstanceMap::InitVisibilityDistance()
 /*
     Do map specific checks to see if the player can enter
 */
-Map::EnterState InstanceMap::CannotEnter(Player* player)
+TransferAbortParams InstanceMap::CannotEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
         TC_LOG_ERROR("maps", "InstanceMap::CannotEnter - player %s %s already in map %d, %d, %d!", player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetId(), GetInstanceId(), GetDifficultyID());
         ABORT();
-        return CANNOT_ENTER_ALREADY_IN_MAP;
+        return TRANSFER_ABORT_ERROR;
     }
 
     // allow GM's to enter
@@ -2825,22 +2801,19 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
     if (GetPlayersCountExceptGMs() >= maxPlayers)
     {
         TC_LOG_WARN("maps", "MAP: Instance '%u' of map '%s' cannot have more than '%u' players. Player '%s' rejected", GetInstanceId(), GetMapName(), maxPlayers, player->GetName().c_str());
-        return CANNOT_ENTER_MAX_PLAYERS;
+        return TRANSFER_ABORT_MAX_PLAYERS;
     }
 
     // cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
     if (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
-        return CANNOT_ENTER_ZONE_IN_COMBAT;
+        return TRANSFER_ABORT_ZONE_IN_COMBAT;
 
     if (i_instanceLock)
     {
         // cannot enter if player is permanent saved to a different instance id
         TransferAbortReason lockError = sInstanceLockMgr.CanJoinInstanceLock(player->GetGUID(), { GetEntry(), GetMapDifficulty() }, i_instanceLock);
-        if (lockError == TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE)
-            return CANNOT_ENTER_INSTANCE_BIND_MISMATCH;
-
-        if (lockError == TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER)
-            return CANNOT_ENTER_ALREADY_COMPLETED_ENCOUNTER;
+        if (lockError != TRANSFER_ABORT_NONE)
+            return lockError;
     }
 
     return Map::CannotEnter(player);
@@ -3290,17 +3263,17 @@ void BattlegroundMap::InitVisibilityDistance()
     m_VisibilityNotifyPeriod = IsBattleArena() ? World::GetVisibilityNotifyPeriodInArenas() : World::GetVisibilityNotifyPeriodInBG();
 }
 
-Map::EnterState BattlegroundMap::CannotEnter(Player* player)
+TransferAbortParams BattlegroundMap::CannotEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
         TC_LOG_ERROR("maps", "BGMap::CannotEnter - player %s is already in map!", player->GetGUID().ToString().c_str());
         ABORT();
-        return CANNOT_ENTER_ALREADY_IN_MAP;
+        return TRANSFER_ABORT_ERROR;
     }
 
     if (player->GetBattlegroundId() != GetInstanceId())
-        return CANNOT_ENTER_INSTANCE_BIND_MISMATCH;
+        return TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE;
 
     // player number limit is checked in bgmgr, no need to do it here
 
