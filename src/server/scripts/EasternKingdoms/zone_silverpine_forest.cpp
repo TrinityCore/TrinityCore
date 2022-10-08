@@ -3790,6 +3790,7 @@ enum WebbedOrcSeaDog
 struct npc_silverpine_orc_sea_dog : public ScriptedAI
 {
     npc_silverpine_orc_sea_dog(Creature* creature) : ScriptedAI(creature) {}
+
     void JustAppeared() override
     {
         me->SetPowerType(POWER_ENERGY);
