@@ -1434,8 +1434,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // Check enter rights before map getting to avoid creating instance copy for player
         // this check not dependent from map instance copy and same for all instance copies of selected map
-        if (Map::PlayerCannotEnter(mapid, this, false))
+        if (TransferAbortParams abortParams = Map::PlayerCannotEnter(mapid, this))
+        {
+            SendTransferAborted(mapid, abortParams.Reason, abortParams.Arg, abortParams.MapDifficultyXConditionId);
             return false;
+        }
 
         // Seamless teleport can happen only if cosmetic maps match
         if (!oldmap ||
@@ -1443,113 +1446,104 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             !((oldmap->GetEntry()->CosmeticParentMapID != -1) ^ (oldmap->GetEntry()->CosmeticParentMapID != mEntry->CosmeticParentMapID))))
             options &= ~TELE_TO_SEAMLESS;
 
-        //I think this always returns true. Correct me if I am wrong.
-        // If the map is not created, assume it is possible to enter it.
-        // It will be created in the WorldPortAck.
-        //Map* map = sMapMgr->FindBaseNonInstanceMap(mapid);
-        //if (!map || map->CanEnter(this))
+        //lets reset near teleport flag if it wasn't reset during chained teleports
+        SetSemaphoreTeleportNear(false);
+        //setup delayed teleport flag
+        SetDelayedTeleportFlag(IsCanDelayTeleport());
+        //if teleport spell is cast in Unit::Update() func
+        //then we need to delay it until update process will be finished
+        if (IsHasDelayedTeleport())
         {
-            //lets reset near teleport flag if it wasn't reset during chained teleports
-            SetSemaphoreTeleportNear(false);
-            //setup delayed teleport flag
-            SetDelayedTeleportFlag(IsCanDelayTeleport());
-            //if teleport spell is cast in Unit::Update() func
-            //then we need to delay it until update process will be finished
-            if (IsHasDelayedTeleport())
-            {
-                SetSemaphoreTeleportFar(true);
-                //lets save teleport destination for player
-                m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
-                m_teleport_instanceId = instanceId;
-                m_teleport_options = options;
-                return true;
-            }
-
-            SetSelection(ObjectGuid::Empty);
-
-            CombatStop();
-
-            ResetContestedPvP();
-
-            // remove player from battleground on far teleport (when changing maps)
-            if (Battleground const* bg = GetBattleground())
-            {
-                // Note: at battleground join battleground id set before teleport
-                // and we already will found "current" battleground
-                // just need check that this is targeted map or leave
-                if (bg->GetMapId() != mapid)
-                    LeaveBattleground(false);                   // don't teleport to entry point
-            }
-
-            // remove arena spell coldowns/buffs now to also remove pet's cooldowns before it's temporarily unsummoned
-            if (mEntry->IsBattleArena() && !IsGameMaster())
-            {
-                RemoveArenaSpellCooldowns(true);
-                RemoveArenaAuras();
-                if (pet)
-                    pet->RemoveArenaAuras();
-            }
-
-            // remove pet on map change
-            if (pet)
-                UnsummonPetTemporaryIfAny();
-
-            // remove all dyn objects
-            RemoveAllDynObjects();
-
-            // remove all areatriggers entities
-            RemoveAllAreaTriggers();
-
-            // stop spellcasting
-            // not attempt interrupt teleportation spell at caster teleport
-            if (!(options & TELE_TO_SPELL))
-                if (IsNonMeleeSpellCast(true))
-                    InterruptNonMeleeSpells(true);
-
-            //remove auras before removing from map...
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning);
-
-            if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
-            {
-                // send transfer packets
-                WorldPackets::Movement::TransferPending transferPending;
-                transferPending.MapID = mapid;
-                transferPending.OldMapPosition = GetPosition();
-                if (Transport* transport = dynamic_cast<Transport*>(GetTransport()))
-                {
-                    transferPending.Ship.emplace();
-                    transferPending.Ship->ID = transport->GetEntry();
-                    transferPending.Ship->OriginMapID = GetMapId();
-                }
-
-                SendDirectMessage(transferPending.Write());
-            }
-
-            // remove from old map now
-            if (oldmap)
-                oldmap->RemovePlayerFromMap(this, false);
-
+            SetSemaphoreTeleportFar(true);
+            //lets save teleport destination for player
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_instanceId = instanceId;
             m_teleport_options = options;
-            SetFallInformation(0, GetPositionZ());
-            // if the player is saved before worldportack (at logout for example)
-            // this will be used instead of the current location in SaveToDB
+            return true;
+        }
 
-            if (!GetSession()->PlayerLogout())
+        SetSelection(ObjectGuid::Empty);
+
+        CombatStop();
+
+        ResetContestedPvP();
+
+        // remove player from battleground on far teleport (when changing maps)
+        if (Battleground const* bg = GetBattleground())
+        {
+            // Note: at battleground join battleground id set before teleport
+            // and we already will found "current" battleground
+            // just need check that this is targeted map or leave
+            if (bg->GetMapId() != mapid)
+                LeaveBattleground(false);                   // don't teleport to entry point
+        }
+
+        // remove arena spell coldowns/buffs now to also remove pet's cooldowns before it's temporarily unsummoned
+        if (mEntry->IsBattleArena() && !IsGameMaster())
+        {
+            RemoveArenaSpellCooldowns(true);
+            RemoveArenaAuras();
+            if (pet)
+                pet->RemoveArenaAuras();
+        }
+
+        // remove pet on map change
+        if (pet)
+            UnsummonPetTemporaryIfAny();
+
+        // remove all dyn objects
+        RemoveAllDynObjects();
+
+        // remove all areatriggers entities
+        RemoveAllAreaTriggers();
+
+        // stop spellcasting
+        // not attempt interrupt teleportation spell at caster teleport
+        if (!(options & TELE_TO_SPELL))
+            if (IsNonMeleeSpellCast(true))
+                InterruptNonMeleeSpells(true);
+
+        //remove auras before removing from map...
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning);
+
+        if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
+        {
+            // send transfer packets
+            WorldPackets::Movement::TransferPending transferPending;
+            transferPending.MapID = mapid;
+            transferPending.OldMapPosition = GetPosition();
+            if (Transport* transport = dynamic_cast<Transport*>(GetTransport()))
             {
-                WorldPackets::Movement::SuspendToken suspendToken;
-                suspendToken.SequenceIndex = m_movementCounter; // not incrementing
-                suspendToken.Reason = options & TELE_TO_SEAMLESS ? 2 : 1;
-                SendDirectMessage(suspendToken.Write());
+                transferPending.Ship.emplace();
+                transferPending.Ship->ID = transport->GetEntry();
+                transferPending.Ship->OriginMapID = GetMapId();
             }
 
-            // move packet sent by client always after far teleport
-            // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
-            SetSemaphoreTeleportFar(true);
+            SendDirectMessage(transferPending.Write());
         }
-        //else
-        //    return false;
+
+        // remove from old map now
+        if (oldmap)
+            oldmap->RemovePlayerFromMap(this, false);
+
+        m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+        m_teleport_instanceId = instanceId;
+        m_teleport_options = options;
+        SetFallInformation(0, GetPositionZ());
+        // if the player is saved before worldportack (at logout for example)
+        // this will be used instead of the current location in SaveToDB
+
+        if (!GetSession()->PlayerLogout())
+        {
+            WorldPackets::Movement::SuspendToken suspendToken;
+            suspendToken.SequenceIndex = m_movementCounter; // not incrementing
+            suspendToken.Reason = options & TELE_TO_SEAMLESS ? 2 : 1;
+            SendDirectMessage(suspendToken.Write());
+        }
+
+        // move packet sent by client always after far teleport
+        // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
+        SetSemaphoreTeleportFar(true);
     }
     return true;
 }
@@ -17438,31 +17432,9 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     }
     else if (map->IsDungeon()) // if map is dungeon...
     {
-        if (Map::EnterState denyReason = ((InstanceMap*)map)->CannotEnter(this)) // ... and can't enter map, then look for entry point.
+        if (TransferAbortParams denyReason = map->CannotEnter(this)) // ... and can't enter map, then look for entry point.
         {
-            switch (denyReason)
-            {
-                case Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE:
-                    SendTransferAborted(map->GetId(), TRANSFER_ABORT_DIFFICULTY, map->GetDifficultyID());
-                    break;
-                case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
-                    ChatHandler(GetSession()).PSendSysMessage(GetSession()->GetTrinityString(LANG_INSTANCE_BIND_MISMATCH), map->GetMapName());
-                    break;
-                case Map::CANNOT_ENTER_TOO_MANY_INSTANCES:
-                    SendTransferAborted(map->GetId(), TRANSFER_ABORT_TOO_MANY_INSTANCES);
-                    break;
-                case Map::CANNOT_ENTER_MAX_PLAYERS:
-                    SendTransferAborted(map->GetId(), TRANSFER_ABORT_MAX_PLAYERS);
-                    break;
-                case Map::CANNOT_ENTER_ZONE_IN_COMBAT:
-                    SendTransferAborted(map->GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
-                    break;
-                case Map::CANNOT_ENTER_INSTANCE_SHUTTING_DOWN:
-                    SendTransferAborted(map->GetId(), TRANSFER_ABORT_NOT_FOUND);
-                    break;
-                default:
-                    break;
-            }
+            SendTransferAborted(map->GetId(), denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
             areaTrigger = sObjectMgr->GetGoBackTrigger(mapId);
             check = true;
         }
@@ -19014,7 +18986,7 @@ void Player::SendRaidInfo()
     SendDirectMessage(instanceInfo.Write());
 }
 
-bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report)
+bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, TransferAbortParams* params, bool report)
 {
     if (!IsGameMaster())
     {
@@ -19065,12 +19037,6 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             else if (ar->item2 && !HasItemCount(ar->item2))
                 missingItem = ar->item2;
 
-            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
-            {
-                GetSession()->SendNotification("%s", GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
-                return false;
-            }
-
             if (GetTeam() == ALLIANCE && ar->quest_A && !GetQuestRewardStatus(ar->quest_A))
                 missingQuest = ar->quest_A;
             else if (GetTeam() == HORDE && ar->quest_H && !GetQuestRewardStatus(ar->quest_H))
@@ -19088,12 +19054,22 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
 
         if (LevelMin || LevelMax || failedMapDifficultyXCondition || missingItem || missingQuest || missingAchievement)
         {
+            if (params)
+                params->Reason = TRANSFER_ABORT_ERROR;
+
             if (report)
             {
                 if (missingQuest && !ar->questFailedText.empty())
                     ChatHandler(GetSession()).PSendSysMessage("%s", ar->questFailedText.c_str());
                 else if (mapDiff->Message[sWorld->GetDefaultDbcLocale()][0] != '\0' || failedMapDifficultyXCondition) // if (missingAchievement) covered by this case
-                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty, failedMapDifficultyXCondition);
+                {
+                    if (params)
+                    {
+                        params->Reason = TRANSFER_ABORT_DIFFICULTY;
+                        params->Arg = target_difficulty;
+                        params->MapDifficultyXConditionId = failedMapDifficultyXCondition;
+                    }
+                }
                 else if (missingItem)
                     GetSession()->SendNotification(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(missingItem))->GetName(GetSession()->GetSessionDbcLocale()));
                 else if (LevelMin)
