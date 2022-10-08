@@ -492,9 +492,9 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 83756, 0, 0, 31, 0, 3, 45197, 0, 0, 0, 0, '', 'Collect Forsaken Insignia - Target Veteran Forsaken Trooper');
 
-DELETE FROM `pickpocketing_loot_template` WHERE `Entry` = 45197 AND `Item` = 60862;
-INSERT INTO `pickpocketing_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `IsCurrency`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES 
-(45197, 60862, 0, 100, 1, 0, 1, 0, 1, 1, 'Forsaken Insignia');
+DELETE FROM `pickpocketing_loot_template` WHERE `Entry`=45197 AND `Item`=60862;
+INSERT INTO `pickpocketing_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES 
+(45197, 60862, 0, 100, 1, 1, 0, 1, 1, 'Forsaken Insignia');
 
 -- Bloodfang Stalker
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 45195;
