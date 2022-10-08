@@ -1,0 +1,30 @@
+-- DB update 2021_02_12_01 -> 2021_02_12_02
+DROP PROCEDURE IF EXISTS `updateDb`;
+DELIMITER //
+CREATE PROCEDURE updateDb ()
+proc:BEGIN DECLARE OK VARCHAR(100) DEFAULT 'FALSE';
+SELECT COUNT(*) INTO @COLEXISTS
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'version_db_world' AND COLUMN_NAME = '2021_02_12_01';
+IF @COLEXISTS = 0 THEN LEAVE proc; END IF;
+START TRANSACTION;
+ALTER TABLE version_db_world CHANGE COLUMN 2021_02_12_01 2021_02_12_02 bit;
+SELECT sql_rev INTO OK FROM version_db_world WHERE sql_rev = '1613048883163964726'; IF OK <> 'FALSE' THEN LEAVE proc; END IF;
+--
+-- START UPDATING QUERIES
+--
+
+INSERT INTO `version_db_world` (`sql_rev`) VALUES ('1613048883163964726');
+
+-- Move Megelon the Draenei starting NPC
+
+UPDATE `creature` SET `position_x`=-3962, `position_y`=-13926.32, `position_z`=101.13,`orientation`=4.1889 WHERE `guid`=57173;
+
+--
+-- END UPDATING QUERIES
+--
+COMMIT;
+END //
+DELIMITER ;
+CALL updateDb();
+DROP PROCEDURE IF EXISTS `updateDb`;

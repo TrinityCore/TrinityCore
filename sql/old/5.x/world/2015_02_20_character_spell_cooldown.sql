@@ -1,0 +1,1 @@
+ALTER TABLE `character_spell_cooldown` CHANGE COLUMN `time` `time` BIGINT UNSIGNED NOT NULL DEFAULT '0' AFTER `item`;

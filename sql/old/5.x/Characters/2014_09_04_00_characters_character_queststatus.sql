@@ -1,0 +1,10 @@
+ALTER TABLE `character_queststatus`
+DROP COLUMN `mobcount1`,
+DROP COLUMN `mobcount2`,
+DROP COLUMN `mobcount3`,
+DROP COLUMN `mobcount4`,
+DROP COLUMN `itemcount1`,
+DROP COLUMN `itemcount2`,
+DROP COLUMN `itemcount3`,
+DROP COLUMN `itemcount4`,
+DROP COLUMN `playercount`;

@@ -1,0 +1,2 @@
+delete from spell_script_names where spell_id = 34477 and ScriptName = 'spell_hun_glyph_of_direction';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (34477, 'spell_hun_glyph_of_direction');

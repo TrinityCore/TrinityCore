@@ -1,0 +1,13 @@
+-- Fix Torghast Entry Portal
+REPLACE INTO `gameobject_template` VALUES (364374, 1, 66092, 'Portal to Torghast', '', '', '', 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 709, 'SmartGameObjectAI', '', 36839);
+REPLACE INTO `smart_scripts` VALUES (364374, 1, 0, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, '', 62, 2453, 0, 0, 0, 0, 0, 18, 0, 0, 0, 1646.56, 2318.66, 380.96, 4.70021, 'Torghast Entry Teleport');
+
+-- TEMP Fix Torghast Exit
+REPLACE INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `name`, `femaleName`, `subname`, `TitleAlt`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `HealthScalingExpansion`, `RequiredExpansion`, `VignetteID`, `faction`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `dmgschool`, `BaseAttackTime`, `RangeAttackTime`, `BaseVariance`, `RangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `family`, `trainer_class`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `HealthModifier`, `HealthModifierExtra`, `ManaModifier`, `ManaModifierExtra`, `ArmorModifier`, `DamageModifier`, `ExperienceModifier`, `RacialLeader`, `movementId`, `WidgetSetID`, `WidgetSetUnitConditionID`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `VerifiedBuild`) VALUES (7000100, 0, 0, 0, 0, 0, 'Trigger (Torghast Exit)', 'Trigger (Torghast Exit)', 'Visual', NULL, '', 0, 1, 1, 0, 0, 0, 35, 0, 0.91, 1.14286, 1, 0, 0, 2000, 2200, 1, 1, 1, 0, 2048, 0, 0, 0, 0, 8, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'SmartAI', 0, 4, 1, 0.0125, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 130, 0, '', 0);
+REPLACE INTO `creature_template_model` VALUES (7000100, 0, 16, 1, 1, 0);
+REPLACE INTO `smart_scripts` VALUES (7000100, 0, 0, 0, 10, 0, 100, 0, 1, 5, 0, 0, 0, '', 62, 2222, 0, 0, 0, 0, 0, 18, 0, 0, 0, 4640.97, 6673.89, 4840.12, 2.62532, 'Torghast Exit TEST Creature');
+REPLACE INTO `creature` VALUES (4000000100000000, 7000100, 2453, 0, 0, '0', 0, 0, 0, -1, 0, 0, 1646.25, 2337.55, 380.96, 1.56585, 300, 0, 0, 0, 0, 0, 0, 33554432, 0, 0, 0, '', 0);
+-- Fix SW/OG City Guard Directions
+UPDATE `creature_template` SET `gossip_menu_id`='435' WHERE  `entry`=68;
+UPDATE `creature_template` SET `gossip_menu_id`='1951' WHERE  `entry`=3296;
+

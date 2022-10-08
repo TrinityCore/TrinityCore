@@ -1,0 +1,29 @@
+-- DB update 2021_04_11_20 -> 2021_04_11_21
+DROP PROCEDURE IF EXISTS `updateDb`;
+DELIMITER //
+CREATE PROCEDURE updateDb ()
+proc:BEGIN DECLARE OK VARCHAR(100) DEFAULT 'FALSE';
+SELECT COUNT(*) INTO @COLEXISTS
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'version_db_world' AND COLUMN_NAME = '2021_04_11_20';
+IF @COLEXISTS = 0 THEN LEAVE proc; END IF;
+START TRANSACTION;
+ALTER TABLE version_db_world CHANGE COLUMN 2021_04_11_20 2021_04_11_21 bit;
+SELECT sql_rev INTO OK FROM version_db_world WHERE sql_rev = '1617919651657315506'; IF OK <> 'FALSE' THEN LEAVE proc; END IF;
+--
+-- START UPDATING QUERIES
+--
+
+INSERT INTO `version_db_world` (`sql_rev`) VALUES ('1617919651657315506');
+
+-- Azuremyst Isle - Timberstrider Fledgling spawn
+UPDATE `creature` SET `position_x`=-4660.85, `position_y`=-12176.9, `position_z`=31.6266, `orientation`=0.746134 WHERE `guid`=62767 and `id`=17372;
+
+--
+-- END UPDATING QUERIES
+--
+COMMIT;
+END //
+DELIMITER ;
+CALL updateDb();
+DROP PROCEDURE IF EXISTS `updateDb`;

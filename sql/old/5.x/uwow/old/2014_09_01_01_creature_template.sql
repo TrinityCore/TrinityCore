@@ -1,0 +1,1 @@
+update creature_template set ScriptName = "boss_gatewatcher_gyrokill" where entry = 19218;

@@ -1,0 +1,18 @@
+DELETE FROM `gameobject` WHERE `id`='218627';
+DELETE FROM `creature` WHERE `id`='68852';
+DELETE FROM `creature` WHERE `id`='64693';
+DELETE FROM `creature` WHERE `id`='68480';
+DELETE FROM `creature` WHERE `id`='69703';
+DELETE FROM `creature` WHERE `id`='69159';
+DELETE FROM `creature` WHERE `id`='69398';
+DELETE FROM `creature` WHERE `id`='70660';
+DELETE FROM `creature_template_addon` WHERE `entry`='68079'; 
+DELETE FROM `creature_template_addon` WHERE `entry`='68080'; 
+DELETE FROM `creature_template_addon` WHERE `entry`='68081'; 
+DELETE FROM `creature_template_addon` WHERE `entry`='68078'; 
+UPDATE `gameobject` SET `state`='0' WHERE `id`='218388';
+UPDATE `gameobject_template` SET `faction`='1375' WHERE `entry`='218388'; 
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='2048',`mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_iron_qon' WHERE `entry`='68078'; 
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='2048',`mechanic_immune_mask`='650854399',`ScriptName`='npc_iron_qon_maunt' WHERE `entry`='68079'; 
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='2048',`mechanic_immune_mask`='650854399',`ScriptName`='npc_iron_qon_maunt' WHERE `entry`='68080'; 
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='2048',`mechanic_immune_mask`='650854399',`ScriptName`='npc_iron_qon_maunt' WHERE `entry`='68081'; 

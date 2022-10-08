@@ -1,0 +1,1 @@
+delete from spell_script_names where spell_id = 19750 and ScriptName = 'spell_pal_selfless_healer';

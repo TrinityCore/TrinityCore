@@ -1,0 +1,4 @@
+DELETE FROM `creature_text` WHERE `entry`='71865' AND `groupid`='14' AND `id`='0'; 
+DELETE FROM `creature_text` WHERE `entry`='71865' AND `groupid`='15' AND `id`='0'; 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES ('71865','14','0','(долго злобно смеется) Думаете вы победили? Слепцы.Я раскрою вам глаза!','14','0','100','0','0','38057','0');
+INSERT INTO `creature_text` (`entry`, `groupid` , id` ,`text` ,`type` ,`language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES ('71865','15','0','Я уничтожу все что вам было дорого!','14','0','100','0','0','38050','0'); 

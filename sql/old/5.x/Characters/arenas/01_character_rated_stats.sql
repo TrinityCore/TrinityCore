@@ -1,0 +1,1 @@
+ALTER TABLE character_rated_stats DROP COLUMN matchmakerRating;

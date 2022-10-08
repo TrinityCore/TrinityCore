@@ -1,0 +1,1 @@
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('71658','0','0','Что здесь творится? Загоните это обратно в клетку!','14','0','100','0','0','38985','Коркронский тюремщик'); 

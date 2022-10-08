@@ -1,0 +1,2 @@
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (89481, 'spell_gen_battle_guild_standart');
+update creature_template_addon set auras = '89481' where entry in (48115, 48633, 48634, 48636, 48637, 48638);

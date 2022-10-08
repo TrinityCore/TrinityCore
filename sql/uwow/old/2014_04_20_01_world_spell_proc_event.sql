@@ -1,0 +1,1 @@
+ALTER TABLE `spell_proc_event` MODIFY COLUMN Cooldown float unsigned NOT NULL DEFAULT '0';

@@ -1,0 +1,23 @@
+DELETE FROM `creature` WHERE `id` = '71529';
+DELETE FROM `creature` WHERE `id` = '71787';
+DELETE FROM `creature` WHERE `id` = '71753';
+DELETE FROM `creature` WHERE `id` = '71744';
+DELETE FROM `creature` WHERE `id` = '71764';
+DELETE FROM `creature` WHERE `id` = '71658';
+DELETE FROM `creature` WHERE `id` = '73184';
+DELETE FROM `creature` WHERE `id` = '73185';
+DELETE FROM `creature` WHERE `id` = '73195';
+DELETE FROM `creature` WHERE `id` = '71720';
+DELETE FROM `creature` WHERE `id` = '73188'; 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) values(NULL ,'71529','1136','6738','6738','16536','1','0','0','1208.61','-5106.27','-289.939','0.526631','604800','0','0','444859744','1000','0','16777216','0','0','0','0');
+UPDATE `creature_template` SET `ScriptName`='boss_thok_the_bloodthirsty' WHERE `entry`='71529';
+UPDATE `creature_template` SET `ScriptName`='npc_generic_prisoner' WHERE `entry`='71742'; 
+UPDATE `creature_template` SET `ScriptName`='npc_generic_prisoner' WHERE `entry`='71763'; 
+UPDATE `creature_template` SET `ScriptName`='npc_generic_prisoner' WHERE `entry`='71749'; 
+UPDATE `creature_template` SET `ScriptName`='npc_korkron_jailer' WHERE `entry`='71658'; 
+INSERT INTO `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values('143707','15','9','0','0','0','0','0','7','2','4','4','0','0','OO: Shock Blast');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '143445','spell_fixate'); 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '143345','spell_power_regen');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '143430','spell_clump_check');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '146589','spell_unlocking'); 
+  

@@ -1,0 +1,2 @@
+INSERT INTO `achievement_reward`(`entry`,`title_A`,`title_H`,`learnSpell`,`item`,`sender`,`subject`,`text`,`ScriptName`) VALUES ( '8680','0','383','0','0','0',NULL,NULL,''); 
+INSERT INTO `achievement_reward`(`entry`,`title_A`,`title_H`,`learnSpell`,`item`,`sender`,`subject`,`text`,`ScriptName`) VALUES ( '8679','382','0','0','0','0',NULL,NULL,''); 

@@ -1,0 +1,1 @@
+INSERT INTO `command` (`name`, `security`, `help`) VALUES ('debug clientGUIDs', '2', 'Syntax: .debug clientGUIDs');

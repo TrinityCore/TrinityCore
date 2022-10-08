@@ -1,0 +1,16 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+<!--@no-lib-strip@-->
+	<Script file="libs\LibStub\LibStub.lua"/>
+	<Include file="libs\CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
+	<Include file="libs\LibCooldownTracker-1.0\lib.xml"/>
+	<Include file="libs\LibNameplateRegistry-1.0\LibNameplateRegistry-1.0.xml" />
+	<Include file="libs\LibNameplate-1.0\LibNameplate-1.0.xml" />
+	<Include file="libs\DRData-1.0\DRData-1.0.xml"/>
+	<Include file="libs\AceAddon-3.0\AceAddon-3.0.xml"/>
+	<Include file="libs\AceConsole-3.0\AceConsole-3.0.xml"/>
+	<Include file="libs\AceEvent-3.0\AceEvent-3.0.xml"/>
+	<Include file="libs\AceDB-3.0\AceDB-3.0.xml"/>
+	<Include file="libs\AceTimer-3.0\AceTimer-3.0.xml"/>
+	<Include file="libs\AceHook-3.0\AceHook-3.0.xml"/>
+<!--@end-no-lib-strip@-->
+</Ui>

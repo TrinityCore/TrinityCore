@@ -1,0 +1,1 @@
+update spell_linked_spell set spell_trigger = '-55814', type = 0 where spell_trigger = 55814;

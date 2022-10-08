@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='116095') AND (`ScriptName`='spell_monk_disable');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `hastalent`, `type2`, `comment`) VALUES ('116095', '116706', '3', '33', '4', 'Monk - Disable');

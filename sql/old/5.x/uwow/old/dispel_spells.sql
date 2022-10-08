@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_dru_natures_cure', 'spell_pal_cleanse', 'spell_pri_purify');
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (2782, 88423, 4987, 122288, 527);

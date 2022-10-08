@@ -1,0 +1,2 @@
+INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES (8882, 'Throne Of Thunder', 1098, 5897.07, 6606.02, 106.073, 4.7236);
+INSERT INTO `areatrigger_teleport` (`id`, `name`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES (8881, 'Throne Of Thunder Exit', 1064, 7271, 5008.22, 76.163, 2.34888);

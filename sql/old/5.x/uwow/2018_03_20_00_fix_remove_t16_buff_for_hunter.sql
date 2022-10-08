@@ -1,0 +1,1 @@
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '34471','spell_hun_beast_inside'); 

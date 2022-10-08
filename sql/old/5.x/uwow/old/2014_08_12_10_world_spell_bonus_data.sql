@@ -1,0 +1,1 @@
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `comments`) VALUES ('379', '0.13', 'Earth Shield');

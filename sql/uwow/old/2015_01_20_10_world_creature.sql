@@ -1,0 +1,1 @@
+ALTER TABLE `creature` ADD `npcflag2` INT(11) UNSIGNED DEFAULT '0' NOT NULL AFTER npcflag;

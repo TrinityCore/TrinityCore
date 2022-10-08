@@ -1,0 +1,15 @@
+## Interface: 50400
+## Title: Lib: Diminishing Returns Data-1.0
+## Notes: Database of Diminishing return categories and general data
+## Author: Mayen
+## X-Category: Library
+## X-Curse-Packaged-Version: v2.8.6-1-gec137c6
+## X-Curse-Project-Name: DRData-1.0
+## X-Curse-Project-ID: drdata-1-0
+## X-Curse-Repository-ID: wow/drdata-1-0/mainline
+
+#@no-lib-strip@
+libs\LibStub\LibStub.lua
+#@end-no-lib-strip@
+
+DRData-1.0.xml

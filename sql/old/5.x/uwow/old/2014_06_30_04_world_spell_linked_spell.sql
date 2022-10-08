@@ -1,0 +1,2 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hastalent2`, `comment`) VALUES ('770', '114238', '114237', '5487', 'Glyph of Fae Silence');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hastalent2`, `comment`) VALUES ('102355', '114238', '114237', '5487', 'Glyph of Fae Silence');

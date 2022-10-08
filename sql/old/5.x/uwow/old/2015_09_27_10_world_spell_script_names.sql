@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='5185') AND (`ScriptName`='spell_dru_healing_ouch');
+DELETE FROM `spell_script_names` WHERE (`spell_id`='34299') AND (`ScriptName`='spell_dru_leader_of_the_pack');

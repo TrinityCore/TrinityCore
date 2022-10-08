@@ -1,0 +1,1 @@
+ALTER TABLE `areatrigger_actions` CHANGE `targetFlags` `targetFlags` SMALLINT(6) NOT NULL DEFAULT '0';

@@ -1,0 +1,5 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET FOREIGN_KEY_CHECKS=0 */;
+
+UPDATE `creature_questrelation` SET `id` = '35566' WHERE `id` = 35378 AND `quest` = 14222;

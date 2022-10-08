@@ -1,0 +1,1 @@
+ALTER TABLE `mapdifficulty_dbc` DROP `m_requirement`;

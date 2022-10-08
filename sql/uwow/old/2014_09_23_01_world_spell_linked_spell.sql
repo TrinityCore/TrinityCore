@@ -1,0 +1,1 @@
+update spell_linked_spell set type = 1 where spell_effect = 1130;

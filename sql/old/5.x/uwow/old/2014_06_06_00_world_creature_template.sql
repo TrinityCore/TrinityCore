@@ -1,0 +1,1 @@
+update creature_template set script_names = 'boss_isle_of_conquest' where entry in (34922, 34924);

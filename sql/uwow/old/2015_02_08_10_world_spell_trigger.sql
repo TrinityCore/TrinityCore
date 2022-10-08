@@ -1,0 +1,19 @@
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='115197') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='112961') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='113952') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='115194') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='5760') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='2818') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='8680') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='44289') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='1' WHERE (`spell_id`='79134') AND (`spell_trigger`='79136') AND (`option`='20') AND (`effectmask`='2') AND (`aura`='3409') AND (`check_spell_id`='0');
+
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='115197') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='112961') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='113952') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='115194') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='5760') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='2818') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='3409') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='44289') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `group`='2' WHERE (`spell_id`='79134') AND (`spell_trigger`='51637') AND (`option`='0') AND (`effectmask`='2') AND (`aura`='8680') AND (`check_spell_id`='0');

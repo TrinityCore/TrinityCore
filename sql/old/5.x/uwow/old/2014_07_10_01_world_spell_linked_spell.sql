@@ -1,0 +1,3 @@
+UPDATE `spell_linked_spell` SET `spell_trigger`='23588' WHERE (`spell_trigger`='76856') AND (`spell_effect`='145991') AND (`type`='0') AND (`hastalent`='145955');
+UPDATE `spell_linked_spell` SET `spell_trigger`='-23588' WHERE (`spell_trigger`='-76856') AND (`spell_effect`='-145991') AND (`type`='0') AND (`hastalent`='0');
+UPDATE `spell_linked_spell` SET `hastalent`='23588' WHERE (`spell_trigger`='145955') AND (`spell_effect`='145991') AND (`type`='0') AND (`hastalent`='76856');

@@ -1,0 +1,1 @@
+﻿DELETE FROM `currency_loot` WHERE `entry` = '71504';
