@@ -19,8 +19,8 @@
 #define WorldStateDefines_h__
 
 #include "Define.h"
-#include "Optional.h"
 #include <unordered_map>
+#include <unordered_set>
 
 struct WorldStateTemplate
 {
@@ -28,7 +28,7 @@ struct WorldStateTemplate
     int32 DefaultValue = 0;
     uint32 ScriptId = 0;
 
-    Optional<uint32> MapId;
+    std::unordered_set<uint32> MapIds;
 };
 
 using WorldStateValueContainer = std::unordered_map<int32 /*worldStateId*/, int32 /*value*/>;
