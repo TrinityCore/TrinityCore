@@ -1664,8 +1664,8 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
         {
             if (player->GetQuestStatus(QUEST_EXCISING_THE_TAINT) == QUEST_STATUS_NONE)
             {
-                if (const Quest* ExcisingTheTaint = sObjectMgr->GetQuestTemplate(QUEST_EXCISING_THE_TAINT))
-                    player->AddQuest(ExcisingTheTaint, nullptr);
+                if (Quest const* excisingTheTaint = sObjectMgr->GetQuestTemplate(QUEST_EXCISING_THE_TAINT))
+                    player->AddQuest(excisingTheTaint, nullptr);
             }
         }
     }
@@ -1733,16 +1733,11 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
 {
     npc_silverpine_caretaker_smithers(Creature* creature) : ScriptedAI(creature) { }
 
-    void JustAppeared() override
-    {
-        _homePosition = me->GetPosition();
-    }
-
     void Reset() override
     {
         _events.Reset();
 
-        me->NearTeleportTo(_homePosition, false);
+        me->NearTeleportTo(me->GetHomePosition(), false);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -1788,7 +1783,6 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
 
 private:
     EventMap _events;
-    Position _homePosition;
 };
 
 void AddSC_silverpine_forest()
