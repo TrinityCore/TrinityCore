@@ -5159,6 +5159,7 @@ class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
 
 // Note: this spell unsummons any creature owned by the caster. Set appropriate target conditions on the DB.
 // 84173 - Despawn All Summons
+// 84011 - Despawn All Summons
 // 84065 - Despawn All Summons
 // 83840 - Despawn All Summons
 class spell_gen_despawn_all_summons_owned_by_caster : public SpellScript
