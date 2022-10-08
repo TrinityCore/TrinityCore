@@ -1170,25 +1170,6 @@ void BattlefieldWG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
         workshop->FillInitialWorldStates(packet);
 }
 
-void BattlefieldWG::SendInitWorldStatesTo(Player* player)
-{
-    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (14 + WG_MAX_OBJ + WG_MAX_WORKSHOP) * 8);
-
-    WorldPackets::WorldState::InitWorldStates packet;
-    packet.AreaID = m_ZoneId;
-    //packet.SubareaID = m_ZoneId;
-    packet.MapID = m_MapId;
-
-    data << uint32(m_MapId);
-    data << uint32(m_ZoneId);
-    data << uint32(0);                                              // AreaId
-    data << uint16(14 + BuildingsInZone.size() + Workshops.size()); // Number of fields
-
-    FillInitialWorldStates(packet);
-
-    player->SendDirectMessage(packet.Write());
-}
-
 void BattlefieldWG::SendInitWorldStatesToAll()
 {
     for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)

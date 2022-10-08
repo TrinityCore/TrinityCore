@@ -34,6 +34,7 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 
 Battlefield::Battlefield()
@@ -449,6 +450,17 @@ void Battlefield::SendWarning(uint8 id, WorldObject const* target /*= nullptr*/)
 {
     if (Creature* stalker = GetCreature(StalkerGuid))
         sCreatureTextMgr->SendChat(stalker, id, target);
+}
+
+void Battlefield::SendInitWorldStatesTo(Player* player)
+{
+    WorldPackets::WorldState::InitWorldStates packet;
+    packet.MapID = m_MapId;
+    packet.AreaID = m_ZoneId;
+    packet.SubareaID = player->GetAreaId();
+    FillInitialWorldStates(packet);
+
+    player->SendDirectMessage(packet.Write());
 }
 
 void Battlefield::SendUpdateWorldState(uint32 field, uint32 value)

@@ -374,7 +374,6 @@ class BattlefieldTB : public Battlefield
 
         bool SetupBattlefield() override;
 
-        void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
 
