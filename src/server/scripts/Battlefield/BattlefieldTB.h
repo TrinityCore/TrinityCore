@@ -39,9 +39,7 @@ enum TolBaradInfo
 
 enum TolBaradData
 {
-    BATTLEFIELD_TB_DATA_BUILDINGS_CAPTURED,
     BATTLEFIELD_TB_DATA_TOWERS_INTACT,
-    BATTLEFIELD_TB_DATA_TOWERS_DESTROYED,
     BATTLEFIELD_TB_DATA_MAX,
 };
 
@@ -338,7 +336,7 @@ class TolBaradCapturePoint : public BfCapturePoint
     public:
         TolBaradCapturePoint(BattlefieldTB* battlefield, TeamId teamInControl);
 
-        void ChangeTeam(TeamId /*oldteam*/) override;
+        void SendChangePhase() override;
 };
 
 /* ##################### *
@@ -374,8 +372,7 @@ class BattlefieldTB : public Battlefield
 
         bool SetupBattlefield() override;
 
-        void SendInitWorldStatesToAll() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
+        void SaveWorldStateValues();
 
         void HandleKill(Player* killer, Unit* victim) override;
         //void OnUnitDeath(Unit* unit) override;

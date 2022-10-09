@@ -40,7 +40,6 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
-#include "WorldStatePackets.h"
 
 struct BfWGCoordGY
 {
@@ -637,7 +636,6 @@ void BattlefieldWG::OnBattleStart()
                 player->GetPosition(x, y, z);
                 if (5500 > x && x > 5392 && y < 2880 && y > 2800 && z < 480)
                     player->TeleportTo(571, 5349.8686f, 2838.481f, 409.240f, 0.046328f);
-                SendInitWorldStatesTo(player);
             }
         }
     }
@@ -1110,7 +1108,6 @@ void BattlefieldWG::OnPlayerJoinWar(Player* player)
         if (GetData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_ATT) > 0)
            player->SetAuraStack(SPELL_TOWER_CONTROL, player, GetData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_ATT));
     }
-    SendInitWorldStatesTo(player);
 }
 
 void BattlefieldWG::OnPlayerLeaveWar(Player* player)
@@ -1148,8 +1145,6 @@ void BattlefieldWG::OnPlayerEnterZone(Player* player)
         RemoveAurasFromPlayer(player);
 
     player->AddAura(m_DefenderTeam == TEAM_HORDE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player);
-    // Send worldstate to player
-    SendInitWorldStatesTo(player);
 }
 
 uint32 BattlefieldWG::GetData(uint32 data) const

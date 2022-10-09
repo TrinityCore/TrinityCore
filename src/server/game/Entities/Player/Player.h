@@ -2053,7 +2053,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false) const;
         void SendDirectMessage(WorldPacket const* data) const;
         void SendBGWeekendWorldStates() const;
-        void SendBattlefieldWorldStates() const;
 
         void SendAurasForTarget(Unit* target) const;
 
