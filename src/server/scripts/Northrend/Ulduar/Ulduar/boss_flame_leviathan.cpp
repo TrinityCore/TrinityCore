@@ -534,6 +534,7 @@ class boss_flame_leviathan : public CreatureScript
                             --ActiveTowersCount;
                             instance->DoUpdateWorldState(WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS, 4 - ActiveTowersCount);
                         }
+                        break;
                     case ACTION_TOWER_OF_LIFE_DESTROYED:
                         if (towerOfLife)
                         {
