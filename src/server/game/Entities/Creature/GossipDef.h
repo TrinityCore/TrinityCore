@@ -183,8 +183,6 @@ class TC_GAME_API GossipMenu
             return _menuItems;
         }
 
-        static uint64 GetRequiredNpcFlagForOption(GossipOptionNpc optionNpc);
-
     private:
         GossipMenuItemContainer _menuItems;
         GossipMenuItemDataContainer _menuItemData;
