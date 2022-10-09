@@ -223,10 +223,17 @@ void TransportMgr::LoadTransportTemplates()
         if (!goInfo->moTransport.taxiPathID)
             continue;
 
+        if (!sTaxiPathStore.LookupEntry(goInfo->moTransport.taxiPathID))
+        {
+            TC_LOG_ERROR("sql.sql", "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`Data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathID);
+            continue;
+        }
+
         // paths are generated per template, saves us from generating it again in case of instanced transports
         TransportTemplate& transport = _transportTemplates[entry];
 
-        GeneratePath(goInfo, &transport);
+        if (!GeneratePath(goInfo, &transport))
+            _transportTemplates.erase(entry);
 
         ++count;
     } while (result->NextRow());
@@ -486,7 +493,7 @@ static void InitializeLeg(TransportPathLeg* leg, std::vector<TransportPathEvent>
         leg->Segments.resize(pauseItr + 1);
 }
 
-void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
+bool TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
 {
     uint32 pathId = goInfo->moTransport.taxiPathID;
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
@@ -533,14 +540,29 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     if (transport->MapIds.size() > 1)
     {
         for (uint32 mapId : transport->MapIds)
-            ASSERT(!sMapStore.LookupEntry(mapId)->Instanceable());
+        {
+            if (!sMapStore.LookupEntry(mapId))
+                return false;
+
+            if (!sMapStore.LookupEntry(mapId)->Instanceable())
+                return false;
+        }
 
         transport->InInstance = false;
     }
     else
+    {
+        if (!sMapStore.LookupEntry(*transport->MapIds.begin()))
+            return false;
+
+        if (!sMapStore.LookupEntry(*transport->MapIds.begin())->Instanceable())
+            return false;
+
         transport->InInstance = sMapStore.LookupEntry(*transport->MapIds.begin())->Instanceable();
+    }
 
     transport->TotalPathTime = totalTime;
+    return true;
 }
 
 void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node)

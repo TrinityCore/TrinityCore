@@ -164,7 +164,7 @@ class TC_GAME_API TransportMgr
         TransportMgr& operator=(TransportMgr&&) = delete;
 
         // Generates and precaches a path for transport to avoid generation each time transport instance is created
-        void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport);
+        bool GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport);
 
         void AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg, TransportAnimationEntry const* node);
 
