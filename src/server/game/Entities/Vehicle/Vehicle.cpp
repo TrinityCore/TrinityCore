@@ -922,6 +922,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
         veSeat->HasFlag(VEHICLE_SEAT_FLAG_CAN_CONTROL))
+    {
         // handles SMSG_CLIENT_CONTROL
         if (!Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE, aurApp))
         {
@@ -929,6 +930,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
             Abort(0);
             return true;
         }
+    }
 
     Passenger->SendClearTarget();                            // SMSG_BREAK_TARGET
     Passenger->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)

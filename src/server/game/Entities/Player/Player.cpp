@@ -21341,7 +21341,7 @@ void Player::VehicleSpellInitialize()
     {
         uint32 spellId = vehicle->m_spells[i];
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-        if (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR5_NOT_AVAILABLE_WHILE_CHARMED))
+        if (!spellInfo || spellInfo->HasAttribute(SPELL_ATTR5_NOT_AVAILABLE_WHILE_CHARMED))
         {
             data << uint16(0) << uint8(0) << uint8(i+8);
             continue;
