@@ -533,6 +533,9 @@ Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
     if (!unit)
         return nullptr;
 
+    if (unit->GetVehicle() != this)
+        return nullptr;
+
     SeatMap::iterator seat = GetSeatIteratorForPassenger(unit);
     ASSERT(seat != Seats.end());
 
