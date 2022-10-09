@@ -42,6 +42,7 @@ void WaypointMgr::Load()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
+
         Optional<float> o;
         if (!fields[5].IsNull())
             o = fields[5].GetFloat();
@@ -111,7 +112,6 @@ void WaypointMgr::LoadWaypointAddons()
         WaypointPath& path = it->second;
         uint32 pointId = fields[1].GetUInt32();
 
-
         std::vector<WaypointNode>::iterator itr = std::find_if(path.Nodes.begin(), path.Nodes.end(), [pointId](WaypointNode const& node)
             {
                 return node.Id == pointId;
@@ -162,6 +162,7 @@ void WaypointMgr::ReloadPath(uint32 id)
         float x = fields[1].GetFloat();
         float y = fields[2].GetFloat();
         float z = fields[3].GetFloat();
+
         Optional<float> o;
         if (!fields[4].IsNull())
             o = fields[4].GetFloat();
