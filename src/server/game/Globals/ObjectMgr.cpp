@@ -11551,7 +11551,7 @@ void ObjectMgr::LoadMapCorpsePositions()
     _mapCorpsePositionStore.clear();
 
     //                                                0     1
-    QueryResult result = WorldDatabase.Query("SELECT `ID`, `X`, `Y` FROM `map_corpse_position`");
+    QueryResult result = WorldDatabase.Query("SELECT `MapId`, `X`, `Y` FROM `map_corpse_position`");
 
     if (!result)
     {
