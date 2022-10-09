@@ -72,7 +72,7 @@ bool PathGenerator::CalculatePath(G3D::Vector3 const& startPoint, G3D::Vector3 c
 
     _forceDestination = forceDest;
 
-    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::CalculatePath() for %u", _source->GetGUID().GetCounter());
+    TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::CalculatePath() for %u", _source->GetGUID().ToString().c_str());
     // Let's make sure navMesh works. We can run on map without mmaps.
     // Check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?).
     const Unit* _sourceUnit = _source->ToUnit();
