@@ -747,7 +747,6 @@ struct GossipMenuItems
     GossipOptionNpc     OptionNpc;
     std::string         OptionText;
     uint32              OptionBroadcastTextID;
-    uint32              OptionNpcFlag;
     uint32              Language;
     uint32              ActionMenuID;
     uint32              ActionPoiID;
