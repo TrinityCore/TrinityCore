@@ -2012,11 +2012,10 @@ void Spell::EffectSummonType()
                             pos = caster->GetRandomPoint(*destTarget, radius);
 
                         summon = unitCaster->GetMap()->SummonCreature(entry, pos, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
-                        summon->SetTempSummonType(summonType);
-
                         if (!summon)
                             continue;
-
+                            
+                        summon->SetTempSummonType(summonType);
                         if (properties->Control == SUMMON_CATEGORY_ALLY)
                             summon->SetOwnerGUID(caster->GetGUID());
 
