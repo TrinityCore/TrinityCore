@@ -659,6 +659,7 @@ class spell_vp_howling_gale : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
+        PreventDefaultAction();
         Unit* caster = GetTarget();
         if (_inactiveTicks > 0)
         {
