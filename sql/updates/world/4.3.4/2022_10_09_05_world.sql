@@ -38,4 +38,4 @@ INSERT INTO `world_state` (`ID`,`DefaultValue`,`MapIDs`,`AreaIDs`,`Comment`) VAL
 (5051,0,'724','','The Ruby Sanctum - Show Halion\'s corporeality'),
 (5636,0,'603','','Ulduar - Show Algalon timer');
 
-DELETE FROM `criteria_data` WHERE `ScriptName` IN ('achievement_orbital_bombardment','achievement_orbital_devastation','achievement_nuked_from_orbit','achievement_orbit_uary');
+DELETE FROM `achievement_criteria_data` WHERE `ScriptName` IN ('achievement_orbital_bombardment','achievement_orbital_devastation','achievement_nuked_from_orbit','achievement_orbit_uary');
