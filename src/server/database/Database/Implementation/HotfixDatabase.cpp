@@ -733,7 +733,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // Item.db2
     PrepareStatement(HOTFIX_SEL_ITEM, "SELECT ID, ClassID, SubclassID, Material, InventoryType, RequiredLevel, SheatheType, RandomSelect, "
         "ItemRandomSuffixGroupID, SoundOverrideSubclassID, ModifiedCraftingReagentItemID, IconFileDataID, ItemGroupSoundsID, ContentTuningID, "
-        "MaxDurability, AmmunitionType, Field_3_4_0_45704_015, DamageType1, DamageType2, DamageType3, DamageType4, DamageType5, Resistances1, "
+        "MaxDurability, AmmunitionType, ScalingStatValue, DamageType1, DamageType2, DamageType3, DamageType4, DamageType5, Resistances1, "
         "Resistances2, Resistances3, Resistances4, Resistances5, Resistances6, Resistances7, MinDamage1, MinDamage2, MinDamage3, MinDamage4, "
         "MinDamage5, MaxDamage1, MaxDamage2, MaxDamage3, MaxDamage4, MaxDamage5 FROM item WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM, "SELECT MAX(ID) + 1 FROM item", CONNECTION_SYNCH);
@@ -1538,6 +1538,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TALENT, "SELECT MAX(ID) + 1 FROM talent", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_TALENT, "SELECT ID, Description_lang FROM talent_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
+    // TalentTab.db2
+    PrepareStatement(HOTFIX_SEL_TALENT_TAB, "SELECT ID, Name, BackgroundFile, OrderIndex, RaceMask, ClassMask, PetTalentMask, SpellIconID"
+        " FROM talent_tab WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TALENT_TAB, "SELECT MAX(ID) + 1 FROM talent_tab", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TALENT_TAB, "SELECT ID, Name_lang FROM talent_tab_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // TaxiNodes.db2
     PrepareStatement(HOTFIX_SEL_TAXI_NODES, "SELECT Name, PosX, PosY, PosZ, MapOffsetX, MapOffsetY, FlightMapOffsetX, FlightMapOffsetY, ID, "

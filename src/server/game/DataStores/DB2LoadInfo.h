@@ -5931,6 +5931,26 @@ struct TalentLoadInfo
     }
 };
 
+struct TalentTabLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING_NOT_LOCALIZED, "BackgroundFile" },
+            { true, FT_INT, "OrderIndex" },
+            { true, FT_INT, "RaceMask" },
+            { true, FT_INT, "ClassMask" },
+            { true, FT_INT, "PetTalentMask" },
+            { true, FT_INT, "SpellIconID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TalentTabMeta::Instance(), HOTFIX_SEL_TALENT_TAB);
+        return &loadInfo;
+    }
+};
+
 struct TaxiNodesLoadInfo
 {
     static DB2LoadInfo const* Instance()
