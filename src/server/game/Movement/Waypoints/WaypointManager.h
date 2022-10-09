@@ -27,13 +27,16 @@ class TC_GAME_API WaypointMgr
     public:
         static WaypointMgr* instance();
 
-        // Attempts to reload a single path from database
+        // Attempts to reload a single path from database.
         void ReloadPath(uint32 id);
 
-        // Loads all paths from database, should only run on startup
+        // Loads all base waypoint data from database. Should only be called on startup.
         void Load();
 
-        // Returns the path from a given id
+        // Loads additional path data for waypoints from database. Should only be called on startup.
+        void LoadWaypointAddons();
+
+        // Returns the path from a given Id.
         WaypointPath const* GetPath(uint32 id) const;
 
     private:

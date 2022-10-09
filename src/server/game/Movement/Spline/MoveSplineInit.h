@@ -97,6 +97,7 @@ namespace Movement
 
         /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
+        void MoveTo(Vector3 const& start, Vector3 const& destination, bool generatePath = true, bool forceDestination = false);
         void MoveTo(Vector3 const& destination, bool generatePath = true, bool forceDestination = false);
         void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDestination = false);
 
