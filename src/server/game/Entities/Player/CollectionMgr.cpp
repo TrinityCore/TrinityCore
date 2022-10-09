@@ -501,31 +501,6 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
             _favoriteAppearances[favoriteAppearances->Fetch()[0].GetUInt32()] = FavoriteAppearanceState::Unchanged;
         } while (favoriteAppearances->NextRow());
     }
-
-    // Static item appearances known by every player
-    static uint32 constexpr hiddenAppearanceItems[] =
-    {
-        134110, // Hidden Helm
-        134111, // Hidden Cloak
-        134112, // Hidden Shoulder
-        168659, // Hidden Chestpiece
-        142503, // Hidden Shirt
-        142504, // Hidden Tabard
-        168665, // Hidden Bracers
-        158329, // Hidden Gloves
-        143539, // Hidden Belt
-        168664  // Hidden Boots
-    };
-
-    for (uint32 hiddenItem : hiddenAppearanceItems)
-    {
-        ItemModifiedAppearanceEntry const* hiddenAppearance = sDB2Manager.GetItemModifiedAppearance(hiddenItem, 0);
-        ASSERT(hiddenAppearance);
-        if (_appearances->size() <= hiddenAppearance->ID)
-            _appearances->resize(hiddenAppearance->ID + 1);
-
-        _appearances->set(hiddenAppearance->ID);
-    }
 }
 
 void CollectionMgr::SaveAccountItemAppearances(LoginDatabaseTransaction trans)
