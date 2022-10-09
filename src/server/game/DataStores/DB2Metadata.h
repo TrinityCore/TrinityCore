@@ -6211,7 +6211,7 @@ struct ItemModifiedAppearanceMeta
             { FT_INT, 1, true },
             { FT_INT, 1, true },
             { FT_INT, 1, true },
-            { FT_INT, 1, true },
+            { FT_BYTE, 1, true },
         };
         static constexpr DB2Meta instance(982457, 0, 6, 6, 0xF6BAD95D, fields, 1);
         return &instance;

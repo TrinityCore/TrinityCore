@@ -739,7 +739,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     //LOAD_DB2(sItemLevelSelectorQualitySetStore);
     LOAD_DB2(sItemLimitCategoryStore);
     //LOAD_DB2(sItemLimitCategoryConditionStore);
-    //LOAD_DB2(sItemModifiedAppearanceStore);
+    LOAD_DB2(sItemModifiedAppearanceStore);
     //LOAD_DB2(sItemModifiedAppearanceExtraStore);
     //LOAD_DB2(sItemNameDescriptionStore);
     LOAD_DB2(sItemPriceBaseStore);
