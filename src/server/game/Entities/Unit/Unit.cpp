@@ -751,7 +751,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     // Sparring Checks
     if (Creature* target = victim->ToCreature())
     {
-        if (attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer())
+        if (attacker && attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer())
         {
             if (target->GetNoNpcDamageBelowPctHealthValue() != 0.0f)
             {
