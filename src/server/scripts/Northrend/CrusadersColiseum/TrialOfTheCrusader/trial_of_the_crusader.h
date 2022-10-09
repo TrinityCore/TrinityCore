@@ -68,7 +68,8 @@ extern Position const AnubarakLoc[];
 enum TCRWorldStateIds
 {
     UPDATE_STATE_UI_SHOW            = 4390,
-    UPDATE_STATE_UI_COUNT           = 4389
+    UPDATE_STATE_UI_COUNT           = 4389,
+    WORLD_STATE_PLAYER_DEATHS       = 4408
 };
 
 enum NorthrendBeasts

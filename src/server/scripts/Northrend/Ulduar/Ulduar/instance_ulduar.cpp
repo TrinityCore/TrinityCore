@@ -29,7 +29,6 @@
 #include "ulduar.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
-#include "WorldStatePackets.h"
 
 static BossBoundaryData const boundaries =
 {
@@ -204,12 +203,6 @@ class instance_ulduar : public InstanceMapScript
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
 
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ALGALON_TIMER_ENABLED), uint32(_algalonTimer && _algalonTimer <= 60));
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ALGALON_DESPAWN_TIMER), uint32(std::min<uint32>(_algalonTimer, 60)));
-            }
-
             void OnPlayerEnter(Player* player) override
             {
                 if (!TeamInInstance)
@@ -380,24 +373,28 @@ class instance_ulduar : public InstanceMapScript
                         _summonYSKeeper[0] = false;
                         SaveToDB();
                         ++keepersCount;
+                        DoUpdateWorldState(WORLD_STATE_YOGG_SARON_KEEPERS, keepersCount);
                         break;
                     case NPC_HODIR_YS:
                         KeeperGUIDs[1] = creature->GetGUID();
                         _summonYSKeeper[1] = false;
                         SaveToDB();
                         ++keepersCount;
+                        DoUpdateWorldState(WORLD_STATE_YOGG_SARON_KEEPERS, keepersCount);
                         break;
                     case NPC_THORIM_YS:
                         KeeperGUIDs[2] = creature->GetGUID();
                         _summonYSKeeper[2] = false;
                         SaveToDB();
                         ++keepersCount;
+                        DoUpdateWorldState(WORLD_STATE_YOGG_SARON_KEEPERS, keepersCount);
                         break;
                     case NPC_MIMIRON_YS:
                         KeeperGUIDs[3] = creature->GetGUID();
                         _summonYSKeeper[3] = false;
                         SaveToDB();
                         ++keepersCount;
+                        DoUpdateWorldState(WORLD_STATE_YOGG_SARON_KEEPERS, keepersCount);
                         break;
                     case NPC_SANITY_WELL:
                         creature->SetReactState(REACT_PASSIVE);
@@ -894,18 +891,6 @@ class instance_ulduar : public InstanceMapScript
                     case CRITERIA_DRIVE_ME_CRAZY_10:
                     case CRITERIA_DRIVE_ME_CRAZY_25:
                         return IsDriveMeCrazyEligible;
-                    case CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_10:
-                    case CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_25:
-                        return keepersCount <= 3;
-                    case CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_10:
-                    case CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_25:
-                        return keepersCount <= 2;
-                    case CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_10:
-                    case CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_25:
-                        return keepersCount <= 1;
-                    case CRITERIA_ALONE_IN_THE_DARKNESS_10:
-                    case CRITERIA_ALONE_IN_THE_DARKNESS_25:
-                        return keepersCount == 0;
                     case CRITERIA_C_O_U_LEVIATHAN_10:
                     case CRITERIA_C_O_U_LEVIATHAN_25:
                         return (_CoUAchivePlayerDeathMask & (1 << DATA_FLAME_LEVIATHAN)) == 0;

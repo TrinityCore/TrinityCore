@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ruby_sanctum.h"
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "Creature.h"
@@ -22,8 +23,6 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "WorldStatePackets.h"
-#include "ruby_sanctum.h"
 
 Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0f };
 
@@ -195,13 +194,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     return 0;
 
                 return BaltharusSharedHealth;
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override
-            {
-                data.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_MATERIAL), uint32(50));
-                data.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TWILIGHT), uint32(50));
-                data.Worldstates.emplace_back(uint32(WORLDSTATE_CORPOREALITY_TOGGLE), uint32(0));
             }
 
         protected:

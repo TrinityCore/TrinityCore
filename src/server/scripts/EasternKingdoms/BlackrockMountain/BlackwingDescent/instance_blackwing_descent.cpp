@@ -24,7 +24,6 @@
 #include "EventMap.h"
 #include "CreatureAI.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 #include "blackwing_descent.h"
 
 ObjectData const creatureData[] =
