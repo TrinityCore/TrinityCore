@@ -150,7 +150,7 @@ struct boss_chimaeron : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        instance->instance->SetWorldStateValue(WORLD_STATE_ID_FULL_OF_SOUND_AND_FURY, 0);
+        instance->DoUpdateWorldState(WORLD_STATE_ID_FULL_OF_SOUND_AND_FURY, 0);
         me->SetReactState(REACT_AGGRESSIVE);
         events.SetPhase(PHASE_1);
         events.ScheduleEvent(EVENT_CAUSTIC_SLIME, 5s, 0, PHASE_1);
@@ -212,7 +212,7 @@ struct boss_chimaeron : public BossAI
         {
             _killedPlayerCount++;
             if (_killedPlayerCount == 3)
-                instance->instance->SetWorldStateValue(WORLD_STATE_ID_FULL_OF_SOUND_AND_FURY, 1);
+                instance->DoUpdateWorldState(WORLD_STATE_ID_FULL_OF_SOUND_AND_FURY, 1);
         }
     }
 

@@ -510,7 +510,7 @@ public:
 
                 if (InstanceScript* instance = target->GetInstanceScript())
                     if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_TO_THE_GROUND))
-                        instance->instance->SetWorldStateValue(WORLD_STATE_ID_TO_THE_GROUND, 1);
+                        instance->DoUpdateWorldState(WORLD_STATE_ID_TO_THE_GROUND, 1);
             }
         }
 

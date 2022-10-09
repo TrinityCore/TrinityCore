@@ -470,7 +470,7 @@ class instance_halls_of_origination : public InstanceMapScript
                                     anraphet->AI()->DoAction(ACTION_ANRAPHET_INTRO);
                             break;
                         case EVENT_FAIL_VAULTS_OF_LIGHT_ACHIEVEMENT:
-                            instance->SetWorldStateValue(WORLD_STATE_ID_FASTER_THAN_THE_SPEED_OF_LIGHT, 1);
+                            DoUpdateWorldState(WORLD_STATE_ID_FASTER_THAN_THE_SPEED_OF_LIGHT, 1);
                             break;
                         default:
                             break;

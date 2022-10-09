@@ -86,7 +86,7 @@ struct boss_baron_ashbury : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        instance->instance->SetWorldStateValue(WORLD_STATE_ID_PARDON_DENIED, 0);
+        instance->DoUpdateWorldState(WORLD_STATE_ID_PARDON_DENIED, 0);
 
         events.ScheduleEvent(EVENT_ASPHYXIATE, IsHeroic() ? 20s + 500ms : 15s + 500ms);
         events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 6s);
@@ -115,7 +115,7 @@ struct boss_baron_ashbury : public BossAI
             return;
 
         if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_PARDON_DENIED))
-            instance->instance->SetWorldStateValue(WORLD_STATE_ID_PARDON_DENIED, 1);
+            instance->DoUpdateWorldState(WORLD_STATE_ID_PARDON_DENIED, 1);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override

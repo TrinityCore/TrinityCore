@@ -785,7 +785,7 @@ struct boss_nefarians_end : public BossAI
                     break;
                 case EVENT_LAND_PHASE_THREE:
                     if (me->GetHealthPct() > 50.f)
-                        instance->instance->SetWorldStateValue(WORLD_STATE_ID_KEEPING_IT_IN_THE_FAMILY, 0);
+                        instance->DoUpdateWorldState(WORLD_STATE_ID_KEEPING_IT_IN_THE_FAMILY, 0);
 
                     me->RemoveAurasDueToSpell(SPELL_NEFARIAN_PHASE_2_HEALTH_AURA);
                     me->SendSetPlayHoverAnim(true);
@@ -930,7 +930,7 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
         if (_instance->GetBossState(DATA_NEFARIANS_END) != IN_PROGRESS)
         {
             _instance->SetBossState(DATA_NEFARIANS_END, IN_PROGRESS);
-            _instance->instance->SetWorldStateValue(WORLD_STATE_ID_KEEPING_IT_IN_THE_FAMILY, 1);
+            _instance->DoUpdateWorldState(WORLD_STATE_ID_KEEPING_IT_IN_THE_FAMILY, 1);
         }
 
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_INDEX_ONYXIA);

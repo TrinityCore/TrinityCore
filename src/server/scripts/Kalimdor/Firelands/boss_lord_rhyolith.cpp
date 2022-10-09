@@ -243,7 +243,7 @@ struct boss_lord_rhyolith : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_ENGAGE, who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        me->GetMap()->SetWorldStateValue(WORLD_STATE_ID_NOT_AN_AMBI_TURNER, 0);
+        instance->DoUpdateWorldState(WORLD_STATE_ID_NOT_AN_AMBI_TURNER, 0);
 
         uint8 frameIndex = 2;
         for (uint32 type : { DATA_LEFT_FOOT, DATA_RIGHT_FOOT })
@@ -536,7 +536,7 @@ struct boss_lord_rhyolith : public BossAI
 
                     if (!_achievementFailed && _currentBalance < CENTER_BALANCE)
                     {
-                        me->GetMap()->SetWorldStateValue(WORLD_STATE_ID_NOT_AN_AMBI_TURNER, 1);
+                        instance->DoUpdateWorldState(WORLD_STATE_ID_NOT_AN_AMBI_TURNER, 1);
                         _achievementFailed = true;
                     }
 

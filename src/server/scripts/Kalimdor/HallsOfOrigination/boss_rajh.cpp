@@ -103,7 +103,7 @@ struct boss_rajh : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        instance->instance->SetWorldStateValue(WORLD_STATE_ID_SUN_OF_A, 0);
+        instance->DoUpdateWorldState(WORLD_STATE_ID_SUN_OF_A, 0);
         me->SetReactState(REACT_AGGRESSIVE);
         _randomTimerCase = RAND(0, 1);
         events.ScheduleEvent(EVENT_SOLAR_WINDS, 5s);
@@ -226,7 +226,7 @@ struct boss_rajh : public BossAI
                     break;
                 case EVENT_REENGAGE:
                     if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_SUN_OF_A))
-                        instance->instance->SetWorldStateValue(WORLD_STATE_ID_SUN_OF_A, 1);
+                        instance->DoUpdateWorldState(WORLD_STATE_ID_SUN_OF_A, 1);
                     _energized = true;
                     _randomTimerCase = RAND(0, 1);
                     events.ScheduleEvent(EVENT_SOLAR_WINDS, 5s);

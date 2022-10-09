@@ -205,7 +205,7 @@ struct boss_atramedes : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        instance->instance->SetWorldStateValue(WORLD_STATE_ID_SILENCE_IS_GOLDEN, 0);
+        instance->DoUpdateWorldState(WORLD_STATE_ID_SILENCE_IS_GOLDEN, 0);
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_DEVASTATION_TRIGGER);
         DoCastSelf(SPELL_SOUND_BAR);
@@ -915,7 +915,7 @@ class spell_atramedes_sound_bar : public AuraScript
         }
         else if (target->GetPower(POWER_ALTERNATE_POWER) >= 50)
             if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_SILENCE_IS_GOLDEN))
-                instance->instance->SetWorldStateValue(WORLD_STATE_ID_SILENCE_IS_GOLDEN, 1);
+                instance->DoUpdateWorldState(WORLD_STATE_ID_SILENCE_IS_GOLDEN, 1);
     }
 
     void Register() override

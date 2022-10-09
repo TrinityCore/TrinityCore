@@ -302,10 +302,10 @@ struct boss_omnotron_defense_system : public BossAI
                 break;
             case ACTION_START_ENCOUNTER:
                 instance->SetBossState(DATA_OMNOTRON_DEFENSE_SYSTEM, IN_PROGRESS);
-                instance->instance->SetWorldStateValue(WORLD_STATE_ID_STATIC_SHOCK, 0);
-                instance->instance->SetWorldStateValue(WORLD_STATE_ID_POISON_BOMB, 0);
-                instance->instance->SetWorldStateValue(WORLD_STATE_ID_ARCANE_ANNIHILATOR, 0);
-                instance->instance->SetWorldStateValue(WORLD_STATE_ID_FLAMETHROWER, 0);
+                instance->DoUpdateWorldState(WORLD_STATE_ID_STATIC_SHOCK, 0);
+                instance->DoUpdateWorldState(WORLD_STATE_ID_POISON_BOMB, 0);
+                instance->DoUpdateWorldState(WORLD_STATE_ID_ARCANE_ANNIHILATOR, 0);
+                instance->DoUpdateWorldState(WORLD_STATE_ID_FLAMETHROWER, 0);
 
                 if (IsHeroic())
                     DoSummon(NPC_LORD_VICTOR_NEFARIUS_OMNOTRON, LordVictorNefariusSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
@@ -921,7 +921,7 @@ struct npc_omnotron_arcanotron : public ScriptedAI
     {
         if (spell->Id == SPELL_ARCANE_ANNIHILATION)
             if (!_instance->instance->GetWorldStateValue(WORLD_STATE_ID_ARCANE_ANNIHILATOR))
-                _instance->instance->SetWorldStateValue(WORLD_STATE_ID_ARCANE_ANNIHILATOR, 1);
+                _instance->DoUpdateWorldState(WORLD_STATE_ID_ARCANE_ANNIHILATOR, 1);
     }
 
     void UpdateAI(uint32 diff) override
@@ -1151,7 +1151,7 @@ struct npc_omnotron_poison_bomb : public ScriptedAI
         {
             if (InstanceScript* instance = me->GetInstanceScript())
                 if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_POISON_BOMB))
-                    instance->instance->SetWorldStateValue(WORLD_STATE_ID_POISON_BOMB, 1);
+                    instance->DoUpdateWorldState(WORLD_STATE_ID_POISON_BOMB, 1);
 
             DoCastSelf(SPELL_POISON_BOMB_DAMAGE, true);
             DoCastSelf(SPELL_POISON_BOMB_SUMMON_PUDDLE, true);
@@ -1372,7 +1372,7 @@ class spell_omnotron_unstable_shield : public AuraScript
 
         if (InstanceScript* instance = caster->GetInstanceScript())
             if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_STATIC_SHOCK))
-                instance->instance->SetWorldStateValue(WORLD_STATE_ID_STATIC_SHOCK, 1);
+                instance->DoUpdateWorldState(WORLD_STATE_ID_STATIC_SHOCK, 1);
     }
 
     void Register() override
@@ -1549,7 +1549,7 @@ class spell_omnotron_flamethrower : public SpellScript
         if (targets.size() >= 2)
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_FLAMETHROWER))
-                    instance->instance->SetWorldStateValue(WORLD_STATE_ID_FLAMETHROWER, 1);
+                    instance->DoUpdateWorldState(WORLD_STATE_ID_FLAMETHROWER, 1);
     }
 
     void Register() override

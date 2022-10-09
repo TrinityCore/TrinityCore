@@ -170,7 +170,7 @@ struct boss_halfus_wyrmbreaker final : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-        instance->instance->SetWorldStateValue(WORLD_STATE_ID_THE_ONLY_ESCAPE, 0);
+        instance->DoUpdateWorldState(WORLD_STATE_ID_THE_ONLY_ESCAPE, 0);
         events.ScheduleEvent(EVENT_BERSERK, 10min);
 
         if (Creature* protoBehemoth = instance->GetCreature(DATA_PROTO_BEHEMOTH))
@@ -237,13 +237,13 @@ struct boss_halfus_wyrmbreaker final : public BossAI
                 if (_theOnlyEscapeAchievementState == NOT_STARTED)
                 {
                     _theOnlyEscapeAchievementState = IN_PROGRESS;
-                    instance->instance->SetWorldStateValue(WORLD_STATE_ID_THE_ONLY_ESCAPE, 1);
+                    instance->DoUpdateWorldState(WORLD_STATE_ID_THE_ONLY_ESCAPE, 1);
                     events.ScheduleEvent(EVENT_RESET_ACHIEVEMT, Seconds(10));
                 }
                 else if (_theOnlyEscapeAchievementState == IN_PROGRESS)
                 {
                     _theOnlyEscapeAchievementState = DONE;
-                    instance->instance->SetWorldStateValue(WORLD_STATE_ID_THE_ONLY_ESCAPE, 2);
+                    instance->DoUpdateWorldState(WORLD_STATE_ID_THE_ONLY_ESCAPE, 2);
                     events.CancelEvent(EVENT_RESET_ACHIEVEMT);
                 }
                 break;

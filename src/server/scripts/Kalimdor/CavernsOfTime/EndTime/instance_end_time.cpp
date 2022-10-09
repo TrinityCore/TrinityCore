@@ -106,7 +106,7 @@ public:
                 case MAP_EVENT_AZURE_DRAGONSHRINE_ENTERED:
                     if (GetBossState(DATA_ECHO_OF_JAINA) == DONE)
                         break;
-                    instance->SetWorldStateValue(WORLD_STATE_ID_SHOW_COLLECTED_STAVE_FRAGMENTS, 1);
+                    DoUpdateWorldState(WORLD_STATE_ID_SHOW_COLLECTED_STAVE_FRAGMENTS, 1);
                     break;
                 default:
                     break;
@@ -198,7 +198,7 @@ public:
                 case DATA_ECHO_OF_JAINA:
                     if (state == IN_PROGRESS)
                     {
-                        instance->SetWorldStateValue(WORLD_STATE_ID_SHOW_COLLECTED_STAVE_FRAGMENTS, 0);
+                        DoUpdateWorldState(WORLD_STATE_ID_SHOW_COLLECTED_STAVE_FRAGMENTS, 0);
                         if (Creature* circle = GetCreature(DATA_ARCANE_CIRCLE))
                             circle->DespawnOrUnsummon();
                     }
@@ -219,7 +219,7 @@ public:
                         break;
 
                     ++_collectedStaffFragments;
-                    instance->SetWorldStateValue(WORLD_STATE_ID_COLLECTED_STAVE_FRAGMENTS, _collectedStaffFragments);
+                    DoUpdateWorldState(WORLD_STATE_ID_COLLECTED_STAVE_FRAGMENTS, _collectedStaffFragments);
 
                     if (_collectedStaffFragments < 16)
                     {

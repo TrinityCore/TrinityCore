@@ -105,7 +105,7 @@ struct boss_temple_guardian_anhuur : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        instance->instance->SetWorldStateValue(WORLD_STATE_ID_I_HATE_THAT_SONG, 0);
+        instance->DoUpdateWorldState(WORLD_STATE_ID_I_HATE_THAT_SONG, 0);
         Talk(SAY_AGGRO);
         events.SetPhase(PHASE_FIGHT);
         events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 0, PHASE_FIGHT);
@@ -235,7 +235,7 @@ struct boss_temple_guardian_anhuur : public BossAI
                     instance->SetData(DATA_HANDLE_BEAM_OF_LIGHT, IN_PROGRESS);
                     break;
                 case EVENT_ACHIEVEMENT_FAILED:
-                    instance->instance->SetWorldStateValue(WORLD_STATE_ID_I_HATE_THAT_SONG, 1);
+                    instance->DoUpdateWorldState(WORLD_STATE_ID_I_HATE_THAT_SONG, 1);
                     break;
                 default:
                     break;

@@ -162,7 +162,7 @@ int32 WorldStateMgr::GetValue(int32 worldStateId, Map const* map) const
     return map->GetWorldStateValue(worldStateId);
 }
 
-void WorldStateMgr::SetValue(int32 worldStateId, int32 value, Map* map)
+void WorldStateMgr::SetValue(int32 worldStateId, int32 value, bool hidden, Map* map)
 {
     WorldStateTemplate const* worldStateTemplate = GetWorldStateTemplate(worldStateId);
     if (!worldStateTemplate || worldStateTemplate->MapIds.empty())
@@ -178,6 +178,7 @@ void WorldStateMgr::SetValue(int32 worldStateId, int32 value, Map* map)
         WorldPackets::WorldState::UpdateWorldState updateWorldState;
         updateWorldState.VariableID = worldStateId;
         updateWorldState.Value = value;
+        updateWorldState.Hidden = hidden;
         sWorld->SendGlobalMessage(updateWorldState.Write());
         return;
     }
@@ -185,7 +186,7 @@ void WorldStateMgr::SetValue(int32 worldStateId, int32 value, Map* map)
     if (worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
         return;
 
-    map->SetWorldStateValue(worldStateId, value);
+    map->SetWorldStateValue(worldStateId, value, hidden);
 }
 
 WorldStateValueContainer WorldStateMgr::GetInitialWorldStatesForMap(Map const* map) const
