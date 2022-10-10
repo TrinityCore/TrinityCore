@@ -1645,6 +1645,7 @@ enum DeathstalkerRaneYorick
     EVENT_SET_GUID_FOR_ARMOIRE              = 5,
     EVENT_RANE_TALK_TO_PLAYER               = 6,
     EVENT_RANE_LAST_MOVE                    = 7,
+    EVENT_RANE_SKIPS_PATH                   = 9,
 
     ACTION_RANE_JUMP_DEATH                  = 1,
     ACTION_RANE_SKIP_PATH                   = 2,
@@ -1705,22 +1706,10 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                 break;
 
             case ACTION_RANE_SKIP_PATH:
-            {
                 me->PauseMovement();
-
                 me->GetMotionMaster()->Clear();
-
-                me->NearTeleportTo(YorickReadyPosition, false);
-
-                _events.Reset();
-
-                _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
-
-                DoCastSelf(SPELL_STEALTH);
-
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                _events.ScheduleEvent(EVENT_RANE_SKIPS_PATH, 250ms);
                 break;
-            }
 
             default:
                 break;
@@ -1845,6 +1834,14 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 case EVENT_RANE_LAST_MOVE + 1:
                     me->SetDisableGravity(false);
+                    break;
+
+                case EVENT_RANE_SKIPS_PATH:
+                    _events.Reset();
+                    me->NearTeleportTo(YorickReadyPosition, false);
+                    DoCastSelf(SPELL_STEALTH);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 750ms);
                     break;
 
                 default:
