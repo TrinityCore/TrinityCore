@@ -1708,6 +1708,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
             case ACTION_RANE_SKIP_PATH:
                 me->PauseMovement();
                 me->GetMotionMaster()->Clear();
+                _events.Reset();
                 _events.ScheduleEvent(EVENT_RANE_SKIPS_PATH, 250ms);
                 break;
 
@@ -1837,11 +1838,14 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                     break;
 
                 case EVENT_RANE_SKIPS_PATH:
-                    _events.Reset();
                     me->NearTeleportTo(YorickReadyPosition, false);
+                    _events.ScheduleEvent(EVENT_RANE_SKIPS_PATH + 1, 250ms);
+                    break;
+
+                case EVENT_RANE_SKIPS_PATH + 1:
                     DoCastSelf(SPELL_STEALTH);
                     me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                    _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 750ms);
+                    _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 500ms);
                     break;
 
                 default:
