@@ -1913,7 +1913,6 @@ struct npc_silverpine_armoire : public VehicleAI
 {
     npc_silverpine_armoire(Creature* creature) : VehicleAI(creature) { }
 
-
     void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
     {
         if (apply)
