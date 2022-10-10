@@ -2587,9 +2587,8 @@ enum SaltyRocka
     NPC_SALTY_GORGAR                            = 45497,
 
     EVENT_ROCKA_CHECK_CONVERSATION              = 1,
-    EVENT_ROCKA_START_CONVERSATION              = 2,
-    EVENT_ROCKA_CHOOSE_CONVERSATION             = 3,
-    EVENT_ROCKA_CONVERSATION_COOLDOWN           = 4,
+    EVENT_ROCKA_CHOOSE_CONVERSATION             = 2,
+    EVENT_ROCKA_CONVERSATION_COOLDOWN           = 3,
     EVENT_ROCKA_TALK                            = 10,
 
     TALK_ROCKA_0                                = 0,
@@ -2641,23 +2640,15 @@ struct npc_silverpine_salty_rocka : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ROCKA_CHECK_CONVERSATION:
-                {
-                    if (!_isConversationOnCooldown)
-                    {
-                        _isConversationOnCooldown = true;
-
-                        _events.ScheduleEvent(EVENT_ROCKA_START_CONVERSATION, 250ms);
-                        _events.ScheduleEvent(EVENT_ROCKA_CONVERSATION_COOLDOWN, 180s);
-                    }
-                    break;
-                }
-
-                case EVENT_ROCKA_START_CONVERSATION:
-                    _events.ScheduleEvent(EVENT_ROCKA_CHOOSE_CONVERSATION, 500ms);
+                    if (_isConversationOnCooldown)
+                        return;
+                    _isConversationOnCooldown = true;
+                    _events.ScheduleEvent(EVENT_ROCKA_CHOOSE_CONVERSATION, 250ms);
+                    _events.ScheduleEvent(EVENT_ROCKA_CONVERSATION_COOLDOWN, 180s);
                     break;
 
                 case EVENT_ROCKA_CHOOSE_CONVERSATION:
-                    _events.ScheduleEvent(EVENT_ROCKA_TALK + (urand(0, 4) * 10), 1s);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + (urand(0, 4) * 10), 750ms);
                     break;
 
                 case EVENT_ROCKA_TALK:
@@ -2781,7 +2772,6 @@ struct npc_silverpine_salty_rocka : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     ObjectGuid _gorgarGUID;
     bool _isConversationOnCooldown;
 };
@@ -2845,7 +2835,7 @@ enum ApothecaryWormcrud
 // 44912 - Apothecary Wormcrud
 struct npc_silverpine_apothecary_wormcrud : public ScriptedAI
 {
-    npc_silverpine_apothecary_wormcrud(Creature* creature) : ScriptedAI(creature), _drunkenOrcSeaDog(), _orcSeaDogList(), _eventCD(false) { }
+    npc_silverpine_apothecary_wormcrud(Creature* creature) : ScriptedAI(creature), _drunkenOrcSeaDog(), _orcSeaDogList(), _isConversationOnCooldown(false) { }
 
     void JustAppeared() override
     {
@@ -2856,20 +2846,20 @@ struct npc_silverpine_apothecary_wormcrud : public ScriptedAI
     {
         _events.Reset();
 
-        _eventCD = false;
+        _isConversationOnCooldown = false;
     }
 
     void DoAction(int32 param) override
     {
         if (param == ACTION_WORMCRUD_START_CONVERSATION)
         {
-            if (!_eventCD)
-            {
-                _eventCD = true;
+            if (_isConversationOnCooldown)
+                return;
 
-                _events.ScheduleEvent(EVENT_WORMCRUD_TALK, 15s);
-                _events.ScheduleEvent(EVENT_WORMCRUD_CONVERSATION_COOLDOWN, 215s);
-            }
+            _isConversationOnCooldown = true;
+
+            _events.ScheduleEvent(EVENT_WORMCRUD_TALK, 15s);
+            _events.ScheduleEvent(EVENT_WORMCRUD_CONVERSATION_COOLDOWN, 215s);
         }
     }
 
@@ -2943,7 +2933,7 @@ private:
     EventMap _events;
     std::array<ObjectGuid, 3> _drunkenOrcSeaDog;
     std::vector<Creature*> _orcSeaDogList;
-    bool _eventCD;
+    bool _isConversationOnCooldown;
 };
 
 enum HatchetRearGuard
@@ -2973,20 +2963,11 @@ enum HatchetRearGuard
 // 44916 - Admiral Hatchet
 struct npc_silverpine_admiral_hatchet : public ScriptedAI
 {
-    npc_silverpine_admiral_hatchet(Creature* creature) : ScriptedAI(creature), _eventCD(false) { }
+    npc_silverpine_admiral_hatchet(Creature* creature) : ScriptedAI(creature), _isConversationOnCooldown(false) { }
 
     void JustAppeared() override
     {
         CheckForTorok();
-    }
-
-    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-    {
-        if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
-            player->CastSpell(player, SPELL_SUMMON_ORC_SEA_PUP);
-
-        CloseGossipMenuFor(player);
-        return false;
     }
 
     void OnQuestAccept(Player* player, Quest const* quest) override
@@ -3004,23 +2985,32 @@ struct npc_silverpine_admiral_hatchet : public ScriptedAI
             player->CastSpell(nullptr, SPELL_DESPAWN_ALL_SUMMONS_LOST_IN_DARKNESS, true);
     }
 
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
+            player->CastSpell(player, SPELL_SUMMON_ORC_SEA_PUP);
+
+        CloseGossipMenuFor(player);
+        return false;
+    }
+
     void Reset() override
     {
         _events.Reset();
-        _eventCD = false;
+        _isConversationOnCooldown = false;
     }
 
     void DoAction(int32 param) override
     {
         if (param == ACTION_HATCHET_START_CONVERSATION)
         {
-            if (!_eventCD)
-            {
-                _eventCD = true;
+            if (_isConversationOnCooldown)
+                return;
 
-                _events.ScheduleEvent(EVENT_HATCHET_TALK, 1s);
-                _events.ScheduleEvent(EVENT_HATCHET_CONVERSATION_COOLDOWN, 230s);
-            }
+            _isConversationOnCooldown = true;
+
+            _events.ScheduleEvent(EVENT_HATCHET_TALK, 1s);
+            _events.ScheduleEvent(EVENT_HATCHET_CONVERSATION_COOLDOWN, 230s);
         }
     }
 
@@ -3086,10 +3076,8 @@ struct npc_silverpine_admiral_hatchet : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     ObjectGuid _torokGUID;
-    std::list<Player*> _playerList;
-    bool _eventCD;
+    bool _isConversationOnCooldown;
 };
 
 enum OrcSeaDog
