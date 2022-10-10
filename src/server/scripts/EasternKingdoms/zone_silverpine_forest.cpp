@@ -2590,7 +2590,7 @@ enum SaltyRocka
     EVENT_ROCKA_START_CONVERSATION              = 2,
     EVENT_ROCKA_CHOOSE_CONVERSATION             = 3,
     EVENT_ROCKA_CONVERSATION_COOLDOWN           = 4,
-    EVENT_ROCKA_TALK                            = 5,
+    EVENT_ROCKA_TALK                            = 10,
 
     TALK_ROCKA_0                                = 0,
     TALK_ROCKA_1                                = 1,
@@ -2657,9 +2657,9 @@ struct npc_silverpine_salty_rocka : public ScriptedAI
                     break;
 
                 case EVENT_ROCKA_CHOOSE_CONVERSATION:
-                    _events.ScheduleEvent(EVENT_ROCKA_TALK + urand(0, 4) * 10, 1s);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + (urand(0, 4) * 10), 1s);
                     break;
-               
+
                 case EVENT_ROCKA_TALK:
                     Talk(TALK_ROCKA_0);
                     _events.ScheduleEvent(EVENT_ROCKA_TALK + 1, 20s);
