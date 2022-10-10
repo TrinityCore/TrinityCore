@@ -5141,6 +5141,22 @@ class spell_gen_eject_passengers_3_8 : public SpellScript
     }
 };
 
+// 83781 - Reverse Cast Ride Vehicle
+class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
+{
+    PrepareSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex).CalcValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_reverse_cast_target_to_caster_triggered::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5299,4 +5315,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_mount_check_aura);
     RegisterSpellScript(spell_gen_ancestral_call);
     RegisterSpellScript(spell_gen_eject_passengers_3_8);
+    RegisterSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
 }
