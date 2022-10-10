@@ -247,7 +247,7 @@ UPDATE `creature` SET `position_x`=859.461, `position_y`=1608.500, `position_z`=
 
 DELETE FROM `creature_addon` WHERE `guid` = 321474;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(321474, 3214740, 0, 0, 0, 1, 0, 0, 0, 0, 3, '');
+(321474, 3214740, 0, 0, 0, 1, 0, 0, 0, 0, 4, '');
 
 DELETE FROM `waypoint_data` WHERE `id`= 3214740;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
@@ -521,6 +521,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Mutant Bush Chicken
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_mutant_bush_chicken'  WHERE `entry` = 44935;
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=44935;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES 
+(44935, 1, 1, 0, 0, 0, 0, NULL);
 
 -- Release Diseased Mutant Bush Chicken
 DELETE FROM `spell_script_names` WHERE `spell_id` = 83902 AND `ScriptName` = 'spell_silverpine_release_diseased_mutant_bush_chicken';

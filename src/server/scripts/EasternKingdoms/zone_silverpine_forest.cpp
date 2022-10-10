@@ -3522,6 +3522,18 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
         }
     }
 
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* spellInfo /*= nullptr*/) override
+    {
+        if (!spellInfo)
+            return;
+
+        // Hackfix: according to BasePoints damage is around 90k, which is wrong. On retail, it deals 80% of its health points only.
+        // Also, Mutant Bush Chicken is summoned as not player-controlled (not blue-taped), though it uses the same summonProperties's
+        // Control and Slot as some other summoning spells from this zone.
+        if (spellInfo->Id == SPELL_BUSH_EXPLOSION)
+            damage = 0;
+    }
+
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_BONK, 2s);
@@ -3629,6 +3641,7 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
 
     void JustAppeared() override
     {
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
@@ -3658,6 +3671,17 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
+        {
+            // Note: SummonPropertiesFlags::DespawnOnSummonerLogout is NYI.
+            if (!summoner->IsInWorld())
+                me->DespawnOrUnsummon();
+        }
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
