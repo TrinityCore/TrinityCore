@@ -42,13 +42,13 @@ enum
 };
 
 
-class AlliedRaces : public PlayerScript
+class allied_races : public PlayerScript
 {
 public:
-	AlliedRaces() : PlayerScript("AlliedRaces") { }
+	allied_races() : PlayerScript("allied_races") { }
 
 
-    void OnLogin(Player* player, bool* firstLogin) override
+    void OnLogin(Player* player, bool* firstLogin)
     {
 		if (firstLogin)
 		{
@@ -209,9 +209,9 @@ public:
 };
 
 
-void AddSC_AlliedRaces()
+void AddSC_allied_races()
 {
-    RegisterPlayerScript(AlliedRaces);
+    RegisterPlayerScript(allied_races);
     new npc_valkyr_battle_maiden_allied();
     new zone_allied_dk();
 }

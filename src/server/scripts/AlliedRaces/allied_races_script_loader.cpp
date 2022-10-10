@@ -16,9 +16,9 @@
  */
 
 
-void AddSC_AlliedRaces();
+void AddSC_allied_races();
 
-void AddAlliedRacesScripts()
+void AddSC_allied_races_Scripts()
 {
-	AddSC_AlliedRaces();
+	AddSC_allied_races();
 }

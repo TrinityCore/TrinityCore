@@ -26,7 +26,7 @@ class npc_brawlers_guild_queue : public CreatureScript
 public:
     npc_brawlers_guild_queue() : CreatureScript("npc_brawlers_guild_queue") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (player)
         {
