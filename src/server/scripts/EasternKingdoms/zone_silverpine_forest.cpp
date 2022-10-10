@@ -1690,23 +1690,24 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
     void JustAppeared() override
     {
+        // Note: SummonPropertiesFlags::HelpWhenSummonedInCombat is NYI.
         me->SetReactState(REACT_ASSIST);
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
+        // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveFollow(me->GetOwner(), 3.0f, float(M_PI / 2.0f));
 
         _events.ScheduleEvent(EVENT_AGATHA_CHECK_PLAYER, 1s);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
-    {
-        _playerGUID = summoner->GetGUID();
-    }
-
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         switch (spellInfo->Id)
         {
             case SPELL_AGATHA_BROADCAST:
@@ -1714,8 +1715,8 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 if (_sceneStarted)
                     return;
 
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    Talk(TALK_AGATHA_BROADCAST, player);
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    Talk(TALK_AGATHA_BROADCAST, summoner);
                 break;
             }
 
@@ -1725,8 +1726,8 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 break;
 
             case SPELL_GENERAL_TRIGGER_84107:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    me->CastSpell(player, SPELL_ARMORE_CAMERA_1, true);
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    me->CastSpell(summoner, SPELL_ARMORE_CAMERA_1, true);
                 break;
 
             case SPELL_ARMORE_CAMERA_4:
@@ -1762,6 +1763,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         _events.CancelEvent(EVENT_UNHOLY_SMITE);
         _events.CancelEvent(EVENT_DOOMHOWL);
 
+        // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveFollow(me->GetOwner(), 3.0f, float(M_PI / 2.0f));
     }
@@ -1774,9 +1776,16 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         // Note: SummonPropertiesFlags::DespawnOnSummonerDeath, SummonPropertiesFlags::DespawnOnSummonerLogout and SummonPropertiesFlags::DespawnWhenExpired are NYI.
-        if (!me->GetOwner()->IsAlive() || !me->GetOwner()->IsInWorld() || !me->GetOwner()->HasAura(SPELL_SUMMON_AGATHA_FENRIS))
-            me->DespawnOrUnsummon();
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
+        {
+            if (!summoner->IsAlive() || !summoner->IsInWorld() || !summoner->HasAura(SPELL_SUMMON_AGATHA_FENRIS))
+                me->DespawnOrUnsummon();
+        }
 
         _events.Update(diff);
 
@@ -1786,11 +1795,11 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
             {
                 case EVENT_AGATHA_CHECK_PLAYER:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        if (!_healCD && player->GetHealthPct() < 75.0f)
+                        if (!_healCD && summoner->GetHealthPct() < 75.0f)
                         {
-                            me->CastSpell(player, SPELL_UNHOLY_DARKNESS, false);
+                            me->CastSpell(summoner, SPELL_UNHOLY_DARKNESS, false);
 
                             _healCD = true;
 
@@ -1819,24 +1828,25 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
                 case EVENT_FLEE_FROM_FENRIS + 1:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         me->SetFacingTo(3.159046f);
 
-                        Talk(TALK_AGATHA_POST_EVENT1, player);
+                        Talk(TALK_AGATHA_POST_EVENT1, summoner);
                     }
                     break;
                 }
 
                 case EVENT_FLEE_FROM_FENRIS + 2:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        me->CastSpell(player, SPELL_RIDE_REVERSE_CAST_NO_ESCAPE, true);
+                        me->CastSpell(summoner, SPELL_RIDE_REVERSE_CAST_NO_ESCAPE, true);
 
-                        Talk(TALK_AGATHA_POST_EVENT2, player);
+                        Talk(TALK_AGATHA_POST_EVENT2, summoner);
 
-                        player->KilledMonsterCredit(NPC_AGATHA_FENRIS);
+                        if (Player* player = summoner->ToPlayer())
+                            player->KilledMonsterCredit(NPC_AGATHA_FENRIS);
 
                         me->SetDisableGravity(true);
                         me->SetCanFly(true);
@@ -1850,15 +1860,17 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
                 case EVENT_FLEE_FROM_FENRIS + 3:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->ExitVehicle();
+                        summoner->ExitVehicle();
 
                         _sceneStarted = false;
 
                         me->SetSpeed(MOVE_RUN, 1.14286f);
+
+                        // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MoveFollow(player, 3.0f, float(M_PI / 2.0f));
+                        me->GetMotionMaster()->MoveFollow(summoner, 3.0f, float(M_PI / 2.0f));
 
                         me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                         me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
@@ -1881,6 +1893,10 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
     void SetEventNoEscape()
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         _sceneStarted = true;
 
         me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
@@ -1891,13 +1907,12 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MovePoint(POINT_AGATHA_BACK_FRONTYARD, AgathaBackFrontyardPos);
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-            Talk(TALK_AGATHA_PRE_EVENT, player);
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
+            Talk(TALK_AGATHA_PRE_EVENT, summoner);
     }
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     bool _healCD;
     bool _sceneStarted;
 };
@@ -2251,6 +2266,9 @@ struct npc_silverpine_worgen_sentry : public ScriptedAI
     {
         _events.Update(diff);
 
+        if (!UpdateVictim())
+            return;
+
         while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
@@ -2263,9 +2281,6 @@ struct npc_silverpine_worgen_sentry : public ScriptedAI
                     break;
             }
         }
-
-        if (!UpdateVictim())
-            return;
 
         DoMeleeAttackIfReady();
     }
@@ -2554,11 +2569,8 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
 {
     npc_silverpine_crowley_bloodfang_fenris_keep(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void JustAppeared() override
     {
-        if (Player* player = summoner->ToPlayer())
-            _playerGUID = player->GetGUID();
-
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 
@@ -2567,6 +2579,10 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         if (me->GetEntry() != NPC_CROWLEY_FENRIS)
             return;
 
@@ -2574,11 +2590,11 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
         {
             case SPELL_GENERAL_TRIGGER_84102:
             {
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
                 {
-                    me->CastSpell(player, SPELL_ARMORE_CAMERA_FENRIS, true);
+                    me->CastSpell(summoner, SPELL_ARMORE_CAMERA_FENRIS, true);
 
-                    Talk(TALK_CROWLEY_NO_ESCAPE_6, player);
+                    Talk(TALK_CROWLEY_NO_ESCAPE_6, summoner);
 
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS, 2s + 500ms);
                 }
@@ -2592,6 +2608,10 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         _events.Update(diff);
 
         if (me->GetEntry() != NPC_CROWLEY_FENRIS)
@@ -2602,38 +2622,38 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CROWLEY_ANIMATION_FENRIS:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_CROWLEY_NO_ESCAPE_0, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_CROWLEY_NO_ESCAPE_0, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 1, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 1:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_CROWLEY_NO_ESCAPE_1, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_CROWLEY_NO_ESCAPE_1, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 2, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 2:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_CROWLEY_NO_ESCAPE_2, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_CROWLEY_NO_ESCAPE_2, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 3, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 3:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_CROWLEY_NO_ESCAPE_3, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_CROWLEY_NO_ESCAPE_3, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 4, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 4:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_CROWLEY_NO_ESCAPE_4, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_CROWLEY_NO_ESCAPE_4, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 5, 6s + 100ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 5:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_CROWLEY_NO_ESCAPE_5, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_CROWLEY_NO_ESCAPE_5, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 6, 9s + 500ms);
                     break;
 
@@ -2650,7 +2670,6 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
 };
 
 enum GeneralActorFenris
@@ -2688,11 +2707,8 @@ struct npc_silverpine_generic_actor_fenris_keep : public ScriptedAI
 {
     npc_silverpine_generic_actor_fenris_keep(Creature* creature) : ScriptedAI(creature), _isWorgen(false) { }
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void JustAppeared() override
     {
-        if (Player* player = summoner->ToPlayer())
-            _playerGUID = player->GetGUID();
-
         if (Creature* fenrisStalker = me->FindNearestCreature(NPC_FENRIS_KEEP_STALKER, 50.0f, true))
             me->SetFacingToObject(fenrisStalker);
 
@@ -2704,11 +2720,15 @@ struct npc_silverpine_generic_actor_fenris_keep : public ScriptedAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         switch (spellInfo->Id)
         {
             case SPELL_CONVERSATION_TRIGGER_84076:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    me->CastSpell(player, SPELL_ARMORE_CAMERA_2, true);
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    me->CastSpell(summoner, SPELL_ARMORE_CAMERA_2, true);
                 break;
 
             case SPELL_ARMORE_CAMERA_3:
@@ -2726,6 +2746,10 @@ struct npc_silverpine_generic_actor_fenris_keep : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -2733,14 +2757,14 @@ struct npc_silverpine_generic_actor_fenris_keep : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_MAGISTRATE_ANIMATION:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_HENRY_NO_ESCAPE_0, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_HENRY_NO_ESCAPE_0, summoner);
                     _events.ScheduleEvent(EVENT_MAGISTRATE_ANIMATION + 1, 10s + 800ms);
                     break;
 
                 case EVENT_MAGISTRATE_ANIMATION + 1:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_HENRY_NO_ESCAPE_1, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_HENRY_NO_ESCAPE_1, summoner);
                     _events.ScheduleEvent(EVENT_MAGISTRATE_ANIMATION + 2, 2s);
                     break;
 
@@ -2808,7 +2832,6 @@ struct npc_silverpine_generic_actor_fenris_keep : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     bool _isWorgen;
 };
 
