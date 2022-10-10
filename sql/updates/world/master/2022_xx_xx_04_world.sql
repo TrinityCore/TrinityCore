@@ -3,6 +3,7 @@
  -- Silverpine Forest
  
 SET @CGUID := 395674;
+SET @OGUID := 239587;
 
 --
 -- Forsaken Rear Guard
@@ -360,8 +361,14 @@ INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, 
 (8424, 0, -2.8, -2.2, 0, 0, 1),
 (8425, 0, 4.1, -2.7, 0, 0, 1);
 
--- Orc Crate
-
+-- Sea Dog Crate
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+5;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 205165, 0, 130, 928, '0', 0, 0, 871.46502685546875, 1811.1199951171875, 8.559800148010253906, 0, 0, 0, 0, 1, 120, 255, 1, 45745), -- Sea Dog Crate (Area: North Tide's Beachhead - Difficulty: 0)
+(@OGUID+1, 205165, 0, 130, 928, '0', 0, 0, 916.91998291015625, 1762.8900146484375, 15.93459987640380859, 0, 0, 0, 0, 1, 120, 255, 1, 45745), -- Sea Dog Crate (Area: North Tide's Beachhead - Difficulty: 0)
+(@OGUID+2, 205165, 0, 130, 928, '0', 0, 0, 875.010009765625, 1889.3599853515625, 1.283589959144592285, 0, 0, 0, 0, 1, 120, 255, 1, 45745), -- Sea Dog Crate (Area: North Tide's Beachhead - Difficulty: 0)
+(@OGUID+3, 205165, 0, 130, 928, '0', 0, 0, 966.99298095703125, 1792.3599853515625, 14.43109989166259765, 2.181660413742065429, 0, 0, 0.887010574340820312, 0.461749136447906494, 120, 255, 1, 45745), -- Sea Dog Crate (Area: North Tide's Beachhead - Difficulty: 0)
+(@OGUID+4, 205165, 0, 130, 928, '0', '0', 0, 890.1199951171875, 1817.199951171875, 8.806759834289550781, 4.782202720642089843, 0, 0, -0.68199825286865234, 0.731353819370269775, 120, 255, 1, 45745); -- Sea Dog Crate (Area: North Tide's Beachhead - Difficulty: 0)
 
 -- Orc Crate
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_orc_crate' WHERE `entry` = 44915;
