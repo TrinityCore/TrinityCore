@@ -1,1 +1,0 @@
-ALTER TABLE `gameobject_template_addon` DROP COLUMN `MovementID`, DROP COLUMN `MeleeID`;
