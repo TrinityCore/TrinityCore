@@ -344,9 +344,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 83865, 0, 0, 31, 0, 3, 44914, 0, 0, 0, 0, '', 'Sea Pup Trigger - Target Orc Sea Pup');
 
 -- Despawn All Summons
-DELETE FROM `spell_script_names` WHERE `spell_id` = 83840 AND `ScriptName` = 'spell_gen_despawn_all_summons_owned_by_caster';
+DELETE FROM `spell_script_names` WHERE `spell_id` = 83840 AND `ScriptName` = 'spell_silverpine_despawn_all_summons_steel_thunder';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(83840, 'spell_gen_despawn_all_summons_owned_by_caster');
+(83840, 'spell_silverpine_despawn_all_summons_steel_thunder');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=83840 AND `SourceId`=0 AND `ElseGroup`=1 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=44914 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -359,6 +359,9 @@ INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, 
 (8423, 0, 3.3, -1.2, 0, 0, 1),
 (8424, 0, -2.8, -2.2, 0, 0, 1),
 (8425, 0, 4.1, -2.7, 0, 0, 1);
+
+-- Orc Crate
+
 
 -- Orc Crate
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_orc_crate' WHERE `entry` = 44915;
@@ -518,6 +521,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Mutant Bush Chicken
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_mutant_bush_chicken'  WHERE `entry` = 44935;
+
+-- Release Diseased Mutant Bush Chicken
+DELETE FROM `spell_script_names` WHERE `spell_id` = 83902 AND `ScriptName` = 'spell_silverpine_release_diseased_mutant_bush_chicken';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(83902, 'spell_silverpine_release_diseased_mutant_bush_chicken');
 
 --
 -- The Skittering Dark
