@@ -2835,7 +2835,7 @@ enum ApothecaryWormcrud
 // 44912 - Apothecary Wormcrud
 struct npc_silverpine_apothecary_wormcrud : public ScriptedAI
 {
-    npc_silverpine_apothecary_wormcrud(Creature* creature) : ScriptedAI(creature), _drunkenOrcSeaDog(), _orcSeaDogList(), _isConversationOnCooldown(false) { }
+    npc_silverpine_apothecary_wormcrud(Creature* creature) : ScriptedAI(creature), _isConversationOnCooldown(false) { }
 
     void JustAppeared() override
     {
@@ -2920,19 +2920,19 @@ struct npc_silverpine_apothecary_wormcrud : public ScriptedAI
 
     void CheckForSeaOrcs()
     {
-        me->GetCreatureListWithEntryInGrid(_orcSeaDogList, NPC_DRUNKEN_ORC_SEA_DOG, 5.0f);
+        std::vector<Creature*> orcSeaDogList;
+        me->GetCreatureListWithEntryInGrid(orcSeaDogList, NPC_DRUNKEN_ORC_SEA_DOG, 5.0f);
 
-        for (uint8 i = 0; i < 3; i++)
-        {
-            for (Creature* seaDogOrc : _orcSeaDogList)
-                _drunkenOrcSeaDog[i] = seaDogOrc->GetGUID();
-        }
+        if (orcSeaDogList.size() < 3)
+            return;
+
+        for (uint32 i = 0; i < orcSeaDogList.size(); i++)
+            _drunkenOrcSeaDog[i] = orcSeaDogList[i]->GetGUID();
     }
 
 private:
     EventMap _events;
     std::array<ObjectGuid, 3> _drunkenOrcSeaDog;
-    std::vector<Creature*> _orcSeaDogList;
     bool _isConversationOnCooldown;
 };
 
@@ -2980,8 +2980,7 @@ struct npc_silverpine_admiral_hatchet : public ScriptedAI
     {
         if (quest->GetQuestId() == QUEST_STEEL_THUNDER)
             player->CastSpell(player, SPELL_SEA_PUP_TRIGGER, true);
-
-        if (quest->GetQuestId() == QUEST_LOST_IN_THE_DARKNESS)
+        else if (quest->GetQuestId() == QUEST_LOST_IN_THE_DARKNESS)
             player->CastSpell(nullptr, SPELL_DESPAWN_ALL_SUMMONS_LOST_IN_DARKNESS, true);
     }
 
@@ -3240,22 +3239,23 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
         if (!tempSummon)
             return;
 
-        if (!passenger->IsCreature())
+        Creature* passengerCreature = passenger->ToCreature();
+        if (!passengerCreature)
             return;
 
-        if (passenger->GetEntry() == NPC_ORC_CRATE)
-        {
-            if (apply)
-            {
-                if (_isJustSummoned)
-                    return;
+        if (passenger->GetEntry() != NPC_ORC_CRATE)
+            return;
 
-                if (Unit* summoner = tempSummon->GetSummonerUnit())
-                    Talk(seatId + 1, summoner);
-            }
-            else
-                passenger->ToCreature()->DespawnOrUnsummon(3s);
+        if (apply)
+        {
+            if (_isJustSummoned)
+                return;
+
+            if (Unit* summoner = tempSummon->GetSummonerUnit())
+                Talk(seatId + 1, summoner);
         }
+        else
+            passengerCreature->DespawnOrUnsummon(3s);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -3274,7 +3274,6 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
                     summoner->CastSpell(nullptr, SPELL_DESPAWN_ALL_SUMMONS, true);
                 }
-
                 _events.CancelEvent(EVENT_ORC_PUP_TALK);
                 break;
             }
@@ -3306,10 +3305,13 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
                 case EVENT_ORC_PUP_TALK:
                 {
-                    if (me->GetVehicleKit()->IsVehicleInUse())
+                    if (Vehicle* vehicle = me->GetVehicleKit())
                     {
-                        if (Unit* summoner = tempSummon->GetSummonerUnit())
-                            Talk(TALK_ORC_PUP_WORN_OFF, summoner);
+                        if (vehicle->IsVehicleInUse())
+                        {
+                            if (Unit* summoner = tempSummon->GetSummonerUnit())
+                                Talk(TALK_ORC_PUP_WORN_OFF, summoner);
+                        }
                     }
                     _events.ScheduleEvent(EVENT_ORC_PUP_TALK, 30s, 75s);
                     break;
@@ -3672,7 +3674,7 @@ struct npc_silverpine_webbed_victim : public ScriptedAI
     {
         if (Player* player = killer->ToPlayer())
         {
-            if (player->GetQuestStatus(QUEST_LOST_IN_THE_DARKNESS) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_LOST_IN_THE_DARKNESS) != QUEST_STATUS_REWARDED)
+            if (player->GetQuestStatus(QUEST_LOST_IN_THE_DARKNESS) == QUEST_STATUS_INCOMPLETE)
             {
                 if (roll_chance_i(50))
                     player->CastSpell(me, SPELL_FREE_WEBBED_VICTIM, true);
