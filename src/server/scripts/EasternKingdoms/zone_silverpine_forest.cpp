@@ -1673,11 +1673,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        if (Player* player = summoner->ToPlayer())
-            _playerGUID = player->GetGUID();
-
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-            me->SetFacingToObject(player);
+        me->SetFacingToObject(summoner);
 
         _events.ScheduleEvent(EVENT_START_QUEST_EXSANGUINATE, 1s);
     }
@@ -1733,19 +1729,23 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         _events.Update(diff);
 
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
         {
-            if (!player->HasAura(SPELL_SUMMON_YORICK))
+            if (!summoner->HasAura(SPELL_SUMMON_YORICK))
                 me->DespawnOrUnsummon();
         }
 
         if (!_playerSkipped)
         {
-            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            if (Unit* summoner = tempSummon->GetSummonerUnit())
             {
-                if (player->HasAura(SPELL_HIDDEN_IN_ARMOIRE))
+                if (summoner->HasAura(SPELL_HIDDEN_IN_ARMOIRE))
                 {
                     _playerSkipped = true;
 
@@ -1760,9 +1760,9 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
             {
                 case EVENT_START_QUEST_EXSANGUINATE:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        Talk(TALK_YORICK_EXSANGUINATE_SUMMON, player);
+                        Talk(TALK_YORICK_EXSANGUINATE_SUMMON, summoner);
 
                         _events.ScheduleEvent(EVENT_START_QUEST_EXSANGUINATE + 1, 1s + 500ms);
                     }
@@ -1775,9 +1775,9 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 case EVENT_WAIT_FOR_PLAYER_EXSANGUINATE:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        if (player->GetDistance2d(me) <= 5.0f && !_playerArrived)
+                        if (summoner->GetDistance2d(me) <= 5.0f && !_playerArrived)
                         {
                             _events.ScheduleEvent(EVENT_RANE_TALK_TO_PLAYER, 1s);
                             _playerArrived = true;
@@ -1790,9 +1790,9 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 case EVENT_RANE_TALK_TO_PLAYER:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        Talk(TALK_YORICK_EXSANGUINATE_HIDE, player);
+                        Talk(TALK_YORICK_EXSANGUINATE_HIDE, summoner);
 
                         _events.ScheduleEvent(EVENT_RANE_HIDE, 3s);
                         _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
@@ -1806,25 +1806,28 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
                 case EVENT_SET_GUID_FOR_ARMOIRE:
                 {
-                    if (!_bloodfangGUID)
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        if (Creature* bloodfang = me->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 30.0f))
+                        if (!_bloodfangGUID)
                         {
-                            if (bloodfang->GetOwnerGUID() == _playerGUID)
-                                _bloodfangGUID = bloodfang->GetGUID();
-                        }
-                    }
-
-                    if (!_armoireGUID)
-                    {
-                        if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 30.0f))
-                        {
-                            if (armoire->GetOwnerGUID() == _playerGUID)
+                            if (Creature* bloodfang = me->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 30.0f))
                             {
-                                _armoireGUID = armoire->GetGUID();
+                                if (bloodfang->GetOwnerGUID() == summoner->GetGUID())
+                                    _bloodfangGUID = bloodfang->GetGUID();
+                            }
+                        }
 
-                                if (armoire->IsAIEnabled())
-                                    armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+                        if (!_armoireGUID)
+                        {
+                            if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 30.0f))
+                            {
+                                if (armoire->GetOwnerGUID() == summoner->GetGUID())
+                                {
+                                    _armoireGUID = armoire->GetGUID();
+
+                                    if (armoire->IsAIEnabled())
+                                        armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+                                }
                             }
                         }
                     }
@@ -1852,7 +1855,6 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     ObjectGuid _armoireGUID;
     ObjectGuid _bloodfangGUID;
     bool _playerArrived;
@@ -1911,14 +1913,6 @@ struct npc_silverpine_armoire : public VehicleAI
 {
     npc_silverpine_armoire(Creature* creature) : VehicleAI(creature) { }
 
-    void IsSummonedBy(WorldObject* summoner) override
-    {
-        if (Player* player = summoner->ToPlayer())
-        {
-            if (player->GetQuestStatus(QUEST_WAITING_TO_EXSANGUINATE) == QUEST_STATUS_INCOMPLETE)
-                _playerGUID = player->GetGUID();
-        }
-    }
 
     void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
     {
@@ -1968,6 +1962,10 @@ struct npc_silverpine_armoire : public VehicleAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -1976,9 +1974,9 @@ struct npc_silverpine_armoire : public VehicleAI
             {
                 case EVENT_START_SCENE_EXSANGUINATE:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->CastSpell(player, SPELL_SUMMON_CROWLEY_BLOODFANG_MASTER, true);
+                        summoner->CastSpell(summoner, SPELL_SUMMON_CROWLEY_BLOODFANG_MASTER, true);
 
                         _events.ScheduleEvent(EVENT_START_SCENE_EXSANGUINATE + 1, 100ms);
                     }
@@ -2019,12 +2017,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
                         {
                             if (crowley->IsAIEnabled())
-                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_0, player);
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_0, summoner);
 
                             _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA, 3s + 900ms);
                         }
@@ -2034,9 +2032,9 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_SWITCH_SCENE_CAMERA:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
 
                         _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 1, 2s + 500ms);
                     }
@@ -2045,12 +2043,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 1:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_0, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_0, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 2, 3s + 100ms);
                         }
@@ -2071,9 +2069,9 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_SWITCH_SCENE_CAMERA + 1:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
 
                         _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 3, 2s + 500ms);
                     }
@@ -2082,12 +2080,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 3:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
                         {
                             if (crowley->IsAIEnabled())
-                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_1, player);
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_1, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 4, 3s + 500ms);
                         }
@@ -2108,12 +2106,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 5:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
                         {
                             if (crowley->IsAIEnabled())
-                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_2, player);
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_2, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 6, 3s + 100ms);
                         }
@@ -2134,9 +2132,9 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_SWITCH_SCENE_CAMERA + 2:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
 
                         _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 7, 2s + 500ms);
                     }
@@ -2145,12 +2143,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 7:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_1, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_1, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 8, 3s + 800ms);
                         }
@@ -2160,12 +2158,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 8:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_2, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_2, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 9, 2s + 400ms);
                         }
@@ -2175,12 +2173,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 9:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_3, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_3, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 10, 3s + 900ms);
                         }
@@ -2201,9 +2199,9 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_SWITCH_SCENE_CAMERA + 3:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
 
                         _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 11, 3s);
                     }
@@ -2212,12 +2210,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 11:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
                         {
                             if (crowley->IsAIEnabled())
-                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_3, player);
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_3, summoner);
 
                             _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA + 4, 1s + 900ms);
                         }
@@ -2227,9 +2225,9 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_SWITCH_SCENE_CAMERA + 4:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
 
                         _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 12, 2s + 500ms);
                     }
@@ -2238,12 +2236,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 12:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_4, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_4, summoner);
 
                             _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE, 2s + 300ms);
                         }
@@ -2264,12 +2262,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 13:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_5, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_5, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 14, 4s);
                         }
@@ -2279,12 +2277,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 14:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_6, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_6, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 15, 3s + 500ms);
                         }
@@ -2327,12 +2325,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 17:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_7, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_7, summoner);
 
                             _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 2, 2s + 300ms);
                         }
@@ -2371,14 +2369,14 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 18:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             bloodfang->SetFacingTo(3.054326f);
 
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_8, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_8, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 19, 3s + 600ms);
                         }
@@ -2388,12 +2386,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 19:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
                         {
                             if (yorick->IsAIEnabled())
-                                yorick->AI()->Talk(TALK_YORICK_EXSANGUINATE_DEATH, player);
+                                yorick->AI()->Talk(TALK_YORICK_EXSANGUINATE_DEATH, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 20, 4s + 850ms);
                         }
@@ -2403,7 +2401,7 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 20:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
@@ -2415,7 +2413,7 @@ struct npc_silverpine_armoire : public VehicleAI
                                     yorick->AI()->DoAction(ACTION_RANE_JUMP_DEATH);
 
                                 if (bloodfang->IsAIEnabled())
-                                    bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_9, player);
+                                    bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_9, summoner);
 
                                 _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 4, 3s + 600ms);
                             }
@@ -2437,12 +2435,12 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_TALK_SCENE_EXSANGUINATE + 21:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
                             if (bloodfang->IsAIEnabled())
-                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_10, player);
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_10, summoner);
 
                             _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 22, 4s + 100ms);
                         }
@@ -2463,9 +2461,9 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_SWITCH_SCENE_CAMERA + 5:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        player->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
 
                         if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                         {
@@ -2491,19 +2489,19 @@ struct npc_silverpine_armoire : public VehicleAI
 
                 case EVENT_FINISH_SCENE_EXSANGUINATE:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
                         if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
-                            crowley->CastSpell(player, SPELL_KILL_CREDIT_YORICK, false);
+                            crowley->CastSpell(summoner, SPELL_KILL_CREDIT_YORICK, false);
 
                         if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
-                            yorick->CastSpell(player, SPELL_CANCEL_SUMMON_YORICK, true);
+                            yorick->CastSpell(summoner, SPELL_CANCEL_SUMMON_YORICK, true);
 
-                        player->GetMotionMaster()->Clear();
+                        summoner->GetMotionMaster()->Clear();
 
-                        player->RemoveAura(SPELL_HIDE_IN_ARMOIRE);
+                        summoner->RemoveAura(SPELL_HIDE_IN_ARMOIRE);
 
-                        player->ExitVehicle();
+                        summoner->ExitVehicle();
                     }
                     break;
                 }
@@ -2516,7 +2514,6 @@ struct npc_silverpine_armoire : public VehicleAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     ObjectGuid _yorickGUID;
     ObjectGuid _crowleyGUID;
     ObjectGuid _bloodfangGUID;
