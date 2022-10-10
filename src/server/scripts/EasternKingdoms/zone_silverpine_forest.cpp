@@ -3695,7 +3695,7 @@ struct npc_silverpine_webbed_victim : public ScriptedAI
 {
     npc_silverpine_webbed_victim(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
         me->SetReactState(REACT_PASSIVE);
     }
