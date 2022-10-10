@@ -2808,7 +2808,7 @@ public:
                         hatchet->AI()->DoAction(ACTION_HATCHET_START_CONVERSATION);
                 }
             }
-            else if (player->GetQuestStatus(QUEST_ITS_ONLY_POISONOUS_IF_YOU_INGEST_IT != QUEST_STATUS_COMPLETE) && player->GetQuestStatus(QUEST_ITS_ONLY_POISONOUS_IF_YOU_INGEST_IT) != QUEST_STATUS_REWARDED)
+            else if (player->GetQuestStatus(QUEST_ITS_ONLY_POISONOUS_IF_YOU_INGEST_IT) != QUEST_STATUS_COMPLETE && player->GetQuestStatus(QUEST_ITS_ONLY_POISONOUS_IF_YOU_INGEST_IT) != QUEST_STATUS_REWARDED)
             {
                 if (Creature* wormcrud = player->FindNearestCreature(NPC_APOTHECARY_WORMCRUD, 50.0f))
                 {
