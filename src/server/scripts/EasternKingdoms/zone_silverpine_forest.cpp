@@ -3698,18 +3698,13 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
         }
     }
 
-    void CheckForForestEttin(ObjectGuid ettinGuid)
+    void CheckForForestEttin(Unit* forestEttin)
     {
-        _forestEttinGUID = ettinGuid;
+        _forestEttinGUID = forestEttin->GetGUID();
 
-        if (Creature* forestEttin = ObjectAccessor::GetCreature(*me, ettinGuid))
-        {
-            me->SetFacingToObject(forestEttin);
+        me->SetFacingToObject(forestEttin);
 
-            _events.ScheduleEvent(EVENT_MOVE_TO_FOREST_ETTIN, 1s);
-        }
-        else
-            me->DespawnOrUnsummon(2s);
+        _events.ScheduleEvent(EVENT_MOVE_TO_FOREST_ETTIN, 1s);
     }
 
 private:
@@ -3728,16 +3723,18 @@ class spell_silverpine_release_diseased_mutant_bush_chicken : public SpellScript
 
         if (Unit* caster = GetCaster())
         {
-            if (Creature* mutantBushChicken = caster->FindNearestCreature(NPC_MUTANT_BUSH_CHICKEN, 3.0f, true))
+            std::vector<Creature*> chickens;
+            caster->GetCreatureListWithEntryInGrid(chickens, NPC_MUTANT_BUSH_CHICKEN, 5.0f);
+            for (Creature* mutantBushChicken : chickens)
             {
-                if (mutantBushChicken->GetOwner() == caster)
-                {
-                    if (target->IsAIEnabled())
-                        target->GetAI()->SetGUID(mutantBushChicken->GetGUID(), NPC_MUTANT_BUSH_CHICKEN);
+                if (mutantBushChicken->GetOwner() != caster)
+                    continue;
 
-                    if (npc_silverpine_mutant_bush_chicken* mutantBushChickenAI = CAST_AI(npc_silverpine_mutant_bush_chicken, mutantBushChicken->AI()))
-                        mutantBushChickenAI->CheckForForestEttin(target->GetGUID());
-                }
+                if (target->IsAIEnabled())
+                    target->GetAI()->SetGUID(mutantBushChicken->GetGUID(), NPC_MUTANT_BUSH_CHICKEN);
+
+                if (npc_silverpine_mutant_bush_chicken* mutantBushChickenAI = CAST_AI(npc_silverpine_mutant_bush_chicken, mutantBushChicken->AI()))
+                    mutantBushChickenAI->CheckForForestEttin(target);
             }
         }
     }
