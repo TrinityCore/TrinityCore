@@ -2657,29 +2657,9 @@ struct npc_silverpine_salty_rocka : public ScriptedAI
                     break;
 
                 case EVENT_ROCKA_CHOOSE_CONVERSATION:
-                {
-                    if (roll_chance_i(50))
-                    {
-                        if (roll_chance_i(50))
-                        {
-                            if (roll_chance_i(50))
-                                _events.ScheduleEvent(EVENT_ROCKA_TALK, 1s);
-                            else
-                                _events.ScheduleEvent(EVENT_ROCKA_TALK + 10, 1s);
-                        }
-                        else
-                        {
-                            if (roll_chance_i(50))
-                                _events.ScheduleEvent(EVENT_ROCKA_TALK + 20, 1s);
-                            else
-                                _events.ScheduleEvent(EVENT_ROCKA_TALK + 30, 1s);
-                        }
-                    }
-                    else
-                        _events.ScheduleEvent(EVENT_ROCKA_TALK + 40, 1s);
+                    _events.ScheduleEvent(EVENT_ROCKA_TALK + urand(0, 4) * 10, 1s);
                     break;
-                }
-
+               
                 case EVENT_ROCKA_TALK:
                     Talk(TALK_ROCKA_0);
                     _events.ScheduleEvent(EVENT_ROCKA_TALK + 1, 20s);
