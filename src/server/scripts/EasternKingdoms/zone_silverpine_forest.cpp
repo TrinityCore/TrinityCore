@@ -1727,6 +1727,7 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 
         if (Unit* summoner = tempSummon->GetSummonerUnit())
         {
+            // Note: SummonPropertiesFlags::DespawnWhenExpired is NYI.
             if (!summoner->HasAura(SPELL_SUMMON_YORICK))
                 me->DespawnOrUnsummon();
         }
@@ -3246,10 +3247,9 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
     {
         if (Player* player = summoner->ToPlayer())
         {
-            _playerGUID = player->GetGUID();
-
             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
+            // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
             me->GetMotionMaster()->MoveFollow(player, 2.0f, float(M_PI / 2.0f));
 
             if (player->GetQuestStatus(QUEST_STEEL_THUNDER) == QUEST_STATUS_INCOMPLETE)
@@ -3268,6 +3268,10 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
     void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         if (!passenger->IsCreature())
             return;
 
@@ -3278,8 +3282,8 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
                 if (_isJustSummoned)
                     return;
 
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    Talk(seatId + 1, player);
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    Talk(seatId + 1, summoner);
             }
             else
                 passenger->ToCreature()->DespawnOrUnsummon(3s);
@@ -3288,15 +3292,19 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         switch (spellInfo->Id)
         {
             case SPELL_SEA_PUP_TRIGGER:
             {
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
                 {
-                    Talk(TALK_ORC_PUP_DELIVER_CRATES, player);
+                    Talk(TALK_ORC_PUP_DELIVER_CRATES, summoner);
 
-                    player->CastSpell(nullptr, SPELL_DESPAWN_ALL_SUMMONS, true);
+                    summoner->CastSpell(nullptr, SPELL_DESPAWN_ALL_SUMMONS, true);
                 }
 
                 _events.CancelEvent(EVENT_ORC_PUP_TALK);
@@ -3313,6 +3321,10 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -3320,16 +3332,16 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
             switch (eventId)
             {
                 case EVENT_ORC_PUP_JUST_SUMMONED:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_ORC_PUP_SUMMONED, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_ORC_PUP_SUMMONED, summoner);
                     break;
 
                 case EVENT_ORC_PUP_TALK:
                 {
                     if (me->GetVehicleKit()->IsVehicleInUse())
                     {
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                            Talk(TALK_ORC_PUP_WORN_OFF, player);
+                        if (Unit* summoner = tempSummon->GetSummonerUnit())
+                            Talk(TALK_ORC_PUP_WORN_OFF, summoner);
                     }
                     _events.ScheduleEvent(EVENT_ORC_PUP_TALK, 30s, 75s);
                     break;
@@ -3353,7 +3365,6 @@ struct npc_silverpine_orc_sea_pup : public VehicleAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     bool _isJustSummoned;
 };
 
@@ -3390,8 +3401,8 @@ class spell_silverpine_pick_up_orc_crate : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfi*/) override
     {
-        return ValidateSpellInfo(
-        {
+        return ValidateSpellInfo
+        ({
             SPELL_SUMMON_ORC_CRATE,
             SPELL_KILL_CREDIT_SEA_DOG_CRATE
         });
@@ -3438,8 +3449,6 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
     {
         if (Player* player = summoner->ToPlayer())
         {
-            _playerGUID = player->GetGUID();
-
             if (player->GetQuestStatus(QUEST_POISONOUS_IF_YOU_INGEST_IT) == QUEST_STATUS_INCOMPLETE)
                 me->PlayDirectSound(SOUND_CHICKEN_MOUNT_WOUND, player);
         }
@@ -3481,7 +3490,6 @@ struct npc_silverpine_mutant_bush_chicken : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     ObjectGuid _ettinGUID;
 };
 
@@ -3803,11 +3811,9 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
     {
         if (Player* player = summoner->ToPlayer())
         {
-            _playerGUID = player->GetGUID();
-
             player->KilledMonsterCredit(NPC_ORC_SEA_DOG);
 
-            // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI.
+            // Note: SummonPropertiesFlags::JoinSummonerSpawnGroup is NYI. They should be faned around the back of the player depending on how many summons they have (Pets and Guardians included).
             me->GetMotionMaster()->MoveFollow(player, 5.0f, frand(1.57f, 4.71f));
 
             _events.ScheduleEvent(EVENT_WEBBEB_ORC_CHECK_PLAYER, 1s);
@@ -3827,23 +3833,26 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
+        {
+            // Note: SummonPropertiesFlags::DespawnOnSummonerDeath and SummonPropertiesFlags::DespawnOnSummonerLogout are NYI.
+            if (!summoner->IsAlive() || !summoner->IsInWorld())
+                me->DespawnOrUnsummon();
+        }
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
             {
-                case EVENT_WEBBEB_ORC_CHECK_PLAYER:
-                    // Note: SummonPropertiesFlags::DespawnOnSummonerDeath and SummonPropertiesFlags::DespawnOnSummonerLogout are NYI.
-                    if (me->GetOwner()->IsAlive() || me->GetOwner()->IsInWorld())
-                        _events.ScheduleEvent(EVENT_WEBBEB_ORC_CHECK_PLAYER, 1s);
-                    else
-                        me->DespawnOrUnsummon();
-                    break;
-
                 case EVENT_WEBBEB_ORC_TALK:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_WEBBEB_ORC_FREED, player);
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                        Talk(TALK_WEBBEB_ORC_FREED, summoner);
                     break;
 
                 case EVENT_SINISTER_STRIKE:
@@ -3864,7 +3873,6 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
 };
 
 enum SkitterwebMatriarch
