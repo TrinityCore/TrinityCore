@@ -10,12 +10,14 @@ ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
 ECHO ...............................................
 ECHO.
 ECHO WARNING! when extracting the vmaps extractor will
-ECHO output the text below, it's intended and not an error:
+ECHO output the textS below, it's intended and not an error:
 ECHO ..........................................
 ECHO Extracting World\Wmo\Band\Final_Stage.wmo
 ECHO No such file.
 ECHO Couldn't open RootWmo!!!
 ECHO Done!
+ECHO ..........................................
+ECHO Can't open WDT for map <a number> - <a name> (FileNameID <number>): FILE NOT FOUND
 ECHO ..........................................
 ECHO.
 ECHO Press 1, 2, 3 or 4 to start extracting or 5 to exit.
