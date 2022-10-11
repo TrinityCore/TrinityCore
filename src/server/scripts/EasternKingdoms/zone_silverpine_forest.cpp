@@ -4140,7 +4140,7 @@ enum AgathaFenrisIsle
 
     PATH_AGATHA_TO_FORSAKEN                     = 449510,
 
-    WAYPOINT_SPEED_UP                           = 13,
+    WAYPOINT_SPEED_UP                           = 14,
     WAYPOINT_ARRIVED_TO_FORSAKEN                = 19,
 
     POINT_AGATHA_BACK_FRONTYARD                 = 1
