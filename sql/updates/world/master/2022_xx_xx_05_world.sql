@@ -46,9 +46,9 @@ DELETE FROM `creature_template_addon` WHERE `entry` = 44951;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (44951, 0, 0, 0, 50331648, 1, 0, 0, 0, 0, 3, '85451');
 
-DELETE FROM `creature_template_movement` WHERE `CreatureId` = 44951;
-INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Random`, `InteractionPauseTimer`) VALUES 
-(44951, 2, 1, 1, 0, 0, NULL);
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=44951;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES 
+(44951, 2, 1, 1, 0, 0, 0, NULL);
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 44951;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
