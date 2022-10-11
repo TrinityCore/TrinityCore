@@ -1596,6 +1596,990 @@ private:
     ObjectGuid _playerGUID;
 };
 
+enum AbandonedOuthouse
+{
+    QUEST_WAITING_TO_EXSANGUINATE           = 27045,
+
+    SPELL_SUMMON_DEATHSTALKER_YORICK        = 83751
+};
+
+// 205143 - Abandoned Outhouse
+struct go_silverpine_abandoned_outhouse : public GameObjectAI
+{
+    go_silverpine_abandoned_outhouse(GameObject* go) : GameObjectAI(go) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_WAITING_TO_EXSANGUINATE)
+            player->CastSpell(player, SPELL_SUMMON_DEATHSTALKER_YORICK, true);
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        player->CastSpell(player, SPELL_SUMMON_DEATHSTALKER_YORICK, true);
+        CloseGossipMenuFor(player);
+        return false;
+    }
+};
+
+Position const YorickReadyPosition = { 1313.7f, 1211.99f, 58.5f, 4.564474f };
+
+Position const YorickDeathPosition = { 1295.52f, 1206.58f, 58.501f };
+
+enum DeathstalkerRaneYorick
+{
+    PHASE_WAITING_TO_EXSANGUINATE           = 265,
+
+    NPC_ARMOIRE_SUMMONED                    = 44893,
+    NPC_PACKLEADER_IVAR_BLOODFANG           = 44884,
+
+    SPELL_STEALTH                           = 34189,
+    SPELL_PERMANENT_FEIGN_DEATH             = 29266,
+    SPELL_HIDDEN_IN_ARMOIRE                 = 83788,
+    SPELL_SUMMON_YORICK                     = 83751,
+    SPELL_CANCEL_SUMMON_YORICK              = 83755,
+
+    EVENT_START_QUEST_EXSANGUINATE          = 1,
+    EVENT_WAIT_FOR_PLAYER_EXSANGUINATE      = 3,
+    EVENT_RANE_HIDE                         = 4,
+    EVENT_SET_GUID_FOR_ARMOIRE              = 5,
+    EVENT_RANE_TALK_TO_PLAYER               = 6,
+    EVENT_RANE_LAST_MOVE                    = 7,
+
+    ACTION_RANE_JUMP_DEATH                  = 1,
+    ACTION_RANE_SKIP_PATH                   = 2,
+
+    TALK_YORICK_EXSANGUINATE_SUMMON         = 0,
+    TALK_YORICK_EXSANGUINATE_HIDE           = 1,
+
+    PATH_YORICK_UP                          = 448820,
+    PATH_YORICK_HIDE                        = 448821,
+
+    WAYPOINT_CLOSE_TO_ARMOIRE               = 15,
+    WAYPOINT_HIDDEN_NEXT_TO_ARMOIRE         = 2
+};
+
+// 44882 - Deathstalker Rane Yorick
+struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
+{
+    npc_silverpine_deathstalker_rane_yorick(Creature* creature) : ScriptedAI(creature), _playerArrived(false), _playerSkipped(false) { }
+
+    void JustAppeared() override
+    {
+        me->SetPowerType(POWER_ENERGY);
+        me->SetMaxPower(POWER_ENERGY, 100);
+        me->SetPower(POWER_ENERGY, 100, true);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        me->SetFacingToObject(summoner);
+
+        _events.ScheduleEvent(EVENT_START_QUEST_EXSANGUINATE, 1s);
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_YORICK_UP && waypointId == WAYPOINT_CLOSE_TO_ARMOIRE)
+            _events.ScheduleEvent(EVENT_WAIT_FOR_PLAYER_EXSANGUINATE, 1s);
+
+        if (pathId == PATH_YORICK_HIDE && waypointId == WAYPOINT_HIDDEN_NEXT_TO_ARMOIRE)
+        {
+            me->SetFacingTo(4.6425757f);
+
+            DoCastSelf(SPELL_STEALTH);
+
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+
+            _playerSkipped = true;
+        }
+    }
+
+    void DoAction(int32 param) override
+    {
+        switch (param)
+        {
+            case ACTION_RANE_JUMP_DEATH:
+                me->SetDisableGravity(true);
+                _events.ScheduleEvent(EVENT_RANE_LAST_MOVE, 10ms);
+                break;
+
+            case ACTION_RANE_SKIP_PATH:
+            {
+                me->PauseMovement();
+
+                me->GetMotionMaster()->Clear();
+
+                me->NearTeleportTo(YorickReadyPosition, false);
+
+                _events.Reset();
+
+                _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
+
+                DoCastSelf(SPELL_STEALTH);
+
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        _events.Update(diff);
+
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
+        {
+            if (!summoner->HasAura(SPELL_SUMMON_YORICK))
+                me->DespawnOrUnsummon();
+        }
+
+        if (!_playerSkipped)
+        {
+            if (Unit* summoner = tempSummon->GetSummonerUnit())
+            {
+                if (summoner->HasAura(SPELL_HIDDEN_IN_ARMOIRE))
+                {
+                    _playerSkipped = true;
+
+                    DoAction(ACTION_RANE_SKIP_PATH);
+                }
+            }
+        }
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_QUEST_EXSANGUINATE:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        Talk(TALK_YORICK_EXSANGUINATE_SUMMON, summoner);
+
+                        _events.ScheduleEvent(EVENT_START_QUEST_EXSANGUINATE + 1, 1s + 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_START_QUEST_EXSANGUINATE + 1:
+                    me->GetMotionMaster()->MovePath(PATH_YORICK_UP, false);
+                    break;
+
+                case EVENT_WAIT_FOR_PLAYER_EXSANGUINATE:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (summoner->GetDistance2d(me) <= 5.0f && !_playerArrived)
+                        {
+                            _events.ScheduleEvent(EVENT_RANE_TALK_TO_PLAYER, 1s);
+                            _playerArrived = true;
+                        }
+                        else
+                            _events.ScheduleEvent(EVENT_WAIT_FOR_PLAYER_EXSANGUINATE, 1s);
+                    }
+                    break;
+                }
+
+                case EVENT_RANE_TALK_TO_PLAYER:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        Talk(TALK_YORICK_EXSANGUINATE_HIDE, summoner);
+
+                        _events.ScheduleEvent(EVENT_RANE_HIDE, 3s);
+                        _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
+                    }
+                    break;
+                }
+
+                case EVENT_RANE_HIDE:
+                    me->GetMotionMaster()->MovePath(PATH_YORICK_HIDE, false);
+                    break;
+
+                case EVENT_SET_GUID_FOR_ARMOIRE:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (!_bloodfangGUID)
+                        {
+                            if (Creature* bloodfang = me->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 30.0f))
+                            {
+                                if (bloodfang->GetOwnerGUID() == summoner->GetGUID())
+                                    _bloodfangGUID = bloodfang->GetGUID();
+                            }
+                        }
+
+                        if (!_armoireGUID)
+                        {
+                            if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 30.0f))
+                            {
+                                if (armoire->GetOwnerGUID() == summoner->GetGUID())
+                                {
+                                    _armoireGUID = armoire->GetGUID();
+
+                                    if (armoire->IsAIEnabled())
+                                        armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+                                }
+                            }
+                        }
+                    }
+
+                    if (!_bloodfangGUID || !_armoireGUID)
+                        _events.ScheduleEvent(EVENT_SET_GUID_FOR_ARMOIRE, 1s);
+                    break;
+                }
+
+                case EVENT_RANE_LAST_MOVE:
+                    me->GetMotionMaster()->MoveJump(YorickDeathPosition, 10.0f, 10.0f);
+                    DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
+                    _events.ScheduleEvent(EVENT_RANE_LAST_MOVE + 1, 2s);
+                    break;
+
+                case EVENT_RANE_LAST_MOVE + 1:
+                    me->SetDisableGravity(false);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _armoireGUID;
+    ObjectGuid _bloodfangGUID;
+    bool _playerArrived;
+    bool _playerSkipped;
+};
+
+enum WaitingToExsanguinate
+{
+    NPC_DEATHSTALKER_RANE_YORICK            = 44882,
+    NPC_LORD_DARIUS_CROWLEY                 = 44883,
+
+    SPELL_SUMMON_CROWLEY_BLOODFANG_MASTER   = 83762,
+    SPELL_ARMOIRE_CAMERA_ON_CROWLEY         = 83763,
+    SPELL_ARMOIRE_CAMERA_ON_BLOODFANG       = 83764,
+    SPELL_RIDE_REVERSE_CAST_EXSANGUINATE    = 83781,
+    SPELL_EJECT_PASSENGER_01                = 80743,
+    SPELL_KILL_CREDIT_YORICK                = 83786,
+    SPELL_HIDE_IN_ARMOIRE                   = 83788,
+
+    EVENT_START_SCENE_EXSANGUINATE          = 1,
+    EVENT_TALK_SCENE_EXSANGUINATE           = 4,
+    EVENT_ACTION_SCENE_EXSANGUINATE         = 27,
+    EVENT_SWITCH_SCENE_CAMERA               = 33,
+    EVENT_FINISH_SCENE_EXSANGUINATE         = 40,
+
+    TALK_YORICK_EXSANGUINATE_DEATH           = 2,
+    TALK_CROWLEY_EXSANGUINATE_0              = 0,
+    TALK_CROWLEY_EXSANGUINATE_1              = 1,
+    TALK_CROWLEY_EXSANGUINATE_2              = 2,
+    TALK_CROWLEY_EXSANGUINATE_3              = 3,
+    TALK_CROWLEY_EXSANGUINATE_4              = 4,
+    TALK_CROWLEY_EXSANGUINATE_5              = 5,
+    TALK_CROWLEY_EXSANGUINATE_6              = 6,
+    TALK_BLOODFANG_EXSANGUINATE_0            = 0,
+    TALK_BLOODFANG_EXSANGUINATE_1            = 1,
+    TALK_BLOODFANG_EXSANGUINATE_2            = 2,
+    TALK_BLOODFANG_EXSANGUINATE_3            = 3,
+    TALK_BLOODFANG_EXSANGUINATE_4            = 4,
+    TALK_BLOODFANG_EXSANGUINATE_5            = 5,
+    TALK_BLOODFANG_EXSANGUINATE_6            = 6,
+    TALK_BLOODFANG_EXSANGUINATE_7            = 7,
+    TALK_BLOODFANG_EXSANGUINATE_8            = 8,
+    TALK_BLOODFANG_EXSANGUINATE_9            = 9,
+    TALK_BLOODFANG_EXSANGUINATE_10           = 10,
+
+    PATH_CROWLEY_ENTER                       = 448830,
+    PATH_BLOODFANG_ENTER                     = 448840,
+    PATH_BLOODFANG_NEAR_YORICK               = 448841,
+    PATH_BLOODFANG_WITH_YORICK               = 448842,
+    PATH_BLOODFANG_EXIT                      = 448843,
+    PATH_CROWLEY_EXIT                        = 448831
+};
+
+// 44893 - Armoire
+struct npc_silverpine_armoire : public VehicleAI
+{
+    npc_silverpine_armoire(Creature* creature) : VehicleAI(creature) { }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply)
+        {
+            if (Player* player = passenger->ToPlayer())
+            {
+                if (player->GetQuestStatus(QUEST_WAITING_TO_EXSANGUINATE) == QUEST_STATUS_INCOMPLETE)
+                    _events.ScheduleEvent(EVENT_START_SCENE_EXSANGUINATE, 400ms);
+            }
+        }
+        else
+        {
+            if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                crowley->DespawnOrUnsummon();
+
+            if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                bloodfang->DespawnOrUnsummon();
+
+            if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
+                yorick->CastSpell(nullptr, SPELL_CANCEL_SUMMON_YORICK, true);
+
+            me->DespawnOrUnsummon(1s);
+        }
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 id) override
+    {
+        switch (id)
+        {
+            case NPC_DEATHSTALKER_RANE_YORICK:
+                _yorickGUID = guid;
+                break;
+
+            case NPC_LORD_DARIUS_CROWLEY:
+                _crowleyGUID = guid;
+                break;
+
+            case NPC_PACKLEADER_IVAR_BLOODFANG:
+                _bloodfangGUID = guid;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_START_SCENE_EXSANGUINATE:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        summoner->CastSpell(summoner, SPELL_SUMMON_CROWLEY_BLOODFANG_MASTER, true);
+
+                        _events.ScheduleEvent(EVENT_START_SCENE_EXSANGUINATE + 1, 100ms);
+                    }
+                    break;
+                }
+
+                case EVENT_START_SCENE_EXSANGUINATE + 1:
+                {
+                    if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                    {
+                        crowley->GetMotionMaster()->MovePath(PATH_CROWLEY_ENTER, false);
+
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            bloodfang->GetMotionMaster()->MovePath(PATH_BLOODFANG_ENTER, false);
+
+                            _events.ScheduleEvent(EVENT_START_SCENE_EXSANGUINATE + 2, 7s);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_START_SCENE_EXSANGUINATE + 2:
+                {
+                    if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            crowley->SetFacingToObject(bloodfang);
+
+                            bloodfang->SetFacingToObject(crowley);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE, 2s);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                        {
+                            if (crowley->IsAIEnabled())
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_0, summoner);
+
+                            _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA, 3s + 900ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_SWITCH_SCENE_CAMERA:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 1, 2s + 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 1:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_0, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 2, 3s + 100ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 2:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+
+                        _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA + 1, 4s + 800ms);
+                    }
+                    break;
+                }
+
+                case EVENT_SWITCH_SCENE_CAMERA + 1:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 3, 2s + 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 3:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                        {
+                            if (crowley->IsAIEnabled())
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_1, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 4, 3s + 500ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 4:
+                {
+                    if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                    {
+                        crowley->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 5, 5s + 400ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 5:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                        {
+                            if (crowley->IsAIEnabled())
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_2, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 6, 3s + 100ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 6:
+                {
+                    if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                    {
+                        crowley->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+
+                        _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA + 2, 3s + 550ms);
+                    }
+                    break;
+                }
+
+                case EVENT_SWITCH_SCENE_CAMERA + 2:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 7, 2s + 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 7:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_1, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 8, 3s + 800ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 8:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_2, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 9, 2s + 400ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 9:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_3, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 10, 3s + 900ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 10:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+
+                        _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA + 3, 4s + 450ms);
+                    }
+                    break;
+                }
+
+                case EVENT_SWITCH_SCENE_CAMERA + 3:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 11, 3s);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 11:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                        {
+                            if (crowley->IsAIEnabled())
+                                crowley->AI()->Talk(TALK_CROWLEY_EXSANGUINATE_3, summoner);
+
+                            _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA + 4, 1s + 900ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_SWITCH_SCENE_CAMERA + 4:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_BLOODFANG, true);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 12, 2s + 500ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 12:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_4, summoner);
+
+                            _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE, 2s + 300ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_ACTION_SCENE_EXSANGUINATE:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->SetFacingTo(0.6457718f);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 13, 1s + 300ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 13:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_5, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 14, 4s);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 14:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_6, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 15, 3s + 500ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 15:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_YES);
+
+                        _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 1, 2s + 800ms);
+                    }
+                    break;
+                }
+
+                case EVENT_ACTION_SCENE_EXSANGUINATE + 1:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->GetMotionMaster()->MovePath(PATH_BLOODFANG_NEAR_YORICK, false);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 16, 3s);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 16:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 17, 200ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 17:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_7, summoner);
+
+                            _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 2, 2s + 300ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_ACTION_SCENE_EXSANGUINATE + 2:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
+                        {
+                            yorick->RemoveAura(SPELL_STEALTH);
+
+                            yorick->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+
+                            bloodfang->CastSpell(yorick, SPELL_RIDE_REVERSE_CAST_EXSANGUINATE, true);
+
+                            _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 3, 1s + 100ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_ACTION_SCENE_EXSANGUINATE + 3:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->GetMotionMaster()->MovePath(PATH_BLOODFANG_WITH_YORICK, false);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 18, 3s);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 18:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            bloodfang->SetFacingTo(3.054326f);
+
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_8, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 19, 3s + 600ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 19:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
+                        {
+                            if (yorick->IsAIEnabled())
+                                yorick->AI()->Talk(TALK_YORICK_EXSANGUINATE_DEATH, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 20, 4s + 850ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 20:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
+                            {
+                                bloodfang->CastSpell(yorick, SPELL_EJECT_PASSENGER_01, false);
+
+                                if (yorick->IsAIEnabled())
+                                    yorick->AI()->DoAction(ACTION_RANE_JUMP_DEATH);
+
+                                if (bloodfang->IsAIEnabled())
+                                    bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_9, summoner);
+
+                                _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 4, 3s + 600ms);
+                            }
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_ACTION_SCENE_EXSANGUINATE + 4:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->SetFacingTo(0.0f);
+
+                        _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 21, 1s + 100ms);
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 21:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            if (bloodfang->IsAIEnabled())
+                                bloodfang->AI()->Talk(TALK_BLOODFANG_EXSANGUINATE_10, summoner);
+
+                            _events.ScheduleEvent(EVENT_TALK_SCENE_EXSANGUINATE + 22, 4s + 100ms);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_TALK_SCENE_EXSANGUINATE + 22:
+                {
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                    {
+                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+
+                        _events.ScheduleEvent(EVENT_SWITCH_SCENE_CAMERA + 5, 3s + 250ms);
+                    }
+                    break;
+                }
+
+                case EVENT_SWITCH_SCENE_CAMERA + 5:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        summoner->CastSpell(nullptr, SPELL_ARMOIRE_CAMERA_ON_CROWLEY, true);
+
+                        if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        {
+                            bloodfang->SetWalk(false);
+                            bloodfang->GetMotionMaster()->MovePath(PATH_BLOODFANG_EXIT, false);
+
+                            _events.ScheduleEvent(EVENT_ACTION_SCENE_EXSANGUINATE + 5, 3s);
+                        }
+                    }
+                    break;
+                }
+
+                case EVENT_ACTION_SCENE_EXSANGUINATE + 5:
+                {
+                    if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                    {
+                        crowley->GetMotionMaster()->MovePath(PATH_CROWLEY_EXIT, false);
+
+                        _events.ScheduleEvent(EVENT_FINISH_SCENE_EXSANGUINATE, 4s);
+                    }
+                    break;
+                }
+
+                case EVENT_FINISH_SCENE_EXSANGUINATE:
+                {
+                    if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    {
+                        if (Creature* crowley = ObjectAccessor::GetCreature(*me, _crowleyGUID))
+                            crowley->CastSpell(summoner, SPELL_KILL_CREDIT_YORICK, false);
+
+                        if (Creature* yorick = ObjectAccessor::GetCreature(*me, _yorickGUID))
+                            yorick->CastSpell(summoner, SPELL_CANCEL_SUMMON_YORICK, true);
+
+                        summoner->GetMotionMaster()->Clear();
+
+                        summoner->RemoveAura(SPELL_HIDE_IN_ARMOIRE);
+
+                        summoner->ExitVehicle();
+                    }
+                    break;
+                }
+
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _yorickGUID;
+    ObjectGuid _crowleyGUID;
+    ObjectGuid _bloodfangGUID;
+};
+
+enum DariusCrowleyExsanguinate
+{
+    WAYPOINT_ON_CROWLEY_DESPAWN              = 2
+};
+
+// 44883 - Lord Darius Crowley
+struct npc_silverpine_lord_darius_crowley_exsanguinate : public ScriptedAI
+{
+    npc_silverpine_lord_darius_crowley_exsanguinate(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 100.0f))
+        {
+            if (armoire->IsAIEnabled())
+                armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+        }
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_CROWLEY_EXIT && waypointId == WAYPOINT_ON_CROWLEY_DESPAWN)
+            me->DespawnOrUnsummon();
+    }
+};
+
+enum IvarBloodfangExsanguinate
+{
+    WAYPOINT_ON_BLOODFANG_DESPAWN            = 3
+};
+
+// 44884 - Packleader Ivar Bloodfang
+struct npc_silverpine_packleader_ivar_bloodfang_exsanguinate : public ScriptedAI
+{
+    npc_silverpine_packleader_ivar_bloodfang_exsanguinate(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        if (Creature* armoire = me->FindNearestCreature(NPC_ARMOIRE_SUMMONED, 30.0f))
+        {
+            if (armoire->IsAIEnabled())
+                armoire->GetAI()->SetGUID(me->GetGUID(), me->GetEntry());
+        }
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_BLOODFANG_EXIT && waypointId == WAYPOINT_ON_BLOODFANG_DESPAWN)
+            me->DespawnOrUnsummon();
+    }
+};
+
 void AddSC_silverpine_forest()
 {
     /* Vehicles */
@@ -1616,4 +2600,12 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_forsaken_trooper);
     RegisterCreatureAI(npc_silverpine_bat_handler_maggotbreath);
     RegisterCreatureAI(npc_silverpine_forsaken_bat);
+
+    /* Ivar Patch */
+
+    RegisterGameObjectAI(go_silverpine_abandoned_outhouse);
+    RegisterCreatureAI(npc_silverpine_deathstalker_rane_yorick);
+    RegisterCreatureAI(npc_silverpine_armoire);
+    RegisterCreatureAI(npc_silverpine_lord_darius_crowley_exsanguinate);
+    RegisterCreatureAI(npc_silverpine_packleader_ivar_bloodfang_exsanguinate);
 }
