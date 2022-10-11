@@ -1154,7 +1154,7 @@ enum SylvanasForsakenHighCommand
 
     NPC_FORSAKEN_WARHORSE                       = 73595,
 
-    SPELL_SUMMON_FORSAKEN_WARHORSE              = 148164,
+    SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
     SPELL_APPLY_INVIS_ZONE_4                    = 84183,
     SPELL_DESPAWN_ALL_SUMMONS_AGATHA            = 84011
@@ -1167,7 +1167,7 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
 
     void JustAppeared() override
     {
-        DoCastSelf(SPELL_SUMMON_FORSAKEN_WARHORSE);
+        DoCastSelf(SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE);
 
         // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
         if (Creature* forsakenWarhorse = me->FindNearestCreature(NPC_FORSAKEN_WARHORSE, 5.0f, true))
