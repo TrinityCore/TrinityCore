@@ -10657,6 +10657,10 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             if (creature->GetMap()->Is25ManRaid())
                 loot->maxDuplicates = 3;
 
+            if (InstanceScript const* instance = creature->GetInstanceScript())
+                if (DungeonEncounterEntry const* dungeonEncounter = instance->GetBossDungeonEncounter(creature))
+                    loot->SetDungeonEncounterId(dungeonEncounter->ID);
+
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
                 loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
 

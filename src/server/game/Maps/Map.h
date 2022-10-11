@@ -41,7 +41,6 @@
 #include <list>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <set>
 #include <unordered_set>
 
@@ -81,6 +80,46 @@ enum class ItemContext : uint8;
 
 namespace Trinity { struct ObjectUpdater; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
+
+enum TransferAbortReason : uint32
+{
+    TRANSFER_ABORT_NONE                          = 0,
+    TRANSFER_ABORT_ERROR                         = 1,
+    TRANSFER_ABORT_MAX_PLAYERS                   = 2,   // Transfer Aborted: instance is full
+    TRANSFER_ABORT_NOT_FOUND                     = 3,   // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES            = 4,   // You have entered too many instances recently.
+    TRANSFER_ABORT_ZONE_IN_COMBAT                = 6,   // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL               = 7,   // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY                    = 8,   // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_UNIQUE_MESSAGE                = 9,   // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES      = 10,  // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_NEED_GROUP                    = 11,  // Transfer Aborted: you must be in a raid group to enter this instance
+    TRANSFER_ABORT_NOT_FOUND_2                   = 12,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_3                   = 13,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_NOT_FOUND_4                   = 14,  // Transfer Aborted: instance not found
+    TRANSFER_ABORT_REALM_ONLY                    = 15,  // All players in the party must be from the same realm to enter %s.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED               = 16,  // Map cannot be entered at this time.
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE  = 18,  // You are already locked to %s
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER   = 19,  // You are ineligible to participate in at least one encounter in this instance because you are already locked to an instance in which it has been defeated.
+    TRANSFER_ABORT_DIFFICULTY_NOT_FOUND          = 22,  // client writes to console "Unable to resolve requested difficultyID %u to actual difficulty for map %d"
+    TRANSFER_ABORT_XREALM_ZONE_DOWN              = 24,  // Transfer Aborted: cross-realm zone is down
+    TRANSFER_ABORT_SOLO_PLAYER_SWITCH_DIFFICULTY = 26,  // This instance is already in progress. You may only switch difficulties from inside the instance.
+    TRANSFER_ABORT_NOT_CROSS_FACTION_COMPATIBLE  = 33,  // This instance isn't available for cross-faction groups
+};
+
+struct TransferAbortParams
+{
+    TransferAbortParams(TransferAbortReason reason, uint8 arg = 0, int32 mapDifficultyXConditionId = 0)
+        : Reason(reason), Arg(arg), MapDifficultyXConditionId(mapDifficultyXConditionId)
+    {
+    }
+
+    TransferAbortReason Reason;
+    uint8 Arg;
+    int32 MapDifficultyXConditionId;
+
+    operator bool() const { return Reason != TRANSFER_ABORT_NONE; }
+};
 
 struct ScriptAction
 {
@@ -262,25 +301,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         uint32 GetInstanceId() const { return i_InstanceId; }
 
-        enum EnterState
-        {
-            CAN_ENTER = 0,
-            CANNOT_ENTER_ALREADY_IN_MAP = 1, // Player is already in the map
-            CANNOT_ENTER_NO_ENTRY, // No map entry was found for the target map ID
-            CANNOT_ENTER_UNINSTANCED_DUNGEON, // No instance template was found for dungeon map
-            CANNOT_ENTER_DIFFICULTY_UNAVAILABLE, // Requested instance difficulty is not available for target map
-            CANNOT_ENTER_NOT_IN_RAID, // Target instance is a raid instance and the player is not in a raid group
-            CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE, // Player is dead and their corpse is not in target instance
-            CANNOT_ENTER_INSTANCE_BIND_MISMATCH, // Player's permanent instance save is not compatible with their group's current instance bind
-            CANNOT_ENTER_ALREADY_COMPLETED_ENCOUNTER, // Player is locked to encounter that wasn't defeated in the instance yet
-            CANNOT_ENTER_TOO_MANY_INSTANCES, // Player has entered too many instances recently
-            CANNOT_ENTER_MAX_PLAYERS, // Target map already has the maximum number of players allowed
-            CANNOT_ENTER_ZONE_IN_COMBAT, // A boss encounter is currently in progress on the target map
-            CANNOT_ENTER_INSTANCE_SHUTTING_DOWN,
-            CANNOT_ENTER_UNSPECIFIED_REASON
-        };
-        static EnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);
-        virtual EnterState CannotEnter(Player* /*player*/) { return CAN_ENTER; }
+        static TransferAbortParams PlayerCannotEnter(uint32 mapid, Player* player);
+        virtual TransferAbortParams CannotEnter(Player* /*player*/) { return { TRANSFER_ABORT_NONE }; }
         char const* GetMapName() const;
 
         // have meaning only for instanced map (that have set real difficulty)
@@ -823,7 +845,7 @@ class TC_GAME_API InstanceMap : public Map
         void UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent);
         void UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& updateSaveDataEvent);
         void CreateInstanceLockForPlayer(Player* player);
-        EnterState CannotEnter(Player* player) override;
+        TransferAbortParams CannotEnter(Player* player) override;
 
         uint32 GetMaxPlayers() const;
         TeamId GetTeamIdInInstance() const;
@@ -852,7 +874,7 @@ class TC_GAME_API BattlegroundMap : public Map
 
         bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
         void RemovePlayerFromMap(Player*, bool) override;
-        EnterState CannotEnter(Player* player) override;
+        TransferAbortParams CannotEnter(Player* player) override;
         void SetUnload();
         //void UnloadAll(bool pForce);
         void RemoveAllPlayers() override;

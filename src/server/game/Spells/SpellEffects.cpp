@@ -1570,13 +1570,13 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                         loot = new Loot(gameObjTarget->GetMap(), guid, loottype, groupRules ? group : nullptr);
                         gameObjTarget->m_loot.reset(loot);
 
+                        loot->SetDungeonEncounterId(gameObjTarget->GetGOInfo()->chest.DungeonEncounter);
                         loot->FillLoot(lootId, LootTemplates_Gameobject, player, !groupRules, false, gameObjTarget->GetLootMode(), gameObjTarget->GetMap()->GetDifficultyLootItemContext());
 
                         if (gameObjTarget->GetLootMode() > 0)
                             if (GameObjectTemplateAddon const* addon = gameObjTarget->GetTemplateAddon())
                                 loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
 
-                        loot->SetDungeonEncounterId(gameObjTarget->GetGOInfo()->chest.DungeonEncounter);
                     }
 
                     /// @todo possible must be moved to loot release (in different from linked triggering)
@@ -2011,20 +2011,13 @@ void Spell::EffectSummonType()
                             // randomize position for multiple summons
                             pos = caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = caster->SummonCreature(entry, pos, summonType, Milliseconds(duration), 0, m_spellInfo->Id, privateObjectOwner);
+                        summon = unitCaster->GetMap()->SummonCreature(entry, pos, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
                         if (!summon)
                             continue;
 
+                        summon->SetTempSummonType(summonType);
                         if (properties->Control == SUMMON_CATEGORY_ALLY)
                             summon->SetOwnerGUID(caster->GetGUID());
-
-                        uint32 faction = properties->Faction;
-                        if (properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
-                            if (WorldObject const* summoner = summon->GetSummoner())
-                                faction = summoner->GetFaction();
-
-                        if (faction)
-                            summon->SetFaction(faction);
 
                         ExecuteLogEffectSummonObject(SpellEffectName(effectInfo->Effect), summon);
                     }
