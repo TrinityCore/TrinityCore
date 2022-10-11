@@ -3436,7 +3436,7 @@ enum ForestEttin
     EVENT_AFTER_GRABBING_BUSH_CHICKEN           = 4,
     EVENT_BUSH_CHICKEN_CHANGE_SITS              = 5,
     EVENT_BUSH_CHICKEN_BLASTS                   = 6,
-    EVENT_RESET_BUSH_CHICKEN_BOOL               = 7,
+    EVENT_RESET                                 = 7,
 
     ACTION_NOTICE_CHICKEN                       = 1,
 
@@ -3566,7 +3566,7 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
 
                         me->CastSpell(mutantBushChicken, SPELL_RIDE_REVERSE_CAST_ITS_POISONOUS, true);
 
-                        _events.ScheduleEvent(EVENT_RESET_BUSH_CHICKEN_BOOL, 25s);
+                        _events.ScheduleEvent(EVENT_RESET, 25s);
                     }
                     break;
                 }
@@ -3603,7 +3603,7 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
                     break;
                 }
 
-                case EVENT_RESET_BUSH_CHICKEN_BOOL:
+                case EVENT_RESET:
                     Reset();
                     break;
 
@@ -3970,6 +3970,11 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
 
         me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
+
+        std::vector<Creature*> stalkers;
+        me->GetCreatureListWithEntryInGrid(stalkers, NPC_MUTANT_BUSH_CHICKEN, 5.0f);
+        for (Creature* stalker : stalkers)
+            _stalkerGUIDs.push_back(stalker->GetGUID());
     }
 
     void Reset() override
@@ -3989,10 +3994,7 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
             _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO, 2s + 500ms);
         }
         else
-        {
-            SummonSpiderlings();
-            CastVenomSplash();
-        }
+            ScheduleEvents();
     }
 
     void UpdateAI(uint32 diff) override
@@ -4011,8 +4013,11 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
                     break;
 
                 case EVENT_MATRIARCH_AGGRO + 1:
-                    for (Creature* stalker : _stalkerList)
-                        stalker->RemoveAura(SPELL_SKITTERWEB);
+                    for (ObjectGuid const& stalkerGUID : _stalkerGUIDs)
+                    {
+                        if (Creature* stalker = ObjectAccessor::GetCreature(*me, stalkerGUID))
+                            stalker->RemoveAura(SPELL_SKITTERWEB);
+                    }
                     me->SetAIAnimKitId(ANIMKIT_MATRIARCH_INTERACT);
                     me->SetHomePosition(me->GetPosition());
                     _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 2, 1s);
@@ -4020,8 +4025,7 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
 
                 case EVENT_MATRIARCH_AGGRO + 2:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    SummonSpiderlings();
-                    CastVenomSplash();
+                    ScheduleEvents();
                     break;
 
                 case EVENT_SUMMON_SPIDERLINGS:
@@ -4044,20 +4048,16 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void SummonSpiderlings()
+    void ScheduleEvents()
     {
         _events.ScheduleEvent(EVENT_SUMMON_SPIDERLINGS, 2s);
-    }
-
-    void CastVenomSplash()
-    {
         _events.ScheduleEvent(EVENT_VENOM_SPLASH, 4s, 7s);
     }
 
 private:
     EventMap _events;
     bool _alreadyPulled;
-    std::vector<Creature*> _stalkerList;
+    std::vector<ObjectGuid> _stalkerGUIDs;
 };
 
 void AddSC_silverpine_forest()
