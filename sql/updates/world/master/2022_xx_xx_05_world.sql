@@ -69,26 +69,26 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (44951, 4, 0, 'RUN!', 12, 0, 100, 457, 0, 0, 0, 45185, 5, '');
 
 DELETE FROM `waypoint_data` WHERE `id` = 449510;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
-(449510, 1, 978.75, 682.571, 74.9817, NULL, 0, 1, 0, 0, 0),
-(449510, 2, 979.691, 672.536, 74.9817, NULL, 0, 1, 0, 0, 0),
-(449510, 3, 984.573, 670.793, 75.4262, NULL, 0, 1, 0, 0, 0),
-(449510, 4, 997.752, 671.819, 69.7039, NULL, 0, 1, 0, 0, 0),
-(449510, 5, 998.248, 683.655, 70.2039, NULL, 0, 1, 0, 0, 0),
-(449510, 6, 1012.42, 684.455, 65.1761, NULL, 0, 1, 0, 0, 0),
-(449510, 7, 1011.69, 695.212, 60.9817, NULL, 0, 1, 0, 0, 0),
-(449510, 8, 996.165, 694.927, 60.9817, NULL, 0, 1, 0, 0, 0),
-(449510, 9, 995.677, 709.804, 60.9817, NULL, 0, 1, 0, 0, 0),
-(449510, 10, 982.948, 711.526, 60.9817, NULL, 0, 1, 0, 0, 0),
-(449510, 11, 983.938, 689.569, 60.2873, NULL, 0, 1, 0, 0, 0),
-(449510, 12, 961.075, 688.958, 60.2873, NULL, 0, 1, 0, 0, 0),
-(449510, 13, 933.366, 687.901, 70.0651, NULL, 0, 1, 0, 0, 0),
-(449510, 14, 871.441, 700.913, 91.8428, NULL, 0, 1, 0, 0, 0),
-(449510, 15, 843.257, 730.168, 99.0837, NULL, 0, 1, 0, 0, 0),
-(449510, 16, 891.191, 859.995, 99.0837, NULL, 0, 1, 0, 0, 0),
-(449510, 17, 1167.72, 992.175, 99.0837, NULL, 0, 1, 0, 0, 0),
-(449510, 18, 1343, 1029.57, 62.7226, NULL, 0, 1, 0, 0, 0),
-(449510, 19, 1367.74, 1034.35, 54.1671, NULL, 0, 1, 0, 0, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
+(449510, 1, 978.75, 682.571, 74.9817, NULL, 1, 0, 0, 0, 0),
+(449510, 2, 979.691, 672.536, 74.9817, NULL, 1, 0, 0, 0, 0),
+(449510, 3, 984.573, 670.793, 75.4262, NULL, 1, 0, 0, 0, 0),
+(449510, 4, 997.752, 671.819, 69.7039, NULL, 1, 0, 0, 0, 0),
+(449510, 5, 998.248, 683.655, 70.2039, NULL, 1, 0, 0, 0, 0),
+(449510, 6, 1012.42, 684.455, 65.1761, NULL, 1, 0, 0, 0, 0),
+(449510, 7, 1011.69, 695.212, 60.9817, NULL, 1, 0, 0, 0, 0),
+(449510, 8, 996.165, 694.927, 60.9817, NULL, 1, 0, 0, 0, 0),
+(449510, 9, 995.677, 709.804, 60.9817, NULL, 1, 0, 0, 0, 0),
+(449510, 10, 982.948, 711.526, 60.9817, NULL, 1, 0, 0, 0, 0),
+(449510, 11, 983.938, 689.569, 60.2873, NULL, 1, 0, 0, 0, 0),
+(449510, 12, 961.075, 688.958, 60.2873, NULL, 1, 0, 0, 0, 0),
+(449510, 13, 933.366, 687.901, 70.0651, NULL, 1, 0, 0, 0, 0),
+(449510, 14, 871.441, 700.913, 91.8428, NULL, 1, 1200, 0, 0, 0),
+(449510, 15, 843.257, 730.168, 99.0837, NULL, 1, 0, 0, 0, 0),
+(449510, 16, 891.191, 859.995, 99.0837, NULL, 1, 0, 0, 0, 0),
+(449510, 17, 1167.72, 992.175, 99.0837, NULL, 1, 0, 0, 0, 0),
+(449510, 18, 1343, 1029.57, 62.7226, NULL, 1, 0, 0, 0, 0),
+(449510, 19, 1367.74, 1034.35, 54.1671, NULL, 1, 0, 0, 0, 0);
 
 -- Bond of the Val'kyr
 DELETE FROM `spell_script_names` WHERE `spell_id` = 83979 AND `ScriptName` = 'spell_silverpine_bond_of_the_valkyr';
@@ -208,7 +208,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `by
 UPDATE `creature` SET `MovementType` = 2, `equipment_id`=8 WHERE `guid` = 321640;
 
 DELETE FROM `waypoint_data` WHERE `id` = 3217670;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3217670, 1, 948.47700, 634.106, 53.43565, NULL, 0, 0, 0, 0, 0),
 (3217670, 2, 939.64900, 640.635, 53.49473, NULL, 0, 0, 0, 0, 0),
 (3217670, 3, 930.23400, 649.747, 53.70245, NULL, 0, 0, 0, 0, 0),
@@ -219,7 +219,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (3217670, 8, 939.64900, 640.635, 53.49473, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id` = 3215550;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3215550, 1, 740.55900, 704.448, 38.42833, NULL, 0, 0, 0, 0, 0),
 (3215550, 2, 745.78300, 692.319, 40.47646, NULL, 0, 0, 0, 0, 0),
 (3215550, 3, 759.01400, 685.604, 43.82069, NULL, 0, 0, 0, 0, 0),
@@ -232,7 +232,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (3215550, 10, 745.78300, 692.319, 40.47646, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id` = 3216400;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3216400, 1, 905.91100, 686.674, 53.33414, NULL, 0, 0, 0, 0, 0),
 (3216400, 2, 882.71200, 688.306, 53.93879, NULL, 0, 0, 0, 0, 0),
 (3216400, 3, 866.19800, 688.432, 53.63894, NULL, 0, 0, 0, 0, 0),
@@ -240,7 +240,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (3216400, 5, 844.26000, 688.267, 53.91982, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id` = 3215530;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3215530, 1, 841.50570, 600.1945, 35.56526, NULL, 0, 0, 0, 0, 0),
 (3215530, 2, 838.45000, 599.3725, 35.54626, NULL, 0, 0, 0, 0, 0),
 (3215530, 3, 835.41430, 598.5559, 35.59277, NULL, 0, 0, 0, 0, 0),
@@ -334,7 +334,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 (321553, 321554, 3.5, 270, 515, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id` = 3214530;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3214530, 1, 714.88480, 681.1774, 44.46771, NULL, 0, 0, 0, 0, 0),
 (3214530, 2, 717.74330, 682.2034, 44.48248, NULL, 0, 0, 0, 0, 0),
 (3214530, 3, 720.59340, 683.2263, 44.70172, NULL, 0, 0, 0, 0, 0),
@@ -450,7 +450,7 @@ INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, 
 UPDATE `creature` SET `MovementType` = 2 WHERE `guid` = 321955;
 
 DELETE FROM `waypoint_data` WHERE `id` = 3219550;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3219550, 1, 1109.07000, 716.198, 35.7871, NULL, 0, 0, 0, 0, 0),
 (3219550, 2, 1094.38000, 714.918, 41.10038, NULL, 0, 0, 0, 0, 0),
 (3219550, 3, 1078.26000, 716.108, 46.21903, NULL, 0, 0, 0, 0, 0),
@@ -465,7 +465,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `by
 (321780, 3217800, 0, 0, 0, 1, 0, 0, 0, 0, 0, '');
 
 DELETE FROM `waypoint_data` WHERE `id` = 3217800;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3217800, 1, 966.373, 597.295, 53.6044, NULL, 0, 0, 0, 0, 0),
 (3217800, 2, 969.602, 604.546, 53.6308, NULL, 0, 0, 0, 0, 0),
 (3217800, 3, 974.849, 607.956, 53.6883, NULL, 0, 0, 0, 0, 0),
@@ -556,12 +556,12 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (44987, 0, 1, 'They come!', 14, 0, 100, 0, 0, 0, 0, 45127, 0, '');
 
 DELETE FROM `waypoint_data` WHERE `id` = 3990940;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3990940, 0, 977.275, 711.484, 60.9751, NULL, 0, 0, 0, 0, 0),
 (3990940, 1, 999.823, 712.408, 60.9755, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `waypoint_data` WHERE `id` = 3990930;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `move_type`, `delay`, `action`, `action_chance`, `wpguid`) VALUES 
 (3990930, 0, 1001.85, 667.365, 60.9754, NULL, 0, 0, 0, 0, 0),
 (3990930, 1, 979.146, 666.453, 60.9757, NULL, 0, 0, 0, 0, 0);
 

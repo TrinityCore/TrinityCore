@@ -4150,7 +4150,7 @@ enum AgathaFenrisIsle
 // 44951 - Agatha
 struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 {
-    npc_silverpine_agatha_fenris_isle(Creature* creature) : ScriptedAI(creature), _healCD(false), _sceneStarted(false) { }
+    npc_silverpine_agatha_fenris_isle(Creature* creature) : ScriptedAI(creature), _sceneStarted(false) { }
 
     void JustAppeared() override
     {
@@ -4261,11 +4261,9 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 {
                     if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        if (!_healCD && summoner->GetHealthPct() < 75.0f)
+                        if (summoner->GetHealthPct() < 75.0f)
                         {
                             me->CastSpell(summoner, SPELL_UNHOLY_DARKNESS, false);
-
-                            _healCD = true;
 
                             _events.ScheduleEvent(EVENT_UNHOLY_DARKNESS_COOLDOWN, 8s);
                         }
@@ -4377,7 +4375,6 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
 private:
     EventMap _events;
-    bool _healCD;
     bool _sceneStarted;
 };
 
