@@ -340,6 +340,7 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_INFO_DEF + 1:
+                    InitGossipMenuFor(player, OZ_GOSSIP2_MID);
                     AddGossipItemFor(player, OZ_GOSSIP2_MID, OZ_GOSSIP2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     SendGossipMenuFor(player, 8971, me->GetGUID());
                     break;
@@ -370,6 +371,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            InitGossipMenuFor(player, OZ_GOSSIP1_MID);
             // Check for death of Moroes and if opera event is not done already
             if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
             {

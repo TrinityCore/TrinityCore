@@ -1636,6 +1636,7 @@ class npc_wormhole : public CreatureScript
 
             bool OnGossipHello(Player* player) override
             {
+                InitGossipMenuFor(player, MENU_ID_WORMHOLE);
                 if (me->IsSummon())
                 {
                     if (player == me->ToTempSummon()->GetSummoner())
@@ -1761,6 +1762,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            InitGossipMenuFor(player, MENU_ID_XP_ON_OFF);
             if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN)) // not gaining XP
             {
                 AddGossipItemFor(player, MENU_ID_XP_ON_OFF, OPTION_ID_XP_ON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);

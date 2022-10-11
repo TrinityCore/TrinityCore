@@ -84,6 +84,7 @@ struct npc_erozion : public ScriptedAI
 
     bool OnGossipHello(Player* player) override
     {
+        InitGossipMenuFor(player, GOSSIP_MENU_EROZION);
         if (me->IsQuestGiver())
             player->PrepareQuestMenu(me->GetGUID());
 
@@ -512,6 +513,7 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 2:
+                InitGossipMenuFor(player, GOSSIP_ITEM_SKARLOC2_MID);
                 AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC2_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);
                 SendGossipMenuFor(player, GOSSIP_ID_SKARLOC2, me->GetGUID());
                 break;
@@ -543,18 +545,21 @@ struct npc_thrall_old_hillsbrad : public EscortAI
 
         if (instance->GetBossState(DATA_LIEUTENANT_DRAKE) == DONE && instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_PRISON_TO_SKARLOC)
         {
+            InitGossipMenuFor(player, GOSSIP_ITEM_WALKING_MID);
             AddGossipItemFor(player, GOSSIP_ITEM_WALKING_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             SendGossipMenuFor(player, GOSSIP_ID_START, me->GetGUID());
         }
 
         if (instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_HORSE_RIDE)
         {
+            InitGossipMenuFor(player, GOSSIP_ITEM_SKARLOC1_MID);
             AddGossipItemFor(player, GOSSIP_ITEM_SKARLOC1_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             SendGossipMenuFor(player, GOSSIP_ID_SKARLOC1, me->GetGUID());
         }
 
         if (instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_BARN_TO_TARETHA)
         {
+            InitGossipMenuFor(player, GOSSIP_ITEM_TARREN_MID);
             AddGossipItemFor(player, GOSSIP_ITEM_TARREN_MID, GOSSIP_ITEM_DEFAULT_OP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
             SendGossipMenuFor(player, GOSSIP_ID_TARREN, me->GetGUID());
         }
@@ -607,6 +612,7 @@ struct npc_taretha : public EscortAI
 
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
+            InitGossipMenuFor(player, GOSSIP_ITEM_EPOCH2_MID);
             AddGossipItemFor(player, GOSSIP_ITEM_EPOCH2_MID, GOSSIP_ITEM_EPOCH2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             SendGossipMenuFor(player, GOSSIP_ID_EPOCH2, me->GetGUID());
         }
@@ -629,6 +635,7 @@ struct npc_taretha : public EscortAI
     {
         if (instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_EPOCH_HUNTER && instance->GetBossState(DATA_EPOCH_HUNTER) != DONE)
         {
+            InitGossipMenuFor(player, GOSSIP_ITEM_EPOCH1_MID);
             AddGossipItemFor(player, GOSSIP_ITEM_EPOCH1_MID, GOSSIP_ITEM_EPOCH1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             SendGossipMenuFor(player, GOSSIP_ID_EPOCH1, me->GetGUID());
         }

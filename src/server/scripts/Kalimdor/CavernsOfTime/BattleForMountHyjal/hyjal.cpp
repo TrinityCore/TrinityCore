@@ -119,16 +119,19 @@ class npc_jaina_proudmoore : public CreatureScript
                 uint32 AnetheronEncounter = instance->GetBossState(DATA_ANETHERON);
                 if (RageEncounter != DONE && RageEncounter != IN_PROGRESS)
                 {
+                    InitGossipMenuFor(player, GOSSIP_ITEM_BEGIN_ALLY_MID);
                     AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_ALLY_MID, GOSSIP_ITEM_BEGIN_ALLY_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     SendGossipMenuFor(player, 9168, me->GetGUID());
                 }
                 else if (RageEncounter == DONE && AnetheronEncounter != DONE && AnetheronEncounter != IN_PROGRESS)
                 {
+                    InitGossipMenuFor(player, GOSSIP_ITEM_ANETHERON_MID);
                     AddGossipItemFor(player, GOSSIP_ITEM_ANETHERON_MID, GOSSIP_ITEM_ANETHERON_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     SendGossipMenuFor(player, 9380, me->GetGUID());
                 }
                 else if (RageEncounter == DONE && AnetheronEncounter == DONE)
                 {
+                    InitGossipMenuFor(player, GOSSIP_ITEM_ALLY_RETREAT_MID);
                     AddGossipItemFor(player, GOSSIP_ITEM_ALLY_RETREAT_MID, GOSSIP_ITEM_ALLY_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                     SendGossipMenuFor(player, 9387, me->GetGUID());
                 }
@@ -202,16 +205,19 @@ class npc_thrall : public CreatureScript
                     uint32 AzgalorEvent = instance->GetBossState(DATA_AZGALOR);
                     if (KazrogalEvent != DONE && AzgalorEvent != IN_PROGRESS)
                     {
+                        InitGossipMenuFor(player, GOSSIP_ITEM_BEGIN_HORDE_MID);
                         AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_HORDE_MID, GOSSIP_ITEM_BEGIN_HORDE_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                         SendGossipMenuFor(player, 9225, me->GetGUID());
                     }
                     else if (KazrogalEvent == DONE && AzgalorEvent != DONE && AzgalorEvent != IN_PROGRESS)
                     {
+                        InitGossipMenuFor(player, GOSSIP_ITEM_AZGALOR_MID);
                         AddGossipItemFor(player, GOSSIP_ITEM_AZGALOR_MID, GOSSIP_ITEM_AZGALOR_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                         SendGossipMenuFor(player, 9396, me->GetGUID());
                     }
                     else if (AzgalorEvent == DONE)
                     {
+                        InitGossipMenuFor(player, GOSSIP_ITEM_HORDE_RETREAT_MID);
                         AddGossipItemFor(player, GOSSIP_ITEM_HORDE_RETREAT_MID, GOSSIP_ITEM_HORDE_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                         SendGossipMenuFor(player, 9398, me->GetGUID());
                     }
@@ -260,6 +266,7 @@ class npc_tyrande_whisperwind : public CreatureScript
 
             bool OnGossipHello(Player* player) override
             {
+                InitGossipMenuFor(player, GOSSIP_ITEM_TYRANDE_MID);
                 uint32 AzgalorEvent = instance->GetBossState(DATA_AZGALOR);
 
                 // Only let them get item if Azgalor is dead.
