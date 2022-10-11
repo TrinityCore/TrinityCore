@@ -4130,8 +4130,7 @@ enum AgathaFenrisIsle
     EVENT_AGATHA_CHECK_PLAYER                   = 1,
     EVENT_UNHOLY_SMITE                          = 2,
     EVENT_DOOMHOWL                              = 3,
-    EVENT_UNHOLY_DARKNESS_COOLDOWN              = 4,
-    EVENT_FLEE_FROM_FENRIS                      = 5,
+    EVENT_FLEE_FROM_FENRIS                      = 4,
 
     TALK_AGATHA_BROADCAST                       = 0,
     TALK_AGATHA_RISE_FORSAKEN                   = 1,
@@ -4141,7 +4140,7 @@ enum AgathaFenrisIsle
 
     PATH_AGATHA_TO_FORSAKEN                     = 449510,
 
-    WAYPOINT_SPEED_UP                           = 15,
+    WAYPOINT_SPEED_UP                           = 13,
     WAYPOINT_ARRIVED_TO_FORSAKEN                = 19,
 
     POINT_AGATHA_BACK_FRONTYARD                 = 1
@@ -4150,7 +4149,7 @@ enum AgathaFenrisIsle
 // 44951 - Agatha
 struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 {
-    npc_silverpine_agatha_fenris_isle(Creature* creature) : ScriptedAI(creature), _sceneStarted(false) { }
+    npc_silverpine_agatha_fenris_isle(Creature* creature) : ScriptedAI(creature), _isSceneStarted(false) { }
 
     void JustAppeared() override
     {
@@ -4175,17 +4174,14 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         switch (spellInfo->Id)
         {
             case SPELL_AGATHA_BROADCAST:
-            {
-                if (_sceneStarted)
+                if (_isSceneStarted)
                     return;
-
                 if (Unit* summoner = tempSummon->GetSummonerUnit())
                     Talk(TALK_AGATHA_BROADCAST, summoner);
                 break;
-            }
 
             case SPELL_GENERAL_TRIGGER_84114:
-                if (!_sceneStarted)
+                if (!_isSceneStarted)
                     SetEventNoEscape();
                 break;
 
@@ -4261,14 +4257,10 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 {
                     if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
-                        if (summoner->GetHealthPct() < 75.0f)
-                        {
+                        if (!me->HasUnitState(UNIT_STATE_CASTING) && summoner->GetHealthPct() < 75.0f)
                             me->CastSpell(summoner, SPELL_UNHOLY_DARKNESS, false);
 
-                            _events.ScheduleEvent(EVENT_UNHOLY_DARKNESS_COOLDOWN, 8s);
-                        }
-                        else
-                            _events.Repeat(1s);
+                        _events.Repeat(1s);
                     }
                     break;
                 }
@@ -4281,11 +4273,6 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 case EVENT_UNHOLY_SMITE:
                     DoCastVictim(SPELL_UNHOLY_SMITE);
                     _events.Repeat(4s, 6s);
-                    break;
-
-                case EVENT_UNHOLY_DARKNESS_COOLDOWN:
-                    _healCD = false;
-                    _events.ScheduleEvent(EVENT_AGATHA_CHECK_PLAYER, 500ms);
                     break;
 
                 case EVENT_FLEE_FROM_FENRIS + 1:
@@ -4326,7 +4313,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                     {
                         summoner->ExitVehicle();
 
-                        _sceneStarted = false;
+                        _isSceneStarted = false;
 
                         me->SetSpeed(MOVE_RUN, 1.14286f);
 
@@ -4359,7 +4346,10 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         if (!tempSummon)
             return;
 
-        _sceneStarted = true;
+        if (_isSceneStarted)
+            return;
+
+        _isSceneStarted = true;
 
         me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
@@ -4375,7 +4365,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
 
 private:
     EventMap _events;
-    bool _sceneStarted;
+    bool _isSceneStarted;
 };
 
 enum NotifyAgatha
