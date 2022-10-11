@@ -73,7 +73,6 @@ void GarrisonMgr::Initialize()
     InitializeDbIdSequences();
     LoadPlotFinalizeGOInfo();
     LoadFollowerClassSpecAbilities();
-    LoadTalentNPCs();
 }
 
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
@@ -461,60 +460,4 @@ void GarrisonMgr::LoadFollowerClassSpecAbilities()
         pair.second.sort();
 
     TC_LOG_INFO("server.loading", ">> Loaded %u garrison follower class spec abilities in %u.", count, GetMSTimeDiffToNow(msTime));
-}
-
-GarrisonTalentNPC const* GarrisonMgr::GetTalentNPCEntry(int32 entry) const
-{
-    return Trinity::Containers::MapGetValuePtr(_garrisonTalentNPCs, entry);
-}
-
-void GarrisonMgr::LoadTalentNPCs()
-{
-    //                                                      0                 1                    2
-    QueryResult result = WorldDatabase.Query("SELECT NpcEntry, GarrTalentTreeID, FriendshipFactionID FROM garrison_talent_npc");
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 garrison talent NPCs. DB table `garrison_talent_npc` is empty.");
-        return;
-    }
-
-    uint32 msTime = getMSTime();
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 npcEntry = fields[0].GetUInt32();
-        uint32 garrTalentTreeID = fields[1].GetUInt32();
-        uint32 friendshipFactionID = fields[2].GetUInt32();
-
-        CreatureTemplate const* creatureEntry = sObjectMgr->GetCreatureTemplate(npcEntry);
-        if (!creatureEntry)
-        {
-            TC_LOG_ERROR("sql.sql", "Non-existing creature_template entry %u was referenced in `garrison_talent_npc`.`npcEntry` for npcEntry %u.",
-                npcEntry, garrTalentTreeID);
-            continue;
-        }
-
-        GarrTalentTreeEntry const* talentTree = sGarrTalentTreeStore.LookupEntry(garrTalentTreeID);
-        if (!talentTree)
-        {
-            TC_LOG_ERROR("sql.sql", "Non-existing GarrTalentTree.db2 entry %u was referenced in `garrison_talent_npc` by row (%u, %u).", garrTalentTreeID, npcEntry, garrTalentTreeID);
-            continue;
-        }
-
-        if (FactionEntry const* faction = sFactionStore.LookupEntry(friendshipFactionID))
-        {
-            if (!sFriendshipReputationStore.LookupEntry(faction->FriendshipRepID))
-            {
-                TC_LOG_ERROR("sql.sql", "NPC entry %u has invalid FriendshipFactionID (%u) in `garrison_talent_npc`, set to 0.", npcEntry, friendshipFactionID);
-                friendshipFactionID = 0;
-            }
-        }
-
-        GarrisonTalentNPC& data = _garrisonTalentNPCs[npcEntry];
-        data.GarrTalentTreeID = garrTalentTreeID;
-        data.FriendshipFactionID = friendshipFactionID;
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u garrison talent NPCs in %u.", count, GetMSTimeDiffToNow(msTime));
 }

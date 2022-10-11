@@ -13939,8 +13939,12 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             SendRespecWipeConfirm(guid, 0, SPEC_RESET_GLYPHS);
             break;
         case GossipOptionNpc::GarrisonTalent:
-            SendGarrisonOpenTalentNpc(guid);
+        {
+            GossipMenuAddon const* addon = sObjectMgr->GetGossipMenuAddon(menuId);
+            GossipMenuItemAddon const* itemAddon = sObjectMgr->GetGossipMenuItemAddon(menuId, gossipListId);
+            SendGarrisonOpenTalentNpc(guid, itemAddon ? itemAddon->GarrTalentTreeID.value_or(0) : 0, addon ? addon->FriendshipFactionID : 0);
             break;
+        }
         case GossipOptionNpc::Transmogrify:
             GetSession()->SendOpenTransmogrifier(guid);
             break;
@@ -28161,16 +28165,11 @@ void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusR
     SendDirectMessage(displayToast.Write());
 }
 
-void Player::SendGarrisonOpenTalentNpc(ObjectGuid guid)
+void Player::SendGarrisonOpenTalentNpc(ObjectGuid guid, int32 garrTalentTreeId, int32 friendshipFactionId)
 {
     WorldPackets::Garrison::GarrisonOpenTalentNpc openTalentNpc;
-    GarrisonTalentNPC const* data = sGarrisonMgr.GetTalentNPCEntry(guid.GetEntry());
-    if (!data)
-        return;
-
     openTalentNpc.NpcGUID = guid;
-    openTalentNpc.GarrTalentTreeID = data->GarrTalentTreeID;
-    openTalentNpc.FriendshipFactionID = data->FriendshipFactionID;
-
+    openTalentNpc.GarrTalentTreeID = garrTalentTreeId;
+    openTalentNpc.FriendshipFactionID = friendshipFactionId;
     SendDirectMessage(openTalentNpc.Write());
 }

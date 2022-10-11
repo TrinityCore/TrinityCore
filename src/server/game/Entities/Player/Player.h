@@ -2772,7 +2772,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
 
-        void SendGarrisonOpenTalentNpc(ObjectGuid guid);
+        void SendGarrisonOpenTalentNpc(ObjectGuid guid, int32 garrTalentTreeId, int32 friendshipFactionId);
 
         std::string GetDebugInfo() const override;
 
