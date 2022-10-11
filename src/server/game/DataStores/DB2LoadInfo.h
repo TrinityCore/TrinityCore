@@ -2460,7 +2460,7 @@ struct GarrTalentTreeLoadInfo
 {
     static DB2LoadInfo const* Instance()
     {
-        static DB2FieldMeta const fields[] =
+        static constexpr DB2FieldMeta fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
@@ -2476,7 +2476,7 @@ struct GarrTalentTreeLoadInfo
             { true, FT_BYTE, "FeatureSubtypeIndex" },
             { true, FT_INT, "CurrencyID" },
         };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrTalentTreeMeta::Instance(), HOTFIX_SEL_GARR_TALENT_TREE);
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), GarrTalentTreeMeta::Instance(), HOTFIX_SEL_GARR_TALENT_TREE);
         return &loadInfo;
     }
 };

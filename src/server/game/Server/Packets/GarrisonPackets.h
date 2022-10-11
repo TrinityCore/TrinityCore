@@ -443,11 +443,11 @@ namespace WorldPackets
         public:
             GarrisonOpenTalentNpc() : ServerPacket(SMSG_GARRISON_OPEN_TALENT_NPC, 16 + 4 + 4) { }
 
-            ObjectGuid NpcGUID;
-            int32 GarrTalentTreeID;
-            int32 FriendshipFactionID; // Always 0 except on The Deaths of Chromie Scenario
-
             WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
+            int32 GarrTalentTreeID = 0;
+            int32 FriendshipFactionID = 0; // Always 0 except on The Deaths of Chromie Scenario
         };
     }
 }
