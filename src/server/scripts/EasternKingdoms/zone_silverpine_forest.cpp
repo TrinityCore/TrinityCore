@@ -4403,15 +4403,13 @@ class spell_silverpine_notify_agatha : public SpellScript
 
         if (caster)
         {
-            _ownerGUID = target->ToPlayer()->GetGUID();
-
             if (Creature* agatha = target->FindNearestCreature(NPC_AGATHA_FENRIS, 50.0f, true))
             {
                 if (agatha->GetOwner() == target)
                 {
                     agatha->CastSpell(caster, SPELL_RISE_FORSAKEN_FENRIS, true);
 
-                    if (Player* player = ObjectAccessor::GetPlayer(*target, _ownerGUID))
+                    if (Player* player = target->ToPlayer())
                     {
                         if (roll_chance_i(50))
                         {
@@ -4428,9 +4426,6 @@ class spell_silverpine_notify_agatha : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_silverpine_notify_agatha::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
-
-private:
-    ObjectGuid _ownerGUID;
 };
 
 enum SpellForsakenTrooperMasterScriptFenrisIsle
@@ -4912,12 +4907,8 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        if (Player* player = summoner->ToPlayer())
-        {
-            _playerGUID = player->GetGUID();
-
-            player->EnterVehicle(me, SEAT_FENRIS_CAMERA);
-        }
+        if (Unit* unit = summoner->ToUnit())
+            unit->EnterVehicle(me, SEAT_FENRIS_CAMERA);
 
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
@@ -4965,6 +4956,12 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* summon = me->ToTempSummon();
+        if (!summon)
+            return;
+        Unit* summoner = summon->GetSummonerUnit();
+        if (!summoner)
+            return;
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -4976,14 +4973,12 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
                     break;
 
                 case EVENT_CHANGE_TO_SEAT_2:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->CastSpell(player, SPELL_FORCE_SEAT_2, true);
+                    me->CastSpell(summoner, SPELL_FORCE_SEAT_2, true);
                     _events.ScheduleEvent(EVENT_TRIGGER_84102, 2s);
                     break;
 
                 case EVENT_TRIGGER_84102:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        player->CastSpell(player, SPELL_GENERAL_TRIGGER_84102, true);
+                    summoner->CastSpell(summoner, SPELL_GENERAL_TRIGGER_84102, true);
                     break;
 
                 case EVENT_SCENE_FINISH_FENRIS:
@@ -4994,8 +4989,7 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
                     break;
 
                 case EVENT_SCENE_FINISH_FENRIS + 1:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_FENRIS, true);
+                    me->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_FENRIS, true);
                     break;
 
                 default:
@@ -5006,7 +5000,6 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
 };
 
 enum DariusCrowleyFenris
@@ -5076,6 +5069,9 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
         if (!tempSummon)
             return;
 
+        Unit* summoner = tempSummon->GetSummonerUnit();
+        if (!summoner)
+            return;
         _events.Update(diff);
 
         if (me->GetEntry() != NPC_CROWLEY_FENRIS)
@@ -5086,38 +5082,32 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CROWLEY_ANIMATION_FENRIS:
-                    if (Unit* summoner = tempSummon->GetSummonerUnit())
-                        Talk(TALK_CROWLEY_NO_ESCAPE_0, summoner);
+                    Talk(TALK_CROWLEY_NO_ESCAPE_0, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 1, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 1:
-                    if (Unit* summoner = tempSummon->GetSummonerUnit())
-                        Talk(TALK_CROWLEY_NO_ESCAPE_1, summoner);
+                    Talk(TALK_CROWLEY_NO_ESCAPE_1, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 2, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 2:
-                    if (Unit* summoner = tempSummon->GetSummonerUnit())
-                        Talk(TALK_CROWLEY_NO_ESCAPE_2, summoner);
+                    Talk(TALK_CROWLEY_NO_ESCAPE_2, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 3, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 3:
-                    if (Unit* summoner = tempSummon->GetSummonerUnit())
-                        Talk(TALK_CROWLEY_NO_ESCAPE_3, summoner);
+                    Talk(TALK_CROWLEY_NO_ESCAPE_3, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 4, 4s + 700ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 4:
-                    if (Unit* summoner = tempSummon->GetSummonerUnit())
-                        Talk(TALK_CROWLEY_NO_ESCAPE_4, summoner);
+                    Talk(TALK_CROWLEY_NO_ESCAPE_4, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 5, 6s + 100ms);
                     break;
 
                 case EVENT_CROWLEY_ANIMATION_FENRIS + 5:
-                    if (Unit* summoner = tempSummon->GetSummonerUnit())
-                        Talk(TALK_CROWLEY_NO_ESCAPE_5, summoner);
+                    Talk(TALK_CROWLEY_NO_ESCAPE_5, summoner);
                     _events.ScheduleEvent(EVENT_CROWLEY_ANIMATION_FENRIS + 6, 9s + 500ms);
                     break;
 
@@ -5352,7 +5342,7 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_webbed_victim);
     RegisterSpellScript(spell_silverpine_free_webbed_victim_random);
     RegisterCreatureAI(npc_silverpine_orc_sea_dog);
-    RegisterCreatureAI(npc_silverpine_skitterweb_matriarch
+    RegisterCreatureAI(npc_silverpine_skitterweb_matriarch);
 
     /* Fenris Isle */
 
