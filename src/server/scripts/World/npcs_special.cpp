@@ -1639,6 +1639,7 @@ class npc_wormhole : public CreatureScript
 
             bool OnGossipHello(Player* player) override
             {
+                InitGossipMenuFor(player, MENU_ID_WORMHOLE);
                 if (me->IsSummon())
                 {
                     if (player == me->ToTempSummon()->GetSummoner())

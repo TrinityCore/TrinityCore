@@ -522,6 +522,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            InitGossipMenuFor(player, GOSSIP_THASSARIAN_MENU);
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
 
@@ -1290,6 +1291,7 @@ struct npc_hidden_cultist : public ScriptedAI
                 return false;
         }
 
+        InitGossipMenuFor(player, charGossipItem);
         if (player->HasAura(SPELL_RIGHTEOUS_VISION) && player->GetQuestStatus(QUEST_THE_HUNT_IS_ON) == QUEST_STATUS_INCOMPLETE)
             AddGossipItemFor(player, charGossipItem, GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
