@@ -3969,36 +3969,30 @@ enum SkitterwebMatriarch
     SPELL_VENOM_SPLASH                          = 79607,
 
     EVENT_MATRIARCH_AGGRO                       = 1,
-    EVENT_SUMMON_SPIDERLINGS                    = 4,
-    EVENT_VENOM_SPLASH                          = 5,
+    EVENT_RESET_POSITION                        = 4,
+    EVENT_SUMMON_SPIDERLINGS                    = 5,
+    EVENT_VENOM_SPLASH                          = 6,
 
     ANIMKIT_MATRIARCH_INTERACT                  = 1,
-    ANIMKIT_MATRIARCH_POSITION1                 = 865,
-    ANIMKIT_MATRIARCH_POSITION2                 = 866
+    ANIMKIT_MATRIARCH_LURKING_ON_CEILING        = 865,
+    ANIMKIT_MATRIARCH_HANGING_BY_WEB            = 866
 };
 
 // 44906 - Skitterweb Matriarch
 struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
 {
-    npc_silverpine_skitterweb_matriarch(Creature* creature) : ScriptedAI(creature), _alreadyPulled(false) { }
+    npc_silverpine_skitterweb_matriarch(Creature* creature) : ScriptedAI(creature) {}
 
     void JustAppeared() override
     {
-        _alreadyPulled = false;
-
         me->SetDisableGravity(true);
         me->SetHover(true);
 
-        me->SetAIAnimKitId(ANIMKIT_MATRIARCH_POSITION1);
+        _lurkingOnCeilingPos = me->GetPosition();
 
-        me->SetReactState(REACT_PASSIVE);
+        me->SetAIAnimKitId(ANIMKIT_MATRIARCH_LURKING_ON_CEILING);
 
         me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
-
-        std::vector<Creature*> stalkers;
-        me->GetCreatureListWithEntryInGrid(stalkers, NPC_MUTANT_BUSH_CHICKEN, 5.0f);
-        for (Creature* stalker : stalkers)
-            _stalkerGUIDs.push_back(stalker->GetGUID());
     }
 
     void Reset() override
@@ -4006,19 +4000,36 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
         _events.Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustReachedHome() override
     {
-        if (!_alreadyPulled)
-        {
-            _alreadyPulled = true;
+        me->SetDisableGravity(true);
+        me->SetHover(true);
 
-            me->SetAIAnimKitId(ANIMKIT_RESET);
-            me->PlayOneShotAnimKitId(ANIMKIT_MATRIARCH_POSITION2);
+        me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
 
-            _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO, 2s + 500ms);
-        }
-        else
-            ScheduleEvents();
+        me->SetAIAnimKitId(ANIMKIT_MATRIARCH_HANGING_BY_WEB);
+
+        me->GetMotionMaster()->MoveJump(_lurkingOnCeilingPos, 8.0f, 8.0f);
+
+        _events.ScheduleEvent(EVENT_RESET_POSITION, 1s + 500ms);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (Unit* victim = me->GetVictim())
+            summon->Attack(victim, true);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        _attackerGUID = who->GetGUID();
+
+        me->AttackStop();
+
+        me->SetAIAnimKitId(ANIMKIT_RESET);
+        me->PlayOneShotAnimKitId(ANIMKIT_MATRIARCH_HANGING_BY_WEB);
+
+        _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO, 3s + 500ms);
     }
 
     void UpdateAI(uint32 diff) override
@@ -4037,19 +4048,22 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
                     break;
 
                 case EVENT_MATRIARCH_AGGRO + 1:
-                    for (ObjectGuid const& stalkerGUID : _stalkerGUIDs)
-                    {
-                        if (Creature* stalker = ObjectAccessor::GetCreature(*me, stalkerGUID))
-                            stalker->RemoveAura(SPELL_SKITTERWEB);
-                    }
-                    me->SetAIAnimKitId(ANIMKIT_MATRIARCH_INTERACT);
+                    me->PlayOneShotAnimKitId(ANIMKIT_MATRIARCH_INTERACT);
+                    me->CastStop();
                     me->SetHomePosition(me->GetPosition());
-                    _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 2, 1s);
+                    _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 2, 1s + 500ms);
                     break;
 
                 case EVENT_MATRIARCH_AGGRO + 2:
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    ScheduleEvents();
+                    if (Unit* attacker = ObjectAccessor::GetUnit(*me, _attackerGUID))
+                        ScheduleCombatEvents(attacker);
+                    break;
+
+                case EVENT_RESET_POSITION:
+                    me->SetFacingTo(0.820305f);
+                    me->SetHomePosition(me->GetPosition());
+
+                    me->SetAIAnimKitId(ANIMKIT_MATRIARCH_LURKING_ON_CEILING);
                     break;
 
                 case EVENT_SUMMON_SPIDERLINGS:
@@ -4072,16 +4086,18 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void ScheduleEvents()
+    void ScheduleCombatEvents(Unit* who)
     {
-        _events.ScheduleEvent(EVENT_SUMMON_SPIDERLINGS, 2s);
-        _events.ScheduleEvent(EVENT_VENOM_SPLASH, 4s, 7s);
+        me->Attack(who, true);
+
+        _events.ScheduleEvent(EVENT_SUMMON_SPIDERLINGS, 5s);
+        _events.ScheduleEvent(EVENT_VENOM_SPLASH, 9s, 14s);
     }
 
 private:
     EventMap _events;
-    bool _alreadyPulled;
-    std::vector<ObjectGuid> _stalkerGUIDs;
+    Position _lurkingOnCeilingPos;
+    ObjectGuid _attackerGUID;
 };
 
 enum BondoftheValkyr
