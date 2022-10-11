@@ -1152,7 +1152,7 @@ enum SylvanasForsakenHighCommand
 {
     QUEST_NO_ESCAPE                             = 27099,
 
-    NPC_FORSAKEN_WARHORSE                       = 73595,
+    NPC_FORSAKEN_WARHORSE_SERVERSIDE            = 73595,
 
     SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
@@ -1168,10 +1168,19 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
     void JustAppeared() override
     {
         DoCastSelf(SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE);
+    }
 
-        // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
-        if (Creature* forsakenWarhorse = me->FindNearestCreature(NPC_FORSAKEN_WARHORSE, 5.0f, true))
-            forsakenWarhorse->CastSpell(forsakenWarhorse, me->HasAura(SPELL_APPLY_INVIS_ZONE_1) ? SPELL_APPLY_INVIS_ZONE_1 : SPELL_APPLY_INVIS_ZONE_4, true);
+    void JustSummoned(Creature* summon) override
+    {
+        switch (summon->GetEntry())
+        {
+            case NPC_FORSAKEN_WARHORSE_SERVERSIDE:
+                // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
+                summon->CastSpell(summon, me->HasAura(SPELL_APPLY_INVIS_ZONE_1) ? SPELL_APPLY_INVIS_ZONE_1 : SPELL_APPLY_INVIS_ZONE_4, true);
+                break;
+            default:
+                break;
+        }
     }
 
     void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
