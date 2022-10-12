@@ -6330,6 +6330,30 @@ struct TransportRotationLoadInfo
     }
 };
 
+struct UiChromieTimeExpansionInfoLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "DescriptionAlliance" },
+            { false, FT_STRING, "DescriptionHorde" },
+            { true, FT_INT, "SpellID" },
+            { true, FT_INT, "UiTextureAtlasElementLarge" },
+            { true, FT_INT, "UiTextureAtlasElementSmall" },
+            { true, FT_INT, "AlreadyOn" },
+            { true, FT_INT, "ExpansionLevelMask" },
+            { true, FT_INT, "ContentTuningID" },
+            { true, FT_INT, "Completed" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, UIChromieTimeExpansionInfoMeta::Instance(), HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO);
+        return &loadInfo;
+    }
+};
+
 struct UiMapLoadInfo
 {
     static DB2LoadInfo const* Instance()

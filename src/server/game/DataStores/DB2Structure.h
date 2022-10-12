@@ -3857,6 +3857,22 @@ struct TransportRotationEntry
     uint32 GameObjectsID;
 };
 
+struct UiChromieTimeExpansionInfoEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    LocalizedString DescriptionAlliance;
+    LocalizedString DescriptionHorde;
+    int32 SpellID;
+    int32 UiTextureAtlasElementLarge;
+    int32 UiTextureAtlasElementSmall;
+    int32 AlreadyOn;
+    int32 ExpansionLevelMask;
+    int32 ContentTuningID;
+    int32 Completed;
+};
+
 struct UiMapEntry
 {
     LocalizedString Name;

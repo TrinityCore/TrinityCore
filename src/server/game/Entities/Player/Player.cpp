@@ -13948,6 +13948,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         case GossipOptionNpc::Transmogrify:
             GetSession()->SendOpenTransmogrifier(guid);
             break;
+        case GossipOptionNpc::ChromieTime:
+            SendChromieTimeOpenNpc(guid);
+            break;
         default:
             break;
     }
@@ -28172,4 +28175,11 @@ void Player::SendGarrisonOpenTalentNpc(ObjectGuid guid, int32 garrTalentTreeId, 
     openTalentNpc.GarrTalentTreeID = garrTalentTreeId;
     openTalentNpc.FriendshipFactionID = friendshipFactionId;
     SendDirectMessage(openTalentNpc.Write());
+}
+
+void Player::SendChromieTimeOpenNpc(ObjectGuid guid)
+{
+    WorldPackets::NPC::ChromieTimeOpenNpc chromieOpenNpc;
+    chromieOpenNpc.GUID = guid;
+    SendDirectMessage(chromieOpenNpc.Write());
 }

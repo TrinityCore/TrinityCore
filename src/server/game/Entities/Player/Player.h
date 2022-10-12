@@ -2774,6 +2774,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendGarrisonOpenTalentNpc(ObjectGuid guid, int32 garrTalentTreeId, int32 friendshipFactionId);
 
+        void SendChromieTimeOpenNpc(ObjectGuid guid);
+
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;

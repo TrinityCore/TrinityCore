@@ -240,5 +240,18 @@ void SetPetSlot::Read()
     _worldPacket >> DestSlot;
     _worldPacket >> StableMaster;
 }
+
+WorldPacket const* ChromieTimeOpenNpc::Write()
+{
+    _worldPacket << GUID;
+
+    return &_worldPacket;
+}
+
+void ChromieTimeSelectExpansion::Read()
+{
+    _worldPacket >> GUID;
+    _worldPacket >> Expansion;
+}
 }
 }
