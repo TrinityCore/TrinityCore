@@ -1157,9 +1157,9 @@ enum SylvanasForsakenHighCommand
     NPC_FORSAKEN_WARHORSE                       = 73595,
 
     SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,
-
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
     SPELL_APPLY_INVIS_ZONE_4                    = 84183,
+    SPELL_DESPAWN_ALL_SUMMONS_AGATHA            = 84011,
     SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,
     SPELL_SUMMON_FORSAKEN_WARHORSE              = 84164,
     SPELL_SUMMON_LORDAERON_ACTORS               = 84127,
@@ -1174,12 +1174,13 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
     void JustAppeared() override
     {
         DoCastSelf(SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE);
+    }
 
     void JustSummoned(Creature* summon) override
     {
         switch (summon->GetEntry())
         {
-            case NPC_FORSAKEN_WARHORSE_SERVERSIDE:
+            case NPC_FORSAKEN_WARHORSE:
                 // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
                 summon->CastSpell(summon, me->HasAura(SPELL_APPLY_INVIS_ZONE_1) ? SPELL_APPLY_INVIS_ZONE_1 : SPELL_APPLY_INVIS_ZONE_4, true);
                 break;
