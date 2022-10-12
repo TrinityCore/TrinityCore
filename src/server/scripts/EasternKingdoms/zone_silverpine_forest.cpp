@@ -1154,12 +1154,12 @@ enum SylvanasForsakenHighCommand
     QUEST_LORDAERON                             = 27098,
     QUEST_TO_FORSAKEN_HIGH_COMMAND              = 27290,
 
-    NPC_FORSAKEN_WARHORSE                       = 73595,
+    NPC_FORSAKEN_WARHORSE_SERVERSIDE            = 73595,
 
     SPELL_SUMMON_FORSAKEN_WARHORSE_SERVERSIDE   = 148164,
     SPELL_APPLY_INVIS_ZONE_1                    = 83231,
     SPELL_APPLY_INVIS_ZONE_4                    = 84183,
-    SPELL_DESPAWN_ALL_SUMMONS_AGATHA            = 84011,
+    SPELL_DESPAWN_ALL_SUMMONS_NO_ESCAPE         = 84011,
     SPELL_SUMMON_SYLVANAS_AND_HORSE             = 84128,
     SPELL_SUMMON_FORSAKEN_WARHORSE              = 84164,
     SPELL_SUMMON_LORDAERON_ACTORS               = 84127,
@@ -1180,7 +1180,7 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
     {
         switch (summon->GetEntry())
         {
-            case NPC_FORSAKEN_WARHORSE:
+            case NPC_FORSAKEN_WARHORSE_SERVERSIDE:
                 // Note: the Forsaken Horse must be set in the same visibility mask that Sylvanas is in.
                 summon->CastSpell(summon, me->HasAura(SPELL_APPLY_INVIS_ZONE_1) ? SPELL_APPLY_INVIS_ZONE_1 : SPELL_APPLY_INVIS_ZONE_4, true);
                 break;
@@ -1213,11 +1213,11 @@ struct npc_silverpine_sylvanas_windrunner_high_command_sepulcher : public Script
         switch (quest->GetQuestId())
         {
             case QUEST_NO_ESCAPE:
-                player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_AGATHA, true);
+                player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_NO_ESCAPE, true);
                 break;
             case QUEST_LORDAERON:
                 player->RemoveAura(SPELL_SUMMON_FORSAKEN_WARHORSE);
-                break
+                break;
             default:
                 break;
         }
@@ -4251,7 +4251,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
                 _events.ScheduleEvent(EVENT_FLEE_FROM_FENRIS + 2, 1s);
                 break;
 
-            case SPELL_DESPAWN_ALL_SUMMONS_AGATHA:
+            case SPELL_DESPAWN_ALL_SUMMONS_NO_ESCAPE:
                 DoCastSelf(SPELL_MARK_MASTER_AS_DESUMMONED);
                 break;
 
