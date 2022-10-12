@@ -4999,9 +4999,11 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
         TempSummon* summon = me->ToTempSummon();
         if (!summon)
             return;
+
         Unit* summoner = summon->GetSummonerUnit();
         if (!summoner)
             return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -5477,11 +5479,16 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
 
     void JustAppeared() override
     {
-        if (Creature* sylvanasHorse = me->FindNearestCreature(NPC_FORSAKEN_WARHORSE_SYLVANAS, 25.0f))
+        std::vector<Creature*> sylvanasHorse;
+        me->GetCreatureListWithEntryInGrid(sylvanasHorse, NPC_FORSAKEN_WARHORSE_SYLVANAS, 5.0f);
+        for (Creature* forsakenWarhorse : sylvanasHorse)
         {
-            _sylvanasHorseGUID = sylvanasHorse->GetGUID();
+            if (forsakenWarhorse->GetOwner() != me)
+                continue;
 
-            me->EnterVehicle(sylvanasHorse, SEAT_WARHORSE_SYLVANAS);
+            _sylvanasHorseGUID = forsakenWarhorse->GetGUID();
+
+            me->EnterVehicle(forsakenWarhorse, SEAT_WARHORSE_SYLVANAS);
 
             _events.ScheduleEvent(EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON, 500ms);
         }
@@ -5494,29 +5501,18 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
         DoCastSelf(SPELL_DREADGUARD_SALUTE_AURA);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
-    {
-        _playerGUID = summoner->GetGUID();
-    }
-
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
         {
             case SPELL_KILL_ME:
-            {
                 if (_heartstrikeCD)
                     return;
-
                 _heartstrikeCD = true;
-
                 me->HandleEmoteCommand(EMOTE_STATE_HOLD_BOW);
-
                 me->CastSpell(caster, SPELL_HEARTSTRIKE, false);
-
                 _events.ScheduleEvent(EVENT_SYLVANAS_HEARTSTRIKE_COOLDOWN, 2s);
                 break;
-            }
 
             default:
                 break;
@@ -5525,6 +5521,18 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        // Note: SummonPropertiesFlags::DespawnOnSummonerLogout and SummonPropertiesFlags::DespawnOnSummonerDeath are NYI.
+        Unit* summoner = tempSummon->GetSummonerUnit();
+        if (!summoner || !summoner->IsAlive())
+        {
+            me->DespawnOrUnsummon();
+            return;
+        }
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -5542,158 +5550,125 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
                     break;
 
                 case EVENT_SYLVANAS_TALK:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_0, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_0, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 1, 5s + 600ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 1:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_1, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_1, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 2, 5s + 600ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 2:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_2, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_2, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 3, 9s + 100ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 3:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_3, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_3, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 4, 5s + 600ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 4:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_4, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_4, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 5, 8s + 600ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 5:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_5, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_5, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 6, 9s + 200ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 6:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_6, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_6, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 7, 9s + 900ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 7:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_7, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_7, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 8, 10s + 900ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 8:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_8, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_8, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 9, 9s + 800ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 9:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_9, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_9, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 10, 6s + 100ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 10:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_10, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_10, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 11, 5s + 600ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 11:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_11, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_11, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 12, 9s + 600ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 12:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_12, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_12, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 13, 7s + 100ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 13:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_13, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_13, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 14, 11s + 300ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 14:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_14, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_14, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 15, 11s + 300ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 15:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_15, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_15, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 16, 9s + 600ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 16:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_16, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_16, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 17, 9s + 800ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 17:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_17, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_17, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 18, 5s + 800ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 18:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_18, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_18, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 19, 9s + 300ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 19:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_19, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_19, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 20, 12s + 500ms);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 20:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_20, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_20, summoner);
                     _events.ScheduleEvent(EVENT_SYLVANAS_TALK + 21, 7s);
                     break;
 
                 case EVENT_SYLVANAS_TALK + 21:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(TALK_SYLVANAS_LORDAERON_21, player);
+                    Talk(TALK_SYLVANAS_LORDAERON_21, summoner);
                     _events.ScheduleEvent(EVENT_FINISH_SCENE_LORDAERON, 10s);
                     break;
 
                 case EVENT_FINISH_SCENE_LORDAERON:
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        player->CastSpell(player, SPELL_FADE_TO_BLACK, true);
-                        me->CastSpell(player, SPELL_LORDAERON_COMPLETE, true);
-                    }
-
+                    summoner->CastSpell(summoner, SPELL_FADE_TO_BLACK, true);
+                    me->CastSpell(summoner, SPELL_LORDAERON_COMPLETE, true);
                     _events.ScheduleEvent(EVENT_FINISH_SCENE_LORDAERON + 1, 100ms);
                     break;
-                }
 
                 case EVENT_FINISH_SCENE_LORDAERON + 1:
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        player->NearTeleportTo(LordaeronCancelScenePos, false);
-                        player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
-                    }
+                    summoner->NearTeleportTo(LordaeronCancelScenePos, false);
+                    summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
                     break;
-                }
 
                 case EVENT_SYLVANAS_HEARTSTRIKE_COOLDOWN:
                     _heartstrikeCD = false;
@@ -5709,7 +5684,6 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
     ObjectGuid _sylvanasHorseGUID;
     bool _heartstrikeCD;
 };
@@ -5740,17 +5714,12 @@ struct npc_silverpine_dreadguard_lordaeron : public ScriptedAI
         switch (spellInfo->Id)
         {
             case SPELL_DREADGUARD_SALUTE:
-            {
                 if (_done)
                     return;
-
-                me->SetAIAnimKitId(ANIMKIT_DREADGUARD);
-
                 _done = true;
-
+                me->SetAIAnimKitId(ANIMKIT_DREADGUARD);
                 _events.ScheduleEvent(EVENT_RESET_ANIMKIT, 2s + 500ms);
                 break;
-            }
 
         default:
             break;
