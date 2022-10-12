@@ -1544,16 +1544,13 @@ bool ConditionMgr::addToGossipMenus(Condition* cond) const
 
 bool ConditionMgr::addToGossipMenuItems(Condition* cond) const
 {
-    GossipMenuItemsMapBoundsNonConst pMenuItemBounds = sObjectMgr->GetGossipMenuItemsMapBoundsNonConst(cond->SourceGroup);
-    if (pMenuItemBounds.first != pMenuItemBounds.second)
+    Trinity::IteratorPair pMenuItemBounds = sObjectMgr->GetGossipMenuItemsMapBoundsNonConst(cond->SourceGroup);
+    for (auto& [_, gossipMenuItem] : pMenuItemBounds)
     {
-        for (GossipMenuItemsContainer::iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
+        if (gossipMenuItem.MenuID == cond->SourceGroup && gossipMenuItem.OptionID == uint32(cond->SourceEntry))
         {
-            if ((*itr).second.MenuID == cond->SourceGroup && (*itr).second.OptionID == uint32(cond->SourceEntry))
-            {
-                (*itr).second.Conditions.push_back(cond);
-                return true;
-            }
+            gossipMenuItem.Conditions.push_back(cond);
+            return true;
         }
     }
 

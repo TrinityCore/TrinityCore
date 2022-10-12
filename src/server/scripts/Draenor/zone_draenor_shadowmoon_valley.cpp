@@ -70,28 +70,7 @@ struct npc_baros_alexston : public ScriptedAI
     }
 };
 
-// 160938 - Despawn All Summons (Garrison Intro Only)
-class spell_despawn_all_summons_garrison_intro_only : public SpellScript
-{
-    PrepareSpellScript(spell_despawn_all_summons_garrison_intro_only);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Creature* hitCreature = GetHitCreature())
-        {
-            if (hitCreature->GetOwner() == GetCaster())
-                hitCreature->DespawnOrUnsummon();
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_despawn_all_summons_garrison_intro_only::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 void AddSC_draenor_shadowmoon_valley()
 {
     RegisterCreatureAI(npc_baros_alexston);
-    RegisterSpellScript(spell_despawn_all_summons_garrison_intro_only);
 };
