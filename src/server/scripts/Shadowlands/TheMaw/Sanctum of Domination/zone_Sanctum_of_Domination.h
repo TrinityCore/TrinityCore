@@ -294,17 +294,12 @@ enum Sanctum_Of_Domination
 };
 
 //Sanctum of Domination
-void AddSC_instance_Sanctum_of_Domination();
-{
-    AddSC_instance_Sanctum_of_Domination();
-};
 
-void AddSC_Sanctum_of_Domination();
+struct Sanctum_of_Domination : public InstanceScript
 {
-    AddSC_Sanctum_of_Domination();
-};
-
-void AddSC_zone_Sanctum_of_Domination();
+    Sanctum_of_Domination(InstanceMap*) : InstanceScript(Sanctum_of_Domination()) { }
+};  
+void AddSC_Sanctum_of_Domination()
 {
-    AddSC_zone_Sanctum_of_Domination();
+    void AddSC_Sanctum_of_Domination();
 };

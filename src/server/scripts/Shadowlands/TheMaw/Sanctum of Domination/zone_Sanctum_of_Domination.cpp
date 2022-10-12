@@ -284,10 +284,10 @@ public:
     }
 };
 
-class sanctum_of_domination : public ZoneScript
+class zone_Sanctum_of_Domination : public ZoneScript
 {
 public:
-    zone_sanctum_of_domination() : ZoneScript("zone_sanctum_of_domination") { }
+    Sanctum_of_Domination() : ZoneScript("Sanctum_of_Domination") { }
 
     void OnPlayerExit(Player* player) override
     {
@@ -303,7 +303,12 @@ public:
     
 
 
-struct sanctum_of_domination : public InstanceScript
+struct zone_Sanctum_of_Domination : public InstanceScript
 {
-    sanctum_of_domination(InstanceMap* map) : InstanceScript(map) { }
+    Sanctum_of_Domination(InstanceMap* map) : InstanceScript(map, Sanctum_of_Domination) { }
+};
+ 
+void AddSC_Sanctum_of_Domination()
+{
+    void AddSC_Sanctum_of_Domination();
 };

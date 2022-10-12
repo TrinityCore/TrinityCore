@@ -32,7 +32,13 @@ Script Data End */
 #include "Sanctum_of_Domination.h"
  
 // zone  13561
+
 struct instance_Sanctum_of_Domination : public InstanceScript
 {
     instance_Sanctum_of_Domination(InstanceMap* map) : InstanceScript(map) { }
+};
+
+void AddSC_instance_Sanctum_of_Domination()
+{
+    RegisterInstanceScript(instance_Sanctum_of_Domination, 13561);
 };
