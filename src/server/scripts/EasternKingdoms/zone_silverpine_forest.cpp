@@ -5331,7 +5331,7 @@ private:
     bool _isWorgen;
 };
 
-Position const LordaeronCancelScenePos = { 498.54f, 1560.2840f, 128.2032f, 1.100281f };
+Position const LordaeronFinishScenePos = { 498.54f, 1560.2840f, 128.2032f, 1.100281f };
 
 enum ForsakenWarhorsePlayer
 {
@@ -5363,11 +5363,6 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void IsSummonedBy(WorldObject* summoner) override
-    {
-        _playerGUID = summoner->GetGUID();
-    }
-
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
@@ -5380,7 +5375,7 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
                 {
                     if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     {
-                        summoner->NearTeleportTo(LordaeronCancelScenePos, false);
+                        summoner->NearTeleportTo(LordaeronFinishScenePos, false);
                         summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
                     }
                     break;
@@ -5393,7 +5388,6 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
 
 private:
     EventMap _events;
-    ObjectGuid _playerGUID;
 };
 
 Position const LordaeronFinishPos = { 499.185f, 1549.9855f, 129.094f };
@@ -5423,9 +5417,15 @@ struct npc_silverpine_warhorse_sylvanas_lordaeron : public ScriptedAI
 
         me->SetSpeed(MOVE_RUN, 6.3564f);
 
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-
         me->SetReactState(REACT_PASSIVE);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    {
+        if (!apply)
+            return;
+
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
     }
 
     void WaypointReached(uint32 waypointId, uint32 pathId) override
@@ -5479,18 +5479,25 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
 
     void JustAppeared() override
     {
-        std::vector<Creature*> sylvanasHorse;
-        me->GetCreatureListWithEntryInGrid(sylvanasHorse, NPC_FORSAKEN_WARHORSE_SYLVANAS, 5.0f);
-        for (Creature* forsakenWarhorse : sylvanasHorse)
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        if (Unit* summoner = tempSummon->GetSummonerUnit())
         {
-            if (forsakenWarhorse->GetOwner() != me)
-                continue;
+            std::vector<Creature*> sylvanasHorse;
+            me->GetCreatureListWithEntryInGrid(sylvanasHorse, NPC_FORSAKEN_WARHORSE_SYLVANAS, 5.0f);
+            for (Creature* forsakenWarhorse : sylvanasHorse)
+            {
+                if (forsakenWarhorse->GetOwner() != summoner)
+                    continue;
 
-            _sylvanasHorseGUID = forsakenWarhorse->GetGUID();
+                _sylvanasHorseGUID = forsakenWarhorse->GetGUID();
 
-            me->EnterVehicle(forsakenWarhorse, SEAT_WARHORSE_SYLVANAS);
+                me->EnterVehicle(forsakenWarhorse, SEAT_WARHORSE_SYLVANAS);
 
-            _events.ScheduleEvent(EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON, 500ms);
+                _events.ScheduleEvent(EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON, 500ms);
+            }
         }
 
         me->SetUnitFlag(UNIT_FLAG_UNK_6);
@@ -5666,7 +5673,7 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
                     break;
 
                 case EVENT_FINISH_SCENE_LORDAERON + 1:
-                    summoner->NearTeleportTo(LordaeronCancelScenePos, false);
+                    summoner->NearTeleportTo(LordaeronFinishScenePos, false);
                     summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
                     break;
 
