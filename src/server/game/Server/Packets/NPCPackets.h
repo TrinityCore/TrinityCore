@@ -284,28 +284,28 @@ namespace WorldPackets
         {
         public:
             ChromieTimeSelectExpansion(WorldPacket && packet) : ClientPacket(CMSG_CHROMIE_TIME_SELECT_EXPANSION, std::move(packet)) { }
-        
+
             void Read() override;
-        
+
             ObjectGuid GUID;
             uint32 Expansion = 0;
         };
-    
+
         class ChromieTimeOpenNpc  final : public ServerPacket
         {
         public:
             ChromieTimeOpenNpc() : ServerPacket(SMSG_CHROMIE_TIME_OPEN_NPC, 16) { }
-            
+
             WorldPacket const* Write() override;
-        
+
             ObjectGuid GUID;
         };
-    
+
         class ChromieTimeSelectExpansionSuccess  final : public ServerPacket
         {
         public:
             ChromieTimeSelectExpansionSuccess() : ServerPacket(SMSG_CHROMIE_TIME_SELECT_EXPANSION_SUCCESS, 0) { }
-            
+
             WorldPacket const* Write() override { return &_worldPacket; }
          };
     }
