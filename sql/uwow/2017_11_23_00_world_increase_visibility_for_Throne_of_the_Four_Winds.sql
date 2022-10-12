@@ -1,0 +1,1 @@
+UPDATE `world_visible_distance` SET `distance`='500' WHERE `type`='0' AND `id`='754'; 

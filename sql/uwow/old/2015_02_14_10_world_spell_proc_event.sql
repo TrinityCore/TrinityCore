@@ -1,0 +1,1 @@
+UPDATE `spell_proc_event` SET `procEx`='0' WHERE (`entry`='79134') AND (`effectmask`='7');

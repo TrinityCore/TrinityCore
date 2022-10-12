@@ -1,0 +1,1 @@
+INSERT INTO `spell_group` (`id`, `spell_id`) VALUES ('2236', '54680');

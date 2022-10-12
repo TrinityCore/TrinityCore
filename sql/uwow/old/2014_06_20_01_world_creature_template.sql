@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_force_of_nature_treant_for_Guardian' WHERE (`entry`='54985');

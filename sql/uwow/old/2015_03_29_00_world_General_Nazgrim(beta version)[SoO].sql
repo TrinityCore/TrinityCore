@@ -1,0 +1,36 @@
+DELETE FROM `creature` WHERE `id` = '72563';
+DELETE FROM `creature` WHERE `id` = '71626';
+DELETE FROM `creature` WHERE `id` = '71515';
+DELETE FROM `creature` WHERE `id` = '71516';
+DELETE FROM `creature` WHERE `id` = '71517';
+DELETE FROM `creature` WHERE `id` = '71518';
+DELETE FROM `creature` WHERE `id` = '71519';
+DELETE FROM `creature` WHERE `id` = '71770';
+DELETE FROM `creature` WHERE `id` = '71610';
+DELETE FROM `creature` WHERE `id` = '71770';
+DELETE FROM `creature` WHERE `id` = '71610';
+DELETE FROM `creature` WHERE `id` = '71697';
+DELETE FROM `creature` WHERE `id` = '71762';
+UPDATE `creature_template` SET `ScriptName`='npc_ravager' WHERE `entry`='71762'; 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143589','spell_generic_stance'); 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143594','spell_generic_stance'); 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143593','spell_generic_stance'); 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143716','spell_after_extra_spell_effect');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143501','spell_after_extra_spell_effect');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143503','spell_after_extra_spell_effect');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143872','spell_after_extra_spell_effect');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('143716','spell_heroic_shockwave');
+UPDATE `creature_template_addon` SET `auras`='122452' WHERE `entry`='71515'; 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','143590','0','0','31','0','3','71515','0','0','0','','Korkron Banner');
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','143877','0','0','31','0','3','71515','0','0','0','','Energize Nazgrim');
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values('13','1','143876','0','0','31','0','3','71515','0','0','0','','Energize Nazgrim');
+UPDATE `creature_template` SET `VehicleId`='2115',`mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_general_nazgrim' WHERE `entry`='71515';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`ScriptName`='npc_korkron_banner' WHERE `entry`='71626';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`ScriptName`='npc_korkron_ironblade' WHERE `entry`='71770';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`ScriptName`='npc_korkron_archweaver' WHERE `entry`='71771';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`ScriptName`='npc_korkron_assasin' WHERE `entry`='71518';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`ScriptName`='npc_korkron_warshaman' WHERE `entry`='71773';
+UPDATE `creature_template` SET `ScriptName`='npc_after_shock' WHERE `entry`='71697'; 
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) values(NULL ,'71515','1136','6738','6738','16536','1','0','71515','1628.26','-4656.73','-66.7783','2.26012','604800','0','0','348909600','1000','0','0','0','0','0','0');
+
+  

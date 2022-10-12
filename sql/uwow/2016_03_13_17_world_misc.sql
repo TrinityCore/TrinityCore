@@ -1,0 +1,1 @@
+UPDATE `trinity_string` SET `content_default`='id: %d eff: %d amount: %f' WHERE (`entry`='470');

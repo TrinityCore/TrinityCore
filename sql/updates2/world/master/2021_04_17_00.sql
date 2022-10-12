@@ -1,0 +1,30 @@
+-- DB update 2021_04_16_00 -> 2021_04_17_00
+DROP PROCEDURE IF EXISTS `updateDb`;
+DELIMITER //
+CREATE PROCEDURE updateDb ()
+proc:BEGIN DECLARE OK VARCHAR(100) DEFAULT 'FALSE';
+SELECT COUNT(*) INTO @COLEXISTS
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'version_db_world' AND COLUMN_NAME = '2021_04_16_00';
+IF @COLEXISTS = 0 THEN LEAVE proc; END IF;
+START TRANSACTION;
+ALTER TABLE version_db_world CHANGE COLUMN 2021_04_16_00 2021_04_17_00 bit;
+SELECT sql_rev INTO OK FROM version_db_world WHERE sql_rev = '1618137493700140600'; IF OK <> 'FALSE' THEN LEAVE proc; END IF;
+--
+-- START UPDATING QUERIES
+--
+
+INSERT INTO `version_db_world` (`sql_rev`) VALUES ('1618137493700140600');
+
+-- Mulgore copper veins
+UPDATE `gameobject` SET `position_x` = -3050.334229, `position_y` = 316.995148, `position_z` = 151.141052 WHERE `guid` = 4696;
+UPDATE `gameobject` SET `position_x` = -3002.635986, `position_y` = 280.656830, `position_z` = 110.877350 WHERE `guid` = 20650;
+
+--
+-- END UPDATING QUERIES
+--
+COMMIT;
+END //
+DELIMITER ;
+CALL updateDb();
+DROP PROCEDURE IF EXISTS `updateDb`;

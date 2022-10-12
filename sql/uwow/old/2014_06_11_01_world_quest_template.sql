@@ -1,0 +1,21 @@
+ALTER TABLE `quest_template` ADD `RequiredPOI1` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredIdCount10`;
+ALTER TABLE `quest_template` ADD `RequiredPOI2` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI1`;
+ALTER TABLE `quest_template` ADD `RequiredPOI3` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI2`;
+ALTER TABLE `quest_template` ADD `RequiredPOI4` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI3`;
+ALTER TABLE `quest_template` ADD `RequiredPOI5` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI4`;
+ALTER TABLE `quest_template` ADD `RequiredPOI6` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI5`;
+ALTER TABLE `quest_template` ADD `RequiredPOI7` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI6`;
+ALTER TABLE `quest_template` ADD `RequiredPOI8` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI7`;
+ALTER TABLE `quest_template` ADD `RequiredPOI9` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI8`;
+ALTER TABLE `quest_template` ADD `RequiredPOI10` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI9`;
+
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag1` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredPOI10`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag2` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag1`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag3` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag2`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag4` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag3`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag5` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag4`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag6` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag5`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag7` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag6`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag8` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag7`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag9` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag8`;
+ALTER TABLE `quest_template` ADD `RequiredUnkFlag10` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `RequiredUnkFlag9`;

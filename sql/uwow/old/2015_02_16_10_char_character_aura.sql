@@ -1,0 +1,1 @@
+ALTER TABLE `character_aura` MODIFY `effect_mask` SMALLINT;

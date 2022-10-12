@@ -1,0 +1,1 @@
+ALTER TABLE  `spell_learn_spell` ADD  `ReqSpell` INT( 11 ) NOT NULL DEFAULT  '0' AFTER  `SpellID`;

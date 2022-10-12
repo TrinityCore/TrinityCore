@@ -1,0 +1,1 @@
+UPDATE `spell_pet_auras` SET `spellId`='113368' WHERE (`petEntry`='54569') AND (`spellId`='31366') AND (`option`='0') AND (`bp0`='0') AND (`aura`='0') AND (`createdspell`='0');

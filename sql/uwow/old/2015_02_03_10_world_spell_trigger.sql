@@ -1,0 +1,2 @@
+DELETE FROM `spell_trigger` WHERE (`spell_id`='56218') AND (`spell_trigger`='63106') AND (`option`='1') AND (`effectmask`='7') AND (`aura`='0') AND (`check_spell_id`='0');
+INSERT INTO `spell_trigger` (`spell_id`, `spell_trigger`, `comment`) VALUES ('56218', '63106', 'Вытягивание жизни');
