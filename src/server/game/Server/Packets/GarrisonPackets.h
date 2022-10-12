@@ -437,6 +437,18 @@ namespace WorldPackets
 
             uint32 GarrPlotInstanceID = 0;
         };
+
+        class GarrisonOpenTalentNpc final : public ServerPacket
+        {
+        public:
+            GarrisonOpenTalentNpc() : ServerPacket(SMSG_GARRISON_OPEN_TALENT_NPC, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
+            int32 GarrTalentTreeID = 0;
+            int32 FriendshipFactionID = 0; // Always 0 except on The Deaths of Chromie Scenario
+        };
     }
 }
 
