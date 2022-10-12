@@ -9701,7 +9701,7 @@ void ObjectMgr::LoadGossipMenuItems()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " gossip_menu_option entries in %u ms", _gossipMenuItemsStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadGossipMenuFriendshipFactions()
+void ObjectMgr::LoadGossipMenuAddon()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -9742,6 +9742,44 @@ void ObjectMgr::LoadGossipMenuFriendshipFactions()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_addon IDs in %u ms", uint32(_gossipMenuAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadGossipMenuItemAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _gossipMenuItemAddonStore.clear();
+
+    //                                               0       1         2
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionId, GarrTalentTreeID FROM gossip_menu_option_addon");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_option_addon IDs. DB table `gossip_menu_option_addon` is empty!");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 menuId = fields[0].GetUInt32();
+        uint32 optionId = fields[1].GetUInt32();
+        GossipMenuItemAddon& addon = _gossipMenuItemAddonStore[{ menuId, optionId }];
+        if (!fields[2].IsNull())
+        {
+            addon.GarrTalentTreeID = fields[2].GetInt32();
+
+            if (!sGarrTalentTreeStore.LookupEntry(*addon.GarrTalentTreeID))
+            {
+                TC_LOG_ERROR("sql.sql", "Table gossip_menu_option_addon: MenuID %u OptionID %u is using non-existing GarrTalentTree %d",
+                    menuId, optionId, *addon.GarrTalentTreeID);
+                addon.GarrTalentTreeID.reset();
+            }
+        }
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option_addon IDs in %u ms", uint32(_gossipMenuItemAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
