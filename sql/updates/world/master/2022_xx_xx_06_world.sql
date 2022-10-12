@@ -135,6 +135,19 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (45051, 20, 0, 'I will never allow it... Never!', 12, 0, 0, 274, 0, 20490, 0, 45227, 5, 'VO_QE_Sylvanas_Event21'),
 (45051, 21, 0, 'Lordaeron belongs to the Forsaken - always and forever.', 12, 0, 0, 5, 0, 20491, 0, 45228, 5, 'VO_QE_Sylvanas_Event22');
 
+-- Kill Me
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=84180 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=45051 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 84180, 0, 0, 31, 0, 3, 45051, 0, 0, 0, 0, '', 'Kill Me - Target Lady Sylvanas Windrunner');
+
+-- Worgen Renegade
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=44793;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES 
+(44793, 1, 1, 0, 0, 0, 0, NULL);
+
+-- Forsaken Trooper
+UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_forsaken_trooper' WHERE `entry` = 44792;
+
 -- Orc Sea Orc
 DELETE FROM `waypoint_data` WHERE `id` = 4494200;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES

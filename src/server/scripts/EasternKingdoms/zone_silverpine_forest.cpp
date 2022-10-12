@@ -1240,7 +1240,6 @@ struct npc_silverpine_deathstalker : public ScriptedAI
 
 enum WorgenRenegade
 {
-    SPELL_HEARTSTRIKE                           = 84182,
     SPELL_KILL_ME_AURA                          = 84181,
     SPELL_FLURRY_OF_CLAWS                       = 80365,
 
@@ -1252,15 +1251,15 @@ struct npc_silverpine_worgen_renegade : public ScriptedAI
 {
     npc_silverpine_worgen_renegade(Creature* creature) : ScriptedAI(creature) { }
 
+    void JustAppeared() override
+    {
+        if (me->IsSummon())
+            DoCastSelf(SPELL_KILL_ME_AURA);
+    }
+
     void Reset() override
     {
         _events.Reset();
-
-        // Note: this is for a later usage during Lordaeron (questId 27098).
-        if (me->IsSummon())
-            DoCastSelf(SPELL_KILL_ME_AURA);
-
-        me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -5420,7 +5419,7 @@ struct npc_silverpine_warhorse_sylvanas_lordaeron : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply) override
     {
         if (!apply)
             return;
@@ -5442,11 +5441,12 @@ enum SylvanasWindrunnerLordaeron
 {
     SPELL_DREADGUARD_SALUTE_AURA                = 84200,
     SPELL_KILL_ME                               = 84180,
+    SPELL_HEARTSTRIKE                           = 84182,
 
     EVENT_SYLVANAS_RIDE_WARHORSE_LORDAERON      = 1,
-    EVENT_SYLVANAS_HEARTSTRIKE_COOLDOWN         = 3,
-    EVENT_SYLVANAS_TALK                         = 4,
-    EVENT_FINISH_SCENE_LORDAERON                = 26,
+    EVENT_SYLVANAS_TALK                         = 3,
+    EVENT_FINISH_SCENE_LORDAERON                = 25,
+    EVENT_REMOVE_HEARTSTRIKE_COOLDOWN           = 27,
 
     TALK_SYLVANAS_LORDAERON_0                   = 0,
     TALK_SYLVANAS_LORDAERON_1                   = 1,
@@ -5475,7 +5475,7 @@ enum SylvanasWindrunnerLordaeron
 // 45051 - Lady Sylvanas Windrunner (Lordaeron)
 struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
 {
-    npc_silverpine_sylvanas_lordaeron(Creature* creature) : ScriptedAI(creature), _heartstrikeCD(false) { }
+    npc_silverpine_sylvanas_lordaeron(Creature* creature) : ScriptedAI(creature), _isHeartstrikeOnCooldown(false) { }
 
     void JustAppeared() override
     {
@@ -5510,20 +5510,14 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        switch (spellInfo->Id)
-        {
-            case SPELL_KILL_ME:
-                if (_heartstrikeCD)
-                    return;
-                _heartstrikeCD = true;
-                me->HandleEmoteCommand(EMOTE_STATE_HOLD_BOW);
-                me->CastSpell(caster, SPELL_HEARTSTRIKE, false);
-                _events.ScheduleEvent(EVENT_SYLVANAS_HEARTSTRIKE_COOLDOWN, 2s);
-                break;
+        if (spellInfo->Id != SPELL_KILL_ME || _isHeartstrikeOnCooldown)
+            return;
 
-            default:
-                break;
-        }
+        _isHeartstrikeOnCooldown = true;
+
+        me->CastSpell(caster, SPELL_HEARTSTRIKE, false);
+
+        _events.ScheduleEvent(EVENT_REMOVE_HEARTSTRIKE_COOLDOWN, 3s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -5677,8 +5671,8 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
                     summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
                     break;
 
-                case EVENT_SYLVANAS_HEARTSTRIKE_COOLDOWN:
-                    _heartstrikeCD = false;
+                case EVENT_REMOVE_HEARTSTRIKE_COOLDOWN:
+                    _isHeartstrikeOnCooldown = false;
                     break;
 
                 default:
@@ -5692,7 +5686,7 @@ struct npc_silverpine_sylvanas_lordaeron : public ScriptedAI
 private:
     EventMap _events;
     ObjectGuid _sylvanasHorseGUID;
-    bool _heartstrikeCD;
+    bool _isHeartstrikeOnCooldown;
 };
 
 enum DreadguardLordaeron
@@ -5886,40 +5880,40 @@ class spell_silverpine_summon_lordaeron_actors : public SpellScript
         Unit* caster = GetCaster();
 
         for (Position const& pos : ForsakenTrooperMPos)
-            caster->SummonCreature(NPC_FORSAKEN_TROOPER_F_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID());
+            caster->SummonCreature(NPC_FORSAKEN_TROOPER_F_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
 
         for (Position const& pos : ForsakenTrooperFPos)
-            caster->SummonCreature(NPC_FORSAKEN_TROOPER_M_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID());
+            caster->SummonCreature(NPC_FORSAKEN_TROOPER_M_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
 
         for (Position const& pos : WorgenRenegadePos)
-            caster->SummonCreature(NPC_WORGEN_RENEGADE, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID());
+            caster->SummonCreature(NPC_WORGEN_RENEGADE, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
 
         for (Position const& pos : OrcDemolisherPos)
-            caster->SummonCreature(NPC_ORC_DEMOLISHER_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID());
+            caster->SummonCreature(NPC_ORC_DEMOLISHER_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
 
         for (Position const& pos : SeaOrcPos)
-            caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID());
+            caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
 
-        if (Creature* leaderOrc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos1, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID()))
+        if (Creature* leaderOrc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos1, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
         {
             leaderOrc->GetMotionMaster()->MovePath(PATH_ORC_LEADER1, true);
 
             for (uint8 i = 0; i < 4; i++)
-                if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos1, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID()))
-                    orc->GetMotionMaster()->MoveFollow(leaderOrc, float(3 * i), 0.0f);
+                if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos1, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
+                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3 * i));
         }
 
-        if (Creature* leaderOrc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID()))
+        if (Creature* leaderOrc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
         {
             leaderOrc->GetMotionMaster()->MovePath(PATH_ORC_LEADER2, true);
 
             for (uint8 i = 0; i < 4; i++)
-                if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID()))
-                    orc->GetMotionMaster()->MoveFollow(leaderOrc, float(3 * i), 0.0f);
+                if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
+                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3 * i));
         }
 
         for (Position const& pos : DreadguardPos)
-            caster->SummonCreature(NPC_DREADGUARD_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, 0, caster->GetGUID());
+            caster->SummonCreature(NPC_DREADGUARD_LORDAERON, pos, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID());
     }
 
     void Register() override
