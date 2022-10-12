@@ -264,30 +264,10 @@ private:
     std::unordered_set<uint32> _randomEmotes;
 };
 
-class sanctum_of_domination : public PlayerScript
-{
-public:
-    sanctum_of_domination() : PlayerScript("sanctum_of_domination") { }
-
-    void OnLogin(Player* player,bool /*fristlogin*/) override
-    {
-        // Set zone as Raid
-        if (player->GetMapId() == AREA_SANCTUM_OF_DOMINATION)
-            player->GoMapId()  == GetMapId;
-    }
-        
-        void OnUpdateArea(Player* player, uint32 /*newArea*/, uint32 /*oldArea*/) override
-    {
-        // Set zone as Raid
-        if (player->GetMapId() == MAP_NPE)
-            player->GoMapId()  == GetMapId;
-    }
-};
-
 class zone_Sanctum_of_Domination : public ZoneScript
-{
-public:
-    Sanctum_of_Domination() : ZoneScript("Sanctum_of_Domination") { }
+{    
+
+    Sanctum_of_Domination() : ZoneScript(Sanctum_of_Domination) { }
 
     void OnPlayerExit(Player* player) override
     {
@@ -298,11 +278,9 @@ public:
     {
         // Add sanctuary flag when enter on sanctum of domination
         player=>GoInside(sanctum_of_domination);
-    }
+    };
 };
-    
-
-
+ 
 struct zone_Sanctum_of_Domination : public InstanceScript
 {
     Sanctum_of_Domination(InstanceMap* map) : InstanceScript(map, Sanctum_of_Domination) { }

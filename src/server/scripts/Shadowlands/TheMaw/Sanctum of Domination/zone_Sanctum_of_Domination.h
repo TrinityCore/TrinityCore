@@ -293,6 +293,25 @@ enum Sanctum_Of_Domination
     AREA_SANCTUM_OF_DOMINATION         = 13561,
 };
 
+class sanctum_of_domination : public PlayerScript
+{
+public:
+    sanctum_of_domination() : PlayerScript(sanctum_of_domination) { }
+
+    void OnLogin(Player* player,bool /*fristlogin*/) override
+    {
+        // Set zone as Raid
+        if (player->GetMapId() == AREA_SANCTUM_OF_DOMINATION)
+            player->GoMapId()  == GetMapId;
+    }
+        
+        void OnUpdateArea(Player* player, uint32 /*newArea*/, uint32 /*oldArea*/) override
+    {
+        // Set zone as Raid
+        if (player->GetMapId() == MAP_NPE)
+            player->GoMapId()  == GetMapId;
+    };
+
 //Sanctum of Domination
 
 struct Sanctum_of_Domination : public InstanceScript
