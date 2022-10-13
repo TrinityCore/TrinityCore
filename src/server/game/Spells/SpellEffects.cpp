@@ -5934,7 +5934,7 @@ void Spell::EffectSetChromieTime()
     if (!effectInfo->MiscValue)
         caster->SetChromieTimeExpansion(0, 0); // Selected the Present
     else
-    { 
+    {
         UiChromieTimeExpansionInfoEntry const* expansion = sUiChromieTimeExpansionInfoStore.LookupEntry(effectInfo->MiscValue);
         caster->SetChromieTimeExpansion(expansion->ID, expansion->ExpansionLevelMask);
     }
