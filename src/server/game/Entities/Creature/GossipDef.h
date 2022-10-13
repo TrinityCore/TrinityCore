@@ -64,7 +64,7 @@ enum class GossipOptionNpc : uint8
     GarrisonTradeskill         = 29,   /*NYI*/ // White chat bubble
     GarrisonRecruitment        = 30,   /*NYI*/ // White chat bubble
     AdventureMap               = 31,   /*NYI*/ // White chat bubble
-    GarrisonTalent             = 32,   /*NYI*/ // White chat bubble
+    GarrisonTalent             = 32,   // White chat bubble
     ContributionCollector      = 33,   /*NYI*/ // White chat bubble
     Transmogrify               = 34,   // Purple helm
     AzeriteRespec              = 35,   /*NYI*/ // White chat bubble
