@@ -5929,6 +5929,13 @@ void Spell::EffectSetChromieTime()
     if (!caster)
         return;
 
-    UiChromieTimeExpansionInfoEntry const* expansion = sUiChromieTimeExpansionInfoStore.LookupEntry(effectInfo->MiscValue);
-    caster->SetChromieTimeExpansion(expansion->ID, expansion->ExpansionLevelMask);
+    // TODO: Add/Remove ContentTuningConditionMask from ConditionalContentTuning.db2 and filter lfg for each expansion
+
+    if (!effectInfo->MiscValue)
+        caster->SetChromieTimeExpansion(0, 0); // Selected the Present
+    else
+    { 
+        UiChromieTimeExpansionInfoEntry const* expansion = sUiChromieTimeExpansionInfoStore.LookupEntry(effectInfo->MiscValue);
+        caster->SetChromieTimeExpansion(expansion->ID, expansion->ExpansionLevelMask);
+    }
 }
