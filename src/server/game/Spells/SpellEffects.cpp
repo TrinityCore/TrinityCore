@@ -5929,6 +5929,6 @@ void Spell::EffectSetChromieTime()
     if (!caster)
         return;
 
-    // ToDo: Handle all updatefields related to this effect
-    caster->SetChromieTimeExpansion(effectInfo->MiscValue);
+    UiChromieTimeExpansionInfoEntry const* expansion = sUiChromieTimeExpansionInfoStore.LookupEntry(effectInfo->MiscValue);
+    caster->SetChromieTimeExpansion(expansion->ID, expansion->ExpansionLevelMask);
 }
