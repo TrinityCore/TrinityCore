@@ -5900,7 +5900,7 @@ class spell_silverpine_summon_lordaeron_actors : public SpellScript
 
             for (uint8 i = 0; i < 4; i++)
                 if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos1, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
-                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3 * i));
+                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3.0f * i));
         }
 
         if (Creature* leaderOrc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
@@ -5909,7 +5909,7 @@ class spell_silverpine_summon_lordaeron_actors : public SpellScript
 
             for (uint8 i = 0; i < 4; i++)
                 if (Creature* orc = caster->SummonCreature(NPC_ORC_MOVER_LORDAERON, SeaOrcLeaderPos2, TEMPSUMMON_TIMED_DESPAWN, 300s, 0, GetSpellInfo()->Id, caster->GetGUID()))
-                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3 * i));
+                    orc->GetMotionMaster()->MoveChase(leaderOrc, float(3.0f * i));
         }
 
         for (Position const& pos : DreadguardPos)
