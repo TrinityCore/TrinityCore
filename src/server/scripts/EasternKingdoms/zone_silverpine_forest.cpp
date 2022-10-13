@@ -5357,13 +5357,36 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
 
         me->CastSpell(nullptr, SPELL_RIDE_SYLVANAS_HORSE, true);
 
-        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-
         me->SetReactState(REACT_PASSIVE);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        Player* player = passenger->ToPlayer();
+        if (!player)
+            return;
+
+        if (apply)
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        else
+        {
+            if (player->GetQuestStatus(QUEST_LORDAERON) == QUEST_STATUS_INCOMPLETE)
+                player->CastSpell(player, SPELL_FADE_TO_BLACK, true);
+
+            _events.ScheduleEvent(EVENT_ACTIVATE_SKIP, 250ms);
+        }
     }
 
     void UpdateAI(uint32 diff) override
     {
+        TempSummon* tempSummon = me->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        Unit* summoner = tempSummon->GetSummonerUnit();
+        if (!summoner)
+            return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -5371,14 +5394,10 @@ struct npc_silverpine_warhorse_player_lordaeron : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ACTIVATE_SKIP:
-                {
-                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
-                    {
-                        summoner->NearTeleportTo(LordaeronFinishScenePos, false);
-                        summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
-                    }
+                    me->CastSpell(summoner, SPELL_LORDAERON_COMPLETE, true);
+                    summoner->NearTeleportTo(LordaeronFinishScenePos, false);
+                    summoner->CastSpell(summoner, SPELL_DESPAWN_ALL_SUMMONS_LORDAERON, true);
                     break;
-                }
                 default:
                     break;
             }
