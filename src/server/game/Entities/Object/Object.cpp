@@ -3176,7 +3176,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
 
     if (isNegativeSpell || !bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_ASSIST_IMMUNE_PC))
     {
-        if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+        if (unit && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         {
             if (unitTarget && unitTarget->IsImmuneToPC())
                 return false;
