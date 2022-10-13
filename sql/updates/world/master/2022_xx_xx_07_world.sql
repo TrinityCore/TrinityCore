@@ -34,18 +34,18 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+0;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, '84183');
+(@CGUID+0, 0, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183');
 
 -- Arthura
 UPDATE `creature_template` SET `unit_flags2` = 2107392, `VehicleId` = 1109  WHERE `entry` = 44610;
 
 DELETE FROM `creature` WHERE `guid`= @CGUID+1;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+1, 44610, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 499.993011474609375, 1570.6300048828125, 131.7693328857421875, 4.815308570861816406, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 45745);
+(@CGUID+1, 44610, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 499.993011474609375, 1570.6300048828125, 131.7693328857421875, 4.815308570861816406, 120, 0, 0, 0, 0, 0, 0, 2099200, 0, 0, 0, '', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+1;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+1, 0, 0, 0, 50397184, 1, 0, 0, 0, 0, 3, '84705');
+(@CGUID+1, 0, 0, 0, 50331648, 1, 0, 0, 0, 0, 3, '84705');
 
 -- Agatha
 DELETE FROM `creature` WHERE `guid`= @CGUID+2;
@@ -91,16 +91,16 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 DELETE FROM `creature_addon` WHERE `guid` = @CGUID+4;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+4, @PATH, 0, 0, 0, 1, 0, 0, 0, 0, 3, '84183');
+(@CGUID+4, @PATH, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183');
 
 -- Admiral Hatchet
 DELETE FROM `creature` WHERE `guid` = @CGUID+5;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+5, 44916, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 492.516, 1527.46, 130.503, 5.52134, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 45745);
+(@CGUID+5, 44916, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 492.516, 1527.46, 130.503, 5.52134, 120, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, '', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid` = @CGUID+5;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, '84183 83847');
+(@CGUID+5, 0, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183 83847');
 
 -- Warlord Torok
 DELETE FROM `creature` WHERE `guid` = @CGUID+6;
@@ -109,10 +109,36 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 
 DELETE FROM `creature_addon` WHERE `guid` = @CGUID+6;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+6, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, '84183');
+(@CGUID+6, 0, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183');
 
--- Thom Denger
+-- Karos Razok
+UPDATE `creature_template` SET `gossip_menu_id`=4281 WHERE `entry`=2226;
+
+UPDATE `gossip_menu` SET `VerifiedBuild`=45745 WHERE `MenuID`=2226;
+
+-- Thom Denger (Mage Trainer)
 UPDATE `creature_template` SET `gossip_menu_id`=14230, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49716;
+
+DELETE FROM `gossip_menu` WHERE `MenuID`=14230;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14230, 564, 45745),
+(14230, 563, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14230 AND `SourceEntry`=564 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=128 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14230, 564, 0, 0, 15, 0, 128, 0, 0, 0, 0, 0, '', 'Show npc text 15460 if player is a mage');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14230 AND `SourceEntry`=563 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=128 AND `ConditionValue2`=0 AND `ConditionValue3`=0 AND `NegativeCondition`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14230, 563, 0, 0, 15, 0, 128, 0, 0, 1, 0, 0, '', 'Show npc text 15461 if player is not a mage');
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID`=14230 AND `OptionID`=8);
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextId`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(14230, 8, 0, 'Enter the Proving Grounds', 74757, 0, 0, 0, 0, 0, NULL, 0, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=14230 AND `SourceEntry`=8 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=128 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 14230, 8, 0, 0, 15, 0, 128, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a mage');
 
 SET @ENTRY := 49716;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
@@ -138,12 +164,140 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 UPDATE `creature_template_addon` SET `path_id` = @PATH WHERE `entry` = @ENTRY;
 
--- Dark Cleric Pordon
+-- Matt Bruxworthy (Hunter Trainer)
+UPDATE `creature_template` SET `gossip_menu_id`=14189, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49958;
+
+DELETE FROM `gossip_menu` WHERE `MenuID`=14189;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14189, 15460, 45745),
+(14189, 15461, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14189 AND `SourceEntry`=15460 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=4 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14189, 15460, 0, 0, 15, 0, 4, 0, 0, 0, 0, 0, '', 'Show npc text 15460 if player is a hunter');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14189 AND `SourceEntry`=15461 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=4 AND `ConditionValue2`=0 AND `ConditionValue3`=0 AND `NegativeCondition`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14189, 15461, 0, 0, 15, 0, 4, 0, 0, 1, 0, 0, '', 'Show npc text 15461 if player is not a hunter');
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID`=14189 AND `OptionID`=8);
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextId`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(14189, 8, 0, 'Enter the Proving Grounds', 74757, 0, 0, 0, 0, 0, NULL, 0, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=14189 AND `SourceEntry`=8 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=4 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 14189, 8, 0, 0, 15, 0, 4, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a hunter');
+
+-- Hobbes (Matt's Pet)
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=49960;
+
+UPDATE `creature_template_addon` SET `bytes1`=3, `auras`='34664' WHERE `entry`=49960; -- 49960 (Hobbes) - Sleep Visual - Flavor
+
+UPDATE `creature_model_info` SET `BoundingRadius`=0.697653055191040039, `CombatReach`=1.316326498985290527, `VerifiedBuild`=45745 WHERE `DisplayID`=36686;
+
+-- Angela Hipple (Rogue Trainer)
+UPDATE `creature_template` SET `gossip_menu_id`=14232, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49870;
+
+DELETE FROM `gossip_menu` WHERE `MenuID`=14232;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14232, 581, 45745),
+(14232, 4796, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14232 AND `SourceEntry`=581 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=8 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14232, 581, 0, 0, 15, 0, 8, 0, 0, 0, 0, 0, '', 'Show npc text 581 if player is a rogue');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14232 AND `SourceEntry`=4796 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=8 AND `ConditionValue2`=0 AND `ConditionValue3`=0 AND `NegativeCondition`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14232, 4796, 0, 0, 15, 0, 8, 0, 0, 1, 0, 0, '', 'Show npc text 4796 if player is not a rogue');
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID`=14232 AND `OptionID`=8);
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextId`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(14232, 8, 0, 'Enter the Proving Grounds', 74757, 0, 0, 0, 0, 0, NULL, 0, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=14232 AND `SourceEntry`=8 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=8 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 14232, 8, 0, 0, 15, 0, 8, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a rogue');
+
+-- Eugene Daller (Warrior Trainer)
+UPDATE `creature_template` SET `gossip_menu_id`=14233, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49720;
+
+DELETE FROM `gossip_menu` WHERE `MenuID`=14233;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14233, 1219, 45745),
+(14233, 4984, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14233 AND `SourceEntry`=1219 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=1 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14233, 1219, 0, 0, 15, 0, 1, 0, 0, 0, 0, 0, '', 'Show npc text 1219 if player is a warrior');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14233 AND `SourceEntry`=4984 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=1 AND `ConditionValue2`=0 AND `ConditionValue3`=0 AND `NegativeCondition`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14233, 4984, 0, 0, 15, 0, 1, 0, 0, 1, 0, 0, '', 'Show npc text 4984 if player is not a warrior');
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID`=14233 AND `OptionID`=8);
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextId`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(14233, 8, 0, 'Enter the Proving Grounds', 74757, 0, 0, 0, 0, 0, NULL, 0, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=14233 AND `SourceEntry`=8 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=1 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 14233, 8, 0, 0, 15, 0, 1, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a warrior');
+
+-- Bee Bruxworthy (Warlock Trainer)
+UPDATE `creature_template` SET `gossip_menu_id`=14229, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49718;
+
+DELETE FROM `gossip_menu` WHERE `MenuID`=14229;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14229, 5719, 45745),
+(14229, 5720, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14229 AND `SourceEntry`=5719 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=256 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14229, 5719, 0, 0, 15, 0, 256, 0, 0, 0, 0, 0, '', 'Show npc text 5719 if player is a warlock');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14229 AND `SourceEntry`=5720 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=256 AND `ConditionValue2`=0 AND `ConditionValue3`=0 AND `NegativeCondition`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14229, 5720, 0, 0, 15, 0, 256, 0, 0, 1, 0, 0, '', 'Show npc text 5720 if player is not a warlock');
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID`=14229 AND `OptionID`=8);
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextId`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(14229, 8, 0, 'Enter the Proving Grounds', 74757, 0, 0, 0, 0, 0, NULL, 0, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=14229 AND `SourceEntry`=8 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=256 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 14229, 8, 0, 0, 15, 0, 256, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a warlock');
+
+-- Dark Cleric Pordon (Priest Trainer)
 SET @ENTRY := 49715;
-DELETE FROM `smart_scripts` WHERE `entryOrGuid` = @ENTRY AND `source_type` = 0;
-UPDATE `creature_template` SET `AIName` = "SmartAI", `ScriptName` = "" WHERE `entry` = @ENTRY;
-UPDATE `creature_template_addon` SET `path_id` = 3213000 WHERE `entry` = @ENTRY;
+
 UPDATE `creature` SET `MovementType` = 2 WHERE `guid` = 321300;
+
+UPDATE `creature_template` SET `AIName` = "SmartAI", `ScriptName` = "" WHERE `entry` = @ENTRY;
+
+UPDATE `creature_template_addon` SET `path_id` = 3213000 WHERE `entry` = @ENTRY;
+
+DELETE FROM `gossip_menu` WHERE `MenuID`=14231;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(14231, 4441, 45745),
+(14231, 4439, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14231 AND `SourceEntry`=4441 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=16 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14231, 4441, 0, 0, 15, 0, 16, 0, 0, 0, 0, 0, '', 'Show npc text 4441 if player is a priest');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup`=14231 AND `SourceEntry`=4439 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=16 AND `ConditionValue2`=0 AND `ConditionValue3`=0 AND `NegativeCondition`=1;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(14, 14231, 4439, 0, 0, 15, 0, 16, 0, 0, 1, 0, 0, '', 'Show npc text 4439 if player is not a priest');
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID`=14231 AND `OptionID`=8);
+INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextId`, `Language`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+(14231, 8, 0, 'Enter the Proving Grounds', 74757, 0, 0, 0, 0, 0, NULL, 0, 45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=14231 AND `SourceEntry`=8 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=15 AND `ConditionTarget`=0 AND `ConditionValue1`=16 AND `ConditionValue2`=0 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(15, 14231, 8, 0, 0, 15, 0, 16, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a priest');
+
+DELETE FROM `smart_scripts` WHERE `entryOrGuid` = @ENTRY AND `source_type` = 0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ENTRY, 0, 0, 0, 40, 0, 100, 0, 1, 3213000, 0, 0, 80, 4971500, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On waypoint 1 of path 3213000 reached - Self: Start timed action list id #4971500 (update out of combat)"),
 (@ENTRY, 0, 1, 0, 40, 0, 100, 0, 8, 3213000, 0, 0, 80, 4971500, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On waypoint 8 of path 3213000 reached - Self: Start timed action list id #4971501 (update out of combat)");
@@ -289,15 +443,6 @@ UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=3551;
 -- Mura Runetotem
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=8385;
 
--- Angela Hipple
-UPDATE `creature_template` SET `gossip_menu_id`=14232, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49870;
-
--- Eugene Daller
-UPDATE `creature_template` SET `gossip_menu_id`=14233, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49720;
-
--- Bee Bruxworthy
-UPDATE `creature_template` SET `gossip_menu_id`=14229, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49718;
-
 -- Lilly
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=5757;
 
@@ -312,24 +457,8 @@ UPDATE `npc_vendor` SET `slot`=1579, `VerifiedBuild`=45745 WHERE (`entry`=5757 A
 UPDATE `npc_vendor` SET `slot`=1578, `maxcount`=3, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=10940 AND `ExtendedCost`=0 AND `type`=1); -- Strange Dust
 UPDATE `npc_vendor` SET `slot`=1577, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=6217 AND `ExtendedCost`=0 AND `type`=1); -- Copper Rod
 
--- Karos Razok
-UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60 WHERE `entry`=2226;
-
--- Hobbes
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=49960;
-
-UPDATE `creature_template_addon` SET `bytes1`=3, `auras`='34664' WHERE `entry`=49960; -- 49960 (Hobbes) - Sleep Visual - Flavor
-
-UPDATE `creature_model_info` SET `BoundingRadius`=0.697653055191040039, `CombatReach`=1.316326498985290527, `VerifiedBuild`=45745 WHERE `DisplayID`=36686;
-
--- Matt Bruxworthy
-UPDATE `creature_template` SET `gossip_menu_id`=14189, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49958;
-
 -- Shadow Priest Allister
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=2121;
-
--- Dark Cleric Pordon
-UPDATE `creature_template` SET `gossip_menu_id`=14231, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49715;
 
 -- Dalar Dawnweaver
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=1938;
@@ -441,11 +570,16 @@ INSERT INTO `creature_trainer` (`CreatureID`, `TrainerID`, `MenuID`, `OptionID`)
 -- Corpse-Fed Rat
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=50141;
 
+UPDATE `creature` SET `wander_distance`=5, `MovementType`=1 WHERE `entry`=50141;
+
 -- Advisor Sorrelon
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=16288;
 
 -- Forest Ettin
 UPDATE `creature_model_info` SET `BoundingRadius`=1, `CombatReach`=4, `VerifiedBuild`=45745 WHERE `DisplayID`=30500;
+
+-- Forsaken Catapult
+UPDATE `creature_template` SET `unit_flags3`=0 WHERE `entry`=45198;
 
 --
 -- Vendors
@@ -526,6 +660,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (45219, 2, 0, '%s goes into a frenzy!', 16, 0, 100, 0, 0, 0, 0, 2384, 0, '');
 
 -- Forsaken Catapult
+UPDATE `creature_template` SET `unit_flags3`=1 WHERE `entry` IN (321185, 321177, 321159, 321154, 321143, 321142, 321119, 321103);
+
 DELETE FROM `creature_addon` WHERE `guid` IN (321185, 321177, 321159, 321154, 321143, 321142, 321119, 321103);
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (321185, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '29266 84386'),
