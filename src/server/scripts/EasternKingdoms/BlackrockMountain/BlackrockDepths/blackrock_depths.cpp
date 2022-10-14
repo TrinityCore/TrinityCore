@@ -468,6 +468,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 
             bool OnGossipHello(Player* player) override
             {
+                InitGossipMenuFor(player, GOSSIP_ITEM_SHOW_ACCESS_MID);
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
 
