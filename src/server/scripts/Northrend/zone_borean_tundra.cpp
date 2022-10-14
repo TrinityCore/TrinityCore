@@ -776,7 +776,7 @@ enum Thassarian
 
 struct npc_thassarian : public ScriptedAI
 {
-    npc_thassarian(Creature* creature) : ScriptedAI(creature), _questEventStarted(false), _preFightComplete(false), _arlosInPosition(false), _leryssaInPosition(false), _talbotJustDied(false) { }
+    npc_thassarian(Creature* creature) : ScriptedAI(creature), _questEventStarted(false), _preFightComplete(false), ArlosInPosition(false), LeryssaInPosition(false), TalbotJustDied(false) { }
 
     void JustAppeared() override
     {
@@ -801,16 +801,16 @@ struct npc_thassarian : public ScriptedAI
         if (!_questEventStarted)
             return;
 
-        if (_arlosInPosition && _leryssaInPosition)
+        if (ArlosInPosition && LeryssaInPosition)
         {
-            _arlosInPosition = false;
-            _leryssaInPosition = false;
+            ArlosInPosition = false;
+            LeryssaInPosition = false;
             _events.ScheduleEvent(EVENT_THASSARIAN_SCRIPT_8, 1s);
         }
 
-        if (_talbotJustDied && _preFightComplete)
+        if (TalbotJustDied && _preFightComplete)
         {
-            _talbotJustDied = false;
+            TalbotJustDied = false;
             _events.ScheduleEvent(EVENT_THASSARIAN_SCRIPT_18, 0s);
         }
 
@@ -833,7 +833,7 @@ struct npc_thassarian : public ScriptedAI
                     {
                         _talbotGUID = talbot->GetGUID();
                         talbot->SetWalk(true);
-                        _talbotJustDied = false;
+                        TalbotJustDied = false;
                     }
                     _events.ScheduleEvent(EVENT_THASSARIAN_SCRIPT_2, 1s);
                     break;
@@ -1121,6 +1121,7 @@ struct npc_thassarian : public ScriptedAI
         }
         return false;
     }
+
 private:
     EventMap _events;
     ObjectGuid _playerGUID;
@@ -1131,9 +1132,9 @@ private:
     bool _questEventStarted;
     bool _preFightComplete;
 public:
-    bool _arlosInPosition;
-    bool _leryssaInPosition;
-    bool _talbotJustDied;
+    bool ArlosInPosition;
+    bool LeryssaInPosition;
+    bool TalbotJustDied;
 };
 
 // NPC 25250: General Arlos
@@ -1147,9 +1148,9 @@ struct npc_general_arlos : public ScriptedAI
         {
             me->AddUnitState(UNIT_STATE_STUNNED);
             DoCastSelf(SPELL_STUN);
-            if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
-                    ENSURE_AI(npc_thassarian, summoner->ToCreature()->AI())->_arlosInPosition = true;
+            if (TempSummon* tempSummon = me->ToTempSummon())
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    ENSURE_AI(npc_thassarian, summoner->GetAI())->ArlosInPosition = true;
         }
     }
 };
@@ -1166,9 +1167,9 @@ struct npc_leryssa : public ScriptedAI
             me->SetFacingTo(4.537856f);
             me->AddUnitState(UNIT_STATE_STUNNED);
             DoCastSelf(SPELL_STUN);
-            if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
-                    ENSURE_AI(npc_thassarian, summoner->GetAI())->_leryssaInPosition = true;
+            if (TempSummon* tempSummon = me->ToTempSummon())
+                if (Unit* summoner = tempSummon->GetSummonerUnit())
+                    ENSURE_AI(npc_thassarian, summoner->GetAI())->LeryssaInPosition = true;
         }
     }
 };
@@ -1190,8 +1191,6 @@ enum CounselorTalbot
 struct npc_counselor_talbot : public ScriptedAI
 {
     npc_counselor_talbot(Creature* creature) : ScriptedAI(creature) {}
-
-    void Reset() override {}
 
     void JustEngagedWith(Unit* /*who*/) override
     {
@@ -1235,10 +1234,11 @@ struct npc_counselor_talbot : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (me->IsSummon())
-            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
-                ENSURE_AI(npc_thassarian, summoner->GetAI())->_talbotJustDied = true;
+        if (TempSummon* tempSummon = me->ToTempSummon())
+            if (Unit* summoner = tempSummon->GetSummonerUnit())
+                ENSURE_AI(npc_thassarian, summoner->GetAI())->TalbotJustDied = true;
     }
+
 private:
     EventMap _events;
 };
