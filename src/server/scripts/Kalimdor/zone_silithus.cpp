@@ -1231,6 +1231,7 @@ class go_wind_stone : public GameObjectScript
                     {
                         case GOSSIP_ID_LESSER_WS:
                         {
+                            InitGossipMenuFor(player, GOSSIP_ID_LESSER_WS);
                             if (rank >= 1) // 1 or 2 or 3
                                 AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                             else
@@ -1252,6 +1253,7 @@ class go_wind_stone : public GameObjectScript
                         }
                         case GOSSIP_ID_WIND_STONE:
                         {
+                            InitGossipMenuFor(player, GOSSIP_ID_WIND_STONE);
                             if (rank >= 2) // 2 or 3
                                 AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                             else
@@ -1273,6 +1275,7 @@ class go_wind_stone : public GameObjectScript
                         }
                         case GOSSIP_ID_GREATER_WS:
                         {
+                            InitGossipMenuFor(player, GOSSIP_ID_GREATER_WS);
                             if (rank == 3) // 3
                                 AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
                             else
