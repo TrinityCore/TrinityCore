@@ -122,6 +122,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ChatDisabledByDefault);
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
+    _worldPacket.WriteBit(BattlegroundsEnabled);
+    _worldPacket.WriteBit(Unknown340);
 
     _worldPacket.FlushBits();
 
@@ -156,6 +158,13 @@ WorldPacket const* FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->Delay);
         _worldPacket << int32(SessionAlert->Period);
         _worldPacket << int32(SessionAlert->DisplayTime);
+    }
+
+    if (Unknown340)
+    {
+        _worldPacket << uint32(UnknownBytes.size());
+        if (!UnknownBytes.empty())
+            _worldPacket.append(UnknownBytes.data(), UnknownBytes.size());
     }
 
     {

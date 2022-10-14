@@ -159,11 +159,14 @@ namespace WorldPackets
             bool ChatDisabledByDefault               = false;
             bool ChatDisabledByPlayer                = false;
             bool LFGListCustomRequiresAuthenticator  = false;
+            bool BattlegroundsEnabled                = true; // NYI
+            bool Unknown340                          = false; // NYI
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
             std::vector<GameRuleValuePair> GameRuleValues;
+            std::vector<uint8> UnknownBytes;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
