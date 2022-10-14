@@ -77,13 +77,12 @@ struct npc_beryl_sorcerer : public ScriptedAI
         if (_chainsCast)
             return;
 
-        if (spellInfo->Id == SPELL_ARCANE_CHAINS)
-            if (Player* player = caster->ToPlayer())
-            {
-                _playerGUID = player->GetGUID();
-                _chainsCast = true;
-                _events.ScheduleEvent(EVENT_ARCANE_CHAINS, 4s);
-            }
+        if (spellInfo->Id == SPELL_ARCANE_CHAINS && caster->IsPlayer())
+        {
+            _playerGUID = caster->GetGUID();
+            _chainsCast = true;
+            _events.ScheduleEvent(EVENT_ARCANE_CHAINS, 4s);
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -97,20 +96,20 @@ struct npc_beryl_sorcerer : public ScriptedAI
         {
             switch (eventId)
             {
-            case EVENT_FROSTBOLT:
-                DoCastVictim(SPELL_FROSTBOLT);
-                _events.ScheduleEvent(EVENT_FROSTBOLT, 3s, 4s);
-                break;
-            case EVENT_ARCANE_CHAINS:
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                {
-                    me->CastSpell(player, SPELL_ARCANE_CHAINS_CHARACTER_FORCE_CAST);
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
-                }
-                me->DespawnOrUnsummon();
-                break;
-            default:
-                break;
+                case EVENT_FROSTBOLT:
+                    DoCastVictim(SPELL_FROSTBOLT);
+                    _events.ScheduleEvent(EVENT_FROSTBOLT, 3s, 4s);
+                    break;
+                case EVENT_ARCANE_CHAINS:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        me->CastSpell(player, SPELL_ARCANE_CHAINS_CHARACTER_FORCE_CAST);
+                        player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
+                    }
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -131,10 +130,13 @@ struct npc_captured_beryl_sorcerer : public FollowerAI
     {
         me->SetReactState(REACT_DEFENSIVE);
         me->SetImmuneToAll(true);
-        if (Player* summoner = me->ToTempSummon()->GetSummonerUnit()->ToPlayer())
+        if (TempSummon const* tempSummon = me->ToTempSummon())
         {
-            summoner->CastSpell(summoner, SPELL_ARCANE_CHAINS_CHANNEL_II);
-            StartFollow(summoner);
+            if (Player* summoner = Object::ToPlayer(tempSummon->GetSummoner()))
+            {
+                summoner->CastSpell(summoner, SPELL_ARCANE_CHAINS_CHANNEL_II);
+                StartFollow(summoner);
+            }
         }
     }
 
@@ -145,7 +147,7 @@ struct npc_captured_beryl_sorcerer : public FollowerAI
         if (who->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
         {
             SetFollowComplete();
-            me->DisappearAndDie();
+            me->DespawnOrUnsummon();
         }
     }
 };
