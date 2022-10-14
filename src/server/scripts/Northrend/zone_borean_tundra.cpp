@@ -165,6 +165,123 @@ private:
     ObjectGuid _trapperGUID;
 };
 
+/*######
+## Quest 11876: Help Those That Cannot Help Themselves
+######*/
+
+// Gameobjects 188022,188024,188025,188026,188027,188028,188029,188030,188031,188032,188033,188034,188035,188036,188037,188038,188039,188040,188041,188042,188043,188044: Mammoth Trap
+enum MammothTrap
+{
+    EVENT_FIND_MAMMOTH     = 1,
+    EVENT_FACE_PLAYER,
+    EVENT_QUEST_CREDIT,
+    EVENT_MAMMOTH_TEXT,
+    EVENT_MAMMOTH_MOVE,
+    EVENT_MAMMOTH_DESPAWN,
+    EVENT_TRAP_RESET,
+    EVENT_MAMMOTH_RESPAWN,
+
+    NPC_TRAPPED_MAMMOTH    = 25850,
+
+    SAY_MAMMOTH            = 0,
+
+    SPELL_SMASH_TRAP       = 46201
+};
+
+struct go_mammoth_trap : public GameObjectAI
+{
+    go_mammoth_trap(GameObject* go) : GameObjectAI(go), _trapSmashed(true) { }
+
+    void Reset() override
+    {
+        me->SetGoState(GO_STATE_ACTIVE);
+        _events.ScheduleEvent(EVENT_FIND_MAMMOTH, 1s);
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        Player* playerCaster = caster->ToPlayer();
+        if (!playerCaster)
+            return;
+
+        if (me->GetGoState() == GO_STATE_READY)
+            return;
+
+        if (spellInfo->Id == SPELL_SMASH_TRAP)
+        {
+            _playerGUID = caster->GetGUID();
+            _trapSmashed = true;
+            me->SetGoState(GO_STATE_READY);
+            _events.ScheduleEvent(EVENT_FACE_PLAYER, 1s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_trapSmashed)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FIND_MAMMOTH:
+                    if (Creature* mammoth = me->FindNearestCreature(NPC_TRAPPED_MAMMOTH, 1.0f, true))
+                    {
+                        _mammothGUID = mammoth->GetGUID();
+                        _trapSmashed = false;
+                    }
+                    break;
+                case EVENT_FACE_PLAYER:
+                    if (Creature* mammoth = ObjectAccessor::GetCreature(*me, _mammothGUID))
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        {
+                            mammoth->SetStandState(UNIT_STAND_STATE_STAND);
+                            mammoth->SetFacingToObject(player);
+                        }
+                    _events.ScheduleEvent(EVENT_QUEST_CREDIT, 1s);
+                    break;
+                case EVENT_QUEST_CREDIT:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        player->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH);
+                    _events.ScheduleEvent(EVENT_MAMMOTH_TEXT, 1s);
+                    break;
+                case EVENT_MAMMOTH_TEXT:
+                    if (Creature* mammoth = ObjectAccessor::GetCreature(*me, _mammothGUID))
+                        if (mammoth->IsAIEnabled())
+                            mammoth->AI()->Talk(SAY_MAMMOTH);
+                    _events.ScheduleEvent(EVENT_MAMMOTH_MOVE, 2s);
+                    break;
+                case EVENT_MAMMOTH_MOVE:
+                    if (Creature* mammoth = ObjectAccessor::GetCreature(*me, _mammothGUID))
+                        mammoth->GetMotionMaster()->MovePoint(0, mammoth->GetFirstCollisionPosition(50.0f, me->GetOrientation()));
+                    _events.ScheduleEvent(EVENT_MAMMOTH_DESPAWN, 9s);
+                    break;
+                case EVENT_MAMMOTH_DESPAWN:
+                    if (Creature* mammoth = ObjectAccessor::GetCreature(*me, _mammothGUID))
+                        mammoth->DespawnOrUnsummon(0s, 120s);
+                    _events.ScheduleEvent(EVENT_MAMMOTH_RESPAWN, 5s);
+                    break;
+                case EVENT_MAMMOTH_RESPAWN:
+                    if (me->FindNearestCreature(NPC_TRAPPED_MAMMOTH, 1.0f, true))
+                        Reset();
+                    else
+                        _events.ScheduleEvent(EVENT_MAMMOTH_RESPAWN, 5s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    bool _trapSmashed;
+    ObjectGuid _playerGUID;
+    ObjectGuid _mammothGUID;
+};
+
 enum red_dragonblood
 {
     SPELL_DRAKE_HATCHLING_SUBDUED = 46691,
@@ -961,119 +1078,6 @@ struct npc_beryl_sorcerer : public FollowerAI
 };
 
 /*######
-## Help Those That Cannot Help Themselves, Quest 11876
-######*/
-
-enum HelpThemselves
-{
-    QUEST_CANNOT_HELP_THEMSELVES                  =  11876,
-    GO_MAMMOTH_TRAP_1                             = 188022,
-    GO_MAMMOTH_TRAP_2                             = 188024,
-    GO_MAMMOTH_TRAP_3                             = 188025,
-    GO_MAMMOTH_TRAP_4                             = 188026,
-    GO_MAMMOTH_TRAP_5                             = 188027,
-    GO_MAMMOTH_TRAP_6                             = 188028,
-    GO_MAMMOTH_TRAP_7                             = 188029,
-    GO_MAMMOTH_TRAP_8                             = 188030,
-    GO_MAMMOTH_TRAP_9                             = 188031,
-    GO_MAMMOTH_TRAP_10                            = 188032,
-    GO_MAMMOTH_TRAP_11                            = 188033,
-    GO_MAMMOTH_TRAP_12                            = 188034,
-    GO_MAMMOTH_TRAP_13                            = 188035,
-    GO_MAMMOTH_TRAP_14                            = 188036,
-    GO_MAMMOTH_TRAP_15                            = 188037,
-    GO_MAMMOTH_TRAP_16                            = 188038,
-    GO_MAMMOTH_TRAP_17                            = 188039,
-    GO_MAMMOTH_TRAP_18                            = 188040,
-    GO_MAMMOTH_TRAP_19                            = 188041,
-    GO_MAMMOTH_TRAP_20                            = 188042,
-    GO_MAMMOTH_TRAP_21                            = 188043,
-    GO_MAMMOTH_TRAP_22                            = 188044,
-};
-
-#define MammothTrapsNum 22
-const uint32 MammothTraps[MammothTrapsNum] =
-{
-    GO_MAMMOTH_TRAP_1, GO_MAMMOTH_TRAP_2, GO_MAMMOTH_TRAP_3, GO_MAMMOTH_TRAP_4, GO_MAMMOTH_TRAP_5,
-    GO_MAMMOTH_TRAP_6, GO_MAMMOTH_TRAP_7, GO_MAMMOTH_TRAP_8, GO_MAMMOTH_TRAP_9, GO_MAMMOTH_TRAP_10,
-    GO_MAMMOTH_TRAP_11, GO_MAMMOTH_TRAP_12, GO_MAMMOTH_TRAP_13, GO_MAMMOTH_TRAP_14, GO_MAMMOTH_TRAP_15,
-    GO_MAMMOTH_TRAP_16, GO_MAMMOTH_TRAP_17, GO_MAMMOTH_TRAP_18, GO_MAMMOTH_TRAP_19, GO_MAMMOTH_TRAP_20,
-    GO_MAMMOTH_TRAP_21, GO_MAMMOTH_TRAP_22
-};
-
-struct npc_trapped_mammoth_calf : public ScriptedAI
-{
-    npc_trapped_mammoth_calf(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        uiTimer = 1500;
-        bStarted = false;
-    }
-
-    uint32 uiTimer;
-    bool bStarted;
-
-    void Reset() override
-    {
-        Initialize();
-
-        GameObject* pTrap = nullptr;
-        for (uint8 i = 0; i < MammothTrapsNum; ++i)
-        {
-            pTrap = me->FindNearestGameObject(MammothTraps[i], 11.0f);
-            if (pTrap)
-            {
-                pTrap->SetGoState(GO_STATE_ACTIVE);
-                return;
-            }
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (bStarted)
-        {
-            if (uiTimer <= diff)
-            {
-                Position pos = me->GetRandomNearPosition(10.0f);
-                me->GetMotionMaster()->MovePoint(0, pos);
-                bStarted = false;
-            }
-            else uiTimer -= diff;
-        }
-    }
-
-    void DoAction(int32 param) override
-    {
-        if (param == 1)
-            bStarted = true;
-    }
-
-    void MovementInform(uint32 uiType, uint32 /*uiId*/) override
-    {
-        if (uiType != POINT_MOTION_TYPE)
-            return;
-
-        me->DisappearAndDie();
-
-        GameObject* pTrap = nullptr;
-        for (uint8 i = 0; i < MammothTrapsNum; ++i)
-        {
-            pTrap = me->FindNearestGameObject(MammothTraps[i], 11.0f);
-            if (pTrap)
-            {
-                pTrap->SetLootState(GO_JUST_DEACTIVATED);
-                return;
-            }
-        }
-    }
-};
-
-/*######
 ## Valiance Keep Cannoneer script to activate cannons
 ######*/
 
@@ -1811,6 +1815,7 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
 void AddSC_borean_tundra()
 {
     RegisterGameObjectAI(go_caribou_trap);
+    RegisterGameObjectAI(go_mammoth_trap);
     RegisterSpellScript(spell_red_dragonblood);
     new npc_thassarian();
     new npc_image_lich_king();
@@ -1818,7 +1823,6 @@ void AddSC_borean_tundra()
     new npc_leryssa();
     new npc_general_arlos();
     RegisterCreatureAI(npc_beryl_sorcerer);
-    RegisterCreatureAI(npc_trapped_mammoth_calf);
     RegisterCreatureAI(npc_valiance_keep_cannoneer);
     RegisterCreatureAI(npc_hidden_cultist);
     RegisterSpellScript(spell_windsoul_totem_aura);
