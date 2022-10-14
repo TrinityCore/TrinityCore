@@ -227,6 +227,7 @@ namespace WorldPackets
 
             std::string ServerTimeTZ;
             std::string GameTimeTZ;
+            std::string ServerRegionalTZ;
         };
     }
 }

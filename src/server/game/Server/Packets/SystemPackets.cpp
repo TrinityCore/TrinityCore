@@ -243,10 +243,12 @@ WorldPacket const* SetTimeZoneInformation::Write()
 {
     _worldPacket.WriteBits(ServerTimeTZ.length(), 7);
     _worldPacket.WriteBits(GameTimeTZ.length(), 7);
+    _worldPacket.WriteBits(ServerRegionalTZ.length(), 7);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(ServerTimeTZ);
     _worldPacket.WriteString(GameTimeTZ);
+    _worldPacket.WriteString(ServerRegionalTZ);
 
     return &_worldPacket;
 }
