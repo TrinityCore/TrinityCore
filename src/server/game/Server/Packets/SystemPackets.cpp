@@ -188,9 +188,15 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
     _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
     _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
-    _worldPacket.WriteBit(Unknown901CheckoutRelated);
+    _worldPacket.WriteBit(Unknown340_1);
+    _worldPacket.WriteBit(Unknown340_2);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
+    _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(LaunchETA.has_value());
+    _worldPacket.WriteBit(TBCInfoPaneEnabled);
+    _worldPacket.WriteBit(TBCInfoPanePriceEnabled);
+    _worldPacket.WriteBit(TBCTransitionUIEnabled);
+    _worldPacket.WriteBit(SoMNotificationEnabled);
     _worldPacket.FlushBits();
 
     if (EuropaTicketSystemStatus)

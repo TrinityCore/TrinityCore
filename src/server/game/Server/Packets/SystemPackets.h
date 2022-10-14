@@ -190,6 +190,12 @@ namespace WorldPackets
             bool LiveRegionAccountCopyEnabled        = false; // NYI
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool Unknown901CheckoutRelated           = false; // NYI
+            bool Unknown340_1                        = false; // NYI
+            bool Unknown340_2                        = false; // NYI
+            bool TBCInfoPaneEnabled                  = false; // NYI
+            bool TBCInfoPanePriceEnabled             = false; // NYI
+            bool TBCTransitionUIEnabled              = false; // NYI
+            bool SoMNotificationEnabled              = false; // NYI
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
