@@ -319,18 +319,17 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RatedPvpInf
     data << int32(bracketInfo.Ranking);
     data << int32(bracketInfo.SeasonPlayed);
     data << int32(bracketInfo.SeasonWon);
-    data << int32(bracketInfo.Unused1);
-    data << int32(bracketInfo.Unused2);
     data << int32(bracketInfo.WeeklyPlayed);
     data << int32(bracketInfo.WeeklyWon);
     data << int32(bracketInfo.BestWeeklyRating);
-    data << int32(bracketInfo.LastWeeksBestRating);
     data << int32(bracketInfo.BestSeasonRating);
+    data << int32(bracketInfo.LastWeeksBestRating);
     data << int32(bracketInfo.PvpTierID);
+    data << int32(bracketInfo.Unused1);
+    data << int32(bracketInfo.Unused2);
     data << int32(bracketInfo.Unused3);
-    data << int32(bracketInfo.WeeklyBestWinPvpTierID);
     data << int32(bracketInfo.Unused4);
-    data << int32(bracketInfo.Rank);
+    data << int32(bracketInfo.Unused5);
     data.WriteBit(bracketInfo.Disqualified);
     data.FlushBits();
 
