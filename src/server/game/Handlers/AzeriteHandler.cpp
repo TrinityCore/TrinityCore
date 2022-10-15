@@ -233,3 +233,8 @@ void WorldSession::HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::
 
     azeriteEmpoweredItem->SetState(ITEM_CHANGED, _player);
 }
+
+void WorldSession::SendAzeriteRespecNPC(ObjectGuid npc)
+{
+    SendPacket(WorldPackets::Azerite::AzeriteRespecNPC(npc).Write());
+}
