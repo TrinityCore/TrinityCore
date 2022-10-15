@@ -244,7 +244,7 @@ Position const FreezyaSeedJumpPos   = { -116.2847f, 216.7865f, 53.2755f };
 struct npc_brazie_the_bonatist_vehicle : public VehicleAI
 {
     npc_brazie_the_bonatist_vehicle(Creature* creature) : VehicleAI(creature), _summons(me), _currentLevel(LEVEL_TUTORIAL),
-        _deadZombieCount(0), _damagedZombieCount(0), _damagedGhoulCount(0), _currentStage(0) { }
+        _deadZombieCount(0), _damagedZombieCount(0), _damagedGhoulCount(0), _currentStage(0), _timeUntilNextSolarPower(0s) { }
 
     void InizializeAI()
     {
