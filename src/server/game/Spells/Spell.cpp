@@ -7601,7 +7601,7 @@ SpellCastResult Spell::CheckItems(int32* param1 /*= nullptr*/, int32* param2 /*=
                     return SPELL_FAILED_AZERITE_EMPOWERED_ONLY;
 
                 bool hasSelections = false;
-                for (int32 tier = 0; tier < azeriteEmpoweredItem->GetMaxAzeritePowerTier(); ++tier)
+                for (int32 tier = 0; tier < MAX_AZERITE_EMPOWERED_TIER; ++tier)
                 {
                     if (azeriteEmpoweredItem->GetSelectedAzeritePower(tier))
                     {

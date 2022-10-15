@@ -24,6 +24,7 @@
 
 #include "ScriptMgr.h"
 #include "Battleground.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -5021,6 +5022,48 @@ class spell_summon_battle_pet : public SpellScript
     }
 };
 
+// 132334 - Trainer Heal Cooldown (SERVERSIDE)
+class spell_gen_trainer_heal_cooldown : public AuraScript
+{
+    PrepareAuraScript(spell_gen_trainer_heal_cooldown);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ BattlePets::SPELL_REVIVE_BATTLE_PETS });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void UpdateReviveBattlePetCooldown(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        SpellInfo const* reviveBattlePetSpellInfo = sSpellMgr->AssertSpellInfo(BattlePets::SPELL_REVIVE_BATTLE_PETS, DIFFICULTY_NONE);
+
+        if (target->GetSession()->GetBattlePetMgr()->IsBattlePetSystemEnabled())
+        {
+            Milliseconds expectedCooldown = Milliseconds(GetAura()->GetMaxDuration());
+            SpellHistory::Duration remainingCooldown = target->GetSpellHistory()->GetRemainingCategoryCooldown(reviveBattlePetSpellInfo);
+            if (remainingCooldown > SpellHistory::Duration::zero())
+            {
+                if (remainingCooldown < expectedCooldown)
+                    target->GetSpellHistory()->ModifyCooldown(reviveBattlePetSpellInfo, expectedCooldown - remainingCooldown);
+            }
+            else
+            {
+                target->GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, expectedCooldown);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_trainer_heal_cooldown::UpdateReviveBattlePetCooldown, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 45313 - Anchor Here
 class spell_gen_anchor_here : public SpellScript
 {
@@ -5336,6 +5379,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_defender_of_azeroth_death_gate_selector);
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);
     RegisterSpellScript(spell_summon_battle_pet);
+    RegisterSpellScript(spell_gen_trainer_heal_cooldown);
     RegisterSpellScript(spell_gen_anchor_here);
     RegisterSpellScript(spell_gen_mount_check_aura);
     RegisterSpellScript(spell_gen_ancestral_call);
