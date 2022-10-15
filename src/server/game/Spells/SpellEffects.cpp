@@ -1502,110 +1502,6 @@ void Spell::EffectEnergizePct()
     unitCaster->EnergizeBySpell(unitTarget, m_spellInfo, gain, power);
 }
 
-void Spell::SendLoot(ObjectGuid guid, LootType loottype)
-{
-    Player* player = m_caster->ToPlayer();
-    if (!player)
-        return;
-
-    if (gameObjTarget)
-    {
-        // Players shouldn't be able to loot gameobjects that are currently despawned
-        if (!gameObjTarget->isSpawned() && !player->IsGameMaster())
-        {
-            TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s %s tried to loot a gameobject %s which is on respawn timer without being in GM mode!",
-                            player->GetName().c_str(), player->GetGUID().ToString().c_str(), gameObjTarget->GetGUID().ToString().c_str());
-            return;
-        }
-        // special case, already has GossipHello inside so return and avoid calling twice
-        if (gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-        {
-            gameObjTarget->Use(player);
-            return;
-        }
-
-        player->PlayerTalkClass->ClearMenus();
-        if (gameObjTarget->AI()->OnGossipHello(player))
-            return;
-
-        switch (gameObjTarget->GetGoType())
-        {
-            case GAMEOBJECT_TYPE_DOOR:
-            case GAMEOBJECT_TYPE_BUTTON:
-                gameObjTarget->UseDoorOrButton(0, false, player);
-                return;
-
-            case GAMEOBJECT_TYPE_QUESTGIVER:
-                player->PrepareGossipMenu(gameObjTarget, gameObjTarget->GetGOInfo()->questgiver.gossipID, true);
-                player->SendPreparedGossip(gameObjTarget);
-                return;
-
-            case GAMEOBJECT_TYPE_SPELL_FOCUS:
-                // triggering linked GO
-                if (uint32 trapEntry = gameObjTarget->GetGOInfo()->spellFocus.linkedTrap)
-                    gameObjTarget->TriggeringLinkedGameObject(trapEntry, player);
-                return;
-
-            case GAMEOBJECT_TYPE_CHEST:
-            {
-                if (Battleground* bg = player->GetBattleground())
-                {
-                    if (!bg->CanActivateGO(gameObjTarget->GetEntry(), bg->GetPlayerTeam(player->GetGUID())))
-                    {
-                        player->SendLootRelease(guid);
-                        return;
-                    }
-                }
-
-                Loot* loot = nullptr;
-                if (gameObjTarget->getLootState() == GO_READY)
-                {
-                    if (uint32 lootId = gameObjTarget->GetGOInfo()->GetLootId())
-                    {
-                        gameObjTarget->SetLootGenerationTime();
-
-                        Group const* group = player->GetGroup();
-                        bool groupRules = group && gameObjTarget->GetGOInfo()->chest.usegrouplootrules;
-
-                        loot = new Loot(gameObjTarget->GetMap(), guid, loottype, groupRules ? group : nullptr);
-                        gameObjTarget->m_loot.reset(loot);
-
-                        loot->SetDungeonEncounterId(gameObjTarget->GetGOInfo()->chest.DungeonEncounter);
-                        loot->FillLoot(lootId, LootTemplates_Gameobject, player, !groupRules, false, gameObjTarget->GetLootMode(), gameObjTarget->GetMap()->GetDifficultyLootItemContext());
-
-                        if (gameObjTarget->GetLootMode() > 0)
-                            if (GameObjectTemplateAddon const* addon = gameObjTarget->GetTemplateAddon())
-                                loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
-
-                    }
-
-                    /// @todo possible must be moved to loot release (in different from linked triggering)
-                    if (gameObjTarget->GetGOInfo()->chest.triggeredEvent)
-                    {
-                        TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO " UI64FMTD, gameObjTarget->GetGOInfo()->chest.triggeredEvent, gameObjTarget->GetSpawnId());
-                        GameEvents::Trigger(gameObjTarget->GetGOInfo()->chest.triggeredEvent, player, gameObjTarget);
-                    }
-
-                    // triggering linked GO
-                    if (uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrap)
-                        gameObjTarget->TriggeringLinkedGameObject(trapEntry, player);
-
-                    gameObjTarget->SetLootState(GO_ACTIVATED, player);
-                }
-                else
-                    loot = gameObjTarget->GetLootForPlayer(player);
-
-                // Send loot
-                if (loot)
-                    player->SendLoot(*loot);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-}
-
 void Spell::EffectOpenLock()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -1699,7 +1595,7 @@ void Spell::EffectOpenLock()
     }
 
     if (gameObjTarget)
-        SendLoot(guid, LOOT_CHEST);
+        gameObjTarget->Use(player);
     else if (itemTarget)
     {
         itemTarget->SetItemFlag(ITEM_FIELD_FLAG_UNLOCKED);
