@@ -244,12 +244,9 @@ Position const FreezyaSeedJumpPos   = { -116.2847f, 216.7865f, 53.2755f };
 struct npc_brazie_the_bonatist_vehicle : public VehicleAI
 {
     npc_brazie_the_bonatist_vehicle(Creature* creature) : VehicleAI(creature), _summons(me), _currentLevel(LEVEL_TUTORIAL),
-        _deadZombieCount(0), _damagedZombieCount(0), _damagedGhoulCount(0), _currentStage(0)
-    {
-        Inizialize();
-    }
+        _deadZombieCount(0), _damagedZombieCount(0), _damagedGhoulCount(0), _currentStage(0) { }
 
-    void Inizialize()
+    void InizializeAI()
     {
         // Figure out at what level we currently are
         InitializeLevel();
@@ -467,7 +464,8 @@ struct npc_brazie_the_bonatist_vehicle : public VehicleAI
                     float x = pos.GetPositionX() + cos(angle) * 3;
                     float y = pos.GetPositionY() + sin(angle) * 3;
 
-                    GetPlayer()->CastSpell({ x, y, pos.GetPositionZ() + 50.0f }, SPELL_CREATE_RANDOM_SUN_POWER, true);
+                    if (Player* player = GetPlayer())
+                        player->CastSpell({ x, y, pos.GetPositionZ() + 50.0f }, SPELL_CREATE_RANDOM_SUN_POWER, true);
 
                     switch (_currentLevel)
                     {
@@ -581,7 +579,13 @@ public:
     }
 
 private:
-    Player* GetPlayer() { return me->GetCharmerOrOwner()->ToPlayer(); }
+    Player* GetPlayer()
+    {
+        if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
+            return creator->ToPlayer();
+
+        return nullptr;
+    }
 
     void SetupSpawns()
     {
@@ -670,7 +674,8 @@ private:
                 break;
         }
 
-        GetPlayer()->ModifyPower(POWER_ALTERNATE_POWER, 1);
+        if (Player* player = GetPlayer())
+            player->ModifyPower(POWER_ALTERNATE_POWER, 1);
     }
 
     void StartMassiveWave()
