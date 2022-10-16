@@ -14344,8 +14344,13 @@ void Unit::ProcessPendingSpellCastRequest()
         Unit* charmer = caster->GetCharmer();
         if (charmer && (!charmer->IsOnVehicle(this) || spellInfo->CheckVehicle(charmer) != SPELL_CAST_OK))
             return;
-
-        caster = charmer;
+        else if (charmer)
+            caster = charmer;
+        else
+        {
+            TC_LOG_ERROR("spells", "Creature %s tried to allow its charmer to cast spell %u but there is no charmer.", caster->GetGUID().ToString(), spellInfo->Id);
+            return;
+        }
     }
 
     if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->IsRaidMarker() &&
