@@ -2171,6 +2171,59 @@ void GameObject::Use(Unit* user)
             player->SendPreparedGossip(this);
             return;
         }
+        case GAMEOBJECT_TYPE_CHEST:                         //3
+        {
+            Player* player = user->ToPlayer();
+            if (!player)
+                return;
+
+            if (Battleground* bg = player->GetBattleground())
+                if (!bg->CanActivateGO(GetEntry(), bg->GetPlayerTeam(user->GetGUID())))
+                    return;
+
+            GameObjectTemplate const* info = GetGOInfo();
+            Loot* loot = nullptr;
+            if (getLootState() == GO_READY)
+            {
+                if (uint32 lootId = info->GetLootId())
+                {
+                    SetLootGenerationTime();
+
+                    Group const* group = player->GetGroup();
+                    bool groupRules = group && info->chest.usegrouplootrules;
+
+                    loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, groupRules ? group : nullptr);
+                    m_loot.reset(loot);
+
+                    loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
+                    loot->FillLoot(lootId, LootTemplates_Gameobject, player, !groupRules, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+
+                    if (GetLootMode() > 0)
+                        if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
+                            loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
+                }
+
+                /// @todo possible must be moved to loot release (in different from linked triggering)
+                if (info->chest.triggeredEvent)
+                {
+                    TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO " UI64FMTD, info->chest.triggeredEvent, GetSpawnId());
+                    GameEvents::Trigger(info->chest.triggeredEvent, user, this);
+                }
+
+                // triggering linked GO
+                if (uint32 trapEntry = info->chest.linkedTrap)
+                    TriggeringLinkedGameObject(trapEntry, player);
+
+                SetLootState(GO_ACTIVATED, player);
+            }
+            else
+                loot = GetLootForPlayer(player);
+
+            // Send loot
+            if (loot)
+                player->SendLoot(*loot);
+            break;
+        }
         case GAMEOBJECT_TYPE_TRAP:                          //6
         {
             GameObjectTemplate const* goInfo = GetGOInfo();
@@ -2261,6 +2314,11 @@ void GameObject::Use(Unit* user)
 
             return;
         }
+        case GAMEOBJECT_TYPE_SPELL_FOCUS:                   //8
+            // triggering linked GO
+            if (uint32 trapEntry = GetGOInfo()->spellFocus.linkedTrap)
+                TriggeringLinkedGameObject(trapEntry, user);
+            break;
         //big gun, its a spell/aura
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
