@@ -14348,7 +14348,7 @@ void Unit::ProcessPendingSpellCastRequest()
             caster = charmer;
         else
         {
-            TC_LOG_ERROR("spells", "Creature %s tried to allow its charmer to cast spell %u but there is no charmer.", caster->GetGUID().ToString(), spellInfo->Id);
+            TC_LOG_ERROR("spells", "Creature %s tried to allow its charmer to cast spell %u but there is no charmer.", caster->GetGUID().ToString().c_str(), spellInfo->Id);
             return;
         }
     }
