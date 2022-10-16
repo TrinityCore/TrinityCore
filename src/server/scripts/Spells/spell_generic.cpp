@@ -5287,7 +5287,7 @@ class spell_gen_flask_of_battle : public SpellScript
                 int32 durationBonus = sSpellMgr->AssertSpellInfo(chugALugSpellId)->Effects[EFFECT_0].CalcValue();
                 int32 duration = sSpellMgr->AssertSpellInfo(spellId)->GetMaxDuration();
                 AddPct(duration, durationBonus);
-                player->CastSpell(player, spellId, { SPELLVALUE_AURA_DURATION, duration });
+                player->CastSpell(player, spellId, { SPELLVALUE_DURATION, duration });
             }
             else
                 player->CastSpell(player, spellId);
