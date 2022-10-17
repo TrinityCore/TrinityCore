@@ -880,16 +880,28 @@ void LoadLootTemplates_Gameobject()
     LootIdSet lootIdSet, lootIdSetUsed;
     uint32 count = LootTemplates_Gameobject.LoadAndCollectLootIds(lootIdSet);
 
+    auto checkLootId = [&](uint32 lootId, uint32 gameObjectId)
+    {
+        if (!lootIdSet.count(lootId))
+            LootTemplates_Gameobject.ReportNonExistingId(lootId, "Gameobject", gameObjectId);
+        else
+            lootIdSetUsed.insert(lootId);
+    };
+
     // remove real entries and check existence loot
     GameObjectTemplateContainer const& gotc = sObjectMgr->GetGameObjectTemplates();
-    for (auto const& gameObjectTemplatePair : gotc)
+    for (auto const& [gameObjectId, gameObjectTemplate] : gotc)
     {
-        if (uint32 lootid = gameObjectTemplatePair.second.GetLootId())
+        if (uint32 lootid = gameObjectTemplate.GetLootId())
+            checkLootId(lootid, gameObjectId);
+
+        if (gameObjectTemplate.type == GAMEOBJECT_TYPE_CHEST)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Gameobject.ReportNonExistingId(lootid, "Gameobject", gameObjectTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (gameObjectTemplate.chest.chestPersonalLoot)
+                checkLootId(gameObjectTemplate.chest.chestPersonalLoot, gameObjectId);
+
+            if (gameObjectTemplate.chest.chestPushLoot)
+                checkLootId(gameObjectTemplate.chest.chestPushLoot, gameObjectId);
         }
     }
 
