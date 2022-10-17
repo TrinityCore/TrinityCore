@@ -370,9 +370,6 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     args.emplace_back("-h" + host);
     args.emplace_back("-u" + user);
 
-    if (!password.empty())
-        args.emplace_back("-p" + password);
-
     // Check if we want to connect through ip or socket (Unix only)
 #ifdef _WIN32
 
@@ -422,9 +419,14 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     if (!database.empty())
         args.emplace_back(database);
 
+    auto env = boost::process::environment();
+
+    if (!password.empty())
+        env["MYSQL_PWD"] = password;
+
     // Invokes a mysql process which doesn't leak credentials to logs
     int const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
-                                 "sql.updates", "", true);
+                                          "sql.updates", "", true, env);
 
     if (ret != EXIT_SUCCESS)
     {
