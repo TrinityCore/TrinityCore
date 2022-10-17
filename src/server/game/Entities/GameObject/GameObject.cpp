@@ -521,8 +521,6 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
     m_spawnId = UI64LIT(0);
 
-    m_lootGenerationTime = 0;
-
     ResetLootMode(); // restore default loot mode
     m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -958,6 +956,8 @@ void GameObject::Update(uint32 diff)
                     m_lootState = GO_READY;
                     m_loot = nullptr;
                     m_personalLoot.clear();
+                    m_unique_users.clear();
+                    m_usetimes = 0;
                     AddToObjectUpdateIfNeeded();
                     break;
                 default:
@@ -1188,6 +1188,8 @@ void GameObject::Update(uint32 diff)
                         m_lootState = GO_READY;
                         m_loot = nullptr;
                         m_personalLoot.clear();
+                        m_unique_users.clear();
+                        m_usetimes = 0;
                         AddToObjectUpdateIfNeeded();
                     }
                     break;
@@ -1263,6 +1265,8 @@ void GameObject::Update(uint32 diff)
 
             m_loot = nullptr;
             m_personalLoot.clear();
+            m_unique_users.clear();
+            m_usetimes = 0;
 
             // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
             bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
@@ -1873,7 +1877,10 @@ bool GameObject::ActivateToQuest(Player const* target) const
                 return false;
 
             // scan GO chest with loot including quest items
-            if (target->GetQuestStatus(GetGOInfo()->chest.questID) == QUEST_STATUS_INCOMPLETE || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
+            if (target->GetQuestStatus(GetGOInfo()->chest.questID) == QUEST_STATUS_INCOMPLETE
+                || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestLoot, target)
+                || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestPersonalLoot, target)
+                || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestPushLoot, target))
             {
                 if (Battleground const* bg = target->GetBattleground())
                     return bg->CanActivateGO(GetEntry(), bg->GetPlayerTeam(target->GetGUID()));
@@ -2182,45 +2189,71 @@ void GameObject::Use(Unit* user)
                     return;
 
             GameObjectTemplate const* info = GetGOInfo();
-            Loot* loot = nullptr;
-            if (getLootState() == GO_READY)
+            if (!m_loot && info->GetLootId())
             {
-                if (uint32 lootId = info->GetLootId())
+                if (info->GetLootId())
                 {
-                    SetLootGenerationTime();
-
                     Group const* group = player->GetGroup();
                     bool groupRules = group && info->chest.usegrouplootrules;
 
-                    loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, groupRules ? group : nullptr);
+                    Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, groupRules ? group : nullptr);
                     m_loot.reset(loot);
 
                     loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
-                    loot->FillLoot(lootId, LootTemplates_Gameobject, player, !groupRules, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+                    loot->FillLoot(info->GetLootId(), LootTemplates_Gameobject, player, !groupRules, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
 
                     if (GetLootMode() > 0)
                         if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
                             loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
                 }
 
-                /// @todo possible must be moved to loot release (in different from linked triggering)
                 if (info->chest.triggeredEvent)
+                    GameEvents::Trigger(info->chest.triggeredEvent, player, this);
+
+                // triggering linked GO
+                if (uint32 trapEntry = info->chest.linkedTrap)
+                    TriggeringLinkedGameObject(trapEntry, player);
+            }
+            else if (!m_personalLoot.count(player->GetGUID()))
+            {
+                if (info->chest.chestPersonalLoot)
                 {
-                    TC_LOG_DEBUG("spells", "Chest ScriptStart id %u for GO " UI64FMTD, info->chest.triggeredEvent, GetSpawnId());
-                    GameEvents::Trigger(info->chest.triggeredEvent, user, this);
+                    Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
+                    m_personalLoot[player->GetGUID()].reset(loot);
+
+                    loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
+                    loot->FillLoot(info->chest.chestPersonalLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+
+                    if (GetLootMode() > 0)
+                        if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
+                            loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
                 }
+            }
+
+            if (!m_unique_users.count(player->GetGUID()) && !info->GetLootId())
+            {
+                if (info->chest.chestPushLoot)
+                {
+                    Loot pushLoot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
+                    pushLoot.FillLoot(info->chest.chestPushLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+                    pushLoot.AutoStore(player, NULL_BAG, NULL_SLOT);
+                }
+
+                if (info->chest.triggeredEvent)
+                    GameEvents::Trigger(info->chest.triggeredEvent, player, this);
 
                 // triggering linked GO
                 if (uint32 trapEntry = info->chest.linkedTrap)
                     TriggeringLinkedGameObject(trapEntry, player);
 
-                SetLootState(GO_ACTIVATED, player);
+                AddUniqueUse(player);
             }
-            else
-                loot = GetLootForPlayer(player);
+
+            if (getLootState() != GO_ACTIVATED)
+                SetLootState(GO_ACTIVATED, player);
 
             // Send loot
-            if (loot)
+            if (Loot* loot = GetLootForPlayer(player))
                 player->SendLoot(*loot);
             break;
         }
@@ -3145,9 +3178,16 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     }
 }
 
-void GameObject::SetLootGenerationTime()
+bool GameObject::IsFullyLooted() const
 {
-    m_lootGenerationTime = GameTime::GetGameTime();
+    if (m_loot && !m_loot->isLooted())
+        return false;
+
+    for (auto const& [_, loot] : m_personalLoot)
+        if (!loot->isLooted())
+            return false;
+
+    return true;
 }
 
 void GameObject::SetGoState(GOState state)
@@ -3284,6 +3324,14 @@ void GameObject::SetLootRecipient(Unit* unit, Group* group)
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
 {
+    if (Loot const* loot = GetLootForPlayer(player)) // check only if loot was already generated
+    {
+        if (loot->isLooted()) // nothing to loot or everything looted.
+            return false;
+        if (!loot->HasAllowedLooter(GetGUID()) || (!loot->hasItemForAll() && !loot->hasItemFor(player))) // no loot in chest for this player
+            return false;
+    }
+
     if (!m_lootRecipient && !m_lootRecipientGroup)
         return true;
 

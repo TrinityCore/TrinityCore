@@ -295,10 +295,8 @@ void WorldSession::DoLootRelease(Loot* loot)
                 else
                     go->SetLootState(GO_READY);
             }
-            else
+            else if (go->IsFullyLooted())
                 go->SetLootState(GO_JUST_DEACTIVATED);
-
-            loot->clear();
         }
         else
         {
