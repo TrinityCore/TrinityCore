@@ -24,7 +24,9 @@ void AddSC_zone_Sanctum_Of_Domiantion();
 void AddSC_zone_oribos();
 void AddSC_zone_maldraxxus();
 void AddSC_zone_ardenweald();
-void AddSC_zone_revendreth(); 
+void AddSC_zone_revendreth();
+void AddSC_zone_Zereth_Mortis();
+void AddSC_zone_Sepulcher_of_the_First_Ones(); 
 //Darkmaul Citadel
 void AddSC_instance_darkmaul_citadel();
 void AddSC_darkmaul_citadel();
@@ -95,6 +97,24 @@ void AddSC_Boss_The_Nine();
 void AddSC_Boss_The_Tarragrue();
 //The Reckoning
 void AddSC_Boss_Sylvanas_Windrunner();
+//Zereth Mortis-Sepulcher_of_the_First_Ones
+void AddSC_zone_Zereth_Mortis();
+void AddSC_zone_Sepulcher_of_the_First_Ones();
+//Cornerstone of Creation
+void AddSC_Boss_Dausegne();
+void AddSC_Boss_Lihuvim();
+void AddSC_Boss_Prototype_Pantheon();
+//Dominations_Grasp
+void AddSC_Boss_Anduin_Wrynn();
+void AddSC_Boss_Lords_of_Dread();
+void AddSC_Boss_Rygelon();
+//Ephemeral Plains
+void AddSC_Boss_Artificer_Xymox();
+void AddSC_Boss_Halondrus();
+void AddSC_boss_Skolex();
+void AddSC_Boss_Vigilant_Guardian();
+//The_Grand_Design
+void AddSC_Boss_The_Jailer();
 //Shadowland
 void AddShadowlandsScripts()
 {
@@ -107,6 +127,8 @@ void AddShadowlandsScripts()
     AddSC_zone_maldraxxus();
     AddSC_zone_ardenweald();
     AddSC_zone_revendreth();
+    AddSC_zone_Zereth_Mortis();
+    AddSC_zone_Sepulcher_of_the_First_Ones(); 
     //Darkmaul Citadel
     AddSC_instance_darkmaul_citadel();
     AddSC_darkmaul_citadel();
@@ -176,6 +198,22 @@ void AddShadowlandsScripts()
     AddSC_Boss_The_Tarragrue();
     //The Reckoning
     AddSC_Boss_Sylvanas_Windrunner();
+    //Sepulcher_of_the_First_Ones_raid
+    //Cornerstone of Creation
+    AddSC_Boss_Dausegne();
+    AddSC_Boss_Lihuvim();
+    AddSC_Boss_Prototype_Pantheon();
+    //Dominations_Grasp
+    AddSC_Boss_Anduin_Wrynn();
+    AddSC_Boss_Lords_of_Dread();
+    AddSC_Boss_Rygelon();
+    //Ephemeral Plains
+    AddSC_Boss_Artificer_Xymox();
+    AddSC_Boss_Halondrus();
+    AddSC_boss_Skolex();
+    AddSC_Boss_Vigilant_Guardian();
+    //The_Grand_Design
+    AddSC_Boss_The_Jailer();
     //Shadowland
     AddShadowlandsScripts();
 };
