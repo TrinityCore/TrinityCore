@@ -354,11 +354,14 @@ void WorldSession::DoLootRelease(Loot* loot)
 
         if (loot->isLooted())
         {
-            creature->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
+            if (creature->IsFullyLooted())
+            {
+                creature->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 
-            // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
-            if (!creature->IsAlive())
-                creature->AllLootRemovedFromCorpse();
+                // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
+                if (!creature->IsAlive())
+                    creature->AllLootRemovedFromCorpse();
+            }
         }
         else
         {
@@ -368,9 +371,9 @@ void WorldSession::DoLootRelease(Loot* loot)
                 loot->roundRobinPlayer.Clear();
                 loot->NotifyLootList(creature->GetMap());
             }
-            // force dynflag update to update looter and lootable info
-            creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags));
         }
+        // force dynflag update to update looter and lootable info
+        creature->ForceUpdateFieldChange(creature->m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags));
     }
 }
 

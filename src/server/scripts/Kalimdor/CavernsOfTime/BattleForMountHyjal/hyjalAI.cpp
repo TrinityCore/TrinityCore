@@ -433,7 +433,7 @@ void hyjalAI::EnterEvadeMode(EvadeReason /*why*/)
     if (me->IsAlive())
         me->GetMotionMaster()->MoveTargetedHome();
 
-    me->SetLootRecipient(nullptr);
+    me->SetTappedBy(nullptr);
 }
 
 void hyjalAI::JustEngagedWith(Unit* /*who*/)

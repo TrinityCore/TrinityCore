@@ -523,7 +523,7 @@ struct boss_the_lich_king : public BossAI
             me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING_LK, TirionSpawn, TEMPSUMMON_MANUAL_DESPAWN);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
         _JustDied();
         DoCastAOE(SPELL_PLAY_MOVIE, false);
@@ -535,7 +535,7 @@ struct boss_the_lich_king : public BossAI
         me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_FOG, 0.0f);
 
         if (Is25ManRaid())
-            if (Player* player = me->GetLootRecipient())
+            if (Player* player = Object::ToPlayer(killer))
                 player->RewardPlayerAndGroupAtEvent(NPC_THE_LICH_KING_QUEST, player);
     }
 

@@ -1006,7 +1006,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     }
     data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
     data << uint32(Flags2);
-    data << uint32(Flags3);
+    data << uint32(ViewerDependentValue<Flags3Tag>::GetValue(this, owner, receiver));
     data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(this, owner, receiver));
     for (uint32 i = 0; i < 2; ++i)
     {
@@ -1397,7 +1397,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[45])
         {
-            data << uint32(Flags3);
+            data << uint32(ViewerDependentValue<Flags3Tag>::GetValue(this, owner, receiver));
         }
         if (changesMask[46])
         {

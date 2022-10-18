@@ -27,7 +27,6 @@
 class GameObject;
 class GameObjectAI;
 class GameObjectModel;
-class Group;
 class OPvPCapturePoint;
 class Transport;
 class TransportBase;
@@ -281,11 +280,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         std::unique_ptr<Loot> m_loot;
         std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> m_personalLoot;
 
-        Player* GetLootRecipient() const;
-        Group* GetLootRecipientGroup() const;
-        void SetLootRecipient(Unit* unit, Group* group = nullptr);
+        GuidUnorderedSet const& GetTapList() const { return m_tapList; }
+        void SetTapList(GuidUnorderedSet tapList) { m_tapList = std::move(tapList); }
         bool IsLootAllowedFor(Player const* player) const;
-        bool HasLootRecipient() const { return !m_lootRecipient.IsEmpty() || !m_lootRecipientGroup.IsEmpty(); }
+        bool HasLootRecipient() const { return !m_tapList.empty(); }
         Loot* GetLootForPlayer(Player const* /*player*/) const override;
 
         GameObject* GetLinkedTrap();
@@ -427,8 +425,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         QuaternionData m_localRotation;
         Position m_stationaryPosition;
 
-        ObjectGuid m_lootRecipient;
-        ObjectGuid m_lootRecipientGroup;
+        GuidUnorderedSet m_tapList;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
 
         ObjectGuid m_linkedTrap;

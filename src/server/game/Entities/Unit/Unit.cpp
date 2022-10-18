@@ -44,6 +44,7 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
+#include "KillRewarder.h"
 #include "Log.h"
 #include "Loot.h"
 #include "LootMgr.h"
@@ -873,8 +874,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
     if (victim->GetTypeId() != TYPEID_PLAYER && (!victim->IsControlledByPlayer() || victim->IsVehicle()))
     {
-        if (!victim->ToCreature()->hasLootRecipient())
-            victim->ToCreature()->SetLootRecipient(attacker);
+        victim->ToCreature()->SetTappedBy(attacker);
 
         if (!attacker || attacker->IsControlledByPlayer())
             victim->ToCreature()->LowerPlayerDamageReq(health < damage ?  health : damage);
@@ -10585,36 +10585,13 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
     bool isRewardAllowed = true;
     if (creature)
-    {
-        isRewardAllowed = creature->IsDamageEnoughForLootingAndReward();
-        if (!isRewardAllowed)
-            creature->SetLootRecipient(nullptr);
-    }
+        isRewardAllowed = !creature->GetTapList().empty();
 
+    std::vector<Player*> tappers;
     if (isRewardAllowed && creature)
-    {
-        if (Player* lootRecipient = creature->GetLootRecipient())
-        {
-            // Loot recipient can be in a different map
-            if (!creature->IsInMap(lootRecipient))
-            {
-                if (Group* group = creature->GetLootRecipientGroup())
-                {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                    {
-                        Player* member = itr->GetSource();
-                        if (!member || !creature->IsInMap(member))
-                            continue;
-
-                        player = member;
-                        break;
-                    }
-                }
-            }
-            else
-                player = creature->GetLootRecipient();
-        }
-    }
+        for (ObjectGuid tapperGuid : creature->GetTapList())
+            if (Player* tapper = ObjectAccessor::GetPlayer(*creature, tapperGuid))
+                tappers.push_back(tapper);
 
     // Exploit fix
     if (creature && creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
@@ -10622,59 +10599,87 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
     // Reward player, his pets, and group/raid members
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-    if (isRewardAllowed && player && player != victim)
+    if (isRewardAllowed)
     {
         WorldPackets::Party::PartyKillLog partyKillLog;
         partyKillLog.Player = player->GetGUID();
         partyKillLog.Victim = victim->GetGUID();
+        partyKillLog.Write();
 
-        Player* looter = player;
-        Group* group = player->GetGroup();
-
-        if (group)
+        std::unordered_set<Group*> groups;
+        for (Player* tapper : tappers)
         {
-            group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
-
-            if (creature)
+            if (Group* tapperGroup = tapper->GetGroup())
             {
-                group->UpdateLooterGuid(creature, true);
-                if (!group->GetLooterGuid().IsEmpty())
+                if (groups.insert(tapperGroup).second)
                 {
-                    looter = ObjectAccessor::FindPlayer(group->GetLooterGuid());
-                    if (looter)
-                        creature->SetLootRecipient(looter);   // update creature loot recipient to the allowed looter.
+                    tapperGroup->BroadcastPacket(partyKillLog.GetRawPacket(), tapperGroup->GetMemberGroup(tapper->GetGUID()) != 0);
+
+                    if (creature)
+                        tapperGroup->UpdateLooterGuid(creature, true);
                 }
             }
+            else
+                tapper->SendDirectMessage(partyKillLog.GetRawPacket());
         }
-        else
-            player->SendDirectMessage(partyKillLog.Write());
 
         // Generate loot before updating looter
         if (creature)
         {
-            creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, group));
-            Loot* loot = creature->m_loot.get();
-            if (creature->GetMap()->Is25ManRaid())
-                loot->maxDuplicates = 3;
-
+            DungeonEncounterEntry const* dungeonEncounter = nullptr;
             if (InstanceScript const* instance = creature->GetInstanceScript())
-                if (DungeonEncounterEntry const* dungeonEncounter = instance->GetBossDungeonEncounter(creature))
+                dungeonEncounter = instance->GetBossDungeonEncounter(creature);
+
+            if (creature->GetMap()->IsDungeon())
+            {
+                Group* group = !groups.empty() ? *groups.begin() : nullptr;
+                Player* looter = group ? ASSERT_NOTNULL(ObjectAccessor::GetPlayer(*creature, group->GetLooterGuid())) : tappers[0];
+
+                Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, dungeonEncounter ? group : nullptr);
+
+                if (dungeonEncounter)
                     loot->SetDungeonEncounterId(dungeonEncounter->ID);
 
-            if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
-                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
+                if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+                    loot->FillLoot(lootid, LootTemplates_Creature, looter, dungeonEncounter != nullptr, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
 
-            if (creature->GetLootMode() > 0)
-                loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+                if (creature->GetLootMode() > 0)
+                    loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
 
-            loot->NotifyLootList(creature->GetMap());
+                if (group)
+                    loot->NotifyLootList(creature->GetMap());
 
-            // Update round robin looter only if the creature had loot
-            if (group && !loot->empty())
-                group->UpdateLooterGuid(creature);
+                if (dungeonEncounter || groups.empty())
+                    creature->m_loot.reset(loot);   // TODO: personal boss loot
+                else
+                    creature->m_personalLoot[looter->GetGUID()].reset(loot);   // trash mob loot is personal, generated with round robin rules
+
+                // Update round robin looter only if the creature had loot
+                if (!loot->isLooted())
+                    for (Group* tapperGroup : groups)
+                        tapperGroup->UpdateLooterGuid(creature);
+            }
+            else
+            {
+                for (Player* tapper : tappers)
+                {
+                    Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, nullptr);
+
+                    if (dungeonEncounter)
+                        loot->SetDungeonEncounterId(dungeonEncounter->ID);
+
+                    if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+                        loot->FillLoot(lootid, LootTemplates_Creature, tapper, true, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
+
+                    if (creature->GetLootMode() > 0)
+                        loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+
+                    creature->m_personalLoot[tapper->GetGUID()].reset(loot);
+                }
+            }
         }
 
-        player->RewardPlayerAndGroupAtKill(victim, false);
+        KillRewarder(Trinity::IteratorPair(tappers.data(), tappers.data() + tappers.size()), victim, false).Reward();
     }
 
     // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
@@ -10689,11 +10694,9 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     {
         Unit::ProcSkillsAndAuras(attacker, victim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
-        if (player && player->GetGroup())
-            for (GroupReference* itr = player->GetGroup()->GetFirstMember(); itr != nullptr; itr = itr->next())
-                if (Player* member = itr->GetSource())
-                    if (member->IsAtGroupRewardDistance(victim))
-                        Unit::ProcSkillsAndAuras(member, victim, { PROC_FLAG_NONE, PROC_FLAG_2_TARGET_DIES }, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+        for (Player* tapper : tappers)
+            if (tapper->IsAtGroupRewardDistance(victim))
+                Unit::ProcSkillsAndAuras(tapper, victim, { PROC_FLAG_NONE, PROC_FLAG_2_TARGET_DIES }, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
     }
 
     // Proc auras on death - must be before aura/combat remove
@@ -10714,9 +10717,9 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     // Inform pets (if any) when player kills target)
     // MUST come after victim->setDeathState(JUST_DIED); or pet next target
     // selection will get stuck on same target and break pet react state
-    if (player)
+    for (Player* tapper : tappers)
     {
-        Pet* pet = player->GetPet();
+        Pet* pet = tapper->GetPet();
         if (pet && pet->IsAlive() && pet->isControlled())
         {
             if (pet->IsAIEnabled())
@@ -10764,10 +10767,16 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
         if (!creature->IsPet())
         {
             // must be after setDeathState which resets dynamic flags
-            if (creature->m_loot && !creature->m_loot->isLooted())
+            if (!creature->IsFullyLooted())
                 creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
             else
                 creature->AllLootRemovedFromCorpse();
+
+            if (LootTemplates_Skinning.HaveLootFor(creature->GetCreatureTemplate()->SkinLootId))
+            {
+                creature->SetDynamicFlag(UNIT_DYNFLAG_CAN_SKIN);
+                creature->SetUnitFlag(UNIT_FLAG_SKINNABLE);
+            }
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
