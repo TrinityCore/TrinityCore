@@ -3733,12 +3733,12 @@ void Spell::EffectSkinning()
 
     uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
-    creature->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
+    creature->SetUnitFlag3(UNIT_FLAG3_ALREADY_SKINNED);
     creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
-    creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_SKINNING, nullptr));
-    creature->m_loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
-    creature->SetLootRecipient(player, false);
-    player->SendLoot(*creature->m_loot);
+    Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_SKINNING, nullptr);
+    creature->m_personalLoot[player->GetGUID()].reset(loot);
+    loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
+    player->SendLoot(*loot);
 
     if (skill == SKILL_SKINNING)
     {
