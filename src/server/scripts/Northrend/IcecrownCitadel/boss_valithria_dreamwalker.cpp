@@ -318,7 +318,7 @@ struct boss_valithria_dreamwalker : public ScriptedAI
     void HealReceived(Unit* healer, uint32& heal) override
     {
         if (!me->hasLootRecipient())
-            me->SetLootRecipient(healer);
+            me->SetTappedBy(healer);
 
         me->LowerPlayerDamageReq(heal);
 

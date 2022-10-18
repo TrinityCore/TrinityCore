@@ -613,7 +613,7 @@ void LootRoll::Finish(RollVoteMap::const_iterator winnerItr)
 // --------- Loot ---------
 //
 
-Loot::Loot(Map* map, ObjectGuid owner, LootType type, Group const* group) : gold(0), unlootedCount(0), loot_type(type), maxDuplicates(1),
+Loot::Loot(Map* map, ObjectGuid owner, LootType type, Group const* group) : gold(0), unlootedCount(0), loot_type(type),
     _guid(map ? ObjectGuid::Create<HighGuid::LootObject>(map->GetId(), 0, map->GenerateLowGuid<HighGuid::LootObject>()) : ObjectGuid::Empty),
     _owner(owner), _itemContext(ItemContext::NONE), _lootMethod(group ? group->GetLootMethod() : FREE_FOR_ALL),
     _lootMaster(group ? group->GetMasterLooterGuid() : ObjectGuid::Empty), _wasOpened(false), _dungeonEncounterId(0)
@@ -622,25 +622,10 @@ Loot::Loot(Map* map, ObjectGuid owner, LootType type, Group const* group) : gold
 
 Loot::~Loot()
 {
-    clear();
-}
-
-void Loot::clear()
-{
-    PlayerFFAItems.clear();
-
-    for (ObjectGuid playerGuid : PlayersLooting)
+    GuidSet activeLooters = std::move(PlayersLooting);
+    for (ObjectGuid playerGuid : activeLooters)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(playerGuid))
             player->GetSession()->DoLootRelease(this);
-    PlayersLooting.clear();
-
-    items.clear();
-    gold = 0;
-    unlootedCount = 0;
-    roundRobinPlayer.Clear();
-    loot_type = LOOT_NONE;
-    _itemContext = ItemContext::NONE;
-    _rolls.clear();
 }
 
 void Loot::NotifyLootList(Map const* map) const

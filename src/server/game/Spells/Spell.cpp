@@ -1659,7 +1659,8 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffectInfo const& spellEffect
             break;
         case TARGET_UNIT_TARGET_TAP_LIST:
             if (Creature* creatureCaster = m_caster->ToCreature())
-                target = creatureCaster->GetLootRecipient();
+                if (!creatureCaster->GetTapList().empty())
+                    target = ObjectAccessor::GetWorldObject(*creatureCaster, Trinity::Containers::SelectRandomContainerElement(creatureCaster->GetTapList()));
             break;
         case TARGET_UNIT_OWN_CRITTER:
             if (Unit const* unitCaster = m_caster->ToUnit())
@@ -2857,8 +2858,8 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
                 if (spell->m_spellInfo->HasAttribute(SPELL_ATTR6_TAPS_IMMEDIATELY))
                     if (Creature* targetCreature = unit->ToCreature())
-                        if (!targetCreature->hasLootRecipient() && unitCaster->IsPlayer())
-                            targetCreature->SetLootRecipient(unitCaster);
+                        if (unitCaster->IsPlayer())
+                            targetCreature->SetTappedBy(unitCaster);
             }
 
             if (!spell->m_spellInfo->HasAttribute(SPELL_ATTR3_DO_NOT_TRIGGER_TARGET_STAND) && !unit->IsStandState())
@@ -5998,7 +5999,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
                 Loot* loot = creature->GetLootForPlayer(m_caster->ToPlayer());
-                if (loot && !loot->isLooted())
+                if (loot && (!loot->isLooted() || loot->loot_type == LOOT_SKINNING))
                     return SPELL_FAILED_TARGET_NOT_LOOTED;
 
                 uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();

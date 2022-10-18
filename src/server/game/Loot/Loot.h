@@ -271,7 +271,6 @@ struct TC_GAME_API Loot
     uint8 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
-    uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
     explicit Loot(Map* map, ObjectGuid owner, LootType type, Group const* group);
     ~Loot();
@@ -288,9 +287,6 @@ struct TC_GAME_API Loot
     uint32 GetDungeonEncounterId() const { return _dungeonEncounterId; }
     void SetDungeonEncounterId(uint32 dungeonEncounterId) { _dungeonEncounterId = dungeonEncounterId; }
 
-    void clear();
-
-    bool empty() const { return items.empty() && gold == 0; }
     bool isLooted() const { return gold == 0 && unlootedCount == 0; }
 
     void NotifyLootList(Map const* map) const;

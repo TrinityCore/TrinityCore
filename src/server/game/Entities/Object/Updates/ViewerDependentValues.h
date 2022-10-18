@@ -67,8 +67,6 @@ public:
         value_type dynamicFlags = objectData->DynamicFlags;
         if (Unit const* unit = object->ToUnit())
         {
-            dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
-
             if (Creature const* creature = object->ToCreature())
             {
                 if (creature->hasLootRecipient() && !creature->isTappedBy(receiver))
@@ -76,6 +74,9 @@ public:
 
                 if (!receiver->isAllowedToLoot(creature))
                     dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
+
+                if (dynamicFlags & UNIT_DYNFLAG_CAN_SKIN && creature->IsSkinnedBy(receiver))
+                    dynamicFlags &= ~UNIT_DYNFLAG_CAN_SKIN;
             }
 
             // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
@@ -212,6 +213,22 @@ public:
         // Gamemasters should be always able to interact with units - remove uninteractible flag
         if (receiver->IsGameMaster())
             flags &= ~UNIT_FLAG_UNINTERACTIBLE;
+
+        return flags;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::Flags3Tag>
+{
+public:
+    using value_type = UF::UnitData::Flags3Tag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type flags = unitData->Flags3;
+        if (flags & UNIT_FLAG3_ALREADY_SKINNED && unit->IsCreature() && !unit->ToCreature()->IsSkinnedBy(receiver))
+            flags &= ~UNIT_FLAG3_ALREADY_SKINNED;
 
         return flags;
     }
