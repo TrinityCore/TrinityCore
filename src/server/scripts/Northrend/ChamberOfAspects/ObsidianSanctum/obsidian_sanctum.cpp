@@ -323,7 +323,7 @@ struct dummy_dragonAI : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (!_canLoot)
-            me->SetLootRecipient(nullptr);
+            me->SetTappedBy(nullptr);
 
         uint32 spellId = 0;
 

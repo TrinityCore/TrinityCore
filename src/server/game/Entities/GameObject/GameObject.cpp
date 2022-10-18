@@ -34,7 +34,6 @@
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "GroupMgr.h"
 #include "Item.h"
 #include "Log.h"
 #include "Loot.h"
@@ -1419,44 +1418,44 @@ void GameObject::SendGameObjectDespawn()
 
 Loot* GameObject::GetFishLoot(Player* lootOwner)
 {
-    uint32 zone, subzone;
     uint32 defaultzone = 1;
-    GetZoneAndAreaId(zone, subzone);
 
     Loot* fishLoot = new Loot(GetMap(), GetGUID(), LOOT_FISHING, nullptr);
 
-    // if subzone loot exist use it
-    fishLoot->FillLoot(subzone, LootTemplates_Fishing, lootOwner, true, true);
-    if (fishLoot->empty())  //use this becase if zone or subzone has set LOOT_MODE_JUNK_FISH,Even if no normal drop, fishloot->FillLoot return true. it wrong.
+    uint32 areaId = GetAreaId();
+    while (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId))
     {
-        //subzone no result,use zone loot
-        fishLoot->FillLoot(zone, LootTemplates_Fishing, lootOwner, true, true);
-        //use zone 1 as default, somewhere fishing got nothing,becase subzone and zone not set, like Off the coast of Storm Peaks.
-        if (fishLoot->empty())
-            fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true);
+        fishLoot->FillLoot(areaId, LootTemplates_Fishing, lootOwner, true, true);
+        if (!fishLoot->isLooted())
+            break;
+
+        areaId = areaEntry->ParentAreaID;
     }
+
+    if (fishLoot->isLooted())
+        fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true);
 
     return fishLoot;
 }
 
 Loot* GameObject::GetFishLootJunk(Player* lootOwner)
 {
-    uint32 zone, subzone;
     uint32 defaultzone = 1;
-    GetZoneAndAreaId(zone, subzone);
 
     Loot* fishLoot = new Loot(GetMap(), GetGUID(), LOOT_FISHING_JUNK, nullptr);
 
-    // if subzone loot exist use it
-    fishLoot->FillLoot(subzone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
-    if (fishLoot->empty())  //use this becase if zone or subzone has normal mask drop, then fishloot->FillLoot return true.
+    uint32 areaId = GetAreaId();
+    while (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId))
     {
-        //use zone loot
-        fishLoot->FillLoot(zone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
-        if (fishLoot->empty())
-            //use zone 1 as default
-            fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
+        fishLoot->FillLoot(areaId, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
+        if (!fishLoot->isLooted())
+            break;
+
+        areaId = areaEntry->ParentAreaID;
     }
+
+    if (fishLoot->isLooted())
+        fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
 
     return fishLoot;
 }
@@ -3279,49 +3278,6 @@ void GameObject::UpdateModel()
         GetMap()->InsertGameObjectModel(*m_model);
 }
 
-Player* GameObject::GetLootRecipient() const
-{
-    if (!m_lootRecipient)
-        return nullptr;
-    return ObjectAccessor::FindConnectedPlayer(m_lootRecipient);
-}
-
-Group* GameObject::GetLootRecipientGroup() const
-{
-    if (!m_lootRecipientGroup)
-        return nullptr;
-    return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
-}
-
-void GameObject::SetLootRecipient(Unit* unit, Group* group)
-{
-    // set the player whose group should receive the right
-    // to loot the creature after it dies
-    // should be set to nullptr after the loot disappears
-
-    if (!unit)
-    {
-        m_lootRecipient.Clear();
-        m_lootRecipientGroup = group ? group->GetGUID() : ObjectGuid::Empty;
-        return;
-    }
-
-    if (unit->GetTypeId() != TYPEID_PLAYER && !unit->IsVehicle())
-        return;
-
-    Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-    if (!player)                                             // normal creature, no player involved
-        return;
-
-    m_lootRecipient = player->GetGUID();
-
-    // either get the group from the passed parameter or from unit's one
-    if (group)
-        m_lootRecipientGroup = group->GetGUID();
-    else if (Group* unitGroup = player->GetGroup())
-        m_lootRecipientGroup = unitGroup->GetGUID();
-}
-
 bool GameObject::IsLootAllowedFor(Player const* player) const
 {
     if (Loot const* loot = GetLootForPlayer(player)) // check only if loot was already generated
@@ -3332,15 +3288,8 @@ bool GameObject::IsLootAllowedFor(Player const* player) const
             return false;
     }
 
-    if (!m_lootRecipient && !m_lootRecipientGroup)
-        return true;
-
-    if (player->GetGUID() == m_lootRecipient)
-        return true;
-
-    Group const* playerGroup = player->GetGroup();
-    if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
-        return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
+    if (HasLootRecipient())
+        return m_tapList.find(player->GetGUID()) != m_tapList.end();
 
     return true;
 }

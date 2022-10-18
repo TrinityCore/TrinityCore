@@ -1200,7 +1200,7 @@ public:
         }
 
         Loot const* loot = creatureTarget->m_loot.get();
-        if (!creatureTarget->isDead() || !loot || loot->empty())
+        if (!creatureTarget->isDead() || !loot || loot->isLooted())
         {
             handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
             handler->SetSentErrorMessage(true);

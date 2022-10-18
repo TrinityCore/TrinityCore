@@ -327,8 +327,7 @@ struct boss_blood_council_controller : public BossAI
             if (Creature* prince = ObjectAccessor::GetCreature(*me, _invocationOrder[_invocationStage].guid))
             {
                 // Make sure looting is allowed
-                if (me->IsDamageEnoughForLootingAndReward())
-                    prince->LowerPlayerDamageReq(prince->GetMaxHealth());
+                prince->LowerPlayerDamageReq(prince->GetMaxHealth());
                 Unit::Kill(killer, prince);
             }
         }
