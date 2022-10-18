@@ -61,6 +61,7 @@
 #include "StringConvert.h"
 #include "TemporarySummon.h"
 #include "TerrainMgr.h"
+#include "ThreadPool.h"
 #include "Timer.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
@@ -8871,9 +8872,11 @@ void ObjectMgr::LoadGameObjectForQuests()
             case GAMEOBJECT_TYPE_CHEST:
             {
                 // scan GO chest with loot including quest items
-                uint32 lootId = gameObjectTemplatePair.second.GetLootId();
                 // find quest loot for GO
-                if (gameObjectTemplatePair.second.chest.questID || LootTemplates_Gameobject.HaveQuestLootFor(lootId))
+                if (gameObjectTemplatePair.second.chest.questID
+                    || LootTemplates_Gameobject.HaveQuestLootFor(gameObjectTemplatePair.second.chest.chestLoot)
+                    || LootTemplates_Gameobject.HaveQuestLootFor(gameObjectTemplatePair.second.chest.chestPersonalLoot)
+                    || LootTemplates_Gameobject.HaveQuestLootFor(gameObjectTemplatePair.second.chest.chestPushLoot))
                     break;
                 continue;
             }
@@ -10904,25 +10907,29 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
         return;
     }
 
+    Trinity::ThreadPool pool;
+
     // Initialize Query data for creatures
     if (mask & QUERY_DATA_CREATURES)
         for (auto& creatureTemplatePair : _creatureTemplateStore)
-            creatureTemplatePair.second.InitializeQueryData();
+            pool.PostWork([creature = &creatureTemplatePair.second]() { creature->InitializeQueryData(); });
 
     // Initialize Query Data for gameobjects
     if (mask & QUERY_DATA_GAMEOBJECTS)
         for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
-            gameObjectTemplatePair.second.InitializeQueryData();
+            pool.PostWork([gobj = &gameObjectTemplatePair.second]() { gobj->InitializeQueryData(); });
 
     // Initialize Query Data for quests
     if (mask & QUERY_DATA_QUESTS)
         for (auto& questTemplatePair : _questTemplates)
-            questTemplatePair.second.InitializeQueryData();
+            pool.PostWork([quest = &questTemplatePair.second]() { quest->InitializeQueryData(); });
 
     // Initialize Quest POI data
     if (mask & QUERY_DATA_POIS)
-        for (auto& poiPair : _questPOIStore)
-            poiPair.second.InitializeQueryData();
+        for (auto& poiWrapperPair : _questPOIStore)
+            pool.PostWork([poi = &poiWrapperPair.second]() { poi->InitializeQueryData(); });
+
+    pool.Join();
 
     TC_LOG_INFO("server.loading", ">> Initialized query cache data in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }

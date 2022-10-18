@@ -1842,7 +1842,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetLastPotionId() const { return m_lastPotionId; }
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = nullptr);
-        void UpdateReviveBattlePetCooldown();
 
         void SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura);
         void ClearResurrectRequestData()
@@ -2168,7 +2167,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool IsAtGroupRewardDistance(WorldObject const* pRewardSource) const;
         bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
-        void RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround);
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
         bool isHonorOrXPTarget(Unit const* victim) const;
 

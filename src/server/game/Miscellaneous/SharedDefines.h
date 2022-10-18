@@ -5667,7 +5667,7 @@ enum UnitDynFlags
     UNIT_DYNFLAG_TRACK_UNIT                 = 0x0008,
     UNIT_DYNFLAG_TAPPED                     = 0x0010, // Lua_UnitIsTapped
     UNIT_DYNFLAG_SPECIALINFO                = 0x0020,
-    UNIT_DYNFLAG_UNUSED                     = 0x0040, // previously UNIT_DYNFLAG_DEAD
+    UNIT_DYNFLAG_CAN_SKIN                   = 0x0040,
     UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0080
 };
 

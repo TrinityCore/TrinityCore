@@ -528,6 +528,8 @@ public:
         displayId = gameObjectInfo->displayId;
         name = gameObjectInfo->name;
         lootId = gameObjectInfo->GetLootId();
+        if (type == GAMEOBJECT_TYPE_CHEST && !lootId)
+            lootId = gameObjectInfo->chest.chestPersonalLoot;
 
         // If we have a real object, send some info about it
         if (thisGO)
