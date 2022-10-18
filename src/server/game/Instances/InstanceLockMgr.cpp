@@ -21,8 +21,8 @@
 #include "Errors.h"
 #include "GameTime.h"
 #include "Log.h"
+#include "Map.h" // for TransferAbortReason
 #include "MapManager.h"
-#include "Player.h" // for TransferAbortReason
 #include "World.h"
 
 InstanceLockData::InstanceLockData() = default;

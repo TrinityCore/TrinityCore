@@ -573,70 +573,78 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     bool teleported = false;
     if (player->GetMapId() != at->target_mapId)
     {
-        if (Map::EnterState denyReason = Map::PlayerCannotEnter(at->target_mapId, player, false))
+        if (!player->IsAlive())
         {
-            bool reviveAtTrigger = false; // should we revive the player if he is trying to enter the correct instance?
-            switch (denyReason)
+            if (player->HasCorpse())
             {
-                case Map::CANNOT_ENTER_NO_ENTRY:
+                // let enter in ghost mode in instance that connected to inner instance with corpse
+                uint32 corpseMap = player->GetCorpseLocation().GetMapId();
+                do
+                {
+                    if (corpseMap == at->target_mapId)
+                        break;
+
+                    InstanceTemplate const* corpseInstance = sObjectMgr->GetInstanceTemplate(corpseMap);
+                    corpseMap = corpseInstance ? corpseInstance->Parent : 0;
+                } while (corpseMap);
+
+                if (!corpseMap)
+                {
+                    SendPacket(WorldPackets::AreaTrigger::AreaTriggerNoCorpse().Write());
+                    return;
+                }
+
+                TC_LOG_DEBUG("maps", "MAP: Player '%s' has corpse in instance %u and can enter.", player->GetName().c_str(), at->target_mapId);
+            }
+            else
+                TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName().c_str());
+        }
+
+        if (TransferAbortParams denyReason = Map::PlayerCannotEnter(at->target_mapId, player))
+        {
+            switch (denyReason.Reason)
+            {
+                case TRANSFER_ABORT_MAP_NOT_ALLOWED:
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter map with id %d which has no entry", player->GetName().c_str(), at->target_mapId);
                     break;
-                case Map::CANNOT_ENTER_UNINSTANCED_DUNGEON:
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter dungeon map %d but no instance template was found", player->GetName().c_str(), at->target_mapId);
-                    break;
-                case Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE:
+                case TRANSFER_ABORT_DIFFICULTY:
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter instance map %d but the requested difficulty was not found", player->GetName().c_str(), at->target_mapId);
-                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
-                        player->SendTransferAborted(entry->ID, TRANSFER_ABORT_DIFFICULTY, player->GetDifficultyID(entry));
                     break;
-                case Map::CANNOT_ENTER_NOT_IN_RAID:
+                case TRANSFER_ABORT_NEED_GROUP:
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter map %d", player->GetName().c_str(), at->target_mapId);
                     player->SendRaidGroupOnlyMessage(RAID_GROUP_ERR_ONLY, 0);
-                    reviveAtTrigger = true;
                     break;
-                case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
-                    SendPacket(WorldPackets::AreaTrigger::AreaTriggerNoCorpse().Write());
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance map %d and cannot enter", player->GetName().c_str(), at->target_mapId);
-                    break;
-                case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE);
+                case TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE:
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because their permanent bind is incompatible with their group's", player->GetName().c_str(), at->target_mapId);
-                    reviveAtTrigger = true;
                     break;
-                case Map::CANNOT_ENTER_ALREADY_COMPLETED_ENCOUNTER:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER);
+                case TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER:
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because their permanent bind is incompatible with their group's", player->GetName().c_str(), at->target_mapId);
-                    reviveAtTrigger = true;
                     break;
-                case Map::CANNOT_ENTER_TOO_MANY_INSTANCES:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_TOO_MANY_INSTANCES);
+                case TRANSFER_ABORT_TOO_MANY_INSTANCES:
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because he has exceeded the maximum number of instances per hour.", player->GetName().c_str(), at->target_mapId);
-                    reviveAtTrigger = true;
                     break;
-                case Map::CANNOT_ENTER_MAX_PLAYERS:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_MAX_PLAYERS);
-                    reviveAtTrigger = true;
+                case TRANSFER_ABORT_MAX_PLAYERS:
                     break;
-                case Map::CANNOT_ENTER_ZONE_IN_COMBAT:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ZONE_IN_COMBAT);
-                    reviveAtTrigger = true;
+                case TRANSFER_ABORT_ZONE_IN_COMBAT:
                     break;
-                case Map::CANNOT_ENTER_INSTANCE_SHUTTING_DOWN:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_NOT_FOUND);
+                case TRANSFER_ABORT_NOT_FOUND:
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because instance is resetting.", player->GetName().c_str(), at->target_mapId);
-                    reviveAtTrigger = true;
                     break;
                 default:
                     break;
             }
 
-            if (reviveAtTrigger) // check if the player is touching the areatrigger leading to the map his corpse is on
-                if (!player->IsAlive() && player->HasCorpse())
-                    if (player->GetCorpseLocation().GetMapId() == at->target_mapId)
-                    {
-                        player->ResurrectPlayer(0.5f);
-                        player->SpawnCorpseBones();
-                    }
+            if (denyReason.Reason != TRANSFER_ABORT_NEED_GROUP)
+                player->SendTransferAborted(at->target_mapId, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
+
+            if (!player->IsAlive() && player->HasCorpse())
+            {
+                if (player->GetCorpseLocation().GetMapId() == at->target_mapId)
+                {
+                    player->ResurrectPlayer(0.5f);
+                    player->SpawnCorpseBones();
+                }
+            }
 
             return;
         }

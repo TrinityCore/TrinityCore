@@ -24,6 +24,7 @@
 
 #include "ScriptMgr.h"
 #include "Battleground.h"
+#include "BattlePetMgr.h"
 #include "CellImpl.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
@@ -5021,6 +5022,48 @@ class spell_summon_battle_pet : public SpellScript
     }
 };
 
+// 132334 - Trainer Heal Cooldown (SERVERSIDE)
+class spell_gen_trainer_heal_cooldown : public AuraScript
+{
+    PrepareAuraScript(spell_gen_trainer_heal_cooldown);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ BattlePets::SPELL_REVIVE_BATTLE_PETS });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void UpdateReviveBattlePetCooldown(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* target = GetUnitOwner()->ToPlayer();
+        SpellInfo const* reviveBattlePetSpellInfo = sSpellMgr->AssertSpellInfo(BattlePets::SPELL_REVIVE_BATTLE_PETS, DIFFICULTY_NONE);
+
+        if (target->GetSession()->GetBattlePetMgr()->IsBattlePetSystemEnabled())
+        {
+            Milliseconds expectedCooldown = Milliseconds(GetAura()->GetMaxDuration());
+            SpellHistory::Duration remainingCooldown = target->GetSpellHistory()->GetRemainingCategoryCooldown(reviveBattlePetSpellInfo);
+            if (remainingCooldown > SpellHistory::Duration::zero())
+            {
+                if (remainingCooldown < expectedCooldown)
+                    target->GetSpellHistory()->ModifyCooldown(reviveBattlePetSpellInfo, expectedCooldown - remainingCooldown);
+            }
+            else
+            {
+                target->GetSpellHistory()->StartCooldown(reviveBattlePetSpellInfo, 0, nullptr, false, expectedCooldown);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_trainer_heal_cooldown::UpdateReviveBattlePetCooldown, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 45313 - Anchor Here
 class spell_gen_anchor_here : public SpellScript
 {
@@ -5138,6 +5181,47 @@ class spell_gen_eject_passengers_3_8 : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_gen_eject_passengers_3_8::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 83781 - Reverse Cast Ride Vehicle
+class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
+{
+    PrepareSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->GetEffect(effIndex).CalcValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_reverse_cast_target_to_caster_triggered::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// Note: this spell unsummons any creature owned by the caster. Set appropriate target conditions on the DB.
+// 84065 - Despawn All Summons
+// 83935 - Despawn All Summons
+// 160938 - Despawn All Summons (Garrison Intro Only)
+class spell_gen_despawn_all_summons_owned_by_caster : public SpellScript
+{
+    PrepareSpellScript(spell_gen_despawn_all_summons_owned_by_caster);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            Creature* target = GetHitCreature();
+
+            if (target->GetOwner() == caster)
+                target->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_despawn_all_summons_owned_by_caster::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -5295,8 +5379,11 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_defender_of_azeroth_death_gate_selector);
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);
     RegisterSpellScript(spell_summon_battle_pet);
+    RegisterSpellScript(spell_gen_trainer_heal_cooldown);
     RegisterSpellScript(spell_gen_anchor_here);
     RegisterSpellScript(spell_gen_mount_check_aura);
     RegisterSpellScript(spell_gen_ancestral_call);
     RegisterSpellScript(spell_gen_eject_passengers_3_8);
+    RegisterSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
+    RegisterSpellScript(spell_gen_despawn_all_summons_owned_by_caster);
 }

@@ -462,7 +462,7 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     if (azeriteItemMask.IsAnySet())
         valuesMask.Set(TYPEID_AZERITE_ITEM);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -478,7 +478,7 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
 }
 
 void AzeriteItem::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

@@ -61,6 +61,7 @@
 #include "StringConvert.h"
 #include "TemporarySummon.h"
 #include "TerrainMgr.h"
+#include "ThreadPool.h"
 #include "Timer.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
@@ -8871,9 +8872,11 @@ void ObjectMgr::LoadGameObjectForQuests()
             case GAMEOBJECT_TYPE_CHEST:
             {
                 // scan GO chest with loot including quest items
-                uint32 lootId = gameObjectTemplatePair.second.GetLootId();
                 // find quest loot for GO
-                if (gameObjectTemplatePair.second.chest.questID || LootTemplates_Gameobject.HaveQuestLootFor(lootId))
+                if (gameObjectTemplatePair.second.chest.questID
+                    || LootTemplates_Gameobject.HaveQuestLootFor(gameObjectTemplatePair.second.chest.chestLoot)
+                    || LootTemplates_Gameobject.HaveQuestLootFor(gameObjectTemplatePair.second.chest.chestPersonalLoot)
+                    || LootTemplates_Gameobject.HaveQuestLootFor(gameObjectTemplatePair.second.chest.chestPushLoot))
                     break;
                 continue;
             }
@@ -9616,8 +9619,8 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
-        //      0       1         2           3           4                      5              6         7             8            9         10        11       12
-        "SELECT MenuID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, OptionNpcFlag, Language, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
+        //      0       1         2          3           4                      5         6             7            8         9         10       11
+        "SELECT MenuID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
         "FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
     if (!result)
@@ -9637,14 +9640,13 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.OptionNpc             = GossipOptionNpc(fields[2].GetUInt8());
         gMenuItem.OptionText            = fields[3].GetString();
         gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
-        gMenuItem.OptionNpcFlag         = fields[5].GetUInt64();
-        gMenuItem.Language              = fields[6].GetUInt32();
-        gMenuItem.ActionMenuID          = fields[7].GetUInt32();
-        gMenuItem.ActionPoiID           = fields[8].GetUInt32();
-        gMenuItem.BoxCoded              = fields[9].GetBool();
-        gMenuItem.BoxMoney              = fields[10].GetUInt32();
-        gMenuItem.BoxText               = fields[11].GetString();
-        gMenuItem.BoxBroadcastTextID    = fields[12].GetUInt32();
+        gMenuItem.Language              = fields[5].GetUInt32();
+        gMenuItem.ActionMenuID          = fields[6].GetUInt32();
+        gMenuItem.ActionPoiID           = fields[7].GetUInt32();
+        gMenuItem.BoxCoded              = fields[8].GetBool();
+        gMenuItem.BoxMoney              = fields[9].GetUInt32();
+        gMenuItem.BoxText               = fields[10].GetString();
+        gMenuItem.BoxBroadcastTextID    = fields[11].GetUInt32();
 
         if (gMenuItem.OptionNpc >= GossipOptionNpc::Count)
         {
@@ -9702,7 +9704,7 @@ void ObjectMgr::LoadGossipMenuItems()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " gossip_menu_option entries in %u ms", _gossipMenuItemsStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadGossipMenuFriendshipFactions()
+void ObjectMgr::LoadGossipMenuAddon()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -9743,6 +9745,44 @@ void ObjectMgr::LoadGossipMenuFriendshipFactions()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_addon IDs in %u ms", uint32(_gossipMenuAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadGossipMenuItemAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _gossipMenuItemAddonStore.clear();
+
+    //                                               0       1         2
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionId, GarrTalentTreeID FROM gossip_menu_option_addon");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_option_addon IDs. DB table `gossip_menu_option_addon` is empty!");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 menuId = fields[0].GetUInt32();
+        uint32 optionId = fields[1].GetUInt32();
+        GossipMenuItemAddon& addon = _gossipMenuItemAddonStore[{ menuId, optionId }];
+        if (!fields[2].IsNull())
+        {
+            addon.GarrTalentTreeID = fields[2].GetInt32();
+
+            if (!sGarrTalentTreeStore.LookupEntry(*addon.GarrTalentTreeID))
+            {
+                TC_LOG_ERROR("sql.sql", "Table gossip_menu_option_addon: MenuID %u OptionID %u is using non-existing GarrTalentTree %d",
+                    menuId, optionId, *addon.GarrTalentTreeID);
+                addon.GarrTalentTreeID.reset();
+            }
+        }
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option_addon IDs in %u ms", uint32(_gossipMenuItemAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
@@ -10867,25 +10907,29 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
         return;
     }
 
+    Trinity::ThreadPool pool;
+
     // Initialize Query data for creatures
     if (mask & QUERY_DATA_CREATURES)
         for (auto& creatureTemplatePair : _creatureTemplateStore)
-            creatureTemplatePair.second.InitializeQueryData();
+            pool.PostWork([creature = &creatureTemplatePair.second]() { creature->InitializeQueryData(); });
 
     // Initialize Query Data for gameobjects
     if (mask & QUERY_DATA_GAMEOBJECTS)
         for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
-            gameObjectTemplatePair.second.InitializeQueryData();
+            pool.PostWork([gobj = &gameObjectTemplatePair.second]() { gobj->InitializeQueryData(); });
 
     // Initialize Query Data for quests
     if (mask & QUERY_DATA_QUESTS)
         for (auto& questTemplatePair : _questTemplates)
-            questTemplatePair.second.InitializeQueryData();
+            pool.PostWork([quest = &questTemplatePair.second]() { quest->InitializeQueryData(); });
 
     // Initialize Quest POI data
     if (mask & QUERY_DATA_POIS)
-        for (auto& poiPair : _questPOIStore)
-            poiPair.second.InitializeQueryData();
+        for (auto& poiWrapperPair : _questPOIStore)
+            pool.PostWork([poi = &poiWrapperPair.second]() { poi->InitializeQueryData(); });
+
+    pool.Join();
 
     TC_LOG_INFO("server.loading", ">> Initialized query cache data in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }

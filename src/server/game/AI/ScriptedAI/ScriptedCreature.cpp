@@ -250,7 +250,7 @@ void ScriptedAI::ForceCombatStop(Creature* who, bool reset /*= true*/)
     if (reset)
     {
         who->LoadCreaturesAddon();
-        who->SetLootRecipient(nullptr);
+        who->SetTappedBy(nullptr);
         who->ResetPlayerDamageReq();
         who->SetLastDamagedTime(0);
         who->SetCannotReachTarget(false);
