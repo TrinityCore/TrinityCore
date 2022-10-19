@@ -69,10 +69,10 @@ public:
         {
             if (Creature const* creature = object->ToCreature())
             {
-                if (creature->hasLootRecipient() && !creature->isTappedBy(receiver))
-                    dynamicFlags |= UNIT_DYNFLAG_TAPPED;
+                if (dynamicFlags & UNIT_DYNFLAG_TAPPED && creature->isTappedBy(receiver))
+                    dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
 
-                if (!receiver->isAllowedToLoot(creature))
+                if (dynamicFlags & UNIT_DYNFLAG_LOOTABLE && !receiver->isAllowedToLoot(creature))
                     dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
 
                 if (dynamicFlags & UNIT_DYNFLAG_CAN_SKIN && creature->IsSkinnedBy(receiver))
