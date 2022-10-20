@@ -660,7 +660,12 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 continue;
             }
 
-            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->GetBuyPrice() * discountMod)) : 0;
+            float price = 0;
+            if (!vendorItem->ExtendedCost)
+            {
+                price = floor(itemTemplate->GetBuyPrice() * discountMod);
+                price = itemTemplate->GetBuyPrice() > 0 ? std::max(1.00f, price) : price;
+            }
 
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
@@ -671,7 +676,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             item.Type = vendorItem->Type;
             item.Quantity = leftInStock;
             item.StackCount = itemTemplate->GetBuyCount();
-            item.Price = price;
+            item.Price = uint32(price);
             item.DoNotFilterOnVendor = vendorItem->IgnoreFiltering;
             item.Refundable = itemTemplate->HasFlag(ITEM_FLAG_ITEM_PURCHASE_RECORD) && vendorItem->ExtendedCost && itemTemplate->GetMaxStackSize() == 1;
 
