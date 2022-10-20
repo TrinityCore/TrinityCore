@@ -546,9 +546,15 @@ public:
         if (!target)
             return false;
 
-        handler->PSendSysMessage("Loot recipient for creature %s (%s, SpawnID " UI64FMTD ") is %s",
-            target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetSpawnId(),
-            target->hasLootRecipient() ? (target->GetLootRecipient() ? target->GetLootRecipient()->GetName().c_str() : "offline") : "no loot recipient");
+        handler->PSendSysMessage("Loot recipients for creature %s (%s, SpawnID " UI64FMTD ") are:",
+            target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetSpawnId());
+
+        for (ObjectGuid tapperGuid : target->GetTapList())
+        {
+            Player* tapper = ObjectAccessor::GetPlayer(*target, tapperGuid);
+            handler->PSendSysMessage("* %s", tapper ? tapper->GetName().c_str() : "offline");
+        }
+
         return true;
     }
 

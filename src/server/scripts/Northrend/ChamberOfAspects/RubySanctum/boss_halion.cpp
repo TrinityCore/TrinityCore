@@ -452,8 +452,7 @@ class boss_twilight_halion : public CreatureScript
                 if (Creature* halion = instance->GetCreature(DATA_HALION))
                 {
                     // Ensure looting
-                    if (me->IsDamageEnoughForLootingAndReward())
-                        halion->LowerPlayerDamageReq(halion->GetMaxHealth());
+                    halion->LowerPlayerDamageReq(halion->GetMaxHealth());
 
                     if (halion->IsAlive())
                         Unit::Kill(killer, halion);

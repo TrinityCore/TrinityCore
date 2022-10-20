@@ -56,24 +56,18 @@ LootStore LootTemplates_Spell("spell_loot_template",                 "spell id (
 // Selects invalid loot items to be removed from group possible entries (before rolling)
 struct LootGroupInvalidSelector
 {
-    explicit LootGroupInvalidSelector(Loot const& loot, uint16 lootMode) : _loot(loot), _lootMode(lootMode) { }
+    explicit LootGroupInvalidSelector(Loot const& /*loot*/, uint16 lootMode) : /*_loot(loot),*/ _lootMode(lootMode) { }
 
     bool operator()(LootStoreItem* item) const
     {
         if (!(item->lootmode & _lootMode))
             return true;
 
-        uint8 foundDuplicates = 0;
-        for (std::vector<LootItem>::const_iterator itr = _loot.items.begin(); itr != _loot.items.end(); ++itr)
-            if (itr->itemid == item->itemid)
-                if (++foundDuplicates == _loot.maxDuplicates)
-                    return true;
-
         return false;
     }
 
 private:
-    Loot const& _loot;
+    //Loot const& _loot;
     uint16 _lootMode;
 };
 
@@ -880,16 +874,28 @@ void LoadLootTemplates_Gameobject()
     LootIdSet lootIdSet, lootIdSetUsed;
     uint32 count = LootTemplates_Gameobject.LoadAndCollectLootIds(lootIdSet);
 
+    auto checkLootId = [&](uint32 lootId, uint32 gameObjectId)
+    {
+        if (!lootIdSet.count(lootId))
+            LootTemplates_Gameobject.ReportNonExistingId(lootId, "Gameobject", gameObjectId);
+        else
+            lootIdSetUsed.insert(lootId);
+    };
+
     // remove real entries and check existence loot
     GameObjectTemplateContainer const& gotc = sObjectMgr->GetGameObjectTemplates();
-    for (auto const& gameObjectTemplatePair : gotc)
+    for (auto const& [gameObjectId, gameObjectTemplate] : gotc)
     {
-        if (uint32 lootid = gameObjectTemplatePair.second.GetLootId())
+        if (uint32 lootid = gameObjectTemplate.GetLootId())
+            checkLootId(lootid, gameObjectId);
+
+        if (gameObjectTemplate.type == GAMEOBJECT_TYPE_CHEST)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Gameobject.ReportNonExistingId(lootid, "Gameobject", gameObjectTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (gameObjectTemplate.chest.chestPersonalLoot)
+                checkLootId(gameObjectTemplate.chest.chestPersonalLoot, gameObjectId);
+
+            if (gameObjectTemplate.chest.chestPushLoot)
+                checkLootId(gameObjectTemplate.chest.chestPushLoot, gameObjectId);
         }
     }
 
