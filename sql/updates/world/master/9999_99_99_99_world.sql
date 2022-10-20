@@ -1,0 +1,1 @@
+ALTER TABLE `gossip_menu_option` CHANGE `Unknown905` `WMOGroupId` INT UNSIGNED NOT NULL DEFAULT 0;
