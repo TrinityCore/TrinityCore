@@ -570,7 +570,7 @@ INSERT INTO `creature_trainer` (`CreatureID`, `TrainerID`, `MenuID`, `OptionID`)
 -- Corpse-Fed Rat
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=50141;
 
-UPDATE `creature` SET `wander_distance`=5, `MovementType`=1 WHERE `entry`=50141;
+UPDATE `creature` SET `wander_distance`=5, `MovementType`=1 WHERE `id`=50141;
 
 -- Advisor Sorrelon
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=16288;

@@ -5311,7 +5311,7 @@ enum BloodfangStalker
     SPELL_SHADOWSTEP                            = 79864,
     SPELL_KILL_ME_QUEST                         = 86559,
     SPELL_BLOOD_STRIKE                          = 87359,
-    SPELL_PERMANENT_FEIGN_DEATH                 = 80636,
+    SPELL_PERMANENT_FEIGN_DEATH_BLOODFANG       = 80636,
 
     EVENT_SNIFFING                              = 1,
     EVENT_STRIKE_BOAR                           = 2,
@@ -5342,7 +5342,7 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
 
         if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
         {
-            if (boar->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+            if (boar->HasAura(SPELL_PERMANENT_FEIGN_DEATH_BLOODFANG))
                 _events.ScheduleEvent(EVENT_STRIKE_BOAR, 2s, 12s);
             else
                 _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
@@ -5351,7 +5351,7 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
             _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->RemoveAura(SPELL_STALKING);
         me->RemoveAura(SPELL_KILL_ME_QUEST);
