@@ -664,7 +664,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             if (!vendorItem->ExtendedCost)
             {
                 price = uint64(floor(itemTemplate->GetBuyPrice() * discountMod));
-                price = itemTemplate->GetBuyPrice() > 0 ? std::max(1u, price) : price;
+                price = itemTemplate->GetBuyPrice() > 0 ? std::max(1ULL, price) : price;
             }
 
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
