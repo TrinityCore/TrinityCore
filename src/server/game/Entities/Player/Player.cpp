@@ -22386,6 +22386,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
         // reputation discount
         price = uint64(floor(price * GetReputationPriceDiscount(creature)));
+        price = pProto->GetBuyPrice() > 0 ? std::max(1u, price) : price;
 
         if (int32 priceMod = GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
             price -= CalculatePct(price, priceMod);
