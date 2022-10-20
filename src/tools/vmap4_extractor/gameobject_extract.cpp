@@ -34,6 +34,8 @@ bool ExtractSingleModel(std::string& fname)
         fname.erase(fname.length() - 2, 2);
         fname.append("2");
     }
+    // >= 3.1.0 ADT MMDX section store filename.m2 filenames for corresponded .m2 file
+    // nothing do
 
     std::string originalName = fname;
 
@@ -59,7 +61,7 @@ extern HANDLE LocaleMpq;
 
 void ExtractGameobjectModels()
 {
-    printf("Extracting GameObject models...");
+    printf("Extracting GameObject models...\n");
     DBCFile dbc(LocaleMpq, "DBFilesClient\\GameObjectDisplayInfo.dbc");
     if (!dbc.open())
     {
@@ -89,12 +91,14 @@ void ExtractGameobjectModels()
             continue;
 
         FixNameCase((char*)path.c_str(), path.size());
-        char * name = GetPlainName((char*)path.c_str());
+        char* name = GetPlainName((char*)path.c_str());
         FixNameSpaces(name, strlen(name));
 
-        char * ch_ext = GetExtension(name);
+        char* ch_ext = GetExtension(name);
         if (!ch_ext)
             continue;
+
+        strToLower(ch_ext);
 
         bool result = false;
         uint8 isWmo = 0;
@@ -103,8 +107,11 @@ void ExtractGameobjectModels()
             isWmo = 1;
             result = ExtractSingleWmo(path);
         }
-        else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
+        else if (!strcmp(ch_ext, ".mdl"))
+        {
+            // TODO: extract .mdl files, if needed
             continue;
+        }
         else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
             result = ExtractSingleModel(path);
 

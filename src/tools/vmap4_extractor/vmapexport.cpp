@@ -260,30 +260,13 @@ bool FileExists(char const* file)
     return false;
 }
 
-bool ExtractWmo()
+void strToLower(char* str)
 {
-    bool success = false;
-
-    //char const* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
-
-    SFILE_FIND_DATA data;
-    HANDLE find = SFileFindFirstFile(WorldMpq, "*.wmo", &data, nullptr);
-    if (find != nullptr)
+    while (*str)
     {
-        do
-        {
-            std::string str = data.cFileName;
-            //printf("Extracting wmo %s\n", str.c_str());
-            success |= ExtractSingleWmo(str);
-        }
-        while (SFileFindNextFile(find, &data));
+        *str = tolower(*str);
+        ++str;
     }
-    SFileFindClose(find);
-
-    if (success)
-        printf("\nExtract wmo complete (No (fatal) errors)\n");
-
-    return success;
 }
 
 bool ExtractSingleWmo(std::string& fname)
@@ -344,6 +327,7 @@ bool ExtractSingleWmo(std::string& fname)
             char temp[1024];
             strncpy(temp, fname.c_str(), 1024);
             temp[fname.length()-4] = 0;
+
             char groupFileName[1024];
             sprintf(groupFileName, "%s_%03u.wmo", temp, i);
             //printf("Trying to open groupfile %s\n",groupFileName);
@@ -378,6 +362,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     fseek(output, 8, SEEK_SET); // store the correct no of vertices
     fwrite(&Wmo_nVertices, sizeof(int), 1, output);
+    // store the correct no of groups
     fwrite(&groupCount, sizeof(uint32), 1, output);
     fclose(output);
 

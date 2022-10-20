@@ -36,6 +36,7 @@ extern std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId);
 
 bool FileExists(const char * file);
+void strToLower(char* str);
 
 bool ExtractSingleWmo(std::string& fname);
 bool ExtractSingleModel(std::string& fname);
