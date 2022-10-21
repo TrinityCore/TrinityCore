@@ -150,7 +150,7 @@ class spell_voodoo : public SpellScript
 
 enum Mithaka
 {
-    DATA_DOCKED         = 1,
+    DATA_SHIP_DOCKED    = 1,
     GOSSIP_MENU_MITHAKA = 23225,
     GOSSIP_TEXT_MITHAKA = 35969
 };
@@ -161,7 +161,7 @@ struct npc_mithaka : ScriptedAI
 
     void SetData(uint32 /*type*/, uint32 data) override
     {
-        if (data == DATA_DOCKED)
+        if (data == DATA_SHIP_DOCKED)
             _shipInPort = true;
         else
             _shipInPort = false;
@@ -185,7 +185,3 @@ void AddSC_durotar()
     RegisterSpellScript(spell_voodoo);
     RegisterCreatureAI(npc_mithaka);
 }
-
-
-
-
