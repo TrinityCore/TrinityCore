@@ -297,6 +297,8 @@ void WorldSession::DoLootRelease(Loot* loot)
             }
             else if (go->IsFullyLooted())
                 go->SetLootState(GO_JUST_DEACTIVATED);
+
+            go->OnLootRelease(player);
         }
         else
         {

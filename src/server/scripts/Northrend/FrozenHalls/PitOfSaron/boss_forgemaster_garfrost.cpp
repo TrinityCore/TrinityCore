@@ -274,7 +274,7 @@ private:
             {
                 for (std::list<GameObject*>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                 {
-                    if (!(*itr)->IsInvisibleDueToDespawn())
+                    if (!(*itr)->IsInvisibleDueToDespawn(target))
                     {
                         if ((*itr)->IsInBetween(caster, target, 4.0f))
                         {

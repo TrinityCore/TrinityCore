@@ -303,6 +303,18 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::GameObjectData::StateTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, GameObject const* gameObject, Player const* receiver)
+    {
+        return gameObject->GetGoStateFor(receiver->GetGUID());
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::ConversationData::LastLineEndTimeTag>
 {
 public:
