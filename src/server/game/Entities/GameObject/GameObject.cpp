@@ -3252,6 +3252,8 @@ void GameObject::OnLootRelease(Player* looter)
             }
             break;
         }
+        default:
+            break;
     }
 }
 
