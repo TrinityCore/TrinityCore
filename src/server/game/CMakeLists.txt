@@ -48,6 +48,15 @@ add_library(game
   # tswow-end
   )
 
+# tswow-begin
+target_compile_definitions(game PRIVATE
+  $<$<CONFIG:Debug>:LIVESCRIPT_BUILD_TYPE=\"Debug\">
+  $<$<CONFIG:Release>:LIVESCRIPT_BUILD_TYPE=\"Release\">
+  $<$<CONFIG:RelWithDebInfo>:LIVESCRIPT_BUILD_TYPE=\"RelWithDebInfo\">
+  $<$<CONFIG:MinSizeRel>:LIVESCRIPT_BUILD_TYPE=\"MinSizeRel\">
+)
+# tswow-end
+
 target_include_directories(game
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}
