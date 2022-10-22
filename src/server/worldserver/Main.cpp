@@ -53,6 +53,7 @@
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "TCSoap.h"
+#include "ThreadPool.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
@@ -98,7 +99,10 @@ class FreezeDetector
         static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
         {
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
-            freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, std::weak_ptr<FreezeDetector>(freezeDetector), std::placeholders::_1));
+            freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr<FreezeDetector>(freezeDetector)](boost::system::error_code const& error)
+            {
+                return Handler(freezeDetectorRef, error);
+            });
         }
 
         static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
@@ -118,7 +122,7 @@ void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
 bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext);
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& cfg_service);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
@@ -139,12 +143,12 @@ extern int main(int argc, char** argv)
         return 0;
 
 #ifdef _WIN32
-    if (configService.compare("install") == 0)
-        return WinServiceInstall() == true ? 0 : 1;
-    else if (configService.compare("uninstall") == 0)
-        return WinServiceUninstall() == true ? 0 : 1;
-    else if (configService.compare("run") == 0)
-        WinServiceRun();
+    if (configService == "install")
+        return WinServiceInstall() ? 0 : 1;
+    else if (configService == "uninstall")
+        return WinServiceUninstall() ? 0 : 1;
+    else if (configService == "run")
+        return WinServiceRun() ? 0 : 1;
 
     Optional<UINT> newTimerResolution;
     boost::system::error_code dllError;
@@ -249,20 +253,15 @@ extern int main(int argc, char** argv)
 
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetIntDefault("ThreadPool", 1);
-    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioContext](std::vector<std::thread>* del)
-    {
-        ioContext->stop();
-        for (std::thread& thr : *del)
-            thr.join();
-
-        delete del;
-    });
-
     if (numThreads < 1)
         numThreads = 1;
 
+    std::shared_ptr<Trinity::ThreadPool> threadPool = std::make_shared<Trinity::ThreadPool>(numThreads);
+
     for (int i = 0; i < numThreads; ++i)
-        threadPool->push_back(std::thread([ioContext]() { ioContext->run(); }));
+        threadPool->PostWork([ioContext]() { ioContext->run(); });
+
+    std::shared_ptr<void> ioContextStopHandle(nullptr, [ioContext](void*) { ioContext->stop(); });
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -404,6 +403,8 @@ extern int main(int argc, char** argv)
     WorldUpdateLoop();
 
     // Shutdown starts here
+    ioContextStopHandle.reset();
+
     threadPool.reset();
 
     sLog->SetSynchronous();
@@ -490,6 +491,11 @@ void WorldUpdateLoop()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
+    uint32 maxCoreStuckTime = uint32(sConfigMgr->GetIntDefault("MaxCoreStuckTime", 60)) * 1000;
+    uint32 halfMaxCoreStuckTime = maxCoreStuckTime / 2;
+    if (!halfMaxCoreStuckTime)
+        halfMaxCoreStuckTime = std::numeric_limits<uint32>::max();
+
     LoginDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
@@ -503,8 +509,11 @@ void WorldUpdateLoop()
         uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
         if (diff < minUpdateDiff)
         {
+            uint32 sleepTime = minUpdateDiff - diff;
+            if (sleepTime >= halfMaxCoreStuckTime)
+                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for %u ms with MaxCoreStuckTime set to %u ms", sleepTime, maxCoreStuckTime);
             // sleep until enough time passes that we can update all timers
-            std::this_thread::sleep_for(Milliseconds(minUpdateDiff - diff));
+            std::this_thread::sleep_for(Milliseconds(sleepTime));
             continue;
         }
 
@@ -546,14 +555,21 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 freezeDetector->_worldLoopCounter = worldLoopCounter;
             }
             // possible freeze
-            else if (getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime) > freezeDetector->_maxCoreStuckTimeInMs)
+            else
             {
-                TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
-                ABORT();
+                uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
+                if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
+                {
+                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
+                    ABORT_MSG("World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
+                }
             }
 
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
-            freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, freezeDetectorRef, std::placeholders::_1));
+            freezeDetector->_timer.async_wait([freezeDetectorRef](boost::system::error_code const& timerError)
+            {
+                return Handler(freezeDetectorRef, timerError);
+            });
         }
     }
 }

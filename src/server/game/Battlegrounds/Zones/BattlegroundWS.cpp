@@ -298,6 +298,8 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
 
     SetDroppedFlagGUID(ObjectGuid::Empty, GetTeamIndexByTeamId(team));
     _bothFlagsKept = false;
+    // Check opposing flag if it is in capture zone; if so, capture it
+    HandleFlagRoomCapturePoint(team == ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
 }
 
 void BattlegroundWS::EventPlayerCapturedFlag(Player* player)
@@ -386,6 +388,13 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* player)
     {
         _flagsTimer[GetTeamIndexByTeamId(player->GetTeam()) ? 0 : 1] = BG_WS_FLAG_RESPAWN_TIME;
     }
+}
+void BattlegroundWS::HandleFlagRoomCapturePoint(int32 team)
+{
+    Player* flagCarrier = ObjectAccessor::GetPlayer(GetBgMap(), GetFlagPickerGUID(team));
+    uint32 areaTrigger = team == TEAM_ALLIANCE ? 3647 : 3646;
+    if (flagCarrier && flagCarrier->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(areaTrigger)))
+        EventPlayerCapturedFlag(flagCarrier);
 }
 
 void BattlegroundWS::EventPlayerDroppedFlag(Player* player)
@@ -546,6 +555,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
             PlaySoundToAll(BG_WS_SOUND_FLAG_RETURNED);
             UpdatePlayerScore(player, SCORE_FLAG_RETURNS, 1);
             _bothFlagsKept = false;
+            HandleFlagRoomCapturePoint(TEAM_HORDE); // Check Horde flag if it is in capture zone; if so, capture it
         }
         else
         {
@@ -579,6 +589,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* player, GameObject* target
             PlaySoundToAll(BG_WS_SOUND_FLAG_RETURNED);
             UpdatePlayerScore(player, SCORE_FLAG_RETURNS, 1);
             _bothFlagsKept = false;
+            HandleFlagRoomCapturePoint(TEAM_ALLIANCE); // Check Alliance flag if it is in capture zone; if so, capture it
         }
         else
         {

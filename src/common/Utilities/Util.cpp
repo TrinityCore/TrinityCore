@@ -74,6 +74,8 @@ time_t LocalTimeToUTCTime(time_t time)
 {
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
     return time + _timezone;
+#elif defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+    return timegm(gmtime(&time));
 #else
     return time + timezone;
 #endif

@@ -76,15 +76,19 @@ class npc_zulaman_hostage : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_TANZAR:
+                        InitGossipMenuFor(player, GOSSIP_MENU_TANZAR);
                         AddGossipItemFor(player, GOSSIP_MENU_TANZAR, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                         break;
                     case NPC_HARKOR:
+                        InitGossipMenuFor(player, GOSSIP_MENU_HARKOR);
                         AddGossipItemFor(player, GOSSIP_MENU_HARKOR, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                         break;
                     case NPC_ASHLI:
+                        InitGossipMenuFor(player, GOSSIP_MENU_ASHLI);
                         AddGossipItemFor(player, GOSSIP_MENU_ASHLI, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                         break;
                     case NPC_KRAZ:
+                        InitGossipMenuFor(player, GOSSIP_MENU_KRAZ);
                         AddGossipItemFor(player, GOSSIP_MENU_KRAZ, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                         break;
                 }

@@ -23,12 +23,13 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "zulaman.h"
 
@@ -234,12 +235,8 @@ class boss_janalai : public CreatureScript
             bool HatchAllEggs(uint32 action) //1: reset, 2: isHatching all
             {
                 std::list<Creature*> templist;
-                float x, y, z;
-                me->GetPosition(x, y, z);
 
-                Trinity::AllCreaturesOfEntryInRange check(me, NPC_EGG, 100);
-                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
+                GetCreatureListWithEntryInGrid(templist, me, NPC_EGG, 100.0f);
 
                 //TC_LOG_ERROR("scripts", "Eggs %d at middle", templist.size());
                 if (templist.empty())
@@ -258,12 +255,8 @@ class boss_janalai : public CreatureScript
             void Boom()
             {
                 std::list<Creature*> templist;
-                float x, y, z;
-                me->GetPosition(x, y, z);
 
-                Trinity::AllCreaturesOfEntryInRange check(me, NPC_FIRE_BOMB, 100);
-                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
+                GetCreatureListWithEntryInGrid(templist, me, NPC_FIRE_BOMB, 100.0f);
 
                 for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
                 {
@@ -508,12 +501,8 @@ class npc_janalai_hatcher : public CreatureScript
             bool HatchEggs(uint32 num)
             {
                 std::list<Creature*> templist;
-                float x, y, z;
-                me->GetPosition(x, y, z);
 
-                Trinity::AllCreaturesOfEntryInRange check(me, 23817, 50);
-                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-                Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
+                GetCreatureListWithEntryInGrid(templist, me, NPC_EGG, 50.0f);
 
                 //TC_LOG_ERROR("scripts", "Eggs %d at %d", templist.size(), side);
 

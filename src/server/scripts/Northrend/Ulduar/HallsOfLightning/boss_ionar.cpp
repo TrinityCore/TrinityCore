@@ -65,12 +65,11 @@ enum Misc
 ## Boss Ionar
 ######*/
 
-struct boss_ionar : public ScriptedAI
+struct boss_ionar : public BossAI
 {
-    boss_ionar(Creature* creature) : ScriptedAI(creature), lSparkList(creature)
+    boss_ionar(Creature* creature) : BossAI(creature, DATA_IONAR)
     {
         Initialize();
-        instance = creature->GetInstanceScript();
     }
 
     void Initialize()
@@ -86,23 +85,9 @@ struct boss_ionar : public ScriptedAI
         uiDisperseHealth = 45 + urand(0, 10);
     }
 
-    InstanceScript* instance;
-
-    SummonList lSparkList;
-
-    bool bIsSplitPhase;
-    bool bHasDispersed;
-
-    uint32 uiSplitTimer;
-
-    uint32 uiStaticOverloadTimer;
-    uint32 uiBallLightningTimer;
-
-    uint32 uiDisperseHealth;
-
     void Reset() override
     {
-        lSparkList.DespawnAll();
+        BossAI::Reset();
 
         Initialize();
 
@@ -115,20 +100,16 @@ struct boss_ionar : public ScriptedAI
         instance->SetBossState(DATA_IONAR, NOT_STARTED);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-
-        instance->SetBossState(DATA_IONAR, IN_PROGRESS);
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
+        BossAI::JustDied(killer);
         Talk(SAY_DEATH);
-
-        lSparkList.DespawnAll();
-
-        instance->SetBossState(DATA_IONAR, DONE);
     }
 
     void KilledUnit(Unit* who) override
@@ -158,12 +139,12 @@ struct boss_ionar : public ScriptedAI
     void CallBackSparks()
     {
         //should never be empty here, but check
-        if (lSparkList.empty())
+        if (summons.empty())
             return;
 
         Position pos = me->GetPosition();
 
-        for (ObjectGuid guid : lSparkList)
+        for (ObjectGuid guid : summons)
         {
             if (Creature* pSpark = ObjectAccessor::GetCreature(*me, guid))
             {
@@ -190,7 +171,7 @@ struct boss_ionar : public ScriptedAI
     {
         if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
         {
-            lSparkList.Summon(summoned);
+            summons.Summon(summoned);
 
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
             {
@@ -204,7 +185,7 @@ struct boss_ionar : public ScriptedAI
     void SummonedCreatureDespawn(Creature* summoned) override
     {
         if (summoned->GetEntry() == NPC_SPARK_OF_IONAR)
-            lSparkList.Despawn(summoned);
+            summons.Despawn(summoned);
     }
 
     void UpdateAI(uint32 uiDiff) override
@@ -227,7 +208,7 @@ struct boss_ionar : public ScriptedAI
                     bIsSplitPhase = false;
                 }
                 // Lightning effect and restore Ionar
-                else if (lSparkList.empty())
+                else if (summons.empty())
                 {
                     me->SetVisible(true);
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
@@ -281,6 +262,17 @@ struct boss_ionar : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool bIsSplitPhase;
+    bool bHasDispersed;
+
+    uint32 uiSplitTimer;
+
+    uint32 uiStaticOverloadTimer;
+    uint32 uiBallLightningTimer;
+
+    uint32 uiDisperseHealth;
 };
 
 /*######
@@ -292,17 +284,13 @@ struct npc_spark_of_ionar : public ScriptedAI
     npc_spark_of_ionar(Creature* creature) : ScriptedAI(creature)
     {
         Initialize();
-        instance = creature->GetInstanceScript();
+        _instance = creature->GetInstanceScript();
     }
 
     void Initialize()
     {
         uiCheckTimer = 2 * IN_MILLISECONDS;
     }
-
-    InstanceScript* instance;
-
-    uint32 uiCheckTimer;
 
     void Reset() override
     {
@@ -313,7 +301,7 @@ struct npc_spark_of_ionar : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiPointId) override
     {
-        if (uiType != POINT_MOTION_TYPE || !instance)
+        if (uiType != POINT_MOTION_TYPE || !_instance)
             return;
 
         if (uiPointId == DATA_POINT_CALLBACK)
@@ -323,7 +311,7 @@ struct npc_spark_of_ionar : public ScriptedAI
     void UpdateAI(uint32 uiDiff) override
     {
         // Despawn if the encounter is not running
-        if (instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
+        if (_instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
         {
             me->DespawnOrUnsummon();
             return;
@@ -332,7 +320,7 @@ struct npc_spark_of_ionar : public ScriptedAI
         // Prevent them to follow players through the whole instance
         if (uiCheckTimer <= uiDiff)
         {
-            Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_IONAR));
+            Creature* ionar = _instance->GetCreature(DATA_IONAR);
             if (ionar && ionar->IsAlive())
             {
                 if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)
@@ -354,6 +342,10 @@ struct npc_spark_of_ionar : public ScriptedAI
 
         // No melee attack at all!
     }
+
+private:
+    InstanceScript* _instance;
+    uint32 uiCheckTimer;
 };
 
 void AddSC_boss_ionar()

@@ -53,6 +53,11 @@ enum GOSSIPS
     GOSSIP_ITEM_TYRANDE_OID        = 0
 };
 
+enum NPCTEXTS
+{
+    JAINA_RETREAT_ALLIANCE_BASE    = 5
+};
+
 #define ITEM_TEAR_OF_GODDESS        24494
 
 #define GOSSIP_ITEM_GM1             "[GM] Toggle Debug Timers"
@@ -94,6 +99,7 @@ class npc_jaina_proudmoore : public CreatureScript
                         StartEvent(player);
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 3:
+                        me->AI()->Talk(JAINA_RETREAT_ALLIANCE_BASE);
                         Retreat();
                         break;
                     case GOSSIP_ACTION_INFO_DEF:
@@ -109,19 +115,29 @@ class npc_jaina_proudmoore : public CreatureScript
                 if (EventBegun)
                     return false;
 
-                uint32 RageEncounter = GetInstanceData(DATA_RAGEWINTERCHILLEVENT);
-                uint32 AnetheronEncounter = GetInstanceData(DATA_ANETHERONEVENT);
-                if (RageEncounter == NOT_STARTED)
+                uint32 RageEncounter = instance->GetBossState(DATA_RAGEWINTERCHILL);
+                uint32 AnetheronEncounter = instance->GetBossState(DATA_ANETHERON);
+                if (RageEncounter != DONE && RageEncounter != IN_PROGRESS)
+                {
+                    InitGossipMenuFor(player, GOSSIP_ITEM_BEGIN_ALLY_MID);
                     AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_ALLY_MID, GOSSIP_ITEM_BEGIN_ALLY_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                else if (RageEncounter == DONE && AnetheronEncounter == NOT_STARTED)
+                    SendGossipMenuFor(player, 9168, me->GetGUID());
+                }
+                else if (RageEncounter == DONE && AnetheronEncounter != DONE && AnetheronEncounter != IN_PROGRESS)
+                {
+                    InitGossipMenuFor(player, GOSSIP_ITEM_ANETHERON_MID);
                     AddGossipItemFor(player, GOSSIP_ITEM_ANETHERON_MID, GOSSIP_ITEM_ANETHERON_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    SendGossipMenuFor(player, 9380, me->GetGUID());
+                }
                 else if (RageEncounter == DONE && AnetheronEncounter == DONE)
+                {
+                    InitGossipMenuFor(player, GOSSIP_ITEM_ALLY_RETREAT_MID);
                     AddGossipItemFor(player, GOSSIP_ITEM_ALLY_RETREAT_MID, GOSSIP_ITEM_ALLY_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
+                    SendGossipMenuFor(player, 9387, me->GetGUID());
+                }
                 if (player->IsGameMaster())
                     AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-                SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
             }
         };
@@ -181,24 +197,35 @@ class npc_thrall : public CreatureScript
                 if (EventBegun)
                     return false;
 
-                uint32 AnetheronEvent = GetInstanceData(DATA_ANETHERONEVENT);
+                uint32 AnetheronEvent = instance->GetBossState(DATA_ANETHERON);
                 // Only let them start the Horde phases if Anetheron is dead.
                 if (AnetheronEvent == DONE && GetInstanceData(DATA_ALLIANCE_RETREAT))
                 {
-                    uint32 KazrogalEvent = GetInstanceData(DATA_KAZROGALEVENT);
-                    uint32 AzgalorEvent = GetInstanceData(DATA_AZGALOREVENT);
-                    if (KazrogalEvent == NOT_STARTED)
+                    uint32 KazrogalEvent = instance->GetBossState(DATA_KAZROGAL);
+                    uint32 AzgalorEvent = instance->GetBossState(DATA_AZGALOR);
+                    if (KazrogalEvent != DONE && AzgalorEvent != IN_PROGRESS)
+                    {
+                        InitGossipMenuFor(player, GOSSIP_ITEM_BEGIN_HORDE_MID);
                         AddGossipItemFor(player, GOSSIP_ITEM_BEGIN_HORDE_MID, GOSSIP_ITEM_BEGIN_HORDE_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    else if (KazrogalEvent == DONE && AzgalorEvent == NOT_STARTED)
+                        SendGossipMenuFor(player, 9225, me->GetGUID());
+                    }
+                    else if (KazrogalEvent == DONE && AzgalorEvent != DONE && AzgalorEvent != IN_PROGRESS)
+                    {
+                        InitGossipMenuFor(player, GOSSIP_ITEM_AZGALOR_MID);
                         AddGossipItemFor(player, GOSSIP_ITEM_AZGALOR_MID, GOSSIP_ITEM_AZGALOR_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        SendGossipMenuFor(player, 9396, me->GetGUID());
+                    }
                     else if (AzgalorEvent == DONE)
+                    {
+                        InitGossipMenuFor(player, GOSSIP_ITEM_HORDE_RETREAT_MID);
                         AddGossipItemFor(player, GOSSIP_ITEM_HORDE_RETREAT_MID, GOSSIP_ITEM_HORDE_RETREAT_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        SendGossipMenuFor(player, 9398, me->GetGUID());
+                    }
                 }
 
                 if (player->IsGameMaster())
                     AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-                SendGossipMenuFor(player, 907, me->GetGUID());
                 return true;
             }
         };
@@ -239,12 +266,13 @@ class npc_tyrande_whisperwind : public CreatureScript
 
             bool OnGossipHello(Player* player) override
             {
-                uint32 AzgalorEvent = GetInstanceData(DATA_AZGALOREVENT);
+                InitGossipMenuFor(player, GOSSIP_ITEM_TYRANDE_MID);
+                uint32 AzgalorEvent = instance->GetBossState(DATA_AZGALOR);
 
                 // Only let them get item if Azgalor is dead.
                 if (AzgalorEvent == DONE && !player->HasItemCount(ITEM_TEAR_OF_GODDESS))
                     AddGossipItemFor(player, GOSSIP_ITEM_TYRANDE_MID, GOSSIP_ITEM_TYRANDE_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                SendGossipMenuFor(player, 907, me->GetGUID());
+                SendGossipMenuFor(player, 9410, me->GetGUID());
                 return true;
             }
         };
