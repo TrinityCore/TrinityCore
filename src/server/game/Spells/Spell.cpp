@@ -7723,6 +7723,14 @@ void Spell::PreprocessSpellLaunch(TargetInfo& targetInfo)
         critChance = unit->SpellCritChanceTaken(m_originalCaster, m_spellInfo, m_spellSchoolMask, critChance, m_attackType);
     }
 
+    // @tswow-begin
+    FIRE_ID(
+        this->m_spellInfo->events.id
+        , Spell,OnCalcCrit
+        , TSSpell(this)
+        , TSMutableNumber<float>(&critChance)
+    );
+    // @tswow-end
     targetInfo.IsCrit = roll_chance_f(critChance);
 }
 
@@ -7770,26 +7778,6 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
 
     targetInfo.Damage += m_damage;
     targetInfo.Healing += m_healing;
-<<<<<<< HEAD
-
-    float critChance = m_spellValue->CriticalChance;
-    if (m_originalCaster)
-    {
-        if (!critChance)
-            critChance = m_originalCaster->SpellCritChanceDone(m_spellInfo, m_spellSchoolMask, m_attackType);
-        critChance = unit->SpellCritChanceTaken(m_originalCaster, m_spellInfo, m_spellSchoolMask, critChance, m_attackType);
-    }
-    // @tswow-begin
-    FIRE_ID(
-        this->m_spellInfo->events.id
-        , Spell,OnCalcCrit
-        , TSSpell(this)
-        , TSMutableNumber<float>(&critChance)
-    );
-    // @tswow-end
-    targetInfo.IsCrit = roll_chance_f(critChance);
-=======
->>>>>>> tc/3.3.5
 }
 
 // @tswow-begin skillId type
