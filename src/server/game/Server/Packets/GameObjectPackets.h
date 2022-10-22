@@ -142,6 +142,17 @@ namespace WorldPackets
             ObjectGuid ActivatorGUID;
             int32 SpellVisualID = 0;
         };
+
+        class GameObjectSetStateLocal final : public ServerPacket
+        {
+        public:
+            GameObjectSetStateLocal() : ServerPacket(SMSG_GAME_OBJECT_SET_STATE_LOCAL, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            uint8 State = 0;
+        };
     }
 }
 #endif // GOPackets_h__
