@@ -28,6 +28,9 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include <G3D/BinaryOutput.h>
+#include <Client/authentication_service.pb.h>
+#include <Client/ets_types.pb.h>
 
 
 enum eSpells
@@ -60,6 +63,16 @@ enum eSpells
     SPELL_LIGHTING_CRASH        = 229471,
 };
 
+enum DATA
+{
+    DATA_BOSS_RANK_ONE,
+};
+
+enum Events
+{
+    RescheduleEvent,
+};
+
 
 // 117133
 class boss_brawguild_ooliss : public CreatureScript
@@ -78,9 +91,9 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INSTAKILL, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.RescheduleEvent(1, 25000);
+           // events.RescheduleEvent(1, 25000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -106,26 +119,26 @@ public:
                     Position pos;
                     me->NearTeleportTo(pos);
                     me->AddUnitState(UNIT_STATE_ROOT);
-                    events.RescheduleEvent(2, 500);
-                    events.RescheduleEvent(1, 25500);
+                  //  events.RescheduleEvent(2, 500);
+                   // events.RescheduleEvent(1, 25500);
                     break;
                 }
                 case 2:
                 {
-                    me->AddDelayedEvent(2400, [this]() -> void
+                   // me->AddDelayedEvent(2400, [this]() -> void
                     {
                         if (me && me->IsAlive())
                             me->ClearUnitState(UNIT_STATE_ROOT);
-                    });
+                    };
 
                     if (Unit* owner = me->GetOwner())
                         me->CastSpell(owner, SPELL_HORRIFIC_PURSUIT);
 
                     me->SetWalk(true);
-                    me->AddDelayedEvent(2400 + 7500, [this]() -> void
+                   // me->AddDelayedEvent(2400 + 7500, [this]() -> void
                     {
                         me->SetWalk(false);
-                    });
+                    };
                     break;
                 }
                 }
@@ -160,11 +173,11 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_GRUMMKEPACK, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.RescheduleEvent(1, 4000);
-            events.RescheduleEvent(2, 18000);
-            events.RescheduleEvent(3, 8000);
+           // events.RescheduleEvent(1, 4000);
+           // events.RescheduleEvent(2, 18000);
+            //events.RescheduleEvent(3, 8000);
         }
 
         void JustSummoned(Creature* summon) override
@@ -182,15 +195,15 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) 
         {
             if (me->HealthBelowPct(healthPct))
             {
                 if (healthPct == 50)
                 {
                     healthPct -= 43;
-                    events.RescheduleEvent(5, 500);
-                    events.RescheduleEvent(4, urand(5000, 8000));
+              //      events.RescheduleEvent(5, 500);
+                //    events.RescheduleEvent(4, urand(5000, 8000));
                 }
                 else
                 {
@@ -224,19 +237,19 @@ public:
                 {
                     Position pos;
                     if (me->HasAura(SPELL_BAD_LUCKYDO))
-                        me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_THROW_TOY_BAD);
-                    else
-                        me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), (urand(1, 2) == 1 ? SPELL_THROW_TOY_1 : SPELL_THROW_TOY_2));
-                    events.RescheduleEvent(1, 4000);
+                  //      me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_THROW_TOY_BAD);
+                    //else
+                    //    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), (urand(1, 2) == 1 ? SPELL_THROW_TOY_1 : SPELL_THROW_TOY_2));
+                    //events.RescheduleEvent(1, 4000);
                     break;
                 }
                 case 2:
                     DoCast(SPELL_SONG_OF_FLEIT);
-                    events.RescheduleEvent(2, urand(18000, 25000));
+                   // events.RescheduleEvent(2, urand(18000, 25000));
                     break;
                 case 3:
                     DoCast(SPELL_KANTATA_OF_FLEIT);
-                    events.RescheduleEvent(3, urand(35000, 48000));
+                   // events.RescheduleEvent(3, urand(35000, 48000));
                     break;
                 case 4:
                 {
@@ -286,25 +299,25 @@ public:
             if (Creature* morozec = me->SummonCreature(117759, me->GetPositionX() + 3.0f, me->GetPositionY() + 3.0f, me->GetPositionZ(), me->GetOrientation()))
             {
                 me->SetReactState(REACT_PASSIVE);
-                morozec->AddDelayedEvent(6000, [morozec, this]() -> void
+                //morozec->AddDelayedEvent(6000, [morozec, this]() -> void
                 {
                     me->CastSpell(morozec, 93330);
                     morozec->CastSpell(morozec, 234213);
-                    morozec->DespawnOrUnsummon(1000);
+                    morozec->DespawnOrUnsummon(1000s);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (me->GetOwner())
                         AttackStart(me->GetOwner());
                     if (Creature* moroz = me->FindNearestCreature(117860, 30.0f, true))
                         moroz->AI()->Talk(0);
-                });
+                };
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.RescheduleEvent(1, 12000);
-            events.RescheduleEvent(2, urand(20000, 21000));
-            events.RescheduleEvent(3, urand(21000, 22000));
+          //  events.RescheduleEvent(1, 12000);
+          //  events.RescheduleEvent(2, urand(20000, 21000));
+          //  events.RescheduleEvent(3, urand(21000, 22000));
         }
 
         void UpdateAI(uint32 diff) override
@@ -326,28 +339,28 @@ public:
                     if (urand(1, 4) != 1)
                         if (Creature* moroz = me->FindNearestCreature(117860, 30.0f, true))
                             moroz->AI()->Talk(1);
-                    events.RescheduleEvent(1, 12000);
+                  //  events.RescheduleEvent(1, 12000);
                     break;
                 case 2:
                     DoCast(SPELL_CLAWSTROPHOBIC);
-                    events.RescheduleEvent(2, urand(20000, 22000));
+                   // events.RescheduleEvent(2, urand(20000, 22000));
                     break;
                 case 3:
                 {
                     Position pos;
-                    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_JUMP_GRIZZLY);
-                    me->AddDelayedEvent(2200, [this]() -> void
+                    //me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_JUMP_GRIZZLY);
+                    //me->AddDelayedEvent(2200, [this]() -> void
                     {
                         Position pos;
-                        me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_JUMP_GRIZZLY);
-                        me->AddDelayedEvent(2200, [this]() -> void
+                      //  me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_JUMP_GRIZZLY);
+                       // me->AddDelayedEvent(2200, [this]() -> void
                         {
                             Position pos;
-                            me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_JUMP_GRIZZLY);
-                        });
-                    });
-                    events.RescheduleEvent(1, urand(6000, 12000));
-                    events.RescheduleEvent(3, urand(21000, 22000));
+                        //    me->CastSpell(position.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_JUMP_GRIZZLY);
+                        };
+                    };
+                   // events.RescheduleEvent(1, urand(6000, 12000));
+                   // events.RescheduleEvent(3, urand(21000, 22000));
                     break;
                 }
                 }
@@ -393,19 +406,19 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             switch (me->GetEntry())
             {
             case 115292:
-                events.RescheduleEvent(1, 20000);
+               // events.RescheduleEvent(1, 20000);
                 break;
             case 115294:
-                events.RescheduleEvent(2, 4000);
-                events.RescheduleEvent(3, 10000);
+               // events.RescheduleEvent(2, 4000);
+               // events.RescheduleEvent(3, 10000);
                 break;
             case 115295:
-                events.RescheduleEvent(4, 7000);
+               // events.RescheduleEvent(4, 7000);
                 break;
             }
         }
@@ -417,8 +430,8 @@ public:
 
             if (Unit* unit = me->GetOwner())
                 if (Creature* owner = unit->ToCreature())
-                    if (owner->IsAlive())
-                        owner->Kill(owner);
+                    if (owner->IsAlive());
+                       // owner->Kill(owner);
         }
 
         void UpdateAI(uint32 diff) override
@@ -438,19 +451,19 @@ public:
                 case 1:
                     DoCast(SPELL_PREPARED_TO_SPELL);
                     DoCast(SPELL_WHIRLWIND);
-                    events.RescheduleEvent(1, 20000);
+                 //   events.RescheduleEvent(1, 20000);
                     break;
                 case 2:
                     DoCast(SPELL_LAVA_BURST);
-                    events.RescheduleEvent(2, 4000);
+                   // events.RescheduleEvent(2, 4000);
                     break;
                 case 3:
                     DoCast(SPELL_MOLTEN_SLAG);
-                    events.RescheduleEvent(3, 10000);
+                   // events.RescheduleEvent(3, 10000);
                     break;
                 case 4:
                     me->CastSpell(me->GetVictim(), SPELL_LIGHTING_CRASH);
-                    events.RescheduleEvent(4, 7500);
+                   // events.RescheduleEvent(4, 7500);
                     break;
                 }
             }

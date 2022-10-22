@@ -36,23 +36,23 @@ Script Data End */
 enum Objects
 {
     Anvil = 192628,
-    Domination-Etched Treasure Cache = 369898,
+    Domination_Etched_Treasure_Cache = 369898,
     Gold_Coins = 235985,
     Snow_Patch = 358375,
-    Xyraths_Booby-Trapped Cache = 375536,
+    Xyraths_Boob_Trapped_Cache = 375536,
 };
 
 enum Quests
 {
     Blingtron_7000 = 56042,
-    Owlcat Soul = 62432,
-    Sanctum of Domination_N - Damned If You Dont = 64597,
-    Sanctum of Domination - Damned If You Dont_H = 64598,
-    Sanctum of Domination - Damned If You Dont_M = 64599,
-    Storming the Sanctum = 63903,
+    Owlcat_Soul = 62432,
+    Sanctum_of_Domination_N_Damned_If_You_Dont = 64597,
+    Sanctum_of_Domination_Damned_If_You_Dont_H = 64598,
+    Sanctum_of_Domination_Damned_If_You_Dont_M = 64599,
+    Storming_the_Sanctum = 63903,
 };
 
-enum Loot
+enum Objects
 {
     Soothsayers_Runes = 71716,
     Owlcat_Soul = 182177,
@@ -62,45 +62,45 @@ enum Loot
 enum Achievements 
 {
     // Guild achievements
-    Hall_of_Fame: Sylvanas_A = 15197,
-    Hall_of_Fame: Sylvanas_H = 15196,
-    Heroic: Sanctum_of_Domination_Guild_Run = 15183,
-    Mythic: Sanctum_of_Domination_Guild_Run = 15184,
+    Hall_of_Fame_Sylvanas_A = 15197,
+    Hall_of_Fame_Sylvanas_H = 15196,
+    Heroic_Sanctum_of_Domination_Guild_Run = 15183,
+    Mythic_Sanctum_of_Domination_Guild_Run = 15184,
     Sanctum_of_Domination_Guild_Run = 15182,
     // Character Achievements
-    Ahead_of_the_Curve: Sylvanas_Windrunner = 15134,
+    Ahead_of_the_Curve_Sylvanas_Windrunner = 15134,
     Coming_to_Terms = 15399,
-    Cutting_Edge: Sylvanas_Windrunner = 15135,
+    Cutting_Edge_Sylvanas_Windrunner = 15135,
     Eye_Wish_You_Were_Here = 15065,
     Fate_of_Domination = 15667,
     Flawless_Fate = 15040,
-    Heroic: Fate_of_Domination = 15668,
-    Heroic: Sanctum_of_Domination = 15127,
+    Heroic_Fate_of_Domination = 15668,
+    Heroic_Sanctum_of_Domination = 15127,
     I_Used_to_Bullseye_Deeprun_Rats_Back_Home = 15058,
     Knowledge_is_Power = 15132,
-    Mythic: Fate_of_Domination = 15669,
-    Mythic: Fatescribe_Roh-Kalo = 15119,
-    Mythic: Guardian of the First Ones = 15118,
-    Mythic: KelThuzad = 15120,
-    Mythic: Painsmith Raznal = 15117,
-    Mythic: Remnant of Nerzhul = 15115,
-    Mythic: Sanctum of Domination = 15128,
-    Mythic: Soulrender Dormazain = 15116,
-    Mythic: Sylvanas Windrunner = 15121,
-    Mythic: The Eye of the Jailer = 15113,
-    Mythic: The Nine = 15114,
-    Mythic: The Tarragrue = 15112,
-    Name A Better Duo, I_ll Wait = 14998,
-    Sanctum of Domination = 15126,
-    Shackles of Fate = 15124,
-    The Dark Bastille = 15123,
-    The Jailers Vanguard = 15122,
-    The Reckoning = 15125,
-    This World is a Prism = 15133,
-    To the Nines = 15003,
-    Together Forever = 15108,
-    Tormentors Tango = 15105,
-    Whack-A-Soul = 15131,
+    Mythic_Fate_of_Domination = 15669,
+    Mythic_Fatescribe_Roh_Kalo = 15119,
+    Mythic_Guardian_of_the_First_Ones = 15118,
+    Mythic_KelThuzad = 15120,
+    Mythic_Painsmith_Raznal = 15117,
+    Mythic_Remnant_of_Nerzhul = 15115,
+    Mythic_Sanctum_of_Domination = 15128,
+    Mythic_Soulrender_Dormazain = 15116,
+    Mythic_Sylvanas_Windrunner = 15121,
+    Mythic_The_Eye_of_the_Jailer = 15113,
+    Mythic_The_Nine = 15114,
+    Mythic_The_Tarragrue = 15112,
+    Name_A_Better_Duo, I_ll_Wait = 14998,
+    Sanctum_of_Domination = 15126,
+    Shackles_of_Fate = 15124,
+    The_Dark_Bastille = 15123,
+    The_Jailers_Vanguard = 15122,
+    The_Reckoning = 15125,
+    This_World_is_a_Prism = 15133,
+    To_the_Nines = 15003,
+    Together_Forever = 15108,
+    Tormentors_Tango = 15105,
+    Whack_A_Soul = 15131,
 };
 
 enum Sanctum_Of_Domination
@@ -129,7 +129,7 @@ enum Sanctum_Of_Domination
     Ashen_Phylactery                   = 178523,
     Blingtron_7000                     = 153897,
     Bonesteel                          = 178731,
-    Borr-Gahn                          = 178824,
+    Borr_Gahn                          = 178824,
     Bound_Soul_Remnant                 = 178629,
     Brigade_Member                     = 148048,
     Brynja                             = 177101,
@@ -160,7 +160,7 @@ enum Sanctum_Of_Domination
     Ethereal_Transmorpher              = 149596,
     Experimental_Slime                 = 175647,
     Eye_of_the_Jailer                  = 175725,
-    Fatescribe_Roh-Kalo                = 175730,
+    Fatescribe_Roh_Kalo                = 175730,
     Fatespawn_Anomaly                  = 179010,
     Fatespawn_Monstrosity              = 180323,
     Feeding_Horror                     = 180426,
@@ -294,30 +294,23 @@ enum Sanctum_Of_Domination
 
 class sanctum_of_domination : public PlayerScript
 {
-public:
-    sanctum_of_domination() : PlayerScript(sanctum_of_domination) { }
 
-    void OnLogin(Player* player,bool /*fristlogin*/) override
+
+
+    void OnLogin(Player* player, bool /*fristlogin*/) override
     {
         // Set zone as Raid
-        if (player->GetMapId() == AREA_SANCTUM_OF_DOMINATION)
-            player->GoMapId()  == GetMapId;
+        if (player->GetMapId() == AREA_SANCTUM_OF_DOMINATION);
+
     }
-        
-        void OnUpdateArea(Player* player, uint32 /*newArea*/, uint32 /*oldArea*/) override
+
+    void OnUpdateArea(Player* player, uint32 /*newArea*/, uint32 /*oldArea*/)
     {
         // Set zone as Raid
-        if (player->GetMapId() == MAP_NPE)
-            player->GoMapId()  == GetMapId;
+        if (player->GetMapId());
+
     };
-
-//Sanctum of Domination
-
-struct Sanctum_of_Domination : public InstanceScript
-{
-    Sanctum_of_Domination(InstanceMap*) : InstanceScript(Sanctum_of_Domination()) { }
-};  
-void AddSC_Sanctum_of_Domination()
-{
-    void AddSC_Sanctum_of_Domination();
 };
+//Sanctum of Domination;
+
+void AddSC_Sanctum_of_Domination();

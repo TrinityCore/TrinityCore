@@ -35,6 +35,10 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "uldir.h"
+#include <boost/asio/ssl/context.hpp>
+#include <SmartAI.h>
+#include <Instances/InstanceSaveMgr.cpp>
+#include <Movement/Spline/MoveSplineInitArgs.h>
 
 enum Spells
 {
@@ -113,26 +117,26 @@ private:
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
-        me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);
+       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);
         CleanEncounter(instance, me);
         me->CanFly();
-        me->SetFlying(true);
+    //    me->SetFlying(true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
-        _EnterCombat();
+       // _EnterCombat();
         Talk(SAY_AGGRO);
         this->phase = 1;
         events.ScheduleEvent(EVENT_SHADOW_BARRAGE, 3s);
         events.ScheduleEvent(EVENT_CALL_OF_BLOOD, 15s);
         events.ScheduleEvent(EVENT_DARK_REVELATION, 29s);        
-        if (IsHeroic() || (IsMythic()))
+        if (IsHeroic()) //|| (IsMythic()))
             events.ScheduleEvent(EVENT_POOL_OF_DARKNESS, 20s);
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
         if (me->HealthBelowPct(41) && this->phase == 1)
         {
@@ -161,8 +165,8 @@ private:
         {
         case EVENT_SHADOW_BARRAGE:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                me->CastSpell(target, SPELL_SHADOW_BARRAGE, false);
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+             //   me->CastSpell(target, SPELL_SHADOW_BARRAGE, false);
             events.Repeat(2s);
             break;
         }
@@ -170,9 +174,9 @@ private:
         {
             Talk(SAY_DARK_REVELATION);
             UnitList u_li;
-            if (IsHeroic() || (IsMythic()))
+            if (IsHeroic())// || (IsMythic()))
             {
-                SelectTargetList(u_li, 2, SELECT_TARGET_RANDOM, 150.0f, true);
+               // SelectTargetList(u_li, 2, SELECT_TARGET_RANDOM, 150.0f, true);
                 for (Unit* targets : u_li)
                 {
                     me->AddAura(SPELL_DARK_REVELATION_TRIGGER, targets);
@@ -180,8 +184,8 @@ private:
             }
             else
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
-                    me->AddAura(SPELL_DARK_REVELATION_TRIGGER, target);
+             //   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true))
+               //     me->AddAura(SPELL_DARK_REVELATION_TRIGGER, target);
             }
             events.Repeat(20s);
             break;
@@ -203,7 +207,7 @@ private:
         {
             Talk(SAY_LOCUS);
             me->CastSpell(nullptr, SPELL_LOCUS_OF_CORRUPTION, false);
-            AddTimedDelayedOperation(3100, [this]() -> void
+        //    AddTimedDelayedOperation(3100, [this]() -> void
             {
                 std::list<Player*> pl_li;
                 me->GetPlayerListInGrid(pl_li, 100.0f);
@@ -214,18 +218,18 @@ private:
                     if (Aura* corruptedBlood = targets->GetAura(SPELL_CORRUPTED_BLOOD_AURA))
                         corruptedBlood->SetStackAmount(setCorruptedStacks);
                 }
-            });
+            };
             break;
         }
         case EVENT_RUPTURING_BLOOD:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+           // if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
-                me->AddAura(SPELL_RUPTURING_BLOOD_AURA, target);
-                AddTimedDelayedOperation(20100, [this, target]() -> void
+    //            me->AddAura(SPELL_RUPTURING_BLOOD_AURA, target);
+            //    AddTimedDelayedOperation(20100, [this, target]() -> void
                 {
-                    me->CastSpell(target, SPELL_RUPTURED_BLOOD_CREATE_AT, true);//applies corrupted blood on enter
-                });
+      //              me->CastSpell(target, SPELL_RUPTURED_BLOOD_CREATE_AT, true);//applies corrupted blood on enter
+                };
             }
             events.Repeat(15s);
             break;
@@ -234,7 +238,7 @@ private:
         {
             Talk(SAY_DEATHWISH);
             UnitList u_li;
-            SelectTargetList(u_li, 2, SELECT_TARGET_RANDOM, 150.0f, true);
+          //  SelectTargetList(u_li, 2, SELECT_TARGET_RANDOM, 150.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets, SPELL_DEATHWISH, true);
@@ -244,9 +248,9 @@ private:
         }
         case EVENT_POOL_OF_DARKNESS:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+          //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {                
-                me->CastSpell(target, SPELL_POOL_OF_DARKNESS, true);
+              //  me->CastSpell(target, SPELL_POOL_OF_DARKNESS, true);
             }
             events.Repeat(50s);
             break;
@@ -265,15 +269,15 @@ private:
 
     void CleanEncounter(InstanceScript* instance, Creature* zul)
     {
-        me->DespawnCreaturesInArea(NPC_POOL_OF_DARKNESS, 125.0f);
-        me->DespawnCreaturesInArea(NPC_CRAWG, 125.0f);
-        me->DespawnCreaturesInArea(NPC_NAZMANI_BLOODHEXER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_NAZMANI_CRUSHER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_NAZMANI_BLOODWEAVER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_NAZMANI_VEINSPLITTER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_NAZMANI_DOMINATOR, 125.0f);
-        me->DespawnCreaturesInArea(NPC_MINION_OF_ZUL_ULDIR, 125.0f);
-        me->DespawnCreaturesInArea(NPC_ANIMATED_ICHOR, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_POOL_OF_DARKNESS, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_CRAWG, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_NAZMANI_BLOODHEXER, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_NAZMANI_CRUSHER, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_NAZMANI_BLOODWEAVER, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_NAZMANI_VEINSPLITTER, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_NAZMANI_DOMINATOR, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_MINION_OF_ZUL_ULDIR, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_ANIMATED_ICHOR, 125.0f);
         me->RemoveAllAreaTriggers();
     }
 
@@ -357,20 +361,20 @@ struct npc_generic_zul_minion : public ScriptedAI
     void Reset() override
     {
         ScriptedAI::Reset();
-        if (IsMythic())
+        //if (IsMythic())
         {
-            me->AddAura(SPELL_BLOOD_RECALL);
+           // me->AddAura(SPELL_BLOOD_RECALL);
             //me->AddAura(SPELL_DECAYING_FLESH);
         }
         if (Creature* zul = me->FindNearestCreature(NPC_ZUL, 100.0f, true))
             if (zul->IsInCombat())
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+              //  instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 me->AI()->DoZoneInCombat(nullptr);
             }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
         switch (me->GetEntry())
         {
@@ -378,34 +382,34 @@ struct npc_generic_zul_minion : public ScriptedAI
             me->SetPowerType(POWER_ENERGY);
             me->SetPower(POWER_ENERGY, 0);
             me->SetMaxPower(POWER_ENERGY, 100);
-            me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);
+            //me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);
             DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
-            events.ScheduleEvent(EVENT_BLOODY_CLEAVE, 3s);
+            //events.ScheduleEvent(EVENT_BLOODY_CLEAVE, 3s);
             break;
         case NPC_NAZMANI_BLOODHEXER:
             me->SetPowerType(POWER_ENERGY);
             me->SetPower(POWER_ENERGY, 0);
             me->SetMaxPower(POWER_ENERGY, 100);
             DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
-            events.ScheduleEvent(EVENT_BLOODSHARD, 3s);
+          //  events.ScheduleEvent(EVENT_BLOODSHARD, 3s);
             break;
         case NPC_CRAWG:
             break;
         }
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 eventId) 
     {
         switch (eventId)
         {
         case EVENT_BLOODY_CLEAVE:
             DoCastVictim(SPELL_BLOODY_CLEAVE, false);
-            events.Repeat(15s, 18s);
+           // events.Repeat(15s, 18s);
             break;
 
         case EVENT_BLOODSHARD:
-            DoCastRandom(SPELL_BLOODSHARD, false);
-            events.Repeat(2s);
+           // DoCastRandom(SPELL_BLOODSHARD, false);
+           // events.Repeat(2s);
             break;
         }
         if (me->GetPower(POWER_ENERGY) == 100 && me->GetEntry() == NPC_NAZMANI_CRUSHER)
@@ -422,11 +426,11 @@ struct npc_generic_zul_minion : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (instance)
+        //if (instance)
         {
             if (!me->HasAura(SPELL_DECAYING_FLESH))
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            else
+          //      instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            //else
             {
                 me->Respawn(true);
                 me->SetHealth(me->GetMaxHealth() / 70);
@@ -457,11 +461,11 @@ private:
         {
             if (unit->HasAura(SPELL_ABSORBED_DARKNESS_AURA))
                 unit->RemoveAura(SPELL_ABSORBED_DARKNESS_AURA);
-            me->GetScheduler().Schedule(100s, [this](TaskContext context)
+           // me->GetScheduler().Schedule(100s, [this](TaskContext context)
             {
                 me->CastSpell(nullptr, SPELL_ERUPTING_DARKNESS_DAMAGE, true);
-                context.Repeat(2s);
-            });
+             //   context.Repeat(2s);
+            };
         }
         if (unit->IsPlayer() && me->GetDistance2d(unit) < 5.0f)
         {
@@ -483,17 +487,17 @@ struct go_zul_trapdoor : public GameObjectAI
 
     void Reset() override
     {
-        go->GetScheduler().CancelAll();
-        go->GetScheduler().Schedule(1s, [this](TaskContext context)
+       // go->GetScheduler().CancelAll();
+        //go->GetScheduler().Schedule(1s, [this](TaskContext context)
         {
-            if (InstanceScript* instance = go->GetInstanceScript())
+           // if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (instance->GetBossState(DATA_TALOC == DONE) && instance->GetBossState(DATA_MOTHER == DONE) && instance->GetBossState(DATA_DEVOURER == DONE) && instance->GetBossState(DATA_VECTIS == DONE) && instance->GetBossState(DATA_ZEKVOZ == DONE)) /*&& instance->GetBossState(DATA_ZUL == DONE)*/
-                    go->SetGoState(GO_STATE_ACTIVE);
-                else
-                    context.Repeat(15s);
+              //  if (instance->GetBossState(DATA_TALOC == DONE) && instance->GetBossState(DATA_MOTHER == DONE) && instance->GetBossState(DATA_DEVOURER == DONE) && instance->GetBossState(DATA_VECTIS == DONE) && instance->GetBossState(DATA_ZEKVOZ == DONE) && instance->GetBossState(DATA_ZUL == DONE))
+                //    go->SetGoState(GO_STATE_ACTIVE);
+                //else
+          //          context.Repeat(15s);
             }
-        });
+        };
     }
 
     void UpdateAI(uint32 diff) override
@@ -520,7 +524,7 @@ private:
     void Reset() override
     {
         ScriptedAI::Reset();
-        me->AddAura(SPELL_DRIPPING_BLOOD);
+       // me->AddAura(SPELL_DRIPPING_BLOOD);
         me->SetWalk(true);
         transfer = false;
         if (Creature* zul = me->FindNearestCreature(NPC_ZUL, 100.0f, true))
@@ -568,11 +572,11 @@ class aura_decaying_flesh : public AuraScript
 void AddSC_boss_zul()
 {
     RegisterCreatureAI(boss_zul);
-    RegisterAuraScript(aura_dark_revelation);
-    RegisterAuraScript(aura_deathwish);
+   // RegisterAuraScript(aura_dark_revelation);
+   // RegisterAuraScript(aura_deathwish);
     RegisterCreatureAI(npc_generic_zul_minion);
     RegisterCreatureAI(npc_pool_of_darkness);
     RegisterGameObjectAI(go_zul_trapdoor);
     RegisterCreatureAI(npc_animated_ichor);
-    RegisterAuraScript(aura_decaying_flesh);
+   // RegisterAuraScript(aura_decaying_flesh);
 }

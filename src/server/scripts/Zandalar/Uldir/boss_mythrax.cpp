@@ -120,9 +120,9 @@ private:
         me->SetReactState(REACT_DEFENSIVE);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {        
-        _EnterCombat();
+       // _EnterCombat();
         Talk(SAY_AGGRO);
         Talk(SAY_AGGRO_WHISPER);
         this->phase = 1;
@@ -130,18 +130,18 @@ private:
         events.ScheduleEvent(EVENT_IMMINENT_RUIN, 5s);
         events.ScheduleEvent(EVENT_OBLIVION_SPHERE, 9s);
         //events.ScheduleEvent(EVENT_OBLITERATION_BLAST, 11s);
-        if (IsMythic())
+        //if (IsMythic())
             events.ScheduleEvent(EVENT_XALZAIX, 8s);
     }
 
-    void DamageTaken(Unit* done_by, uint32& /*damage*/) override
+    void DamageTaken(Unit* done_by, uint32& /*damage*/)
     {
         if (me->HealthBelowPct(67) && this->phase != 2)
         {
             this->phase = 2;
             me->SetReactState(REACT_PASSIVE);
             me->GetMotionMaster()->MovePoint(1, middle_pos, true);
-            if (IsHeroic() || IsMythic())
+            if (IsHeroic())// || IsMythic())
                 if (Creature* xalzaix = me->FindNearestCreature(NPC_XALZAIX, 100.0f, true))
                     xalzaix->DespawnOrUnsummon();
         }
@@ -150,11 +150,11 @@ private:
             this->phase = 2;
             me->SetReactState(REACT_PASSIVE);
             me->GetMotionMaster()->MovePoint(1, middle_pos, true);
-            if (IsHeroic() || IsMythic())
+            if (IsHeroic())// || IsMythic())
                 if (Creature* xalzaix = me->FindNearestCreature(NPC_XALZAIX, 100.0f, true))
                     xalzaix->DespawnOrUnsummon();
         }
-        if (me->HealthBelowPct(21) && this->phase == 1 && IsHeroic() || IsMythic())
+        if (me->HealthBelowPct(21) && this->phase == 1 && IsHeroic())// || IsMythic())
         {
             std::list<Player*> pl_li;
             me->GetPlayerListInGrid(pl_li, 100.0f);
@@ -167,10 +167,10 @@ private:
 
     void CleanEncounter(InstanceScript* instance, Creature* mythrax)
     {
-        me->DespawnCreaturesInArea(NPC_OBLIVION_SPHERE, 125.0f);
-        me->DespawnCreaturesInArea(NPC_VISION_OF_MADNESS, 125.0f);
-        me->DespawnCreaturesInArea(NPC_NRAQI_DESTROYER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_XALZAIX, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_OBLIVION_SPHERE, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_VISION_OF_MADNESS, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_NRAQI_DESTROYER, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_XALZAIX, 125.0f);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -194,16 +194,16 @@ private:
             Talk(SAY_XALZAIX_AWAKENING);
             Talk(SAY_XALZAIX_AWAKENING_WHISPER);
             me->CastSpell(nullptr, SPELL_XALZAIX_MAIN, false);
-            AddTimedDelayedOperation(8000, [this]() -> void
+          //  AddTimedDelayedOperation(8000, [this]() -> void
             {
-                me->AddAura(SPELL_OBLIVION_VEIL_AURA);
+            //    me->AddAura(SPELL_OBLIVION_VEIL_AURA);
                 me->CastSpell(nullptr, SPELL_XALZAIX_CREATE_AT_VISUAL);
                 me->CastSpell(me->GetVictim(), SPELL_XALZAIX_DAMAGE, true);
                 events.ScheduleEvent(EVENT_VISION_OF_MADNESS, 5s);
                 events.ScheduleEvent(EVENT_NRAQI, 15s);
                 events.ScheduleEvent(EVENT_OBLITERATION_BEAM, 18s);
                 events.ScheduleEvent(EVENT_PHASE_ONE, 60s);
-            });
+            };
         }
     }
 
@@ -226,33 +226,33 @@ private:
         {
         case EVENT_ESSENCE_SHEAR:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+            // if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
-                me->SetFacingToObject(target);
+                //   me->SetFacingToObject(target);
                 DoCast(SPELL_ESSENCE_SHEAR);
             }
-            events.Repeat(14s);
+            //events.Repeat(14s);
             break;
         }
         case EVENT_IMMINENT_RUIN:
-        {             
+        {
             UnitList u_li;
-            SelectTargetList(u_li, 4, SELECT_TARGET_RANDOM, 150.0f, true);
+            // SelectTargetList(u_li, 4, SELECT_TARGET_RANDOM, 150.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets, SPELL_IMMINENT_RUIN_AURA, true);
                 me->CastSpell(targets, SPELL_IMMINENT_RUIN_DECREASE_SPEED, true);
             }
-            events.Repeat(20s);
+            // events.Repeat(20s);
             break;
         }
         case EVENT_OBLITERATION_BLAST:
-        {            
+        {
             Talk(SAY_OBLITERATION_BLAST);
             Talk(SAY_OBLITERATION_BLAST_WHISPER);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            /// if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                me->SetFacingToObject(target);
+                //  me->SetFacingToObject(target);
                 me->CastSpell(nullptr, SPELL_OBLITERATION_BLAST_CREATE_AT, true);
             }
             events.Repeat(25s);
@@ -263,18 +263,18 @@ private:
             Talk(SAY_OBLIVION_SPHERE);
             Talk(SAY_OBLIVION_SPHERE_WHISPER);
             UnitList u_li;
-            SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 100.0f, true);
+            //   SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets->GetRandomNearPosition(10.0f), SPELL_OBLIVION_SPHERE_SUMMON, true);
             }
-            events.Repeat(30s);
+            // events.Repeat(30s);
             break;
         }
         case EVENT_VISION_OF_MADNESS:
         {
             UnitList u_li;
-            SelectTargetList(u_li, 5, SELECT_TARGET_RANDOM, 100.0f, true);
+            //  SelectTargetList(u_li, 5, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets->GetPosition(), SPELL_VISION_OF_MADNESS_SUMMON, true);
@@ -289,45 +289,45 @@ private:
         }
         case EVENT_PHASE_ONE:
         {
-            events.Reset();
+            // events.Reset();
             me->RemoveAura(SPELL_OBLIVION_VEIL_AURA);
             me->SetReactState(REACT_AGGRESSIVE);
             me->GetMotionMaster()->Clear();
             me->AI()->AttackStart(me->GetVictim());
-            events.ScheduleEvent(EVENT_ESSENCE_SHEAR, 3s);
-            events.ScheduleEvent(EVENT_IMMINENT_RUIN, 5s);
-            events.ScheduleEvent(EVENT_OBLIVION_SPHERE, 9s);
-            //events.ScheduleEvent(EVENT_OBLITERATION_BLAST, 11s);
+            // events.ScheduleEvent(EVENT_ESSENCE_SHEAR, 3s);
+            // events.ScheduleEvent(EVENT_IMMINENT_RUIN, 5s);
+            // events.ScheduleEvent(EVENT_OBLIVION_SPHERE, 9s);
+             //events.ScheduleEvent(EVENT_OBLITERATION_BLAST, 11s);
             break;
         }
         case EVENT_OBLITERATION_BEAM:
         {
             Talk(SAY_OBLITERATION_BEAM);
             Talk(SAY_OBLITERATION_BEAM_WHISPER);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                me->SetFacingToObject(target);
-                me->CastSpell(target, SPELL_OBLITERATION_BEAM_CREATE_AT, true);
+                //   me->SetFacingToObject(target);
+                  // me->CastSpell(target, SPELL_OBLITERATION_BEAM_CREATE_AT, true);
             }
-            events.Repeat(20s);
+            //events.Repeat(20s);
             break;
         }
         case EVENT_XALZAIX:
-        {  
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+        {
+            // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                me->CastSpell(target->GetPosition(), SPELL_LIVING_WEAPON_LANDING_MARK, true);
-                AddTimedDelayedOperation(3000, [this, target]() -> void
+                // me->CastSpell(target->GetPosition(), SPELL_LIVING_WEAPON_LANDING_MARK, true);
+              //   AddTimedDelayedOperation(3000, [this, target]() -> void
                 {
-                    me->SummonCreature(NPC_XALZAIX, target->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
-                });
+                    //   me->SummonCreature(NPC_XALZAIX, target->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+                };
             }
             break;
         }
         }
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* /*killer*/) 
     {
         _JustDied();
         Talk(SAY_DEATH);
@@ -367,7 +367,7 @@ struct npc_oblivion_sphere : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         SetCombatMovement(false);
-        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+       // me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void Reset() override
@@ -400,7 +400,7 @@ enum Xalzaix
 struct npc_xalzaix : public ScriptedAI
 {
     npc_xalzaix(Creature* creature) : ScriptedAI(creature) {
-        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+      //  me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
     }
 
 private:
@@ -412,21 +412,21 @@ private:
         retreat = false;
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
         if (summoner->GetEntry() == NPC_MYTHRAX)
             me->CastSpell(nullptr, SPELL_LIVING_WEAPON_DAMAGE, true);
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        //if (instance)
+          //  instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
     }
 
-    void DamageTaken(Unit* done_by, uint32& /*damage*/) override
+    void DamageTaken(Unit* done_by, uint32& /*damage*/) 
     {
         if (me->HealthBelowPct(51) && !retreat)
         {
             retreat = true;
-            if (instance)
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            //if (instance)
+              //  instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             
             me->SetVisible(false);
             me->RemoveAllAuras();
@@ -435,12 +435,12 @@ private:
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
-        events.ScheduleEvent(EVENT_VOID_ECHOES, 10s);
+      //  events.ScheduleEvent(EVENT_VOID_ECHOES, 10s);
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 eventId) 
     {
         if (Creature* mythrax = me->FindNearestCreature(NPC_MYTHRAX, 150.0f, true))
         {
@@ -451,7 +451,7 @@ private:
         {
         case EVENT_VOID_ECHOES:
             me->CastSpell(nullptr, SPELL_VOID_ECHOES, false);
-            events.Repeat(10s);
+           // events.Repeat(10s);
             break;
         }
     }
@@ -460,7 +460,7 @@ private:
 void AddSC_boss_mythrax()
 {
     RegisterCreatureAI(boss_mythrax);
-    RegisterAuraScript(aura_imminent_ruin);
+    //RegisterAuraScript(aura_imminent_ruin);
     RegisterCreatureAI(npc_oblivion_sphere);
     RegisterCreatureAI(npc_xalzaix);
 }

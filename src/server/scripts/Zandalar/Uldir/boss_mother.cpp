@@ -100,7 +100,7 @@ struct boss_mother : public BossAI
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
-        me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);
+       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);
         defeated = false;
     }
 
@@ -109,26 +109,26 @@ struct boss_mother : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FIRST_ROOM_OCCUPANT);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SECOND_ROOM_OCCUPANT);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THIRD_ROOM_OCCUPANT);
-        me->DespawnCreaturesInArea(NPC_PURIFYING_FLAME_2, 125.0f);
-        me->DespawnCreaturesInArea(NPC_SURGICAL_GRID, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_PURIFYING_FLAME_2, 125.0f);
+     //   me->DespawnCreaturesInArea(NPC_SURGICAL_GRID, 125.0f);
         Talk(SAY_WIPE);
         _JustReachedHome();
         _DespawnAtEvade();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
         Talk(SAY_AGGRO);
-        _EnterCombat();
-        instance->DoAddAuraOnPlayers(SPELL_FIRST_ROOM_OCCUPANT);
-        events.ScheduleEvent(EVENT_SANITIZING_STRIKE, 3s);
-        events.ScheduleEvent(EVENT_PURIFYING_FLAME, 6s);
-        events.ScheduleEvent(EVENT_WIND_TUNNEL, 20s);
-        events.ScheduleEvent(EVENT_ULDIR_DEFENSIVE_BEAM, 30s);
+       // _EnterCombat();
+       // instance->DoAddAuraOnPlayers(SPELL_FIRST_ROOM_OCCUPANT);
+       // events.ScheduleEvent(EVENT_SANITIZING_STRIKE, 3s);
+       // events.ScheduleEvent(EVENT_PURIFYING_FLAME, 6s);
+       // events.ScheduleEvent(EVENT_WIND_TUNNEL, 20s);
+        //events.ScheduleEvent(EVENT_ULDIR_DEFENSIVE_BEAM, 30s);
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
     }
 
-    void DamageTaken(Unit* done_by, uint32& /*damage*/) override
+    void DamageTaken(Unit* done_by, uint32& /*damage*/) 
     {
         if (me->HealthBelowPct(2) && !defeated)
         {
@@ -140,16 +140,16 @@ struct boss_mother : public BossAI
             {
                 cache->RemoveFlag(GO_FLAG_LOCKED);
             }
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+           // me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetWalk(true);
             me->SetHealth(me->GetMaxHealth());            
-            me->DeleteThreatList();
+           // me->DeleteThreatList();
             me->ClearInCombat();
             instance->SendBossKillCredit(MOTHER_ENCOUNTER);
-            me->GetScheduler().Schedule(4s, [this](TaskContext context)
+           // me->GetScheduler().Schedule(4s, [this](TaskContext context)
             {
                 me->GetMotionMaster()->MovePoint(1, final_pos, true);
-            });
+            };
         }
     }
 
@@ -162,20 +162,20 @@ struct boss_mother : public BossAI
         {
             me->SetFacingTo(0.04f, true);
             Talk(21);
-            me->GetScheduler().Schedule(7s, [this] (TaskContext context)
+           // me->GetScheduler().Schedule(7s, [this] (TaskContext context)
             {
                 me->DespawnOrUnsummon();
-            });
+            };
         }
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo) override
+    void OnSpellFinished(SpellInfo const* spellInfo) 
     {
         if (spellInfo->Id == SPELL_SANITIZING_STRIKE)
         {
-            if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+            //if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
-                me->AddAura(SPELL_SANITIZING_STRIKE, tar);
+               // me->AddAura(SPELL_SANITIZING_STRIKE, tar);
             }
         }
     }
@@ -187,9 +187,9 @@ struct boss_mother : public BossAI
         case EVENT_SANITIZING_STRIKE:
         {
             Talk(SAY_SANITIZING_STRIKE);
-            if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+           // if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
-                DoCast(tar, SPELL_SANITIZING_STRIKE, false);
+             //   DoCast(tar, SPELL_SANITIZING_STRIKE, false);
             }            
             me->SetPower(POWER_ENERGY, 0);
             events.Repeat(20s);
@@ -203,10 +203,10 @@ struct boss_mother : public BossAI
                 Position wind_tunnel_pos = wind_tunnel_positions[2];
 
                 if (victim->HasAura(SPELL_FIRST_ROOM_OCCUPANT))
-                    wind_tunnel_pos = wind_tunnel_positions[0];
+                //    wind_tunnel_pos = wind_tunnel_positions[0];
 
-                else if (victim->HasAura(SPELL_SECOND_ROOM_OCCUPANT))
-                    wind_tunnel_pos = wind_tunnel_positions[1];
+                 if (victim->HasAura(SPELL_SECOND_ROOM_OCCUPANT))
+              //      wind_tunnel_pos = wind_tunnel_positions[1];
 
                  if (Creature* wind_tunnel = me->FindNearestCreature(NPC_WIND_TUNNEL, 75.0f))
                  {
@@ -223,20 +223,20 @@ struct boss_mother : public BossAI
         {
             Talk(SAY_PURIFYING_FLAME);
             UnitList tarlist;
-            SelectTargetList(tarlist, 100, SELECT_TARGET_RANDOM, 100.0f, true);
+            //SelectTargetList(tarlist, 100, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* targets : tarlist)
             {
                 targets->SummonCreature(NPC_PURIFYING_FLAME_2, targets->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
             }
-            events.Repeat(25s);
+            //events.Repeat(25s);
             break;
         }
         case EVENT_ULDIR_DEFENSIVE_BEAM:
         {            
             Talk(SAY_ULDIR_DEFENSIVE_BEAM);
             //Mid grid from top to ground
-            me->SummonCreature(NPC_SURGICAL_GRID, middle_of_the_room_pos, TEMPSUMMON_MANUAL_DESPAWN);
-            events.Repeat(35s);
+           // me->SummonCreature(NPC_SURGICAL_GRID, middle_of_the_room_pos, TEMPSUMMON_MANUAL_DESPAWN);
+           // events.Repeat(35s);
             break;
         }
         }
@@ -309,12 +309,12 @@ struct npc_corners_purifying_flame : public ScriptedAI
     }
 
 
-    void IsSummonedBy(Unit* unit) override
+    void IsSummonedBy(Unit* unit) 
     {
         me->CastSpell(nullptr, SPELL_PURIFYING_FLAME_DAMAGE);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo) override
+    void OnSpellFinished(SpellInfo const* spellInfo) 
     {
         if (spellInfo->Id == SPELL_PURIFYING_FLAME_DAMAGE)
         {
@@ -368,9 +368,9 @@ struct npc_mother_defense_grid : public ScriptedAI
                     if (player->GetPosition().m_positionX > first_to_second)
                     {
                         player->RemoveAura(SPELL_FIRST_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_SECOND_ROOM_OCCUPANT);
+                      //  player->AddAura(SPELL_SECOND_ROOM_OCCUPANT);
 
-                        instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
+                    //    instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
                     }
                 }
@@ -380,18 +380,18 @@ struct npc_mother_defense_grid : public ScriptedAI
                     if (player->GetPosition().m_positionX > second_to_third)
                     {
                         player->RemoveAura(SPELL_SECOND_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_THIRD_ROOM_OCCUPANT);
+                  //      player->AddAura(SPELL_THIRD_ROOM_OCCUPANT);
 
-                        instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
+                //        instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
                     }
                     // if player goes from chamber #2 to chamber #1
                     else if (player->GetPosition().m_positionX < first_to_second)
                     {
                         player->RemoveAura(SPELL_SECOND_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_FIRST_ROOM_OCCUPANT);
+              //          player->AddAura(SPELL_FIRST_ROOM_OCCUPANT);
 
-                        instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
+            //            instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
                     }
                 }
@@ -402,9 +402,9 @@ struct npc_mother_defense_grid : public ScriptedAI
                     if (player->GetPosition().m_positionX < second_to_third)
                     {
                         player->RemoveAura(SPELL_THIRD_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_SECOND_ROOM_OCCUPANT);
+          //              player->AddAura(SPELL_SECOND_ROOM_OCCUPANT);
 
-                        instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
+        //                instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
                     }
                 }
@@ -448,30 +448,30 @@ struct at_wind_tunnel_l_to_r : public AreaTriggerAI
 
     void OnInitialize() override
     {
-        at->SetPeriodicProcTimer(500);
+      //  at->SetPeriodicProcTimer(500);
     }
 
-    void OnPeriodicProc() override
+    void OnPeriodicProc() 
     {
         std::list<Player*> playerList;
         at->GetPlayerListInGrid(playerList, 100.0f);
         for (Player* player : playerList)
         {
-            if (player->HasAura(SPELL_FIRST_ROOM_OCCUPANT))
-                player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[1], -5.f, 0);
+          //  if (player->HasAura(SPELL_FIRST_ROOM_OCCUPANT))
+            //    player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[1], -5.f, 0);
 
-            else if (player->HasAura(SPELL_SECOND_ROOM_OCCUPANT))
-                player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[3], -5.f, 0);
+           // else if (player->HasAura(SPELL_SECOND_ROOM_OCCUPANT))
+             //   player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[3], -5.f, 0);
 
-            else if (player->HasAura(SPELL_THIRD_ROOM_OCCUPANT))
-                player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[5], -5.f, 0);
+           // else if (player->HasAura(SPELL_THIRD_ROOM_OCCUPANT))
+             //   player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[5], -5.f, 0);
         }
     }
 
     void OnRemove() override
     {
-        if (InstanceScript* instance = at->GetInstanceScript())
-            instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
+        if (InstanceScript* instance = at->GetInstanceScript());
+          //  instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
     }
 };
 
@@ -482,30 +482,32 @@ struct at_wind_tunnel_r_to_l : public AreaTriggerAI
 
     void OnInitialize() override
     {
-        at->SetPeriodicProcTimer(500);
+        //at->SetPeriodicProcTimer(500);
     }
 
-    void OnPeriodicProc() override
+    void OnPeriodicProc() 
     {
         std::list<Player*> playerList;
         at->GetPlayerListInGrid(playerList, 75.0f);
         for (Player* player : playerList)
         {
-            if (player->HasAura(SPELL_FIRST_ROOM_OCCUPANT))
-                player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[0], -5.f, 0);
+//            if (player->HasAura(SPELL_FIRST_ROOM_OCCUPANT))
+  //              player->ApplyMovementForce(at->GetGUID());//, wind_tunnel_push_positions[0] , -5.f, 0);
 
-            else if (player->HasAura(SPELL_SECOND_ROOM_OCCUPANT))
-                player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[2], -5.f, 0);
+    //        else
+      //          if (player->HasAura(SPELL_SECOND_ROOM_OCCUPANT))
+        //            player->ApplyMovementForce(at->GetGUID());//, wind_tunnel_push_positions[2], -5.f, 0);
 
-            else if (player->HasAura(SPELL_THIRD_ROOM_OCCUPANT))
-                player->ApplyMovementForce(at->GetGUID(), wind_tunnel_push_positions[4], -5.f, 0);
+            //else
+          //  if (player->HasAura(SPELL_THIRD_ROOM_OCCUPANT))
+            //    player->ApplyMovementForce(at->GetGUID());//, wind_tunnel_push_positions[4], -5.f, 0);
         }
     }
 
     void OnRemove() override
     {
-        if (InstanceScript* instance = at->GetInstanceScript())
-            instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
+        if (InstanceScript* instance = at->GetInstanceScript());
+         //   instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
     }
 };
 
@@ -519,19 +521,19 @@ struct npc_surgical_grid : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void IsSummonedBy(Unit* unit) override
+    void IsSummonedBy(Unit* unit) 
     {
         //me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         me->SetDisplayId(16925);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);        
-        me->GetScheduler().Schedule(1s, [this] (TaskContext context)
+        //instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);        
+        //me->GetScheduler().Schedule(1s, [this] (TaskContext context)
         {
             me->CastSpell(me, SPELL_ULDIR_DEFENSE_BEAM_H_AT_M);
             me->SetWalk(true);
             me->SetSpeedRate(MOVE_WALK, me->GetSpeed(MOVE_WALK) / 2);
             me->UpdateSpeed(MOVE_WALK);
             me->GetMotionMaster()->MoveTargetedHome();
-        });        
+        };        
     }
 
     void UpdateAI(uint32 diff) override
@@ -560,7 +562,7 @@ struct at_surgical_grid : public AreaTriggerAI
         Position pos = caster->GetPosition();
 
         at->MovePosition(pos, 60.0f, caster->GetOrientation());
-        at->SetDestination(pos, 15000);    
+       // at->SetDestination(pos, 15000);    
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -585,7 +587,7 @@ struct go_mothers_cache : public GameObjectAI
 {
     go_mothers_cache(GameObject* go) : GameObjectAI(go)
     {
-        go->AddFlag(GO_FLAG_LOCKED);
+      //  go->AddFlag(GO_FLAG_LOCKED);
     }
 
     void Reset() override

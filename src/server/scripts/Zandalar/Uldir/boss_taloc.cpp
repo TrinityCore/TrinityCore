@@ -97,22 +97,22 @@ private:
         me->SetCurrentEquipmentId(2);
     };
 
-    void EnterCombat(Unit* u) override
+    void EnterCombat(Unit* u) 
     {        
-        _EnterCombat();
+       // _EnterCombat();
         Talk(SAY_AGGRO);
         phase_one = true;
         me->SetHealth(me->CountPctFromMaxHealth(60));
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
         events.ScheduleEvent(EVENT_PLASMA_DISCHARGE, 5s);
         events.ScheduleEvent(EVENT_CUDGEL_OF_GORE, 50s);
-        if (IsMythic())
+       // if (IsMythic())
         {
             events.ScheduleEvent(EVENT_MYTHIC_MECHANICS, 12s);
         }
     }
 
-    void DamageTaken(Unit* done_by, uint32& /*damage*/) override
+    void DamageTaken(Unit* done_by, uint32& /*damage*/)
     {
         if (me->HealthBelowPct(35) && !phase_two)
         {            
@@ -133,7 +133,7 @@ private:
         me->RemoveAllAreaTriggers();
         if (GameObject* taloc_elevator = me->GetGameObject(GO_TALOC_ELEVATOR))
         {
-            taloc_elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
+           // taloc_elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED);
         }
     }
 
@@ -160,14 +160,14 @@ private:
                 cudgel->EnterVehicle(me);
                 cudgel->SetVisible(false);
                 me->SetCurrentEquipmentId(1);
-                if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+               // if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                 {
-                    me->SetFacingToObject(tar, true);
-                    DoCast(tar, SPELL_CUDGEL_OF_GORE_CHARGE);
-                    me->GetScheduler().Schedule(3s, [this, tar](TaskContext context)
+                 //   me->SetFacingToObject(tar, true);
+                   // DoCast(tar, SPELL_CUDGEL_OF_GORE_CHARGE);
+             //       me->GetScheduler().Schedule(3s, [this, tar](TaskContext context)
                     {
-                        DoCast(tar, SPELL_CUDGEL_OF_GORE_DAMAGE_KNOCK);
-                    });
+                     //   DoCast(tar, SPELL_CUDGEL_OF_GORE_DAMAGE_KNOCK);
+                    };
                 }
             }
         }
@@ -180,7 +180,7 @@ private:
         case EVENT_PLASMA_DISCHARGE:
         {            
             UnitList list;
-            SelectTargetList(list, 3, SELECT_TARGET_RANDOM, 500.0f, true);
+           // SelectTargetList(list, 3, SELECT_TARGET_RANDOM, 500.0f, true);
             for (Unit* tar : list)
             {
                 Talk(SAY_PLASMA_DISCHARGE);
@@ -207,7 +207,7 @@ private:
             me->SetReactState(REACT_AGGRESSIVE);
             events.ScheduleEvent(EVENT_PLASMA_DISCHARGE, 5s);
             events.ScheduleEvent(EVENT_CUDGEL_OF_GORE, 50s);
-            if (IsMythic())
+           // if (IsMythic())
             {
                 events.ScheduleEvent(EVENT_MYTHIC_MECHANICS, 12s);
             }
@@ -217,20 +217,20 @@ private:
         {
             DoCastVictim(SPELL_ENLARGED_HEART);
             UnitList list;
-            SelectTargetList(list, 10, SELECT_TARGET_RANDOM, 500.0f, true);
+            //SelectTargetList(list, 10, SELECT_TARGET_RANDOM, 500.0f, true);
             for (Unit* targets : list)
             {  
                 me->AddAura(SPELL_HARDENED_ARTERIES_DEBUFF, targets);
-                me->GetScheduler().Schedule(8s, [this, targets] (TaskContext context)
+                //me->GetScheduler().Schedule(8s, [this, targets] (TaskContext context)
                 {
                     DoCast(targets, SPELL_HARDENED_ARTERIES_EXP);
-                });
+                };
             }
             events.Repeat(35s);
             break;
         }
         case EVENT_ULDIR_DEFENSIVE_BEAM:
-            if (IsHeroic() || IsMythic())
+            if (IsHeroic())// || IsMythic())
             {
                 std::list<Creature*> uldir_defensive_beam;
                 me->GetCreatureListWithEntryInGrid(uldir_defensive_beam, 140286, 500.0f);
@@ -257,7 +257,7 @@ private:
         me->RemoveAllAreaTriggers();
         if (GameObject* taloc_elevator = me->GetGameObject(GO_TALOC_ELEVATOR))
         {
-            taloc_elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+          //  taloc_elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
         }
     }
 
@@ -275,7 +275,7 @@ class spell_plasma_discharge : public SpellScript
     {
         if (Unit* caster = GetCaster())
         {
-            if (caster->GetMap()->IsMythic())
+            if (caster->GetMap()->IsHeroic())//IsMythic())
             {
                 int32 MythicValue = 49784;
                 SetHitDamage(MythicValue);
@@ -285,7 +285,7 @@ class spell_plasma_discharge : public SpellScript
                 int32 HeroicValue = 36719;
                 SetHitDamage(HeroicValue);
             }
-            if (caster->GetMap()->IsLFR())
+            //if (caster->GetMap()->IsLFR())
             {
                 int32 NormalValue = 26242;
                 SetHitDamage(NormalValue);
@@ -304,7 +304,7 @@ struct npc_blood_storm : public ScriptedAI
 {
     npc_blood_storm(Creature* creature) : ScriptedAI(creature)
     {
-        creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+      //  creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
     }
 };
 

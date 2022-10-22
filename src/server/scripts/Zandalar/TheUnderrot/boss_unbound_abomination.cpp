@@ -155,7 +155,7 @@ public:
                             if (Creature* titan = GetTitan())
                             {
                                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, titan);
-                                me->Kill(titan);
+                               // me->Kill(titan);
                             }
                             EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                         }
@@ -179,10 +179,10 @@ public:
             {
             case NPC_BLOOD_VISAGE:
             case NPC_ROTTING_SPORE:
-                summon->SetInCombatWithZone();
+               // summon->SetInCombatWithZone();
                 break;
             case NPC_TITAN_KEEPER_HEZREL:
-                summon->SetInCombatWithZone();
+              //  summon->SetInCombatWithZone();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, summon);
                 break;
             }
@@ -206,7 +206,7 @@ public:
         {
             if (Creature* titan = GetTitan())
                 titan->DespawnOrUnsummon();
-            _DespawnAtEvade(15);
+            _DespawnAtEvade();
         }
 
         void DoAction(int32 action)
@@ -256,31 +256,31 @@ public:
             me->AddAura(SPELL_BLOOD_BARRIER, me);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-            if (Creature* titan = me->SummonCreature(NPC_TITAN_KEEPER_HEZREL, centerPosition.GetPositionX(), centerPosition.GetPositionY(), centerPosition.GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN))
-                titan->AI()->AttackStart(me);
+          //  if (Creature* titan = me->SummonCreature(NPC_TITAN_KEEPER_HEZREL, centerPosition.GetPositionX(), centerPosition.GetPositionY(), centerPosition.GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN))
+             //   titan->AI()->AttackStart(me);
 
-            events.ScheduleEvent(EVENT_PUTRID_BLOOD, TIMER_PUTRID_BLOOD);
-            events.ScheduleEvent(EVENT_VILE_EXPULSION, TIMER_VILE_EXPULSION);
-            events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
+           // events.ScheduleEvent(EVENT_PUTRID_BLOOD, TIMER_PUTRID_BLOOD);
+            //events.ScheduleEvent(EVENT_VILE_EXPULSION, TIMER_VILE_EXPULSION);
+            //events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
         }
 
 
-        void OnSpellFinished(SpellInfo const* spellInfo) override
+        void OnSpellFinished(SpellInfo const* spellInfo) 
         {
             switch (spellInfo->Id)
             {
             case SPELL_VILE_EXPULSION:
             {
                 std::list<Unit*> targets;
-                SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+               // SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
 
                 if (!targets.empty())
                     if (targets.size() >= 1)
                         targets.resize(1);
                 for (auto target : targets)
                 {
-                    for (uint8 i = 0; i < 5; ++i)
-                        me->CastSpell(me->GetPositionX() + 2 * i, me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN);
+                    for (uint8 i = 0; i < 5; ++i);
+                    //    me->CastSpell(me->GetPositionX() + 2 * i, me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN);
                 }
                 break;
             }
@@ -315,29 +315,29 @@ public:
                                 me->CastSpell(player, SPELL_PUTRID_BLOOD, true);
                             }
                         }
-                    events.ScheduleEvent(EVENT_PUTRID_BLOOD, TIMER_PUTRID_BLOOD);
+                  //  events.ScheduleEvent(EVENT_PUTRID_BLOOD, TIMER_PUTRID_BLOOD);
                     break;
                 }
                 case EVENT_VILE_EXPULSION:
                 {
                     SelectSoundAndText(me, 3);
                     me->CastSpell(me, SPELL_VILE_EXPULSION);
-                    events.RescheduleEvent(EVENT_VILE_EXPULSION, TIMER_VILE_EXPULSION);
+                  //  events.RescheduleEvent(EVENT_VILE_EXPULSION, TIMER_VILE_EXPULSION);
                     break;
                 }
                 case EVENT_CHECK_ENERGY:
                     if (me->GetPower(POWER_ENERGY) == 100)
                     {
-                        if (Creature* visage1 = me->SummonCreature(NPC_BLOOD_VISAGE, 1228.46f, 1459.84f, -181.44f, TEMPSUMMON_CORPSE_DESPAWN))
-                            visage1->SetInCombatWithZone();
-                        if (Creature* visage2 = me->SummonCreature(NPC_BLOOD_VISAGE, 1168.01f, 1499.57f, -181.48f, TEMPSUMMON_CORPSE_DESPAWN))
-                            visage2->SetInCombatWithZone();
+                        //if (Creature* visage1 = me->SummonCreature(NPC_BLOOD_VISAGE, 1228.46f, 1459.84f, -181.44f, TEMPSUMMON_CORPSE_DESPAWN))
+                      //      visage1->SetInCombatWithZone();
+                        //if (Creature* visage2 = me->SummonCreature(NPC_BLOOD_VISAGE, 1168.01f, 1499.57f, -181.48f, TEMPSUMMON_CORPSE_DESPAWN))
+                    //        visage2->SetInCombatWithZone();
 
                         me->SetPower(POWER_ENERGY, 0);
                     }
                     else
                         me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) - urand(5, 10));
-                    events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
+                  //  events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
                     break;
                 }
             }
@@ -369,8 +369,8 @@ public:
         void Reset()
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
-            events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
+           // events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
+          //  events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
 
             SelectSoundAndText(me, 1);
         }
@@ -426,7 +426,7 @@ public:
                             me->CastSpell(visage, SPELL_HOLY_BOLT);
                         }
                     }
-                    events.ScheduleEvent(EVENT_PURGE_CORRUPTION, TIMER_PURGE_CORRUPTION);
+                 //   events.ScheduleEvent(EVENT_PURGE_CORRUPTION, TIMER_PURGE_CORRUPTION);
                     break;
                 }
                 case EVENT_PURGE_CORRUPTION:
@@ -444,7 +444,7 @@ public:
                             me->CastSpell(visage, SPELL_PURGE_CORRUPTION);
                         }
                     }
-                    events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
+                   // events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
                     break;
                 }
                 case EVENT_CLEANSING_LIGHT:
@@ -455,7 +455,7 @@ public:
                     me->TextEmote(str.str().c_str(), 0, true);
 
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
+                 //   SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
 
                     if (!targets.empty())
                         if (targets.size() >= 1)
@@ -463,14 +463,14 @@ public:
                     for (auto target : targets)
                     {
                         me->CastSpell(target, SPELL_CLEANSING_LIGHT);
-                        std::list<AreaTrigger*> areatriggers = target->SelectNearestAreaTriggers(SPELL_VILE_EXPULSION_SPAWN, 100.f);
-                        for (AreaTrigger* at : areatriggers)
-                            if (at->GetDistance(target) < 10.f)
-                                at->SetDuration(0);
+                     //   std::list<AreaTrigger*> areatriggers = target->SelectNearestAreaTriggers(SPELL_VILE_EXPULSION_SPAWN, 100.f);
+                      //  for (AreaTrigger* at : areatriggers)
+                        //    if (at->GetDistance(target) < 10.f)
+                          //      at->SetDuration(0);
 
                     }
 
-                    events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
+                   // events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
                     break;
                 }
                 }
@@ -545,8 +545,8 @@ public:
         {
             me->SetReactState(REACT_AGGRESSIVE);
 
-            events.ScheduleEvent(EVENT_FIXATE, TIMER_FIXATE_PLAYER);
-            events.ScheduleEvent(EVENT_CHECK_DIST_PLAYER, 3000);
+            //events.ScheduleEvent(EVENT_FIXATE, TIMER_FIXATE_PLAYER);
+            //events.ScheduleEvent(EVENT_CHECK_DIST_PLAYER, 3000);
         }
 
         Creature* GetUnbound()
@@ -559,7 +559,7 @@ public:
             if (damage >= me->GetHealth())
             {
                 if(Creature* boss = GetUnbound())
-                    boss->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN, true);
+                //    boss->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN, true);
                 me->DespawnOrUnsummon();
             }
         }
@@ -576,7 +576,7 @@ public:
                         {
                             me->CastSpell(player, SPELL_ROTTING_SPORE_DAMAGE);
                             if (Creature* boss = GetUnbound())
-                                boss->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN, true);
+                       //         boss->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN, true);
                             me->DespawnOrUnsummon();
                         }
                     }
@@ -594,7 +594,7 @@ public:
                 case EVENT_FIXATE:
                 {
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
+                   // SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
 
                     if (!targets.empty())
                         if (targets.size() >= 1)
@@ -602,10 +602,10 @@ public:
 
                     for (auto target : targets)
                     {
-                        me->AddThreat(target, 9999999999.9f);
+                     //   me->AddThreat(target, 9999999999.9f);
                         me->AI()->AttackStart(target);
                     }
-                    events.ScheduleEvent(EVENT_FIXATE_FOLLOW, 2000);
+                   // events.ScheduleEvent(EVENT_FIXATE_FOLLOW, 2000);
                     break;
                 }
                 case EVENT_FIXATE_FOLLOW:
@@ -614,12 +614,12 @@ public:
                         me->GetMotionMaster()->MoveFollow(victim, 0.0f, 0.0f);
 
                     }
-                    events.ScheduleEvent(EVENT_FIXATE_FOLLOW, 1000);
+                   // events.ScheduleEvent(EVENT_FIXATE_FOLLOW, 1000);
                     break;
                 case EVENT_CHECK_DIST_PLAYER:
                 {
                     CheckNearbyPlayers();
-                    events.ScheduleEvent(EVENT_CHECK_DIST_PLAYER, 2000);
+                   // events.ScheduleEvent(EVENT_CHECK_DIST_PLAYER, 2000);
                     break;
                 }
                 }
@@ -646,7 +646,7 @@ public:
         {}
         void OnInitialize() override
         {
-            at->SetPeriodicProcTimer(30 * IN_MILLISECONDS);
+         //   at->SetPeriodicProcTimer(30 * IN_MILLISECONDS);
         }
 
         void OnUnitEnter(Unit* unit) override
@@ -661,12 +661,12 @@ public:
             unit->RemoveAurasDueToSpell(SPELL_VILE_EXPULSION_AT_DAMAGE);
         }
 
-        void OnPeriodicProc() override
+        void OnPeriodicProc() 
         {
             at->SetDuration(110 * IN_MILLISECONDS);
 
             if (Unit* caster = at->GetCaster())
-                if (caster->GetMap()->IsHeroic() || caster->GetMap()->IsMythic())
+                if (caster->GetMap()->IsHeroic())// || caster->GetMap()->IsMythic())
                     caster->SummonCreature(NPC_ROTTING_SPORE, at->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN);
         }
 

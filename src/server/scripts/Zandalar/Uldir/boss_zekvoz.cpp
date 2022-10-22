@@ -158,7 +158,7 @@ private:
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);        
         me->SetMaxPower(POWER_ENERGY, 100);
-        me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);        
+       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);        
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -172,21 +172,21 @@ private:
         me->RemoveAllAreaTriggers();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
-        _EnterCombat();
+        //_EnterCombat();
         Talk(SAY_AGGRO);
         Talk(SAY_AGGRO_WHISPER);
         sixtyfivePercent = false;
         thirtyPercent = false;
         this->phase = 1;       
-        me->AddAura(SPELL_SURGING_DARKNESS_ENERGY_BAR);
-        me->AddAura(SPELL_SURGING_DARKNESS_ENERGIZE);
+        //me->AddAura(SPELL_SURGING_DARKNESS_ENERGY_BAR);
+        //me->AddAura(SPELL_SURGING_DARKNESS_ENERGIZE);
         events.ScheduleEvent(EVENT_MIGHT_OF_THE_VOID, 6s);
         events.ScheduleEvent(EVENT_TITAN_SPARK, 9s);
         events.ScheduleEvent(EVENT_SURGING_DARKNESS, 25s);
         events.ScheduleEvent(EVENT_EYE_BEAM, 51s);
-        if (IsHeroic() || IsMythic())
+        if (IsHeroic())// || IsMythic())
             events.ScheduleEvent(EVENT_SUMMON_SILITHID_WARRIOR, 62s);
         DoCast(SPELL_PERIODIC_ENERGY_GAIN);
         me->SetPower(POWER_ENERGY, 75);
@@ -199,32 +199,32 @@ private:
                 Talk(SAY_KILL);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
         if (me->HealthBelowPct(65) && !sixtyfivePercent)
         {
             sixtyfivePercent = true;
-            events.Reset();
+            //events.Reset();
             this->phase = 2;
-            events.CancelEvent(EVENT_EYE_BEAM);
-            events.CancelEvent(EVENT_SUMMON_SILITHID_WARRIOR);
-            events.ScheduleEvent(EVENT_ROILING_DECEIT, 1s);
-            events.ScheduleEvent(EVENT_MIGHT_OF_THE_VOID, 6s);
-            events.ScheduleEvent(EVENT_TITAN_SPARK, 9s);
-            events.ScheduleEvent(EVENT_SURGING_DARKNESS, 25s);
+            //events.CancelEvent(EVENT_EYE_BEAM);
+            //events.CancelEvent(EVENT_SUMMON_SILITHID_WARRIOR);
+            //events.ScheduleEvent(EVENT_ROILING_DECEIT, 1s);
+            //events.ScheduleEvent(EVENT_MIGHT_OF_THE_VOID, 6s);
+            //events.ScheduleEvent(EVENT_TITAN_SPARK, 9s);
+            //events.ScheduleEvent(EVENT_SURGING_DARKNESS, 25s);
         }
         if (me->HealthBelowPct(30) && !thirtyPercent)
         {
             thirtyPercent = true;
-            events.Reset();
+            //events.Reset();
             this->phase = 3;
-            events.CancelEvent(EVENT_NERUBIANS);
-            events.ScheduleEvent(EVENT_ORB_OF_CORRUPTION, 1s);
-            events.ScheduleEvent(EVENT_PSIONIC_BLAST, 3s);
-            events.ScheduleEvent(EVENT_MIGHT_OF_THE_VOID, 6s);
-            events.ScheduleEvent(EVENT_TITAN_SPARK, 9s);
-            events.ScheduleEvent(EVENT_SURGING_DARKNESS, 25s);
-            events.ScheduleEvent(EVENT_EYE_BEAM, 51s);
+          //  events.CancelEvent(EVENT_NERUBIANS);
+           // events.ScheduleEvent(EVENT_ORB_OF_CORRUPTION, 1s);
+           // events.ScheduleEvent(EVENT_PSIONIC_BLAST, 3s);
+           // events.ScheduleEvent(EVENT_MIGHT_OF_THE_VOID, 6s);
+           // events.ScheduleEvent(EVENT_TITAN_SPARK, 9s);
+            //events.ScheduleEvent(EVENT_SURGING_DARKNESS, 25s);
+            //events.ScheduleEvent(EVENT_EYE_BEAM, 51s);
         }
     }
 
@@ -233,20 +233,20 @@ private:
         Talk(SAY_DEATH);
         Talk(SAY_DEATH_WHISPER);
         _JustDied();
-        if (IsMythic())
-            instance->DoCompleteAchievement(ACHIEVEMENT_MYTHIC_ZEKVOZ);
+        //if (IsMythic())
+         //   instance->DoCompleteAchievement(ACHIEVEMENT_MYTHIC_ZEKVOZ);
         CleanEncounter(instance, me);
         me->RemoveAllAreaTriggers();
     }
 
     void CleanEncounter(InstanceScript* instance, Creature* zekvoz)
     {
-        me->DespawnCreaturesInArea(NPC_SILITHID_WARRIOR, 125.0f);
-        me->DespawnCreaturesInArea(NPC_NERUBIAN_VOIDWEAVER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_OMINOUS_CLOUD_STALKER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION, 125.0f);
-        me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION_VISUAL_SOAK, 125.0f);
-        me->DespawnCreaturesInArea(NPC_GUARDIAN_OF_YOGG_SARON, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_SILITHID_WARRIOR, 125.0f);
+       // me->DespawnCreaturesInArea(NPC_NERUBIAN_VOIDWEAVER, 125.0f);
+       // me->DespawnCreaturesInArea(NPC_OMINOUS_CLOUD_STALKER, 125.0f);
+       // me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION, 125.0f);
+       // me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION_VISUAL_SOAK, 125.0f);
+       // me->DespawnCreaturesInArea(NPC_GUARDIAN_OF_YOGG_SARON, 125.0f);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -267,19 +267,19 @@ private:
                 if (Creature* titanBunny = me->FindNearestCreature(NPC_TITAN_SPARK, 150.0f, true))
                 {
                     this->titansparkcounter = 0;
-                    titanBunny->GetScheduler().Schedule(100ms, [this](TaskContext context)
+                   // titanBunny->GetScheduler().Schedule(100ms, [this](TaskContext context)
                     {
                         UnitList u_li;
-                        SelectTargetList(u_li, 10, SELECT_TARGET_RANDOM, 150.0f, true);
+                       // SelectTargetList(u_li, 10, SELECT_TARGET_RANDOM, 150.0f, true);
                         for (Unit* targets : u_li)
                         {
                             me->CastSpell(targets, SPELL_TITAN_SPARK_DAMAGE, true);
                             targets->CastSpell(nullptr, SPELL_TITAN_SPARK_COSMETIC, true);
                         }
                         titansparkcounter++;
-                        if (this->titansparkcounter < 5)
-                            context.Repeat(2s);
-                    });
+                        if (this->titansparkcounter < 5);
+                     //       context.Repeat(2s);
+                    };
                 }
                 if (this->phase != 3)
                     events.Repeat(25s);
@@ -289,16 +289,16 @@ private:
             }
             case EVENT_MIGHT_OF_THE_VOID:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 30.0f, true))
+                //if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 30.0f, true))
                 {
-                    DoCast(target, SPELL_MIGHT_OF_THE_VOID, false);
-                    me->GetScheduler().Schedule(3500ms, [this, target](TaskContext context)
+                  //  DoCast(target, SPELL_MIGHT_OF_THE_VOID, false);
+                  //  me->GetScheduler().Schedule(3500ms, [this, target](TaskContext context)
                     {
-                        me->CastSpell(target, SPELL_VOID_LASH_DMG, true);
-                        me->CastSpell(target, SPELL_SHATTER, true);
-                    });
+                    //    me->CastSpell(target, SPELL_VOID_LASH_DMG, true);
+                     //   me->CastSpell(target, SPELL_SHATTER, true);
+                    };
                 }
-                events.Repeat(45s);
+                //events.Repeat(45s);
                 break;
             }
         }
@@ -310,10 +310,10 @@ private:
             case EVENT_EYE_BEAM:
             {
                 if (Creature* yoggProjection = me->FindNearestCreature(NPC_PROJECTION_OF_CTHUN, 150.0f, true))
-                    yoggProjection->AddAura(SPELL_EYE_BEAM_TRANSFORM);
+                 //   yoggProjection->AddAura(SPELL_EYE_BEAM_TRANSFORM);
 
                 DoCast(SPELL_EYE_BEAM_TARGET_SELECTOR);
-                events.Repeat(27s);
+                //events.Repeat(27s);
                 break;
             }
             case EVENT_SUMMON_SILITHID_WARRIOR:
@@ -322,7 +322,7 @@ private:
                 {
                     me->SummonCreature(NPC_SILITHID_WARRIOR, me->GetRandomNearPosition(15.0f));
                 }
-                events.Repeat(120s);
+               // events.Repeat(120s);
                 break;
             }
         }
@@ -334,15 +334,15 @@ private:
             case EVENT_ROILING_DECEIT:
             {
                 if (Creature* yoggProjection = me->FindNearestCreature(NPC_PROJECTION_OF_YOGG_SARON, 150.0f, true))
-                    yoggProjection->AddAura(SPELL_ROILING_DECEIT_TRANSFORM);
+              //      yoggProjection->AddAura(SPELL_ROILING_DECEIT_TRANSFORM);
 
                 UnitList u_li;
-                SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 150.0f, true);
-                for (Unit* targets : u_li)
+            //    SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 150.0f, true);
+                //for (Unit* targets : u_li)
                 {
-                    me->CastSpell(targets, SPELL_ROILING_DECEIT_AURA, true);
+                  //  me->CastSpell(targets, SPELL_ROILING_DECEIT_AURA, true);
                 }
-                events.Repeat(20s, 25s);
+          //      events.Repeat(20s, 25s);
                 break;
             }
             case EVENT_NERUBIANS:
@@ -385,8 +385,8 @@ private:
             }
             case EVENT_PSIONIC_BLAST:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                    me->CastSpell(target, SPELL_PSIONIC_BLAST, false);
+      //          if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+        //            me->CastSpell(target, SPELL_PSIONIC_BLAST, false);
                 events.Repeat(40s);
                 break;
             }
@@ -409,29 +409,29 @@ struct npc_silithid_warrior : public ScriptedAI
     void Reset() override
     {
         ScriptedAI::Reset();
-        me->AddAura(SPELL_JAGGED_MANDIBLE_PROC_TRIGGER);
+    //    me->AddAura(SPELL_JAGGED_MANDIBLE_PROC_TRIGGER);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
-        events.ScheduleEvent(EVENT_JAGGED_MANDIBLE, 2s);
+       // events.ScheduleEvent(EVENT_JAGGED_MANDIBLE, 2s);
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
         me->AI()->DoZoneInCombat(nullptr);
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 eventId) 
     {
         switch (eventId)
         {
         case EVENT_JAGGED_MANDIBLE:
-            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 10.0f, true))
+            //if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 10.0f, true))
             {
-                me->AddAura(SPELL_JAGGED_MANDIBLE_AURA, target);
+              //  me->AddAura(SPELL_JAGGED_MANDIBLE_AURA, target);
             }
-            events.Repeat(2s);
+          //  events.Repeat(2s);
             break;
         }
     }
@@ -460,81 +460,81 @@ private:
     {
         this->count = 0;
         ScriptedAI::InitializeAI();
-        events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_INT, EVENT_SURGING_DARKNESS_MID, EVENT_SURGING_DARKNESS_EXT), 1s);
+        //events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_INT, EVENT_SURGING_DARKNESS_MID, EVENT_SURGING_DARKNESS_EXT), 1s);
         me->SetReactState(REACT_PASSIVE);
         me->AddUnitState(UNIT_STATE_ROOT);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = events.ExecuteEvent())
+        //while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+          //  switch (eventId)
             {
-            case EVENT_SURGING_DARKNESS_INT:
+           // case EVENT_SURGING_DARKNESS_INT:
             {
                 if (this->count == 3)
                 {
                     me->DespawnOrUnsummon();
-                    break;
+             //       break;
                 }
                 DoCast(SPELL_SURGING_DARKNESS_CIRCLE_EXT_N);
                 DoCast(SPELL_SURGING_DARKNESS_CIRCLE_INT);
-                events.ScheduleEvent(EVENT_SURGING_DARKNES_DMG_INT, 7s);
-                events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_MID, EVENT_SURGING_DARKNESS_EXT), 8s);
+               // events.ScheduleEvent(EVENT_SURGING_DARKNES_DMG_INT, 7s);
+               // events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_MID, EVENT_SURGING_DARKNESS_EXT), 8s);
                 count++;
-                break;
+                //break;
             }
-            case EVENT_SURGING_DARKNESS_MID:
+            //case EVENT_SURGING_DARKNESS_MID:
             {
                 if (this->count == 3)
                 {
                     me->DespawnOrUnsummon();
-                    break;
+              //      break;
                 }
                 DoCast(SPELL_SURGING_DARKNESS_CIRCLE_MID_N);
                 DoCast(SPELL_SURGING_DARKNESS_CIRCLE_INT);
-                events.ScheduleEvent(EVENT_SURGING_DARKNES_DMG_MID, 7s);
-                events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_INT, EVENT_SURGING_DARKNESS_EXT), 8s);
+                //events.ScheduleEvent(EVENT_SURGING_DARKNES_DMG_MID, 7s);
+                //events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_INT, EVENT_SURGING_DARKNESS_EXT), 8s);
                 count++;
-                break;
+                //break;
             }
-            case EVENT_SURGING_DARKNESS_EXT:
+            //case EVENT_SURGING_DARKNESS_EXT:
             {
                 if (this->count == 3)
                 {
                     me->DespawnOrUnsummon();
-                    break;
+              //      break;
                 }
                 DoCast(SPELL_SURGING_DARKNESS_CIRCLE_EXT_N);
                 DoCast(SPELL_SURGING_DARKNESS_CIRCLE_MID_N);
-                events.ScheduleEvent(EVENT_SURGING_DARKNES_DMG_EXT, 7s);
-                events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_MID, EVENT_SURGING_DARKNESS_INT), 8s);
+                //events.ScheduleEvent(EVENT_SURGING_DARKNES_DMG_EXT, 7s);
+                //events.ScheduleEvent(RAND(EVENT_SURGING_DARKNESS_MID, EVENT_SURGING_DARKNESS_INT), 8s);
                 count++;
-                break;
+               // break;
             }
-            case EVENT_SURGING_DARKNES_DMG_EXT:
+            //case EVENT_SURGING_DARKNES_DMG_EXT:
             {
                 DoCast(SPELL_SURGING_DARKNESS_DMG_EXT_N);
                 DoCast(SPELL_SURGING_DARKNESS_DMG_MID);
-                break;
+              //  break;
             }
-            case EVENT_SURGING_DARKNES_DMG_INT:
+            //case EVENT_SURGING_DARKNES_DMG_INT:
             {
                 DoCast(SPELL_SURGING_DARKNESS_DMG_EXT_N);
                 DoCast(SPELL_SURGING_DARKNESS_DMG_INT);
-                break;
+              //  break;
             }
-            case EVENT_SURGING_DARKNES_DMG_MID:
+            //case EVENT_SURGING_DARKNES_DMG_MID:
             {
                 DoCast(SPELL_SURGING_DARKNESS_DMG_INT);
                 DoCast(SPELL_SURGING_DARKNESS_DMG_MID);
-                break;
+              //  break;
             }
             }
         }
@@ -806,54 +806,54 @@ struct npc_nerubian_voidweaver : public ScriptedAI
         ScriptedAI::Reset();       
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
         me->AI()->DoZoneInCombat(nullptr);
 
-        if (IsHeroic() || IsMythic())
+        if (IsHeroic())// || IsMythic())
         {
             me->AddUnitState(UNIT_STATE_ROOT);
-            me->AddAura(SPELL_SHADOWBIND_VISUAL);
+           // me->AddAura(SPELL_SHADOWBIND_VISUAL);
         }
 
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+       // if (instance)
+         //   instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
     }
 
-    void EnterCombat(Unit* /*killer*/) override
+    void EnterCombat(Unit* /*killer*/) 
     {
-        events.ScheduleEvent(EVENT_VOID_BOLT, 3s);
+       // events.ScheduleEvent(EVENT_VOID_BOLT, 3s);
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 eventId) 
     {
         switch (eventId)
         {
         case EVENT_VOID_BOLT:
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                me->CastSpell(target, SPELL_VOID_BOLT, false);
+              //  me->CastSpell(target, SPELL_VOID_BOLT, false);
             }
-            events.Repeat(6s);
+          //  events.Repeat(6s);
             break;
         }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+      //  if (instance)
+        //    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 };
 
 //159150
 struct npc_orb_of_corruption : public ScriptedAI
 {
-    npc_orb_of_corruption(Creature* creature) : ScriptedAI(creature) 
-    { 
+    npc_orb_of_corruption(Creature* creature) : ScriptedAI(creature)
+    {
         SetCombatMovement(false);
-        me->SetReactState(REACT_PASSIVE);        
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC));
+        me->SetReactState(REACT_PASSIVE);
+        //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC));
     }
 
 private:
@@ -867,9 +867,9 @@ private:
     {
         me->AI()->DoZoneInCombat(nullptr);
         despawn = false;
-        me->SummonCreature(NPC_ORB_OF_CORRUPTION_VISUAL_SOAK, me->GetPosition());     
+        me->SummonCreature(NPC_ORB_OF_CORRUPTION_VISUAL_SOAK, me->GetPosition());
         me->CanFly();
-        me->SetFlying(true);
+        //    me->SetFlying(true);
         me->SetHover(true);
         me->SetWalk(true);
         me->SetHoverHeight(10.0f);
@@ -880,46 +880,46 @@ private:
         me->SetSpeedRate(MOVE_WALK, 1.0f);
         me->SetFall(true);
         me->GetMotionMaster()->MovePoint(1, x, y, z, false);
-        me->GetScheduler().Schedule(17s, [this](TaskContext context)
-        {            
-            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 25.0f, true))
+        //  me->GetScheduler().Schedule(17s, [this](TaskContext context)
+        {
+            // if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 25.0f, true))
             {
                 if (Creature* zekvoz = me->FindNearestCreature(NPC_ZEKVOZ, 150.0f, true))
                 {
-                    zekvoz->CastSpell(target, SPELL_CORRUPTORS_PATH_MAIN, true);
-                    zekvoz->AddAura(SPELL_CORRUPTORS_PATH_SCREEN_EFFECT, target);
+                    //  zekvoz->CastSpell(target, SPELL_CORRUPTORS_PATH_MAIN, true);
+                  //    zekvoz->AddAura(SPELL_CORRUPTORS_PATH_SCREEN_EFFECT, target);
                     despawn = true;
                     if (despawn)
                         me->DespawnOrUnsummon(5s);
                 }
             }
-            else
+            //else
             {
                 me->CastSpell(nullptr, SPELL_ORB_OF_CORRUPTION, true);
-                AddTimedDelayedOperation(1000, [this]() -> void {               
-                //TODO: damage
-                });
-                if (!despawn)
-                    context.Repeat(5s);
-            }
-        });
-    }
-
-    void JustSummoned(Creature* summon) override
-    {
-        switch (summon->GetEntry())
-        {
-        case NPC_ORB_OF_CORRUPTION_VISUAL_SOAK:
-            me->CastSpell(summon->GetPosition(), SPELL_ORB_OF_CORRUPTION_IMPACT_VISUAL, true);
-            break;
+                //  AddTimedDelayedOperation(1000, [this]() -> void {               
+                  //TODO: damage
+            };
+            if (!despawn);
+            //    context.Repeat(5s);
         }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        scheduler.Update(diff);
-    }
+    };
 };
+
+   //void JustSummoned(Creature* summon)
+   // {
+     //   switch (summon->GetEntry())
+       // {
+       // case NPC_ORB_OF_CORRUPTION_VISUAL_SOAK:
+          //  me->CastSpell(summon->GetPosition(), SPELL_ORB_OF_CORRUPTION_IMPACT_VISUAL, true);
+         //   break;
+        //}
+    //}
+
+   // void UpdateAI(uint32 diff) 
+    //{
+       // scheduler.Update(diff);
+    //}
+//};
 
 //134726
 struct npc_projection_of_cthun : public ScriptedAI
@@ -983,16 +983,16 @@ struct npc_ominous_cloud_stalker : public ScriptedAI
 
         if (!Timer)
         {        
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
                 Timer = urand(15000, 30000);
-                me->GetMotionMaster()->Clear(false);
-                me->GetMotionMaster()->MoveChase(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+               // me->GetMotionMaster()->Clear(false);
+             //   me->GetMotionMaster()->MoveChase(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
             }
-            else
+            //else
             {
                 Timer = 2500;
-                me->GetMotionMaster()->Clear(false);
+                //me->GetMotionMaster()->Clear(false);
                 me->GetMotionMaster()->MoveRandom(25.0f);
             }
             me->SetWalk(true);
@@ -1043,7 +1043,7 @@ class spell_roiling_deceit_damage : public SpellScript
         if (!caster || !target)
             return;
 
-        if (GetHitUnit()->GetMap()->IsMythic())
+        if (GetHitUnit()->GetMap()->IsHeroic())//IsMythic())
         {
             float damageMythic = 44009;
             SetHitDamage(damageMythic);
@@ -1069,14 +1069,19 @@ void AddSC_boss_zekvoz()
     RegisterSpellScript(spell_roiling_deceit_selector);
     RegisterSpellScript(spell_roiling_deceit_dummy);
     RegisterSpellScript(spell_titan_spark_selector);
-    RegisterAuraScript(spell_titan_spark_aura);
-    RegisterAuraScript(spell_roiling_deceit_aura);
+    //RegisterAuraScript(spell_titan_spark_aura);
+    //RegisterAuraScript(spell_roiling_deceit_aura);
     RegisterAreaTriggerAI(areatrigger_ominous_cloud);
     RegisterCreatureAI(npc_nerubian_voidweaver);
     RegisterCreatureAI(npc_orb_of_corruption);
     RegisterCreatureAI(npc_projection_of_cthun);
     RegisterCreatureAI(npc_projection_of_yogg_saron);
     RegisterCreatureAI(npc_ominous_cloud_stalker);
-    RegisterAuraScript(aura_corruptors_path);
+    //RegisterAuraScript(aura_corruptors_path);
     RegisterSpellScript(spell_roiling_deceit_damage);
+}
+
+npc_orb_of_corruption JustSummoned(Creature* summon)
+{
+//    return npc_orb_of_corruption();
 }

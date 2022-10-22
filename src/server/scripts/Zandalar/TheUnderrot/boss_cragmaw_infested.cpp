@@ -136,7 +136,7 @@ public:
         {
             DespawnCreature(NPC_BLOOD_TICK);
             DespawnCreature(NPC_LARVES);
-            _DespawnAtEvade(15);
+            _DespawnAtEvade(15s);
         }
 
         void MovementInform(uint32 uiType, uint32 id)
@@ -194,8 +194,8 @@ public:
                 Myy = me->GetPositionY();
 
                 // main spell has 12 missiles
-                for (uint8 i = 0; i < 12; ++i)
-                    me->CastSpell(Myx + urand(2, 10) , Myy - urand(2, 10), me->GetPositionZ(), SPELL_BLOOD_TICK_SPELL_DEST, true);
+                for (uint8 i = 0; i < 12; ++i);
+                  //  me->CastSpell(Myx + urand(2, 10) , Myy - urand(2, 10), me->GetPositionZ(), SPELL_BLOOD_TICK_SPELL_DEST, true);
 
             }
             else
@@ -209,8 +209,8 @@ public:
                 x = me->GetVictim()->GetPositionX();
                 y = me->GetVictim()->GetPositionY();
 
-                for (uint8 i = 0; i < 4; ++i)
-                    me->CastSpell(x + urand(3, 5), y - urand(3,7), me->GetPositionZ(), SPELL_BLOOD_TICK_SPELL_DEST, true);
+                for (uint8 i = 0; i < 4; ++i);
+                  //  me->CastSpell(x + urand(3, 5), y - urand(3,7), me->GetPositionZ(), SPELL_BLOOD_TICK_SPELL_DEST, true);
 
             }
         }
@@ -223,14 +223,14 @@ public:
             me->SetMaxPower(POWER_ENERGY, 100);
             me->SetPower(POWER_ENERGY, 0);
 
-            events.ScheduleEvent(EVENT_INDIGESTION, TIMER_INDIGESTION);
-            events.ScheduleEvent(EVENT_CHARGE_TARGET, TIMER_CHARGE);
+           // events.ScheduleEvent(EVENT_INDIGESTION, TIMER_INDIGESTION);
+           // events.ScheduleEvent(EVENT_CHARGE_TARGET, TIMER_CHARGE);
 
-            if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
-                events.ScheduleEvent(EVENT_ENERGY_REGEN, TIMER_ENERGY_REGEN);
+            if (me->GetMap()->IsHeroic());// || me->GetMap()->IsMythic())
+               // events.ScheduleEvent(EVENT_ENERGY_REGEN, TIMER_ENERGY_REGEN);
         }
 
-        void OnSpellFinished(SpellInfo const* spellInfo) override
+        void OnSpellFinished(SpellInfo const* spellInfo) 
         {
             switch (spellInfo->Id)
             {
@@ -264,10 +264,10 @@ public:
                     me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 2);
                     if (me->GetPower(POWER_ENERGY) == 100)
                     {
-                        events.ScheduleEvent(EVENT_TANTRUM, 1000);
+                   //     events.ScheduleEvent(EVENT_TANTRUM, 1000);
                         me->SetPower(POWER_ENERGY, 0);
                     }
-                    events.ScheduleEvent(EVENT_ENERGY_REGEN, TIMER_ENERGY_REGEN);
+                  //  events.ScheduleEvent(EVENT_ENERGY_REGEN, TIMER_ENERGY_REGEN);
                     break;
                 case EVENT_TANTRUM:
                     me->SetSpeed(MOVE_WALK, 4.5f);
@@ -279,15 +279,15 @@ public:
                     break;
                 case EVENT_INDIGESTION:
                     me->CastSpell(me->GetVictim(), SPELL_INDIGESTION);
-                    events.ScheduleEvent(EVENT_INDIGESTION, TIMER_INDIGESTION);
+                   // events.ScheduleEvent(EVENT_INDIGESTION, TIMER_INDIGESTION);
                     break;
                 case EVENT_CHARGE_TARGET:
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                   // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
-                        me->CastSpell(target, SPELL_CHARGE);
+                     //   me->CastSpell(target, SPELL_CHARGE);
                     }
-                    events.ScheduleEvent(EVENT_CHARGE_TARGET, TIMER_CHARGE);
+                   // events.ScheduleEvent(EVENT_CHARGE_TARGET, TIMER_CHARGE);
                     break;
                 }
                 }
@@ -312,9 +312,9 @@ public:
     {
         bfa_npc_blood_larves_AI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
+           // me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_PASSIVE);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+           // me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->SetDisplayId(88361);
             me->AddAura(167209, me); // hack fix because aura tend to disappear sometimes and we set an arrow and displayid
         }
@@ -324,7 +324,7 @@ public:
         void Reset()
         {
             me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 2.0f, me->GetOrientation()); //safety
-            events.ScheduleEvent(EVENT_METAMORPHOSIS, TIMER_METAMORPHOSIS);
+          //  events.ScheduleEvent(EVENT_METAMORPHOSIS, TIMER_METAMORPHOSIS);
             me->CastSpell(me, SPELL_LARVA_SUMMON_VISUAL, true);
         }
 
@@ -341,7 +341,7 @@ public:
                         if (player->GetDistance(me) <= 0.5f)
                         {
                             me->CastSpell(player, SPELL_LARVA_DESTROY, true);
-                            me->ForcedDespawn();
+                           // me->ForcedDespawn();
                         }
                     }
                 }
@@ -351,9 +351,9 @@ public:
                 switch (eventId)
                 {
                 case EVENT_METAMORPHOSIS:
-                    if (Creature* tick = me->SummonCreature(NPC_BLOOD_TICK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN))
-                        tick->SetInCombatWithZone();
-                    me->ForcedDespawn();
+                    //if (Creature* tick = me->SummonCreature(NPC_BLOOD_TICK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN))
+                    //    tick->SetInCombatWithZone();
+                  //  me->ForcedDespawn();
                     break;
                 }
             }
@@ -389,7 +389,7 @@ public:
 
         void EnterCombat(Unit*)
         {
-            events.ScheduleEvent(EVENT_SERRATED_FANGS, TIMER_SERRATED_FANGS);
+           // events.ScheduleEvent(EVENT_SERRATED_FANGS, TIMER_SERRATED_FANGS);
         }
 
         void DamageTaken(Unit* killer, uint32& damage)
@@ -397,7 +397,7 @@ public:
             if (damage >= me->GetHealth())
             {
                 me->CastSpell(killer, SPELL_BLOOD_TICK_BLOOD_BURST_DAMAGE, true);
-                me->DespawnOrUnsummon(1000);
+                me->DespawnOrUnsummon();
             }
         }
 
@@ -417,7 +417,7 @@ public:
                 {
                 case EVENT_SERRATED_FANGS:
                     me->CastSpell(me->GetVictim(), SPELL_BLOOD_TICK_SERRATED_FANGS);
-                    events.ScheduleEvent(EVENT_SERRATED_FANGS, TIMER_SERRATED_FANGS_AFTER);
+//                    events.ScheduleEvent(EVENT_SERRATED_FANGS, TIMER_SERRATED_FANGS_AFTER);
                     break;
                 }
             }

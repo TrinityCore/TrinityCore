@@ -53,5 +53,5 @@ struct instance_uldir : public InstanceScript
 
 void AddSC_instance_uldir()
 {
-    RegisterInstanceScript(instance_uldir, 1861);
+    //RegisterInstanceScript(instance_uldir, 1861);
 }

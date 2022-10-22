@@ -138,7 +138,7 @@ private:
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
         me->RemoveAura(SPELL_LIQUEFY_CHANGE_MODEL);
-        me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);        
+       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);        
     }
 
     void CleanEncounter(InstanceScript* instance, Creature* vectis)
@@ -165,15 +165,15 @@ private:
         CleanEncounter(instance, me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
-        _EnterCombat();
+       // _EnterCombat();
         Talk(SAY_AGGRO);
         this->phase = 1;
-        events.ScheduleEvent(EVENT_GESTATE, 9s);
-        events.ScheduleEvent(EVENT_EVOLVING_AFFLICTION, 3s);
-        events.ScheduleEvent(EVENT_CONTAGION, 20s);
-        events.ScheduleEvent(EVENT_LIQUEFY, 90s);
+       // events.ScheduleEvent(EVENT_GESTATE, 9s);
+       // events.ScheduleEvent(EVENT_EVOLVING_AFFLICTION, 3s);
+      //  events.ScheduleEvent(EVENT_CONTAGION, 20s);
+      //  events.ScheduleEvent(EVENT_LIQUEFY, 90s);
         DoCast(SPELL_OMEGA_VECTOR_TARGET_SELECTOR);
         DoCast(SPELL_ENERGY_FILL);
     }
@@ -182,11 +182,11 @@ private:
     {
         if (summon->GetEntry() == NPC_PLAGUE_AMALGAM)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                summon->getThreatManager().resetAllAggro();
-                summon->getThreatManager().addThreat(target, 1000000.0f);
-                summon->GetMotionMaster()->MoveChase(target);
+            //    summon->getThreatManager().resetAllAggro();
+          //      summon->getThreatManager().addThreat(target, 1000000.0f);
+              //  summon->GetMotionMaster()->MoveChase(target);
             }
         }
     }
@@ -196,12 +196,12 @@ private:
         _JustDied();
         Talk(SAY_DEATH);
         CleanEncounter(instance, me);
-        if (IsMythic())
-            instance->DoCompleteAchievement(ACHIEVEMENT_VECTIS_MYTHIC);
-        AddTimedDelayedOperation(6000, [this]() -> void
+        //if (IsMythic())
+         //   instance->DoCompleteAchievement(ACHIEVEMENT_VECTIS_MYTHIC);
+       // AddTimedDelayedOperation(6000, [this]() -> void
         {
-            instance->DoPlayScenePackageIdOnPlayers(SCENE_STAIRS);
-        });
+         //   instance->DoPlayScenePackageIdOnPlayers(SCENE_STAIRS);
+        };
         CleanEncounter(instance, me);
     }
 
@@ -214,21 +214,21 @@ private:
             case EVENT_CONTAGION:
             {
                 DoCast(SPELL_CONTAGION);
-                events.Repeat(22500);
+               // events.Repeat(22500);
                 break;
             }
             case EVENT_EVOLVING_AFFLICTION:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                    me->CastSpell(target, SPELL_EVOLVING_AFFLICTION, true);
-                events.Repeat(9500);
+              //  if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+               //     me->CastSpell(target, SPELL_EVOLVING_AFFLICTION, true);
+                //events.Repeat(9500);
                 break;
             }
             case EVENT_GESTATE:
             {
                 Talk(SAY_GESTATE);
                 DoCast(SPELL_GESTATE_TARGET_SELECTOR);
-                events.Repeat(25s);
+               // events.Repeat(25s);
                 break;
             }
             case EVENT_LIQUEFY:
@@ -237,9 +237,9 @@ private:
                 Talk(SAY_LIQUEFY);
                 DoCast(SPELL_LIQUEFY);
                 this->phase = 2;                    
-                events.ScheduleEvent(EVENT_BLOOD_GEYSER, 5s);
-                events.ScheduleEvent(EVENT_PLAGUE_BOMB, 10s);
-                events.ScheduleEvent(EVENT_CHANGE_PHASE, 35s);
+                //events.ScheduleEvent(EVENT_BLOOD_GEYSER, 5s);
+                //events.ScheduleEvent(EVENT_PLAGUE_BOMB, 10s);
+                //events.ScheduleEvent(EVENT_CHANGE_PHASE, 35s);
                 break;
             }
             }
@@ -265,10 +265,10 @@ private:
                 DoCast(SPELL_LIQUEFY_CANCEL_COSMETIC);
                 me->RemoveAurasDueToSpell(SPELL_LIQUEFY);
                 me->ClearUnitState(UNIT_STATE_ROOT);
-                events.ScheduleEvent(EVENT_GESTATE, 9s);
-                events.ScheduleEvent(EVENT_EVOLVING_AFFLICTION, 3s);
-                events.ScheduleEvent(EVENT_CONTAGION, 20s);
-                events.ScheduleEvent(EVENT_LIQUEFY, 90s);
+               // events.ScheduleEvent(EVENT_GESTATE, 9s);
+               // events.ScheduleEvent(EVENT_EVOLVING_AFFLICTION, 3s);
+               // events.ScheduleEvent(EVENT_CONTAGION, 20s);
+               // events.ScheduleEvent(EVENT_LIQUEFY, 90s);
                 break;                
             }
             }
@@ -284,23 +284,23 @@ struct npc_plague_amalgam : public ScriptedAI
     void Reset() override
     {
         ScriptedAI::Reset();
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+       // if (instance)
+         //   instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
-        events.ScheduleEvent(EVENT_IMMUNOSUPPRESSION, 5s);
+        //events.ScheduleEvent(EVENT_IMMUNOSUPPRESSION, 5s);
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 eventId)
     {
         switch (eventId)
         {
         case EVENT_IMMUNOSUPPRESSION:
         {
             me->CastSpell(me, SPELL_IMMUNOSUPPRESSION);
-            events.ScheduleEvent(EVENT_IMMUNOSUPPRESSION, 10s);
+            //events.ScheduleEvent(EVENT_IMMUNOSUPPRESSION, 10s);
             break;
         }
         }
@@ -308,8 +308,8 @@ struct npc_plague_amalgam : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (instance)
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        //if (instance)
+          //  instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 };
 
@@ -390,7 +390,7 @@ class spell_omega_vector_target_selector : public SpellScript
         if (Unit* caster = GetCaster())
         {
             hosts = 1;
-            hosts = 4 ? caster->GetInstanceScript()->instance->IsMythic() && hosts > 3 : 3 ? hosts > 2 : hosts;
+            hosts = 4 ? caster->GetInstanceScript()->instance->IsHeroic()/*IsMythic() */ && hosts > 3 : 3 ? hosts > 2 : hosts;
         }
         Trinity::Containers::RandomResize(targets, hosts);
     }
@@ -447,11 +447,11 @@ class spell_plague_bomb_cast : public SpellScript
     {
         if (Unit* caster = GetCaster())
         {
-            int length = GetEffectInfo(effIndex)->BasePoints;
-            for (int i = 0; i < length; i++)
+     //       int length = GetEffectInfo(effIndex)->BasePoints;
+       //     for (int i = 0; i < length; i++)
             {
-                Position pos = caster->GetRandomPoint(PlagueBombPos[i], 20);
-                caster->CastSpell(pos, SPELL_PLAGUE_BOMB_MISSILE_SUMMON);
+         //       Position pos = caster->GetRandomPoint(PlagueBombPos[i], 20);
+           //     caster->CastSpell(pos, SPELL_PLAGUE_BOMB_MISSILE_SUMMON);
             }
             std::list<Creature*> creatureList;
             caster->GetCreatureListWithEntryInGrid(creatureList, NPC_PATHOGEN_BOMB, 50.0f);
@@ -585,9 +585,9 @@ void MoveForward(float distance, AreaTrigger* at)
     float x = at->GetPositionX() + distance * cos(ori);
     float y = at->GetPositionY() + distance * sin(ori);
     float z = at->GetPositionZ();
-    at->GetNearPoint2D(x, y, distance, ori);
+   // at->GetNearPoint2D(x, y, distance, ori);
     movePos = { x, y, z, ori };
-    at->SetDestination(movePos, 3500);    
+  //  at->SetDestination(movePos, 3500);    
 }
 
 //19185
@@ -652,23 +652,23 @@ class spell_contagion : public SpellScript
     {
         if (Unit* target = GetHitUnit())
         {
-            if (target->GetInstanceScript()->instance->IsMythic())
+            if (target->GetInstanceScript()->instance->IsHeroic())//IsMythic())
             {
-                if (Aura* lingeringInfection = target->GetAura(SPELL_LINGERING_INFECTION_AURA))
+                if (Aura* lingeringInfection = target->GetAura(SPELL_LINGERING_INFECTION_AURA));
                 {
-                    switch (lingeringInfection->GetStackAmount())
+                   // switch (lingeringInfection->GetStackAmount()
                     {
-                    case 6:
+                    //case 6:
                         target->CastSpell(target, SPELL_BURSTING_LESIONS);
-                        break;
+                      //  break;
 
-                    case 12:
+                    //case 12:
                         target->CastSpell(target, SPELL_SPAWN_PARASITE);
-                        break;
+                      //  break;
 
-                    case 25:
+                    //case 25:
                         target->CastSpell(target, SPELL_TERMINAL_ERUPTION);
-                        break;
+                      //  break;
                     }
                 }
             }
@@ -691,10 +691,10 @@ class aura_burning_lesions : public AuraScript
         if (Unit* caster = GetCaster())
         {
             std::list<Player*> playersList;
-            for (auto player : caster->SelectNearestPlayers(5.0f, true))
+           // for (auto player : caster->SelectNearestPlayers(5.0f, true))
             {
-                if (Creature* vectis = player->FindNearestCreature(NPC_VECTIS, 500.0f))
-                    vectis->CastSpell(player, SPELL_LINGERING_INFECTION);
+             //   if (Creature* vectis = player->FindNearestCreature(NPC_VECTIS, 500.0f))
+               //     vectis->CastSpell(player, SPELL_LINGERING_INFECTION);
             }
         }
     }
@@ -751,24 +751,24 @@ struct npc_engorged_parasite : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
-        events.ScheduleEvent(EVENT_CAUSTIC_BITE, 3s);
+       // events.ScheduleEvent(EVENT_CAUSTIC_BITE, 3s);
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 eventId) 
     {
         switch (eventId)
         {
         case EVENT_CAUSTIC_BITE:
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                me->CastSpell(target, SPELL_CAUSTIC_BITE, true);
+             //   me->CastSpell(target, SPELL_CAUSTIC_BITE, true);
             }
-            events.Repeat(13s, 15s);
+         //   events.Repeat(13s, 15s);
             break;
 
         case EVENT_PARASITIC_DISCHARGE:
@@ -779,7 +779,7 @@ struct npc_engorged_parasite : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        events.ScheduleEvent(EVENT_PARASITIC_DISCHARGE, 100ms);
+       // events.ScheduleEvent(EVENT_PARASITIC_DISCHARGE, 100ms);
     }
 };
 
@@ -792,7 +792,7 @@ struct npc_pathogen_bomb : public ScriptedAI
     {
         ScriptedAI::Reset();
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+     //   me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         SetCombatMovement(false);
     }
 };
@@ -804,9 +804,9 @@ void AddSC_boss_vectis()
     RegisterAreaTriggerAI(areatrigger_liquefy);
     RegisterAreaTriggerAI(areatrigger_plague_bomb);
     RegisterAreaTriggerAI(areatrigger_blood_geyser);
-    RegisterAuraScript(spell_gestate);
-    RegisterAuraScript(spell_omega_vector);
-    RegisterAuraScript(spell_blood_geyser_aura);
+   // RegisterAuraScript(spell_gestate);
+   // RegisterAuraScript(spell_omega_vector);
+   // RegisterAuraScript(spell_blood_geyser_aura);
     RegisterSpellScript(spell_gestate_selector);
     RegisterSpellScript(spell_omega_vector_target_selector);
     RegisterSpellScript(spell_plague_bomb);
@@ -815,8 +815,8 @@ void AddSC_boss_vectis()
     RegisterSpellScript(spell_blood_geyser_damage);
     RegisterSpellScript(spell_blood_geyser_cast);
     RegisterSpellScript(spell_contagion);
-    RegisterAuraScript(aura_burning_lesions);
-    RegisterAuraScript(aura_evolving_affliction);
+    //RegisterAuraScript(aura_burning_lesions);
+    //RegisterAuraScript(aura_evolving_affliction);
     RegisterCreatureAI(npc_engorged_parasite);
     RegisterCreatureAI(npc_pathogen_bomb);
 }

@@ -47,13 +47,13 @@ struct boss_tzane : public BossAI
         BossAI::Reset();
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who) 
     {
-        events.ScheduleEvent(EVENT_CRUSHING_SLAM, 22000);
-        events.ScheduleEvent(EVENT_TERROR_WALL, 11000);
-        events.ScheduleEvent(EVENT_COALSECED_ESSENCE, 8500);
-        events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 19000);
-        BossAI::EnterCombat(who);
+       // events.ScheduleEvent(EVENT_CRUSHING_SLAM, 22000);
+       // events.ScheduleEvent(EVENT_TERROR_WALL, 11000);
+       // events.ScheduleEvent(EVENT_COALSECED_ESSENCE, 8500);
+       // events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 19000);
+       // BossAI::EnterCombat(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -72,22 +72,22 @@ struct boss_tzane : public BossAI
             {
             case EVENT_CRUSHING_SLAM:
                 DoCastVictim(SPELL_CRUSHING_SLAM);
-                events.ScheduleEvent(EVENT_CRUSHING_SLAM, 23000);
+               // events.ScheduleEvent(EVENT_CRUSHING_SLAM, 23000);
                 break;
             case EVENT_TERROR_WALL:
                 DoCastVictim(SPELL_TERROR_WALL);
-                events.ScheduleEvent(EVENT_TERROR_WALL, 23000);
+                //events.ScheduleEvent(EVENT_TERROR_WALL, 23000);
                 break;
             case EVENT_COALSECED_ESSENCE:
                 DoCast(SPELL_COALESCED_ESSENCE);
-                events.ScheduleEvent(EVENT_COALSECED_ESSENCE, 24000);
+                //events.ScheduleEvent(EVENT_COALSECED_ESSENCE, 24000);
                 break;
             case EVENT_CONSUMING_SPIRITS:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                 {
-                    me->CastSpell(target, SPELL_CONSUMING_SPIRITS, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+                  //  me->CastSpell(target, SPELL_CONSUMING_SPIRITS, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
                 }
-                events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 21000);
+                //events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 21000);
                 break;
             default:
                 break;
@@ -109,9 +109,9 @@ class spell_coalseced_essence : public SpellScript
         if (!caster || !target)
             return;
 
-        if (Unit* orb = caster->SummonCreature(NPC_ORB_OF_SWIRLING, target->GetPosition()))
+        //if (Unit* orb = caster->SummonCreature(NPC_ORB_OF_SWIRLING, target->GetPosition()))
         {
-            orb->AddAura(SPELL_COALESCED_ESSENCE_VISUAL);
+          //  orb->AddAura(SPELL_COALESCED_ESSENCE_VISUAL);
         }
     }
 
@@ -206,7 +206,7 @@ struct npc_orb_of_swirling : public ScriptedAI
             if (me->GetDistance(closestplayer) < 1)
             {
                 me->CastSpell(me, SPELL_COALESCED_ESSENCE_DAMAGE);
-                me->ForcedDespawn(0);
+               // me->ForcedDespawn(0);
             }
     }
 };

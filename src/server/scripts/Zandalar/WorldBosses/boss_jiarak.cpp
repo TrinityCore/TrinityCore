@@ -40,14 +40,14 @@ struct boss_jiarak : public BossAI
         summons.DespawnAll();
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who) 
     {
-        BossAI::EnterCombat(who);
+       // BossAI::EnterCombat(who);
 
         //EVENTS
-        events.ScheduleEvent(EVENT_STORM_WING, 11000);
-        events.ScheduleEvent(EVENT_MATRIARCHS_CALL, 30000);
-        events.ScheduleEvent(EVENT_HURRICANE_CRASH, 45000);
+        //events.ScheduleEvent(EVENT_STORM_WING, 11000);
+        //events.ScheduleEvent(EVENT_MATRIARCHS_CALL, 30000);
+        //events.ScheduleEvent(EVENT_HURRICANE_CRASH, 45000);
     }
 
     void UpdateAI(uint32 diff) override
@@ -69,11 +69,11 @@ struct boss_jiarak : public BossAI
                 me->CastSpell(me, SPELL_STORM_WING);
                 if (urand(0, 1) == 0)
                 {
-                    events.ScheduleEvent(EVENT_STORM_WING, 15000);
+                    //events.ScheduleEvent(EVENT_STORM_WING, 15000);
                 }
                 else
                 {
-                    events.ScheduleEvent(EVENT_STORM_WING, 45000);
+                    //events.ScheduleEvent(EVENT_STORM_WING, 45000);
                 }
                 break;
             }
@@ -82,18 +82,18 @@ struct boss_jiarak : public BossAI
                 me->CastSpell(me, SPELL_MATRIARCHS_CALL);
                 if (urand(0, 1) == 0)
                 {
-                    events.ScheduleEvent(EVENT_MATRIARCHS_CALL, 12000);
+                   // events.ScheduleEvent(EVENT_MATRIARCHS_CALL, 12000);
                 }
                 else
                 {
-                    events.ScheduleEvent(EVENT_MATRIARCHS_CALL, 45000);
+                 //   events.ScheduleEvent(EVENT_MATRIARCHS_CALL, 45000);
                 }
                 break;
             }
             case EVENT_HURRICANE_CRASH:
             {
                 me->CastSpell(me, SPELL_HURRICANE_CRASH);
-                events.ScheduleEvent(EVENT_HURRICANE_CRASH, 45000);
+               // events.ScheduleEvent(EVENT_HURRICANE_CRASH, 45000);
                 break;
             }
             default:

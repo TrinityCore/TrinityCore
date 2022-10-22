@@ -30,11 +30,11 @@ struct npc_underrot_faceless_corruptor : public ScriptedAI
     {
         if (InstanceScript* instanceScript = me->GetInstanceScript())
         {
-            ScriptParam param = me->GetScriptParam(1);
+        //    ScriptParam param = me->GetScriptParam(1);
 
-            if (param.numericValue == 1)
+           // if (param.numericValue == 1)
                 instanceScript->SetData(DATA_FACELESS_CORRUPTOR_1, 1);
-            else if (param.numericValue == 2)
+           // else if (param.numericValue == 2)
                 instanceScript->SetData(DATA_FACELESS_CORRUPTOR_2, 1);
         }
     }
@@ -78,7 +78,7 @@ struct at_underrot_tunnel : AreaTriggerAI
         if (unit->IsPlayer())
         {
             unit->CastSpell(unit, SPELL_GATEWAY, true);
-            unit->GetMotionMaster()->MoveSmoothPath(1, unboundAbominationPath, 3, false, true, 35.f);
+            unit->GetMotionMaster()->MoveSmoothPath(1, unboundAbominationPath, 3, false, true);
         }
     }
 };
@@ -87,7 +87,7 @@ void AddSC_the_underrot()
 {
     RegisterCreatureAI(npc_underrot_faceless_corruptor);
 
-    RegisterAuraScript(aura_underrot_open_web_door);
+  //  RegisterAuraScript(aura_underrot_open_web_door);
 
     RegisterAreaTriggerAI(at_underrot_tunnel);
 }

@@ -42,7 +42,7 @@ struct boss_dunegorger_kraulok : public BossAI
         BossAI::InitializeAI();
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* target, SpellInfo const* spell)
     {
         if (spell->Id == SPELL_SHAKE_LOSE)
         {
@@ -59,14 +59,14 @@ struct boss_dunegorger_kraulok : public BossAI
         summons.DespawnAll();
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who) 
     {
-        BossAI::EnterCombat(who);
+       // BossAI::EnterCombat(who);
 
         //EVENTS
-        events.ScheduleEvent(EVENT_SHAKE_LOSE, 25000);
-        events.ScheduleEvent(EVENT_PRIMAL_RAGE, 39000);
-        events.ScheduleEvent(EVENT_SONIC_BELLOW, 9000);
+      //  events.ScheduleEvent(EVENT_SHAKE_LOSE, 25000);
+       // events.ScheduleEvent(EVENT_PRIMAL_RAGE, 39000);
+       // events.ScheduleEvent(EVENT_SONIC_BELLOW, 9000);
     }
 
     void UpdateAI(uint32 diff) override
@@ -88,29 +88,29 @@ struct boss_dunegorger_kraulok : public BossAI
                 me->CastSpell(me, SPELL_SHAKE_LOSE);
                 if (me->HasAura(SPELL_PRIMAL_RAGE))
                 {
-                    events.ScheduleEvent(EVENT_SHAKE_LOSE, 15000);
+                    //events.ScheduleEvent(EVENT_SHAKE_LOSE, 15000);
                 }
                 else
                 {
-                    events.ScheduleEvent(EVENT_SHAKE_LOSE, 28000);
+                  //  events.ScheduleEvent(EVENT_SHAKE_LOSE, 28000);
                 }
                 break;
             }
             case EVENT_PRIMAL_RAGE:
             {
                 me->CastSpell(me, SPELL_PRIMAL_RAGE);
-                events.ScheduleEvent(EVENT_PRIMAL_RAGE, 33000);
+                //events.ScheduleEvent(EVENT_PRIMAL_RAGE, 33000);
                 break;
             }
             case EVENT_SONIC_BELLOW:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(target, 275175);
+                //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                 //   me->CastSpell(target, 275175);
                 if (me->HasAura(SPELL_PRIMAL_RAGE))
-                    events.ScheduleEvent(EVENT_SONIC_BELLOW, urand(15000, 20000));
-                else
+                    //events.ScheduleEvent(EVENT_SONIC_BELLOW, urand(15000, 20000));
+               // else
                 {
-                    events.ScheduleEvent(EVENT_SONIC_BELLOW, urand(25000, 30000));
+                    //events.ScheduleEvent(EVENT_SONIC_BELLOW, urand(25000, 30000));
                 }
                 break;
             }

@@ -22,6 +22,8 @@ SDCategory: Battlegrounds
 EndScriptData */
 
 #include "scriptPCH.h"
+#include <Creature.cpp>
+#include <Server/Packets/PartyPackets.h>
 
 // **** Script Info ****
 // Spiritguides in battlegrounds resurrecting many players at once
@@ -59,7 +61,7 @@ struct npc_spirit_guideAI : ScriptedAI
 
     uint32 uiTimerRez;
 
-    uint32 GetData(uint32 /*type*/) override
+    uint32 GetData(uint32 /*type*/) 
     {
         return uiTimerRez;
     }
@@ -68,9 +70,9 @@ struct npc_spirit_guideAI : ScriptedAI
     {
         if (uiTimerRez < uiDiff)
         {
-            m_creature->InterruptNonMeleeSpells(true);
-            m_creature->CastSpell(m_creature, SPELL_SPIRIT_HEAL, true);
-            m_creature->CastSpell(m_creature, SPELL_SPIRIT_HEAL_CHANNEL, false);
+            //creature->InterruptNonMeleeSpells(true);
+           // creature->CastSpell(creature, SPELL_SPIRIT_HEAL, true);
+           // creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, false);
             uiTimerRez = 30000;
         }
         else
@@ -80,25 +82,25 @@ struct npc_spirit_guideAI : ScriptedAI
     void CorpseRemoved(uint32 &) override
     {
         // TODO: would be better to cast a dummy spell
-        Map* pMap = m_creature->GetMap();
+       // Map* pMap = ->GetMap();
 
-        if (!pMap || !pMap->IsBattleGround())
+        //if (!pMap || !pMap->IsBattleGround())
             return;
 
-        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+       // Map::PlayerList const &PlayerList = pMap->GetPlayers();
 
-        for (const auto& itr : PlayerList)
+        //for (const auto& itr : PlayerList)
         {
-            Player* pPlayer = itr.getSource();
-            if (!pPlayer || !pPlayer->IsWithinDistInMap(m_creature, 20.0f) || !pPlayer->HasAura(SPELL_WAITING_TO_RESURRECT) || pPlayer->IsAlive())
-                continue;
+           // Player* pPlayer = itr.getSource();
+         //   if (!Player || !Player->IsWithinDistInMap(creature, 20.0f) || !pPlayer->HasAura(SPELL_WAITING_TO_RESURRECT) || pPlayer->IsAlive())
+           //     continue;
 
             // repop player again - now this node won't be counted and another node is searched
-            pPlayer->RepopAtGraveyard();
+           // Player->RepopAtGraveyard();
         }
     }
 
-    void AttackedBy(Unit* /*pWho*/) override
+    void AttackedBy(Unit* /*pWho*/) 
     {
     }
 
@@ -106,7 +108,7 @@ struct npc_spirit_guideAI : ScriptedAI
     {
     }
 
-    void DamageTaken(Unit* /*pFrom*/, uint32 &damage) override
+    void DamageTaken(Unit* /*pFrom*/, uint32 &damage) 
     {
         damage = 0;
     }
@@ -155,25 +157,25 @@ UPDATE creature_template SET spell1=23033 WHERE entry = 14465;
 UPDATE creature_template SET spell1=23576 WHERE entry = 14751;
 UPDATE creature_template SET spell1=23036 WHERE entry = 14466;
 */
-struct npc_etendardAI : NullCreatureAI
+struct npc_etendardAI : CreatureAI
 {
-    explicit npc_etendardAI(Creature* pCreature) : NullCreatureAI(pCreature)
+    explicit npc_etendardAI(Creature* pCreature) : CreatureAI(pCreature)
     {
         m_bSpawned = false;
-        m_bAutoRepeatSpell = pCreature->GetCreatureInfo()->spells[0];
+   //     m_bAutoRepeatSpell = pCreature->GetCreatureInfo()->spells[0];
     }
 
     bool m_bSpawned;
     uint32 m_bAutoRepeatSpell;
 
-    void UpdateAI(uint32 const uiDiff) override
+    void UpdateAI(uint32 const uiDiff) 
     {
         if (!m_bSpawned)
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-            m_creature->SetDefaultMovementType(IDLE_MOTION_TYPE);
-            m_creature->CastSpell(m_creature, SPELL_SPAWN_EFFECT, true);
-            m_creature->CastSpell(m_creature, m_bAutoRepeatSpell, true);
+           // creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+           // creature->SetDefaultMovementType(IDLE_MOTION_TYPE);
+            //creature->CastSpell(creature, SPELL_SPAWN_EFFECT, true);
+            //creature->CastSpell(creature, m_bAutoRepeatSpell, true);
             m_bSpawned = true;
         }
     }
@@ -182,21 +184,15 @@ struct npc_etendardAI : NullCreatureAI
 
 CreatureAI* GetAI_npc_etendard(Creature* pCreature)
 {
-    return new npc_etendardAI(pCreature);
+   
 }
 
 void AddSC_battleground()
 {
-    Script* newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_spirit_guide";
-    newscript->GetAI = &GetAI_npc_spirit_guide;
-    newscript->pGossipHello = &GossipHello_npc_spirit_guide;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_etendard";
-    newscript->GetAI = &GetAI_npc_etendard;
-    newscript->RegisterSelf();
+    void AddSC_npc_etendardAI();
+    void AddSC_GetAI_npc_spirit_guide();
+    void AddSC_GossipHello_npc_spirit_guide();
+    void AddSC_npc_etendard();
+    void AddSC_GetAI_npc_etendard();
+    void AddSC_npc_spirit_guide();
 }

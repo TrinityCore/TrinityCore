@@ -49,6 +49,12 @@ enum eSpells
     SPELL_DZEN = 229865,
     SPELL_DZEN_SPHERE = 229884,
     SPELL_MAIN_STATE = 229843,
+    SPELL_MOVE_FORWARD,
+};
+
+enum DATA
+{
+    DATA_BOSS_RANK_TWO,
 };
 
 // 68255
@@ -66,9 +72,9 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.RescheduleEvent(1, 3000);
+            //events.RescheduleEvent(1, 3000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -88,7 +94,7 @@ public:
                 {
                 case 1:
                     DoCast(SPELL_PECK);
-                    events.RescheduleEvent(1, 3500);
+                  //  events.RescheduleEvent(1, 3500);
                     break;
                 }
             }
@@ -118,9 +124,9 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.RescheduleEvent(1, 1000);
+            //events.RescheduleEvent(1, 1000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -139,7 +145,7 @@ public:
                 {
                 case 1:
                     DoCast(urand(1, 4) == 1 ? SPELL_SUMMON_BROOM_BOOM : SPELL_SUMMON_BROOM);
-                    events.RescheduleEvent(1, urand(9000, 12000));
+                  //  events.RescheduleEvent(1, urand(9000, 12000));
                     break;
                 }
             }
@@ -168,12 +174,12 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.RescheduleEvent(1, 4000);
-            events.RescheduleEvent(2, 7000);
-            events.RescheduleEvent(3, 4000);
-            events.RescheduleEvent(4, 26000);
+           // events.RescheduleEvent(1, 4000);
+           // events.RescheduleEvent(2, 7000);
+           // events.RescheduleEvent(3, 4000);
+           // events.RescheduleEvent(4, 26000);
         }
 
         void JustDied(Unit* who) override
@@ -188,8 +194,8 @@ public:
 
         void SpellFinishCast(const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_FIREWALL)
-                events.RescheduleEvent(5, 1);
+            if (spell->Id == SPELL_FIREWALL);
+              //  events.RescheduleEvent(5, 1);
         }
 
         void UpdateAI(uint32 diff) override
@@ -209,19 +215,19 @@ public:
                 case 1:
                     Talk(0);
                     DoCast(SPELL_FIREWALL);
-                    events.RescheduleEvent(1, urand(17000, 18000));
+                  //  events.RescheduleEvent(1, urand(17000, 18000));
                     break;
                 case 2:
                     DoCast(SPELL_PYROBLAST);
-                    events.RescheduleEvent(2, urand(27000, 32000));
+                   // events.RescheduleEvent(2, urand(27000, 32000));
                     break;
                 case 3:
                     DoCast(SPELL_FIREBALL);
-                    events.RescheduleEvent(3, urand(4000, 4500));
+                   // events.RescheduleEvent(3, urand(4000, 4500));
                     break;
                 case 4:
                     DoCast(SPELL_FLAME_BUFFET);
-                    events.RescheduleEvent(4, urand(12000, 14000));
+                   // events.RescheduleEvent(4, urand(12000, 14000));
                     break;
                 case 5:
                     DoCastVictim(132662);
@@ -457,7 +463,7 @@ public:
         boss_brawguild_masterAI(Creature* creature) : BossAI(creature, DATA_BOSS_RANK_TWO)
         {
             count_adds = 0;
-            me->setRegeneratingHealth(false);
+          //  me->setRegeneratingHealth(false);
             me->SetReactState(REACT_PASSIVE);
         }
 
@@ -485,7 +491,7 @@ public:
                 }
                 phase_of_sphere = 1;
 
-                me->AddDelayedEvent(3000, [this]() -> void
+              //  me->AddDelayedEvent(3000, [this]() -> void
                 {
                     if (me->GetOwner() && me->GetOwner()->IsPlayer())
                     {
@@ -496,7 +502,7 @@ public:
                                 me->SummonCreature(115660, pos[i].GetPositionX(), pos[i].GetPositionY(), pos[i].GetPositionZ(), pos[i].GetOrientation());
                         }
                     }
-                });
+                };
 
                 if (Unit* owner = me->GetOwner())
                     if (Player* player = owner->ToPlayer())
@@ -513,7 +519,7 @@ public:
                 EntryCheckPredicate pred(115637);
                 summons.DoAction(true, pred);
 
-                me->AddDelayedEvent(20000, [this]() -> void
+             //   me->AddDelayedEvent(20000, [this]() -> void
                 {
                     if (me->GetOwner() && me->GetOwner()->IsPlayer())
                     {
@@ -524,7 +530,7 @@ public:
                                 me->SummonCreature(115660, pos[i].GetPositionX(), pos[i].GetPositionY(), pos[i].GetPositionZ(), pos[i].GetOrientation());
                         }
                     }
-                });
+                };
 
                 phase_of_sphere++;
 
@@ -543,17 +549,17 @@ public:
                 return;
 
             if (Unit* owner = me->GetOwner())
-                summon->AI()->EnterCombat(owner);
+              //  summon->AI()->EnterCombat(owner);
 
             if (me->GetOwner() && me->GetOwner()->IsPlayer())
                 if (Player* player = me->GetOwner()->ToPlayer())
                 {
                     summon->GetMotionMaster()->MovePath(player->GetTeamId() == TEAM_ALLIANCE ? a_WP[count_adds] : h_WP[count_adds], false);
-                    summon->AddDelayedEvent(47000, [summon, player]() -> void
+                  //  summon->AddDelayedEvent(47000, [summon, player]() -> void
                     {
                         summon->GetMotionMaster()->Clear();
                         summon->GetMotionMaster()->MovePath(player->GetTeamId() == TEAM_ALLIANCE ? a_WP[urand(0, 5)] : h_WP[urand(0, 5)], false);
-                    });
+                    };
                 }
 
             count_adds++;
@@ -579,7 +585,7 @@ public:
         {
             if (me->GetEntry() == 115637)
             {
-                me->DespawnOrUnsummon(100);
+                me->DespawnOrUnsummon(100s);
                 return;
             }
 
@@ -621,12 +627,12 @@ public:
                 {
                 //    me->KillAllDelayedEvents();
                     Player* player = me->GetOwner()->ToPlayer();
-                    player->AddDelayedEvent(700, [player]() -> void
+                 //   player->AddDelayedEvent(700, [player]() -> void
                     {
-                           if (player && player->IsAlive())
-                               if (BrawlersGuild* brawlerGuild = player->GetBrawlerGuild())
-                                   brawlerGuild->BossReport(player->GetGUID(), true);
-                    });
+                        if (player && player->IsAlive());
+                           //    if (BrawlersGuild* brawlerGuild = player->GetBrawlerGuild())
+                              //     brawlerGuild->BossReport(player->GetGUID(), true);
+                    };
                 }
             }
         }

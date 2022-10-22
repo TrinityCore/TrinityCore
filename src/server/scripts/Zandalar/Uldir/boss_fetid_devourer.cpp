@@ -83,21 +83,21 @@ struct boss_fetid_devourer : public BossAI
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->RemoveAllAreaTriggers();
-        me->DespawnCreaturesInArea(NPC_CORRUPTION_CORPUSCLE, 125.0f);
+        //me->DespawnCreaturesInArea(NPC_CORRUPTION_CORPUSCLE, 125.0f);
         me->RemoveUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
-        IsLock = true;
+        //IsLock = true;
     }
 
-    void EnterCombat(Unit* u) override
+    void EnterCombat(Unit* u) 
     {
-        _EnterCombat();
+       // _EnterCombat();
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
         events.ScheduleEvent(EVENT_TERRIBLE_THRASH, 4s);
         events.ScheduleEvent(EVENT_MALODOROUS_MIASMA, 8s);
         events.ScheduleEvent(EVENT_WASTE_DISPOSAL_UNITS, 16s);
         events.ScheduleEvent(EVENT_GET_CORRUPTION, 21s);
         events.ScheduleEvent(EVENT_BERSERK, 330s);
-        if (IsHeroic() || (IsMythic()))
+        if (IsHeroic())// || (IsMythic()))
         {
             events.ScheduleEvent(EVENT_SHOCKWAVE_STOMP, 12s);
         }
@@ -108,7 +108,7 @@ struct boss_fetid_devourer : public BossAI
         _JustReachedHome();
         _DespawnAtEvade();
         me->RemoveAllAreaTriggers();
-        me->DespawnCreaturesInArea(NPC_CORRUPTION_CORPUSCLE, 125.0f);
+      //  me->DespawnCreaturesInArea(NPC_CORRUPTION_CORPUSCLE, 125.0f);
     }
 
     void JustDied(Unit* u) override
@@ -132,11 +132,11 @@ struct boss_fetid_devourer : public BossAI
         }
     }
 
-    void DamageTaken(Unit* done_by, uint32& /*damage*/) override
+    void DamageTaken(Unit* done_by, uint32& /*damage*/) 
     {
-        if (me->HealthBelowPct(51) && IsLock)
+       // if (me->HealthBelowPct(51) && IsLock)
         {
-            IsLock = false;
+         //   IsLock = false;
             me->CastSpell(nullptr, SPELL_FETID_FRENZY, true);
         }
     }
@@ -159,7 +159,7 @@ struct boss_fetid_devourer : public BossAI
                 events.ScheduleEvent(EVENT_MALODOROUS_MIASMA, 8s);
                 events.ScheduleEvent(EVENT_WASTE_DISPOSAL_UNITS, 16s);
                 events.ScheduleEvent(EVENT_GET_CORRUPTION, 21s);
-                if (IsHeroic() || (IsMythic()))
+                if (IsHeroic())// || (IsMythic()))
                 {
                     events.ScheduleEvent(EVENT_SHOCKWAVE_STOMP, 12s);
                 }
@@ -180,10 +180,10 @@ struct boss_fetid_devourer : public BossAI
     {
         if (me->GetPower(POWER_ENERGY) == 100)
         {
-            if (Unit* breathTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+           // if (Unit* breathTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                me->SetFacingToObject(breathTarget, true);
-                me->CastSpell(breathTarget, SPELL_ROTTING_REGURGITATION, false);
+             //   me->SetFacingToObject(breathTarget, true);
+               // me->CastSpell(breathTarget, SPELL_ROTTING_REGURGITATION, false);
                 me->SetPower(POWER_ENERGY, 0);
             }
         }
@@ -192,11 +192,11 @@ struct boss_fetid_devourer : public BossAI
         {
         case EVENT_TERRIBLE_THRASH:
         {
-            if (Unit* tank = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+           // if (Unit* tank = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
-                if (tank = SelectTarget(SELECT_TARGET_NEAREST, 0, 25.0f, true))
+             //   if (tank = SelectTarget(SELECT_TARGET_NEAREST, 0, 25.0f, true))
                 {
-                    me->CastSpell(tank, SPELL_TERRIBLE_THRASH_DAMAGE, false);
+             //       me->CastSpell(tank, SPELL_TERRIBLE_THRASH_DAMAGE, false);
                 }
             }
             events.Repeat(4s);
@@ -205,14 +205,14 @@ struct boss_fetid_devourer : public BossAI
         case EVENT_MALODOROUS_MIASMA:
         {
             UnitList tarlist;
-            SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 500.0f, true);
+           // SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 500.0f, true);
             for (Unit* targets : tarlist)
             {
                 me->AddAura(SPELL_MALODOROUS_MIASMA_AURA, targets);
-                targets->GetScheduler().Schedule(19s, [this, targets] (TaskContext context)
+               // targets->GetScheduler().Schedule(19s, [this, targets] (TaskContext context)
                 {
                     me->AddAura(SPELL_PUTRID_PAROXYSM, targets);
-                });
+                };
             }
             events.Repeat(20s);
             break;
@@ -255,14 +255,14 @@ struct boss_fetid_devourer : public BossAI
             events.CancelEvent(EVENT_TERRIBLE_THRASH);
             events.CancelEvent(EVENT_MALODOROUS_MIASMA);
             events.CancelEvent(EVENT_WASTE_DISPOSAL_UNITS);
-            if (IsHeroic() || (IsMythic()))
+            if (IsHeroic())// || (IsMythic()))
             {
                 events.CancelEvent(EVENT_SHOCKWAVE_STOMP);
             }
             if (Unit* corruption = instance->GetCreature(NPC_CORRUPTION_CORPUSCLE))
             {               
                 me->SetReactState(REACT_PASSIVE);
-                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);                
+  //              me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);                
                 me->SetFacingToObject(corruption, true);
                 me->GetMotionMaster()->MovePoint(1, corruption_corpuscle_spawn_pos, true);
             }
@@ -271,7 +271,7 @@ struct boss_fetid_devourer : public BossAI
         }
         case EVENT_BERSERK:
         {
-            me->AddAura(SPELL_BERSERK);
+//            me->AddAura(SPELL_BERSERK);
             break;
         }
 

@@ -119,7 +119,7 @@ public:
             switch (summon->GetEntry())
             {
             case NPC_BLOOD_EFFIGY:
-                summon->SetInCombatWithZone();
+               // summon->SetInCombatWithZone();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, summon);
                 break;
             }
@@ -127,7 +127,7 @@ public:
 
         void EnterEvadeMode(EvadeReason why)
         {
-            _DespawnAtEvade(15);
+            _DespawnAtEvade();
         }
 
         bool CheckCheaters()
@@ -195,7 +195,7 @@ public:
             SelectSoundAndText(me, 3);
         }
 
-        void OnSpellFinished(SpellInfo const* spellInfo) override
+        void OnSpellFinished(SpellInfo const* spellInfo) 
         {
             switch (spellInfo->Id)
             {
@@ -232,7 +232,7 @@ public:
                 break;
             }
 
-            me->CastSpell(x, y, me->GetPositionZ(), SPELL_BLOOD_MIRROR_MISSILE);
+          //  me->CastSpell(x, y, me->GetPositionZ(), SPELL_BLOOD_MIRROR_MISSILE);
             me->SummonCreature(NPC_BLOOD_EFFIGY, x, y, me->GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN);
         }
 
@@ -241,20 +241,20 @@ public:
             SelectSoundAndText(me, 1);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-            events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
-            events.ScheduleEvent(EVENT_BLOOD_MIRROR, TIMER_BLOOD_MIRROR);
-            events.ScheduleEvent(EVENT_CREEPING_ROT, TIMER_CREEPING_ROT);
+           // events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
+          //  events.ScheduleEvent(EVENT_BLOOD_MIRROR, TIMER_BLOOD_MIRROR);
+         //   events.ScheduleEvent(EVENT_CREEPING_ROT, TIMER_CREEPING_ROT);
 
-            if(me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
-                events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST);
+            if (me->GetMap()->IsHeroic());// || me->GetMap()->IsMythic())
+              //  events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST);
         }
 
         void HandleCreepingRoot()
         {
-            events.DelayEvents(3 * IN_MILLISECONDS);
+            //events.DelayEvents(3 * IN_MILLISECONDS);
 
             std::list<Unit*> targets;
-            SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+          //  SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
             if (!targets.empty())
                 if (targets.size() >= 1)
                     targets.resize(1);
@@ -266,29 +266,29 @@ public:
                 float orientation = me->GetOrientation();
                 Position pos;
 
-                if (Creature* trigger = me->SummonCreature(NPC_CREEPING_ROG_TRIGGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN))
+                //if (Creature* trigger = me->SummonCreature(NPC_CREEPING_ROG_TRIGGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN))
                 {
-                    trigger->DespawnOrUnsummon(30 * IN_MILLISECONDS);
+                 //   trigger->DespawnOrUnsummon(30 * IN_MILLISECONDS);
 
-                    trigger->SetReactState(REACT_PASSIVE);
-                    trigger->SetUnitFlags(UNIT_FLAG_NON_ATTACKABLE);
-                    trigger->SetFlying(true);
+                  //  trigger->SetReactState(REACT_PASSIVE);
+              //      trigger->SetUnitFlags(UNIT_FLAG_NON_ATTACKABLE);
+            //        trigger->SetFlying(true);
 
-                    trigger->CastSpell(trigger, SPELL_CREEPING_ROT_VISUAL, true);
+                    //trigger->CastSpell(trigger, SPELL_CREEPING_ROT_VISUAL, true);
                     //trigger->CastSpell(trigger, SPELL_CREEPING_ROT_TRIGGER, true);
 
-                    trigger->GetNearPoint(NULL, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 250, orientation);
-                    trigger->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+                   // trigger->GetNearPoint(NULL, pos.m_positionX, pos.m_positionY, pos.m_positionZ), DEFAULT_WORLD_OBJECT_SIZE, 250, orientation);
+                    //trigger->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 }
             }
         }
 
         void HandleFeast()
         {
-            events.DelayEvents(3 * IN_MILLISECONDS);
+          //  events.DelayEvents(3 * IN_MILLISECONDS);
 
             std::list<Unit*> targets;
-            SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+         //   SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
             if (!targets.empty())
                 if (targets.size() >= 1)
                     targets.resize(1);
@@ -296,10 +296,10 @@ public:
             for (auto target : targets)
             {
                 me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 20.0f, 10.0f);
-                me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
+               // me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
                     {
                         me->CastSpell(me->GetVictim(), SPELL_SANGUINE_FEAST_CAST);
-                    });
+                    };
             }
         }
 
@@ -322,7 +322,7 @@ public:
                 {
                 case EVENT_BLOOD_BOLT:
                     me->CastSpell(me->GetVictim(), SPELL_BLOOD_BOLT);
-                    events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
+                   // events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
                     break;
                 case EVENT_BLOOD_MIRROR:
                 {
@@ -333,18 +333,18 @@ public:
                     me->TextEmote(str.str().c_str(), 0, true);
 
                     me->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR);
-                    events.ScheduleEvent(EVENT_BLOOD_MIRROR, TIMER_BLOOD_MIRROR_AFTER);
+                   // events.ScheduleEvent(EVENT_BLOOD_MIRROR, TIMER_BLOOD_MIRROR_AFTER);
                     break;
                 }
                 case EVENT_CREEPING_ROT:
                     SelectSoundAndText(me, 2);
                     me->CastSpell(me, SPELL_CREEPING_ROT);
-                    events.ScheduleEvent(EVENT_CREEPING_ROT, TIMER_CREEPING_ROT);
+                   // events.ScheduleEvent(EVENT_CREEPING_ROT, TIMER_CREEPING_ROT);
                     break;
                 case EVENT_SANGUINE_FEAST:
                     SelectSoundAndText(me, 6);
                     HandleFeast();
-                    events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST_AFTER);
+                   // events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST_AFTER);
                     break;
                 }
             }
@@ -428,16 +428,16 @@ public:
 
         void EnterCombat(Unit*)
         {
-            events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
+          //  events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
 
-            if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
-                events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST);
+            if (me->GetMap()->IsHeroic());// || me->GetMap()->IsMythic())
+             //   events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST);
         }
 
         void HandleFeast()
         {
             std::list<Unit*> targets;
-            SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+           // SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
             if (!targets.empty())
                 if (targets.size() >= 1)
                     targets.resize(1);
@@ -445,10 +445,10 @@ public:
             for (auto target : targets)
             {
                 me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 20.0f, 10.0f);
-                me->GetScheduler().Schedule(2s, [this](TaskContext /*context*/)
+              //  me->GetScheduler().Schedule(2s, [this](TaskContext /*context*/)
                     {
                         me->CastSpell(me->GetVictim(), SPELL_SANGUINE_FEAST_CAST);
-                    });
+                    };
             }
         }
 
@@ -468,11 +468,11 @@ public:
                 {
                 case EVENT_BLOOD_BOLT:
                     me->CastSpell(me->GetVictim(), SPELL_BLOOD_BOLT);
-                    events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
+                   // events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
                     break;
                 case EVENT_SANGUINE_FEAST:
                     HandleFeast();
-                    events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST_AFTER);
+                  //  events.ScheduleEvent(EVENT_SANGUINE_FEAST, TIMER_SANGUINE_FEAST_AFTER);
                     break;
                 }
             }
@@ -518,15 +518,15 @@ public:
             if (Unit* caster = GetTarget())
             {
                 if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_1))
-                    if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_1))
-                        aurEff->SetDamage(caster->SpellDamageBonusDone(GetTarget(), GetSpellInfo(), 0, DOT, aurEff->GetSpellEffectInfo(), GetStackAmount()) * aurEff->GetDonePct());
+                    if (AuraEffect* aurEff = GetAura()->GetEffect(EFFECT_1));
+              //          aurEff->SetDamage(caster->SpellDamageBonusDone(GetTarget(), GetSpellInfo(), 0, DOT, aurEff->GetSpellEffectInfo(), GetStackAmount()) * aurEff->GetDonePct());
             }
         }
 
 
         void Register() override
         {
-            OnEffectHealAbsorb += AuraEffectHealAbsorbFn(bfa_spell_taint_of_ghunn_AuraScript::HandleAbsorb, EFFECT_0);
+            //OnEffectHealAbsorb += AuraEffectHealAbsorbFn(bfa_spell_taint_of_ghunn_AuraScript::HandleAbsorb, EFFECT_0);
             OnEffectPeriodic += AuraEffectPeriodicFn(bfa_spell_taint_of_ghunn_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
         }
     };

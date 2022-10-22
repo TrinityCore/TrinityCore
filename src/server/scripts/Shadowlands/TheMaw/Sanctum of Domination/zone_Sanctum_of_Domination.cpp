@@ -290,3 +290,7 @@ void AddSC_Sanctum_of_Domination()
 {
     void AddSC_Sanctum_of_Domination();
 };
+
+void sanctum_of_domination::AddSC_Sanctum_of_Domination()
+{
+}

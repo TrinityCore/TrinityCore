@@ -130,12 +130,12 @@ struct boss_aggramar : public BossAI
         while (data->event)
         {
             if (data->event == event)
-                me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+              //  me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             ++data;
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who) 
     {
         if (who->ToPlayer())
             if (roll_chance_i(30))
@@ -151,12 +151,12 @@ struct boss_aggramar : public BossAI
             if (roll_chance_i(30))
                 Talk(TALK_AGGRAMAR_DEATH);
 
-        instance->DoDelayedConversation(2000, 6127);
+      //  instance->DoDelayedConversation(2000, 6127);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(80, damage))
+       // if (me->HealthWillBeBelowPctDamaged(80, damage))
         {
             PhaseStatus = PHASE_2;
             events.Reset();
@@ -167,7 +167,7 @@ struct boss_aggramar : public BossAI
             killCount = 2;
             events.RescheduleEvent(EVNET_PHASE_2, 1s);
         }
-        else if (me->HealthWillBeBelowPctDamaged(40, damage))
+       // else if (me->HealthWillBeBelowPctDamaged(40, damage))
         {
             PhaseStatus = PHASE_3;
             events.Reset();
@@ -208,7 +208,7 @@ struct boss_aggramar : public BossAI
                 events.ScheduleEvent(SPELL_SCORCHING_BLAZE, 8s);
                 events.ScheduleEvent(SPELL_TAESHALACH_TECHNIQUE, 60s);
 
-                if (me->GetMap()->IsMythic())
+                //if (me->GetMap()->IsMythic())
                 {
                     events.ScheduleEvent(SPELL_EMPOWERED_FLAME_REND, 5s);
                     events.ScheduleEvent(SPELL_RAVENOUS_BLAZE, 5s);
@@ -236,7 +236,7 @@ struct boss_aggramar : public BossAI
         events.ScheduleEvent(SPELL_SCORCHING_BLAZE, 8s);
         events.ScheduleEvent(SPELL_TAESHALACH_TECHNIQUE, 60s);
 
-        if (me->GetMap()->IsMythic())
+       // if (me->GetMap()->IsMythic())
         {
             events.ScheduleEvent(SPELL_EMPOWERED_FLAME_REND, 5s);
             events.ScheduleEvent(SPELL_RAVENOUS_BLAZE, 5s);
@@ -259,14 +259,14 @@ struct boss_aggramar : public BossAI
             }
             case SPELL_FLARE:
             {
-                if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                    me->CastSpell(target1, SPELL_FLARE, false);
+               // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                 //   me->CastSpell(target1, SPELL_FLARE, false);
 
-                if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                    me->CastSpell(target2, SPELL_FLARE, false);
+//                if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+  //                  me->CastSpell(target2, SPELL_FLARE, false);
 
-                if (Unit* target3 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                    me->CastSpell(target3, SPELL_FLARE, false);
+    //            if (Unit* target3 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+      //              me->CastSpell(target3, SPELL_FLARE, false);
 
                 events.Repeat(25s);
                 break;
@@ -279,11 +279,11 @@ struct boss_aggramar : public BossAI
             }
             case SPELL_SCORCHING_BLAZE:
             {
-                if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                    me->CastSpell(target1, SPELL_SCORCHING_BLAZE, false);
+        //        if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+          //          me->CastSpell(target1, SPELL_SCORCHING_BLAZE, false);
 
-                if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                    me->CastSpell(target2, SPELL_SCORCHING_BLAZE, false);
+            //    if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+              //      me->CastSpell(target2, SPELL_SCORCHING_BLAZE, false);
 
                 events.Repeat(8s);
                 break;
@@ -393,7 +393,7 @@ struct npc_ember_of_taeshalach_122532 : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+      //  events.Update(diff);
 
         if (!UpdateVictim())
             return;

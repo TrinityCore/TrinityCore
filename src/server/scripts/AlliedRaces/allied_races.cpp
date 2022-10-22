@@ -54,16 +54,16 @@ public:
 		{
             //Store all future Allied races cinematics on first login here, not in CharacterHandler, it will create camera bugs and some other issues
             /* Cinematic - Pandaren death knight */
-			if (player->GetRace() == RACE_PANDAREN_HORDE || RACE_PANDAREN_ALLIANCE && player->GetMapId() == MAP_ALLIED_DK_ICECROWN && player->getClass() == CLASS_DEATH_KNIGHT)
+			if (player->GetRace() == RACE_PANDAREN_HORDE || RACE_PANDAREN_ALLIANCE && player->GetMapId() == MAP_ALLIED_DK_ICECROWN && CLASS_DEATH_KNIGHT);
             {
-                player->GetSceneMgr().PlaySceneByPackageId(2780);		
+                player->GetSceneMgr();// .PlaySceneByPackageId(2780);
 				player->SetLevel(58); // todo: get level from worldserver conf (dk start level)
             }
 
 
             /* Fix allied race deathknight missing spells */
             // the questline is wierd even on official blizz... so this is permanent fix. - Varjgard
-            if ((player->getClass() == CLASS_DEATH_KNIGHT) && (player->IsAlliedRace()))
+          //  if ((player->getClass() == CLASS_DEATH_KNIGHT) && (player->IsAlliedRace()))
             {
                 /* Acherus Death Charger */
                 if (!player->HasSpell(SPELL_ACHERUS_DEATH_CHARGER))
@@ -80,13 +80,13 @@ public:
     {
         /* Fix allied race deathknight missing aura */
         /* Dominion Over Acherus */
-        if ((player->GetAreaId() == AREA_EBON_HOLD_EAST_KINGD) && (player->GetMapId() == MAP_EASTERN_KINGD) && (player->IsAlliedRace()))
+        if ((player->GetAreaId() == AREA_EBON_HOLD_EAST_KINGD) && (player->GetMapId() == MAP_EASTERN_KINGD))//&& (player->IsAlliedRace()))
         {
             if (!player->HasAura(AURA_DOMINION_OVER_ACHERUS))
                 player->CastSpell(player, AURA_DOMINION_OVER_ACHERUS);
         }
 
-        if ((newArea != AREA_EBON_HOLD_EAST_KINGD)  && (player->IsAlliedRace()))
+        if ((newArea != AREA_EBON_HOLD_EAST_KINGD))//  && (player->IsAlliedRace()))
         {
             if (player->HasAura(AURA_DOMINION_OVER_ACHERUS))
                 player->RemoveAura(AURA_DOMINION_OVER_ACHERUS);
@@ -129,15 +129,15 @@ public:
         {
             me->setActive(true);
             me->SetVisible(false);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+          //  me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
 
             me->GetPosition(x, y, z);
             z += 4.0f;
             x -= 3.5f;
             y -= 5.0f;
-            me->GetMotionMaster()->Clear(false);
-            me->SetPosition(x, y, z, 0.0f);
+           // me->GetMotionMaster()->Clear(false);
+            //me->SetPosition(x, y, z, 0.0f);
         }
 
         void UpdateAI(uint32 diff) override
@@ -146,8 +146,8 @@ public:
             {
                 Player* player = NULL;
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                        player = summoner->ToPlayer();
+                  //  if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    //    player = summoner->ToPlayer();
 
                 if (!player)
                     phase = 3;
@@ -160,7 +160,7 @@ public:
                         FlyBackTimer = 500;
                         break;
                     case 1:
-                        player->GetClosePoint(x, y, z, me->GetObjectSize());
+                      //  player->GetClosePoint(x, y, z, me->GetObjectSize());
                         z += 2.5f;
                         x -= 2.0f;
                         y -= 1.5f;
@@ -198,12 +198,12 @@ public:
 class zone_allied_dk : public ZoneScript
 {
 public:
-    zone_allied_dk() : ZoneScript("zone_allied_dk") { }
+   // zone_allied_dk() : ZoneScript("zone_allied_dk"){}
 
-    void OnPlayerDeath(Player* player) override
+    void OnPlayerDeath(Player* player) 
     {
-        if (player->GetMapId() == MAP_ALLIED_DK_ICECROWN)
-            player->SummonCreature(228534, player->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0U, 0U, true);
+        if (player->GetMapId() == MAP_ALLIED_DK_ICECROWN);
+          //  player->SummonCreature(228534, player->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0U, 0U, true);
     }
 
 };
@@ -211,7 +211,7 @@ public:
 
 void AddSC_allied_races()
 {
-    RegisterPlayerScript(allied_races);
+   // RegisterPlayerScript(allied_races);
     new npc_valkyr_battle_maiden_allied();
     new zone_allied_dk();
 }
