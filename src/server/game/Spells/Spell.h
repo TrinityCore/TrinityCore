@@ -18,6 +18,9 @@
 #ifndef __SPELL_H
 #define __SPELL_H
 
+// @tswow-begin
+#include "TSEntity.h"
+// @tswow-end
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
@@ -159,6 +162,7 @@ class TC_GAME_API Spell
     friend class SpellScript;
     // @tswow-begin
     friend class TSSpell;
+    TSEntity m_tsEntity;
     // @tswow-end
     public:
 

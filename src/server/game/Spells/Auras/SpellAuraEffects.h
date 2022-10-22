@@ -18,6 +18,9 @@
 #ifndef TRINITY_SPELLAURAEFFECTS_H
 #define TRINITY_SPELLAURAEFFECTS_H
 
+// @tswow-begin
+#include "TSEntity.h"
+// @tswow-end
 #include "SpellAuras.h"
 
 class AuraEffect;
@@ -27,6 +30,11 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 
 class TC_GAME_API AuraEffect
 {
+    // @tswow-begin
+    TSEntity m_tsEntity;
+    friend class TSAuraEffect;
+    // @tswow-end
+
     friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 const* baseAmount);
     friend Aura::~Aura();
     friend class Unit;
@@ -371,4 +379,5 @@ namespace Trinity
             }
     };
 }
+
 #endif

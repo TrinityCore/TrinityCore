@@ -18,6 +18,9 @@
 #ifndef TRINITY_SPELLAURAS_H
 #define TRINITY_SPELLAURAS_H
 
+ // @tswow-begin
+#include "TSEntity.h"
+// @tswow-end
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 
@@ -44,6 +47,11 @@ class UnitAura;
 
 class TC_GAME_API AuraApplication
 {
+    // @tswow-begin
+    TSEntity m_tsEntity;
+    friend class TSAuraApplication;
+    // @tswow-end
+
     friend class Unit;
 
     private:
@@ -100,6 +108,11 @@ class TC_GAME_API Aura
     friend class Unit;
 
     public:
+        // @tswow-begin
+        TSEntity m_tsEntity;
+        friend class TSAura;
+        // @tswow-end
+
         typedef std::unordered_map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint8 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 availableEffectMask, WorldObject* owner);
