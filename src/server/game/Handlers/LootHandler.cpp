@@ -295,7 +295,7 @@ void WorldSession::DoLootRelease(Loot* loot)
                 else
                     go->SetLootState(GO_READY);
             }
-            else if (go->IsFullyLooted())
+            else if (go->GetGoType() != GAMEOBJECT_TYPE_GATHERING_NODE && go->IsFullyLooted())
                 go->SetLootState(GO_JUST_DEACTIVATED);
 
             go->OnLootRelease(player);

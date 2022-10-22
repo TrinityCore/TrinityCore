@@ -118,9 +118,18 @@ public:
                     else
                         dynFlags &= ~GO_DYNFLAG_LO_NO_INTERACT;
                     break;
+                case GAMEOBJECT_TYPE_GATHERING_NODE:
+                    if (gameObject->ActivateToQuest(receiver))
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                    if (gameObject->GetGoStateFor(receiver->GetGUID()) == GO_STATE_ACTIVE)
+                        dynFlags |= GO_DYNFLAG_LO_DEPLETED;
+                    break;
                 default:
                     break;
             }
+
+            if (!gameObject->MeetsInteractCondition(receiver))
+                dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
 
             dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
         }

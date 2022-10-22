@@ -381,6 +381,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void UpdateCapturePoint();
         bool CanInteractWithCapturePoint(Player const* target) const;
 
+        bool MeetsInteractCondition(Player const* user) const;
+
         void AIM_Destroy();
         bool AIM_Initialize();
 
