@@ -23,6 +23,7 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## Quest 37446: Lazy Peons
@@ -147,8 +148,40 @@ class spell_voodoo : public SpellScript
     }
 };
 
+enum Mithaka
+{
+    DATA_SHIP_DOCKED    = 1,
+    GOSSIP_MENU_MITHAKA = 23225,
+    GOSSIP_TEXT_MITHAKA = 35969
+};
+
+struct npc_mithaka : ScriptedAI
+{
+    npc_mithaka(Creature* creature) : ScriptedAI(creature), _shipInPort(false) { }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == DATA_SHIP_DOCKED)
+            _shipInPort = true;
+        else
+            _shipInPort = false;
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        InitGossipMenuFor(player, GOSSIP_MENU_MITHAKA);
+        if (!_shipInPort)
+            AddGossipItemFor(player, GOSSIP_MENU_MITHAKA, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        SendGossipMenuFor(player, GOSSIP_TEXT_MITHAKA, me->GetGUID());
+        return true;
+    }
+private:
+    bool _shipInPort;
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
     RegisterSpellScript(spell_voodoo);
+    RegisterCreatureAI(npc_mithaka);
 }
