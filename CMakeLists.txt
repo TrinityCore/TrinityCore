@@ -81,17 +81,17 @@ add_subdirectory(dep)
 # add core sources
 add_subdirectory(src)
 
-include(CTest)
-if(BUILD_TESTING)
-  list(APPEND CMAKE_MODULE_PATH
-    "${Catch2_SOURCE_DIR}/contrib")
-  include(Catch)
+#include(CTest)
+#if(BUILD_TESTING)
+ # list(APPEND CMAKE_MODULE_PATH
+  #  "${Catch2_SOURCE_DIR}/contrib")
+  #include(Catch)
 
-  add_subdirectory(tests)
+ # add_subdirectory(tests)
 
   # Catch cmakefile messes with our settings we explicitly leave up to the user
   # restore user preference
   if (NOT WITH_SOURCE_TREE STREQUAL "hierarchical-folders")
     set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
   endif()
-endif()
+#endif()
