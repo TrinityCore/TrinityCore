@@ -31,8 +31,7 @@ Script Data End */
 #include "ScriptedGossip.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
-#include "GameObjectAI.h"
-#include "zone_Sanctum_of_Domination.h"
+#include "GameObjectAI.h" 
 
 enum Objects
 {

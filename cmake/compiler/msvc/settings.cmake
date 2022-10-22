@@ -91,7 +91,7 @@ endif()
 # that the program will eventually be linked with a conforming operator new implementation,
 # and can omit all of these extra null checks from your program.
 # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
-if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0)
   # makes this flag a requirement to build TC at all
   target_compile_options(trinity-compile-option-interface
     INTERFACE
