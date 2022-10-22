@@ -25,6 +25,7 @@
 #include "SpellScript.h"
 #include "GameObject.h"
 #include "ScriptedGossip.h"
+#include "Creature.h"
 #include "antorus_the_burning_throne.h"
 
 //245764
@@ -77,6 +78,18 @@ enum Talk
     TALK_EOE_FINISH                         = 4
 };
 
+enum Phases
+{
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+    PHASE_04,
+    PHASE_05,
+    PHASE_06,
+    PHASE_07,
+    PHASE_08,
+};
+
 class playerscript_surge_of_life_trigger : public PlayerScript
 {
 public:
@@ -84,13 +97,14 @@ public:
 
     uint32 checkTimer = 5000;
     bool needRecast = true;
-    void OnUpdateArea(Player* player, Area* newArea, Area* /*oldArea*/)
+   // void OnUpdateArea(Player* player, Area* newArea, Area* /*oldArea*/);
+    void OnUpdateArea()
     {
-        if (newArea->GetId() == 9333)
+       // if (newArea->GetId() == 9333)
         {
-            player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_THE_LIFEBINDER);
-            player->RemoveAurasDueToSpell(SPELL_SURGE_OF_LIFE_BUFF);
-            player->CastSpell(player, SPELL_ESSENCE_OF_THE_LIFEBINDER, true);
+         //   player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_THE_LIFEBINDER);
+           // player->RemoveAurasDueToSpell(SPELL_SURGE_OF_LIFE_BUFF);
+            //player->CastSpell(player, SPELL_ESSENCE_OF_THE_LIFEBINDER, true);
         }
     }
 
@@ -115,7 +129,7 @@ public:
         }
     }
 
-    void OnUpdate(Player* player, uint32 diff) override
+    void OnUpdate(Player* player, uint32 diff) 
     {
         if (checkTimer <= diff)
         {
@@ -171,25 +185,25 @@ struct boss_essence_of_eonar : public BossAI
             case PHASE_04:
             case PHASE_07:
                 //NPC_FEL_INFUSED_DESTRUCTOR 15 ,NPC_FEL_HOUND,NPC_FELGUARD 5 ,NPC_FEL_LORD 5 40%
-                me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+            //    me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 for (uint8 i = 0; i < 3; ++i)
-                    me->SummonCreature(NPC_FEL_HOUND, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+              //      me->SummonCreature(NPC_FEL_HOUND, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 for (uint8 i = 0; i < 2; ++i)
-                    me->SummonCreature(NPC_FELGUARD, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                //    me->SummonCreature(NPC_FELGUARD, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 break;
             case PHASE_02:
             case PHASE_05:
-                me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                //me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 for (uint8 i = 0; i < 3; ++i)
-                    me->SummonCreature(NPC_FEL_HOUND, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                  //  me->SummonCreature(NPC_FEL_HOUND, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 for (uint8 i = 0; i < 2; ++i)
-                    me->SummonCreature(NPC_FELGUARD, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                //    me->SummonCreature(NPC_FELGUARD, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 break;
             case PHASE_03:
             case PHASE_06:
-                me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+               // me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 for (uint8 i = 0; i < 3; ++i)
-                    me->SummonCreature(NPC_FEL_LORD, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                 //   me->SummonCreature(NPC_FEL_LORD, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 break;
         }
     }
@@ -249,7 +263,7 @@ struct boss_essence_of_eonar : public BossAI
                 //DoCast(SPELL_LIFE_FORCE);
                 events.Reset();
                 summons.DespawnAll();
-                me->GetScheduler().CancelAll();
+              //  me->GetScheduler().CancelAll();
 
                 if (instance)
                 {
@@ -258,7 +272,7 @@ struct boss_essence_of_eonar : public BossAI
                     instance->SendBossKillCredit(2075);
                 }
 
-                me->SummonGameObject(GO_BOX, boxpos, QuaternionData(0.0f, 0.0f, -0.345448f, 0.938438f), WEEK);
+              //  me->SummonGameObject(GO_BOX, boxpos, QuaternionData(0.0f, 0.0f, -0.345448f, 0.938438f), WEEK);
                 break;
             }
             case EVENT_CHECK:

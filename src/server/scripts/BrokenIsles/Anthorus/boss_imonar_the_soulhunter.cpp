@@ -60,14 +60,14 @@ enum Spells
     SPELL_PULSE_GRENADE_DMG = 247388,
 };
 
-std::vector<TalkData> const talkData =
-{
-    { EVENT_ON_MOVEINLINEOFSIGHT,       EVENT_TYPE_TALK,            0 },
-    { EVENT_ON_ENTERCOMBAT,             EVENT_TYPE_TALK,            1 },
-    { SPELL_SLEEP_CANISTER,             EVENT_TYPE_TALK,            2 },
-    { SPELL_PULSE_GRENADE,              EVENT_TYPE_TALK,            3 },
-    { EVENT_ON_JUSTDIED,                EVENT_TYPE_TALK,            11 },
-};
+//std::vector<Data> const talkData =
+//{
+  //  { EVENT_ON_MOVEINLINEOFSIGHT,       EVENT_TYPE_TALK,            0 },
+   // { EVENT_ON_ENTERCOMBAT,             EVENT_TYPE_TALK,            1 },
+    //{ SPELL_SLEEP_CANISTER,             EVENT_TYPE_TALK,            2 },
+    //{ SPELL_PULSE_GRENADE,              EVENT_TYPE_TALK,            3 },
+   // { EVENT_ON_JUSTDIED,                EVENT_TYPE_TALK,            11 },
+//};
 struct boss_imonar_the_soulhunter : public BossAI
 {
     boss_imonar_the_soulhunter(Creature* creature) : BossAI(creature, DATA_IMONAR_THE_SOULHUNTER) { Initialize(); }
@@ -75,7 +75,7 @@ struct boss_imonar_the_soulhunter : public BossAI
     void Initialize()
     {
         //SetDungeonEncounterID(2082);
-        LoadTalkData(&talkData);
+       // LoadTalkData(&talkData);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -96,33 +96,33 @@ struct boss_imonar_the_soulhunter : public BossAI
     }
 
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(66, damage))
+      //  if (me->HealthWillBeBelowPctDamaged(66, damage))
         {
             PhaseStatus = PHASE_02;
             events.Reset();
             DoCast(SPELL_CONFLAGRATION);
-            AddTimedDelayedOperation(10000, [this]() -> void
+        //    AddTimedDelayedOperation(10000, [this]() -> void
             {
                 me->RemoveAurasDueToSpell(SPELL_CONFLAGRATION);
                 events.ScheduleEvent(SPELL_SEVER, 6s);
                 events.ScheduleEvent(SPELL_CHARGED_BLASTS, 8s);
                 events.ScheduleEvent(SPELL_SHRAPNEL_BLAST, 12s, 14s);
-            });
+            };
         }
-        if (me->HealthWillBeBelowPctDamaged(33, damage))
+       // if (me->HealthWillBeBelowPctDamaged(33, damage))
         {
             PhaseStatus = PHASE_03;
             events.Reset();
             DoCast(SPELL_CONFLAGRATION);
-            AddTimedDelayedOperation(10000, [this]() -> void
+         //   AddTimedDelayedOperation(10000, [this]() -> void
             {
                 me->RemoveAurasDueToSpell(SPELL_CONFLAGRATION);
                 events.ScheduleEvent(SPELL_EMPOWERED_SHOCK_LANCE, 5s);
                 events.ScheduleEvent(SPELL_EMPOWERED_PULSE_GRENADE, 6s, 7s);
                 events.ScheduleEvent(SPELL_EMPOWERED_SHRAPNEL_BLAST, 15s);
-            });
+            };
         }
     }
 
@@ -138,22 +138,22 @@ struct boss_imonar_the_soulhunter : public BossAI
         }
         case SPELL_SLEEP_CANISTER:
         {
-            GetTalkData(SPELL_SLEEP_CANISTER);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SLEEP_CANISTER, false);
+          //  GetTalkData(SPELL_SLEEP_CANISTER);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+           //     me->CastSpell(target1, SPELL_SLEEP_CANISTER, false);
             events.Repeat(12s);
             break;
         }
         case SPELL_PULSE_GRENADE:
         {
             if (urand(0, 1))
-                GetTalkData(SPELL_PULSE_GRENADE);
+             //   GetTalkData(SPELL_PULSE_GRENADE);
             DoCast(SPELL_PULSE_GRENADE);
 
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+          //      me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
             events.Repeat(17s);
             break;
         }
@@ -168,34 +168,34 @@ struct boss_imonar_the_soulhunter : public BossAI
             DoCast(SPELL_CHARGED_BLASTS);
             Position pos1 = me->GetRandomNearPosition(35.0f);
             Position pos2 = me->GetRandomNearPosition(35.0f);
-            AddTimedDelayedOperation(2500, [this, pos1]() -> void
+          //  AddTimedDelayedOperation(2500, [this, pos1]() -> void
             {
-                if (Creature* felcrush = me->SummonCreature(NPC_BOMBING_RUN, Position(pos1.GetPositionX(),pos1.GetPositionY(), 1878.13f,pos1.GetOrientation()), TEMPSUMMON_TIMED_DESPAWN, 10000))
+            //    if (Creature* felcrush = me->SummonCreature(NPC_BOMBING_RUN, Position(pos1.GetPositionX(),pos1.GetPositionY(), 1878.13f,pos1.GetOrientation()), TEMPSUMMON_TIMED_DESPAWN, 10000))
                 {
-                    felcrush->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
-                    if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                        felcrush->CastSpell(target1, SPELL_CHARGED_BLASTS_DMG, false);
+              //      felcrush->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+                //    if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+              //          felcrush->CastSpell(target1, SPELL_CHARGED_BLASTS_DMG, false);
                 }
-            });
-            AddTimedDelayedOperation(3000, [this, pos2]() -> void
+            };
+           // AddTimedDelayedOperation(3000, [this, pos2]() -> void
             {
-                if (Creature* felcrush = me->SummonCreature(NPC_BOMBING_RUN, Position(pos2.GetPositionX(), pos2.GetPositionY(), 1878.13f, pos2.GetOrientation()), TEMPSUMMON_TIMED_DESPAWN, 10000))
+             //   if (Creature* felcrush = me->SummonCreature(NPC_BOMBING_RUN, Position(pos2.GetPositionX(), pos2.GetPositionY(), 1878.13f, pos2.GetOrientation()), TEMPSUMMON_TIMED_DESPAWN, 10000))
                 {
-                    felcrush->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
-                    if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                        felcrush->CastSpell(target1, SPELL_CHARGED_BLASTS_DMG, false);
+               //     felcrush->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+                 //   if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                   //     felcrush->CastSpell(target1, SPELL_CHARGED_BLASTS_DMG, false);
                 }
-            });
+            };
             events.Repeat(18s);
             break;
         }
         case SPELL_SHRAPNEL_BLAST:
         {
             DoCast(SPELL_SHRAPNEL_BLAST);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
             events.Repeat(12s, 14s);
             break;
         }
@@ -208,20 +208,20 @@ struct boss_imonar_the_soulhunter : public BossAI
         case SPELL_EMPOWERED_PULSE_GRENADE:
         {
             DoCast(SPELL_EMPOWERED_PULSE_GRENADE);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
+         //   if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+           //     me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+           //     me->SummonCreature(NPC_PULSE_GRENADE, target1->GetRandomNearPosition(10.0f), TEMPSUMMON_DEAD_DESPAWN, WEEK);
             events.Repeat(6s, 7s);
             break;
         }
         case SPELL_EMPOWERED_SHRAPNEL_BLAST:
         {
             DoCast(SPELL_EMPOWERED_SHRAPNEL_BLAST);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+            //    me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_SHRAPNEL_BLAST_DMG1, false);
             events.Repeat(15s);
             break;
         }
@@ -235,7 +235,7 @@ struct boss_imonar_the_soulhunter : public BossAI
         if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
         {
             IsLock = true;
-            GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
+          //  GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
             me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
         }
     }
@@ -275,21 +275,21 @@ struct npc_pulse_grenade_124928 : public ScriptedAI
     npc_pulse_grenade_124928(Creature* creature) : ScriptedAI(creature)
     {
         SetCombatMovement(false);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+      //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
         me->CastSpell(me, SPELL_PULSE_GRENADE_VISUAL, true);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
-        switch (events.ExecuteEvent())
+       // events.Update(diff);
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_PULSE_GRENADE_DMG:
+         SPELL_PULSE_GRENADE_DMG:
         {
             if (Player* player = me->SelectNearestPlayer(3.0f))
                 me->CastSpell(player, SPELL_PULSE_GRENADE_DMG, true);
             me->DespawnOrUnsummon();
-            break;
+           // break;
         }
         }
     }
@@ -299,7 +299,7 @@ struct npc_pulse_grenade_124928 : public ScriptedAI
         if (who->IsPlayer() && me->IsWithinDist(who, 3.0f, false) && !IsLock)
         {
             IsLock = true;
-            events.ScheduleEvent(SPELL_PULSE_GRENADE_DMG, 1s);
+            //events.ScheduleEvent(SPELL_PULSE_GRENADE_DMG, 1s);
         }
     }
     bool IsLock;
@@ -310,20 +310,20 @@ struct npc_shrapnel_blast_124776 : public ScriptedAI
     npc_shrapnel_blast_124776(Creature* creature) : ScriptedAI(creature)
     {
         SetCombatMovement(false);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+      //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
-        switch (events.ExecuteEvent())
+      //  events.Update(diff);
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_SHRAPNEL_BLAST_DMG2:
+         SPELL_SHRAPNEL_BLAST_DMG2:
         {
             if (Player* player = me->SelectNearestPlayer(4.0f))
                 me->CastSpell(player, SPELL_SHRAPNEL_BLAST_DMG2, true);
             me->DespawnOrUnsummon();
-            break;
+        //    break;
         }
         }
     }
@@ -333,7 +333,7 @@ struct npc_shrapnel_blast_124776 : public ScriptedAI
         if (who->IsPlayer() && me->IsWithinDist(who, 4.0f, false) && !IsLock)
         {
             IsLock = true;
-            events.ScheduleEvent(SPELL_SHRAPNEL_BLAST_DMG2, 1s);
+          //  events.ScheduleEvent(SPELL_SHRAPNEL_BLAST_DMG2, 1s);
         }
     }
     bool IsLock;

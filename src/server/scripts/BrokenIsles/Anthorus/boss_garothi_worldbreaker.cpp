@@ -24,6 +24,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "antorus_the_burning_throne.h"
+#include "../../../../../dep/g3dlite/source/System.cpp"
 
 enum Texts
 {
@@ -194,9 +195,9 @@ struct boss_garothi_worldbreaker : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_ID_SURGING_FEL);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) 
     {
-        _EnterCombat();
+       // _EnterCombat();
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_MELEE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -229,7 +230,7 @@ struct boss_garothi_worldbreaker : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) 
     {
         switch (spell->Id)
         {
@@ -252,7 +253,7 @@ struct boss_garothi_worldbreaker : public BossAI
                         float x = AnnihilationCenterReferencePos.GetPositionX() + cos(frand(0.0f, float(M_PI * 2))) * frand(15.0f, 30.0f);
                         float y = AnnihilationCenterReferencePos.GetPositionY() + sin(frand(0.0f, float(M_PI * 2))) * frand(15.0f, 30.0f);
                         float z = me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, AnnihilationCenterReferencePos.GetPositionZ());
-                        annihilator->CastSpell(x, y, z, SPELL_ANNIHILATION_SUMMON, true);
+                       // annihilator->CastSpell(x, y, z, SPELL_ANNIHILATION_SUMMON, true);
                     }
 
                     annihilator->CastSpell(annihilator, SPELL_ANNIHILATION_DUMMY);
@@ -267,7 +268,7 @@ struct boss_garothi_worldbreaker : public BossAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) 
     {
         switch (spell->Id)
         {
@@ -279,7 +280,7 @@ struct boss_garothi_worldbreaker : public BossAI
         }
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    void OnSuccessfulSpellCast(SpellInfo const* spell) 
     {
         switch (spell->Id)
         {
@@ -288,14 +289,14 @@ struct boss_garothi_worldbreaker : public BossAI
                     events.Reset();
                 events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 3s + 500ms);
                 HideCannons();
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+             //   me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
                 break;
             default:
                 break;
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
         switch (GetDifficulty())
         {
@@ -353,7 +354,7 @@ struct boss_garothi_worldbreaker : public BossAI
             case NPC_ANNIHILATOR:
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAurasDueToSpell(SPELL_APOCALYPSE_DRIVE);
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+               // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
 
                 if (summon->GetEntry() == NPC_ANNIHILATOR)
                     _searingBarrageSpellId = SPELL_SEARING_BARRAGE_ANNIHILATOR;
@@ -408,20 +409,20 @@ struct boss_garothi_worldbreaker : public BossAI
                     DoCastSelf(SPELL_APOCALYPSE_DRIVE_FINAL_DAMAGE);
                     Talk(SAY_ANNOUNCE_APOCALYPSE_DRIVE);
                     Talk(SAY_APOCALYPSE_DRIVE);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                 //   me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
 
                     if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
                     {
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, decimator, 2);
-                        decimator->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
-                        decimator->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                  //      decimator->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                    //    decimator->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
                     }
 
                     if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
                     {
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, annihilator, 2);
-                        annihilator->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
-                        annihilator->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                  //      annihilator->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+                    //    annihilator->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
                     }
                     break;
                 case EVENT_REENGAGE_PLAYERS:
@@ -497,13 +498,13 @@ struct boss_garothi_worldbreaker : public BossAI
          if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, decimator);
-             decimator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+            // decimator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
          }
 
          if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, annihilator);
-             annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+            // annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
          }
      }
 };
@@ -558,7 +559,7 @@ class spell_garothi_apocalypse_drive : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_APOCALYPSE_DRIVE_PERIODIC_DAMAGE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_APOCALYPSE_DRIVE_PERIODIC_DAMAGE, true);///* ptr, aurEff*/);
     }
 
     void Register() override
@@ -633,13 +634,13 @@ class spell_garothi_fel_bombardment_periodic : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->BasePoints) });
+       // return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->BasePoints) });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), uint32(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints), true);
+        if (Unit* caster = GetCaster());
+         //   caster->CastSpell(GetTarget(), uint32(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints), true);
     }
 
     void Register() override
@@ -659,7 +660,7 @@ class spell_garothi_searing_barrage_dummy : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastCustomSpell(SPELL_SEARING_BARRAGE_SELECTOR, SPELLVALUE_BASE_POINT0, GetSpellInfo()->Id, GetHitUnit(), true);
+      //  GetHitUnit()->CastCustomSpell(SPELL_SEARING_BARRAGE_SELECTOR, SPELLVALUE_BASE_POINT0, GetSpellInfo()->Id, GetHitUnit(), true);
     }
 
     void Register() override
@@ -722,7 +723,7 @@ class spell_garothi_decimation_selector : public SpellScript
         {
             caster->CastSpell(GetHitUnit(), SPELL_DECIMATION_WARNING, true);
             if (Creature* decimator = caster->ToCreature())
-                if (decimator->IsAIEnabled)
+              //  if (decimator->IsAIEnabled)
                     decimator->AI()->Talk(SAY_ANNOUNCE_DECIMATION, GetHitUnit());
         }
     }
@@ -786,13 +787,13 @@ class spell_garothi_annihilation_selector : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->BasePoints) });
+      //  return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->BasePoints) });
     }
 
     void HandleHit(SpellEffIndex effIndex)
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(GetHitUnit(), uint32(GetSpellInfo()->GetEffect(effIndex)->BasePoints), true);
+        if (Unit* caster = GetCaster());
+        //    caster->CastSpell(GetHitUnit(), uint32(GetSpellInfo()->GetEffect(effIndex)->BasePoints), true);
     }
 
     void Register() override
@@ -869,17 +870,17 @@ void AddSC_boss_garothi_worldbreaker()
 {
     RegisterAntorusTheBurningThroneCreatureAI(boss_garothi_worldbreaker);
     RegisterAreaTriggerAI(at_garothi_annihilation);
-    RegisterAuraScript(spell_garothi_apocalypse_drive);
+   // RegisterAuraScript(spell_garothi_apocalypse_drive);
     RegisterSpellScript(spell_garothi_fel_bombardment_selector);
-    RegisterAuraScript(spell_garothi_fel_bombardment_warning);
-    RegisterAuraScript(spell_garothi_fel_bombardment_periodic);
+   // RegisterAuraScript(spell_garothi_fel_bombardment_warning);
+    //RegisterAuraScript(spell_garothi_fel_bombardment_periodic);
     RegisterSpellScript(spell_garothi_searing_barrage_dummy);
     RegisterSpellScript(spell_garothi_searing_barrage_selector);
     RegisterSpellScript(spell_garothi_decimation_selector);
-    RegisterAuraScript(spell_garothi_decimation_warning);
-    RegisterAuraScript(spell_garothi_carnage);
+   // RegisterAuraScript(spell_garothi_decimation_warning);
+   // RegisterAuraScript(spell_garothi_carnage);
     RegisterSpellScript(spell_garothi_annihilation_selector);
     RegisterSpellScript(spell_garothi_annihilation_triggered);
     RegisterSpellScript(spell_garothi_eradication);
-    RegisterAuraScript(spell_garothi_surging_fel);
+   // RegisterAuraScript(spell_garothi_surging_fel);
 }

@@ -25,7 +25,7 @@ struct boss_shiwar : public BossAI
 {
  boss_shiwar(Creature* creature) : BossAI(creature, DATA_SHIWAR) { }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
         if (uint64(damage) > me->GetHealth())
         {

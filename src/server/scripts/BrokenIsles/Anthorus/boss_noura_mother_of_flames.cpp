@@ -128,13 +128,13 @@ CustomSpawnData const spawnData[] =
 { EVENT_STEP_4, NPC_TORMENT_OF_GOLGANNETH, -12676.6f, -2820.15f, 2475.35f, 0.0124727f },
 
 };
-
+/*
 std::vector<TalkData> const talkData =
 {
     { EVENT_ON_ENTERCOMBAT,       EVENT_TYPE_TALK,            0 },
     { EVENT_ON_JUSTDIED,          EVENT_TYPE_TALK,            1 },
 };
-
+*/
 struct boss_noura_mother_of_flames : public BossAI
 {
     boss_noura_mother_of_flames(Creature* creature) : BossAI(creature, DATA_NOURA_MOTHER_OF_FLAMES) { Initialize(); }
@@ -142,7 +142,7 @@ struct boss_noura_mother_of_flames : public BossAI
     void Initialize()
     {
         //SetDungeonEncounterID(2073);
-        LoadTalkData(&talkData);
+      //  LoadTalkData(&talkData);
     }
 
     void LoadNPC(uint32 event, const CustomSpawnData* data)
@@ -150,14 +150,14 @@ struct boss_noura_mother_of_flames : public BossAI
         while (data->event)
         {
             if (data->event == event)
-                me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_DEAD_DESPAWN, WEEK);
+              //  me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_DEAD_DESPAWN, WEEK);
             ++data;
         }
     }
 
-    void DamageTaken(Unit* done_by, uint32 &damage) override
+    void DamageTaken(Unit* done_by, uint32 &damage)
     {
-        _DamageTaken(done_by, damage);
+       // _DamageTaken(done_by, damage);
 
         SubDamageTaken(NPC_ASARA_MOTHER_OF_NIGHT, damage);
         SubDamageTaken(NPC_DIIMA_MOTHER_OF_GLOOM, damage);
@@ -227,12 +227,12 @@ struct boss_noura_mother_of_flames : public BossAI
         }
         case SPELL_WHIRLING_SABER:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_WHIRLING_SABER, false);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_WHIRLING_SABER, false);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_WHIRLING_SABER, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_WHIRLING_SABER, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_WHIRLING_SABER, false);
+            //if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+              //  me->CastSpell(target1, SPELL_WHIRLING_SABER, false);
             events.Repeat(35s);
             break;
         }
@@ -252,7 +252,7 @@ struct boss_noura_mother_of_flames : public BossAI
         if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
         {
             IsLock = true;
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));// | UNIT_FLAG_NOT_SELECTABLE));
             me->RemoveAurasDueToSpell(244733);
         }
     }
@@ -278,7 +278,7 @@ struct npc_asara_mother_of_night_122467 : public ScriptedAI
 {
     npc_asara_mother_of_night_122467(Creature* creature) : ScriptedAI(creature) { }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage)
     {
         SubDamageTaken(NPC_NOURA_MOTHER_OF_FLAMES, damage);
         SubDamageTaken(NPC_DIIMA_MOTHER_OF_GLOOM, damage);
@@ -294,8 +294,8 @@ struct npc_asara_mother_of_night_122467 : public ScriptedAI
             if (ohealth <= 0)
             {
                 target->setDeathState(JUST_DIED);
-                if (dragonid == NPC_NOURA_MOTHER_OF_FLAMES)
-                    target->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
+                if (dragonid == NPC_NOURA_MOTHER_OF_FLAMES);
+                 //   target->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
             }
 
         }
@@ -316,71 +316,71 @@ struct npc_asara_mother_of_night_122467 : public ScriptedAI
     void EnterCombat(Unit* /*victim*/)
     {
         Talk(0);
-       events.ScheduleEvent(SPELL_SHADOW_BLADES, 11s);
-       events.ScheduleEvent(SPELL_STORM_OF_DARKNESS, 26s);
-       events.ScheduleEvent(SPELL_TOUCH_OF_DARKNESS, 5s);
+      // events.ScheduleEvent(SPELL_SHADOW_BLADES, 11s);
+      // events.ScheduleEvent(SPELL_STORM_OF_DARKNESS, 26s);
+       //events.ScheduleEvent(SPELL_TOUCH_OF_DARKNESS, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
 
         if (!UpdateVictim())
             return;
-        while (uint32 eventId = events.ExecuteEvent())
+      //  while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+          //  switch (eventId)
             {
-            case SPELL_SHADOW_BLADES:
+             SPELL_SHADOW_BLADES:
             {
                 DoCast(SPELL_SHADOW_BLADES);
-                AddTimedDelayedOperation(500, [this]() -> void
+        //        AddTimedDelayedOperation(500, [this]() -> void
                 {
-                    if (Creature* shadowblade = me->SummonCreature(NPC_SHADOW_BLADE, me->GetRandomNearPosition(5.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
+                 //   if (Creature* shadowblade = me->SummonCreature(NPC_SHADOW_BLADE, me->GetRandomNearPosition(5.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
                     {
-                        if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                   //     if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
                         {
-                            shadowblade->SetFacingToObject(target1);
-                            shadowblade->AI()->DoAction(1);
+                       //     shadowblade->SetFacingToObject(target1);
+                         //   shadowblade->AI()->DoAction(1);
                         }
                     }
-                });
-                AddTimedDelayedOperation(1000, [this]() -> void
+                };
+              //  AddTimedDelayedOperation(1000, [this]() -> void
                 {
-                    if (Creature* shadowblade = me->SummonCreature(NPC_SHADOW_BLADE, me->GetRandomNearPosition(5.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
+                //    if (Creature* shadowblade = me->SummonCreature(NPC_SHADOW_BLADE, me->GetRandomNearPosition(5.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
                     {
-                        if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                  //      if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
                         {
-                            shadowblade->SetFacingToObject(target1);
-                            shadowblade->AI()->DoAction(1);
+                     //       shadowblade->SetFacingToObject(target1);
+                       //     shadowblade->AI()->DoAction(1);
                         }
                     }
-                });
-                AddTimedDelayedOperation(1500, [this]() -> void
+                };
+               // AddTimedDelayedOperation(1500, [this]() -> void
                 {
-                    if (Creature* shadowblade = me->SummonCreature(NPC_SHADOW_BLADE, me->GetRandomNearPosition(5.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
+                  //  if (Creature* shadowblade = me->SummonCreature(NPC_SHADOW_BLADE, me->GetRandomNearPosition(5.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
                     {
-                        if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                    //    if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
                         {
-                            shadowblade->SetFacingToObject(target1);
-                            shadowblade->AI()->DoAction(1);
+                      //      shadowblade->SetFacingToObject(target1);
+                        //    shadowblade->AI()->DoAction(1);
                         }
                     }
-                });
-                events.Repeat(27s, 28s);
-                break;
+                };
+               // events.Repeat(27s, 28s);
+               // break;
             }
-            case SPELL_STORM_OF_DARKNESS:
+             SPELL_STORM_OF_DARKNESS:
             {
                 DoCast(SPELL_STORM_OF_DARKNESS);
-                events.Repeat(57s);
-                break;
+            //    events.Repeat(57s);
+              //  break;
             }
-            case SPELL_TOUCH_OF_DARKNESS:
+             SPELL_TOUCH_OF_DARKNESS:
             {
                 DoCast(SPELL_TOUCH_OF_DARKNESS);
-                events.Repeat(10s);
-                break;
+            //    events.Repeat(10s);
+             //   break;
             }
             }
         }
@@ -393,7 +393,7 @@ struct npc_asara_mother_of_night_122467 : public ScriptedAI
         {
             IsLock = true;
             me->RemoveAurasDueToSpell(244740);
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));// | UNIT_FLAG_NOT_SELECTABLE));
         }
     }
     bool IsLock;
@@ -403,7 +403,7 @@ struct npc_diima_mother_of_gloom_122469 : public ScriptedAI
 {
     npc_diima_mother_of_gloom_122469(Creature* creature) : ScriptedAI(creature) { }
 
-    void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage) 
     {
         SubDamageTaken(NPC_NOURA_MOTHER_OF_FLAMES, damage);
         SubDamageTaken(NPC_ASARA_MOTHER_OF_NIGHT, damage);
@@ -419,8 +419,8 @@ struct npc_diima_mother_of_gloom_122469 : public ScriptedAI
             if (ohealth <= 0)
             {
                 target->setDeathState(JUST_DIED);
-                if (dragonid == NPC_NOURA_MOTHER_OF_FLAMES)
-                    target->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
+                if (dragonid == NPC_NOURA_MOTHER_OF_FLAMES);
+                    //target->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
             }
 
         }
@@ -441,38 +441,38 @@ struct npc_diima_mother_of_gloom_122469 : public ScriptedAI
     void EnterCombat(Unit* /*victim*/)
     {
         Talk(0);
-        events.ScheduleEvent(SPELL_FLASHFREEZE, 10s);
-        events.ScheduleEvent(SPELL_CHILLED_BLOOD_2, 6s, 7s);
-        events.ScheduleEvent(SPELL_ORB_OF_FROST, 30s);
+       // events.ScheduleEvent(SPELL_FLASHFREEZE, 10s);
+       // events.ScheduleEvent(SPELL_CHILLED_BLOOD_2, 6s, 7s);
+        //events.ScheduleEvent(SPELL_ORB_OF_FROST, 30s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
 
         if (!UpdateVictim())
             return;
-        while (uint32 eventId = events.ExecuteEvent())
+       // while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+         //   switch (eventId)
             {
-            case SPELL_FLASHFREEZE:
+             SPELL_FLASHFREEZE:
             {
                 DoCast(SPELL_FLASHFREEZE);
-                events.Repeat(10s);
-                break;
+            //    events.Repeat(10s);
+              //  break;
             }
-            case SPELL_CHILLED_BLOOD_2:
+             SPELL_CHILLED_BLOOD_2:
             {
                 DoCast(SPELL_CHILLED_BLOOD_2);
-                events.Repeat(15s, 16s);
-                break;
+            //    events.Repeat(15s, 16s);
+              //  break;
             }
-            case SPELL_ORB_OF_FROST:
+             SPELL_ORB_OF_FROST:
             {
                 DoCast(SPELL_ORB_OF_FROST);
-                events.Repeat(30s);
-                break;
+            //    events.Repeat(30s);
+              //  break;
             }
             }
         }
@@ -484,7 +484,7 @@ struct npc_diima_mother_of_gloom_122469 : public ScriptedAI
         if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
         {
             IsLock = true;
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));// | UNIT_FLAG_NOT_SELECTABLE));
             me->RemoveAurasDueToSpell(244756);
         }
     }
@@ -497,8 +497,8 @@ struct npc_torment_of_norgannon_123503 : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->Clear();
-        me->AddAura(SPELL_VISAGE_OF_THE_TITAN);
-        me->GetMotionMaster()->MoveAwayAndDespawn(250.0f, 60000);
+       // me->AddAura(SPELL_VISAGE_OF_THE_TITAN);
+       // me->GetMotionMaster()->MoveAwayAndDespawn(250.0f, 60000);
     }
 
     void UpdateAI(uint32 diff) override { }
@@ -508,22 +508,22 @@ struct npc_torment_of_amanthul_125837 : public ScriptedAI
 {
     npc_torment_of_amanthul_125837(Creature* creature) : ScriptedAI(creature)
     {
-        events.ScheduleEvent(SPELL_MACHINATIONS_OF_AMANTHUL, 5s);
+      //  events.ScheduleEvent(SPELL_MACHINATIONS_OF_AMANTHUL, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+        //events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_MACHINATIONS_OF_AMANTHUL:
+         SPELL_MACHINATIONS_OF_AMANTHUL:
         {
             me->CastSpell(me, SPELL_MACHINATIONS_OF_AMANTHUL, true);
-            events.Repeat(20s);
-            break;
+        //    events.Repeat(20s);
+          //  break;
         }
         }
     }
@@ -546,23 +546,23 @@ struct npc_torment_of_golganneth_124164 : public ScriptedAI
     npc_torment_of_golganneth_124164(Creature* creature) : ScriptedAI(creature)
     {
         SetCombatMovement(false);
-        events.ScheduleEvent(SPELL_FLASHFREEZE, 5s);
+       // events.ScheduleEvent(SPELL_FLASHFREEZE, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_FLASHFREEZE:
+         SPELL_FLASHFREEZE:
         {
             DoCast(SPELL_FLASHFREEZE);
-            events.Repeat(5s);
-            break;
+        //    events.Repeat(5s);
+          //  break;
         }
         }
         DoSpellAttackIfReady(SPELL_FURY_OF_GOLGANNETH);
@@ -573,9 +573,9 @@ struct npc_whirling_saber_123348 : public ScriptedAI
 {
     npc_whirling_saber_123348(Creature* creature) : ScriptedAI(creature)
     {
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+     //   me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
         me->CastSpell(me, 245630, true);
-        me->DespawnOrUnsummon(5000);
+        me->DespawnOrUnsummon(5000s);
     }
 
     void UpdateAI(uint32 diff) override { }
@@ -586,7 +586,7 @@ struct npc_shadow_blade_123086 : public ScriptedAI
     npc_shadow_blade_123086(Creature* creature) : ScriptedAI(creature)
     {
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+       // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
         me->SetSpeed(UnitMoveType::MOVE_RUN, 25.0f);
         me->CastSpell(me, 258932, true);
         me->CastSpell(me, 245290, true);
@@ -597,7 +597,7 @@ struct npc_shadow_blade_123086 : public ScriptedAI
         switch (param)
         {
         case 1:
-            me->GetMotionMaster()->MoveAwayAndDespawn(100.0f, 20000);
+          //  me->GetMotionMaster()->MoveAwayAndDespawn(100.0f, 20000);
             break;
         }
     }
