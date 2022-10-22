@@ -537,7 +537,7 @@ class BehindObjectCheck
         bool operator()(WorldObject* unit)
         {
             for (std::list<GameObject*>::const_iterator itr = objectList.begin(); itr != objectList.end(); ++itr)
-                if (!(*itr)->IsInvisibleDueToDespawn() && (*itr)->IsInBetween(caster, unit, 1.5f))
+                if (!(*itr)->IsInvisibleDueToDespawn(unit) && (*itr)->IsInBetween(caster, unit, 1.5f))
                     return true;
             return false;
         }
