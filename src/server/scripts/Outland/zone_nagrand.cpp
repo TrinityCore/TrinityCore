@@ -693,8 +693,8 @@ public:
 
     bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo) override
     {
-        WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
-        if (Creature* creature = target->ToCreature())
+        WorldObject const* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
+        if (Creature const* creature = target->ToCreature())
         {
             if (npc_nagrand_banner::npc_nagrand_bannerAI *ai = CAST_AI(npc_nagrand_banner::npc_nagrand_bannerAI, creature->AI()))
                 return !ai->IsBannered();
