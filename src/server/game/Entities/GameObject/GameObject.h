@@ -222,6 +222,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
         void Refresh();
         void DespawnOrUnsummon(Milliseconds delay = 0ms, Seconds forceRespawnTime = 0s);
+        void DespawnForPlayer(Player* seer, Seconds respawnTime);
         void Delete();
         void SendGameObjectDespawn();
         Loot* GetFishLoot(Player* lootOwner);
