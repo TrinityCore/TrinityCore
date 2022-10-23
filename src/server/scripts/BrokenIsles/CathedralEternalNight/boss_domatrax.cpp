@@ -103,31 +103,31 @@ public:
                 egida->RemoveAurasDueToSpell(SPELL_EGIDA_AT);
             }
             
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
             me->SetReactState(REACT_PASSIVE);
             me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+          //  _EnterCombat();
             
             phase = 0;
             me->SetPower(POWER_ENERGY, 0);
 
-            events.RescheduleEvent(EVENT_FELSOUL_CLEAVE, 8000);
-            events.RescheduleEvent(EVENT_CHAOTIC_ENERGY, 1000);
+           // events.RescheduleEvent(EVENT_FELSOUL_CLEAVE, 8000);
+           // events.RescheduleEvent(EVENT_CHAOTIC_ENERGY, 1000);
             
             if (Creature* egida = instance->instance->GetCreature(instance->GetGuidData(NPC_EGIDA_START)))
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, egida);
                 
                 egida->CastSpell(egida, SPELL_EGIDA_DISPLAY_BAR);
-                egida->GetScheduler().Schedule(Milliseconds(1000), [egida](TaskContext context)
+              //  egida->GetScheduler().Schedule(Milliseconds(1000), [egida](TaskContext context)
                 {
                     egida->CastSpell(egida, SPELL_EGIDA_AT);
-                });
+                };
             }
             
         }
@@ -150,7 +150,7 @@ public:
                     summon->CastSpell(summon, SPELL_PORTAL_MYTHIC_ADD);
             }
         
-            DoZoneInCombat(summon, 150.0f);
+            DoZoneInCombat(summon);// , 150.0f);
         }
         
         
@@ -162,7 +162,7 @@ public:
             }
         }
         
-        void OnSpellCasted(const SpellInfo* spell) override
+        void OnSpellCasted(const SpellInfo* spell) 
         {
             switch (spell->Id)
             {
@@ -188,16 +188,16 @@ public:
             me->SetVisible(true);
             DoCast(SPELL_INTRO);
             
-            me->GetScheduler().Schedule(Milliseconds(1000), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(1000), [this](TaskContext context)
             {
                 Talk(SAY_INTRO);
-            });
+            };
             
-            me->GetScheduler().Schedule(Milliseconds(3000), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(3000), [this](TaskContext context)
             {
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
+                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));// | UNIT_FLAG_NOT_SELECTABLE));
                 me->SetReactState(REACT_DEFENSIVE);
-            });
+            };
             
         }
         
@@ -215,26 +215,26 @@ public:
                 
                 me->CastSpell(egida, SPELL_OUTRO, true);
                 egida->CastSpell(egida, SPELL_EGIDA_OUTRO);
-                egida->DespawnOrUnsummon(3000);
+                egida->DespawnOrUnsummon(3000s);
                 
                 // egida->SummonCreature(NPC_EGIDA_GIVE_BUFF, egida->GetPositionX() + frand(-3, 3), egida->GetPositionY() + frand(-3, 3), egida->GetPositionZ(), egida->GetOrientation());
             }
         }
         
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) 
         {
             if (phase < 3 && me->HealthBelowPct(phases_hp_required[phase]))
             {
                 switch(phase++)
                 {
                     case 0:
-                        events.RescheduleEvent(EVENT_WAVE_ONE, 100);
+                     //   events.RescheduleEvent(EVENT_WAVE_ONE, 100);
                         break;
                     case 1:
-                        events.RescheduleEvent(EVENT_WAVE_TWO, 100);
+                       // events.RescheduleEvent(EVENT_WAVE_TWO, 100);
                         break;
                     case 2:
-                        events.RescheduleEvent(EVENT_ENRAGE, 100);
+                       // events.RescheduleEvent(EVENT_ENRAGE, 100);
                         break;
                     default:
                         break;
@@ -258,13 +258,13 @@ public:
                 {
                     case EVENT_FELSOUL_CLEAVE:
                         DoCast(SPELL_FELSOUL_CLEAVE);
-                        events.RescheduleEvent(EVENT_FELSOUL_CLEAVE, 18000);
+                    //    events.RescheduleEvent(EVENT_FELSOUL_CLEAVE, 18000);
                         break;
                     case EVENT_CHAOTIC_ENERGY:
                         if (me->GetPower(POWER_ENERGY) < 100)
                         {
                             me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + urand(2, 4));
-                            events.RescheduleEvent(EVENT_CHAOTIC_ENERGY, 1000);
+                      //      events.RescheduleEvent(EVENT_CHAOTIC_ENERGY, 1000);
                         }
                         else
                         {
@@ -272,7 +272,7 @@ public:
                             Talk(SAY_CHAOTIC_ENERGY_1);
                             DoCast(SPELL_CHAOTIC_ENERGY);
                             DoCast(SPELL_CHAOTIC_ENERGY_DMG);
-                            events.RescheduleEvent(EVENT_CHAOTIC_ENERGY, 5000);
+                       //     events.RescheduleEvent(EVENT_CHAOTIC_ENERGY, 5000);
                         }
                         break;
                     case EVENT_WAVE_ONE:
@@ -307,12 +307,12 @@ public:
         npc_coen_egidaAI(Creature* creature) : ScriptedAI(creature)  
         {
             me->SetReactState(REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+         //   me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
         }
 
         void Reset() override {}
 
-        void sGossipSelect(Player* player, uint32 sender, uint32 action) override
+        void sGossipSelect(Player* player, uint32 sender, uint32 action) 
         {
             me->RemoveAurasDueToSpell(144373);
             me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP));

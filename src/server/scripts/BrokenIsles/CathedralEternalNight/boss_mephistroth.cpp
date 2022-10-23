@@ -21,6 +21,8 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
+#include <stdsoap2.h>
+#include <boost/multi_index/detail/node_handle.hpp>
 
 enum Says
 {
@@ -132,13 +134,13 @@ public:
                     instance->DoRemoveAurasDueToSpellOnPlayers(234370);
                     instance->DoRemoveAurasDueToSpellOnPlayers(234382);
                     
-                    events.RescheduleEvent(EVENT_CHECK_ENERGY, 1000);
-                    events.RescheduleEvent(EVENT_DEMONIC_UPHEAVAL, 3200);
-                    events.RescheduleEvent(EVENT_DARK_SOLITUDE, 8000);
-                    events.RescheduleEvent(EVENT_CARRION_SWARM, 15000);
+                 //   events.RescheduleEvent(EVENT_CHECK_ENERGY, 1000);
+                  //  events.RescheduleEvent(EVENT_DEMONIC_UPHEAVAL, 3200);
+                   // events.RescheduleEvent(EVENT_DARK_SOLITUDE, 8000);
+                   // events.RescheduleEvent(EVENT_CARRION_SWARM, 15000);
                     break;
                 case 2:
-                    events.RescheduleEvent(EVENT_PHASE_TWO_TICK, Difficulty() == DIFFICULTY_HEROIC ? 5000 : 4000);
+                  //  events.RescheduleEvent(EVENT_PHASE_TWO_TICK, Difficulty() == DIFFICULTY_HEROIC ? 5000 : 4000);
                     break;
             }
             
@@ -159,13 +161,13 @@ public:
                     summon->AddUnitState(UNIT_STATE_ROTATING);
                 }
                 
-            DoZoneInCombat(summon, 150.0f);
+            DoZoneInCombat(summon);// , 150.0f);
         }
         
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+           // _EnterCombat();
 
             me->SetPower(POWER_ENERGY, 50);
             DefaultEvents(1);
@@ -192,20 +194,20 @@ public:
             }
         }
         
-        void OnSpellCasted(SpellInfo const* spell) override
+        void OnSpellCasted(SpellInfo const* spell)
         {
             if (spell->Id == SPELL_SHADOW_FADE)
             {
                 me->SetVisible(false);
                 me->AttackStop();
-                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+              //  me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
 
                 instance->SetData(NPC_ILLIDAN_VISUAL_OUT, 0);
 
-                if (Creature* illidan = me->SummonCreature(NPC_ILLIDAN_MEPHISTROTH, -542.10f, 2526.12f, 533.94f, 0.0f))
+              //  if (Creature* illidan = me->SummonCreature(NPC_ILLIDAN_MEPHISTROTH, -542.10f, 2526.12f, 533.94f, 0.0f))
                 {
-                    illidan_saved = illidan;
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, illidan);
+                 //   illidan_saved = illidan;
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE);// , illidan);
                 }
 
                 DoCast(SPELL_CONVERSATION_INVIS);
@@ -244,7 +246,7 @@ public:
                         {
                             if (!me->HasAura(SPELL_SHADOW_FADE))
                                 me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + urand(1, 2));
-                            events.RescheduleEvent(EVENT_CHECK_ENERGY, 1000);
+                           // events.RescheduleEvent(EVENT_CHECK_ENERGY, 1000);
                         }
                         else
                         {
@@ -254,15 +256,15 @@ public:
                         break;
                     case EVENT_DEMONIC_UPHEAVAL:
                         DoCast(SPELL_DEMONIC_UPHEAVAL);
-                        events.RescheduleEvent(EVENT_DEMONIC_UPHEAVAL, 27000);
+                       // events.RescheduleEvent(EVENT_DEMONIC_UPHEAVAL, 27000);
                         break;
                     case EVENT_DARK_SOLITUDE:
                         DoCast(SPELL_DARK_SOLITUDE);
-                        events.RescheduleEvent(EVENT_DARK_SOLITUDE, 12000);
+                     //   events.RescheduleEvent(EVENT_DARK_SOLITUDE, 12000);
                         break;
                     case EVENT_CARRION_SWARM:
                         DoCastVictim(SPELL_CARRION_SWARM);
-                        events.RescheduleEvent(EVENT_CARRION_SWARM, 18000);
+                      //  events.RescheduleEvent(EVENT_CARRION_SWARM, 18000);
                         break;
                     case EVENT_PHASE_TWO_TICK:
                     {
@@ -274,10 +276,10 @@ public:
                         if (freeIds.size() > 0)
                         {
                             uint8 select = freeIds[urand(0, freeIds.size()-1)];
-                            if (Creature* add = me->SummonCreature(NPC_SHADOW_OF_MEPHISTROTH, adds_pos[select]))
-                                justUseIt[select] = add->GetGUID();
+                        //    if (Creature* add = me->SummonCreature(NPC_SHADOW_OF_MEPHISTROTH, adds_pos[select]))
+                          //      justUseIt[select] = add->GetGUID();
                         }
-                        events.RescheduleEvent(EVENT_PHASE_TWO_TICK, Difficulty() == DIFFICULTY_HEROIC ? 5000 : 4000);
+                       // events.RescheduleEvent(EVENT_PHASE_TWO_TICK, Difficulty() == DIFFICULTY_HEROIC ? 5000 : 4000);
                         break;
                     }
                 }
@@ -302,10 +304,10 @@ public:
     {
         npc_mephistroth_illidanAI(Creature* creature) : ScriptedAI(creature) 
         {
-            me->GetScheduler().Schedule(Milliseconds(100), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Milliseconds(100), [this](TaskContext context)
             {
                 me->CastSpell(me, SPELL_ILLIDAN_SPAWN);
-            });
+            };
         }
         
         EventMap events;
@@ -313,11 +315,11 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            me->GetScheduler().Schedule(Milliseconds(2000), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Milliseconds(2000), [this](TaskContext context)
             {
                 DoCast(SPELL_PREPARE);
-                events.ScheduleEvent(1, 1000);
-            });            
+             //   events.ScheduleEvent(1, 1000);
+            };            
         }
 
         void UpdateAI(uint32 diff) override
@@ -328,7 +330,7 @@ public:
             {
                 if (me->GetPower(POWER_ALTERNATE_POWER) < 300)
                 {
-                    events.RescheduleEvent(1, 1000);
+                  //  events.RescheduleEvent(1, 1000);
                     if (urand(1, 4) == 1)
                         me->SetFacingTo(frand(0, 2*float(M_PI)));
                 }
@@ -344,11 +346,11 @@ public:
                             meph->RemoveAurasDueToSpell(SPELL_CREEPING_SHADOWS);
                         }
                         
-                    me->GetScheduler().Schedule(Milliseconds(300), [this](TaskContext context)
+                  //  me->GetScheduler().Schedule(Milliseconds(300), [this](TaskContext context)
                     {
                         me->CastSpell(me, SPELL_ILLIDAN_DESPAWN);
-                        me->DespawnOrUnsummon(2100);
-                    });
+                        me->DespawnOrUnsummon(2100s);
+                    };
                 }
             }
         }
@@ -382,12 +384,12 @@ public:
                 uint32 hit_range = 2;
                 for (uint8 i = 0; i < 3; i++)
                 {
-                    caster->GetNearPoint2D(pos.m_positionX, pos.m_positionY, hit_range, angle);
+                   // caster->GetNearPoint2D(position.m_positionX, pos.m_positionY, hit_range, angle);
                     pos.m_positionZ = caster->GetPositionZ();
-                    caster->GetScheduler().Schedule(Milliseconds(100 + i), [caster, pos](TaskContext context)
+                    //caster->GetScheduler().Schedule(Milliseconds(100 + i), [caster, pos](TaskContext context)
                     {
                         caster->CastSpell(pos, 233175, false);
-                    });
+                    };
                     hit_range += 5;
                 }
                 

@@ -92,7 +92,7 @@ public:
                  //   me->AddDelayedEvent(1000, [this] () -> void { 
                     
                         me->SetVisible(true);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));// UNIT_FLAG_NOT_SELECTABLE));
                         me->SetReactState(REACT_DEFENSIVE);
                   //  });
                 }
@@ -105,14 +105,14 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+           // _EnterCombat();
 
-            events.RescheduleEvent(EVENT_PULVERIZING_CUDGEL, 5000);
-            events.RescheduleEvent(EVENT_HEAVE_CUDGEL, 14000);
-            events.RescheduleEvent(EVENT_SCORNFUL_GAZE, 29000);
+          //  events.RescheduleEvent(EVENT_PULVERIZING_CUDGEL, 5000);
+           // events.RescheduleEvent(EVENT_HEAVE_CUDGEL, 14000);
+           // events.RescheduleEvent(EVENT_SCORNFUL_GAZE, 29000);
         }
 
 
@@ -121,12 +121,12 @@ public:
             if (type != POINT_MOTION_TYPE || !id)
                 return;
             
-            events.DelayEvents(1000);
+            //events.DelayEvents(1000);
 
-            if (id == 1)
-                events.RescheduleEvent(EVENT_SCORNFUL_DMG, 10);
-            else
-                events.RescheduleEvent(EVENT_SCORNFUL_STUN, 10);
+            if (id == 1);
+              //  events.RescheduleEvent(EVENT_SCORNFUL_DMG, 10);
+           // else
+                //events.RescheduleEvent(EVENT_SCORNFUL_STUN, 10);
         }
         
         void JustSummoned(Creature* summon) override
@@ -143,7 +143,7 @@ public:
                 return;
             }
             
-            DoZoneInCombat(summon, 150.0f);
+            DoZoneInCombat(summon);// , 150.0f);
         }
         
         void JustDied(Unit* /*killer*/) override
@@ -169,18 +169,18 @@ public:
                     case EVENT_PULVERIZING_CUDGEL:
                         Talk(SAY_PULVERISING);
                         DoCast(SPELL_PULVERIZING_CUDGEL);
-                        events.RescheduleEvent(EVENT_PULVERIZING_CUDGEL, 34000);
+                    //    events.RescheduleEvent(EVENT_PULVERIZING_CUDGEL, 34000);
                         break;
                     case EVENT_HEAVE_CUDGEL:
                         DoCast(SPELL_HEAVE_CUDGEL);
-                        events.RescheduleEvent(EVENT_HEAVE_CUDGEL, 36000);
+                      //  events.RescheduleEvent(EVENT_HEAVE_CUDGEL, 36000);
                         break;
                     case EVENT_SCORNFUL_GAZE:
                         Talk(SAY_SCORNFUL);
-                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                      //   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         DoCast(SPELL_SCORNFUL_GAZE);
-                        events.RescheduleEvent(EVENT_SCORNFUL_GAZE, 36000);
-                        events.DelayEvents(1000);
+                       // events.RescheduleEvent(EVENT_SCORNFUL_GAZE, 36000);
+                       // events.DelayEvents(1000);
                         break;
                     case EVENT_SCORNFUL_DMG:
                         Talk(SAY_SCORNFUL_DMG);
@@ -215,7 +215,7 @@ public:
                             for (uint8 i = 0; i < 2; ++i)
                             {
                                 uint32 entry = temp_npc_books[urand(0, temp_npc_books.size())];
-                                me->SummonCreature(entry, me->GetPositionX() + frand(-5, 5), me->GetPositionY() + frand(-5, 5), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                         //       me->SummonCreature(entry, me->GetPositionX() + frand(-5, 5), me->GetPositionY() + frand(-5, 5), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                                 
                                 auto itr = temp_npc_books.find(entry);
                                 if (itr != temp_npc_books.end())
@@ -349,11 +349,11 @@ struct npc_gazerax_118723 : public ScriptedAI
             target->AI()->DoAction(1);
     }
 
-    void EnterCombat(Unit* /*victim*/) override
+    void EnterCombat(Unit* /*victim*/) 
     {
-        events.ScheduleEvent(SPELL_BLINDING_GLARE, 5000);
-        events.ScheduleEvent(SPELL_FEL_GLARE, 5000);
-        events.ScheduleEvent(SPELL_FOCUSED_DESTRUCTION, 5000);
+       // events.ScheduleEvent(SPELL_BLINDING_GLARE, 5000);
+       // events.ScheduleEvent(SPELL_FEL_GLARE, 5000);
+       // events.ScheduleEvent(SPELL_FOCUSED_DESTRUCTION, 5000);
     }
 
     void UpdateAI(uint32 diff) override
@@ -361,32 +361,32 @@ struct npc_gazerax_118723 : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        events.Update(diff);
+      //  events.Update(diff);
 
-        while (uint32 eventId = events.ExecuteEvent())
+       // while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+         //   switch (eventId)
             {
-            case SPELL_BLINDING_GLARE:
+             SPELL_BLINDING_GLARE:
             {
                 DoCast(SPELL_BLINDING_GLARE);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            case SPELL_FEL_GLARE:
+             SPELL_FEL_GLARE:
             {
                 DoCast(SPELL_FEL_GLARE);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            case SPELL_FOCUSED_DESTRUCTION:
+             SPELL_FOCUSED_DESTRUCTION:
             {
                 DoCast(SPELL_FOCUSED_DESTRUCTION);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              ///  break;
             }
-            default:
-                break;
+            //default:
+              //  break;
             }
         }
 

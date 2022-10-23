@@ -32,6 +32,12 @@ enum Events
     EVENT_SUMMON = 2,
 };
 
+enum Phases
+{
+    PHASE_00,
+    PHASE_01,
+};
+/*
 std::vector<TalkData> const talkData =
 {
     { EVENT_ON_MOVEINLINEOFSIGHT,           EVENT_TYPE_TALK,            0 },
@@ -48,7 +54,7 @@ std::vector<EventData> const eventData =
     { PHASE_01, PHASE_01, SPELL_FELSOUL_CLEAVE,   5000 },
     { PHASE_01, PHASE_01, SPELL_FRENZY,           5000 },
 };
-
+*/
 
 struct boss_domatrax : public BossAI
 {
@@ -58,8 +64,8 @@ struct boss_domatrax : public BossAI
     {
         PhaseStatus = PHASE_00;
         //SetDungeonEncounterID(2053);
-        LoadEventData(&eventData);
-        LoadTalkData(&talkData);
+       // LoadEventData(&eventData);
+       // LoadTalkData(&talkData);
         hp25 = false;
         hp50 = false;
         hp90 = false;
@@ -67,7 +73,7 @@ struct boss_domatrax : public BossAI
 
     void ScheduleTasks() override
     {
-        GetEventData(PHASE_01);
+      //  GetEventData(PHASE_01);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -75,17 +81,17 @@ struct boss_domatrax : public BossAI
         if (!hp25 && HealthBelowPct(25))
         {
             hp25 = true;
-            events.ScheduleEvent(EVENT_SUMMON, 1000);
+           // events.ScheduleEvent(EVENT_SUMMON, 1000);
         }
         if (!hp50 && HealthBelowPct(50))
         {
             hp50 = true;
-            events.ScheduleEvent(EVENT_SUMMON, 1000);
+          //  events.ScheduleEvent(EVENT_SUMMON, 1000);
         }
         if (!hp90 && HealthBelowPct(90))
         {
             hp90 = true;
-            events.ScheduleEvent(EVENT_SUMMON, 1000);
+          //  events.ScheduleEvent(EVENT_SUMMON, 1000);
         }
         switch (eventId)
         {
@@ -121,8 +127,8 @@ struct boss_domatrax : public BossAI
         if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && PhaseStatus == PHASE_00)
         {
             PhaseStatus = PHASE_01;
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
-            GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
+            //me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+          //  GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
         }
     }
     uint8 PhaseStatus;

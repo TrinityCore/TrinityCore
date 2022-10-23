@@ -94,7 +94,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
         void LoadTemplateRoot();
-
+        void ForcedDespawn();
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
         void Update(uint32 time) override;                         // overwrited Unit::Update
@@ -497,5 +497,16 @@ class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
         Creature& m_owner;
         Seconds const m_respawnTimer;
 };
+
+class TC_GAME_API ForcedDespawn :public BasicEvent
+{
+    public:
+        ForcedDespawn(Creature& owner,second respawnTimer) :BasicEvent(), m_owner(owner), m_respawnTimer(respawnTimer) { }
+        bool Execute(uint64 e_time, uint32 p_time) override;
+
+    private:
+        Creature* m_owner;
+        Seconds const m_respawnTimer;    
+}
 
 #endif

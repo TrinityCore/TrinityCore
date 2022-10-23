@@ -38,14 +38,14 @@ enum Phases
     PHASE_NORMAL,
     PHASE_INTRO
 };
-
+/*
 std::vector<TalkData> const talkData =
 {
     { EVENT_ON_MOVEINLINEOFSIGHT,           EVENT_TYPE_TALK,            0 },
     { EVENT_ON_ENTERCOMBAT,                 EVENT_TYPE_TALK,            1 },
     { EVENT_ON_JUSTDIED,                    EVENT_TYPE_TALK,            2 },
 };
-
+*/
 Position const Pos1 ={ -528.8203f, 2525.414f, 439.7709f, 3.187753f };
 
 struct boss_thrashbite_the_scornful : public BossAI
@@ -56,7 +56,7 @@ struct boss_thrashbite_the_scornful : public BossAI
     {
         PhaseStatus = Phases::PHASE_INTRO;
         //SetDungeonEncounterID(2057);
-        LoadTalkData(&talkData);
+      //  LoadTalkData(&talkData);
     }
 
     void DoAction(int32 param)
@@ -65,7 +65,7 @@ struct boss_thrashbite_the_scornful : public BossAI
         {
         case 1:
             me->GetMotionMaster()->MoveJump(Pos1, 20.0f, 7.0f, 10.0f);
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+          //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
             me->SetHomePosition(Pos1);
             break;
         }
@@ -73,9 +73,9 @@ struct boss_thrashbite_the_scornful : public BossAI
 
     void ScheduleTasks() override
     {
-        events.ScheduleEvent(SPELL_HEAVE_CUDGEL, 30000);
-        events.ScheduleEvent(SPELL_PULVERIZING_CUDGEL, 5000);
-        events.ScheduleEvent(SPELL_SCORNFUL_GAZE, 15000);
+       // events.ScheduleEvent(SPELL_HEAVE_CUDGEL, 30000);
+       // events.ScheduleEvent(SPELL_PULVERIZING_CUDGEL, 5000);
+       // events.ScheduleEvent(SPELL_SCORNFUL_GAZE, 15000);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -97,7 +97,7 @@ struct boss_thrashbite_the_scornful : public BossAI
         case SPELL_SCORNFUL_GAZE:
         {
             DoCast(SPELL_SCORNFUL_GAZE);
-            events.ScheduleEvent(SPELL_SCORNFUL_CHARGE, 7000);
+           // events.ScheduleEvent(SPELL_SCORNFUL_CHARGE, 7000);
             events.Repeat(30s);
             break;
         }
@@ -116,7 +116,7 @@ struct boss_thrashbite_the_scornful : public BossAI
         if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && PhaseStatus == Phases::PHASE_INTRO)
         {
             PhaseStatus = Phases::PHASE_NORMAL;
-            GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
+           // GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
             DoAction(1);
         }
     }
@@ -140,11 +140,11 @@ struct npc_gazerax_118723 : public ScriptedAI
             target->AI()->DoAction(1);
     }
 
-    void EnterCombat(Unit* /*victim*/) override
+    void EnterCombat(Unit* /*victim*/) 
     {
-        events.ScheduleEvent(SPELL_BLINDING_GLARE, 5000);
-        events.ScheduleEvent(SPELL_FEL_GLARE, 5000);
-        events.ScheduleEvent(SPELL_FOCUSED_DESTRUCTION, 5000);
+      //  events.ScheduleEvent(SPELL_BLINDING_GLARE, 5000);
+      //  events.ScheduleEvent(SPELL_FEL_GLARE, 5000);
+      //  events.ScheduleEvent(SPELL_FOCUSED_DESTRUCTION, 5000);
     }
 
     void UpdateAI(uint32 diff) override
@@ -152,32 +152,32 @@ struct npc_gazerax_118723 : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        events.Update(diff);
+       // events.Update(diff);
 
-        while (uint32 eventId = events.ExecuteEvent())
+       // while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+         //   switch (eventId)
             {
-            case SPELL_BLINDING_GLARE:
+             SPELL_BLINDING_GLARE:
             {
                 DoCast(SPELL_BLINDING_GLARE);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            case SPELL_FEL_GLARE:
+             SPELL_FEL_GLARE:
             {
                 DoCast(SPELL_FEL_GLARE);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            case SPELL_FOCUSED_DESTRUCTION:
+             SPELL_FOCUSED_DESTRUCTION:
             {
                 DoCast(SPELL_FOCUSED_DESTRUCTION);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            default:
-                break;
+           // default:
+             //   break;
             }
         }
 

@@ -24,6 +24,7 @@
 #include "Item.h"
 #include "ObjectMgr.h"
 #include "GridNotifiersImpl.h"
+#include "NPCHandler.h"
 
 enum ClassHallDH
 {
@@ -116,7 +117,7 @@ struct npc_korvas_bloodthorn_99343 : public ScriptedAI
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_CALL_OF_THE_ILLIDARI_39261 || quest->GetQuestId() == QUEST_CALL_OF_THE_ILLIDARI_39047)
         {
@@ -181,19 +182,19 @@ public:
         SPELL_ACTIVATING_CONTROL_CONSOLE = 216679,
     };
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->SetGoState(GO_STATE_READY);
         if (player->GetQuestStatus(QUEST_UNBRIDLED_POWER_ALTRUIS) == QUEST_STATUS_INCOMPLETE) {
             player->CastSpell(go, SPELL_ACTIVATING_CONTROL_CONSOLE, false);
             if (Creature* creature = go->FindNearestCreature(NPC_ALTRUIS, 25.0f, true)) {
-                if (TempSummon* waypointAltruis = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+             //   if (TempSummon* waypointAltruis = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
-                    waypointAltruis->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    waypointAltruis->RemoveNpcFlag(UNIT_NPC_FLAG_VENDOR);
-                    waypointAltruis->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-                    waypointAltruis->AI()->SetData(DATA_ACTION_START, DATA_ACTION_START);
-                    creature->ForcedDespawn(1000, Seconds(15));
+                  //  waypointAltruis->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                   // waypointAltruis->RemoveNpcFlag(UNIT_NPC_FLAG_VENDOR);
+                   // waypointAltruis->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                   // waypointAltruis->AI()->SetData(DATA_ACTION_START, DATA_ACTION_START);
+                   // creature->ForcedDespawn(1000, Seconds(15));
                 }
                 go->ResetDoorOrButton();
                 return true;
@@ -202,13 +203,13 @@ public:
         if (player->GetQuestStatus(QUEST_UNBRIDLED_POWER_KAYN) == QUEST_STATUS_INCOMPLETE) {
             player->CastSpell(go, SPELL_ACTIVATING_CONTROL_CONSOLE, false);
             if (Creature* creature = go->FindNearestCreature(NPC_KAYN, 25.0f, true)) {
-                if (TempSummon* waypointKayn = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+             //   if (TempSummon* waypointKayn = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
-                    waypointKayn->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    waypointKayn->RemoveNpcFlag(UNIT_NPC_FLAG_VENDOR);
-                    waypointKayn->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-                    waypointKayn->AI()->SetData(DATA_ACTION_START, DATA_ACTION_START);
-                    creature->ForcedDespawn(1000, Seconds(15));
+               //     waypointKayn->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                 //   waypointKayn->RemoveNpcFlag(UNIT_NPC_FLAG_VENDOR);
+                 //   waypointKayn->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                  //  waypointKayn->AI()->SetData(DATA_ACTION_START, DATA_ACTION_START);
+                   // creature->ForcedDespawn(1000, Seconds(15));
                 }
                 go->ResetDoorOrButton();
                 return true;
@@ -246,7 +247,7 @@ public:
         DATA_START_ANIM = 56,
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_UNBRIDLED_POWER)
             creature->AI()->Talk(TEXT_1);
@@ -277,39 +278,39 @@ public:
                 switch (eventId)
                 {
                 case EVENT_START_MOVE:
-                    _events.ScheduleEvent(EVENT_START_MOVE + 1, 2500);
+                   // _events.ScheduleEvent(EVENT_START_MOVE + 1, 2500);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MoveJump(1538.26f, 1417.64f, 237.1087f, 5.8971f, 10.0f, 0.0f);
                     break;
                 case EVENT_START_MOVE + 1:
-                    _events.ScheduleEvent(EVENT_SAY_1, 7000);
+                   // _events.ScheduleEvent(EVENT_SAY_1, 7000);
                     me->GetMotionMaster()->MovePoint(1, 1551.416f, 1414.738f, 237.1089f);
                     break;
                 case EVENT_SAY_1:
-                    _events.ScheduleEvent(EVENT_SAY_ASHTONGUE, 8000);
+                 //   _events.ScheduleEvent(EVENT_SAY_ASHTONGUE, 8000);
                     Talk(TEXT_3);
                     break;
                 case EVENT_SAY_ASHTONGUE:
-                    _events.ScheduleEvent(EVENT_SAY_COILSKAR, 5000);
+                   // _events.ScheduleEvent(EVENT_SAY_COILSKAR, 5000);
                     if (Creature* gaardoun = me->FindNearestCreature(NPC_GAARDOUN, me->GetVisibilityRange(), true))
                         gaardoun->AI()->Talk(0);
                     break;
                 case EVENT_SAY_COILSKAR:
-                    _events.ScheduleEvent(EVENT_SAY_SHIVARRA, 5000);
+                 //   _events.ScheduleEvent(EVENT_SAY_SHIVARRA, 5000);
                     if (Creature* ladyStheno = me->FindNearestCreature(NPC_LADY_STHENO, me->GetVisibilityRange(), true))
                         ladyStheno->AI()->Talk(0);
                     break;
                 case EVENT_SAY_SHIVARRA:
-                    _events.ScheduleEvent(EVENT_SAY_3, 5000);
+                  //  _events.ScheduleEvent(EVENT_SAY_3, 5000);
                     if (Creature* motherMalevolence = me->FindNearestCreature(NPC_MOTHER_MALEVOLENCE, me->GetVisibilityRange(), true))
                         motherMalevolence->AI()->Talk(0);
                     break;
                 case EVENT_SAY_3:
-                    _events.ScheduleEvent(EVENT_SAY_4, 7000);
+                  //  _events.ScheduleEvent(EVENT_SAY_4, 7000);
                     Talk(TEXT_4);
                     break;
                 case EVENT_SAY_4:
-                    _events.ScheduleEvent(EVENT_DESPAWN, 1000);
+                  //  _events.ScheduleEvent(EVENT_DESPAWN, 1000);
                     Talk(TEXT_5);
                     break;
                 case EVENT_DESPAWN: {
@@ -334,7 +335,7 @@ public:
             switch (id) {
             case DATA_START_ANIM:
                 Talk(TEXT_2);
-                _events.ScheduleEvent(EVENT_START_MOVE, 7000);
+              //  _events.ScheduleEvent(EVENT_START_MOVE, 7000);
                 break;
             default:
                 break;
@@ -372,17 +373,17 @@ public:
         WP_LAST_TALK = 17,
     };
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) 
     {
         if (player->GetQuestStatus(QUEST_SPOILS_OF_VICTORY) == QUEST_STATUS_INCOMPLETE)
         {
-            if (TempSummon* waypointGaardoun = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+          //  if (TempSummon* waypointGaardoun = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
             {
-                waypointGaardoun->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                waypointGaardoun->RemoveNpcFlag(UNIT_NPC_FLAG_VENDOR);
-                waypointGaardoun->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-                waypointGaardoun->AI()->Talk(1);
-                waypointGaardoun->AI()->SetGUID(player->GetGUID());
+            //    waypointGaardoun->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+              //  waypointGaardoun->RemoveNpcFlag(UNIT_NPC_FLAG_VENDOR);
+               // waypointGaardoun->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+               // waypointGaardoun->AI()->Talk(1);
+               // waypointGaardoun->AI()->SetGUID(player->GetGUID());
                 player->KilledMonsterCredit(98650, ObjectGuid::Empty);
             }
         }
@@ -390,9 +391,9 @@ public:
         return true;
     }
 
-    struct npc_mardum_battlelord_gaardoun_AI : public npc_escortAI
+    struct npc_mardum_battlelord_gaardoun_AI //: public//npc_CreatureAI
     {
-        npc_mardum_battlelord_gaardoun_AI(Creature* creature) : npc_escortAI(creature)
+        npc_mardum_battlelord_gaardoun_AI(Creature* creature) //: npc_escortAI(creature)
         {
             Initialize();
         }
@@ -403,7 +404,7 @@ public:
             _moveTimer = 0;
         }
 
-        ObjectGuid GetGUID(int32 type) const override
+        ObjectGuid GetGUID(int32 type) const 
         {
             if (type == DATA_EVENT_STARTER_GUID)
                 return _eventStarterGuid;
@@ -411,43 +412,43 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) 
         {
             _eventStarterGuid = guid;
-            Start(false, true, guid);
-            SetDespawnAtFar(false);
+          //  Start(false, true, guid);
+            //SetDespawnAtFar(false);
         }
 
-        void LastWaypointReached() override
+        void LastWaypointReached() 
         {
-            me->DespawnOrUnsummon();
-            me->SetOrientation(2.990351f);
+          //  me->DespawnOrUnsummon();
+           // me->SetOrientation(2.990351f);
 
             if (Player* player = ObjectAccessor::FindPlayer(_eventStarterGuid))
                 player->KilledMonsterCredit(FOLLOW_GAARDOUN_KILLCREDIT, ObjectGuid::Empty);
         }
 
-        void Reset() override
+        void Reset() 
         {
-            me->SetWalk(false);
-            me->SetSpeed(MOVE_RUN, 3.2f);
+           // me->SetWalk(false);
+           // me->SetSpeed(MOVE_RUN, 3.2f);
             Initialize();
             _events.Reset();
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) 
         {
             _events.Update(diff);
 
-            if (UpdateVictim())
+           // if (UpdateVictim())
             {
-                DoMeleeAttackIfReady();
+             //   DoMeleeAttackIfReady();
             }
 
-            if (HasEscortState(STATE_ESCORT_NONE))
+           // if (HasEscortState(STATE_ESCORT_NONE))
                 return;
 
-            npc_escortAI::UpdateAI(diff);
+         //   npc_escortAI::UpdateAI(diff);
 
             if (_phase)
             {
@@ -456,7 +457,7 @@ public:
                     switch (_phase)
                     {
                     case PHASE_CONTINUE:
-                        SetEscortPaused(false);
+           //             SetEscortPaused(false);
                         _moveTimer = 0 * IN_MILLISECONDS;
                         _phase = PHASE_NONE;
                         break;
@@ -464,27 +465,27 @@ public:
                         break;
                     }
                 }
-                else if (!me->IsInCombat())
+             //   else if (!me->IsInCombat())
                     _moveTimer -= diff;
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId) 
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
+           // Player* player = GetPlayerForEscort();
+           // if (!player)
                 return;
 
             switch (waypointId)
             {
             case WP_START_TALK:
-                Talk(2);
+              //  Talk(2);
                 break;
             case WP_NEXT_TALK:
-                Talk(3);
+               // Talk(3);
                 break;
             case WP_LAST_TALK:
-                Talk(4);
+               // Talk(4);
                 break;
             default:
                 break;
@@ -500,7 +501,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_mardum_battlelord_gaardoun_AI(creature);
+        return;//  npc_mardum_battlelord_gaardoun_AI(creature);
     }
 };
 
@@ -515,14 +516,14 @@ class npc_mardum_battlelord_gaardoun_103025 : public CreatureScript
 public:
     npc_mardum_battlelord_gaardoun_103025() : CreatureScript("npc_mardum_battlelord_gaardoun_103025") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_CURSED_FORGE_OF_NATHREZIM)
         {
-            if (Aura* artifactAura = player->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-                if (Item* artifact = player->GetItemByGuid(artifactAura->GetCastItemGUID()))
-                    if (artifact->GetTotalPurchasedArtifactPowers() == 0)
-                        artifact->GiveArtifactXp(100, nullptr, 0);
+            if (Aura* artifactAura = player->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE));
+              //  if (Item* artifact = player->GetItemByGuid(GetCastItemGUID()))
+                   // if (artifact->GetTotalPurchasedArtifactPowers() == 0)
+                    //    artifact->GiveArtifactXp(100, nullptr, 0);
         }
         return true;
     }
@@ -536,15 +537,15 @@ public:
 
     uint32 checkTimer = 1000;
 
-    void OnUpdate(Player* player, uint32 diff) override
+    void OnUpdate(Player* player, uint32 diff) 
     {
         if (checkTimer <= diff)
         {
-            if (player->getClass() == CLASS_DEMON_HUNTER && player->GetZoneId() == 8022 && player->GetQuestStatus(QUEST_CURSED_FORGE_OF_NATHREZIM) == QUEST_STATUS_INCOMPLETE)
+           // if (player->getClass() == CLASS_DEMON_HUNTER && player->GetZoneId() == 8022 && player->GetQuestStatus(QUEST_CURSED_FORGE_OF_NATHREZIM) == QUEST_STATUS_INCOMPLETE)
             {
                 if (Aura* artifactAura = player->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-                    if (Item* artifact = player->GetItemByGuid(artifactAura->GetCastItemGUID()))
-                        if (artifact->GetTotalPurchasedArtifactPowers() != 0)
+             //       if (Item* artifact = player->GetItemByGuid(artifactAura->GetCastItemGUID()))
+               //         if (artifact->GetTotalPurchasedArtifactPowers() != 0)
                             if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_CURSED_FORGE_OF_NATHREZIM))
                                 for (QuestObjective const& obj : quest->GetObjectives())
                                     if (obj.ObjectID == OBJECTIVE_CURSED_FORGE_OF_NATHREZIM) {
@@ -588,7 +589,7 @@ class go_mardum_empowered_nether_crusible : public GameObjectScript
 public:
     go_mardum_empowered_nether_crusible() : GameObjectScript("go_mardum_empowered_nether_crusible") { }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/) 
     {
         if (player->GetQuestStatus(QUEST_THE_HUNTERS_GAZE) == QUEST_STATUS_INCOMPLETE)
         {
@@ -607,17 +608,17 @@ public:
     uint32 checkTimer = 200;
     bool _sceneStarted = false;
 
-    void OnUpdate(Player* player, uint32 diff) override
+    void OnUpdate(Player* player, uint32 diff) 
     {
         if (checkTimer <= diff)
         {
-            if (player->getClass() == CLASS_DEMON_HUNTER && player->GetAreaId() == 8553 &&
-                player->GetQuestStatus(QUEST_THE_HUNTERS_GAZE) == QUEST_STATUS_INCOMPLETE &&
-                !_sceneStarted)
+           // if (player->getClass() == CLASS_DEMON_HUNTER && player->GetAreaId() == 8553 &&
+           // player->GetQuestStatus(QUEST_THE_HUNTERS_GAZE) == QUEST_STATUS_INCOMPLETE&&
+           //     !_sceneStarted)
             {
                 _sceneStarted = true;
                 player->GetSceneMgr().PlayScene(SCENE_GAZE_UPON_LEGION_ID);
-                player->AddDelayedConversation(2000, 6801); // update sql file
+              //  player->AddDelayedConversation(2000, 6801); // update sql file
             }
             checkTimer = 200;
         }
@@ -685,13 +686,13 @@ void AddSC_class_hall_dh()
 {
     RegisterCreatureAI(npc_korvas_bloodthorn_99343);
     new PlayerScript_DH_artifact_choice();
-    new go_mardum_control_console();
+  //  new go_mardum_control_console();
     new npc_mardum_altruis_ch();
     new npc_mardum_battlelord_gaardoun();
-    new npc_mardum_battlelord_gaardoun_103025();
+   // new npc_mardum_battlelord_gaardoun_103025();
     new PlayerScript_mardum_artifact_empowered();
     new PlayerScript_start_gazing();
-    new go_mardum_empowered_nether_crusible();
+   // new go_mardum_empowered_nether_crusible();
     new scene_gaze_upon_legion();
     new q_paradise_lost();
     new q_stormheim();

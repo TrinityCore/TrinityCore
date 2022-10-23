@@ -68,7 +68,7 @@ public:
         
         WorldLocation loc_res_pla;
 
-        void Initialize() override
+        void Initialize() 
         {
             LoadDoorData(doorData);
         }
@@ -82,7 +82,7 @@ public:
                     {
                         creature->SetVisible(false);
                         creature->SetReactState(REACT_PASSIVE);
-                        creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
+                      //  creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
                     }
                     ThrashbiteGuid = creature->GetGUID();
                     break;
@@ -95,7 +95,7 @@ public:
                     {
                         creature->SetVisible(false);
                         creature->SetReactState(REACT_PASSIVE);
-                        creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
+                       // creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
                     }
                     MephistrothGuid = creature->GetGUID();
                     break;
@@ -128,7 +128,7 @@ public:
                     {
                         creature->SetVisible(false);
                         creature->SetReactState(REACT_PASSIVE);
-                        creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
+                     //   creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
                         introMephistrothAdds.push_back(creature->GetGUID());
                     }
                     else if (creature->GetEntry() == NPC_BATS_INTRO)
@@ -194,16 +194,16 @@ public:
                                 
                     if (deads_npc >= 4)
                     {
-                        if (Creature* illidan = instance->SummonCreature(NPC_ILLIDAN_INTRO, { -600.66f, 2527.25f, 532.47f, 0.02f }))
+                       // if (Creature* illidan = instance->SummonCreature(NPC_ILLIDAN_INTRO, { -600.66f, 2527.25f, 532.47f, 0.02f }))
                         {
-                            illidan->GetMotionMaster()->MovePath(387354, false);
+                         //   illidan->GetMotionMaster()->MovePath(387354, false);
                            // illidan->AddDelayedEvent(10000, [illidan] () -> void
                          //   {
-                                illidan->AI()->Talk(0);
+                           //     illidan->AI()->Talk(0);
                             //    illidan->AddDelayedEvent(3000, [illidan] () -> void
                              //   {
-                                    illidan->CastSpell(illidan, 239485);
-                                    illidan->DespawnOrUnsummon(2100);
+                               //     illidan->CastSpell(illidan, 239485);
+                                 //   illidan->DespawnOrUnsummon(2100);
                            //     });
                          //   });
                         }
@@ -261,7 +261,7 @@ public:
                                // add->AddDelayedEvent(6000 + 100*(i++), [add]() -> void
                                // {
                                     add->GetMotionMaster()->MovePath(387382, false);
-                                    add->DespawnOrUnsummon(16000);
+                                    add->DespawnOrUnsummon(16000s);
                              //   });
                             }
                     }
@@ -274,7 +274,7 @@ public:
                             if (Creature* egida = instance->GetCreature(EgidaDomatraxStarterGuid))
                             {
                                 egida->SetVisible(true);
-                                egida->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                             //   egida->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                                 egida->CastSpell(egida, 144373);
                             }
                             break;
@@ -316,15 +316,15 @@ public:
                     
                     if (state == DONE)
                     {
-                        if (Creature* illidan = instance->SummonCreature(NPC_ILLIDAN_INTRO, { -547.93f, 2532.18f, 533.94f, 5.01f }))
-                            illidan->CastSpell(illidan, 239484);
+                       // if (Creature* illidan = instance->SummonCreature(NPC_ILLIDAN_INTRO, { -547.93f, 2532.18f, 533.94f, 5.01f }))
+                         //   illidan->CastSpell(illidan, 239484);
                         
-                        if (Creature* maiev = instance->SummonCreature(NPC_MAIEV_INTRO, { -579.73f, 2526.37f, 533.98f, 0.00f }))
-                            maiev->GetMotionMaster()->MovePoint(0, -553.83f, 2518.90f, 533.94f);
+                       // if (Creature* maiev = instance->SummonCreature(NPC_MAIEV_INTRO, { -579.73f, 2526.37f, 533.98f, 0.00f }))
+                           // maiev->GetMotionMaster()->MovePoint(0, -553.83f, 2518.90f, 533.94f);
                         
-                        if (Creature* egvin = instance->SummonCreature(NPC_EGVIN_FINAL, { -546.11f, 2523.09f, 534.40f, 2.96f }))
+                       // if (Creature* egvin = instance->SummonCreature(NPC_EGVIN_FINAL, { -546.11f, 2523.09f, 534.40f, 2.96f }))
                         {
-                            egvin->CastSpell(egvin, 241351);
+                         //   egvin->CastSpell(egvin, 241351);
                           //  egvin->CreateConversation(4966);
                         }
                         

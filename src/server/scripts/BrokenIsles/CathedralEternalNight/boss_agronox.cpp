@@ -85,19 +85,19 @@ public:
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FULMINATING_LASHERS_DEBUFF);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             Talk(SAY_AGGRO);
-            _EnterCombat();
+           // _EnterCombat();
 
-            events.RescheduleEvent(EVENT_TIMBER_SMASH, 5000); 
-            events.RescheduleEvent(EVENT_FLUMINATING, 10000);
-            events.RescheduleEvent(EVENT_FLUMINATING_2, 40000);
-            events.RescheduleEvent(EVENT_FLUMINATING_DEBUFF, 10000);
-            events.RescheduleEvent(EVENT_CHOKING_VINES, 24000);
+           // events.RescheduleEvent(EVENT_TIMBER_SMASH, 5000); 
+           // events.RescheduleEvent(EVENT_FLUMINATING, 10000);
+           // events.RescheduleEvent(EVENT_FLUMINATING_2, 40000);
+           // events.RescheduleEvent(EVENT_FLUMINATING_DEBUFF, 10000);
+           // events.RescheduleEvent(EVENT_CHOKING_VINES, 24000);
             
-            if (Difficulty() != DIFFICULTY_HEROIC) // mythic and other. normal mode isn't exist
-                events.RescheduleEvent(EVENT_SUCCULENT_LAHSERS, 18000);
+            if (Difficulty() != DIFFICULTY_HEROIC); // mythic and other. normal mode isn't exist
+              //  events.RescheduleEvent(EVENT_SUCCULENT_LAHSERS, 18000);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -111,7 +111,7 @@ public:
         void JustSummoned(Creature* summon) override
         {            
             summons.Summon(summon);
-            DoZoneInCombat(summon, 150.0f);
+            DoZoneInCombat(summon);// , 150.0f);
             
             summon->RemoveAurasDueToSpell(175057);
             
@@ -129,10 +129,10 @@ public:
                     if (Unit* target = ObjectAccessor::GetUnit(*summon, summon->GetTarget()))
                     {
                         target->CastSpell(summon, SPELL_CHOKING_VINES_JUMP);
-                        summon->GetScheduler().Schedule(Milliseconds(1000), [summon, target](TaskContext context)
+                       // summon->GetScheduler().Schedule(Milliseconds(1000), [summon, target](TaskContext context)
                         {
                             summon->CastSpell(target, SPELL_CHOKING_VINES_DMG);
-                        });
+                        };
                     }
                     break;
             }
@@ -155,7 +155,7 @@ public:
 
                     case EVENT_TIMBER_SMASH:
                         DoCastVictim(SPELL_TIMBER_SMASH);
-                        events.RescheduleEvent(EVENT_TIMBER_SMASH, 31000);
+                      //  events.RescheduleEvent(EVENT_TIMBER_SMASH, 31000);
                         break;
                     case EVENT_FLUMINATING:
                     case EVENT_FLUMINATING_2:
@@ -166,26 +166,26 @@ public:
                         Map::PlayerList const& pPlayers = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = pPlayers.begin(); itr != pPlayers.end(); ++itr)
                             if (Player* player = itr->GetSource())
-                                if (Creature* add = me->SummonCreature(NPC_FLUMINATING_LASHERS, adds_pos[cur_position++],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
-                                    add->SetTarget(player->GetGUID());
+                             //   if (Creature* add = me->SummonCreature(NPC_FLUMINATING_LASHERS, adds_pos[cur_position++],TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                              //      add->SetTarget(player->GetGUID());
                         break;
                     }
                     case EVENT_FLUMINATING_DEBUFF:
                         DoCastAOE(SPELL_FULMINATING_LASHERS_DEBUFF);
-                        events.RescheduleEvent(EVENT_FLUMINATING_DEBUFF, 20000);
+                      //  events.RescheduleEvent(EVENT_FLUMINATING_DEBUFF, 20000);
                         break;
                     case EVENT_CHOKING_VINES:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                            if (Player* player = target->ToPlayer())
-                                if (Creature* add = me->SummonCreature(NPC_CHOKING_VINES, vines_pos[urand(0,3)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
-                                    add->SetTarget(player->GetGUID());
+                       // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                          //  if (Player* player = target->ToPlayer())
+                         //       if (Creature* add = me->SummonCreature(NPC_CHOKING_VINES, vines_pos[urand(0,3)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
+                            //        add->SetTarget(player->GetGUID());
                         
                         Talk(SAY_VINES);
-                        events.RescheduleEvent(EVENT_CHOKING_VINES, 35000); 
+                       // events.RescheduleEvent(EVENT_CHOKING_VINES, 35000); 
                         break;
                     case EVENT_SUCCULENT_LAHSERS:
                         DoCast(SPELL_SUCCULENT_LASHERS);
-                        events.RescheduleEvent(EVENT_SUCCULENT_LAHSERS, urand(30000, 42000)); // real random ?
+                       // events.RescheduleEvent(EVENT_SUCCULENT_LAHSERS, urand(30000, 42000)); // real random ?
                         break;
                 }
             }

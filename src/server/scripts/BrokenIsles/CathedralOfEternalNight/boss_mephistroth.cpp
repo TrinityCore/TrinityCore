@@ -32,6 +32,12 @@ enum Events
     EVENT_INTRO = 1,
 };
 
+enum Phases
+{
+    PHASE_00,
+    PHASE_01,
+};
+/*
 std::vector<TalkData> const talkData =
 {
     { EVENT_ON_MOVEINLINEOFSIGHT,           EVENT_TYPE_TALK,            0 },
@@ -46,7 +52,7 @@ std::vector<EventData> const eventData =
     { PHASE_01, PHASE_01, SPELL_DEMONIC_UPHEAVAL, 5000 },
     { PHASE_01, PHASE_01, SPELL_SHADOW_FADE, 5000 },
 };
-
+*/
 struct boss_mephistroth_coen : public BossAI
 {
     boss_mephistroth_coen(Creature* creature) : BossAI(creature, DATA_MEPHISTROTH) { Initialize(); }
@@ -55,13 +61,13 @@ struct boss_mephistroth_coen : public BossAI
     {
         PhaseStatus = PHASE_00;
         //SetDungeonEncounterID(2039);
-        LoadEventData(&eventData);
-        LoadTalkData(&talkData);
+       // LoadEventData(&eventData);
+       // LoadTalkData(&talkData);
     }
 
     void ScheduleTasks() override
     {
-        GetEventData(PHASE_01);
+       // GetEventData(PHASE_01);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -102,8 +108,8 @@ struct boss_mephistroth_coen : public BossAI
         if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && PhaseStatus == PHASE_00)
         {
             PhaseStatus = PHASE_01;
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
-            GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
+          //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+        //    GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
         }
     }
 
@@ -112,7 +118,7 @@ struct boss_mephistroth_coen : public BossAI
         BossAI::JustDied(attacker);
 
         //https://cn.wowhead.com/currency=1314/??????
-        instance->DoModifyPlayerCurrencies(1314, 1);
+      //  instance->DoModifyPlayerCurrencies(1314, 1);
     }
 
     uint8 PhaseStatus;

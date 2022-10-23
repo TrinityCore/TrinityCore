@@ -38,7 +38,7 @@ public:
     {
         npc_mefistrot_introAI(Creature* creature) : ScriptedAI(creature) 
         {
-            SetCanSeeEvenInPassiveMode(true);
+           // SetCanSeeEvenInPassiveMode(true);
         }
         
         bool eventDone = false;
@@ -59,7 +59,7 @@ public:
                    // illidan->AddDelayedEvent(20000, [illidan] () -> void
                    // {
                         illidan->CastSpell(illidan, 239485);
-                        illidan->DespawnOrUnsummon(1000);
+                        illidan->DespawnOrUnsummon(1000s);
                   //  });
                     
                 }
@@ -69,14 +69,14 @@ public:
                    // maiev->AddDelayedEvent(25000, [maiev] ()-> void
                   //  {
                         maiev->CastSpell(maiev, 240727);
-                        maiev->DespawnOrUnsummon(2000);
+                        maiev->DespawnOrUnsummon(2000s);
                    // });
                 }
                 
                 for (uint32 entry = 119952; entry <= 120550; entry+=598)
                     if (Creature* add = me->FindNearestCreature(entry, 15.0f, true))
                     {
-                        add->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+                       // add->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
                         add->GetMotionMaster()->MoveJump(Position(add->GetPositionX() - 14.0f, add->GetPositionY(), 334.53f), 5.0f, 15.0f);
 
                         add->SetHomePosition(add->GetPositionX() - 14.0f, add->GetPositionY(), 334.53f, add->GetOrientation());
@@ -125,7 +125,7 @@ public:
     {
         npc_dulzakAI(Creature* creature) : ScriptedAI(creature) 
         {
-            SetCanSeeEvenInPassiveMode(true);
+           // SetCanSeeEvenInPassiveMode(true);
             me->m_SightDistance = 130.0f;
         }
         EventMap events;
@@ -136,9 +136,9 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.RescheduleEvent(1, 22000);
+          //  events.RescheduleEvent(1, 22000);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -170,9 +170,9 @@ public:
                 switch (eventId)
                 {
                     case 1:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, 238653);
-                        events.RescheduleEvent(1, 22000);
+                     //   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        //    DoCast(target, 238653);
+                       // events.RescheduleEvent(1, 22000);
                         break;
                 }
             }
@@ -196,7 +196,7 @@ public:
     {
         npc_coen_event_firstAI(Creature* creature) : ScriptedAI(creature) 
         {
-            SetCanSeeEvenInPassiveMode(true);
+           // SetCanSeeEvenInPassiveMode(true);
             
           //  me->AddDelayedEvent(1000, [this] () -> void
             {
@@ -233,7 +233,7 @@ public:
               //  me->AddDelayedEvent(1000, [this] () -> void
               //  {
                     me->KillSelf();
-                    me->DespawnOrUnsummon(4000);
+                    me->DespawnOrUnsummon(4000s);
                // });
             }
         }
@@ -256,7 +256,7 @@ public:
     {
         npc_coen_maiev_eventsAI(Creature* creature) : ScriptedAI(creature)  
         {
-            SetCanSeeEvenInPassiveMode(true);
+          //  SetCanSeeEvenInPassiveMode(true);
         }
         
       //  bool eventDone = false, isThirdBossIntro = false;
@@ -521,19 +521,19 @@ class spell_coen_summon_spider : public SpellScriptLoader
 
                 for (uint8 i =0; i < 3; ++i)
                 {
-                    if (Creature* kokon = caster->SummonCreature(120015, caster->GetPositionX() + frand(-6, 6), caster->GetPositionY() + frand(-6, 6), 510.94f))
+                 //   if (Creature* kokon = caster->SummonCreature(120015, caster->GetPositionX() + frand(-6, 6), caster->GetPositionY() + frand(-6, 6), 510.94f))
                     {
-                        if (Creature* spider = caster->SummonCreature(120016, kokon->GetPositionX(), kokon->GetPositionY(), kokon->GetPositionZ()))
+                   //     if (Creature* spider = caster->SummonCreature(120016, kokon->GetPositionX(), kokon->GetPositionY(), kokon->GetPositionZ()))
                         {
-                            spider->CastSpell(kokon, 218073);
+                     //       spider->CastSpell(kokon, 218073);
                          //   spider->AddDelayedEvent(10000, [spider, kokon, caster] () -> void
                           //  {
-                                if (!kokon || !spider)
+                       //         if (!kokon || !spider)
                                     return;
                                 
-                                spider->CastSpell(kokon, 116894);
-                                kokon->DespawnOrUnsummon(3000);
-                                spider->GetMotionMaster()->MoveJump(Position(spider->GetPositionX(), spider->GetPositionY(), caster->GetPositionZ()), 50, 50);
+                          //      spider->CastSpell(kokon, 116894);
+                            //    kokon->DespawnOrUnsummon(3000);
+                              //  spider->GetMotionMaster()->MoveJump(Position(spider->GetPositionX(), spider->GetPositionY(), caster->GetPositionZ()), 50, 50);
                           //  });
                         }
                     }
@@ -573,7 +573,7 @@ public:
                 {
                   //  caster->AddDelayedEvent(100+i, [caster] () -> void
                   //  {
-                        caster->CastSpell(frand(-570.43f, -513.22f), frand(2497.36f, 2556.18f), 533.94f, 239524, false);
+                      //  caster->CastSpell(frand(-570.43f, -513.22f), frand(2497.36f, 2556.18f), 533.94f, 239524, false);
                   //  });
                 }
             }

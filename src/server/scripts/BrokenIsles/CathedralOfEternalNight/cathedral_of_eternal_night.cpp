@@ -70,43 +70,43 @@ struct npc_nalasha_118705 : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        events.Update(diff);
+      //  events.Update(diff);
 
-        while (uint32 eventId = events.ExecuteEvent())
+       // while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+         //   switch (eventId)
             {
-            case SPELL_SPIDER_CALL:
+             SPELL_SPIDER_CALL:
             {
                 DoCast(SPELL_SPIDER_CALL);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            case SPELL_VANISH:
+             SPELL_VANISH:
             {
                 DoCast(SPELL_VANISH);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            case SPELL_VENOM_STORM:
+             SPELL_VENOM_STORM:
             {
                 DoCast(SPELL_VENOM_STORM);
-                events.Repeat(5s, 10s);
-                break;
+            //    events.Repeat(5s, 10s);
+              //  break;
             }
-            default:
-                break;
+            //default:
+              //  break;
             }
         }
 
         DoMeleeAttackIfReady();
     }
 
-    void EnterCombat(Unit* /*victim*/) override
+    void EnterCombat(Unit* /*victim*/) 
     {
-        events.ScheduleEvent(SPELL_SPIDER_CALL, 5000);
-        events.ScheduleEvent(SPELL_VANISH, 5000);
-        events.ScheduleEvent(SPELL_VENOM_STORM, 5000);
+       // events.ScheduleEvent(SPELL_SPIDER_CALL, 5000);
+       // events.ScheduleEvent(SPELL_VANISH, 5000);
+       // events.ScheduleEvent(SPELL_VENOM_STORM, 5000);
     }
 
     void JustDied(Unit* /*killer*/) override

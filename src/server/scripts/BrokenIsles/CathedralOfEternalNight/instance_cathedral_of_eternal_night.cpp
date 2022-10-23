@@ -42,7 +42,8 @@ DoorData const doorData[] =
 { GO_BOSS2_DOOR_3,          DATA_THRASHBITE_THE_SCORNFUL,  DOOR_TYPE_ROOM },
 { GO_BOSS3_POST_BOSS_DOOR,  DATA_DOMATRAX,            DOOR_TYPE_ROOM },
 { GO_BOSS3_DOOR,            DATA_DOMATRAX,            DOOR_TYPE_ROOM },
-{ GO_BOSS4_DOOR,            DATA_MEPHISTROTH,         DOOR_TYPE_ROOM }
+{ GO_BOSS4_DOOR,            DATA_MEPHISTROTH,         DOOR_TYPE_ROOM },
+//{ GO_FONT_OF_POWER,          DTAT_GO_FONT_OF_POWER     FONT_OF_POWER},
 };
 
 Position const pos1 = { -518.0295f, 2525.428f, 534.6553f, 3.235034f }; ///summon NPC_MEPHISTROTH
@@ -56,13 +57,13 @@ class instance_cathedral_of_eternal_night : public InstanceMapScript
         {
             instance_cathedral_of_eternal_night_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
 
-            void Initialize() override
+            void Initialize() 
             {
        SetHeaders(DataHeader);
                 SetBossNumber(DATA_MAX_ENCOUNTERS);
                 //LoadDoorData(doorData);
             }
-            /*
+            
             void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
@@ -84,7 +85,7 @@ class instance_cathedral_of_eternal_night : public InstanceMapScript
                 case GO_BOSS4_DOOR:
                     AddDoor(go, true);
                     break;
-                case GO_FONT_OF_POWER:
+                //case GO_FONT_OF_POWER:
                     AddObject(go, true);
                     break;
                 default:
@@ -112,14 +113,14 @@ class instance_cathedral_of_eternal_night : public InstanceMapScript
                 case GO_BOSS4_DOOR:
                     AddDoor(go, false);
                     break;
-                case GO_FONT_OF_POWER:
+                //case GO_FONT_OF_POWER:
                     AddObject(go, false);
                     break;
                 default:
                     break;
                 }
             }
-            */
+            
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
