@@ -22,6 +22,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "ScriptedGossip.h"
+#include <Events.h>
 
 enum Spells
 {
@@ -71,6 +72,11 @@ enum Events
     EVENT_A2 = 5,
     EVENT_A3 = 6,
     EVENT_A4 = 7,
+    EVENT_ON_ENTERCOMBAT,
+    EVENT_ON_JUSTDIED,
+    EVENT_ON_MOVEINLINEOFSIGHT,
+    EVENT_TYPE_TALK = (0,9),
+    EVENT_TYPE_CONVERSATION,
 };
 enum Phases
 {
@@ -83,12 +89,17 @@ enum Phases
 
 };
 
-TalkData const talkData[] =
+enum Data
 {
-    { EVENT_ON_ENTERCOMBAT,             EVENT_TYPE_TALK,            0 },
-    { EVENT_ON_JUSTDIED,                EVENT_TYPE_TALK,            9 },
-    { EVENT_ON_MOVEINLINEOFSIGHT,       EVENT_TYPE_CONVERSATION, 5745 },
+   TalkData,
 };
+
+//enum TalkData const talkData[] =
+//{
+   // { EVENT_ON_ENTERCOMBAT,             EVENT_TYPE_TALK,            0 },
+   // { EVENT_ON_JUSTDIED,                EVENT_TYPE_TALK,            9 },
+   // { EVENT_ON_MOVEINLINEOFSIGHT,       EVENT_TYPE_CONVERSATION, 5745 },
+//};
 
 struct SpawnData
 {
@@ -122,7 +133,7 @@ struct boss_aggramar : public BossAI
         while (data->event)
         {
             if (data->event == event)
-                me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+              //  me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             ++data;
         }
     }
@@ -134,9 +145,9 @@ struct boss_aggramar : public BossAI
       //  instance->DoDelayedConversation(2000, 6127);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(80, damage))
+       // if (me->HealthWillBeBelowPctDamaged(80, damage))
         {
             PhaseStatus = PHASE_2;
             events.Reset();
@@ -147,7 +158,7 @@ struct boss_aggramar : public BossAI
             killCount = 2;
             events.RescheduleEvent(EVNET_PHASE_2, 1s);
         }
-        else if (me->HealthWillBeBelowPctDamaged(40, damage))
+        //else if (me->HealthWillBeBelowPctDamaged(40, damage))
         {
             PhaseStatus = PHASE_3;
             events.Reset();
@@ -190,7 +201,7 @@ struct boss_aggramar : public BossAI
                 events.ScheduleEvent(SPELL_SCORCHING_BLAZE, 8s);
                 events.ScheduleEvent(SPELL_TAESHALACH_TECHNIQUE, 60s);
 
-                if (me->GetMap()->IsMythic())
+               // if (me->GetMap()->IsMythic())
                 {
                     events.ScheduleEvent(SPELL_EMPOWERED_FLAME_REND, 5s);
                     events.ScheduleEvent(SPELL_RAVENOUS_BLAZE, 5s);
@@ -219,7 +230,7 @@ struct boss_aggramar : public BossAI
         events.ScheduleEvent(SPELL_SCORCHING_BLAZE, 8s);
         events.ScheduleEvent(SPELL_TAESHALACH_TECHNIQUE, 60s);
 
-        if (me->GetMap()->IsMythic())
+        if (me->GetMap()->IsRaid())
         {
             events.ScheduleEvent(SPELL_EMPOWERED_FLAME_REND, 5s);
             events.ScheduleEvent(SPELL_RAVENOUS_BLAZE, 5s);
@@ -245,14 +256,14 @@ struct boss_aggramar : public BossAI
         }
         case SPELL_FLARE:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_FLARE, false);
+         //   if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+            //    me->CastSpell(target1, SPELL_FLARE, false);
 
-            if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target2, SPELL_FLARE, false);
+          //  if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+              //  me->CastSpell(target2, SPELL_FLARE, false);
 
-            if (Unit* target3 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target3, SPELL_FLARE, false);
+           // if (Unit* target3 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target3, SPELL_FLARE, false);
             events.Repeat(25s);
             break;
         }
@@ -264,11 +275,11 @@ struct boss_aggramar : public BossAI
         }
         case SPELL_SCORCHING_BLAZE:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SCORCHING_BLAZE, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_SCORCHING_BLAZE, false);
 
-            if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target2, SPELL_SCORCHING_BLAZE, false);
+           // if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+              //  me->CastSpell(target2, SPELL_SCORCHING_BLAZE, false);
             events.Repeat(8s);
             break;
         }
@@ -348,7 +359,7 @@ struct boss_aggramar : public BossAI
         if (who->IsPlayer() && me->IsWithinDist(who, 50.0f, false) && PhaseStatus == Phases::PHASE_INTRO)
         {
             PhaseStatus = Phases::PHASE_1;
-            GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
+           // GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
     }
@@ -360,7 +371,7 @@ struct boss_aggramar : public BossAI
         {
         case NPC_EMBER_OF_TAESHALACH:
         {
-            summon->SetFaction(me->getFaction());
+            //summon->SetFaction(me->getFaction());
             summon->GetMotionMaster()->MovePoint(1, Position(-12634.2f, -2255.2478f, 2514.2617f, 4.674f));
             break;
         }
@@ -376,7 +387,7 @@ struct npc_ember_of_taeshalach_122532 : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
         if (!UpdateVictim())
             return;
     }
@@ -406,7 +417,7 @@ struct npc_magni_bronzebeard_128169 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
         player->CastSpell(player, SPELL_TITANS_ASSEMBLE_MOVIE, true);
-        player->AddDelayedTeleport(4000, 1712, Position(2826.39f, -4567.94f, 291.95f, 0.02513274f));
+       // player->AddDelayedTeleport(4000, 1712, Position(2826.39f, -4567.94f, 291.95f, 0.02513274f));
     }
 };
 

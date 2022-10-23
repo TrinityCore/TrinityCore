@@ -21,6 +21,10 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
+#include <BrokenIsles/Anthorus/antorus_the_burning_throne.cpp>
+#include <Maps/Map.cpp>
+#include <boost/asio/execution/any_executor.hpp>
+#include <EnumFlag.h>
 
 /// .go -2826.932, 10857.5, 139.512 1712
 enum Spells
@@ -77,6 +81,13 @@ enum Spells
     */
 };
 
+enum Phases
+{
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+};
+
 Position const phase2pos = { -2809.739f,10829.299f,139.751f,2.05f };
 Position const phase3pos = { -2859.6398f,10864.7998f,139.74f,5.9322f };
 //Phase One - Active Boss: Admiral Svirax
@@ -89,12 +100,12 @@ struct boss_admiral_svirax : public BossAI
 
     void Initialize()
     {
-        SetDungeonEncounterID(2070);
+        //SetDungeonEncounterID(2070);
     }
 
-    void DamageTaken(Unit* done_by, uint32& damage) override
+    void DamageTaken(Unit* done_by, uint32& damage) 
     {
-        _DamageTaken(done_by, damage);
+       // _DamageTaken(done_by, damage);
 
         SubDamageTaken(NPC_CHIEF_ENGINEER_ISHKAR, damage);
         SubDamageTaken(NPC_GENERAL_ERODUS, damage);
@@ -129,7 +140,7 @@ struct boss_admiral_svirax : public BossAI
         events.ScheduleEvent(NPC_GENERAL_ERODUS, 180s);
         //general
         events.ScheduleEvent(SPELL_EXPLOIT_WEAKNESS, 8s);
-        if (IsMythic())
+       // if (IsMythic())
             events.ScheduleEvent(SPELL_SHOCK_GRENADE, 15s);
         events.ScheduleEvent(SPELL_ASSUME_COMMAND, 90s);
         events.ScheduleEvent(SPELL_CHAOS_PULSE, 15s);
@@ -147,7 +158,7 @@ struct boss_admiral_svirax : public BossAI
             PhaseStatus = PHASE_02;
             events.CancelEvent(SPELL_ENTROPIC_MINE);
             events.ScheduleEvent(SPELL_SUMMON_REINFORCEMENTS, 8s);
-            me->SummonCreature(NPC_CHIEF_ENGINEER_ISHKAR, phase2pos, TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // me->SummonCreature(NPC_CHIEF_ENGINEER_ISHKAR, phase2pos, TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             break;
         }
         case NPC_GENERAL_ERODUS:
@@ -155,7 +166,7 @@ struct boss_admiral_svirax : public BossAI
             PhaseStatus = PHASE_03;
             events.CancelEvent(SPELL_SUMMON_REINFORCEMENTS);
             events.ScheduleEvent(SPELL_ENTROPIC_MINE, 5s);
-            me->SummonCreature(NPC_GENERAL_ERODUS, phase2pos, TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+          //  me->SummonCreature(NPC_GENERAL_ERODUS, phase2pos, TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             break;
         }
         case SPELL_EXPLOIT_WEAKNESS:
@@ -178,10 +189,10 @@ struct boss_admiral_svirax : public BossAI
         }
         case SPELL_CHAOS_PULSE:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
+          //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+               // me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+             //   me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
             events.Repeat(15s);
             break;
         }
@@ -195,20 +206,20 @@ struct boss_admiral_svirax : public BossAI
         {
             DoCast(SPELL_ENTROPIC_MINE);
             for (uint8 i = 0; i < 5; ++i)
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                    me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
+              // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+                //    me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
             events.Repeat(10s);
             break;
         }
         case SPELL_SUMMON_REINFORCEMENTS:
         {
             DoCast(SPELL_SUMMON_REINFORCEMENTS);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->SummonCreature(NPC_FANATICAL_PYROMANCER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->SummonCreature(NPC_CHIEF_ENGINEER_ISHKAR, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->SummonCreature(NPC_FELBLADE_SHOCKTROOPER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+          //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+            //    me->SummonCreature(NPC_FANATICAL_PYROMANCER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+             //   me->SummonCreature(NPC_CHIEF_ENGINEER_ISHKAR, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+             //   me->SummonCreature(NPC_FELBLADE_SHOCKTROOPER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             events.Repeat(8s, 9s);
             break;
         }
@@ -219,9 +230,9 @@ struct boss_admiral_svirax : public BossAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false))// && !IsLock)
         {
-            IsLock = true;
+           // IsLock = true;
             Talk(0);
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
@@ -235,7 +246,7 @@ struct boss_admiral_svirax : public BossAI
         case NPC_CHIEF_ENGINEER_ISHKAR:
         case NPC_GENERAL_ERODUS:
         {
-            summon->SetFaction(me->getFaction());
+           // summon->SetFaction(me->getFaction());
             break;
         }
         }
@@ -247,69 +258,69 @@ struct npc_chief_engineer_ishkar_122369 : public ScriptedAI
 {
     npc_chief_engineer_ishkar_122369(Creature* creature) : ScriptedAI(creature) { Initialize(); }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-        events.ScheduleEvent(SPELL_EXPLOIT_WEAKNESS, 8s);
-        if (IsMythic())
-            events.ScheduleEvent(SPELL_SHOCK_GRENADE, 15s);
-        events.ScheduleEvent(SPELL_ASSUME_COMMAND, 90s);
-        events.ScheduleEvent(SPELL_CHAOS_PULSE, 15s);
+       // me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+       // events.ScheduleEvent(SPELL_EXPLOIT_WEAKNESS, 8s);
+        //if (IsMythic())
+         //   events.ScheduleEvent(SPELL_SHOCK_GRENADE, 15s);
+       // events.ScheduleEvent(SPELL_ASSUME_COMMAND, 90s);
+       // events.ScheduleEvent(SPELL_CHAOS_PULSE, 15s);
         //In Pod
-        events.ScheduleEvent(SPELL_ENTROPIC_MINE, 5s);
+      //  events.ScheduleEvent(SPELL_ENTROPIC_MINE, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
 
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_EXPLOIT_WEAKNESS:
+         SPELL_EXPLOIT_WEAKNESS:
         {
             DoCast(SPELL_EXPLOIT_WEAKNESS);
-            events.Repeat(8s, 9s);
-            break;
+        //    events.Repeat(8s, 9s);
+          //  break;
         }
-        case SPELL_SHOCK_GRENADE:
+         SPELL_SHOCK_GRENADE:
         {
             DoCast(SPELL_SHOCK_GRENADE);
-            events.Repeat(15s);
-            break;
+        //    events.Repeat(15s);
+          //  break;
         }
-        case SPELL_ASSUME_COMMAND:
+         SPELL_ASSUME_COMMAND:
         {
             DoCast(SPELL_ASSUME_COMMAND);
-            events.Repeat(90s);
-            break;
+        //    events.Repeat(90s);
+          //  break;
         }
-        case SPELL_CHAOS_PULSE:
+         SPELL_CHAOS_PULSE:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_CHAOS_PULSE, false);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_CHAOS_PULSE, false);
-            events.Repeat(15s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target, SPELL_CHAOS_PULSE, false);
+          //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+            //    me->CastSpell(target, SPELL_CHAOS_PULSE, false);
+           // events.Repeat(15s);
+           // break;
         }
-        case SPELL_ENTROPIC_MINE:
+         SPELL_ENTROPIC_MINE:
         {
             DoCast(SPELL_ENTROPIC_MINE);
-            for (uint8 i = 0; i < 5; ++i)
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                    me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
-            events.Repeat(10s);
-            break;
+            for (uint8 i = 0; i < 5; ++i);
+        //        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //          me->CastSpell(target->GetPosition(), SPELL_CHAOS_PULSE, false);
+           // events.Repeat(10s);
+           // break;
         }
         }
         DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* done_by, uint32& damage) override
+    void DamageTaken(Unit* done_by, uint32& damage) 
     {
         SubDamageTaken(NPC_ADMIRAL_SVIRAX, damage);
         SubDamageTaken(NPC_GENERAL_ERODUS, damage);
@@ -340,72 +351,72 @@ struct npc_general_erodus_122333 : public ScriptedAI
 {
     npc_general_erodus_122333(Creature* creature) : ScriptedAI(creature) { Initialize(); }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-        events.ScheduleEvent(SPELL_EXPLOIT_WEAKNESS, 8s);
-        if (IsMythic())
-            events.ScheduleEvent(SPELL_SHOCK_GRENADE, 15s);
-        events.ScheduleEvent(SPELL_ASSUME_COMMAND, 90s);
-        events.ScheduleEvent(SPELL_CHAOS_PULSE, 15s);
+       // me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+      //  events.ScheduleEvent(SPELL_EXPLOIT_WEAKNESS, 8s);
+       // if (IsMythic())
+         //   events.ScheduleEvent(SPELL_SHOCK_GRENADE, 15s);
+       // events.ScheduleEvent(SPELL_ASSUME_COMMAND, 90s);
+       // events.ScheduleEvent(SPELL_CHAOS_PULSE, 15s);
         //In Pod
-        events.ScheduleEvent(SPELL_SUMMON_REINFORCEMENTS, 8s);
+      //  events.ScheduleEvent(SPELL_SUMMON_REINFORCEMENTS, 8s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
 
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+      //  switch (events.ExecuteEvent())
         {
-        case SPELL_EXPLOIT_WEAKNESS:
+         SPELL_EXPLOIT_WEAKNESS:
         {
             DoCast(SPELL_EXPLOIT_WEAKNESS);
-            events.Repeat(8s, 9s);
-            break;
+        //    events.Repeat(8s, 9s);
+          //  break;
         }
-        case SPELL_SHOCK_GRENADE:
+         SPELL_SHOCK_GRENADE:
         {
             DoCast(SPELL_SHOCK_GRENADE);
-            events.Repeat(15s);
-            break;
+        //    events.Repeat(15s);
+          //  break;
         }
-        case SPELL_ASSUME_COMMAND:
+         SPELL_ASSUME_COMMAND:
         {
             DoCast(SPELL_ASSUME_COMMAND);
-            events.Repeat(90s);
-            break;
+        //    events.Repeat(90s);
+          //  break;
         }
-        case SPELL_CHAOS_PULSE:
+         SPELL_CHAOS_PULSE:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_CHAOS_PULSE, false);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_CHAOS_PULSE, false);
-            events.Repeat(15s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target, SPELL_CHAOS_PULSE, false);
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+            //    me->CastSpell(target, SPELL_CHAOS_PULSE, false);
+           // events.Repeat(15s);
+           // break;
         }
-        case SPELL_SUMMON_REINFORCEMENTS:
+         SPELL_SUMMON_REINFORCEMENTS:
         {
             DoCast(SPELL_SUMMON_REINFORCEMENTS);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->SummonCreature(NPC_FANATICAL_PYROMANCER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->SummonCreature(NPC_CHIEF_ENGINEER_ISHKAR, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->SummonCreature(NPC_FELBLADE_SHOCKTROOPER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-            events.Repeat(8s, 9s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->SummonCreature(NPC_FANATICAL_PYROMANCER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+             //   me->SummonCreature(NPC_CHIEF_ENGINEER_ISHKAR, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+            //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+             //   me->SummonCreature(NPC_FELBLADE_SHOCKTROOPER, target->GetRandomNearPosition(15.0f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // events.Repeat(8s, 9s);
+           // break;
         }
         }
         DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* done_by, uint32& damage) override
+    void DamageTaken(Unit* done_by, uint32& damage) 
     {
         SubDamageTaken(NPC_ADMIRAL_SVIRAX, damage);
         SubDamageTaken(NPC_CHIEF_ENGINEER_ISHKAR, damage);

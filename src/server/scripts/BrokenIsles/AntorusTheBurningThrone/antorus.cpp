@@ -25,13 +25,22 @@
 #include "ScriptedGossip.h"
 
 
+enum Events
+{
+    SPELL_ANNIHILATION,
+    AddDelayedConversation,
+    AddNpcFlag,
+    GetScheduler,
+    AddDelayedConversation,
+};
+
 struct npc_image_of_prophet_velen_125513 : public ScriptedAI
 {
     npc_image_of_prophet_velen_125513(Creature* creature) : ScriptedAI(creature) { Initialize(); }
 
     void Initialize()
     {
-        IsLock = false;
+       // IsLock = false;
     }
 
     void MoveInLineOfSight(Unit* who) override
@@ -42,21 +51,21 @@ struct npc_image_of_prophet_velen_125513 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!IsLock)
+       // if (!IsLock)
         {
-            IsLock = true;
+           // IsLock = true;
             me->Say(134681);
             if (Creature* npc = me->FindNearestCreature(125512, 30.0f, true))
             {
-                npc->GetScheduler().Schedule(Milliseconds(2000), [](TaskContext context)
+               // npc->GetScheduler().Schedule(Milliseconds(2000), [](TaskContext context)
                 {
-                    GetContextCreature()->Yell(134682);
-                });
+                 //   GetCreatureText()->Yell(134682);
+                };
 
-                npc->GetScheduler().Schedule(Milliseconds(4000), [](TaskContext context)
+               // npc->GetScheduler().Schedule(Milliseconds(4000), [](TaskContext context)
                 {
-                    GetContextCreature()->Yell(134683);
-                });
+                 //   GetContextCreature()->Yell(134683);
+                };
             }
         }
     }
@@ -76,26 +85,26 @@ struct npc_garothi_annihilator_123398 : public ScriptedAI
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        events.ScheduleEvent(SPELL_ANNIHILATION, 5s);
+       // events.ScheduleEvent(SPELL_ANNIHILATION, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
 
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_ANNIHILATION:
+         SPELL_ANNIHILATION:
         {
             DoCast(SPELL_ANNIHILATION);
-            events.Repeat(8s, 10s);
-            break;
+        //    events.Repeat(8s, 10s);
+          //  break;
         }
         }
         DoMeleeAttackIfReady();
@@ -132,40 +141,40 @@ struct npc_clobex_127732 : public ScriptedAI
 {
     npc_clobex_127732(Creature* creature) : ScriptedAI(creature) { Initialize(); }
 
-    void EnterCombat(Unit* /*victim*/) override
+    void EnterCombat(Unit* /*victim*/) 
     {
         Talk(1);
-        events.ScheduleEvent(SPELL_PYROGENICS, 5s);
-        events.ScheduleEvent(SPELL_FEL_FIREBALL, 5s);
-        events.ScheduleEvent(SPELL_SOULBURN, 5s);
+      //  events.ScheduleEvent(SPELL_PYROGENICS, 5s);
+       // events.ScheduleEvent(SPELL_FEL_FIREBALL, 5s);
+       // events.ScheduleEvent(SPELL_SOULBURN, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+      //  events.Update(diff);
         if (!UpdateVictim())
             return;
-        while (uint32 eventId = events.ExecuteEvent())
+     //   while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
+           // switch (eventId)
             {
 
-            case SPELL_PYROGENICS:
+             SPELL_PYROGENICS:
             {
                 DoCast(SPELL_PYROGENICS);
-                break;
+            //    break;
             }
-            case SPELL_FEL_FIREBALL:
+             SPELL_FEL_FIREBALL:
             {
                 DoCast(SPELL_FEL_FIREBALL);
-                events.Repeat(5s);
-                break;
+            //    events.Repeat(5s);
+              //  break;
             }
-            case SPELL_SOULBURN:
+             SPELL_SOULBURN:
             {
                 DoCast(SPELL_SOULBURN);
-                events.Repeat(5s);
-                break;
+            //    events.Repeat(5s);
+              //  break;
             }
             }
         }
@@ -174,7 +183,7 @@ struct npc_clobex_127732 : public ScriptedAI
 
     void Initialize()
     {
-        IsLock = false;
+       // IsLock = false;
     }
 
     void MoveInLineOfSight(Unit* who) override
@@ -185,9 +194,9 @@ struct npc_clobex_127732 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!IsLock)
+       // if (!IsLock)
         {
-            IsLock = true;
+         //   IsLock = true;
             Talk(0);
         }
     }
@@ -266,7 +275,7 @@ struct npc_lightforged_beacon_128303 : public ScriptedAI
     void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
         CloseGossipMenuFor(player);
-        player->AddDelayedConversation(5000, 5743);
+      //  player->AddDelayedConversation(5000, 5743);
         player->NearTeleportTo(Position(-12634.0f, -3359.89f, 2513.82f, 1.573414f));
     }
 };
@@ -295,9 +304,9 @@ struct npc_lightforged_beacon_129449 : public ScriptedAI
     };
     using Path01Size = std::extent<decltype(Path01)>;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
-        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+       // me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/)
@@ -343,15 +352,15 @@ struct npc_lightforged_warframe_127963 : public ScriptedAI
         player->CastSpell(player, 253936, true);
         float speed = player->GetSpeed(UnitMoveType::MOVE_RUN);
         player->SetSpeed(UnitMoveType::MOVE_RUN, 25.0f);
-        me->GetScheduler().Schedule(Milliseconds(2000), [this, player](TaskContext context)
+       // me->GetScheduler().Schedule(Milliseconds(2000), [this, player](TaskContext context)
         {
             player->GetMotionMaster()->MoveSmoothPath(1, Path01, Path01Size::value, false, true);
-        });
-        me->GetScheduler().Schedule(Milliseconds(15000), [this, player, speed](TaskContext context)
+        };
+       // me->GetScheduler().Schedule(Milliseconds(15000), [this, player, speed](TaskContext context)
         {
             player->RemoveAurasDueToSpell(253936);
             player->SetSpeed(UnitMoveType::MOVE_RUN, speed);
-        });
+        };
     }
 };
 
@@ -361,13 +370,13 @@ struct npc_magni_bronzebeard_125584 : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 40.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 40.0f, false))// && !IsLock)
         {
-            IsLock = true;
+           // IsLock = true;
             if (me->FindNearestCreature(125720, 50.0f, true))
-                who->ToPlayer()->AddDelayedConversation(500, 5572);
-            if (me->FindNearestGameObject(277474, 50.0f))
-                who->ToPlayer()->AddDelayedConversation(500, 5528);
+                //    who->ToPlayer()->AddDelayedConversation(500, 5572);
+                if (me->FindNearestGameObject(277474, 50.0f));
+              //  who->ToPlayer()->AddDelayedConversation(500, 5528);
         }
     }
 };

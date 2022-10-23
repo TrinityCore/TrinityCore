@@ -20,6 +20,9 @@
 #include "black_rook_hold.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include <SmartAI.h>
+#include <Movement/Spline/MoveSplineInitArgs.h>
+#include <boost/asio/execution/any_executor.hpp>
 
 enum
 {
@@ -61,11 +64,11 @@ struct boss_amalgam_of_souls : public BossAI
         events.ScheduleEvent(SPELL_SWIRLING_SCYTHE, 12s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
         if (IsHeroic())
         {
-            if (me->HealthWillBeBelowPctDamaged(50, damage))
+            //if (me->HealthWillBeBelowPctDamaged(50, damage))
             {
                 me->CastSpell(nullptr, SPELL_CALL_SOULS, false);
                 events.DelayEvents(33s);
@@ -96,16 +99,16 @@ struct boss_amalgam_of_souls : public BossAI
             }
             case SPELL_SOUL_ECHOES:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(target, SPELL_SOUL_ECHOES);
+              //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                  //  DoCast(target, SPELL_SOUL_ECHOES);
 
                 events.Repeat(10s, 20s);
                 break;
             }
             case SPELL_SWIRLING_SCYTHE:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(target, SPELL_SWIRLING_SCYTHE);
+                //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                   // DoCast(target, SPELL_SWIRLING_SCYTHE);
 
                 events.Repeat(12s);
                 break;
@@ -116,17 +119,17 @@ struct boss_amalgam_of_souls : public BossAI
 
                 // Summon 7 Restless Souls with 1 to 2 seconds separation
                 restlessSoulsCount = 7;
-                me->GetScheduler().Schedule(1s, 2s, [this](TaskContext context)
+               // me->GetScheduler().Schedule(1s, 2s, [this](TaskContext context)
                 {
                     Position pos;
-                    GetRandPosFromCenterInDist(me, 30.f, pos);
+                 //   GetRandPosFromCenterInDist(me, 30.f, pos);
                     pos.m_positionZ = 20.0f;
 
                     me->SummonCreature(NPC_RESTLESS_SOUL, pos);
 
-                    if (context.GetRepeatCounter() <= 6)
-                        context.Repeat(1s, 2s);
-                });
+                   // if (context.GetRepeatCounter() <= 6)
+                     //   context.Repeat(1s, 2s);
+                };
                 break;
             }
             case SPELL_SOUL_BURST:
@@ -152,17 +155,17 @@ struct npc_aos_soul_echo : public ScriptedAI
 {
     npc_aos_soul_echo(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
         me->SetFaction(16);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+       // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
         summoner->CastSpell(me, SPELL_SOUL_ECHOES_CLONE_CASTER, true);
 
-        me->GetScheduler().Schedule(5s, [](TaskContext context)
+       // me->GetScheduler().Schedule(5s, [](TaskContext context)
         {
-            GetContextUnit()->CastSpell(nullptr, SPELL_SOUL_ECHOES_DAMAGE, false);
-            GetContextCreature()->DespawnOrUnsummon();
-        });
+         //   GetContextUnit()->CastSpell(nullptr, SPELL_SOUL_ECHOES_DAMAGE, false);
+           // GetContextCreature()->DespawnOrUnsummon();
+        };
     }
 };
 
@@ -171,7 +174,7 @@ struct npc_aos_restless_soul : public ScriptedAI
 {
     npc_aos_restless_soul(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
         me->SetSpeed(MOVE_FLIGHT, 1.5f);
         me->SetSpeed(MOVE_RUN,    1.5f);
@@ -180,7 +183,7 @@ struct npc_aos_restless_soul : public ScriptedAI
         me->GetMotionMaster()->MovePoint(1, *summoner, false);
     }
 
-    void EnterCombat(Unit* /*who*/) override { }
+    void EnterCombat(Unit* /*who*/)  { }
 
     void MovementInform(uint32 type, uint32 id) override
     {
@@ -206,9 +209,9 @@ private:
     CreatureAI* GetSummonerAI()
     {
         if (TempSummon* meTempSummon = me->ToTempSummon())
-            if (Unit* summoner = meTempSummon->GetSummoner())
-                if (summoner->IsCreature() && summoner->IsAIEnabled)
-                    return summoner->ToCreature()->AI();
+         //   if (Unit* summoner = meTempSummon->GetSummoner())
+           //     if (summoner->IsCreature() && summoner->IsAIEnabled)
+             //       return summoner->ToCreature()->AI();
 
         return nullptr;
     }

@@ -43,7 +43,7 @@ struct instance_black_rook_hold : public InstanceScript
 {
     instance_black_rook_hold(InstanceMap* map) : InstanceScript(map) { }
 
-    void Initialize() override
+    void Initialize() 
     {
         SetBossNumber(DATA_MAX_ENCOUNTERS);
         LoadDoorData(doorData);
@@ -53,17 +53,18 @@ struct instance_black_rook_hold : public InstanceScript
         SetData(DATA_ILLYSANNA_PREEVENT_LOWER, NOT_STARTED);
         SetData(DATA_ILLYSANNA_PREEVENT_UPPER, NOT_STARTED);
 
-        SetChallengeDoorPos({ 3468.448242f, 7631.900391f, -9.821134f, 4.351523f });
+       // SetChallengeDoorPos({ 3468.448242f, 7631.900391f, -9.821134f, 4.351523f });
     }
 
     void OnCreatureCreate(Creature* creature) override
     {
         InstanceScript::OnCreatureCreate(creature);
 
-        if (instance->IsHeroic())
-            creature->SetBaseHealth(creature->GetMaxHealth() * 2.f);
-        if (instance->IsMythic())
-            creature->SetBaseHealth(creature->GetMaxHealth() * 1.33f);
+       // if (instance->IsHeroic())
+        if (instance->IsDungeon())
+        //    creature->SetBaseHealth(creature->GetMaxHealth() * 2.f);
+        //if (instance->IsMythic())
+          //  creature->SetBaseHealth(creature->GetMaxHealth() * 1.33f);
 
         if (creature->isDead())
             return;
@@ -79,7 +80,7 @@ struct instance_black_rook_hold : public InstanceScript
                     m_illysannaPreEventLowerMobs.push_back(creature->GetGUID());
                 else if (creature->GetPositionZ() > 100.f)
                 {
-                    creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+                 //   creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
                     m_illysannaPreEventUpperMobs.push_back(creature->GetGUID());
                 }
 
@@ -111,21 +112,21 @@ struct instance_black_rook_hold : public InstanceScript
                     if (Creature* creature = ObjectAccessor::GetCreature(*unit, guid))
                     {
                         Position jumpPos = creature->GetPosition();
-                        GetPositionWithDistInFront(creature, 15.f, jumpPos);
+                      //  GetPositionWithDistInFront(creature, 15.f, jumpPos);
                         jumpPos.m_positionZ = 86.412155f;
 
                         creature->GetMotionMaster()->MoveJump(jumpPos, 10.f, 10.f);
 
-                        creature->GetScheduler().Schedule(3s, [](TaskContext context)
+                      //  creature->GetScheduler().Schedule(3s, [](TaskContext context)
                         {
-                            if (Player* player = GetContextCreature()->SelectNearestPlayer())
+                        //    if (Player* player = GetContextCreature()->SelectNearestPlayer())
                             {
-                                GetContextCreature()->GetMotionMaster()->MoveChase(player);
-                                GetContextCreature()->Attack(player, true);
+                          //      GetContextCreature()->GetMotionMaster()->MoveChase(player);
+                            //    GetContextCreature()->Attack(player, true);
                             }
 
-                            GetContextCreature()->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
-                        });
+                           // GetContextCreature()->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+                        };
                     }
                 }
             }
@@ -155,8 +156,8 @@ struct instance_black_rook_hold : public InstanceScript
                 }
 
                 uint8 boulderSide = urand(0, 1);
-                if (Creature* boulder = instance->SummonCreature(NPC_BOULDER, firstBoulderPositions[boulderSide][0]))
-                    boulder->GetMotionMaster()->MoveSmoothPath(1, firstBoulderPositions[boulderSide], FIRST_BOULDER_PATH_SIZE);
+               // if (Creature* boulder = instance->SummonCreature(NPC_BOULDER, firstBoulderPositions[boulderSide][0]))
+                 //   boulder->GetMotionMaster()->MoveSmoothPath(1, firstBoulderPositions[boulderSide], FIRST_BOULDER_PATH_SIZE);
                 events.Repeat(4s);
                 break;
             }
@@ -169,8 +170,8 @@ struct instance_black_rook_hold : public InstanceScript
                 }
 
                 uint8 boulderSide = urand(0, 1);
-                if (Creature* boulder = instance->SummonCreature(NPC_BOULDER, secondBoulderPositions[boulderSide][0]))
-                    boulder->GetMotionMaster()->MoveSmoothPath(2, secondBoulderPositions[boulderSide], SECOND_BOULDER_PATH_SIZE);
+               // if (Creature* boulder = instance->SummonCreature(NPC_BOULDER, secondBoulderPositions[boulderSide][0]))
+                  //  boulder->GetMotionMaster()->MoveSmoothPath(2, secondBoulderPositions[boulderSide], SECOND_BOULDER_PATH_SIZE);
                 events.Repeat(5s);
                 break;
             }
@@ -195,5 +196,5 @@ private:
 
 void AddSC_instance_black_rook_hold()
 {
-    RegisterInstanceScript(instance_black_rook_hold, 1501);
+   // RegisterInstanceScript(instance_black_rook_hold, 1501);
 }

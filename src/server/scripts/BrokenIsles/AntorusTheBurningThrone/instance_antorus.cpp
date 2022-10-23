@@ -119,5 +119,5 @@ struct instance_antorus_the_burning_throne : public InstanceScript
 
 void AddSC_instance_antorus()
 {
-    RegisterInstanceScript(instance_antorus_the_burning_throne, 1712);
+   // RegisterInstanceScript(instance_antorus_the_burning_throne, 1712);
 }

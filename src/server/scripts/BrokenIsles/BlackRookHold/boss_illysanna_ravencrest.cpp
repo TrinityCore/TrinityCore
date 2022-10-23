@@ -60,9 +60,9 @@ struct boss_illysanna_ravencrest : public BossAI
         events.ScheduleEvent(SPELL_BRUTAL_GLAIVE,       12s,        PHASE_VENGEANCE);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(50, damage))
+       // if (me->HealthWillBeBelowPctDamaged(50, damage))
         {
             events.CancelEventGroup(PHASE_VENGEANCE);
 
@@ -86,24 +86,24 @@ struct boss_illysanna_ravencrest : public BossAI
             }
             case SPELL_DARK_RUSH_PREPARE:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(target, SPELL_DARK_RUSH_PREPARE);
+               // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                   // DoCast(target, SPELL_DARK_RUSH_PREPARE);
 
                 events.Repeat(10s, 20s);
                 break;
             }
             case SPELL_BRUTAL_GLAIVE:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(target, SPELL_BRUTAL_GLAIVE);
+               // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                 //   DoCast(target, SPELL_BRUTAL_GLAIVE);
 
                 events.Repeat(35s);
                 break;
             }
             case SPELL_EYE_BEAMS:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_EYE_BEAMS);
+               // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                 //   DoCast(target, SPELL_EYE_BEAMS);
 
                 events.Repeat(10s, 20s);
                 break;
@@ -111,16 +111,16 @@ struct boss_illysanna_ravencrest : public BossAI
             case NPC_SOUL_TORN_VANGUARD:
             {
                 Position summonPos;
-                GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
-                me->SummonCreature(NPC_SOUL_TORN_VANGUARD, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+               // GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
+               // me->SummonCreature(NPC_SOUL_TORN_VANGUARD, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                 events.Repeat(30s);
                 break;
             }
             case NPC_RISEN_ARCANIST:
             {
                 Position summonPos;
-                GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
-                me->SummonCreature(NPC_RISEN_ARCANIST, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+                //GetRandPosFromCenterInDist(&centerPos, 14.f, summonPos);
+               // me->SummonCreature(NPC_RISEN_ARCANIST, summonPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                 events.Repeat(45s);
                 break;
             }
@@ -139,11 +139,11 @@ struct npc_soultorn_vanguard : public ScriptedAI
     {
         DoZoneInCombat();
 
-        me->GetScheduler().Schedule(5s, 10s, [](TaskContext context)
+      //  me->GetScheduler().Schedule(5s, 10s, [](TaskContext context)
         {
-            GetContextUnit()->CastSpell(nullptr, SPELL_BONECRUSHING_STRIKE, false);
-            context.Repeat(10s, 20s);
-        });
+        //    GetContextUnit()->CastSpell(nullptr, SPELL_BONECRUSHING_STRIKE, false);
+          //  context.Repeat(10s, 20s);
+        };
     }
 };
 

@@ -34,7 +34,7 @@ struct npc_brh_boulder : public ScriptedAI
 
     // The instance will spawn it at top of stairs & make it move by spline
 
-    void OnSplineEndReached() override
+    void OnSplineEndReached() 
     {
         me->CastSpell(me, SPELL_BOULDER_EXPLOSION, false);
         me->DespawnOrUnsummon();

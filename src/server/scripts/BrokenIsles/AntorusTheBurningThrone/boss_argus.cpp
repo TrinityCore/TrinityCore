@@ -130,13 +130,21 @@ enum Events
     EVENT_5 = 5,
 };
 
+enum Phase
+{
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+    PHASE_04,
+};
+/*
 TalkData const talkData[] =
 {
     { EVENT_ON_ENTERCOMBAT,             EVENT_TYPE_TALK,            0 },
     { EVENT_ON_HP60,                    EVENT_TYPE_TALK,            4 },
     { EVENT_ON_MOVEINLINEOFSIGHT,       EVENT_TYPE_SPELL, SPELL_PANTHEON_INTRO_MOVIE },
 };
-
+*/
 struct SpawnData
 {
     uint32 event, npcId;
@@ -147,7 +155,7 @@ struct SpawnData
     uint32 spellId;
 };
 
-SpawnData const spawnData[] =
+/*enum Spawn const SpawnData();  //const spawnData[] =
 {
     { EVENT_2, NPC_HUNGERING_SOUL, 2896.31f, -4556.56f, 292.006f, 3.22141f, 0 },
     { EVENT_2, NPC_HUNGERING_SOUL, 2903.4f, -4585.5f, 292.017f, 1.79704f, 0 },
@@ -201,7 +209,7 @@ SpawnData const spawnData[] =
     { EVENT_4, NPC_REORIGINATION_MODULE, 2856.67f, -4606.57f, 297.114f, 1.01229f, 0 },
     { EVENT_5, NPC_GIFT_OF_THE_LIFEBINDER, 2893.73f, -4545.36f, 292.028f, 3.77829f, 0 },
 };
-
+*/
 ///.go creature id 
 struct boss_argus_the_unmaker : public BossAI
 {
@@ -221,10 +229,10 @@ struct boss_argus_the_unmaker : public BossAI
         while (data->event)
         {
             if (data->event == event)
-                if (TempSummon* personalCreature = me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_MANUAL_DESPAWN, WEEK))
+            //    if (TempSummon* personalCreature = me->SummonCreature(data->npcId, Position(data->X, data->Y, data->Z, data->orientation), TEMPSUMMON_MANUAL_DESPAWN, WEEK))
                 {
-                    if (data->spellId > 0)
-                        personalCreature->CastSpell(personalCreature, data->spellId, true);
+                if (data->spellId > 0);
+              //          personalCreature->CastSpell(personalCreature, data->spellId, true);
                 }
             ++data;
         }
@@ -233,21 +241,21 @@ struct boss_argus_the_unmaker : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
-        if (IsMythic())
+       // if (IsMythic())
         {
-            instance->DoCompleteAchievement(12002);
-            instance->DoAddItemOnPlayers(152789, 1);// loot shackled-urzul
+         //   instance->DoCompleteAchievement(12002);
+           // instance->DoAddItemOnPlayers(152789, 1);// loot shackled-urzul
         }
 
-        instance->DoCompleteAchievement(11991);
-        instance->DoCompleteAchievement(12266);
-        if (IsMythic() || IsHeroic())
-            instance->DoAddItemOnPlayers(152900, 1);// loot blood-of-the-unmaker
-        instance->AddTimedDelayedOperation(5000, [this]() -> void
+       // instance->DoCompleteAchievement(11991);
+      //  instance->DoCompleteAchievement(12266);
+      //  if (IsMythic() || IsHeroic())
+        //    instance->DoAddItemOnPlayers(152900, 1);// loot blood-of-the-unmaker
+       // instance->AddTimedDelayedOperation(5000, [this]() -> void
         {
-            instance->DoStartMovie(688);
-        });
-        instance->DoNearTeleportPlayers(pos2);
+         //   instance->DoStartMovie(688);
+        };
+       // instance->DoNearTeleportPlayers(pos2);
     }
 
     void DoAction(int32 action) override
@@ -264,7 +272,7 @@ struct boss_argus_the_unmaker : public BossAI
                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                 DoCastAOE(SPELL_CLEARALLDEBUFFS);
                 //events.ScheduleEvent(SPELL_THE_DISCS_OF_NORGANNNON, 3s);
-                if (IsMythic())
+              //  if (IsMythic())
                 {
                     events.ScheduleEvent(SPELL_SOULRENDING_SCYTHE, 5s);
                     events.ScheduleEvent(SPELL_SENTENCE_OF_SARGERAS, 35s);
@@ -288,7 +296,7 @@ struct boss_argus_the_unmaker : public BossAI
             events.ScheduleEvent(SPELL_SOULBLIGHT_ORB, 35s);
             events.ScheduleEvent(SPELL_TORTURED_RAGE, 12s);
             events.ScheduleEvent(SPELL_SKY_AND_SEA, 10s);
-            if (IsMythic())
+           // if (IsMythic())
                 events.ScheduleEvent(SPELL_SARGERAS_GAZE, 8s);
             break;
         case PHASE_02:
@@ -299,16 +307,16 @@ struct boss_argus_the_unmaker : public BossAI
                 target->AI()->DoAction(2);
             //AREA CLEAR
 
-            AddTimedDelayedOperation(2500, [this]() -> void
+           // AddTimedDelayedOperation(2500, [this]() -> void
             {
                 events.ScheduleEvent(SPELL_SWEEPING_SCYTHE, 16s, 17s);
                 events.ScheduleEvent(SPELL_SOULBOMB, 30s);
                 events.ScheduleEvent(SPELL_SOULBURST, 30s);
                 events.ScheduleEvent(SPELL_EDGE_OF_OBLITERATION, 21s);
                 events.ScheduleEvent(SPELL_AVTAR_OF_AGGRAMAR, 21s);
-                if (IsMythic())
+               // if (IsMythic())
                     events.ScheduleEvent(SPELL_SARGERAS_GAZE, 26s);
-            });
+            };
 
             //events.ScheduleEvent(SPELL_TORTURED_RAGE, 15s);     
             events.ScheduleEvent(SPELL_VOLATILE_SOUL, 15s);
@@ -317,7 +325,7 @@ struct boss_argus_the_unmaker : public BossAI
         case PHASE_03:
             PhaseStatus = PHASE_03;
             events.Reset();
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+         //   me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
             me->GetMotionMaster()->Clear();
@@ -325,23 +333,23 @@ struct boss_argus_the_unmaker : public BossAI
             if (Creature* amanthul = me->FindNearestCreature(NPC_AMANTHUL, 150.0f, true))
             {
                 amanthul->CastSpell(me, SPELL_TEMPORAL_BLAST, true);
-                AddTimedDelayedOperation(5000, [this, amanthul]() -> void
+           //     AddTimedDelayedOperation(5000, [this, amanthul]() -> void
                 {
                     me->SetFacingToObject(amanthul);
-                });
+                };
                 DoCast(SPELL_TEMPORAL_BLAST);
             }
             _health = (uint64)(me->GetMaxHealth() * HP_40 / 100);
             me->SetHealth(_health);
-            AddTimedDelayedOperation(10000, [this]() -> void
+         //   AddTimedDelayedOperation(10000, [this]() -> void
             {
                 //summon NPC
-                LoadNPC(EVENT_3, spawnData);
-                _mobsCount = 7;
+               // LoadNPC(EVENT_3, spawnData);
+               // _mobsCount = 7;
                 if (Creature* norgannon = me->FindNearestCreature(NPC_NORGANNON, 150.0f, true))
                     norgannon->CastSpell(me, SPELL_THE_DISCS_OF_NORGANNNON, true);
                 //PhasingHandler::AddPhase(me, 170);               
-            });
+            };
             break;
         case PHASE_04:
             //phase4
@@ -351,31 +359,31 @@ struct boss_argus_the_unmaker : public BossAI
             me->SetReactState(REACT_PASSIVE);
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-            instance->DoNearTeleportPlayers(Position(2887.892f, -4567.8f, 291.965f, 3.09f));
+          //  instance->DoNearTeleportPlayers(Position(2887.892f, -4567.8f, 291.965f, 3.09f));
             _health = (uint64)(me->GetMaxHealth() * HP_30 / 100);
             me->SetHealth(_health);
             //DoAction(SPECIAL);
-            AddTimedDelayedOperation(12000, [this]() -> void
+           // AddTimedDelayedOperation(12000, [this]() -> void
             {
                 if (Creature* life = me->FindNearestCreature(NPC_EONAR, 150.0f, true))
                     life->CastSpell(me, SPELL_GIFT_OF_THE_LIFEBINDER, true);
-            });
+            };
             //SPELL_REAP_SOUL kill all
             if (Creature* amanthul = me->FindNearestCreature(NPC_AMANTHUL, 150.0f, true))
                 me->SetFacingToObject(amanthul);
             DoCast(SPELL_REAP_SOUL);
 
-            AddTimedDelayedOperation(20000, [this]() -> void
+           // AddTimedDelayedOperation(20000, [this]() -> void
             {
                 uint64 _health = (uint64)(me->GetMaxHealth() * HP_30 / 100);
                 me->SetHealth(_health);
-                if (Creature* life = me->FindNearestCreature(NPC_EONAR, 150.0f, true))
-                    life->SummonCreature(NPC_GIFT_OF_THE_LIFEBINDER, Position(2893.73f, -4545.36f, 292.028f, 3.77829f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                if (Creature* life = me->FindNearestCreature(NPC_EONAR, 150.0f, true));
+                  //  life->SummonCreature(NPC_GIFT_OF_THE_LIFEBINDER, Position(2893.73f, -4545.36f, 292.028f, 3.77829f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
                 //LoadNPC(EVENT_5, spawnData);
-                instance->DoResurrectPlayers(1.0f);
-            });
+               // instance->DoResurrectPlayers(1.0f);
+            };
 
-            AddTimedDelayedOperation(22000, [this]() -> void
+           // AddTimedDelayedOperation(22000, [this]() -> void
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->Attack(me->GetVictim(), true);
@@ -385,24 +393,24 @@ struct boss_argus_the_unmaker : public BossAI
                 events.ScheduleEvent(SPELL_REORIGINATION_MODULE, 48s);
                 events.ScheduleEvent(SPELL_SOULBOMB, 80s);
                 events.ScheduleEvent(SPELL_SOULBURST, 40s);
-            });
+            };
             break;
         default:
             break;
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(HP_70, damage))
+     //   if (me->HealthWillBeBelowPctDamaged(HP_70, damage))
             if (PhaseStatus == PHASE_01)
                 SwitchPhase(PHASE_02);
 
-        if (me->HealthWillBeBelowPctDamaged(HP_40, damage))
+       // if (me->HealthWillBeBelowPctDamaged(HP_40, damage))
             if (PhaseStatus == PHASE_02)
                 SwitchPhase(PHASE_03);
 
-        if (me->HealthWillBeBelowPctDamaged(HP_30, damage))
+       // if (me->HealthWillBeBelowPctDamaged(HP_30, damage))
             if (PhaseStatus == PHASE_03)
                 SwitchPhase(PHASE_04);
     }
@@ -433,15 +441,15 @@ struct boss_argus_the_unmaker : public BossAI
         }
         case SPELL_CONE_OF_DEATH:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_CONE_OF_DEATH, false);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+            //    me->CastSpell(target1, SPELL_CONE_OF_DEATH, false);
             events.Repeat(19s, 24s);
             break;
         }
         case SPELL_SOULBLIGHT_ORB:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SOULBLIGHT_ORB, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_SOULBLIGHT_ORB, false);
             events.Repeat(22s);
             break;
         }
@@ -449,24 +457,24 @@ struct boss_argus_the_unmaker : public BossAI
         {
             if (Creature* target = me->FindNearestCreature(NPC_GOLGANNETH, 150.0f, true))
                 target->AI()->DoAction(1);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
             {
-                me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SEA_MARK, false);
-                AddTimedDelayedOperation(4000, [this, target1]() -> void
+               // me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SEA_MARK, false);
+            //    AddTimedDelayedOperation(4000, [this, target1]() -> void
                 {
-                    me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SEA_AT, false);
-                    target1->CastSpell(target1, SPELL_STRENGTH_OF_THE_SEA, false);
-                });
+                 //   me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SEA_AT, false);
+                   // target1->CastSpell(target1, SPELL_STRENGTH_OF_THE_SEA, false);
+                };
             }
 
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
             {
-                me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SKY_MARK, false);
-                AddTimedDelayedOperation(4000, [this, target1]() -> void
+             //   me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SKY_MARK, false);
+              //  AddTimedDelayedOperation(4000, [this, target1]() -> void
                 {
-                    me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SKY_AT, false);
-                    target1->CastSpell(target1, SPELL_STRENGTH_OF_THE_SKY, false);
-                });
+                //    me->CastSpell(target1, SPELL_STRENGTH_OF_THE_SKY_AT, false);
+                  //  target1->CastSpell(target1, SPELL_STRENGTH_OF_THE_SKY, false);
+                };
             }
             events.Repeat(25s, 28s);
             break;
@@ -497,8 +505,8 @@ struct boss_argus_the_unmaker : public BossAI
         }
         case SPELL_AVTAR_OF_AGGRAMAR:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                target1->CastSpell(target1, SPELL_AVTAR_OF_AGGRAMAR, true);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+            //    target1->CastSpell(target1, SPELL_AVTAR_OF_AGGRAMAR, true);
             events.Repeat(60s);
             break;
         }
@@ -530,7 +538,7 @@ struct boss_argus_the_unmaker : public BossAI
         case SPELL_REORIGINATION_MODULE:
         {
             DoCast(SPELL_REORIGINATION_MODULE);
-            LoadNPC(EVENT_4, spawnData);
+          //  LoadNPC(EVENT_4, spawnData);
             events.Repeat(35s);
             break;
         }
@@ -555,10 +563,10 @@ struct boss_argus_the_unmaker : public BossAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 50.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 50.0f, false))// && !IsLock)
         {
-            IsLock = true;
-            GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
+           // IsLock = true;
+           // GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
     }
@@ -572,15 +580,15 @@ struct boss_argus_the_unmaker : public BossAI
         case NPC_CONSTELLAR_DESIGNATE:
         case NPC_REORIGINATION_MODULE:
         {
-            summon->SetFaction(me->getFaction());
+          //  summon->SetFaction(me->getFaction());
             break;
         }
         case NPC_SOULBLIGHT_ORB:
         {
-            summon->SetFaction(me->getFaction());
+           // summon->SetFaction(me->getFaction());
             summon->CastSpell(summon, SPELL_BLIGHT_ORB, true);
-            summon->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            summon->DespawnOrUnsummon(9000);
+           // summon->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            summon->DespawnOrUnsummon(9000s);
             break;
         }
         }
@@ -620,42 +628,42 @@ struct npc_constellar_designate_127192 : public ScriptedAI
             boss->AI()->DoAction(1);
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        events.ScheduleEvent(SPELL_STARBLAST, 8s);
+       // events.ScheduleEvent(SPELL_STARBLAST, 8s);
         //if (!IsMythic())
-        events.ScheduleEvent(SPELL_COSMIC_RAY, 30s);
-        events.ScheduleEvent(SPELL_COSMIC_BEACON, 40s);
+       // events.ScheduleEvent(SPELL_COSMIC_RAY, 30s);
+       // events.ScheduleEvent(SPELL_COSMIC_BEACON, 40s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+      //  events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_STARBLAST:
+         SPELL_STARBLAST:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_STARBLAST, false);
-            events.Repeat(15s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target, SPELL_STARBLAST, false);
+          //  events.Repeat(15s);
+           // break;
         }
-        case SPELL_COSMIC_RAY:
+         SPELL_COSMIC_RAY:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_COSMIC_RAY, false);
-            events.Repeat(20s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target, SPELL_COSMIC_RAY, false);
+           // events.Repeat(20s);
+           // break;
         }
-        case SPELL_COSMIC_BEACON:
+         SPELL_COSMIC_BEACON:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_COSMIC_BEACON, false);
-            events.Repeat(20s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target, SPELL_COSMIC_BEACON, false);
+           // events.Repeat(20s);
+           // break;
         }
         }
         DoSpellAttackIfReady(SPELL_STARBLAST);
@@ -667,21 +675,21 @@ struct npc_gift_of_the_lifebinder_129386 : public ScriptedAI
     npc_gift_of_the_lifebinder_129386(Creature* creature) : ScriptedAI(creature)
     {
         me->SetReactState(REACT_PASSIVE);
-        events.ScheduleEvent(SPELL_STARBLAST, 8s);
+      //  events.ScheduleEvent(SPELL_STARBLAST, 8s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+       // events.Update(diff);
 
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_STARBLAST:
+         SPELL_STARBLAST:
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
-                instance->DoResurrectPlayers(1.0f);
-            events.Repeat(8s);
-            break;
+                if (InstanceScript* instance = me->GetInstanceScript());
+        //        instance->DoResurrectPlayers(1.0f);
+          //  events.Repeat(8s);
+           // break;
         }
         }
     }
@@ -691,32 +699,32 @@ struct npc_reorigination_module_127809 : public ScriptedAI
 {
     npc_reorigination_module_127809(Creature* creature) : ScriptedAI(creature) { SetCombatMovement(false); }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        events.ScheduleEvent(SPELL_INITIALIZATION_SEQUENCE, 8s);
-        events.ScheduleEvent(SPELL_REORIGINATION_MODULE_DMG, 45s);
+      //  events.ScheduleEvent(SPELL_INITIALIZATION_SEQUENCE, 8s);
+       // events.ScheduleEvent(SPELL_REORIGINATION_MODULE_DMG, 45s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+      //  events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_INITIALIZATION_SEQUENCE:
+         SPELL_INITIALIZATION_SEQUENCE:
         {
             DoCastSelf(SPELL_INITIALIZATION_SEQUENCE);
-            events.Repeat(30s);
-            break;
+        //    events.Repeat(30s);
+          //  break;
         }
-        case SPELL_REORIGINATION_MODULE_DMG:
+         SPELL_REORIGINATION_MODULE_DMG:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_REORIGINATION_MODULE_DMG, false);
-            events.Repeat(45s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target, SPELL_REORIGINATION_MODULE_DMG, false);
+           // events.Repeat(45s);
+           // break;
         }
         }
     }
@@ -731,3 +739,4 @@ void AddSC_boss_argus()
     RegisterCreatureAI(npc_gift_of_the_lifebinder_129386);
     RegisterCreatureAI(npc_reorigination_module_127809);
 }
+

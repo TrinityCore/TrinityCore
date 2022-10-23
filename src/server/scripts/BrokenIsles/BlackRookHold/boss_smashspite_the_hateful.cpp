@@ -62,10 +62,10 @@ struct boss_smashspite_the_hateful : public BossAI
             }
             case SPELL_HATEFUL_GAZE:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0.0f, true))
+               // if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0.0f, true))
                 {
-                    me->AddAura(SPELL_HATEFUL_GAZE, target);
-                    hatefulGazeTargetGUID = target->GetGUID();
+                 //   me->AddAura(SPELL_HATEFUL_GAZE, target);
+                   // hatefulGazeTargetGUID = target->GetGUID();
                 }
 
                 events.ScheduleEvent(SPELL_HATEFUL_CHARGE, 5s);
@@ -78,7 +78,7 @@ struct boss_smashspite_the_hateful : public BossAI
                 {
                     me->CastSpell(target, SPELL_HATEFUL_CHARGE, true);
 
-                    me->GetScheduler().Schedule(250ms, [this](TaskContext context)
+                 //   me->GetScheduler().Schedule(250ms, [this](TaskContext context)
                     {
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != EFFECT_MOTION_TYPE)
                             return;
@@ -89,8 +89,8 @@ struct boss_smashspite_the_hateful : public BossAI
                             return;
                         }
 
-                        context.Repeat();
-                    });
+                       // context.Repeat();
+                    };
                 }
 
                 hatefulGazeTargetGUID = ObjectGuid::Empty;
@@ -99,9 +99,9 @@ struct boss_smashspite_the_hateful : public BossAI
             case EVENT_SUMMON_FELBAT:
             {
                 Position sumPos;
-                GetRandPosFromCenterInDist(&felBatSumCenter, 14.f, sumPos);
+               // GetRandPosFromCenterInDist(&felBatSumCenter, 14.f, sumPos);
                 sumPos.m_positionZ += frand(-10.f, 10.f);
-                me->SummonCreature(NPC_SMASHSPITE_FELBAT, sumPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+               // me->SummonCreature(NPC_SMASHSPITE_FELBAT, sumPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
                 events.Repeat(15s);
                 break;
             }
@@ -130,7 +130,7 @@ class aura_smashspite_brutality : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(aura_smashspite_brutality::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+       // OnEffectProc += AuraEffectProcFn(aura_smashspite_brutality::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -147,33 +147,33 @@ struct npc_brh_felbat : public ScriptedAI
         me->SetSpeed(MOVE_FLIGHT,   0.1f);
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* /*summoner*/) 
     {
-        me->GetScheduler().Schedule(5s, [this](TaskContext context)
+       // me->GetScheduler().Schedule(5s, [this](TaskContext context)
         {
             DoZoneInCombat();
 
-            if (Unit* attackableUnit = SelectTarget(SELECT_TARGET_RANDOM))
+         //   if (Unit* attackableUnit = SelectTarget(SELECT_TARGET_RANDOM))
             {
-                ObjectGuid attackableUnitGUID = attackableUnit->GetGUID();
-                me->CastSpell(attackableUnit, SPELL_FEL_VOMIT_TARGET, false);
+            //    ObjectGuid attackableUnitGUID = attackableUnit->GetGUID();
+             //   me->CastSpell(attackableUnit, SPELL_FEL_VOMIT_TARGET, false);
 
-                me->GetScheduler().Schedule(6s, [this, attackableUnitGUID](TaskContext /*context*/)
+           //     me->GetScheduler().Schedule(6s, [this, attackableUnitGUID](TaskContext /*context*/)
                 {
-                    if (Unit* attackableUnit = ObjectAccessor::GetUnit(*me, attackableUnitGUID))
-                        me->CastSpell(attackableUnit, SPELL_FEL_VOMIT, true);
-                });
+                  //  if (Unit* attackableUnit = ObjectAccessor::GetUnit(*me, attackableUnitGUID))
+                      //  me->CastSpell(attackableUnit, SPELL_FEL_VOMIT, true);
+                };
             }
 
-            context.Repeat(12s);
-        });
+          //  context.Repeat(12s);
+        };
     }
 };
 
 void AddSC_boss_smashspite_the_hateful()
 {
     RegisterCreatureAI(boss_smashspite_the_hateful);
-    RegisterAuraScript(aura_smashspite_brutality);
+  //  RegisterAuraScript(aura_smashspite_brutality);
 
     RegisterCreatureAI(npc_brh_felbat);
 }

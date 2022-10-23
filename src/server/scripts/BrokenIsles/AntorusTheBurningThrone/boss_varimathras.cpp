@@ -44,6 +44,14 @@ enum Spells
     //(ability.id = 243968 or ability.id = 243977 or ability.id = 243980 or ability.id = 243973)
 };
 
+enum Phase
+{
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+    PHASE_04,
+};
+/*
 TalkData const talkData[] =
 {
     { EVENT_ON_ENTERCOMBAT,             EVENT_TYPE_TALK,            0 },
@@ -51,14 +59,14 @@ TalkData const talkData[] =
     { SPELL_DARK_FISSURE,               EVENT_TYPE_TALK,            2 },
     { EVENT_ON_JUSTDIED,                EVENT_TYPE_TALK,            5 },
 };
-
+*/
 struct boss_varimathras : public BossAI
 {
     boss_varimathras(Creature* creature) : BossAI(creature, DATA_VARIMATHRAS) { Initialize(); }
 
     void Initialize()
     {
-        SetDungeonEncounterID(2069);
+      //  SetDungeonEncounterID(2069);
      //   LoadTalkData(talkData);
     }
 
@@ -72,11 +80,11 @@ struct boss_varimathras : public BossAI
     void ScheduleTasks() override
     {
         events.ScheduleEvent(SPELL_TORMENT_OF_FLAMES, 5s);
-        //events.ScheduleEvent(SPELL_TORMENT_OF_FROST, 5s);
-        //events.ScheduleEvent(SPELL_TORMENT_OF_FEL, 5s);
-        //events.ScheduleEvent(SPELL_TORMENT_OF_SHADOWS, 5s); 
+        events.ScheduleEvent(SPELL_TORMENT_OF_FROST, 5s);
+        events.ScheduleEvent(SPELL_TORMENT_OF_FEL, 5s);
+        events.ScheduleEvent(SPELL_TORMENT_OF_SHADOWS, 5s); 
         events.ScheduleEvent(SPELL_SHADOW_STRIKE, 9s);
-        //events.ScheduleEvent(SPELL_CONTROL_AURA, 5s);
+        events.ScheduleEvent(SPELL_CONTROL_AURA, 5s);
         events.ScheduleEvent(SPELL_DARK_FISSURE, 17s, 18s);
         events.ScheduleEvent(SPELL_MARKED_PREY, 25s);
         events.ScheduleEvent(SPELL_NECROTIC_EMBRACE, 35s);
@@ -93,7 +101,7 @@ struct boss_varimathras : public BossAI
         case SPELL_TORMENT_OF_FLAMES:
         {
             DoCast(SPELL_TORMENT_OF_FLAMES);
-            instance->DoAddAuraOnPlayers(SPELL_TORMENT_OF_FLAMES_DMG);
+         //   instance->DoAddAuraOnPlayers(SPELL_TORMENT_OF_FLAMES_DMG);
             //events.Repeat(5s);
             break;
         }
@@ -119,36 +127,36 @@ struct boss_varimathras : public BossAI
         {
             DoCast(SPELL_SHADOW_STRIKE);
             //257644
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, 257644, false);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+            //    me->CastSpell(target1, 257644, false);
             events.Repeat(9s);
             break;
         }
         case SPELL_DARK_FISSURE:
         {
-            GetTalkData(SPELL_DARK_FISSURE);
+          //  GetTalkData(SPELL_DARK_FISSURE);
             DoCast(SPELL_DARK_FISSURE);
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
             {
-                me->CastSpell(target1, SPELL_DARK_FISSURE_VISUAL, false);
-                me->CastSpell(target1, SPELL_DARK_FISSURE_DMG, false);
+             //   me->CastSpell(target1, SPELL_DARK_FISSURE_VISUAL, false);
+               // me->CastSpell(target1, SPELL_DARK_FISSURE_DMG, false);
             }
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
             {
-                me->CastSpell(target1, SPELL_DARK_FISSURE_VISUAL, false);
-                me->CastSpell(target1, SPELL_DARK_FISSURE_DMG, false);
+             //   me->CastSpell(target1, SPELL_DARK_FISSURE_VISUAL, false);
+               // me->CastSpell(target1, SPELL_DARK_FISSURE_DMG, false);
             }
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
             {
-                me->CastSpell(target1, SPELL_DARK_FISSURE_VISUAL, false);
-                me->CastSpell(target1, SPELL_DARK_FISSURE_DMG, false);
+            //    me->CastSpell(target1, SPELL_DARK_FISSURE_VISUAL, false);
+              //  me->CastSpell(target1, SPELL_DARK_FISSURE_DMG, false);
             }
             events.Repeat(32s);
             break;
         }
         case SPELL_MARKED_PREY:
         {
-            GetTalkData(SPELL_MARKED_PREY);
+           // GetTalkData(SPELL_MARKED_PREY);
             DoCast(SPELL_MARKED_PREY);
             events.Repeat(30s);
             break;
@@ -172,9 +180,9 @@ struct boss_varimathras : public BossAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false))// && !IsLock)
         {
-            IsLock = true;
+           // IsLock = true;
            // instance->DoConversation(5750);
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }

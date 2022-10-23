@@ -105,7 +105,7 @@ struct boss_shatug_fhargAI : public BossAI
         return  IAmShatug() ? me->FindNearestCreature(NPC_FHARG, 500.0f) : me->FindNearestCreature(NPC_SHATUG, 500.0f);
     }
 
-    void DamageTaken(Unit* /*done_by*/, uint32& damage) override
+    void DamageTaken(Unit* /*done_by*/, uint32& damage) 
     {
        // if (Unit* pOtherBoss = GetOtherBoss())
          /*   if (me->GetDistance(pOtherBoss->GetPosition()) <= 40.0f)
@@ -120,16 +120,16 @@ struct boss_shatug_fhargAI : public BossAI
         {
             pOtherBoss->SetHealth(0);
             pOtherBoss->setDeathState(JUST_DIED);
-            pOtherBoss->AddDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
+          //  pOtherBoss->AddDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
         }
         me->SummonCreature(128289, Position(-3224.603f, 10388.73f, -155.3857f, 1.190612f), TEMPSUMMON_MANUAL_DESPAWN);
      /*   if (instance)
             instance->DoConversation(5523);*/
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who) 
     {
-        _EnterCombat();
+      //  _EnterCombat();
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
@@ -175,7 +175,7 @@ struct boss_shatug : public boss_shatug_fhargAI
         events.ScheduleEvent(SPELL_CORRUPTING_MAW_DAMAGE, 5s);
         events.ScheduleEvent(SPELL_SIPHONED, 5s);
         events.ScheduleEvent(SPELL_CONSUMING_SPHERE, 5s);
-        if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
+        if (me->GetMap()->IsHeroic() || me->GetMap()->IsRaid())//IsMythic())
             events.ScheduleEvent(SPELL_WEIGHT_OF_DARKNESS, 30s, 40s);
     }
 
@@ -211,23 +211,23 @@ struct boss_shatug : public boss_shatug_fhargAI
         case SPELL_SIPHONED:
         {
             //random
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_SIPHONED, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_SIPHONED, false);
             events.Repeat(10s, 15s);
             break;
         }
         case SPELL_CONSUMING_SPHERE:
         {
             //random
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_CONSUMING_SPHERE, false);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+            //    me->CastSpell(target1, SPELL_CONSUMING_SPHERE, false);
             events.Repeat(10s, 15s);
             break;
         }
         case SPELL_WEIGHT_OF_DARKNESS:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_WEIGHT_OF_DARKNESS, false);
+          //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+            //    me->CastSpell(target1, SPELL_WEIGHT_OF_DARKNESS, false);
             events.Repeat(30s, 45s);
             break;
         }
@@ -262,7 +262,7 @@ struct boss_fharg : public boss_shatug_fhargAI
         events.ScheduleEvent(SPELL_DESOLATE_GAZE, 5s);
 
         events.ScheduleEvent(SPELL_CONSUMING_SPHERE, 5s);
-        if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
+        if (me->GetMap()->IsHeroic() || me->GetMap()->IsRaid())//IsMythic())
             events.ScheduleEvent(SPELL_MOLTEN_TOUCH, 30s, 40s);
     }
 
@@ -292,15 +292,15 @@ struct boss_fharg : public boss_shatug_fhargAI
         case SPELL_CONSUMING_SPHERE:
         {
             //random
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_CONSUMING_SPHERE, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_CONSUMING_SPHERE, false);
             events.Repeat(10s, 15s);
             break;
         }
         case SPELL_MOLTEN_TOUCH:
         {
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                me->CastSpell(target1, SPELL_MOLTEN_TOUCH, false);
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+             //   me->CastSpell(target1, SPELL_MOLTEN_TOUCH, false);
             events.Repeat(30s, 45s);
             break;
         }
@@ -332,9 +332,9 @@ struct npc_lightforged_teleport_pod_128289 : public ScriptedAI
     };
     using Path01Size = std::extent<decltype(Path01)>;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
-        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+      //  me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
     }
     void OnSpellClick(Unit* clicker, bool& /*result*/)
     {
@@ -342,12 +342,12 @@ struct npc_lightforged_teleport_pod_128289 : public ScriptedAI
         {
             player->CastSpell(player, SPELL_GATEWAY, true);
             player->GetMotionMaster()->MoveSmoothPath(1, Path01, Path01Size::value, false, true);
-            me->GetScheduler().Schedule(Milliseconds(4000), [player](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(4000), [player](TaskContext context)
             {
                 player->CastSpell(player, SPELL_GATEWAY, true);
-                if (context.GetRepeatCounter() < 4)
-                    context.Repeat(4s);
-            });
+               // if (context.GetRepeatCounter() < 4)
+                 //   context.Repeat(4s);
+            };
            /* if (instance)
                 instance->DoDelayedConversation(8000, 5524);*/
         }

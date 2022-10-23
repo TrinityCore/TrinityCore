@@ -64,6 +64,19 @@ enum talkEvent
     EVENT_CHECK = 3000,
 };
 
+enum Phase
+{
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+    PHASE_04,
+    PHASE_05,
+    PHASE_06,
+    PHASE_07,
+    PHASE_08,
+};
+
+/*
 TalkData const talkData[] =
 {
     { EVENT_START,         EVENT_TYPE_TALK,            0 },
@@ -72,7 +85,7 @@ TalkData const talkData[] =
     { EVENT_POWER_2,       EVENT_TYPE_TALK,            3 },
     { EVENT_FINISH,        EVENT_TYPE_TALK,            4 },
 };
-
+*/
 class playerscript_surge_of_life_trigger : public PlayerScript
 {
 public:
@@ -100,7 +113,7 @@ public:
                 player->CastSpell(player, SPELL_SURGE_OF_LIFE_BUFF, true);
                 player->CastSpell(player, SPELL_SURGE_OF_LIFE_JUMP, true);
                 needRecast = true;
-                checkTimer = 5000;
+               // checkTimer = 5000s;
             }
             if (spell->GetSpellInfo()->Id == SPELL_DIVE_DOWN)
             {
@@ -110,7 +123,7 @@ public:
         }
     }
 
-    void OnUpdate(Player* player, uint32 diff) override
+    void OnUpdate(Player* player, uint32 diff) 
     {
         if (checkTimer <= diff)
         {
@@ -136,14 +149,14 @@ struct boss_essence_of_eonar : public BossAI
     {
         if (action == EVENT_START)
         {
-            GetTalkData(EVENT_START);
+          //  GetTalkData(EVENT_START);
             instance->SetBossState(DATA_ESSENCE_OF_EONAR, SPECIAL);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             me->SetPower(POWER_ENERGY, 0);
            // me->SetInt32Value(UNIT_FIELD_POWER + 1, 0);
             events.Reset();
             DoZoneInCombat();
-            events.ScheduleEvent(EVENT_CHECK, 10000);
+           // events.ScheduleEvent(EVENT_CHECK, 10000);
             events.ScheduleEvent(PHASE_01, 11s);
         }
     }
@@ -162,25 +175,25 @@ struct boss_essence_of_eonar : public BossAI
         case PHASE_04:
         case PHASE_07:
             //NPC_FEL_INFUSED_DESTRUCTOR 15 ,NPC_FEL_HOUND,NPC_FELGUARD 5 ,NPC_FEL_LORD 5 40%
-            me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             for (uint8 i = 0; i < 3; ++i)
-                me->SummonCreature(NPC_FEL_HOUND, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+             //   me->SummonCreature(NPC_FEL_HOUND, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             for (uint8 i = 0; i < 2; ++i)
-                me->SummonCreature(NPC_FELGUARD, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+               // me->SummonCreature(NPC_FELGUARD, posData[0], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             break;
         case PHASE_02:
         case PHASE_05:
-            me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+          //  me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             for (uint8 i = 0; i < 3; ++i)
-                me->SummonCreature(NPC_FEL_HOUND, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+            //    me->SummonCreature(NPC_FEL_HOUND, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             for (uint8 i = 0; i < 2; ++i)
-                me->SummonCreature(NPC_FELGUARD, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+              //  me->SummonCreature(NPC_FELGUARD, posData[1], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             break;
         case PHASE_03:
         case PHASE_06:
-            me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+         //   me->SummonCreature(NPC_FEL_INFUSED_DESTRUCTOR, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             for (uint8 i = 0; i < 3; ++i)
-                me->SummonCreature(NPC_FEL_LORD, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           //     me->SummonCreature(NPC_FEL_LORD, posData[2], TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             break;
         }
     }
@@ -198,9 +211,9 @@ struct boss_essence_of_eonar : public BossAI
         }
         case PHASE_02:
         {
-            GetTalkData(SPELL_LIFE_FORCE);
+          //  GetTalkData(SPELL_LIFE_FORCE);
             DoCast(SPELL_LIFE_FORCE);
-            GetTalkData(EVENT_POWER_1);
+          //  GetTalkData(EVENT_POWER_1);
             SwitchPhase(PHASE_02);
             events.ScheduleEvent(PHASE_03, 35s);
             break;
@@ -219,9 +232,9 @@ struct boss_essence_of_eonar : public BossAI
         }
         case PHASE_05:
         {
-            GetTalkData(SPELL_LIFE_FORCE);
+          //  GetTalkData(SPELL_LIFE_FORCE);
             DoCast(SPELL_LIFE_FORCE);
-            GetTalkData(EVENT_POWER_2);
+           // GetTalkData(EVENT_POWER_2);
             SwitchPhase(PHASE_05);
             events.ScheduleEvent(PHASE_06, 35s);
             break;
@@ -240,19 +253,19 @@ struct boss_essence_of_eonar : public BossAI
         }
         case PHASE_08:
         {
-            GetTalkData(SPELL_LIFE_FORCE);
+           // GetTalkData(SPELL_LIFE_FORCE);
             DoCast(SPELL_LIFE_FORCE);
-            GetTalkData(EVENT_FINISH);
+           // GetTalkData(EVENT_FINISH);
             events.Reset();
             summons.DespawnAll();
-            me->GetScheduler().CancelAll();
+           // me->GetScheduler().CancelAll();
             if (instance)
             {
                 instance->SetBossState(DATA_ESSENCE_OF_EONAR, DONE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 instance->SendBossKillCredit(2075);
             }
-            me->SummonGameObject(GO_BOX, boxpos, QuaternionData(0.0f, 0.0f, -0.345448f, 0.938438f), WEEK);
+           // me->SummonGameObject(GO_BOX, boxpos, QuaternionData(0.0f, 0.0f, -0.345448f, 0.938438f), WEEK);
             break;
        // }
        /* case EVENT_CHECK:
@@ -278,9 +291,9 @@ struct boss_essence_of_eonar : public BossAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 50.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 50.0f, false))// && !IsLock)
         {
-            IsLock = true;
+           // IsLock = true;
             DoAction(EVENT_START);
         }
     }

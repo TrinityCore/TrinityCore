@@ -75,7 +75,14 @@ SpawnData const spawnData[] =
     { EVENT_3, NPC_GAROTHI_DEMOLISHER, southwestern },
 };
 
-
+enum Phase
+{
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+    PHASE_04,
+};
+/*
 TalkData const talkData[] =
 {
     { EVENT_ON_ENTERCOMBAT,             EVENT_TYPE_TALK,            0 },
@@ -86,7 +93,7 @@ TalkData const talkData[] =
     { SPELL_PURGING_PROTOCOL,           EVENT_TYPE_TALK,            5 },
     { EVENT_ON_JUSTDIED,                EVENT_TYPE_TALK,            14 },
 };
-
+*/
 ///.go creature id 
 struct boss_kingaroth : public BossAI
 {
@@ -94,7 +101,7 @@ struct boss_kingaroth : public BossAI
 
     void Initialize()
     {
-        SetDungeonEncounterID(2088);
+      //  SetDungeonEncounterID(2088);
        // LoadTalkData(talkData);
         SetCombatMovement(false);
     }
@@ -103,14 +110,14 @@ struct boss_kingaroth : public BossAI
     {
         _JustDied();
         instance->SetBossState(DATA_KINGAROTH, DONE);
-        me->GetScheduler().Schedule(500ms, [this](TaskContext context)
+       // me->GetScheduler().Schedule(500ms, [this](TaskContext context)
         {
             //if(me->GetPositionZ()<1873.f)
             me->NearTeleportTo(me->GetHomePosition());
-            context.Repeat(500ms);
-        });
-        if (me->FindNearestCreature(128303, 100.0f, true))
-            me->SummonCreature(128303, Position(-10574.7998f, 8211.94f, 1871.459961f, 4.71183f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+         //   context.Repeat(500ms);
+        };
+        if (me->FindNearestCreature(128303, 100.0f, true));
+          //  me->SummonCreature(128303, Position(-10574.7998f, 8211.94f, 1871.459961f, 4.71183f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
     }
 
     void DoAction(int32 action) override
@@ -130,7 +137,7 @@ struct boss_kingaroth : public BossAI
         while (data->event)
         {
             if (data->event == event)
-                me->SummonCreature(data->npcId, Position(data->pos), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           //     me->SummonCreature(data->npcId, Position(data->pos), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             ++data;
         }
     }
@@ -174,15 +181,15 @@ struct boss_kingaroth : public BossAI
             wave++;
             if (wave > EVENT_3)
                 wave = EVENT_1;
-            GetTalkData(SPELL_APOCALYPSE_PROTOCOL);
+          //  GetTalkData(SPELL_APOCALYPSE_PROTOCOL);
             DoCast(SPELL_APOCALYPSE_PROTOCOL);
             //events.Repeat(77s);
             break;
         }
         case SPELL_RUINER:
         {
-            GetTalkData(SPELL_RUINER);
-            if (IsMythic())
+            //GetTalkData(SPELL_RUINER);
+           // if (IsMythic())
                 DoCast(SPELL_EMPOWERED_RUINER);
             DoCast(SPELL_RUINER);
             events.Repeat(29s);
@@ -190,7 +197,7 @@ struct boss_kingaroth : public BossAI
         }
         case SPELL_DIABOLIC_BOMB:
         {
-            if (IsMythic())
+           // if (IsMythic())
                 DoCast(SPELL_EMPOWERED_DIABOLIC_BOMB);
             DoCast(SPELL_DIABOLIC_BOMB);
             events.Repeat(20s);
@@ -204,22 +211,22 @@ struct boss_kingaroth : public BossAI
         }
         case SPELL_REVERBERATING_STRIKE:
         {
-            GetTalkData(SPELL_REVERBERATING_STRIKE);
+           // GetTalkData(SPELL_REVERBERATING_STRIKE);
             DoCast(SPELL_REVERBERATING_STRIKE);
             events.Repeat(28s);
             break;
         }
         case SPELL_APOCALYPSE_BLAST:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
-                me->CastSpell(target, SPELL_APOCALYPSE_BLAST, true);
+            //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+              //  me->CastSpell(target, SPELL_APOCALYPSE_BLAST, true);
             events.Repeat(10s);
             break;
         }
         case SPELL_FLAMES_OF_THE_FORGE:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
-                me->CastSpell(target, SPELL_FLAMES_OF_THE_FORGE, true);
+           // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+             //   me->CastSpell(target, SPELL_FLAMES_OF_THE_FORGE, true);
             events.Repeat(10s);
             break;
         }
@@ -230,9 +237,9 @@ struct boss_kingaroth : public BossAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false))// && !IsLock)
         {
-            IsLock = true;
+           // IsLock = true;
            // instance->DoConversation(5609);
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
@@ -247,7 +254,7 @@ struct boss_kingaroth : public BossAI
         case NPC_GAROTHI_DECIMATOR:
         case NPC_GAROTHI_DEMOLISHER:
         {
-            summon->SetFaction(me->getFaction());
+          //  summon->SetFaction(me->getFaction());
             break;
         }
         }
@@ -268,50 +275,50 @@ struct npc_garothi_kingaroth_mobs : public ScriptedAI
         if (Creature* boss = me->FindNearestCreature(NPC_KINGAROTH, 150.0f, true))
             boss->AI()->DoAction(1);
     }
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
         switch (me->GetEntry())
         {
         case NPC_GAROTHI_ANNIHILATOR:
-            events.ScheduleEvent(SPELL_ANNIHILATION, 16s);
+           // events.ScheduleEvent(SPELL_ANNIHILATION, 16s);
             break;
         case NPC_GAROTHI_DECIMATOR:
-            events.ScheduleEvent(SPELL_DECIMATION, 11s);
+           // events.ScheduleEvent(SPELL_DECIMATION, 11s);
             break;
         case NPC_GAROTHI_DEMOLISHER:
-            events.ScheduleEvent(SPELL_DEMOLISH, 16s);
+          //  events.ScheduleEvent(SPELL_DEMOLISH, 16s);
             break;
         default:
             break;
         }
-        events.ScheduleEvent(SPELL_INITIALIZING, 30s);
+       // events.ScheduleEvent(SPELL_INITIALIZING, 30s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+      //  events.Update(diff);
 
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+      //  switch (events.ExecuteEvent())
         {
-        case SPELL_INITIALIZING:
+         SPELL_INITIALIZING:
             DoCast(SPELL_INITIALIZING);
-            break;
-        case SPELL_DECIMATION:
+        //    break;
+         SPELL_DECIMATION:
             DoCast(SPELL_DECIMATION);
-            events.Repeat(16s);
-            break;
-        case SPELL_DEMOLISH:
+        //    events.Repeat(16s);
+          //  break;
+         SPELL_DEMOLISH:
             DoCast(SPELL_DEMOLISH);
-            events.Repeat(11s);
-            break;
-        case SPELL_ANNIHILATION:
+        //    events.Repeat(11s);
+          //  break;
+         SPELL_ANNIHILATION:
             DoCast(SPELL_ANNIHILATION);
-            events.Repeat(16s);
-            break;
+        //    events.Repeat(16s);
+          //  break;
         }
         DoMeleeAttackIfReady();
     }

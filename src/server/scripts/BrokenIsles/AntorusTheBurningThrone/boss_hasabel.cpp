@@ -21,6 +21,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "antorus.h"
+#include <Maps/Map.cpp>
 
 enum Spells
 {
@@ -70,6 +71,14 @@ enum
     ACTION_CLOSE,
 };
 
+enum Phase
+{
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+    PHASE_04,
+};
+/*
 TalkData const talkData[] =
 {
     { EVENT_ON_MOVEINLINEOFSIGHT,       EVENT_TYPE_TALK,            0 },
@@ -84,14 +93,14 @@ TalkData const talkData[] =
      { EVENT_ON_HP30,                    EVENT_TYPE_TALK,            12 },
      { EVENT_ON_JUSTDIED,                EVENT_TYPE_TALK,            15 },
 };
-
+*/
 struct boss_portal_keeper_hasabel : public BossAI
 {
     boss_portal_keeper_hasabel(Creature* creature) : BossAI(creature, DATA_PORTAL_KEEPER_HASABEL) { Initialize(); }
 
     void Initialize()
     {
-        SetDungeonEncounterID(2064);
+      //  SetDungeonEncounterID(2064);
        // LoadTalkData(talkData);
     }
 
@@ -111,23 +120,23 @@ struct boss_portal_keeper_hasabel : public BossAI
         SetDoorStatusByNPC(NPC_GATEWAY_NATHREZA_LEAVING, status);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(90, damage))
+       // if (me->HealthWillBeBelowPctDamaged(90, damage))
         {
-            GetTalkData(EVENT_ON_HP90);
+         //   GetTalkData(EVENT_ON_HP90);
             SetDoorStatusByNPC(NPC_GATEWAY_XOROTH_ENTERING, ACTION_OPEN);
             SetDoorStatusByNPC(NPC_GATEWAY_XOROTH_LEAVING, ACTION_OPEN);
         }
-        if (me->HealthWillBeBelowPctDamaged(60, damage))
+       // if (me->HealthWillBeBelowPctDamaged(60, damage))
         {
-            GetTalkData(EVENT_ON_HP60);
+         //   GetTalkData(EVENT_ON_HP60);
             SetDoorStatusByNPC(NPC_GATEWAY_RANCORA_ENTERING, ACTION_OPEN);
             SetDoorStatusByNPC(NPC_GATEWAY_RANCORA_LEAVING, ACTION_OPEN);
         }
-        if (me->HealthWillBeBelowPctDamaged(30, damage))
+       // if (me->HealthWillBeBelowPctDamaged(30, damage))
         {
-            GetTalkData(EVENT_ON_HP30);
+         //   GetTalkData(EVENT_ON_HP30);
             SetDoorStatusByNPC(NPC_GATEWAY_NATHREZA_ENTERING, ACTION_OPEN);
             SetDoorStatusByNPC(NPC_GATEWAY_NATHREZA_LEAVING, ACTION_OPEN);
         }
@@ -148,7 +157,8 @@ struct boss_portal_keeper_hasabel : public BossAI
         events.ScheduleEvent(SPELL_FELSTORM_BARRAGE, 25s);
         events.ScheduleEvent(SPELL_REALITY_TEAR, 6s);
         events.ScheduleEvent(SPELL_TRANSPORT_PORTAL, 41s);
-        if (IsMythic())
+        //if (IsMythic())
+       
             events.ScheduleEvent(SPELL_CATASTROPHIC_IMPLOSION, 5s);
     }
 
@@ -158,7 +168,7 @@ struct boss_portal_keeper_hasabel : public BossAI
         {
         case SPELL_COLLAPSING_WORLD:
         {
-            GetTalkData(SPELL_COLLAPSING_WORLD);
+          //  GetTalkData(SPELL_COLLAPSING_WORLD);
             DoCast(SPELL_COLLAPSING_WORLD);
             events.Repeat(33s);
             break;
@@ -166,33 +176,33 @@ struct boss_portal_keeper_hasabel : public BossAI
         case SPELL_FELSTORM_BARRAGE:
         {
             DoCast(SPELL_FELSTORM_BARRAGE);
-            AddTimedDelayedOperation(2500, [this]() -> void
+           // AddTimedDelayedOperation(2500, [this]() -> void
             {
-                if (Creature* felcrush = me->SummonCreature(NPC_FELCRUSH_PORTAL, me->GetRandomNearPosition(25.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
+               // if (Creature* felcrush = me->SummonCreature(NPC_FELCRUSH_PORTAL, me->GetRandomNearPosition(25.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
                 {
-                    felcrush->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                        felcrush->CastSpell(target1->GetPosition(), SPELL_FELSTORM_BARRAGE_DMG, false);
+                 //   felcrush->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                  //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                    //    felcrush->CastSpell(target1->GetPosition(), SPELL_FELSTORM_BARRAGE_DMG, false);
                 }
-            });
-            AddTimedDelayedOperation(3000, [this]() -> void
+            };
+           // AddTimedDelayedOperation(3000, [this]() -> void
             {
-                if (Creature* felcrush = me->SummonCreature(NPC_FELCRUSH_PORTAL, me->GetRandomNearPosition(25.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
+             //   if (Creature* felcrush = me->SummonCreature(NPC_FELCRUSH_PORTAL, me->GetRandomNearPosition(25.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
                 {
-                    felcrush->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                        felcrush->CastSpell(target1->GetPosition(), SPELL_FELSTORM_BARRAGE_DMG, false);
+               //     felcrush->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                 //   if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                   //     felcrush->CastSpell(target1->GetPosition(), SPELL_FELSTORM_BARRAGE_DMG, false);
                 }
-            });
-            AddTimedDelayedOperation(3500, [this]() -> void
+            };
+            //AddTimedDelayedOperation(3500, [this]() -> void
             {
-                if (Creature* felcrush = me->SummonCreature(NPC_FELCRUSH_PORTAL, me->GetRandomNearPosition(25.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
+              //  if (Creature* felcrush = me->SummonCreature(NPC_FELCRUSH_PORTAL, me->GetRandomNearPosition(25.0f), TEMPSUMMON_TIMED_DESPAWN, 10000))
                 {
-                    felcrush->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
-                        felcrush->CastSpell(target1->GetPosition(), SPELL_FELSTORM_BARRAGE_DMG, false);
+                //    felcrush->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                  //  if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+                    //    felcrush->CastSpell(target1->GetPosition(), SPELL_FELSTORM_BARRAGE_DMG, false);
                 }
-            });
+            };
             events.Repeat(33s);
             break;
         }
@@ -207,21 +217,21 @@ struct boss_portal_keeper_hasabel : public BossAI
             DoCast(SPELL_TRANSPORT_PORTAL);
             Talk(urand(5, 7));
 
-            if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
+           // if (Unit* target1 = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
             {
-                me->SummonCreature(NPC_TRANSPORT_PORTAL, target1->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 10000);
-                AddTimedDelayedOperation(2500, [this, target1]() -> void
+             //   me->SummonCreature(NPC_TRANSPORT_PORTAL, target1->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 10000);
+               // AddTimedDelayedOperation(2500, [this, target1]() -> void
                 {
-                    me->SummonCreature(NPC_FELBLAZE_IMP, target1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-                });
-                AddTimedDelayedOperation(5000, [this, target1]() -> void
+                 //   me->SummonCreature(NPC_FELBLAZE_IMP, target1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                };
+               // AddTimedDelayedOperation(5000, [this, target1]() -> void
                 {
-                    me->SummonCreature(NPC_FELBLAZE_IMP, target1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-                });
-                AddTimedDelayedOperation(7500, [this, target1]() -> void
+                 //   me->SummonCreature(NPC_FELBLAZE_IMP, target1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                };
+               // AddTimedDelayedOperation(7500, [this, target1]() -> void
                 {
-                    me->SummonCreature(NPC_FELBLAZE_IMP, target1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-                });
+                 //   me->SummonCreature(NPC_FELBLAZE_IMP, target1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+                };
             }
             events.Repeat(41s);
             break;
@@ -239,10 +249,10 @@ struct boss_portal_keeper_hasabel : public BossAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false))// && !IsLock)
         {
-            IsLock = true;
-            GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
+           // IsLock = true;
+         //   GetTalkData(EVENT_ON_MOVEINLINEOFSIGHT);
             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
     }
@@ -255,7 +265,7 @@ struct boss_portal_keeper_hasabel : public BossAI
         case NPC_FELBLAZE_IMP:
         case NPC_FELCRUSH_PORTAL:
         {
-            summon->SetFaction(me->getFaction());
+           // summon->SetFaction(me->getFaction());
             break;
         }
         }
@@ -269,7 +279,7 @@ struct npc_gateway_portal_hasabel : public ScriptedAI
     virtual Position const* GetPos() const = 0;
     void Reset() override
     {
-        IsLock = false;
+      //  IsLock = false;
     }
 
     void DoAction(int32 param)
@@ -277,18 +287,18 @@ struct npc_gateway_portal_hasabel : public ScriptedAI
         switch (param)
         {
         case ACTION_OPEN:
-            IsLock = true;
+         //   IsLock = true;
             //me->SetDisplayId(18783);
             break;
         case ACTION_CLOSE:
-            IsLock = false;
+          //  IsLock = false;
             break;
         }
     }
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 5.0f, false) && IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 5.0f, false))// && IsLock)
             who->NearTeleportTo(GetPos()->GetPosition());
     }
 };
@@ -341,12 +351,12 @@ struct npc_collapsing_world_122425 : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!IsLock)
+        //if (!IsLock)
         {
-            IsLock = true;
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+           // IsLock = true;
+          //  me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             DoCastSelf(SPELL_COLLAPSING_WORLD_VISUAL);
-            me->DespawnOrUnsummon(10000);
+            me->DespawnOrUnsummon(10000s);
         }
     }
 };
@@ -355,11 +365,11 @@ struct npc_lord_eilgar_122213 : public ScriptedAI
 {
     npc_lord_eilgar_122213(Creature* creature) : ScriptedAI(creature) { }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        events.ScheduleEvent(SPELL_UNSTABLE_PORTAL, 8s);
-        events.ScheduleEvent(SPELL_CORRUPT, 8s);
-        events.ScheduleEvent(SPELL_DELUSIONS, 15s);
+      //  events.ScheduleEvent(SPELL_UNSTABLE_PORTAL, 8s);
+      //  events.ScheduleEvent(SPELL_CORRUPT, 8s);
+       // events.ScheduleEvent(SPELL_DELUSIONS, 15s);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -370,32 +380,32 @@ struct npc_lord_eilgar_122213 : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+     //   events.Update(diff);
 
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_UNSTABLE_PORTAL:
+         SPELL_UNSTABLE_PORTAL:
         {
             DoCast(SPELL_UNSTABLE_PORTAL);
-            events.Repeat(15s);
-            break;
+        //    events.Repeat(15s);
+          //  break;
         }
-        case SPELL_CORRUPT:
+         SPELL_CORRUPT:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target, SPELL_CORRUPT, false);
-            events.Repeat(15s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target, SPELL_CORRUPT, false);
+            //events.Repeat(15s);
+           // break;
         }
-        case SPELL_DELUSIONS:
+         SPELL_DELUSIONS:
         {
             DoCast(SPELL_DELUSIONS);
-            events.Repeat(15s);
-            break;
+        //    events.Repeat(15s);
+          //  break;
         }
         }
         DoMeleeAttackIfReady();
@@ -406,47 +416,47 @@ struct npc_lady_dacidion_122212 : public ScriptedAI
 {
     npc_lady_dacidion_122212(Creature* creature) : ScriptedAI(creature) { }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        events.ScheduleEvent(SPELL_UNSTABLE_PORTAL, 8s);
-        events.ScheduleEvent(SPELL_FELSILK_WRAP, 17s);
-        events.ScheduleEvent(SPELL_POISON_ESSENCE, 10s);
-        events.ScheduleEvent(SPELL_LEECH_ESSENCE, 10s);
+       // events.ScheduleEvent(SPELL_UNSTABLE_PORTAL, 8s);
+       // events.ScheduleEvent(SPELL_FELSILK_WRAP, 17s);
+       // events.ScheduleEvent(SPELL_POISON_ESSENCE, 10s);
+       // events.ScheduleEvent(SPELL_LEECH_ESSENCE, 10s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+      //  events.Update(diff);
 
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_UNSTABLE_PORTAL:
+         SPELL_UNSTABLE_PORTAL:
         {
             DoCast(SPELL_UNSTABLE_PORTAL);
-            events.Repeat(15s);
-            break;
+        //    events.Repeat(15s);
+          //  break;
         }
-        case SPELL_FELSILK_WRAP:
+         SPELL_FELSILK_WRAP:
         {
             DoCast(SPELL_FELSILK_WRAP);
-            events.Repeat(17s);
-            break;
+        //    events.Repeat(17s);
+          //  break;
         }
-        case SPELL_POISON_ESSENCE:
+         SPELL_POISON_ESSENCE:
         {
             DoCast(SPELL_POISON_ESSENCE);
-            events.Repeat(10s);
-            break;
+        //    events.Repeat(10s);
+          //  break;
         }
-        case SPELL_LEECH_ESSENCE:
+         SPELL_LEECH_ESSENCE:
         {
             DoCast(SPELL_LEECH_ESSENCE);
-            events.Repeat(10s);
-            break;
+        //    events.Repeat(10s);
+          //  break;
         }
         }
         DoMeleeAttackIfReady();
@@ -457,41 +467,41 @@ struct npc_vulcanar_122211 : public ScriptedAI
 {
     npc_vulcanar_122211(Creature* creature) : ScriptedAI(creature) { }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        events.ScheduleEvent(SPELL_UNSTABLE_PORTAL, 8s);
-        events.ScheduleEvent(SPELL_SUPERNOVA, 8s);
-        events.ScheduleEvent(SPELL_FLAMES_OF_XOROTH, 7s);
+       // events.ScheduleEvent(SPELL_UNSTABLE_PORTAL, 8s);
+       // events.ScheduleEvent(SPELL_SUPERNOVA, 8s);
+       // events.ScheduleEvent(SPELL_FLAMES_OF_XOROTH, 7s);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        events.Update(diff);
+      //  events.Update(diff);
 
         if (!UpdateVictim())
             return;
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        switch (events.ExecuteEvent())
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_UNSTABLE_PORTAL:
+         SPELL_UNSTABLE_PORTAL:
         {
             DoCast(SPELL_UNSTABLE_PORTAL);
-            events.Repeat(15s);
-            break;
+        //    events.Repeat(15s);
+          //  break;
         }
-        case SPELL_SUPERNOVA:
+         SPELL_SUPERNOVA:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-                me->CastSpell(target->GetPosition(), SPELL_SUPERNOVA, false);
-            events.Repeat(15s);
-            break;
+        //    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
+          //      me->CastSpell(target->GetPosition(), SPELL_SUPERNOVA, false);
+            //events.Repeat(15s);
+            //break;
         }
-        case SPELL_FLAMES_OF_XOROTH:
+         SPELL_FLAMES_OF_XOROTH:
         {
             DoCast(SPELL_FLAMES_OF_XOROTH);
-            events.Repeat(7s);
-            break;
+        //    events.Repeat(7s);
+          //  break;
         }
         }
         DoMeleeAttackIfReady();
