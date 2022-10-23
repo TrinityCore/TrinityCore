@@ -1421,6 +1421,14 @@ void GameObject::DespawnOrUnsummon(Milliseconds delay, Seconds forceRespawnTime)
     }
 }
 
+void GameObject::DespawnForPlayer(Player* seer, Seconds respawnTime)
+{
+    PerPlayerState& perPlayerState = GetOrCreatePerPlayerStates()[seer->GetGUID()];
+    perPlayerState.ValidUntil = GameTime::GetSystemTime() + respawnTime;
+    perPlayerState.Despawned = true;
+    seer->UpdateVisibilityOf(this);
+}
+
 void GameObject::Delete()
 {
     SetLootState(GO_NOT_READY);
@@ -2398,8 +2406,9 @@ void GameObject::Use(Unit* user)
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
             GameObjectTemplate const* info = GetGOInfo();
+            Player* player = user->ToPlayer();
 
-            if (Player* player = user->ToPlayer())
+            if (player)
             {
                 if (info->goober.pageID)                    // show page...
                 {
@@ -2441,16 +2450,26 @@ void GameObject::Use(Unit* user)
             if (uint32 trapEntry = info->goober.linkedTrap)
                 TriggeringLinkedGameObject(trapEntry, user);
 
-            SetFlag(GO_FLAG_IN_USE);
-            SetLootState(GO_ACTIVATED, user);
-
-            // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
-            if (info->goober.customAnim)
-                SendCustomAnim(GetGoAnimProgress());
+            if (info->goober.AllowMultiInteract && player)
+            {
+                if (info->IsDespawnAtAction())
+                    DespawnForPlayer(player, Seconds(m_respawnDelayTime));
+                else
+                    SetGoStateFor(GO_STATE_ACTIVE, player);
+            }
             else
-                SetGoState(GO_STATE_ACTIVE);
+            {
+                SetFlag(GO_FLAG_IN_USE);
+                SetLootState(GO_ACTIVATED, user);
 
-            m_cooldownTime = GameTime::GetGameTimeMS() + info->GetAutoCloseTime();
+                // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
+                if (info->goober.customAnim)
+                    SendCustomAnim(GetGoAnimProgress());
+                else
+                    SetGoState(GO_STATE_ACTIVE);
+
+                m_cooldownTime = GameTime::GetGameTimeMS() + info->GetAutoCloseTime();
+            }
 
             // cast this spell later if provided
             spellId = info->goober.spell;
@@ -3291,14 +3310,10 @@ void GameObject::OnLootRelease(Player* looter)
             GameObjectTemplate const* goInfo = GetGOInfo();
             if (!goInfo->chest.consumable && goInfo->chest.chestPersonalLoot)
             {
-                PerPlayerState& perPlayerState = GetOrCreatePerPlayerStates()[looter->GetGUID()];
-                perPlayerState.ValidUntil = GameTime::GetSystemTime() + (goInfo->chest.chestRestockTime
+                DespawnForPlayer(looter, goInfo->chest.chestRestockTime
                     ? Seconds(goInfo->chest.chestRestockTime)
                     : Seconds(m_respawnDelayTime)); // not hiding this object permanently to prevent infinite growth of m_perPlayerState
                                                     // while also maintaining some sort of cheater protection (not getting rid of entries on logout)
-                perPlayerState.Despawned = true;
-
-                looter->UpdateVisibilityOf(this);
             }
             break;
         }
