@@ -21,7 +21,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "SceneMgr.h"
-#include "SceneHelper.h"
 #include "ScriptedGossip.h"
 #include "PhasingHandler.h"
 #include "Log.h"
@@ -99,7 +98,10 @@ enum
     SPELL_FADE = 206809,
 };
 
-
+enum GARRISON_TYPE_CLASS_HALL
+{
+    GARRISON_TYPE_CLASS_HALL,
+};
 
 class npc_class_hall_druid_gatewarden : public CreatureScript
 {
@@ -119,37 +121,37 @@ public:
 
             if (me->isInBackInMap(who, 12.0f))   // In my line of sight, "outdoors", and behind me
             {
-                if (who->ToPlayer()->HasQuest(QUEST_TO_THE_DREAMGROVE) && me->GetEntry() == 107265)
+               // if (who->ToPlayer()->HasQuest(QUEST_TO_THE_DREAMGROVE) && me->GetEntry() == 107265)
                 {
-                    if (!who->ToPlayer()->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 1))
+                 //   if (!who->ToPlayer()->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 1))
                     {
                         who->ToPlayer()->KilledMonsterCredit(101215);
                         who->ToPlayer()->TeleportTo(1220, 3756.379395f, 7132.707520f, 23.856869f, 0.401426f);
                     }
                 }
-                else if (who->ToPlayer()->HasQuest(QUEST_TO_THE_HILLS) && me->GetEntry() == 107263)
+               // else if (who->ToPlayer()->HasQuest(QUEST_TO_THE_HILLS) && me->GetEntry() == 107263)
                 {
-                    if (!who->ToPlayer()->GetQuestObjectiveData(QUEST_TO_THE_HILLS, 1))
+                 //   if (!who->ToPlayer()->GetQuestObjectiveData(QUEST_TO_THE_HILLS, 1))
                     {
                         who->ToPlayer()->KilledMonsterCredit(104392);
                         who->ToPlayer()->KilledMonsterCredit(135563);
                         who->ToPlayer()->TeleportTo(571, 4475.52f, -3757.94f, 217.14f, 3.56309f);
                     }
                 }
-                else if (who->ToPlayer()->HasQuest(QUEST_CLEANSING_THE_MOTHER_TREE) && me->GetEntry() == 107262)
+               // else if (who->ToPlayer()->HasQuest(QUEST_CLEANSING_THE_MOTHER_TREE) && me->GetEntry() == 107262)
                 {
                     who->ToPlayer()->TeleportTo(1599, 5465.67f, -3447.32f, 1559.12f, 4.987278f);
                 }
-                else if (who->ToPlayer()->HasQuest(QUEST_THE_SCYTHE_OF_ELUNE) && me->GetEntry() == 107260)
+              //  else if (who->ToPlayer()->HasQuest(QUEST_THE_SCYTHE_OF_ELUNE) && me->GetEntry() == 107260)
                 {
-                    if (!who->ToPlayer()->GetQuestObjectiveData(QUEST_THE_SCYTHE_OF_ELUNE, 0))
+                  //  if (!who->ToPlayer()->GetQuestObjectiveData(QUEST_THE_SCYTHE_OF_ELUNE, 0))
                     {
                         who->ToPlayer()->KilledMonsterCredit(103585);
                         who->CastSpell(who, _teleportSpell, true);
                     }
 
                 }
-                else
+               // else
                     who->CastSpell(who, _teleportSpell, true);
             }
 
@@ -186,8 +188,8 @@ struct npc_archdruid_hamuul_runetotem_101061 : public ScriptedAI
 
         if (!charmerOrOwnerGuid)
             if (TempSummon* tempSummon = me->ToTempSummon())
-                if (Unit* summoner = tempSummon->GetSummoner())
-                    charmerOrOwnerGuid = summoner->GetGUID();
+              //  if (Unit* summoner = tempSummon->GetSummoner())
+                //    charmerOrOwnerGuid = summoner->GetGUID();
 
         if (!charmerOrOwnerGuid)
             charmerOrOwnerGuid = me->GetCreatorGUID();
@@ -199,13 +201,13 @@ struct npc_archdruid_hamuul_runetotem_101061 : public ScriptedAI
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_A_SUMMONS_FROM_MOONGLADE)
         {
             Talk(1, player);
             player->CastSpell(player, SPELL_TELEPORT_MOONGLADE, true);
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5000s);
         }
     }
 };
@@ -238,7 +240,7 @@ struct npc_archdruid_hamuul_runetotem_101064 : public ScriptedAI
             {
                 player->CastSpell(me, 204662, true);
                 player->KilledMonsterCredit(101064);
-                me->DespawnOrUnsummon(19000);
+                me->DespawnOrUnsummon(19000s);
             }
             break;
         }
@@ -259,7 +261,7 @@ struct npc_archdruid_hamuul_runetotem_101064 : public ScriptedAI
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_CALL_OF_THE_WILDS)
             Talk(0, player);
@@ -273,16 +275,16 @@ struct npc_archdruid_hamuul_runetotem_101064 : public ScriptedAI
             m_playerGUID = player->GetGUID();
             me->GetMotionMaster()->MovePoint(1, Position(8001.76f, -2680.266f, 516.2501f), true);///reched point cast 199439 ->conversation 927
 
-            me->GetScheduler().Schedule(Milliseconds(15000), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(15000), [this](TaskContext context)
             {
                 me->GetMotionMaster()->MovePoint(2, Position(7558.831f, -2879.167f, 460.8212f), true);
-            });
+            };
 
             ///185506 ? 192190 ?
         }
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  
     {
         if (quest->GetQuestId() == QUEST_CALL_OF_THE_WILDS)
             player->CastSpell(player, 204250, true);
@@ -331,27 +333,27 @@ struct npc_zentabra_103135 : public ScriptedAI
     void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
         CloseGossipMenuFor(player);
-        if (player->HasQuest(QUEST_CALL_OF_THE_WILDS))
+      //  if (player->HasQuest(QUEST_CALL_OF_THE_WILDS))
         {
             player->KilledMonsterCredit(103136);
             Talk(1, player);
             DoCast(player, 203984, true);
 
-            _scheduler.Schedule(1250ms, [this, player](TaskContext /*context*/)
+           // _scheduler.Schedule(1250ms, [this, player](TaskContext /*context*/)
             {
                 Talk(2, player);
-            });
+            };
 
-            _scheduler.Schedule(5000ms, [this, player](TaskContext /*context*/)
+           // _scheduler.Schedule(5000ms, [this, player](TaskContext /*context*/)
             {
                 Talk(3, player);
-            });
+            };
 
-            _scheduler.Schedule(10000ms, [this, player](TaskContext /*context*/)
+            //_scheduler.Schedule(10000ms, [this, player](TaskContext /*context*/)
             {
                 me->RemoveAurasDueToSpell(203979);
                 DoAction(POINT_HOME);
-            });
+            };
         }
     }
 
@@ -420,7 +422,7 @@ struct npc_zentabra_103135 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!HasPlayer(player->GetGUID()) && player->HasQuest(QUEST_CALL_OF_THE_WILDS) && !player->GetQuestObjectiveData(QUEST_CALL_OF_THE_WILDS, 0))
+     //   if (!HasPlayer(player->GetGUID()) && player->HasQuest(QUEST_CALL_OF_THE_WILDS) && !player->GetQuestObjectiveData(QUEST_CALL_OF_THE_WILDS, 0))
         {
             m_playerGUID = player->GetGUID();
             AddPlayer();
@@ -446,7 +448,7 @@ struct npc_zentabra_103136 : public ScriptedAI
     void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
         CloseGossipMenuFor(player);
-        if (player->HasQuest(QUEST_CALL_OF_THE_WILDS))
+      //  if (player->HasQuest(QUEST_CALL_OF_THE_WILDS))
         {
             player->KilledMonsterCredit(me->GetEntry());
             Talk(0, player);
@@ -523,7 +525,7 @@ struct npc_naralex_103133 : public ScriptedAI
     {
         player->CastSpell(player, 204250, true);
         CloseGossipMenuFor(player);
-        if (player->HasQuest(QUEST_CALL_OF_THE_WILDS) && gossipListId == 1)
+       // if (player->HasQuest(QUEST_CALL_OF_THE_WILDS) && gossipListId == 1)
         {
             me->RemoveAurasDueToSpell(204637);
             player->KilledMonsterCredit(me->GetEntry());
@@ -590,7 +592,7 @@ struct npc_naralex_103133 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (player->HasQuest(QUEST_CALL_OF_THE_WILDS))
+      //  if (player->HasQuest(QUEST_CALL_OF_THE_WILDS))
         {
 
             //player->KilledMonsterCredit(me->GetEntry());
@@ -615,20 +617,20 @@ struct npc_malfurion_stormrage_103875 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (player->HasQuest(QUEST_THE_DREAMWAY) && player->GetQuestStatus(QUEST_THE_DREAMWAY) == QUEST_STATUS_INCOMPLETE)
+               // if (player->HasQuest(QUEST_THE_DREAMWAY) && player->GetQuestStatus(QUEST_THE_DREAMWAY) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (!player->GetQuestObjectiveData(QUEST_THE_DREAMWAY, 1))
+                 //   if (!player->GetQuestObjectiveData(QUEST_THE_DREAMWAY, 1))
                     {
 
                         player->CastSpell(player, SPELL_DRUID_ORDER_FORMATION, true);
-                        me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
+                   //     me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
                         {
                             player->CastSpell(player, SPELL_ASSIGN_DRUID_SPELL_BAR, true);
                             player->KilledMonsterCredit(KILLED_MONSTER_CREDIT_40644);
-                        });
+                        };
 
                     }
-                    else if (!player->GetQuestObjectiveData(QUEST_THE_DREAMWAY, 2))
+                   // else if (!player->GetQuestObjectiveData(QUEST_THE_DREAMWAY, 2))
                     {
                         player->KilledMonsterCredit(KILLED_MONSTER_CREDIT_40644); // QUEST_THE_DREAMWAY storageIndex 2 KillCredit
                     }
@@ -639,14 +641,14 @@ struct npc_malfurion_stormrage_103875 : public ScriptedAI
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_TO_THE_DREAMGROVE)
             if (Creature* keeper_remulos = me->FindNearestCreature(NPC_KEEPER_REMULOS_101065, 25.0f, true))
                 keeper_remulos->AI()->Talk(0);
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) 
     {
         if (quest->GetQuestId() == QUEST_THE_DREAMWAY)
             player->RemoveAurasDueToSpell(SPELL_ASSIGN_DRUID_SPELL_BAR);
@@ -668,7 +670,7 @@ struct npc_generic_bunny_quest_to_the_dreamgrove_59115 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (player->HasQuest(QUEST_TO_THE_DREAMGROVE))
+      //  if (player->HasQuest(QUEST_TO_THE_DREAMGROVE))
         {
             player->CastSpell(player, 200083, true);
             player->TeleportTo(1540, 1508.42f, 1650.51f, 31.54f, 5.910209f);
@@ -691,22 +693,22 @@ public:
     quest_to_the_dreamgrove() : PlayerScript("quest_to_the_dreamgrove") {}
 
     void OnMapChanged(Player* player) override {
-        if (player->HasQuest(QUEST_TO_THE_DREAMGROVE) && player->GetMapId() == 1540)
+      //  if (player->HasQuest(QUEST_TO_THE_DREAMGROVE) && player->GetMapId() == 1540)
         {
             PhasingHandler::AddPhase(player, 6122, true);
             ///summon keeper_remulos_103489
-            if (!player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 4))
+        //    if (!player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 4))
             {
                 player->CastSpell(player, 204836, true);
                 PhasingHandler::AddPhase(player, 6122, true);
             }
-            else if (!player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3))
+        //    else if (!player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3))
             {
                 PhasingHandler::AddPhase(player, 5953, true);
                 PhasingHandler::AddPhase(player, 6122, true);
             }
 
-            if (player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3) || player->GetQuestStatus(QUEST_TO_THE_DREAMGROVE) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_TO_THE_DREAMGROVE) == QUEST_STATUS_REWARDED)
+          //  if (player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3) || player->GetQuestStatus(QUEST_TO_THE_DREAMGROVE) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_TO_THE_DREAMGROVE) == QUEST_STATUS_REWARDED)
             {
                 PhasingHandler::RemovePhase(player, 6122, true);
             }
@@ -748,7 +750,7 @@ struct npc_keeper_remulos_103489 : public ScriptedAI
                 //PhasingHandler::RemovePhase(player, 5954, true);
             }
         case 4:
-            me->DespawnOrUnsummon(2000);
+            me->DespawnOrUnsummon(2000s);
             break;
         default:
             break;
@@ -772,7 +774,7 @@ struct npc_keeper_remulos_103489 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!SayFirst && (player->HasQuest(QUEST_TO_THE_DREAMGROVE)))// to do
+       // if (!SayFirst && (player->HasQuest(QUEST_TO_THE_DREAMGROVE)))// to do
         {
             player->KilledMonsterCredit(73451);
             m_playerGUID = player->GetGUID();
@@ -858,7 +860,7 @@ struct npc_keeper_remulos_103488 : public ScriptedAI
             });
             _scheduler.Schedule(Milliseconds(30000), [this](TaskContext context)
             {
-                me->DespawnOrUnsummon(1000);
+                me->DespawnOrUnsummon(1000s);
             });
             break;
         }
@@ -874,9 +876,9 @@ struct npc_keeper_remulos_103488 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!action && player->HasQuest(QUEST_TO_THE_DREAMGROVE))
+      //  if (!action && player->HasQuest(QUEST_TO_THE_DREAMGROVE))
         {
-            if (!player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3))
+        //    if (!player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3))
             {
                 action = true;
                 DoAction(ACTION_1);
@@ -885,7 +887,7 @@ struct npc_keeper_remulos_103488 : public ScriptedAI
                     DoAction(ACTION_2);
                 });
             }
-            if (player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3))
+         //   if (player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 3))
             {
                 PhasingHandler::RemovePhase(player, 6122, true);
                 action = true;
@@ -921,7 +923,7 @@ struct npc_nightmare_blight_103246 : public ScriptedAI
             killer->ToPlayer()->KilledMonsterCredit(me->GetEntry());
             PhasingHandler::AddPhase(killer, 5954, true);
             PhasingHandler::RemovePhase(killer, 5953, true);
-            killer->ToPlayer()->SummonCreature(NPC_KEEPER_REMULOS_103488, Position(1720.639f, 1347.214f, 2.08268f, 4.830286f), TEMPSUMMON_TIMED_DESPAWN, 60000, 0, true);
+          //  killer->ToPlayer()->SummonCreature(NPC_KEEPER_REMULOS_103488, Position(1720.639f, 1347.214f, 2.08268f, 4.830286f), TEMPSUMMON_TIMED_DESPAWN, 60000, 0, true);
 
             //PhasingHandler::RemovePhase(killer, 6122, true);
         }
@@ -1124,34 +1126,34 @@ struct npc_rensar_greathoof_101195 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->GetQuestStatus(QUEST_TO_THE_DREAMGROVE) == QUEST_STATUS_INCOMPLETE && !player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 2))
+            //    if (!IsLock && player->GetQuestStatus(QUEST_TO_THE_DREAMGROVE) == QUEST_STATUS_INCOMPLETE && !player->GetQuestObjectiveData(QUEST_TO_THE_DREAMGROVE, 2))
                 {
-                    IsLock = true;
+                //    IsLock = true;
                     if (Creature* remulos = me->FindNearestCreature(NPC_KEEPER_REMULOS_103832, 15.0f))
                     {
                         remulos->Say(103622, me);
-                        me->GetScheduler().Schedule(5s, [this, remulos](TaskContext context)
+              //          me->GetScheduler().Schedule(5s, [this, remulos](TaskContext context)
                         {
                             me->Say("Ishnu-alah, son of Cenarius. I'm well aware of what brings you. I've heard the screams of the land as it is defiled by the Legion.", LANG_UNIVERSAL, remulos);
-                        });
-                        me->GetScheduler().Schedule(10s, [this, remulos](TaskContext context)
+                        };
+                      //  me->GetScheduler().Schedule(10s, [this, remulos](TaskContext context)
                         {
                             remulos->Say("We must act swiftly and prepare the weapons of old for war once again.", LANG_UNIVERSAL, me);
-                        });
-                        me->GetScheduler().Schedule(15s, [this, remulos](TaskContext context)
+                        };
+                      //  me->GetScheduler().Schedule(15s, [this, remulos](TaskContext context)
                         {
                             me->Say("The weapons of the first druids can surely turn the tide in our favor, but is there anyone with the strength to wield them?", LANG_UNIVERSAL, remulos);
-                        });
-                        me->GetScheduler().Schedule(20s, [this, remulos, player](TaskContext context)
+                        };
+                      //  me->GetScheduler().Schedule(20s, [this, remulos, player](TaskContext context)
                         {
                             remulos->Say(103626, player);
-                        });
-                        me->GetScheduler().Schedule(25s, [this, remulos, player](TaskContext context)
+                        };
+                       // me->GetScheduler().Schedule(25s, [this, remulos, player](TaskContext context)
                         {
                             me->Say("Very well, your task will not be easy but I shall do all that I can to aid you.", LANG_UNIVERSAL, player);
                             player->KilledMonsterCredit(101246);
-                            IsLock = false;
-                        });
+                         //   IsLock = false;
+                        };
                         ///Ishnu-alah, son of Cenarius. I'm well aware of what brings you. I've heard the screams of the land as it is defiled by the Legion.
                         ///We must act swiftly and prepare the weapons of old for war once again.
                         ///The weapons of the first druids can surely turn the tide in our favor, but is there anyone with the strength to wield them?
@@ -1159,54 +1161,54 @@ struct npc_rensar_greathoof_101195 : public ScriptedAI
                         ///Very well, your task will not be easy but I shall do all that I can to aid you.
                     }
                 }
-                if (!IsLock && player->GetQuestStatus(QUEST_RECONVENE) == QUEST_STATUS_COMPLETE)
+               // if (!IsLock && player->GetQuestStatus(QUEST_RECONVENE) == QUEST_STATUS_COMPLETE)
                 {
-                    IsLock = true;
+                   // IsLock = true;
                     if (Creature* remulos = me->FindNearestCreature(NPC_KEEPER_REMULOS_103832, 15.0f))
                     {
                         me->Say("g'hanir will not last much longer.It must be cleansed.", LANG_UNIVERSAL, remulos);
-                        me->GetScheduler().Schedule(4s, [remulos, player](TaskContext context)
+                 //       me->GetScheduler().Schedule(4s, [remulos, player](TaskContext context)
                         {
                             remulos->Say("We must aid Bashana in clearing out the remaining nightmare here. G'Hanir's fate rests with Lyessa and $n.", LANG_UNIVERSAL, player);
-                        });
+                        };
                     }
-                    SetUnlock(120000);
+                   // SetUnlock(120000);
                 }
             }
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_WEAPONS_OF_LEGEND || quest->GetQuestId() == QUEST_ANOTHER_WEAPON_OF_OLD || quest->GetQuestId() == QUEST_MORE_WEAPONS_OF_OLD || quest->GetQuestId() == QUEST_WEAPONS_OF_THE_ANCIENTS)
         {
-            me->GetScheduler().Schedule(2s, [player](TaskContext context)
+           // me->GetScheduler().Schedule(2s, [player](TaskContext context)
             {
                 player->CastSpell(player, SPELL_WEAPONS_OF_LEGEND_PLAYER_CHOICE, true);
-            });
+            };
         }
         if (quest->GetQuestId() == QUEST_SOWING_THE_SEED)
             Talk(1);
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) 
     {
         ///https://www.wowhead.com/achievement=11063/hidden-tracking-1-acquision-line-completed
         ///https://www.wowhead.com/achievement=11174/hidden-tracking-2-acquision-line-completed
         if (quest->GetQuestId() == 40900 || quest->GetQuestId() == 41918 || quest->GetQuestId() == 42430 || quest->GetQuestId() == 40647 || quest->GetQuestId() == 41689)
         {
             if (!player->HasAchieved(11063))
-                player->CompletedAchievement(11063);
-            else if (!player->HasAchieved(11174))
-                player->CompletedAchievement(11174);
+            //    player->CompletedAchievement(11063);
+           // else if (!player->HasAchieved(11174))
+             //   player->CompletedAchievement(11174);
             if (player->GetQuestStatus(QUEST_SOWING_THE_SEED) == QUEST_STATE_NONE)
                 if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_SOWING_THE_SEED))
                     player->AddQuest(quest, me);
         }
         if (quest->GetQuestId() == 43409)
         {
-            player->CompletedAchievement(10994);
-            player->CompletedAchievement(10746);
+           // player->CompletedAchievement(10994);
+           // player->CompletedAchievement(10746);
         }
     }
     /*
@@ -1256,17 +1258,17 @@ public:
 
     void OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId)
     {
-        if (player->getClass() != CLASS_DRUID)
+       // if (player->getClass() != CLASS_DRUID)
             return;
         if (choiceId != PLAYER_CHOICE_DRUID_SELECTION)
             return;
 
         TC_LOG_DEBUG("server.worldserver", "druid_playerchoice %u, %u", choiceId, responseId);
-        if (player->HasQuest(QUEST_WEAPONS_OF_LEGEND))
+       // if (player->HasQuest(QUEST_WEAPONS_OF_LEGEND))
             player->KilledMonsterCredit(101296);
-        if (player->HasQuest(QUEST_ANOTHER_WEAPON_OF_OLD))
+        //if (player->HasQuest(QUEST_ANOTHER_WEAPON_OF_OLD))
             player->KilledMonsterCredit(112077);
-        if (player->HasQuest(QUEST_MORE_WEAPONS_OF_OLD) || player->HasQuest(QUEST_WEAPONS_OF_THE_ANCIENTS))
+       // if (player->HasQuest(QUEST_MORE_WEAPONS_OF_OLD) || player->HasQuest(QUEST_WEAPONS_OF_THE_ANCIENTS))
             player->KilledMonsterCredit(113814);
         switch (responseId)
         {
@@ -1277,10 +1279,10 @@ public:
                     naralex->Say(106125, player);
                     if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_THE_SCYTHE_OF_ELUNE))
                         player->AddQuest(quest, naralex);
-                    naralex->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
+               //     naralex->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
                     {
-                        GetContextCreature()->Say(106128, player);
-                    });
+                 //       GetContextCreature()->Say(106128, player);
+                    };
                 }
             break;
         case PLAYER_CHOICE_DRUID_FERAL:
@@ -1308,15 +1310,15 @@ public:
             bounty->SetGoState(GO_STATE_READY);//GO_STATE_ACTIVE  GO_STATE_ACTIVE_ALTERNATIVE GO_STATE_READY
             printf("FindNearestGameObjectOfType2\n");
 
-            bounty->loot.clear();
-            bounty->loot.FillLoot(153123, LootTemplates_Gameobject, player, true);
+           // bounty->loot.clear();
+           // bounty->loot.FillLoot(153123, LootTemplates_Gameobject, player, true);
 
         //    bounty->SetLootRecipient(player);
             bounty->SetLootState(LootState::GO_READY);// if ((GetGoState() != GO_STATE_READY && (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)) || state == GO_READY)
 
             bounty->setActive(true);
             //GO_FLAG_LOCKED
-            bounty->AddDynamicFlag(GO_DYNFLAG_LO_ACTIVATE);
+           // bounty->AddDynamicFlag(GO_DYNFLAG_LO_ACTIVATE);
             bounty->RemoveFlag(GO_FLAG_LOCKED);
             bounty->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
@@ -1374,13 +1376,13 @@ struct npc_keeper_remulos_103832 : public ScriptedAI
         _scheduler.Update(diff);
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         //if (quest->GetQuestId() == QUEST_WITNESS_TO_THE_WOUND)
        // {   }
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  
     {
         //if (quest->GetQuestId() == QUEST_WITNESS_TO_THE_WOUND)
         //{ }
@@ -1410,15 +1412,15 @@ struct npc_lea_stonepaw_101259 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!isSayHi && player->HasQuest(QUEST_MISTRESS_OF_THE_CLAW))
+        //if (!isSayHi && player->HasQuest(QUEST_MISTRESS_OF_THE_CLAW))
         {
             isSayHi = true;
             Talk(0);
-            player->ForceCompleteQuest(QUEST_MISTRESS_OF_THE_CLAW);
+          //  player->ForceCompleteQuest(QUEST_MISTRESS_OF_THE_CLAW);
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_TO_THE_HILLS)
             Talk(1);
@@ -1462,14 +1464,14 @@ struct npc_lea_stonepaw_104535 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (player->HasQuest(QUEST_TO_THE_HILLS) && !player->GetQuestObjectiveData(QUEST_TO_THE_HILLS, 2))
+      //  if (player->HasQuest(QUEST_TO_THE_HILLS) && !player->GetQuestObjectiveData(QUEST_TO_THE_HILLS, 2))
         {
             me->Say(106956, player);
             player->KilledMonsterCredit(104410);
         }
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) 
     {
         if (quest->GetQuestId() == QUEST_FALLEN_OFFERINGS)
         {
@@ -1496,7 +1498,7 @@ struct npc_lea_stonepaw_104535 : public ScriptedAI
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_WHEN_DREAMS_BECOME_NIGHTMARES)
         {
@@ -1535,18 +1537,18 @@ struct npc_ursol_104385 : public ScriptedAI
         case ACTION_TRIAL_OF_URSOL_1:
             killedCount = 0;
             restSummonCount = 1;
-            me->GetScheduler().Schedule(1s, 2s, [this](TaskContext context)
+           // me->GetScheduler().Schedule(1s, 2s, [this](TaskContext context)
             {
                 Position pos;
-                GetRandPosFromCenterInDist(me, 30.f, pos);
+             //   GetRandPosFromCenterInDist(me, 30.f, pos);
                 pos.m_positionZ = 127.383f;
                 if (TempSummon* temp = me->SummonCreature(NPC_ANCESTRAL_CHAMPION_104714, pos))
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
-                        temp->GetMotionMaster()->MovePoint(1, player->GetPosition(), true);
-                    temp->Say("That creature unworthy of you, great Ursol! I crush it in your name!", LANG_UNIVERSAL);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID));
+               //         temp->GetMotionMaster()->MovePoint(1, player->GetPosition(), true);
+                 //   temp->Say("That creature unworthy of you, great Ursol! I crush it in your name!", LANG_UNIVERSAL);
                 }
-            });
+            };
             break;
         case ACTION_TRIAL_OF_URSOL_KILL:
             ++killedCount;
@@ -1555,10 +1557,10 @@ struct npc_ursol_104385 : public ScriptedAI
                 if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
                 {
                     //player->KilledMonsterCredit(104714);
-                    if (player->HasQuest(QUEST_THE_SECOND_TRIAL_OF_URSOL))
+                   // if (player->HasQuest(QUEST_THE_SECOND_TRIAL_OF_URSOL))
                         player->KilledMonsterCredit(104545);
 
-                    if (player->HasQuest(QUEST_THE_THIRD_TRIAL_OF_URSOL))
+                   // if (player->HasQuest(QUEST_THE_THIRD_TRIAL_OF_URSOL))
                     {
                         me->Say(107516, player);
                         player->KilledMonsterCredit(104535);
@@ -1643,10 +1645,10 @@ struct npc_ursol_104385 : public ScriptedAI
             if (player->IsAlive())
             {
                 Position pos;
-                GetRandPosFromCenterInDist(me, 30.f, pos);
+              //  GetRandPosFromCenterInDist(me, 30.f, pos);
                 pos.m_positionZ = 127.383f;
-                if (TempSummon* temp = me->SummonCreature(creatureid, pos))
-                    temp->GetMotionMaster()->MovePoint(1, player->GetPosition(), true);
+                if (TempSummon* temp = me->SummonCreature(creatureid, pos));
+                //    temp->GetMotionMaster()->MovePoint(1, player->GetPosition(), true);
             }
             else
                 _scheduler.CancelAll();
@@ -1658,24 +1660,24 @@ struct npc_ursol_104385 : public ScriptedAI
         _scheduler.Update(diff);
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
-        if (player->HasQuest(QUEST_THE_FIRST_TRIAL_OF_URSOL))
+       // if (player->HasQuest(QUEST_THE_FIRST_TRIAL_OF_URSOL))
         {
             me->Say(107141, player);
             DoAction(ACTION_TRIAL_OF_URSOL_1);
         }
-        if (player->HasQuest(QUEST_THE_SECOND_TRIAL_OF_URSOL))
+       // if (player->HasQuest(QUEST_THE_SECOND_TRIAL_OF_URSOL))
         {
             me->Say(107154, player);
             DoAction(ACTION_TRIAL_OF_URSOL_2);
         }
-        if (player->HasQuest(QUEST_THE_THIRD_TRIAL_OF_URSOL))
+       // if (player->HasQuest(QUEST_THE_THIRD_TRIAL_OF_URSOL))
             me->Say(107508, player);
 
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  
     {
         if (quest->GetQuestId() == QUEST_THE_SECOND_TRIAL_OF_URSOL)
         {
@@ -1703,7 +1705,7 @@ struct npc_ursol_104385 : public ScriptedAI
     void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
         CloseGossipMenuFor(player);
-        if (player->HasQuest(QUEST_THE_THIRD_TRIAL_OF_URSOL))
+      //  if (player->HasQuest(QUEST_THE_THIRD_TRIAL_OF_URSOL))
         {
             player->KilledMonsterCredit(104981);
             me->Say(107156, player);
@@ -1731,9 +1733,9 @@ struct npc_ancestral_champion_104714 : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* attacker, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(10, damage))
+       // if (me->HealthWillBeBelowPctDamaged(10, damage))
         {
             Player* player = attacker->GetCharmerOrOwnerPlayerOrPlayerItself();
             me->Yell(107150, player);
@@ -1748,7 +1750,7 @@ struct npc_ancestral_champion_104714 : public ScriptedAI
     {
         Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself();
         player->KilledMonsterCredit(me->GetEntry());
-        me->DespawnOrUnsummon(1000);
+        me->DespawnOrUnsummon(1000s);
     }
 
     void MoveInLineOfSight(Unit* who) override
@@ -1863,7 +1865,7 @@ public:
         if (spell->GetSpellInfo()->Id == 206807)
         {
             player->CastSpell(player, SPELL_FADE, true);
-            player->AddDelayedTeleport(2000, 1536, -12408.0f, -12955.2f, 320.26f, 4.427202f);
+          //  player->AddDelayedTeleport(2000, 1536, -12408.0f, -12955.2f, 320.26f, 4.427202f);
         }
     }
 };
@@ -1883,7 +1885,7 @@ struct npc_generic_bunny_103560 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (player->HasQuest(QUEST_CLEANSING_THE_MOTHER_TREE))
+      //  if (player->HasQuest(QUEST_CLEANSING_THE_MOTHER_TREE))
             player->KilledMonsterCredit(104608);
         player->TeleportTo(1540, 1756.753174f, 1509.99231f, 6.278654f, 2.640337f);
     }
@@ -1899,32 +1901,32 @@ struct npc_mylune_113525 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_MEET_WITH_MYLUNE) && player->GetQuestStatus(QUEST_MEET_WITH_MYLUNE) == QUEST_STATUS_INCOMPLETE)
+             //   if (!IsLock && player->HasQuest(QUEST_MEET_WITH_MYLUNE) && player->GetQuestStatus(QUEST_MEET_WITH_MYLUNE) == QUEST_STATUS_INCOMPLETE)
                 {
-                    IsLock = true;
+                   // IsLock = true;
                     me->Say("Oh, frends. I don't know what to do!", LANG_UNIVERSAL, player);
-                    player->ForceCompleteQuest(QUEST_MEET_WITH_MYLUNE);
+               //     player->ForceCompleteQuest(QUEST_MEET_WITH_MYLUNE);
                 }
-                if (!IsLock && player->HasQuest(QUEST_NECESSARY_PREPARATIONS) && player->GetQuestStatus(QUEST_NECESSARY_PREPARATIONS) == QUEST_STATUS_COMPLETE)
+               // if (!IsLock && player->HasQuest(QUEST_NECESSARY_PREPARATIONS) && player->GetQuestStatus(QUEST_NECESSARY_PREPARATIONS) == QUEST_STATUS_COMPLETE)
                 {
-                    IsLock = true;
+                   // IsLock = true;
                     me->Say("Don't worry - $n is going to fix this, just you wait!", LANG_UNIVERSAL, player);
-                    SetUnlock(120000);
+                 //   SetUnlock(120000);
                 }
             }
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_NECESSARY_PREPARATIONS)
         {
-            IsLock = false;
+         //   IsLock = false;
             Talk(0, player);
-            me->GetScheduler().Schedule(Milliseconds(1000), [player](TaskContext context)
+           // me->GetScheduler().Schedule(Milliseconds(1000), [player](TaskContext context)
             {
-                GetContextCreature()->AI()->Talk(1, player);
-            });
+             //   GetContextCreature()->AI()->Talk(1, player);
+            };
         }
 
         if (quest->GetQuestId() == QUEST_NECESSARY_PREPARATIONS)
@@ -1957,7 +1959,7 @@ struct npc_leafbeard_the_storied_97989 : public ScriptedAI
         else
         {
             CloseGossipMenuFor(player);
-            player->GetGarrisonOpenTalentNpc(me->GetGUID());
+           // player->GetGarrisonOpenTalentNpc(me->GetGUID());
           //  if (Garrison* garrison = player->GetGarrison(GarrisonType::GARRISON_TYPE_CLASS_HALL))
             //    garrison->StartClassHallUpgrade(347);
 
@@ -1974,11 +1976,11 @@ struct npc_leafbeard_the_storied_97989 : public ScriptedAI
     void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
         CloseGossipMenuFor(player);
-        if (player->HasQuest(QUEST_NECESSARY_PREPARATIONS) && !Intr)
+      //  if (player->HasQuest(QUEST_NECESSARY_PREPARATIONS) && !Intr)
         {
             Intr = true;
         }
-        else if (player->HasQuest(QUEST_NECESSARY_PREPARATIONS) && Intr)
+       // else if (player->HasQuest(QUEST_NECESSARY_PREPARATIONS) && Intr)
         {
             Talk(0);
             me->CastSpell(player, 206492, true);
@@ -1994,11 +1996,11 @@ struct npc_naralex_104349 : public ScriptedAI
 {
     npc_naralex_104349(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_IN_DEEP_SLUMBER)
         {
-            IsLock = false;
+          //  IsLock = false;
             me->Say("You still have the moonwater, yes? Good, good, then you are ready.", LANG_UNIVERSAL, player);
         }
         if (quest->GetQuestId() == QUEST_RECONVENE)
@@ -2013,22 +2015,22 @@ struct npc_naralex_104349 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_JOIN_THE_DREAMER))
+              //  if (!IsLock && player->HasQuest(QUEST_JOIN_THE_DREAMER))
                 {
-                    IsLock = true;
+                   // IsLock = true;
                     Talk(0);
-                    player->ForceCompleteQuest(QUEST_JOIN_THE_DREAMER);
-                    SetUnlock(120000);
+                //    player->ForceCompleteQuest(QUEST_JOIN_THE_DREAMER);
+                  //  SetUnlock(120000);
                 }
-                if (!IsLock && player->HasQuest(QUEST_IN_DEEP_SLUMBER) && (player->GetQuestStatus(QUEST_IN_DEEP_SLUMBER) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_IN_DEEP_SLUMBER) == QUEST_STATUS_REWARDED))
+               // if (!IsLock && player->HasQuest(QUEST_IN_DEEP_SLUMBER) && (player->GetQuestStatus(QUEST_IN_DEEP_SLUMBER) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_IN_DEEP_SLUMBER) == QUEST_STATUS_REWARDED))
                 {
-                    IsLock = true;
+                 //   IsLock = true;
                     me->Say("By the Ancients. you have it! You have G'Hanir!", LANG_UNIVERSAL, player);
                     player->RemoveAurasDueToSpell(206552);
                     player->RemoveAurasDueToSpell(206553);
                     player->RemoveAurasDueToSpell(206571);
                     player->RemoveAurasDueToSpell(206566);
-                    SetUnlock(120000);
+                   // SetUnlock(120000);
                 }
             }
         }
@@ -2044,7 +2046,7 @@ public:
     {
         if (spell->GetSpellInfo()->Id == 206548)
         {
-            if (player->HasQuest(QUEST_IN_DEEP_SLUMBER))
+          //  if (player->HasQuest(QUEST_IN_DEEP_SLUMBER))
             {
                 if (Creature* npc = player->FindNearestCreature(NPC_NARALEX_104349, 25.0f, true))
                     npc->AI()->Talk(1);
@@ -2077,10 +2079,10 @@ struct npc_bashana_runetotem_104398 : public ScriptedAI
         {
             IsHaveAura = false;
             Talk(0);
-            me->GetScheduler().Schedule(Milliseconds(1000), [](TaskContext context)
+         //   me->GetScheduler().Schedule(Milliseconds(1000), [](TaskContext context)
             {
-                GetContextCreature()->AI()->Talk(1);
-            });
+           //     GetContextCreature()->AI()->Talk(1);
+            };
         }
     }
 
@@ -2099,7 +2101,7 @@ struct npc_bashana_runetotem_104398 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!IsYellHelp && player->HasQuest(QUEST_IN_DEEP_SLUMBER))
+       // if (!IsYellHelp && player->HasQuest(QUEST_IN_DEEP_SLUMBER))
         {
             IsYellHelp = true;
             me->Yell("Anyone...someone! I can't escape these roots!", LANG_UNIVERSAL, player);
@@ -2121,11 +2123,11 @@ struct npc_lyessa_bloomwatcher_104573 : public ScriptedAI
         case 1:
             isComplete = true;
             Talk(0);
-            me->GetScheduler().Schedule(Milliseconds(2000), [](TaskContext context)
+         //   me->GetScheduler().Schedule(Milliseconds(2000), [](TaskContext context)
             {
-                GetContextCreature()->AI()->Talk(1);
+           //     GetContextCreature()->AI()->Talk(1);
                 //GetContextCreature()->CastSpell(GetContextCreature(), 206863, true);
-            });
+            };
             break;
         }
     }
@@ -2149,7 +2151,7 @@ struct npc_lyessa_bloomwatcher_104573 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (player->HasQuest(QUEST_IN_DEEP_SLUMBER))
+      //  if (player->HasQuest(QUEST_IN_DEEP_SLUMBER))
         {
 
             player->KilledMonsterCredit(me->GetEntry());
@@ -2178,10 +2180,10 @@ public:
             if (Player* player = unit->ToPlayer())
             {
                 player->KilledMonsterCredit(113098);
-                go->GetScheduler().Schedule(Milliseconds(5000), [player](TaskContext context)
+              //  go->GetScheduler().Schedule(Milliseconds(5000), [player](TaskContext context)
                 {
-                    player->TeleportTo(1220, Position(4299.72f, 7422.46f, -17.13f, 2.535614f));
-                });
+                //    player->TeleportTo(1220, Position(4299.72f, 7422.46f, -17.13f, 2.535614f));
+                };
             }
 
         }
@@ -2193,15 +2195,15 @@ struct npc_lyessa_bloomwatcher_104577 : public ScriptedAI
 {
     npc_lyessa_bloomwatcher_104577(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_CLEANSING_THE_MOTHER_TREE)
         {
             Talk(0);
-            me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
+           // me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
             {
                 me->Say(107059, player);
-            });
+            };
         }
     }
 };
@@ -2228,54 +2230,54 @@ struct npc_delandros_shimmermoon_107392 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!issay && player->HasQuest(QUEST_THE_SHRINE_OF_ASHAMANE))
+       // if (!issay && player->HasQuest(QUEST_THE_SHRINE_OF_ASHAMANE))
         {
             issay = true;
             if (Creature* verstok = me->FindNearestCreature(NPC_VERSTOK_DARKBOUGH_107520, 15.0f, true))
             {
                 verstok->Say(111906, me);
 
-                me->GetScheduler().Schedule(Milliseconds(2000), [verstok](TaskContext context)
+         //       me->GetScheduler().Schedule(Milliseconds(2000), [verstok](TaskContext context)
                 {
-                    GetContextCreature()->Say(111926, verstok);
-                });
+           //         GetContextCreature()->Say(111926, verstok);
+                };
 
-                verstok->GetScheduler().Schedule(Milliseconds(4000), [this](TaskContext context)
+            //    verstok->GetScheduler().Schedule(Milliseconds(4000), [this](TaskContext context)
                 {
-                    GetContextCreature()->Say(112269, me);
-                });
+              //      GetContextCreature()->Say(112269, me);
+                };
             }
 
-            me->GetScheduler().Schedule(Milliseconds(30000), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(30000), [this](TaskContext context)
             {
                 issay = false;
-            });
+            };
         }
 
         if (!issay && player->GetQuestStatus(QUEST_THE_SHRINE_IN_PERIL) == QUEST_STATUS_COMPLETE)
         {
             issay = true;
             Talk(1);
-            me->GetScheduler().Schedule(Milliseconds(3000), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(3000), [this](TaskContext context)
             {
                 Talk(2);
-            });
-            me->GetScheduler().Schedule(Milliseconds(30000), [this](TaskContext context)
+            };
+          //  me->GetScheduler().Schedule(Milliseconds(30000), [this](TaskContext context)
             {
                 issay = false;
-            });
+            };
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_THE_SHRINE_IN_PERIL)
         {
             player->GetSceneMgr().PlayScene(1285);
-            me->GetScheduler().Schedule(Milliseconds(4000), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Milliseconds(4000), [this](TaskContext context)
             {
                 Talk(0);
-            });
+            };
         }
 
     }
@@ -2306,20 +2308,20 @@ struct npc_eredar_soul_lasher_107535 : public ScriptedAI
             me->CastSpell(druid, SPELL_TORMENT_1, true);
     }
 
-    void EnterCombat(Unit*) override
+    void EnterCombat(Unit*) 
     {
-        me->GetScheduler().Schedule(Milliseconds(2500), [this](TaskContext context)
+       // me->GetScheduler().Schedule(Milliseconds(2500), [this](TaskContext context)
         {
             me->CastSpell(me->GetVictim(), SPELL_LASH_OF_PAIN, true);
 
-            context.Repeat(Milliseconds(3000));
-        });
+         //   context.Repeat(Milliseconds(3000));
+        };
 
-        me->GetScheduler().Schedule(Seconds(5), [this](TaskContext context)
+       // me->GetScheduler().Schedule(Seconds(5), [this](TaskContext context)
         {
             me->CastSpell(me->GetVictim(), SPELL_CURSE_OF_TORMENT, true);
-            context.Repeat(Seconds(15));
-        });
+         //   context.Repeat(Seconds(15));
+        };
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -2328,7 +2330,7 @@ struct npc_eredar_soul_lasher_107535 : public ScriptedAI
         {
             druid->RemoveAura(SPELL_TORMENT_2);
             druid->AI()->Talk(urand(0, 2));
-            druid->GetMotionMaster()->MoveAwayAndDespawn(10.0f, 2000);
+            druid->GetMotionMaster();// ->MoveAwayAndDespawn(10.0f, 2000);
         }
     }
 };
@@ -2341,7 +2343,7 @@ struct npc_investigate_shrine_kill_credit_107607 : public ScriptedAI
     {
         if (Player* player = who->ToPlayer())
             if (player->GetDistance(me) < 5.0f)
-                if (!player->GetQuestObjectiveData(QUEST_THE_SHRINE_IN_PERIL, 0))
+             //   if (!player->GetQuestObjectiveData(QUEST_THE_SHRINE_IN_PERIL, 0))
                 {
                     player->KilledMonsterCredit(me->GetEntry());
                     player->GetSceneMgr().PlayScene(1286);
@@ -2358,21 +2360,21 @@ public:
     void OnSceneEnd(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/)
     {
         TempSummon* algromon = player->SummonCreature(NPC_ALGROMON_107593, Position(3531.1899f, 5538.5698f, 323.411f, 3.1076f));
-        algromon->RemoveAura(213626);
+     //   algromon->RemoveAura(213626);
 
         Position pos;
-        GetRandPosFromCenterInDist(algromon, 5.0f, pos);
+       // GetRandPosFromCenterInDist(algromon, 5.0f, pos);
 
-        TempSummon* ashendruid1 = algromon->SummonCreature(107390, Position(3486.39917f, 5544.291f, 323.558136f, 6.208363f));
-        ashendruid1->AI()->Talk(0);
-        ashendruid1->GetMotionMaster()->MovePoint(1, pos, true);
-        ashendruid1->Attack(algromon, true);
-        GetRandPosFromCenterInDist(algromon, 10.f, pos);
-        TempSummon* ashendruid2 = algromon->SummonCreature(107390, Position(3486.743652f, 5537.70459f, 323.189392f, 6.208362f));
-        ashendruid2->GetMotionMaster()->MovePoint(1, pos, true);
-        ashendruid2->Attack(algromon, true);
+       // TempSummon* ashendruid1 = algromon->SummonCreature(107390, Position(3486.39917f, 5544.291f, 323.558136f, 6.208363f));
+      //  ashendruid1->AI()->Talk(0);
+       // ashendruid1->GetMotionMaster()->MovePoint(1, pos, true);
+       // ashendruid1->Attack(algromon, true);
+       // GetRandPosFromCenterInDist(algromon, 10.f, pos);
+       // TempSummon* ashendruid2 = algromon->SummonCreature(107390, Position(3486.743652f, 5537.70459f, 323.189392f, 6.208362f));
+       // ashendruid2->GetMotionMaster()->MovePoint(1, pos, true);
+       // ashendruid2->Attack(algromon, true);
 
-        algromon->Attack(ashendruid1, true);
+       // algromon->Attack(ashendruid1, true);
     }
 };
 
@@ -2441,10 +2443,10 @@ struct npc_ebonfang_107729 : public ScriptedAI
     void OnSpellClick(Unit* clicker, bool& /*result*/)
     {
         if (Player* player = clicker->ToPlayer())
-            if (player->HasQuest(42430))
+         //   if (player->HasQuest(42430))
             {
                 player->KilledMonsterCredit(me->GetEntry());
-                player->TeleportTo(1612, Position(1940.97f, 5558.38f, 60.66f, 4.746947f));
+           //     player->TeleportTo(1612, Position(1940.97f, 5558.38f, 60.66f, 4.746947f));
             }
     }
 };
@@ -2453,15 +2455,15 @@ struct npc_naralex_103778 : public ScriptedAI
 {
     npc_naralex_103778(Creature* creature) : ScriptedAI(creature) {}
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_THE_SCYTHE_OF_ELUNE)
         {
             me->Say(106125, player);
-            me->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
+         //   me->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
             {
-                GetContextCreature()->Say(106128, player);
-            });
+           //     GetContextCreature()->Say(106128, player);
+            };
         }
     }
 };
@@ -2485,47 +2487,47 @@ struct npc_valorn_stillbough_101656 : public ScriptedAI
         case ACTION_QUEST_ITS_RIGHTFUL_PLACE:
             if (Player* player = ObjectAccessor::GetPlayer(*me, m_playerGUID))
             {
-                if (!issay && !player->GetQuestObjectiveData(QUEST_ITS_RIGHTFUL_PLACE, 0))
+              //  if (!issay && !player->GetQuestObjectiveData(QUEST_ITS_RIGHTFUL_PLACE, 0))
                 {
                     issay = true;
-                    PhasingHandler::RemovePhase(player, QUEST_THE_SCYTHE_OF_ELUNE_PHASE);
-                    PhasingHandler::AddPhase(player, QUEST_ITS_RIGHTFUL_PLACE_PHASE_1);
+                //    PhasingHandler::RemovePhase(player, QUEST_THE_SCYTHE_OF_ELUNE_PHASE);
+                 //   PhasingHandler::AddPhase(player, QUEST_ITS_RIGHTFUL_PLACE_PHASE_1);
                     //summon 101657
                     TempSummon* ariden = player->SummonCreature(107390, Position(-10330.9f, -488.30899f, 50.445f, 2.81726f));
-                    PhasingHandler::InheritPhaseShift(ariden, player);
+                   // PhasingHandler::InheritPhaseShift(ariden, player);
                     //cast something
-                    ariden->Yell(104055);
+                    //ariden->Yell(104055);
 
                     player->KilledMonsterCredit(101702);
                     if (Creature* belysra = me->FindNearestCreature(101651, 15.0f, true))
                     {
                         belysra->Yell(104056);
 
-                        belysra->GetScheduler().Schedule(Milliseconds(2000), [belysra](TaskContext context)
+                     //   belysra->GetScheduler().Schedule(Milliseconds(2000), [belysra](TaskContext context)
                         {
                             belysra->Say(104059);
-                        });
+                        };
                     }
 
-                    me->GetScheduler().Schedule(Milliseconds(3000), [player, ariden](TaskContext context)
+                  //  me->GetScheduler().Schedule(Milliseconds(3000), [player, ariden](TaskContext context)
                     {
-                        PhasingHandler::AddPhase(player, QUEST_ITS_RIGHTFUL_PLACE_PHASE_2);
-                        PhasingHandler::RemovePhase(player, QUEST_ITS_RIGHTFUL_PLACE_PHASE_1);
-                        PhasingHandler::InheritPhaseShift(ariden, player);
-                    });
+                    //    PhasingHandler::AddPhase(player, QUEST_ITS_RIGHTFUL_PLACE_PHASE_2);
+                     //   PhasingHandler::RemovePhase(player, QUEST_ITS_RIGHTFUL_PLACE_PHASE_1);
+                      //  PhasingHandler::InheritPhaseShift(ariden, player);
+                    };
 
-                    ariden->GetMotionMaster()->MoveAwayAndDespawn(50.0f, 5000);
-                    me->GetScheduler().Schedule(Milliseconds(4000), [this](TaskContext context)
+                 //   ariden->GetMotionMaster()->MoveAwayAndDespawn(50.0f, 5000);
+                  //  me->GetScheduler().Schedule(Milliseconds(4000), [this](TaskContext context)
                     {
                         issay = false;
-                    });
+                    };
                 }
             }
             break;
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         m_playerGUID = player->GetGUID();
         if (quest->GetQuestId() == QUEST_ITS_RIGHTFUL_PLACE)
@@ -2548,16 +2550,16 @@ struct npc_valorn_stillbough_101656 : public ScriptedAI
             return;
         m_playerGUID = player->GetGUID();
 
-        if (player->HasQuest(QUEST_THE_SCYTHE_OF_ELUNE) && player->GetQuestStatus(QUEST_THE_SCYTHE_OF_ELUNE) == QUEST_STATUS_INCOMPLETE && !player->GetQuestObjectiveData(QUEST_THE_SCYTHE_OF_ELUNE, 1))
+      //  if (player->HasQuest(QUEST_THE_SCYTHE_OF_ELUNE) && player->GetQuestStatus(QUEST_THE_SCYTHE_OF_ELUNE) == QUEST_STATUS_INCOMPLETE && !player->GetQuestObjectiveData(QUEST_THE_SCYTHE_OF_ELUNE, 1))
         {
             me->Say(104053);
             player->KilledMonsterCredit(101701);
-            me->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
+        //    me->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
             {
-                GetContextCreature()->Say(104054, player);
-            });
+          //      GetContextCreature()->Say(104054, player);
+            };
         }
-        if (player->HasQuest(QUEST_ITS_RIGHTFUL_PLACE) && player->GetQuestStatus(QUEST_ITS_RIGHTFUL_PLACE) == QUEST_STATUS_INCOMPLETE && !player->GetQuestObjectiveData(QUEST_ITS_RIGHTFUL_PLACE, 0))
+      //  if (player->HasQuest(QUEST_ITS_RIGHTFUL_PLACE) && player->GetQuestStatus(QUEST_ITS_RIGHTFUL_PLACE) == QUEST_STATUS_INCOMPLETE && !player->GetQuestObjectiveData(QUEST_ITS_RIGHTFUL_PLACE, 0))
             DoAction(ACTION_QUEST_ITS_RIGHTFUL_PLACE);
     }
 private:
@@ -2570,14 +2572,14 @@ struct npc_revil_kost_100323 : public ScriptedAI
 {
     npc_revil_kost_100323(Creature* creature) : ScriptedAI(creature) { Initialize(); }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_FOLLOWING_THE_CURSE || quest->GetQuestId() == 40588 || quest->GetQuestId() == 40931)
         {
-            Creature* revil = player->SummonCreature(100578, me->GetPosition());
-            PhasingHandler::InheritPhaseShift(revil, player);
-            revil->SetOwnerGUID(player->GetGUID());
-            revil->AI()->DoAction(1);
+        //    Creature* revil = player->SummonCreature(100578, me->GetPosition());
+          //  PhasingHandler::InheritPhaseShift(revil, player);
+          //  revil->SetOwnerGUID(player->GetGUID());
+          //  revil->AI()->DoAction(1);
             //revil->GetMotionMaster()->MovePoint(1, revil->GetPositionWithDistInFront(25.0f), true);
             //WP START
         }
@@ -2585,7 +2587,7 @@ struct npc_revil_kost_100323 : public ScriptedAI
     void Initialize()
     {
         m_playerGUID = ObjectGuid::Empty;
-        IsLock = false;
+      //  IsLock = false;
     }
 
     void MoveInLineOfSight(Unit* who) override
@@ -2597,9 +2599,9 @@ struct npc_revil_kost_100323 : public ScriptedAI
         if (!player)
             return;
         m_playerGUID = player->GetGUID();
-        if (!IsLock && player->HasQuest(QUEST_A_FOE_OF_THE_DARK))// druid 40834
+      //  if (!IsLock && player->HasQuest(QUEST_A_FOE_OF_THE_DARK))// druid 40834
         {
-            IsLock = true;
+           // IsLock = true;
           /*  _sceneHelper.Clear();
             _sceneHelper.SetDefaultActorGuid(me->GetGUID());
             _sceneHelper.SetDefaultPlayerGuid(player->GetGUID());
@@ -2608,11 +2610,11 @@ struct npc_revil_kost_100323 : public ScriptedAI
             _sceneHelper.AddSceneActionSay(104557, 5000);
             _sceneHelper.AddSceneActionKillCreditMonster(102291, 1, 500);
             _sceneHelper.Activate();*/
-            SetUnlock(30000);
+        //    SetUnlock(30000);
         }
-        if (!IsLock && player->HasQuest(40495))//QUEST_A_FOE_OF_THE_DARK SS 40588
+       // if (!IsLock && player->HasQuest(40495))//QUEST_A_FOE_OF_THE_DARK SS 40588
         {
-            IsLock = true;
+          //  IsLock = true;
           /*  _sceneHelper.Clear();
             _sceneHelper.SetDefaultActorGuid(me->GetGUID());
             _sceneHelper.SetDefaultPlayerGuid(player->GetGUID());
@@ -2623,11 +2625,11 @@ struct npc_revil_kost_100323 : public ScriptedAI
             _sceneHelper.AddSceneActionKillCreditMonster(100821, 1, 500);
             _sceneHelper.AddSceneActionKillCreditMonster(100368, 1, 500);
             _sceneHelper.Activate();*/
-            SetUnlock(30000);
+          //  SetUnlock(30000);
         }
-        if (!IsLock && player->HasQuest(40930))//QUEST_A_FOE_OF_THE_DARK DK 40931
+       // if (!IsLock && player->HasQuest(40930))//QUEST_A_FOE_OF_THE_DARK DK 40931
         {
-            IsLock = true;
+         //   IsLock = true;
           /*  _sceneHelper.Clear();
             _sceneHelper.SetDefaultActorGuid(me->GetGUID());
             _sceneHelper.SetDefaultPlayerGuid(player->GetGUID());
@@ -2638,7 +2640,7 @@ struct npc_revil_kost_100323 : public ScriptedAI
             _sceneHelper.AddSceneActionKillCreditMonster(100821, 1, 500);
             _sceneHelper.AddSceneActionKillCreditMonster(100368, 1, 500);
             _sceneHelper.Activate();*/
-            SetUnlock(30000);
+           // SetUnlock(30000);
         }
     }
 private:
@@ -2698,7 +2700,7 @@ struct npc_revil_kost_100729 : public ScriptedAI
 {
     npc_revil_kost_100729(Creature* creature) : ScriptedAI(creature) { Initialize(); }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_DISTURBING_THE_PAST)
         {
@@ -2711,14 +2713,14 @@ struct npc_revil_kost_100729 : public ScriptedAI
             player->KilledMonsterCredit(245789);
             player->KilledMonsterCredit(100732);
 
-            me->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(2000), [player](TaskContext context)
             {
-                GetContextCreature()->Say(103911, player);
-            });
+            //    GetContextCreature()->Say(103911, player);
+            };
         }
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  
     {
         if (quest->GetQuestId() == QUEST_DISTURBING_THE_PAST)
         {
@@ -2758,9 +2760,9 @@ struct npc_credit_worgen_chased : public ScriptedAI
             {
                 player->KilledMonsterCredit(me->GetEntry());
 
-                if (player->HasQuest(40611) && player->GetZoneId() == 41)
+              //  if (player->HasQuest(40611) && player->GetZoneId() == 41)
                     player->CastSpell(player, 198333, true);
-                else
+               // else
                     player->RemoveAurasDueToSpell(198333);
             }
         }
@@ -2771,7 +2773,7 @@ struct npc_revil_kost_100812 : public ScriptedAI
 {
     npc_revil_kost_100812(Creature* creature) : ScriptedAI(creature) { Initialize(); }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_THE_DARK_RIDERS || quest->GetQuestId() == 40623 || quest->GetQuestId() == 40934)
         {
@@ -2782,7 +2784,7 @@ struct npc_revil_kost_100812 : public ScriptedAI
             //tele to scenario
             //ScenarioID: 1014
             //.go -11018.37f -2002.739f 24.99422 1533
-            player->TeleportTo(1533, Position(-11018.37f, -2002.739f, 24.99422f, 1.369567f));
+          //  player->TeleportTo(1533, Position(-11018.37f, -2002.739f, 24.99422f, 1.369567f));
             ///https://cn.wowhead.com/spell=222599/revil-spawned
             ///https://cn.wowhead.com/spell=199631/ping-revil
             //PhasingHandler::AddPhase(player, 169);
@@ -2791,7 +2793,7 @@ struct npc_revil_kost_100812 : public ScriptedAI
     void Initialize()
     {
         m_playerGUID = ObjectGuid::Empty;
-        IsLock = false;
+       // IsLock = false;
     }
 
     void MoveInLineOfSight(Unit* who) override
@@ -2806,11 +2808,11 @@ struct npc_revil_kost_100812 : public ScriptedAI
         if (!player)
             return;
         m_playerGUID = player->GetGUID();
-        if (!IsLock && player->HasQuest(QUEST_THE_DEADWIND_HUNT) && player->GetQuestStatus(QUEST_THE_DEADWIND_HUNT) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(QUEST_THE_DEADWIND_HUNT) != QUEST_STATUS_REWARDED)
+      //  if (!IsLock && player->HasQuest(QUEST_THE_DEADWIND_HUNT) && player->GetQuestStatus(QUEST_THE_DEADWIND_HUNT) == QUEST_STATUS_COMPLETE && player->GetQuestStatus(QUEST_THE_DEADWIND_HUNT) != QUEST_STATUS_REWARDED)
         {
-            IsLock = true;
+        //    IsLock = true;
             me->Say(104436, player);
-            SetUnlock(15000);
+          //  SetUnlock(15000);
         }
     }
 private:
@@ -2824,7 +2826,7 @@ struct npc_rensar_greathoof_97923 : public ScriptedAI
     void MoveInLineOfSight(Unit* who) override
     {
         if (who->ToPlayer() && me->IsWithinDist(who, 25.0f, false))
-            if (who->ToPlayer()->HasQuest(QUEST_A_HEROS_WEAPON))
+         //   if (who->ToPlayer()->HasQuest(QUEST_A_HEROS_WEAPON))
             {
                 who->ToPlayer()->KilledMonsterCredit(113627);
                 who->ToPlayer()->KilledMonsterCredit(110366);
@@ -2872,7 +2874,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (Garrison* garrison = player->GetGarrison(GARRISON_TYPE_CLASS_HALL))
+      //  if (Garrison* garrison = player->GetGarrison(GARRISON_TYPE_CLASS_HALL))
         {
             switch (go->GetEntry())
             {
@@ -2885,11 +2887,11 @@ public:
             default:
                 break;
             }
-            std::list<GameObject*> golist = player->FindNearestGameObjects(go->GetEntry(), 15.f);
-            for (auto gos : golist)
+          //  std::list<GameObject*> golist = player->FindNearestGameObjects(go->GetEntry(), 15.f);
+          //  for (auto gos : golist)
             {
-                gos->DestroyForNearbyPlayers();
-                gos->AddObjectToRemoveList();
+              //  gos->DestroyForNearbyPlayers();
+                //gos->AddObjectToRemoveList();
             }
         }
 
@@ -2907,7 +2909,7 @@ public:
         player->KillCreditGO(245789);
         player->KilledMonsterCredit(100736);
         player->KilledMonsterCredit(100732);
-        if (player->HasQuest(40604) || player->HasQuest(40835) || player->HasQuest(40932))
+      //  if (player->HasQuest(40604) || player->HasQuest(40835) || player->HasQuest(40932))
             player->CastSpell(player, 198271, true);
         return false;
     }
@@ -2923,20 +2925,20 @@ struct npc_thisalee_crow_106299 : public ScriptedAI
 {
     npc_thisalee_crow_106299(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
-        if (quest->ID == QUEST_DEFENSE_OF_AVIANA)
-            player->ForceCompleteQuest(QUEST_DEFENSE_OF_AVIANA);
+       // if (quest->ID == QUEST_DEFENSE_OF_AVIANA)
+         //   player->ForceCompleteQuest(QUEST_DEFENSE_OF_AVIANA);
 
-        if (quest->ID == QUEST_YOU_CANT_TAKE_THE_SKY_FROM_ME)
+       // if (quest->ID == QUEST_YOU_CANT_TAKE_THE_SKY_FROM_ME)
         {
-            player->ForceCompleteQuest(QUEST_DEFENSE_OF_AVIANA);
+         //   player->ForceCompleteQuest(QUEST_DEFENSE_OF_AVIANA);
             player->AddItem(146798, 1);
             player->NearTeleportTo(4250.738f, 7523.942f, 78.70f, 2.23f, false);
-            player->GetScheduler().Schedule(1s, [this, player] (TaskContext context)
+           // player->GetScheduler().Schedule(1s, [this, player] (TaskContext context)
             {
-                player->GetSceneMgr().PlaySceneByPackageId(1821);
-            }); 
+               // player->GetSceneMgr().PlaySceneByPackageId(1821);
+            }; 
         }
     }
 };
@@ -2981,7 +2983,7 @@ void AddSC_class_hall_druid()
     new QuestInDeepSlumberUseItem();
     RegisterCreatureAI(npc_bashana_runetotem_104398);
     RegisterCreatureAI(npc_lyessa_bloomwatcher_104573);
-    new go_g_hanir();
+    //new go_g_hanir();
     RegisterCreatureAI(npc_lyessa_bloomwatcher_104577);
     RegisterCreatureAI(npc_delandros_shimmermoon_107392);
     RegisterCreatureAI(npc_eredar_soul_lasher_107535);
@@ -2999,7 +3001,7 @@ void AddSC_class_hall_druid()
     RegisterCreatureAI(npc_rensar_greathoof_97923);
     RegisterCreatureAI(npc_yaris_darkclaw_106442);
     RegisterCreatureAI(npc_sister_lilith_108393);
-    new go_dru_training_troops();
-    new go_fur_blanket_245788();
+  //  new go_dru_training_troops();
+    //new go_fur_blanket_245788();
     RegisterCreatureAI(npc_thisalee_crow_106299);
 }
