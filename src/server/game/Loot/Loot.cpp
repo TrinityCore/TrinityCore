@@ -71,7 +71,7 @@ LootItem::~LootItem() = default;
 bool LootItem::AllowedForPlayer(Player const* player, Loot const& loot) const
 {
     // DB conditions check
-    if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
+    if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
         return false;
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
