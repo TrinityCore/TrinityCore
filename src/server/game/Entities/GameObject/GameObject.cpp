@@ -995,7 +995,7 @@ void GameObject::Update(uint32 diff)
                     m_personalLoot.clear();
                     m_unique_users.clear();
                     m_usetimes = 0;
-                    AddToObjectUpdateIfNeeded();
+                    UpdateDynamicFlagsForNearbyPlayers();
                     break;
                 default:
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
@@ -1227,7 +1227,7 @@ void GameObject::Update(uint32 diff)
                         m_personalLoot.clear();
                         m_unique_users.clear();
                         m_usetimes = 0;
-                        AddToObjectUpdateIfNeeded();
+                        UpdateDynamicFlagsForNearbyPlayers();
                     }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
@@ -1314,7 +1314,7 @@ void GameObject::Update(uint32 diff)
                     // Start restock timer when the chest is fully looted
                     m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
                     SetLootState(GO_NOT_READY);
-                    AddToObjectUpdateIfNeeded();
+                    UpdateDynamicFlagsForNearbyPlayers();
                 }
                 else
                     SetLootState(GO_READY);
@@ -3902,12 +3902,10 @@ private:
     GameObject* _owner;
 };
 
-void GameObject::UpdateDynamicFlagsForNearbyPlayers() const
+void GameObject::UpdateDynamicFlagsForNearbyPlayers()
 {
-    ValuesUpdateForPlayerWithMaskSender sender(this);
-    sender.ObjectMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-    Trinity::MessageDistDeliverer<ValuesUpdateForPlayerWithMaskSender> deliverer(this, sender, GetVisibilityRange());
-    Cell::VisitWorldObjects(this, deliverer, GetVisibilityRange());
+    m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags);
+    AddToObjectUpdateIfNeeded();
 }
 
 void GameObject::HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const
