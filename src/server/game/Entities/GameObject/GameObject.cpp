@@ -2268,15 +2268,32 @@ void GameObject::Use(Unit* user)
             {
                 if (info->chest.chestPersonalLoot)
                 {
-                    Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
-                    m_personalLoot[player->GetGUID()].reset(loot);
+                    GameObjectTemplateAddon const* addon = GetTemplateAddon();
+                    if (info->chest.DungeonEncounter)
+                    {
+                        std::vector<Player*> tappers;
+                        for (ObjectGuid tapperGuid : GetTapList())
+                            if (Player* tapper = ObjectAccessor::GetPlayer(*this, tapperGuid))
+                                tappers.push_back(tapper);
 
-                    loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
-                    loot->FillLoot(info->chest.chestPersonalLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+                        if (tappers.empty())
+                            tappers.push_back(player);
 
-                    if (GetLootMode() > 0)
-                        if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
+                        m_personalLoot = GenerateDungeonEncounterPersonalLoot(info->chest.DungeonEncounter, info->chest.chestPersonalLoot,
+                            LootTemplates_Gameobject, LOOT_CHEST, this, addon ? addon->Mingold : 0, addon ? addon->Maxgold : 0,
+                            GetLootMode(), GetMap()->GetDifficultyLootItemContext(), tappers);
+                    }
+                    else
+                    {
+                        Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
+                        m_personalLoot[player->GetGUID()].reset(loot);
+
+                        loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
+                        loot->FillLoot(info->chest.chestPersonalLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+
+                        if (GetLootMode() > 0 && addon)
                             loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
+                    }
                 }
             }
 
