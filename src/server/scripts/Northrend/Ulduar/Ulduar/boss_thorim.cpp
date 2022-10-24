@@ -2116,7 +2116,7 @@ class condition_thorim_arena_leap : public ConditionScript
 
         bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo) override
         {
-            WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
+            WorldObject const* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
             InstanceScript* instance = target->GetInstanceScript();
 
             if (!instance)
