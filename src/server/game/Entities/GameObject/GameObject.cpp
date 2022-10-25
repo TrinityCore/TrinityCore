@@ -998,7 +998,7 @@ void GameObject::Update(uint32 diff)
                     m_personalLoot.clear();
                     m_unique_users.clear();
                     m_usetimes = 0;
-                    AddToObjectUpdateIfNeeded();
+                    UpdateDynamicFlagsForNearbyPlayers();
                     break;
                 default:
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
@@ -1230,7 +1230,7 @@ void GameObject::Update(uint32 diff)
                         m_personalLoot.clear();
                         m_unique_users.clear();
                         m_usetimes = 0;
-                        AddToObjectUpdateIfNeeded();
+                        UpdateDynamicFlagsForNearbyPlayers();
                     }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
@@ -1317,7 +1317,7 @@ void GameObject::Update(uint32 diff)
                     // Start restock timer when the chest is fully looted
                     m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
                     SetLootState(GO_NOT_READY);
-                    AddToObjectUpdateIfNeeded();
+                    UpdateDynamicFlagsForNearbyPlayers();
                 }
                 else
                     SetLootState(GO_READY);
@@ -2291,15 +2291,32 @@ void GameObject::Use(Unit* user)
             {
                 if (info->chest.chestPersonalLoot)
                 {
-                    Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
-                    m_personalLoot[player->GetGUID()].reset(loot);
+                    GameObjectTemplateAddon const* addon = GetTemplateAddon();
+                    if (info->chest.DungeonEncounter)
+                    {
+                        std::vector<Player*> tappers;
+                        for (ObjectGuid tapperGuid : GetTapList())
+                            if (Player* tapper = ObjectAccessor::GetPlayer(*this, tapperGuid))
+                                tappers.push_back(tapper);
 
-                    loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
-                    loot->FillLoot(info->chest.chestPersonalLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+                        if (tappers.empty())
+                            tappers.push_back(player);
 
-                    if (GetLootMode() > 0)
-                        if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
+                        m_personalLoot = GenerateDungeonEncounterPersonalLoot(info->chest.DungeonEncounter, info->chest.chestPersonalLoot,
+                            LootTemplates_Gameobject, LOOT_CHEST, this, addon ? addon->Mingold : 0, addon ? addon->Maxgold : 0,
+                            GetLootMode(), GetMap()->GetDifficultyLootItemContext(), tappers);
+                    }
+                    else
+                    {
+                        Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
+                        m_personalLoot[player->GetGUID()].reset(loot);
+
+                        loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
+                        loot->FillLoot(info->chest.chestPersonalLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+
+                        if (GetLootMode() > 0 && addon)
                             loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
+                    }
                 }
             }
 
@@ -3925,12 +3942,10 @@ private:
     GameObject* _owner;
 };
 
-void GameObject::UpdateDynamicFlagsForNearbyPlayers() const
+void GameObject::UpdateDynamicFlagsForNearbyPlayers()
 {
-    ValuesUpdateForPlayerWithMaskSender sender(this);
-    sender.ObjectMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-    Trinity::MessageDistDeliverer<ValuesUpdateForPlayerWithMaskSender> deliverer(this, sender, GetVisibilityRange());
-    Cell::VisitWorldObjects(this, deliverer, GetVisibilityRange());
+    m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags);
+    AddToObjectUpdateIfNeeded();
 }
 
 void GameObject::HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const

@@ -821,6 +821,7 @@ struct TC_GAME_API ItemTemplate
     bool HasSignature() const;
 
     bool IsWeapon() const { return GetClass() == ITEM_CLASS_WEAPON; }
+    bool IsArmor() const { return GetClass() == ITEM_CLASS_ARMOR; }
 
     bool IsRangedWeapon() const
     {
