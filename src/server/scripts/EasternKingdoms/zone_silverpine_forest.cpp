@@ -5564,7 +5564,6 @@ private:
     EventMap _events;
     ObjectGuid _playerGUID;
     ObjectGuid _bloodfangGUID;
-    ObjectGuid _bombGUID;
     std::array<ObjectGuid, 7> _forsakenTroopersGUID;
     uint8 _forsakenTrooperIndex;
     bool _isEventStarted;

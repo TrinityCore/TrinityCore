@@ -73,10 +73,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 326870, 0, 0, 31, 0, 3, 45228, 0, 0, 0, 0, '', 'Nowhere to Hide: Ride Master Foreski Vehicle - Target Master Forteski');
 
 -- Toss Bomb
-DELETE FROM `spell_script_names` WHERE `spell_id` = 84467 AND `ScriptName` = 'spell_silverpine_toss_bomb';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(84467, 'spell_silverpine_toss_bomb');
-
 DELETE FROM `spell_target_position` WHERE `ID`=84467 AND `EffectIndex`=0;
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES 
 (84467, 0, 0, 410.663, 1011.9, 107.871, 0);
