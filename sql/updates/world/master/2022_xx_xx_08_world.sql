@@ -2,7 +2,7 @@
 -- 
 -- Silverpine Forest
 
-SET @CGUID := 395718;
+SET @CGUID := 395782;
 
 -- 
 -- Deep Elem Mine
