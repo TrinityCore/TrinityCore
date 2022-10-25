@@ -4544,6 +4544,33 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     //
+    // SILVERPINE FOREST SPELLS
+    //
+
+    // Toss Bomb
+    ApplySpellFix({ 84467 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40 yards
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
+    // Toss Bomb
+    ApplySpellFix({ 84468 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_SUMMON;
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+            spellEffectInfo->MiscValue = 45237;
+            spellEffectInfo->MiscValueB = 64;
+        });
+    });
+
+    //
     // FIRELANDS SPELLS
     //
     // Torment Searcher

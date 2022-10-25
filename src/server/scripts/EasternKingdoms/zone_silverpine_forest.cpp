@@ -5301,10 +5301,6 @@ private:
     bool _isWorgen;
 };
 
-Position const BloodfangElemPos = { 413.818f, 1020.68f, 107.74534f, 4.48549f };
-
-Position const BombElemPos = { 410.663f, 1011.9f, 107.871f };
-
 Position const VeteranElemPos[7] =
 {
     { 407.55923f, 1003.6966f, 107.644875f, 1.1871793f   },
@@ -5316,26 +5312,24 @@ Position const VeteranElemPos[7] =
     { 407.06265f, 1007.54834f, 107.564896f, 0.98636734f }
 };
 
-Position const IvarElemDispawnPos = { 392.866f, 1041.48f, 106.606f };
+Position const BloodfangElemPos = { 413.818f, 1020.68f, 107.74534f, 4.48549f };
 
 Position const PlayerElemJumpPos = { 418.562f, 1031.027f, 107.173f, 4.3297f };
 
-enum MasterForteski
+enum NoWhereToRun
 {
     QUEST_NOWHERE_TO_RUN                        = 27195,
 
     NPC_PACKLEADER_IVAR_ELEM                    = 45236,
-    NPC_BOMB_ELEM                               = 45237,
     NPC_VETERAN_FORSAKEN_TROOPER                = 45225,
 
     GAMEOBJECT_BOMB_WAGON                       = 205271,
     GAMEOBJECT_DYNAMITE                         = 205279,
 
     SPELL_TOSS_BOMB                             = 84467,
+    SPELL_BOMB_EXPLOSION                        = 84474,
     SPELL_RIDE_REVERSE_CAST_NOWHERE_TO_RUN      = 84470,
-    SPELL_EXPLOSION                             = 84474,
-    SPELL_PERMANENT_FEIGN_DEATH_01              = 29266,
-    SPELL_PERMANENT_FEIGN_DEATH_02              = 84386,
+    SPELL_PERMANENT_FEIGN_DEATH_NOWHERE_TO_RUN  = 84386,
 
     EVENT_START_NOWHERE_TO_RUN                  = 1,
     EVENT_NOWHERE_TO_RUN                        = 2,
@@ -5364,6 +5358,9 @@ struct npc_silverpine_master_forteski : public ScriptedAI
     void JustAppeared() override
     {
         me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
     void OnQuestAccept(Player* player, Quest const* quest) override
@@ -5373,7 +5370,11 @@ struct npc_silverpine_master_forteski : public ScriptedAI
 
         _isEventStarted = true;
 
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+
         _playerGUID = player->GetGUID();
+
+        me->SetFacingToObject(player);
 
         _events.ScheduleEvent(EVENT_START_NOWHERE_TO_RUN, 100ms);
     }
@@ -5398,6 +5399,20 @@ struct npc_silverpine_master_forteski : public ScriptedAI
         }
     }
 
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_BOMB_EXPLOSION)
+            return;
+
+        DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH_NOWHERE_TO_RUN, true);
+
+        for (ObjectGuid const& forsakenTrooperGUID : _forsakenTroopersGUID)
+        {
+            if (Creature* forsakenTrooper = ObjectAccessor::GetCreature(*me, forsakenTrooperGUID))
+                forsakenTrooper->CastSpell(forsakenTrooper, SPELL_PERMANENT_FEIGN_DEATH_NOWHERE_TO_RUN, true);
+        }
+    }
+
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
@@ -5407,16 +5422,11 @@ struct npc_silverpine_master_forteski : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_START_NOWHERE_TO_RUN:
-                {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        me->SetFacingToObject(player);
                         Talk(TALK_FORTESKI_PRE1, player);
-                    }
-
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                     _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN, 5s);
                     break;
-                }
 
                 case EVENT_NOWHERE_TO_RUN:
                     me->SetFacingTo(4.9916415f);
@@ -5431,88 +5441,61 @@ struct npc_silverpine_master_forteski : public ScriptedAI
 
                 case EVENT_NOWHERE_TO_RUN + 2:
                     Talk(TALK_FORTESKI_REALIZE);
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 3, 2s);
+                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 3, 1s + 900ms);
                     break;
 
                 case EVENT_NOWHERE_TO_RUN + 3:
                     if (Creature* bloodfang = me->SummonCreature(NPC_PACKLEADER_IVAR_ELEM, BloodfangElemPos, TEMPSUMMON_MANUAL_DESPAWN))
                         _bloodfangGUID = bloodfang->GetGUID();
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 4, 1s + 500ms);
+                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 4, 1s + 200ms);
                     break;
 
                 case EVENT_NOWHERE_TO_RUN + 4:
-                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
-                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
-                    me->SetFacingTo(1.1519173f);
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 5, 2s);
-                    break;
-
-                case EVENT_NOWHERE_TO_RUN + 5:
                 {
+                    me->SetFacingTo(1.1519173f);
+
+                    ReformForsakenTroopersFormation();
+
                     if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
                     {
+                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+
                         if (bloodfang->IsAIEnabled())
                             bloodfang->AI()->Talk(TALK_IVAR_ELEM);
                     }
 
-                    ReformForsakenTroopersFormation();
-
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 6, 1s + 500ms);
+                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 5, 3s + 600ms);
                     break;
                 }
+
+                case EVENT_NOWHERE_TO_RUN + 5:
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        bloodfang->CastSpell(nullptr, SPELL_TOSS_BOMB);
+                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 6, 1s + 200ms);
+                    break;
 
                 case EVENT_NOWHERE_TO_RUN + 6:
                     if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
-                        bloodfang->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST);
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 7, 1s + 500ms);
+                        bloodfang->GetMotionMaster()->MovePath(PATH_BLOOFANG_MINE, false);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        me->CastSpell(player, SPELL_RIDE_REVERSE_CAST_NOWHERE_TO_RUN, true);
+                    me->SetFacingTo(5.9593096f);
+                    Talk(TALK_FORTESKI_BOMB);
+                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 7, 1s + 200ms);
                     break;
 
                 case EVENT_NOWHERE_TO_RUN + 7:
-                {
-                    if (Creature* bomb = me->SummonCreature(NPC_BOMB_ELEM, BombElemPos, TEMPSUMMON_MANUAL_DESPAWN))
-                        _bombGUID = bomb->GetGUID();
-
-                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
-                    {
-                        if (bloodfang->IsAIEnabled())
-                            bloodfang->GetMotionMaster()->MovePath(PATH_BLOOFANG_MINE, false);
-                    }
-
+                    me->SetFacingTo(1.2391838f);
+                    DoCastSelf(SPELL_EJECT_PASSENGER_01);
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        me->CastSpell(player, SPELL_RIDE_REVERSE_CAST_NOWHERE_TO_RUN, true);
-
-                    me->SetFacingTo(1.005391f);
-
-                    Talk(TALK_FORTESKI_BOMB);
-
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 8, 1s + 200ms);
+                        player->GetMotionMaster()->MoveJump(PlayerElemJumpPos, 25.0f, 8.0f);
+                    Talk(TALK_FORTESKI_SAVE_PLAYER);
+                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
+                        bloodfang->DespawnOrUnsummon(2s);
+                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 8, 3s + 500ms);
                     break;
-                }
 
                 case EVENT_NOWHERE_TO_RUN + 8:
-                {
-                    me->SetFacingTo(1.2391838f);
-
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        player->ExitVehicle();
-                        player->GetMotionMaster()->MoveJump(PlayerElemJumpPos, 25.0f, 8.0f);
-                    }
-
-                    Talk(TALK_FORTESKI_SAVE_PLAYER);
-
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 9, 1s);
-                    break;
-                }
-
-                case EVENT_NOWHERE_TO_RUN + 9:
-                    TriggerBombExplosion();
-                    if (Creature* bloodfang = ObjectAccessor::GetCreature(*me, _bloodfangGUID))
-                        bloodfang->DespawnOrUnsummon();
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 10, 1s + 500ms);
-                    break;
-
-                case EVENT_NOWHERE_TO_RUN + 10:
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
@@ -5530,11 +5513,11 @@ struct npc_silverpine_master_forteski : public ScriptedAI
                         }
                     }
 
-                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 11, 20s);
+                    _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 9, 5s);
                     break;
                 }
 
-                case EVENT_NOWHERE_TO_RUN + 11:
+                case EVENT_NOWHERE_TO_RUN + 9:
                 {
                     for (ObjectGuid const& forsakenTrooperGUID : _forsakenTroopersGUID)
                     {
@@ -5562,7 +5545,10 @@ struct npc_silverpine_master_forteski : public ScriptedAI
             _forsakenTroopersGUID[i] = forsakenTrooperList[i]->GetGUID();
 
             if (Creature* forsakenTrooper = ObjectAccessor::GetCreature(*me, _forsakenTroopersGUID[i]))
+            {
                 forsakenTrooper->GetMotionMaster()->MoveFollow(me, float(1.5f * i), float(M_PI));
+                forsakenTrooper->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+            }
         }
     }
 
@@ -5574,27 +5560,6 @@ struct npc_silverpine_master_forteski : public ScriptedAI
                 forsakenTrooper->GetMotionMaster()->MovePoint(POINT_VETERAN_ELEM, VeteranElemPos[_forsakenTrooperIndex], false, VeteranElemPos[_forsakenTrooperIndex].GetOrientation());
 
             _forsakenTrooperIndex++;
-        }
-    }
-
-    void TriggerBombExplosion()
-    {
-        if (Creature* bomb = ObjectAccessor::GetCreature(*me, _bombGUID))
-        {
-            bomb->CastSpell(bomb, SPELL_EXPLOSION);
-            bomb->DespawnOrUnsummon(1s);
-        }
-
-        DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH_01);
-        DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH_02);
-
-        for (ObjectGuid const& forsakenTrooperGUID : _forsakenTroopersGUID)
-        {
-            if (Creature* forsakenTrooper = ObjectAccessor::GetCreature(*me, forsakenTrooperGUID))
-            {
-                forsakenTrooper->CastSpell(forsakenTrooper, SPELL_PERMANENT_FEIGN_DEATH_01);
-                forsakenTrooper->CastSpell(forsakenTrooper, SPELL_PERMANENT_FEIGN_DEATH_02);
-            }
         }
     }
 
