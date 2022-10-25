@@ -10583,9 +10583,9 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
     Creature* creature = victim->ToCreature();
 
-    bool isRewardAllowed = true;
+    bool isRewardAllowed = attacker != victim;
     if (creature)
-        isRewardAllowed = !creature->GetTapList().empty();
+        isRewardAllowed = isRewardAllowed && !creature->GetTapList().empty();
 
     std::vector<Player*> tappers;
     if (isRewardAllowed && creature)
@@ -10601,11 +10601,6 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed)
     {
-        WorldPackets::Party::PartyKillLog partyKillLog;
-        partyKillLog.Player = player->GetGUID();
-        partyKillLog.Victim = victim->GetGUID();
-        partyKillLog.Write();
-
         std::unordered_set<Group*> groups;
         for (Player* tapper : tappers)
         {
@@ -10613,6 +10608,11 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             {
                 if (groups.insert(tapperGroup).second)
                 {
+                    WorldPackets::Party::PartyKillLog partyKillLog;
+                    partyKillLog.Player = player && tapperGroup->IsMember(player->GetGUID()) ? player->GetGUID() : tapper->GetGUID();
+                    partyKillLog.Victim = victim->GetGUID();
+                    partyKillLog.Write();
+
                     tapperGroup->BroadcastPacket(partyKillLog.GetRawPacket(), tapperGroup->GetMemberGroup(tapper->GetGUID()) != 0);
 
                     if (creature)
@@ -10620,7 +10620,12 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                 }
             }
             else
-                tapper->SendDirectMessage(partyKillLog.GetRawPacket());
+            {
+                WorldPackets::Party::PartyKillLog partyKillLog;
+                partyKillLog.Player = tapper->GetGUID();
+                partyKillLog.Victim = victim->GetGUID();
+                tapper->SendDirectMessage(partyKillLog.Write());
+            }
         }
 
         // Generate loot before updating looter
@@ -10635,29 +10640,32 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                 Group* group = !groups.empty() ? *groups.begin() : nullptr;
                 Player* looter = group ? ASSERT_NOTNULL(ObjectAccessor::GetPlayer(*creature, group->GetLooterGuid())) : tappers[0];
 
-                Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, dungeonEncounter ? group : nullptr);
-
                 if (dungeonEncounter)
-                    loot->SetDungeonEncounterId(dungeonEncounter->ID);
-
-                if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
-                    loot->FillLoot(lootid, LootTemplates_Creature, looter, dungeonEncounter != nullptr, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
-
-                if (creature->GetLootMode() > 0)
-                    loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
-
-                if (group)
-                    loot->NotifyLootList(creature->GetMap());
-
-                if (dungeonEncounter || groups.empty())
-                    creature->m_loot.reset(loot);   // TODO: personal boss loot
+                {
+                    creature->m_personalLoot = GenerateDungeonEncounterPersonalLoot(dungeonEncounter->ID, creature->GetCreatureTemplate()->lootid,
+                        LootTemplates_Creature, LOOT_CORPSE, creature, creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold,
+                        creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext(), tappers);
+                }
                 else
+                {
+                    Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, dungeonEncounter ? group : nullptr);
+
+                    if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+                        loot->FillLoot(lootid, LootTemplates_Creature, looter, dungeonEncounter != nullptr, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
+
+                    if (creature->GetLootMode() > 0)
+                        loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+
+                    if (group)
+                        loot->NotifyLootList(creature->GetMap());
+
                     creature->m_personalLoot[looter->GetGUID()].reset(loot);   // trash mob loot is personal, generated with round robin rules
 
-                // Update round robin looter only if the creature had loot
-                if (!loot->isLooted())
-                    for (Group* tapperGroup : groups)
-                        tapperGroup->UpdateLooterGuid(creature);
+                    // Update round robin looter only if the creature had loot
+                    if (!loot->isLooted())
+                        for (Group* tapperGroup : groups)
+                            tapperGroup->UpdateLooterGuid(creature);
+                }
             }
             else
             {

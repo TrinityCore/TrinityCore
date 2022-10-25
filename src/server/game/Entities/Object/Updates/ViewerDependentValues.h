@@ -95,9 +95,18 @@ public:
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
                 case GAMEOBJECT_TYPE_CHEST:
-                case GAMEOBJECT_TYPE_GOOBER:
                     if (gameObject->ActivateToQuest(receiver))
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                    else if (receiver->IsGameMaster())
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                    break;
+                case GAMEOBJECT_TYPE_GOOBER:
+                    if (gameObject->ActivateToQuest(receiver))
+                    {
+                        dynFlags |= GO_DYNFLAG_LO_HIGHLIGHT;
+                        if (gameObject->GetGoStateFor(receiver->GetGUID()) != GO_STATE_ACTIVE)
+                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                    }
                     else if (receiver->IsGameMaster())
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
@@ -118,9 +127,18 @@ public:
                     else
                         dynFlags &= ~GO_DYNFLAG_LO_NO_INTERACT;
                     break;
+                case GAMEOBJECT_TYPE_GATHERING_NODE:
+                    if (gameObject->ActivateToQuest(receiver))
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                    if (gameObject->GetGoStateFor(receiver->GetGUID()) == GO_STATE_ACTIVE)
+                        dynFlags |= GO_DYNFLAG_LO_DEPLETED;
+                    break;
                 default:
                     break;
             }
+
+            if (!gameObject->MeetsInteractCondition(receiver))
+                dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
 
             dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
         }
@@ -299,6 +317,18 @@ public:
                 flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
         return flags;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::GameObjectData::StateTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, GameObject const* gameObject, Player const* receiver)
+    {
+        return gameObject->GetGoStateFor(receiver->GetGUID());
     }
 };
 

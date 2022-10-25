@@ -56,32 +56,43 @@ LootStore LootTemplates_Spell("spell_loot_template",                 "spell id (
 // Selects invalid loot items to be removed from group possible entries (before rolling)
 struct LootGroupInvalidSelector
 {
-    explicit LootGroupInvalidSelector(Loot const& /*loot*/, uint16 lootMode) : /*_loot(loot),*/ _lootMode(lootMode) { }
+    explicit LootGroupInvalidSelector(uint16 lootMode, Player const* personalLooter) : _lootMode(lootMode), _personalLooter(personalLooter) { }
 
-    bool operator()(LootStoreItem* item) const
+    bool operator()(LootStoreItem const* item) const
     {
         if (!(item->lootmode & _lootMode))
+            return true;
+
+        if (_personalLooter && !LootItem::AllowedForPlayer(_personalLooter, nullptr, item->itemid, item->needs_quest,
+            !item->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(item->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
+            true, item->conditions))
             return true;
 
         return false;
     }
 
 private:
-    //Loot const& _loot;
     uint16 _lootMode;
+    Player const* _personalLooter;
 };
 
 class LootTemplate::LootGroup                               // A set of loot definitions for items (refs are not allowed)
 {
     public:
-        LootGroup() { }
+        LootGroup() = default;
+        LootGroup(LootGroup const&) = delete;
+        LootGroup(LootGroup&&) = delete;
+        LootGroup& operator=(LootGroup const&) = delete;
+        LootGroup& operator=(LootGroup&&) = delete;
         ~LootGroup();
 
         void AddEntry(LootStoreItem* item);                 // Adds an entry to the group (at loading stage)
+        bool HasDropForPlayer(Player const* player, bool strictUsabilityCheck) const;
         bool HasQuestDrop() const;                          // True if group includes at least 1 quest drop entry
         bool HasQuestDropForPlayer(Player const* player) const;
                                                             // The same for active quests of the player
-        void Process(Loot& loot, uint16 lootMode) const;    // Rolls an item from the group (if any) and adds the item to the loot
+        void Process(Loot& loot, uint16 lootMode,
+            Player const* personalLooter = nullptr) const;  // Rolls an item from the group (if any) and adds the item to the loot
         float RawTotalChance() const;                       // Overall chance for the group (without equal chanced items)
         float TotalChance() const;                          // Overall chance for the group
 
@@ -94,11 +105,8 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
 
-        LootStoreItem const* Roll(Loot& loot, uint16 lootMode) const;   // Rolls an item from the group, returns NULL if all miss their chances
-
-        // This class must never be copied - storing pointers
-        LootGroup(LootGroup const&) = delete;
-        LootGroup& operator=(LootGroup const&) = delete;
+        // Rolls an item from the group, returns NULL if all miss their chances
+        LootStoreItem const* Roll(uint16 lootMode, Player const* personalLooter = nullptr) const;
 };
 
 //Remove all data and free all memory
@@ -370,10 +378,10 @@ void LootTemplate::LootGroup::AddEntry(LootStoreItem* item)
 }
 
 // Rolls an item from the group, returns NULL if all miss their chances
-LootStoreItem const* LootTemplate::LootGroup::Roll(Loot& loot, uint16 lootMode) const
+LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode, Player const* personalLooter /*= nullptr*/) const
 {
     LootStoreItemList possibleLoot = ExplicitlyChanced;
-    possibleLoot.remove_if(LootGroupInvalidSelector(loot, lootMode));
+    possibleLoot.remove_if(LootGroupInvalidSelector(lootMode, personalLooter));
 
     if (!possibleLoot.empty())                             // First explicitly chanced entries are checked
     {
@@ -392,11 +400,28 @@ LootStoreItem const* LootTemplate::LootGroup::Roll(Loot& loot, uint16 lootMode) 
     }
 
     possibleLoot = EqualChanced;
-    possibleLoot.remove_if(LootGroupInvalidSelector(loot, lootMode));
+    possibleLoot.remove_if(LootGroupInvalidSelector(lootMode, personalLooter));
     if (!possibleLoot.empty())                              // If nothing selected yet - an item is taken from equal-chanced part
         return Trinity::Containers::SelectRandomContainerElement(possibleLoot);
 
     return nullptr;                                            // Empty drop from the group
+}
+
+bool LootTemplate::LootGroup::HasDropForPlayer(Player const* player, bool strictUsabilityCheck) const
+{
+    for (LootStoreItem const* lootStoreItem : ExplicitlyChanced)
+        if (LootItem::AllowedForPlayer(player, nullptr, lootStoreItem->itemid, lootStoreItem->needs_quest,
+            !lootStoreItem->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(lootStoreItem->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
+            strictUsabilityCheck, lootStoreItem->conditions))
+            return true;
+
+    for (LootStoreItem const* lootStoreItem : EqualChanced)
+        if (LootItem::AllowedForPlayer(player, nullptr, lootStoreItem->itemid, lootStoreItem->needs_quest,
+            !lootStoreItem->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(lootStoreItem->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
+            strictUsabilityCheck, lootStoreItem->conditions))
+            return true;
+
+    return false;
 }
 
 // True if group includes at least 1 quest drop entry
@@ -437,9 +462,9 @@ void LootTemplate::LootGroup::CopyConditions(ConditionContainer /*conditions*/)
 }
 
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
-void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
+void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode, Player const* personalLooter /*= nullptr*/) const
 {
-    if (LootStoreItem const* item = Roll(loot, lootMode))
+    if (LootStoreItem const* item = Roll(lootMode, personalLooter))
         loot.AddItem(*item);
 }
 
@@ -557,7 +582,7 @@ void LootTemplate::CopyConditions(LootItem* li) const
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot
-void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId) const
+void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId, Player const* personalLooter /*= nullptr*/) const
 {
     if (groupId)                                            // Group reference uses own processing of the group
     {
@@ -567,7 +592,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         if (!Groups[groupId - 1])
             return;
 
-        Groups[groupId - 1]->Process(loot, lootMode);
+        Groups[groupId - 1]->Process(loot, lootMode, personalLooter);
         return;
     }
 
@@ -589,16 +614,162 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
 
             uint32 maxcount = uint32(float(item->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
             for (uint32 loop = 0; loop < maxcount; ++loop)      // Ref multiplicator
-                Referenced->Process(loot, rate, lootMode, item->groupid);
+                Referenced->Process(loot, rate, lootMode, item->groupid, personalLooter);
         }
-        else                                                    // Plain entries (not a reference, not grouped)
-            loot.AddItem(*item);                                // Chance is already checked, just add
+        else
+        {
+            // Plain entries (not a reference, not grouped)
+            // Chance is already checked, just add
+            if (!personalLooter
+                || LootItem::AllowedForPlayer(personalLooter, nullptr, item->itemid, item->needs_quest,
+                    !item->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(item->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
+                    true, item->conditions))
+                loot.AddItem(*item);
+        }
     }
 
     // Now processing groups
     for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
         if (LootGroup* group = *i)
-            group->Process(loot, lootMode);
+            group->Process(loot, lootMode, personalLooter);
+}
+
+void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_ptr<Loot>>& personalLoot, bool rate, uint16 lootMode) const
+{
+    auto getLootersForItem = [&personalLoot](auto&& predicate)
+    {
+        std::vector<Player*> lootersForItem;
+        for (auto&& [looter, loot] : personalLoot)
+        {
+            if (predicate(looter))
+                lootersForItem.push_back(looter);
+        }
+        return lootersForItem;
+    };
+
+    // Rolling non-grouped items
+    for (LootStoreItem const* item : Entries)
+    {
+        if (!(item->lootmode & lootMode))                       // Do not add if mode mismatch
+            continue;
+
+        if (!item->Roll(rate))
+            continue;                                           // Bad luck for the entry
+
+        if (item->reference > 0)                                // References processing
+        {
+            LootTemplate const* referenced = LootTemplates_Reference.GetLootFor(item->reference);
+            if (!referenced)
+                continue;                                       // Error message already printed at loading stage
+
+            uint32 maxcount = uint32(float(item->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
+            std::vector<Player*> gotLoot;
+            for (uint32 loop = 0; loop < maxcount; ++loop)      // Ref multiplicator
+            {
+                std::vector<Player*> lootersForItem = getLootersForItem([&](Player const* looter)
+                {
+                    return referenced->HasDropForPlayer(looter, item->groupid, true);
+                });
+
+                // nobody can loot this, skip it
+                if (lootersForItem.empty())
+                    break;
+
+                auto newEnd = std::remove_if(lootersForItem.begin(), lootersForItem.end(), [&](Player const* looter)
+                {
+                    return std::find(gotLoot.begin(), gotLoot.end(), looter) != gotLoot.end();
+                });
+
+                if (lootersForItem.begin() == newEnd)
+                {
+                    // if we run out of looters this means that there are more items dropped than players
+                    // start a new cycle adding one item to everyone
+                    gotLoot.clear();
+                }
+                else
+                    lootersForItem.erase(newEnd, lootersForItem.end());
+
+                Player* chosenLooter = Trinity::Containers::SelectRandomContainerElement(lootersForItem);
+                referenced->Process(*personalLoot[chosenLooter], rate, lootMode, item->groupid, chosenLooter);
+                gotLoot.push_back(chosenLooter);
+            }
+        }
+        else
+        {
+            // Plain entries (not a reference, not grouped)
+            // Chance is already checked, just add
+            std::vector<Player*> lootersForItem = getLootersForItem([&](Player const* looter)
+            {
+                return LootItem::AllowedForPlayer(looter, nullptr, item->itemid, item->needs_quest,
+                    !item->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(item->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
+                    true, item->conditions);
+            });
+
+            if (!lootersForItem.empty())
+            {
+                Player* chosenLooter = Trinity::Containers::SelectRandomContainerElement(lootersForItem);
+                personalLoot[chosenLooter]->AddItem(*item);
+            }
+        }
+    }
+
+    // Now processing groups
+    for (LootGroup const* group : Groups)
+    {
+        if (group)
+        {
+            std::vector<Player*> lootersForGroup = getLootersForItem([&](Player const* looter)
+            {
+                return group->HasDropForPlayer(looter, true);
+            });
+
+            if (!lootersForGroup.empty())
+            {
+                Player* chosenLooter = Trinity::Containers::SelectRandomContainerElement(lootersForGroup);
+                group->Process(*personalLoot[chosenLooter], lootMode);
+            }
+        }
+    }
+}
+
+// True if template includes at least 1 drop for the player
+bool LootTemplate::HasDropForPlayer(Player const* player, uint8 groupId, bool strictUsabilityCheck) const
+{
+    if (groupId)                                            // Group reference
+    {
+        if (groupId > Groups.size())
+            return false;                                   // Error message already printed at loading stage
+
+        if (!Groups[groupId - 1])
+            return false;
+
+        return Groups[groupId - 1]->HasDropForPlayer(player, strictUsabilityCheck);
+    }
+
+    // Checking non-grouped entries
+    for (LootStoreItem* lootStoreItem : Entries)
+    {
+        if (lootStoreItem->reference > 0)                   // References processing
+        {
+            LootTemplate const* referenced = LootTemplates_Reference.GetLootFor(lootStoreItem->reference);
+            if (!referenced)
+                continue;                                   // Error message already printed at loading stage
+            if (referenced->HasDropForPlayer(player, lootStoreItem->groupid, strictUsabilityCheck))
+                return true;
+        }
+        else if (LootItem::AllowedForPlayer(player, nullptr, lootStoreItem->itemid, lootStoreItem->needs_quest,
+            !lootStoreItem->needs_quest || ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(lootStoreItem->itemid))->HasFlag(ITEM_FLAGS_CU_FOLLOW_LOOT_RULES),
+            strictUsabilityCheck, lootStoreItem->conditions))
+            return true;                                    // active quest drop found
+    }
+
+    // Now checking groups
+    for (LootGroup* group : Groups)
+        if (group)
+            if (group->HasDropForPlayer(player, strictUsabilityCheck))
+                return true;
+
+    return false;
 }
 
 // True if template includes at least 1 quest drop entry
@@ -773,6 +944,40 @@ bool LootTemplate::isReference(uint32 id)
             return true;
 
     return false;//not found or not reference
+}
+
+std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPersonalLoot(uint32 dungeonEncounterId, uint32 lootId, LootStore const& store,
+    LootType type, WorldObject const* lootOwner, uint32 minMoney, uint32 maxMoney, uint16 lootMode, ItemContext context, std::vector<Player*> const& tappers)
+{
+    std::unordered_map<Player*, std::unique_ptr<Loot>> tempLoot;
+
+    for (Player* tapper : tappers)
+    {
+        if (tapper->IsLockedToDungeonEncounter(dungeonEncounterId))
+            continue;
+
+        std::unique_ptr<Loot>& loot = tempLoot[tapper];
+        loot.reset(new Loot(lootOwner->GetMap(), lootOwner->GetGUID(), type, nullptr));
+        loot->SetItemContext(context);
+        loot->SetDungeonEncounterId(dungeonEncounterId);
+        loot->generateMoneyLoot(minMoney, maxMoney);
+    }
+
+    if (LootTemplate const* tab = store.GetLootFor(lootId))
+        tab->ProcessPersonalLoot(tempLoot, store.IsRatesAllowed(), lootMode);
+
+    std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> personalLoot;
+    for (auto&& [looter, loot] : tempLoot)
+    {
+        loot->FillNotNormalLootFor(looter);
+
+        if (loot->isLooted())
+            continue;
+
+        personalLoot[looter->GetGUID()] = std::move(loot);
+    }
+
+    return personalLoot;
 }
 
 void LoadLootTemplates_Creature()
