@@ -5460,7 +5460,7 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
             return;
 
         if (id == POINT_BEFORE_JUMPING)
-            me->GetMotionMaster()->MoveJump(SmithersResetPos[1], 7.5f, 7.5f, EVENT_JUMP, true);
+            me->GetMotionMaster()->MoveJump(SmithersResetPos[1], 7.5f, 7.5f, EVENT_JUMP, 1.7278f);
     }
 
     void JustEngagedWith(Unit* who) override
