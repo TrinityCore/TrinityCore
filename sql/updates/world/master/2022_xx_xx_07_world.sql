@@ -657,8 +657,8 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_silverpine_caretaker_smithers'
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 45219;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
-(45219, 0, 0, 'Come to die, have you?', 12, 0, 100, 5, 0, 0, 0, 45368, 0, ''),
-(45219, 1, 0, 'Shovel meet head!', 12, 0, 100, 5, 0, 0, 0, 45369, 0, ''),
+(45219, 0, 0, 'Come to die, have you?', 12, 0, 100, 0, 0, 0, 0, 45368, 0, ''),
+(45219, 1, 0, 'Shovel meet head!', 12, 0, 100, 0, 0, 0, 0, 45369, 0, ''),
 (45219, 2, 0, '%s goes into a frenzy!', 16, 0, 100, 0, 0, 0, 0, 2384, 0, '');
 
 -- Forsaken Catapult
