@@ -5418,6 +5418,12 @@ private:
     EventMap _events;
 };
 
+Position const SmithersResetPos[2] =
+{
+    { 144.355f, 1524.87f, 114.94f, 4.702f },
+    { 144.111f, 1519.69f, 120.3f, 1.7278f }
+};
+
 enum CaretakerSmithers
 {
     SPELL_FACE_RIP                              = 84440,
@@ -5426,10 +5432,13 @@ enum CaretakerSmithers
 
     EVENT_SMITHERS_THROW_LANTERN                = 1,
     EVENT_SMITHERS_FRENZY                       = 2,
+    EVENT_SMITHERS_RESET_POS                    = 3,
 
     TALK_SMITHERS_AGROO                         = 0,
     TALK_SMITHERS_LANTERN                       = 1,
-    TALK_SMITHERS_FRENZY                        = 2
+    TALK_SMITHERS_FRENZY                        = 2,
+
+    POINT_BEFORE_JUMPING                        = 1
 };
 
 // 45219 - Caretaker Smithers
@@ -5440,8 +5449,16 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
     void Reset() override
     {
         _events.Reset();
+        _events.ScheduleEvent(EVENT_SMITHERS_RESET_POS, 50ms);
+    }
 
-        me->NearTeleportTo(me->GetHomePosition(), false);
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == POINT_BEFORE_JUMPING)
+            me->GetMotionMaster()->MoveJump(SmithersResetPos[1], 5.0f, 5.0f, EVENT_JUMP, true);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -5457,9 +5474,6 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
-
-        if (!UpdateVictim())
-            return;
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -5477,10 +5491,17 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
                     _events.Repeat(20s, 25s);
                     break;
 
+                case EVENT_SMITHERS_RESET_POS:
+                    me->GetMotionMaster()->MovePoint(POINT_BEFORE_JUMPING, SmithersResetPos[0], 4.702f);
+                    break;
+
                 default:
                     break;
             }
         }
+
+        if (!UpdateVictim())
+            return;
 
         DoMeleeAttackIfReady();
     }
