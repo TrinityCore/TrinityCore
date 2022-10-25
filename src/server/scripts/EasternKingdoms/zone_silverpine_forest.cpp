@@ -5320,7 +5320,7 @@ enum NoWhereToRun
 {
     QUEST_NOWHERE_TO_RUN                        = 27195,
 
-    NPC_PACKLEADER_IVAR_ELEM                    = 45236,
+    NPC_PACKLEADER_IVAR_BLOODFANG_ELEM          = 45236,
     NPC_VETERAN_FORSAKEN_TROOPER                = 45225,
 
     GAMEOBJECT_BOMB_WAGON                       = 205271,
@@ -5344,10 +5344,7 @@ enum NoWhereToRun
     PATH_FORTESKI_MINE                          = 452280,
     PATH_BLOOFANG_MINE                          = 452360,
 
-    WAYPOINT_INSIDE_MINE                        = 8,
-
-    POINT_IVAR_DISPAWN                          = 1,
-    POINT_VETERAN_ELEM                          = 1
+    WAYPOINT_INSIDE_MINE                        = 8
 };
 
 // 45228 - Master Forteski
