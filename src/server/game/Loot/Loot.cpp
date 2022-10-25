@@ -68,7 +68,13 @@ LootItem& LootItem::operator=(LootItem&&) noexcept = default;
 LootItem::~LootItem() = default;
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-bool LootItem::AllowedForPlayer(Player const* player, Loot const& loot) const
+bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot) const
+{
+    return AllowedForPlayer(player, loot, itemid, needs_quest, follow_loot_rules, false, conditions);
+}
+
+bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
+    ConditionContainer const& conditions)
 {
     // DB conditions check
     if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
@@ -86,7 +92,7 @@ bool LootItem::AllowedForPlayer(Player const* player, Loot const& loot) const
         return false;
 
     // Master looter can see all items even if the character can't loot them
-    if (loot.GetLootMethod() == MASTER_LOOT && follow_loot_rules && player->GetGroup() && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID())
+    if (loot && loot->GetLootMethod() == MASTER_LOOT && follow_loot_rules && loot->GetLootMasterGUID() == player->GetGUID())
         return true;
 
     // Don't allow loot for players without profession or those who already know the recipe
@@ -105,22 +111,18 @@ bool LootItem::AllowedForPlayer(Player const* player, Loot const& loot) const
         }
     }
 
-    // Don't allow to loot soulbound recipes that the player has already learned
-    if (pProto->GetClass() == ITEM_CLASS_RECIPE && pProto->GetBonding() == BIND_ON_ACQUIRE)
-    {
-        for (ItemEffectEntry const* itemEffect : pProto->Effects)
-        {
-            if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_ON_LEARN)
-                continue;
-
-            if (player->HasSpell(itemEffect->SpellID))
-                return false;
-        }
-    }
-
     // check quest requirements
     if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
+
+    if (strictUsabilityCheck)
+    {
+        if ((pProto->IsWeapon() || pProto->IsArmor()) && !pProto->IsUsableByLootSpecialization(player, true))
+            return false;
+
+        if (player->CanRollNeedForItem(pProto, nullptr, false) != EQUIP_ERR_OK)
+            return false;
+    }
 
     return true;
 }
@@ -228,7 +230,7 @@ void LootRoll::SendStartRoll()
         startLootRoll.Method = m_loot->GetLootMethod();
         startLootRoll.ValidRolls = m_voteMask;
         // In NEED_BEFORE_GREED need disabled for non-usable item for player
-        if (m_loot->GetLootMethod() == NEED_BEFORE_GREED && player->CanRollForItemInLFG(itemTemplate, m_map) != EQUIP_ERR_OK)
+        if (m_loot->GetLootMethod() == NEED_BEFORE_GREED && player->CanRollNeedForItem(itemTemplate, m_map, true) != EQUIP_ERR_OK)
             startLootRoll.ValidRolls &= ~ROLL_FLAG_TYPE_NEED;
 
         FillPacket(startLootRoll.Item);
@@ -1005,10 +1007,6 @@ void Loot::Update()
 
 void Loot::FillNotNormalLootFor(Player const* player)
 {
-    if (_dungeonEncounterId)
-        if (player->IsLockedToDungeonEncounter(_dungeonEncounterId))
-            return;
-
     ObjectGuid plguid = player->GetGUID();
     _allowedLooters.insert(plguid);
 
@@ -1016,7 +1014,7 @@ void Loot::FillNotNormalLootFor(Player const* player)
 
     for (LootItem& item : items)
     {
-        if (!item.AllowedForPlayer(player, *this))
+        if (!item.AllowedForPlayer(player, this))
             continue;
 
         item.AddAllowedLooter(player);
