@@ -5310,7 +5310,7 @@ enum BloodfangStalker
     SPELL_STALKING                              = 86237,
     SPELL_SHADOWSTEP                            = 79864,
     SPELL_KILL_ME_QUEST                         = 86559,
-    SPELL_BLOOD_STRIKE                          = 87359,
+    SPELL_BLOODY_STRIKE                         = 87359,
     SPELL_PERMANENT_FEIGN_DEATH_BLOODFANG       = 80636,
 
     EVENT_SNIFFING                              = 1,
@@ -5340,6 +5340,7 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
         DoCastSelf(SPELL_STALKING);
         DoCastSelf(SPELL_KILL_ME_QUEST);
 
+        // Note: I don't like this way of handling. I would rather look for a spawnGUID, but it is not recommended.
         if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
         {
             if (boar->HasAura(SPELL_PERMANENT_FEIGN_DEATH_BLOODFANG))
@@ -5356,9 +5357,7 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
         me->RemoveAura(SPELL_STALKING);
         me->RemoveAura(SPELL_KILL_ME_QUEST);
 
-        _events.CancelEvent(EVENT_SNIFFING);
-        _events.CancelEvent(EVENT_STRIKE_BOAR);
-
+        _events.Reset();
         _events.ScheduleEvent(EVENT_SHADOWSTEP, 250ms);
         _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 6s, 8s);
     }
@@ -5390,7 +5389,7 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
 
                 case EVENT_STRIKE_BOAR:
                     if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
-                        me->CastSpell(boar, SPELL_BLOOD_STRIKE, true);
+                        me->CastSpell(boar, SPELL_BLOODY_STRIKE, true);
                     _events.Repeat(5s, 7s);
                     break;
 
@@ -5561,7 +5560,7 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_crowley_bloodfang_fenris_keep);
     RegisterCreatureAI(npc_silverpine_generic_actor_fenris_keep);
 
-    /* The Sepulcher */
+    /* Olsen's Farthing */
 
     RegisterCreatureAI(npc_silverpine_bloodfang_stalker);
     RegisterCreatureAI(npc_silverpine_caretaker_smithers);

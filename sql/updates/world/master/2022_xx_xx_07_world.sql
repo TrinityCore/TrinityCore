@@ -446,7 +446,7 @@ UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=8385;
 -- Lilly
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=5757;
 
-UPDATE `npc_vendor` SET `slot`=1586, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=6346 AND `ExtendedCost`=0 AND `type`=1); -- Formula: Enchant Chest - Lesser Mana
+UPDATE `npc_vendor` SET `slot`=1574, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=6346 AND `ExtendedCost`=0 AND `type`=1); -- Formula: Enchant Chest - Lesser Mana
 UPDATE `npc_vendor` SET `slot`=1585, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=22307 AND `ExtendedCost`=0 AND `type`=1); -- Pattern: Enchanted Mageweave Pouch
 UPDATE `npc_vendor` SET `slot`=1584, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=20753 AND `ExtendedCost`=0 AND `type`=1); -- Formula: Lesser Wizard Oil
 UPDATE `npc_vendor` SET `slot`=1583, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=20752 AND `ExtendedCost`=0 AND `type`=1); -- Formula: Minor Mana Oil
@@ -536,9 +536,11 @@ UPDATE `npc_vendor` SET `slot`=1, `VerifiedBuild`=45745 WHERE (`entry`=3552 AND 
 -- Nadia Vernon
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=9553;
 
-UPDATE `npc_vendor` SET `slot`=30, `maxcount`=1, `VerifiedBuild`=45745 WHERE (`entry`=9553 AND `item`=11304 AND `ExtendedCost`=0 AND `type`=1); -- Fine Longbow
+UPDATE `npc_vendor` SET `slot`=3, `maxcount`=1, `VerifiedBuild`=45745 WHERE (`entry`=9553 AND `item`=11304 AND `ExtendedCost`=0 AND `type`=1); -- Fine Longbow
 UPDATE `npc_vendor` SET `slot`=2, `IgnoreFiltering`=1, `VerifiedBuild`=45745 WHERE (`entry`=9553 AND `item`=3026 AND `ExtendedCost`=0 AND `type`=1); -- Reinforced Bow
 UPDATE `npc_vendor` SET `slot`=1, `IgnoreFiltering`=1, `VerifiedBuild`=45745 WHERE (`entry`=9553 AND `item`=2507 AND `ExtendedCost`=0 AND `type`=1); -- Laminated Recurve Bow
+DELETE FROM `npc_vendor` WHERE `entry`=9553 AND `item`=5439;
+DELETE FROM `npc_vendor` WHERE `entry`=9553 AND `item`=11362;
 
 -- Apothecary Renferrel
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=1937;
