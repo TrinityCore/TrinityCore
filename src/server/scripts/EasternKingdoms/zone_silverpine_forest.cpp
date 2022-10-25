@@ -5538,15 +5538,12 @@ struct npc_silverpine_master_forteski : public ScriptedAI
         std::vector<Creature*> forsakenTrooperList;
         GetCreatureListWithEntryInGrid(forsakenTrooperList, me, NPC_VETERAN_FORSAKEN_TROOPER, 25.0f);
 
-        for (uint32 i = 0; i < forsakenTrooperList.size(); i++)
+        for (uint8 i = 0; i < forsakenTrooperList.size(); i++)
         {
             _forsakenTroopersGUID[i] = forsakenTrooperList[i]->GetGUID();
 
-            if (Creature* forsakenTrooper = ObjectAccessor::GetCreature(*me, _forsakenTroopersGUID[i]))
-            {
-                forsakenTrooper->GetMotionMaster()->MoveFollow(me, float(1.5f * i), float(M_PI));
-                forsakenTrooper->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-            }
+            forsakenTrooperList[i]->GetMotionMaster()->MoveFollow(me, float(1.5f * i), float(M_PI));
+            forsakenTrooperList[i]->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
         }
     }
 
