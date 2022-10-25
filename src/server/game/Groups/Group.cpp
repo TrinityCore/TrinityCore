@@ -33,16 +33,13 @@
 #include "ObjectMgr.h"
 #include "PartyPackets.h"
 #include "Pet.h"
-#include "PhasingHandler.h"
 #include "Player.h"
-#include "TerrainMgr.h"
 #include "UpdateData.h"
-#include "World.h"
 #include "WorldSession.h"
 
 Group::Group() : m_leaderGuid(), m_leaderFactionGroup(0), m_leaderName(""), m_groupFlags(GROUP_FLAG_NONE), m_groupCategory(GROUP_CATEGORY_HOME),
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
-m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
+m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(PERSONAL_LOOT), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
 m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_dbStoreId(0), m_isLeaderOffline(false),
 m_readyCheckStarted(false), m_readyCheckTimer(Milliseconds::zero()), m_activeMarkers(0)
 {
@@ -139,9 +136,6 @@ bool Group::Create(Player* leader)
 
     if (m_groupFlags & GROUP_FLAG_RAID)
         _initRaidSubGroupsCounter();
-
-    if (!isLFGGroup())
-        m_lootMethod = GROUP_LOOT;
 
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
     m_looterGuid = leaderGuid;
@@ -267,7 +261,7 @@ void Group::ConvertToLFG()
 {
     m_groupFlags = GroupFlags(m_groupFlags | GROUP_FLAG_LFG | GROUP_FLAG_LFG_RESTRICTED);
     m_groupCategory = GROUP_CATEGORY_INSTANCE;
-    m_lootMethod = GROUP_LOOT;
+    m_lootMethod = PERSONAL_LOOT;
     if (!isBGGroup() && !isBFGroup())
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);

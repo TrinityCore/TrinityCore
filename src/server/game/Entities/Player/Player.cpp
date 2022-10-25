@@ -11080,14 +11080,17 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto, bool skipRequiredL
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, Map const* map) const
+InventoryResult Player::CanRollNeedForItem(ItemTemplate const* proto, Map const* map, bool restrictOnlyLfg) const
 {
-    if (!GetGroup() || !GetGroup()->isLFGGroup())
-        return EQUIP_ERR_OK;    // not in LFG group
+    if (restrictOnlyLfg)
+    {
+        if (!GetGroup() || !GetGroup()->isLFGGroup())
+            return EQUIP_ERR_OK;    // not in LFG group
 
-    // check if looted object is inside the lfg dungeon
-    if (!sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficultyID()))
-        return EQUIP_ERR_OK;
+        // check if looted object is inside the lfg dungeon
+        if (!sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficultyID()))
+            return EQUIP_ERR_OK;
+    }
 
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
@@ -11107,41 +11110,14 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, Map const
             return EQUIP_ERR_CANT_EQUIP_SKILL;
     }
 
-    uint8 _class = GetClass();
-
     if (proto->GetClass() == ITEM_CLASS_WEAPON && GetSkillValue(proto->GetSkill()) == 0)
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->GetSubClass() < ITEM_SUBCLASS_ARMOR_COSMETIC && proto->GetInventoryType() != INVTYPE_CLOAK)
+    if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetInventoryType() != INVTYPE_CLOAK)
     {
-        if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
-        {
-            if (GetLevel() < 40)
-            {
-                if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
-                    return EQUIP_ERR_CLIENT_LOCKED_OUT;
-            }
-            else if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_PLATE)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
-        }
-        else if (_class == CLASS_HUNTER || _class == CLASS_SHAMAN)
-        {
-            if (GetLevel() < 40)
-            {
-                if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
-                    return EQUIP_ERR_CLIENT_LOCKED_OUT;
-            }
-            else if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
-        }
-
-        if (_class == CLASS_ROGUE || _class == CLASS_DRUID)
-            if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
-
-        if (_class == CLASS_MAGE || _class == CLASS_PRIEST || _class == CLASS_WARLOCK)
-            if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_CLOTH)
-                return EQUIP_ERR_CLIENT_LOCKED_OUT;
+        ChrClassesEntry const* classesEntry = sChrClassesStore.AssertEntry(GetClass());
+        if (!(classesEntry->ArmorTypeMask & 1 << proto->GetSubClass()))
+            return EQUIP_ERR_CLIENT_LOCKED_OUT;
     }
 
     return EQUIP_ERR_OK;
@@ -17880,8 +17856,7 @@ bool Player::isAllowedToLoot(const Creature* creature) const
 
     switch (loot->GetLootMethod())
     {
-        case PERSONAL_LOOT: /// @todo implement personal loot (http://wow.gamepedia.com/Loot#Personal_Loot)
-            return false;
+        case PERSONAL_LOOT:
         case FREE_FOR_ALL:
             return true;
         case ROUND_ROBIN:
