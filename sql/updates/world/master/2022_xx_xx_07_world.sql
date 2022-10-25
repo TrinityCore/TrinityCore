@@ -2,8 +2,8 @@
 -- 
 -- Silverpine Forest
 
-SET @CGUID := 395711;
-SET @OGUID := 239592;
+SET @CGUID := 395775;
+SET @OGUID := 242412;
 
 -- 
 -- The Sepulcher
