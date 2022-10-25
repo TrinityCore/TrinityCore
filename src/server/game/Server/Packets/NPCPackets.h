@@ -210,7 +210,7 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Pos;
             int32 Icon          = 0;
             int32 Importance    = 0;
-            int32 Unknown905    = 0;
+            int32 WMOGroupID    = 0;
             std::string Name;
         };
 
