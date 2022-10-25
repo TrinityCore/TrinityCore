@@ -5449,7 +5449,9 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
     void Reset() override
     {
         _events.Reset();
-        _events.ScheduleEvent(EVENT_SMITHERS_RESET_POS, 50ms);
+
+        if (me->GetPosition() != me->GetHomePosition())
+            _events.ScheduleEvent(EVENT_SMITHERS_RESET_POS, 50ms);
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -5458,7 +5460,7 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
             return;
 
         if (id == POINT_BEFORE_JUMPING)
-            me->GetMotionMaster()->MoveJump(SmithersResetPos[1], 5.0f, 5.0f, EVENT_JUMP, true);
+            me->GetMotionMaster()->MoveJump(SmithersResetPos[1], 7.5f, 7.5f, EVENT_JUMP, true);
     }
 
     void JustEngagedWith(Unit* who) override
