@@ -154,7 +154,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Player Condition",          true, false, false },
 };
 
-ConditionSourceInfo::ConditionSourceInfo(WorldObject* target0, WorldObject* target1, WorldObject* target2)
+ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1, WorldObject const* target2)
 {
     mConditionTargets[0] = target0;
     mConditionTargets[1] = target1;
@@ -248,7 +248,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
     }
 
-    WorldObject* object = sourceInfo.mConditionTargets[ConditionTarget];
+    WorldObject const* object = sourceInfo.mConditionTargets[ConditionTarget];
     // object not present, return false
     if (needsObject && !object)
     {
@@ -259,13 +259,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
     {
         case CONDITION_AURA:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->HasAuraEffect(ConditionValue1, ConditionValue2);
             break;
         }
         case CONDITION_ITEM:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 // don't allow 0 items (it's checked during table load)
                 ASSERT(ConditionValue2);
@@ -276,7 +276,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_ITEM_EQUIPPED:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasItemOrGemWithIdEquipped(ConditionValue1, 1);
             break;
         }
@@ -285,7 +285,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
         case CONDITION_REPUTATION_RANK:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
                     condMeets = (ConditionValue2 & (1 << player->GetReputationMgr().GetRank(faction))) != 0;
@@ -294,49 +294,49 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_ACHIEVEMENT:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasAchieved(ConditionValue1);
             break;
         }
         case CONDITION_TEAM:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetTeam() == ConditionValue1;
             break;
         }
         case CONDITION_CLASS:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = (unit->GetClassMask() & ConditionValue1) != 0;
             break;
         }
         case CONDITION_RACE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = Trinity::RaceMask<uint32>{ ConditionValue1 }.HasRace(unit->GetRace());
             break;
         }
         case CONDITION_GENDER:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetNativeGender() == Gender(ConditionValue1);
             break;
         }
         case CONDITION_SKILL:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasSkill(ConditionValue1) && player->GetBaseSkillValue(ConditionValue1) >= ConditionValue2;
             break;
         }
         case CONDITION_QUESTREWARDED:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetQuestRewardStatus(ConditionValue1);
             break;
         }
         case CONDITION_QUESTTAKEN:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
                 condMeets = (status == QUEST_STATUS_INCOMPLETE);
@@ -345,7 +345,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_QUEST_COMPLETE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
                 condMeets = (status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(ConditionValue1));
@@ -354,7 +354,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_QUEST_NONE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
                 condMeets = (status == QUEST_STATUS_NONE);
@@ -366,19 +366,19 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
         case CONDITION_SPELL:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasSpell(ConditionValue1);
             break;
         }
         case CONDITION_LEVEL:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), static_cast<uint32>(unit->GetLevel()), ConditionValue1);
             break;
         }
         case CONDITION_DRUNKENSTATE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = (uint32)Player::GetDrunkenstateByValue(player->GetDrunkValue()) >= ConditionValue1;
             break;
         }
@@ -422,10 +422,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_RELATION_TO:
         {
-            if (WorldObject* toObject = sourceInfo.mConditionTargets[ConditionValue1])
+            if (WorldObject const* toObject = sourceInfo.mConditionTargets[ConditionValue1])
             {
-                Unit* toUnit = toObject->ToUnit();
-                Unit* unit = object->ToUnit();
+                Unit const* toUnit = toObject->ToUnit();
+                Unit const* unit = object->ToUnit();
                 if (toUnit && unit)
                 {
                     switch (static_cast<RelationType>(ConditionValue2))
@@ -457,10 +457,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_REACTION_TO:
         {
-            if (WorldObject* toObject = sourceInfo.mConditionTargets[ConditionValue1])
+            if (WorldObject const* toObject = sourceInfo.mConditionTargets[ConditionValue1])
             {
-                Unit* toUnit = toObject->ToUnit();
-                Unit* unit = object->ToUnit();
+                Unit const* toUnit = toObject->ToUnit();
+                Unit const* unit = object->ToUnit();
                 if (toUnit && unit)
                     condMeets = ((1 << unit->GetReactionTo(toUnit)) & ConditionValue2) != 0;
             }
@@ -468,25 +468,25 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_DISTANCE_TO:
         {
-            if (WorldObject* toObject = sourceInfo.mConditionTargets[ConditionValue1])
+            if (WorldObject const* toObject = sourceInfo.mConditionTargets[ConditionValue1])
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue3), object->GetDistance(toObject), static_cast<float>(ConditionValue2));
             break;
         }
         case CONDITION_ALIVE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->IsAlive();
             break;
         }
         case CONDITION_HP_VAL:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealth(), static_cast<uint64>(ConditionValue1));
             break;
         }
         case CONDITION_HP_PCT:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealthPct(), static_cast<float>(ConditionValue1));
             break;
         }
@@ -497,25 +497,25 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_TITLE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasTitle(ConditionValue1);
             break;
         }
         case CONDITION_UNIT_STATE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->HasUnitState(ConditionValue1);
             break;
         }
         case CONDITION_CREATURE_TYPE:
         {
-            if (Creature* creature = object->ToCreature())
+            if (Creature const* creature = object->ToCreature())
                 condMeets = creature->GetCreatureTemplate()->type == ConditionValue1;
             break;
         }
         case CONDITION_IN_WATER:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->IsInWater();
             break;
         }
@@ -526,7 +526,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_STAND_STATE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
             {
                 if (ConditionValue1 == 0)
                     condMeets = (unit->GetStandState() == UnitStandStateType(ConditionValue2));
@@ -539,32 +539,32 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_DAILY_QUEST_DONE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->IsDailyQuestDone(ConditionValue1);
             break;
         }
         case CONDITION_CHARMED:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->IsCharmed();
             break;
         }
         case CONDITION_PET_TYPE:
         {
-            if (Player* player = object->ToPlayer())
-                if (Pet* pet = player->GetPet())
+            if (Player const* player = object->ToPlayer())
+                if (Pet const* pet = player->GetPet())
                     condMeets = (((1 << pet->getPetType()) & ConditionValue1) != 0);
             break;
         }
         case CONDITION_TAXI:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->IsInFlight();
             break;
         }
         case CONDITION_QUESTSTATE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 if (
                     ((ConditionValue2 & (1 << QUEST_STATUS_NONE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_NONE)) ||
@@ -579,7 +579,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_QUEST_OBJECTIVE_PROGRESS:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
                 if (!obj)
@@ -599,7 +599,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_GAMEMASTER:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 if (ConditionValue1 == 1)
                     condMeets = player->CanBeGameMaster();
@@ -610,7 +610,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_BATTLE_PET_COUNT:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue3),
                     player->GetSession()->GetBattlePetMgr()->GetPetCount(sBattlePetSpeciesStore.AssertEntry(ConditionValue1), player->GetGUID()),
                     static_cast<uint8>(ConditionValue2));
@@ -618,13 +618,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_SCENE_IN_PROGRESS:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetSceneMgr().GetActiveSceneCount(ConditionValue1) > 0;
             break;
         }
         case CONDITION_PLAYER_CONDITION:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ConditionValue1))
                     condMeets = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
             break;
@@ -990,13 +990,13 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
     return false;
 }
 
-bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions) const
+bool ConditionMgr::IsObjectMeetToConditions(WorldObject const* object, ConditionContainer const& conditions) const
 {
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object);
     return IsObjectMeetToConditions(srcInfo, conditions);
 }
 
-bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions) const
+bool ConditionMgr::IsObjectMeetToConditions(WorldObject const* object1, WorldObject const* object2, ConditionContainer const& conditions) const
 {
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object1, object2);
     return IsObjectMeetToConditions(srcInfo, conditions);
@@ -1084,7 +1084,7 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 /*= nullptr*/, WorldObject* target2 /*= nullptr*/) const
+bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject const* target0, WorldObject const* target1 /*= nullptr*/, WorldObject const* target2 /*= nullptr*/) const
 {
     ConditionSourceInfo conditionSource(target0, target1, target2);
     return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
@@ -1105,7 +1105,7 @@ bool ConditionMgr::HasConditionsForNotGroupedEntry(ConditionSourceType sourceTyp
     return false;
 }
 
-bool ConditionMgr::IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject* clicker, WorldObject* target) const
+bool ConditionMgr::IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject const* clicker, WorldObject const* target) const
 {
     ConditionEntriesByCreatureIdMap::const_iterator itr = SpellClickEventConditionStore.find(creatureId);
     if (itr != SpellClickEventConditionStore.end())
@@ -1136,7 +1136,7 @@ ConditionContainer const* ConditionMgr::GetConditionsForSpellClickEvent(uint32 c
     return nullptr;
 }
 
-bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const
+bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player const* player, Unit const* vehicle) const
 {
     ConditionEntriesByCreatureIdMap::const_iterator itr = VehicleSpellConditionStore.find(creatureId);
     if (itr != VehicleSpellConditionStore.end())
@@ -1152,7 +1152,7 @@ bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const
+bool ConditionMgr::IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit const* unit, WorldObject const* baseObject) const
 {
     SmartEventConditionContainer::const_iterator itr = SmartEventConditionStore.find(std::make_pair(entryOrGuid, sourceType));
     if (itr != SmartEventConditionStore.end())
@@ -1168,7 +1168,7 @@ bool ConditionMgr::IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const
+bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player const* player, Creature const* vendor) const
 {
     ConditionEntriesByCreatureIdMap::const_iterator itr = NpcVendorConditionContainerStore.find(creatureId);
     if (itr != NpcVendorConditionContainerStore.end())
@@ -1209,7 +1209,7 @@ bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint3
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject* seer) const
+bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const
 {
     if (ConditionContainer const* conditions = Trinity::Containers::MapGetValuePtr(ObjectVisibilityConditionStore, { objectType, entry }))
     {

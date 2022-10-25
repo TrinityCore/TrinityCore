@@ -211,10 +211,10 @@ enum MaxConditionTargets
 
 struct TC_GAME_API ConditionSourceInfo
 {
-    WorldObject* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
+    WorldObject const* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
     Map const* mConditionMap;
     Condition const* mLastFailedCondition;
-    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr);
+    ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1 = nullptr, WorldObject const* target2 = nullptr);
     ConditionSourceInfo(Map const* map);
 };
 
@@ -284,27 +284,27 @@ class TC_GAME_API ConditionMgr
         bool isConditionTypeValid(Condition* cond) const;
 
         uint32 GetSearcherTypeMaskForConditionList(ConditionContainer const& conditions) const;
-        bool IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions) const;
-        bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions) const;
+        bool IsObjectMeetToConditions(WorldObject const* object, ConditionContainer const& conditions) const;
+        bool IsObjectMeetToConditions(WorldObject const* object1, WorldObject const* object2, ConditionContainer const& conditions) const;
         bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
         static bool CanHaveSourceGroupSet(ConditionSourceType sourceType);
         static bool CanHaveSourceIdSet(ConditionSourceType sourceType);
         static bool CanHaveConditionType(ConditionSourceType sourceType, ConditionTypes conditionType);
         bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, ConditionSourceInfo& sourceInfo) const;
-        bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr) const;
+        bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject const* target0, WorldObject const* target1 = nullptr, WorldObject const* target2 = nullptr) const;
         bool IsMapMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, Map const* map) const;
         bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const;
-        bool IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject* clicker, WorldObject* target) const;
+        bool IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject const* clicker, WorldObject const* target) const;
         ConditionContainer const* GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;
-        bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const;
-        bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
-        bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
+        bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player const* player, Unit const* vehicle) const;
+        bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit const* unit, WorldObject const* baseObject) const;
+        bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player const* player, Creature const* vendor) const;
 
         bool IsSpellUsedInSpellClickConditions(uint32 spellId) const;
 
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
         bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
-        bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject* seer) const;
+        bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);

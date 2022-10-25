@@ -193,7 +193,9 @@ struct TC_GAME_API LootItem
     ~LootItem();
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
-    bool AllowedForPlayer(Player const* player, Loot const& loot) const;
+    bool AllowedForPlayer(Player const* player, Loot const* loot) const;
+    static bool AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
+        ConditionContainer const& conditions);
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
     bool HasAllowedLooter(ObjectGuid const& looter) const;
@@ -282,6 +284,8 @@ struct TC_GAME_API Loot
 
     ObjectGuid const& GetGUID() const { return _guid; }
     ObjectGuid const& GetOwnerGUID() const { return _owner; }
+    ItemContext GetItemContext() const { return _itemContext; }
+    void SetItemContext(ItemContext context) { _itemContext = context; }
     LootMethod GetLootMethod() const { return _lootMethod; }
     ObjectGuid const& GetLootMasterGUID() const { return _lootMaster; }
     uint32 GetDungeonEncounterId() const { return _dungeonEncounterId; }
@@ -300,6 +304,7 @@ struct TC_GAME_API Loot
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE);
+    void FillNotNormalLootFor(Player const* player);        // count unlooted items
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const& item);
@@ -318,8 +323,6 @@ struct TC_GAME_API Loot
     void Update();
 
 private:
-    void FillNotNormalLootFor(Player const* player);
-
     GuidSet PlayersLooting;
     NotNormalLootItemMap PlayerFFAItems;
 

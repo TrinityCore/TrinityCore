@@ -389,7 +389,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         std::string GetDebugInfo() const override;
 
-        void UpdateDynamicFlagsForNearbyPlayers() const;
+        void UpdateDynamicFlagsForNearbyPlayers();
 
         void HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const;
 
