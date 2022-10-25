@@ -62,10 +62,12 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (452360, 1, 410.59198, 1036.08, 107.175674, NULL, 0, 1, 0, 0, 0),
 (452360, 2, 410.59198, 1036.08, 107.175674, NULL, 0, 1, 0, 0, 0);
 
+-- Reverse Cast Ride Vehicle
 DELETE FROM `spell_script_names` WHERE `spell_id` = 84470 AND `ScriptName` = 'spell_gen_reverse_cast_target_to_caster_triggered';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (84470, 'spell_gen_reverse_cast_target_to_caster_triggered');
 
+-- Toss Bomb
 DELETE FROM `spell_script_names` WHERE `spell_id` = 84467 AND `ScriptName` = 'spell_silverpine_toss_bomb';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (84467, 'spell_silverpine_toss_bomb');
@@ -73,6 +75,19 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=84467 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=45237 AND `ConditionValue3`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (13, 1, 84467, 0, 0, 31, 0, 3, 45237, 0, 0, 0, 0, '', 'Toss Bomb - Target Bomb');
+
+-- Explosion
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=84474 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=45225 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 84474, 0, 0, 31, 0, 3, 45225, 0, 0, 0, 0, '', 'Explosion - Veteran Forsaken Trooper');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=84474 AND `SourceId`=0 AND `ElseGroup`=1 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=45228 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 1, 84474, 0, 0, 31, 1, 3, 45228, 0, 0, 0, 0, '', 'Explosion - Master Forteski');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=2 AND `SourceEntry`=84474 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=5 AND `ConditionValue2`=205271 AND `ConditionValue3`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+(13, 2, 84474, 0, 0, 31, 0, 5, 205271, 0, 0, 0, 0, '', 'Explosion - Target Bomb Wagon');
 
 -- Bomb Wagon
 UPDATE `gameobject` SET `spawntimesecs` = 10 WHERE `id` = 205271;
