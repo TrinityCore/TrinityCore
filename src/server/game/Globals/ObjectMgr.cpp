@@ -8374,7 +8374,7 @@ void ObjectMgr::LoadPointsOfInterest()
         pointOfInterest.Flags           = fields[5].GetUInt32();
         pointOfInterest.Importance      = fields[6].GetUInt32();
         pointOfInterest.Name            = fields[7].GetString();
-        pointOfInterest.WMOGroupID      = fields[8].GetUInt32();
+        pointOfInterest.WMOGroupID      = fields[8].GetInt32();
 
         if (!Trinity::IsValidMapCoord(pointOfInterest.Pos.GetPositionX(), pointOfInterest.Pos.GetPositionY(), pointOfInterest.Pos.GetPositionZ()))
         {
