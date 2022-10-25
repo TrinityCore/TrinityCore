@@ -5494,7 +5494,7 @@ struct npc_silverpine_caretaker_smithers : public ScriptedAI
                     break;
 
                 case EVENT_SMITHERS_RESET_POS:
-                    me->GetMotionMaster()->MovePoint(POINT_BEFORE_JUMPING, SmithersResetPos[0], 4.702f);
+                    me->GetMotionMaster()->MovePoint(POINT_BEFORE_JUMPING, SmithersResetPos[0], false, 4.702f);
                     break;
 
                 default:
