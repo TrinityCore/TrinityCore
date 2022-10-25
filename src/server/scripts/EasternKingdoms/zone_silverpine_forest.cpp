@@ -5320,11 +5320,10 @@ enum NoWhereToRun
 {
     QUEST_NOWHERE_TO_RUN                        = 27195,
 
-    NPC_PACKLEADER_IVAR_BLOODFANG_ELEM          = 45236,
+    NPC_PACKLEADER_IVAR_BLOODFANG_ELEM_MINE     = 45236,
     NPC_VETERAN_FORSAKEN_TROOPER                = 45225,
 
     GAMEOBJECT_BOMB_WAGON                       = 205271,
-    GAMEOBJECT_DYNAMITE                         = 205279,
 
     SPELL_TOSS_BOMB                             = 84467,
     SPELL_BOMB_EXPLOSION                        = 84474,
@@ -5344,7 +5343,9 @@ enum NoWhereToRun
     PATH_FORTESKI_MINE                          = 452280,
     PATH_BLOOFANG_MINE                          = 452360,
 
-    WAYPOINT_INSIDE_MINE                        = 8
+    WAYPOINT_INSIDE_MINE                        = 8,
+
+    POINT_VETERAN_ELEM                          = 1
 };
 
 // 45228 - Master Forteski
@@ -5382,7 +5383,7 @@ struct npc_silverpine_master_forteski : public ScriptedAI
 
         _playerGUID.Clear();
         _bloodfangGUID.Clear();
-        _bombGUID.Clear();
+
         _forsakenTrooperIndex = 0;
         _isEventStarted = false;
     }
@@ -5442,7 +5443,7 @@ struct npc_silverpine_master_forteski : public ScriptedAI
                     break;
 
                 case EVENT_NOWHERE_TO_RUN + 3:
-                    if (Creature* bloodfang = me->SummonCreature(NPC_PACKLEADER_IVAR_ELEM, BloodfangElemPos, TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* bloodfang = me->SummonCreature(NPC_PACKLEADER_IVAR_BLOODFANG_ELEM_MINE, BloodfangElemPos, TEMPSUMMON_MANUAL_DESPAWN))
                         _bloodfangGUID = bloodfang->GetGUID();
                     _events.ScheduleEvent(EVENT_NOWHERE_TO_RUN + 4, 1s + 200ms);
                     break;
