@@ -1834,7 +1834,7 @@ enum OpcodeServer : uint16
     SMSG_UPDATE_LAST_INSTANCE                         = 0x2685,
     SMSG_UPDATE_OBJECT                                = 0x27CB,
     SMSG_UPDATE_PRIMARY_SPEC                          = 0x25D4,
-    SMSG_UPDATE_TALENT_DATA                           = 0x25D2,
+    SMSG_UPDATE_TALENT_DATA                           = 0x25D3,
     SMSG_UPDATE_TASK_PROGRESS                         = 0x278D,
     SMSG_UPDATE_WEEKLY_SPELL_USAGE                    = 0x2C19,
     SMSG_UPDATE_WORLD_STATE                           = 0x2744,
