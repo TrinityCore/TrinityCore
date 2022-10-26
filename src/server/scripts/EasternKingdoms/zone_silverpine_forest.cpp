@@ -5306,6 +5306,7 @@ enum BloodfangStalker
     QUEST_EXCISING_THE_TAINT                    = 27181,
 
     NPC_DARKTUSK_BOAR                           = 46575,
+    NPC_BERARD_THE_MOON_CRAZY                   = 46992,
 
     SPELL_STALKING                              = 86237,
     SPELL_SHADOWSTEP                            = 79864,
@@ -5330,7 +5331,9 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
         me->SetPower(POWER_ENERGY, 100, true);
 
         DoCastSelf(SPELL_STALKING);
-        DoCastSelf(SPELL_KILL_ME_QUEST);
+
+        if (me->GetEntry() != NPC_BERARD_THE_MOON_CRAZY)
+            DoCastSelf(SPELL_KILL_ME_QUEST);
     }
 
     void Reset() override
@@ -5338,7 +5341,9 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
         _events.Reset();
 
         DoCastSelf(SPELL_STALKING);
-        DoCastSelf(SPELL_KILL_ME_QUEST);
+
+        if (me->GetEntry() != NPC_BERARD_THE_MOON_CRAZY)
+            DoCastSelf(SPELL_KILL_ME_QUEST);
 
         // Note: I don't like this way of handling. I would rather look for a spawnGUID, but it is not recommended.
         if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
