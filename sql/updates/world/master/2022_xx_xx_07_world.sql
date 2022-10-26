@@ -616,7 +616,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (86560, 229, 27098, 27181, 0, 0, 2, 3, 64, 1);
 
 -- Veteran Forsaken Trooper
-UPDATE `creature_template` SET `npcflag` = 16777216, `pickpocketloot` = 45197, `ScriptName` = '' WHERE `entry` = 45197;
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `npcflag` = 16777216, `pickpocketloot` = 45197, `ScriptName` = '' WHERE `entry` = 45197;
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 45197 AND `spell_id` = 84379;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES 
@@ -634,8 +634,19 @@ DELETE FROM `pickpocketing_loot_template` WHERE `Entry`=45197 AND `Item`=60862;
 INSERT INTO `pickpocketing_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES 
 (45197, 60862, 0, 100, 1, 1, 0, 1, 1, 'Forsaken Insignia');
 
+-- Berard the Moon-Crazed
+SET @ENTRY := 46992;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `dynamicflags`=4, `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 25, 0, 100, 0, 0, 0, 0, 0, 11, 86237, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On reset - Self: Cast spell 86237 on Self'),
+(@ENTRY, 0, 1, 0, 4, 0, 100, 1, 0, 0, 0, 0, 11, 79864, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'On aggro - Self: Cast spell 79864 on Victim'),
+(@ENTRY, 0, 2, 0, 0, 0, 100, 0, 3000, 4500, 12000, 15000, 11, 60195, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Every 12 - 15 seconds (3 - 4.5s initially) (IC) - Self: Cast spell 60195 on Victim'),
+(@ENTRY, 0, 3, 4, 2, 0, 100, 1, 0, 30, 0, 0, 11, 8599, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'When health between 0%-30%% (once) - Self: Cast spell 8599 on Self'),
+(@ENTRY, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'When health between 0%-30%% (once) - Self: Talk %s becomes enraged! (0) to invoker');
+
 -- Bloodfang Stalker
-UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 45195;
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 45195;
 
 UPDATE `creature_template_addon` SET `auras` = '86237 86559' WHERE `entry` = 45195;
 
@@ -644,6 +655,8 @@ UPDATE `creature` SET `MovementType`= 1, `wander_distance`= 5 WHERE `id` = 45195
 UPDATE `creature` SET `MovementType`= 0, `wander_distance`= 0 WHERE `guid` = 321102;
 
 -- Darktusk Boar
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=46575;
+
 UPDATE `creature` SET `MovementType`= 1, `wander_distance`= 5 WHERE `id` = 46575;
 
 UPDATE `creature` SET `unit_flags` = 768, `MovementType`= 0, `wander_distance`= 0 WHERE `guid` = 321101;
@@ -653,7 +666,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `by
 (321101, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '29266');
 
 -- Caretaker Smithers
-UPDATE `creature_template` SET `ScriptName`= 'npc_silverpine_caretaker_smithers' WHERE `entry` = 45219;
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, ScriptName`= 'npc_silverpine_caretaker_smithers' WHERE `entry`=45219;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 45219;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
