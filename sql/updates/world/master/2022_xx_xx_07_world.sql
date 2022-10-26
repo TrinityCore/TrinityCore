@@ -655,18 +655,22 @@ UPDATE `creature` SET `MovementType`= 1, `wander_distance`= 5 WHERE `id` = 45195
 UPDATE `creature` SET `MovementType`= 0, `wander_distance`= 0 WHERE `guid` = 321102;
 
 -- Darktusk Boar
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=46575;
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=0 WHERE `entry`=46575;
 
-UPDATE `creature` SET `MovementType`= 1, `wander_distance`= 5 WHERE `id` = 46575;
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=46575;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES 
+(46575, 1, 1, 0, 0, 0, 0, NULL);
 
-UPDATE `creature` SET `unit_flags` = 768, `MovementType`= 0, `wander_distance`= 0 WHERE `guid` = 321101;
+UPDATE `creature` SET `MovementType`=1, `wander_distance`=5 WHERE `id`=46575;
+
+UPDATE `creature` SET `unit_flags`=262600, `MovementType`=0, `wander_distance`=0 WHERE `guid`=321101;
 
 DELETE FROM `creature_addon` WHERE `guid` = 321101;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (321101, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '29266');
 
 -- Caretaker Smithers
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, ScriptName`= 'npc_silverpine_caretaker_smithers' WHERE `entry`=45219;
+UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `ScriptName`='npc_silverpine_caretaker_smithers' WHERE `entry`=45219;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 45219;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
