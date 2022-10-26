@@ -637,6 +637,8 @@ INSERT INTO `pickpocketing_loot_template` (`Entry`, `Item`, `Reference`, `Chance
 -- Berard the Moon-Crazed
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `dynamicflags`=4, `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 46992;
 
+UPDATE `creature` SET `equipment_id`= 1 WHERE `guid` = 321162;
+
 -- Bloodfang Stalker
 UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 45195;
 
