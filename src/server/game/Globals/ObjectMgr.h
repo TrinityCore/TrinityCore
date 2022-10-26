@@ -736,7 +736,7 @@ struct PointOfInterest
     uint32 Icon;
     uint32 Flags;
     uint32 Importance;
-    uint32 Unknown905;
+    int32 WMOGroupID;
     std::string Name;
 };
 
