@@ -59,7 +59,6 @@ public:
     {
         player->CastSpell(player, SPELL_CRASHED_LANDED, true);
     }
-
 };
 
 void AddSC_scene_scripts()
