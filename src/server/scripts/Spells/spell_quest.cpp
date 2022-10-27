@@ -2008,6 +2008,25 @@ class spell_q14386_call_attack_mastiffs : public SpellScript
         OnEffectHit += SpellEffectFn(spell_q14386_call_attack_mastiffs::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
     }
 };
+
+class spell_q59928_spell_ship_crash_teleport : public SpellScript
+{
+    PrepareSpellScript(spell_q59928_spell_ship_crash_teleport);
+
+    void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+
+        if (TransportBase* transport = target->GetTransport())
+            transport->RemovePassenger(target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q59928_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_3, SPELL_EFFECT_TELEPORT_UNITS);
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2071,4 +2090,5 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_quest_portal_with_condition);
     RegisterSpellScript(spell_quest_uther_grom_tribute);
     RegisterSpellScript(spell_q14386_call_attack_mastiffs);
+    RegisterSpellScript(spell_q59928_spell_ship_crash_teleport);
 }
