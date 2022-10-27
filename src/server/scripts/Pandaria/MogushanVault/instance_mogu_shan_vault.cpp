@@ -358,7 +358,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 }
             }
 
-            void OnPlayerExit(Player* player) override
+            void OnPlayerExit(Player* player) 
             {
                 InstanceScript::OnPlayerExit(player);
 

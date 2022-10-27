@@ -18,6 +18,71 @@
 #include "siege_of_orgrimmar.hpp"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <AI/PlayerAI/PlayerAI.h>
 
 enum ScriptedTextRookStonetoe
 {
@@ -454,7 +519,7 @@ private:
         return instance->instance->GetCreature(instance->GetObjectGuid(DATA_SUN_TENDERHEART));
     }
 
-    /*void GetOtherBosses(std::list<Creature*>& creatures)
+    void GetOtherBosses(std::list<Creature*>& creatures)
     {
         Creature* pRook = GetRookStoneToe();
         Creature* pHe = GetHeSoftFoot();
@@ -468,7 +533,7 @@ private:
 
         if (pSun && pSun->GetEntry() != me->GetEntry())
             creatures.push_back(pSun);
-    }*/
+    }
 
     bool IsOthersCastingLowHealth()
     {
@@ -541,7 +606,7 @@ private:
     void NotifyOtherBossesForMeasures(bool isInMeasure)
     {
         std::list<Creature*> otherBosses;
-        //GetOtherBosses(otherBosses);
+        GetOtherBosses(otherBosses);
 
         for (Creature* pBoss : otherBosses)
         {
@@ -1440,20 +1505,20 @@ struct npc_sun_tenderheart_embodied_AI : public Scripted_NoMovementAI
     uint32 m_Spell = 0;
     InstanceScript* m_Instance = nullptr;
 
-    void Reset() override
+    void Reset() 
     {
         events.Reset();
         summons.DespawnAll();
     }
 
-    void IsSummonedBy(Unit* /*p_Owner*/) override
+    void IsSummonedBy(Unit* /*p_Owner*/) 
     {
         events.ScheduleEvent(EVENT_MANIFEST, 1000);
         DoCast(me, m_Spell, true);
         me->AddAura(Spells::SPELL_SPIRIT_BOUND, me);
     }
 
-    void JustSummoned(Creature* p_Summon) override
+    void JustSummoned(Creature* p_Summon) 
     {
         summons.Summon(p_Summon);
 
@@ -1461,13 +1526,13 @@ struct npc_sun_tenderheart_embodied_AI : public Scripted_NoMovementAI
             DoZoneInCombat(p_Summon);
     }
 
-    void EnterCombat(Unit* /*p_Who*/) override
+    void EnterCombat(Unit* /*p_Who*/) 
     {
         if (m_Instance)
             m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
     }
 
-    void DoAction(const int32 p_Action) override
+    void DoAction(const int32 p_Action) 
     {
         if (p_Action == Actions::ACTION_SPAWNS_SYNC_HP)
         {
@@ -1477,12 +1542,12 @@ struct npc_sun_tenderheart_embodied_AI : public Scripted_NoMovementAI
         }
     }
 
-    void SummonedCreatureDespawn(Creature* p_Summon) override
+    void SummonedCreatureDespawn(Creature* p_Summon) 
     {
         summons.Despawn(p_Summon);
     }
 
-    void JustDied(Unit* /*p_Who*/) override
+    void JustDied(Unit* /*p_Who*/) 
     {
         events.Reset();
         summons.DespawnAll();
@@ -1493,7 +1558,7 @@ struct npc_sun_tenderheart_embodied_AI : public Scripted_NoMovementAI
         me->DespawnOrUnsummon(3000);
     }
 
-    void UpdateAI(const uint32 p_Diff) override
+    void UpdateAI(const uint32 p_Diff)
     {
         if (!UpdateVictim())
             return;

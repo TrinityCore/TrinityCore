@@ -5,6 +5,70 @@
 #include "terrace_of_endless_spring.h"
 #include "GridNotifiers.h"
 #include "Group.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 static const Position aLeiWps[] =
 {
@@ -97,6 +161,12 @@ Position hidePositions[4] =
     { -1045.101f, -2890.742f, 19.172f, 5.646f }
 };
 
+enum Data
+{
+    SMSG_CLIENT_MOVE_APPLY_MOVEMENT_FORCE,
+    SMSG_CLIENT_MOVE_REMOVE_MOVEMENT_FORCE,
+};
+
 #define HEROIC_DIST_TO_VORTEX 21.0f
 #define DIST_TO_SCARY_FOG_DOT 4.5f
 
@@ -182,8 +252,8 @@ public:
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SCARY_FOG_STACKS);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SPRAY);
 
-                /* if (pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION))
-                     me->AddAura(SPELL_RITUAL_OF_PURIFICATION, me);*/
+                 if (pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION))
+                     me->AddAura(SPELL_RITUAL_OF_PURIFICATION, me);
 
                 std::list<Creature*> protectors;
                 me->GetCreatureListWithEntryInGrid(protectors, NPC_ANIMATED_PROTECTOR, 100.0f);
@@ -272,14 +342,14 @@ public:
                 if (me->HealthBelowPctDamaged(int32(getAwayHealthPct - 4.0f), damage))
                     me->RemoveAura(SPELL_GET_AWAY);
 
-                /*if (nextProtectPct >= 20)
+                if (nextProtectPct >= 20)
                 {
                     if (me->HealthBelowPctDamaged(nextProtectPct, damage) && !protectScheduled)
                     {
                         protectScheduled = true;
                         events.ScheduleEvent(EVENT_PROTECT, 100);
                     }
-                }*/
+                }
 
                 if (me->HealthBelowPct(80) && !protectone)
                 {
@@ -422,10 +492,10 @@ public:
                         break;
 
                     // 4 Animated Protectors at 40% and 20%
-                  //  if (((me->GetMap()->IsHeroic() && protectorsActivated >= 5) ||
-                  //      (!me->GetMap()->IsHeroic() && protectorsActivated >= 4)))
+                   if (((me->GetMap()->IsHeroic() && protectorsActivated >= 5) ||
+                        (!me->GetMap()->IsHeroic() && protectorsActivated >= 4)))
                         // && nextProtectPct <= 40)
-                //        break;
+                        break;
 
                     if (Creature* protector = me->FindNearestCreature(NPC_ANIMATED_PROTECTOR, 500.0f))
                     {
@@ -538,9 +608,9 @@ public:
 
             if (!UpdateVictim())
             {
-                /*
+                
                 if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
-                    me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);*/
+                    me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
 
                 std::list<Creature*> protectors;
                 me->GetCreatureListWithEntryInGrid(protectors, NPC_ANIMATED_PROTECTOR, 100.0f);
@@ -578,7 +648,7 @@ public:
                     break;
                 }
 
-                //if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                 if (Unit* target = me->GetVictim())
                 {
                     if (!target)
@@ -635,7 +705,7 @@ public:
             }
             case EVENT_HIDE:
             {
-                /* if (me->HasUnitState(UNIT_STATE_CASTING) || shielded)
+                 if (me->HasUnitState(UNIT_STATE_CASTING) || shielded)
                  {
                      events.RescheduleEvent(EVENT_HIDE, 0);
                      break;
@@ -644,7 +714,7 @@ public:
                  Talk(TALK_HIDE);
                  me->CastSpell(me, SPELL_HIDE);
                  hidden = true;
-                 me->RemoveAura(SPELL_SCARY_FOG_CIRCLE);*/
+                 me->RemoveAura(SPELL_SCARY_FOG_CIRCLE);
                 break;
             }
             case EVENT_HIDE_NEW:
@@ -1075,7 +1145,7 @@ public:
 };
 
 // Scary Fog (stacks) - 123712
-/*class bfa_spell_toes_scary_fog_stacks : public SpellScriptLoader
+class bfa_spell_toes_scary_fog_stacks : public SpellScriptLoader
 {
 public:
     bfa_spell_toes_scary_fog_stacks() : SpellScriptLoader("bfa_spell_toes_scary_fog_stacks") { }
@@ -1129,10 +1199,10 @@ public:
     {
         return new bfa_spell_toes_scary_fog_stacks_SpellScript();
     }
-};*/
+};
 
 // Get Away - 123461
-/*
+
 class bfa_spell_get_away_pushback : public SpellScriptLoader
 {
 public:
@@ -1239,7 +1309,7 @@ public:
     {
         return new bfa_spell_get_away_pushback_AuraScript();
     }
-};*/
+};
 
 void AddSC_boss_lei_shi()
 {
@@ -1252,6 +1322,6 @@ void AddSC_boss_lei_shi()
     new bfa_spell_toes_hide();
     new bfa_spell_toes_hide_stacks();
     new bfa_spell_toes_scary_fog_dot();
-    //ew bfa_spell_toes_scary_fog_stacks();
-    //new bfa_spell_get_away_pushback();
+    new bfa_spell_toes_scary_fog_stacks();
+    new bfa_spell_get_away_pushback();
 }

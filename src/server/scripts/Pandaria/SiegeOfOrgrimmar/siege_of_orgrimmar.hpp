@@ -26,6 +26,8 @@
 #include "GridNotifiersImpl.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include <Pandaria/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp>
+#include <Pandaria/SiegeOfOrgrimmar/instance_siege_of_orgrimmar.cpp>
 
 # define MAX_FALLEN_PROTECTORS 3
 # define MAX_KORKRON_DARK_SHAMANS 2
@@ -713,11 +715,18 @@ public:
 
     void UpdateCombatAuras(const uint32 diff);
 
-private:
+   // void RegisterInstanceScript(instance_siege_of_orgrimmar());
 
     Creature* m_Owner;
     uint32 m_CombatAurasTimer;
     std::list<uint32> m_CombatAuras;
 };
+//private:
+
+//{
+  //  Creature* m_Owner,
+    //uint32 m_CombatAurasTimer,
+    //std::list<uint32> m_CombatAuras,
+//};
 
 #endif

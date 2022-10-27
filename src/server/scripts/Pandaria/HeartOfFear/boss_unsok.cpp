@@ -19,6 +19,62 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "heart_of_fear.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "heart_of_fear.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include "heart_of_fear.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
 
 enum eUnsokSpells
 {
@@ -243,7 +299,7 @@ class boss_unsok : public CreatureScript
 
             void EnterCombat(Unit* /*p_Attacker*/) override
             {
-                if (!CheckTrash() || (!instance->CheckRequiredBosses(DATA_UNSOK) && !IsLFR()))
+                if (!CheckTrash() || (!instance->CheckRequiredBosses(DATA_UNSOK)))// && !IsLFR()))
                 {
                     me->SetFullHealth();
                     me->SetReactState(REACT_PASSIVE);

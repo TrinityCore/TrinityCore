@@ -23,13 +23,78 @@
 #include "Scenario.h"
 #include "GameObject.h"
 #include "InstanceScenario.h"
-#include "PhasingHandler.h"
+//#include "PhasingHandler.h"
 #include "SceneMgr.h"
 #include "ScriptedGossip.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <Scenarios/Scenario.cpp>
 
 enum DataTypes
 {
@@ -169,7 +234,7 @@ struct scenario_the_secrets_of_ragefire : public InstanceScript
     }
 
 
-    void OnPlayerAreaUpdate(Player* player, uint32 newAreaId, uint32 /*oldAreaId*/ ) override
+    void OnPlayerAreaUpdate(Player* player, uint32 newAreaId, uint32 /*oldAreaId*/ ) 
     {
         if (!isLoadScenaro)
         {
@@ -178,7 +243,7 @@ struct scenario_the_secrets_of_ragefire : public InstanceScript
         }
     }
 
-    void OnCompletedCriteriaTree(CriteriaTree const* tree) override
+    void OnCompletedCriteriaTree(CriteriaTree const* tree) 
     {
         switch (tree->ID)
         {
@@ -490,16 +555,16 @@ struct scenario_the_secrets_of_ragefire : public InstanceScript
         }
 
 
-        //if (m_scenario.IsCompleted())
-        //    CompleteScenario();
+       // if (m_scenario.IsCompleted())
+         //   CompleteScenario();
     }
 
 
     void OnUnitDeath(Unit* l_unit)
     {
-       // if (l_unit->GetEntry() == 98011)
-       //     if (GetData(DATA_STAGE_1) == NOT_STARTED)
-       //         SetData(DATA_STAGE_1, DONE);
+        if (l_unit->GetEntry() == 98011)
+            if (GetData(DATA_STAGE_1) == NOT_STARTED)
+                SetData(DATA_STAGE_1, DONE);
     }
 
 private:
@@ -618,7 +683,7 @@ public:
 
         void Reset()
         {
-            //   me->SetVisible(false);
+               me->SetVisible(false);
         }
 
         void DoAction(const int32 action) override

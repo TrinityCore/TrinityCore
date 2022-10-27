@@ -18,6 +18,19 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
+#include <Instances/InstanceScript.h>
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "PhaseShift.h"
 
 enum eSpells
 {
@@ -262,7 +275,7 @@ class npc_add_generator : public CreatureScript
 
                 float x = me->GetPositionX();
                 float y = me->GetPositionY() - 10;
-                float z = me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, 400.0f);
+                float z = me->GetMap()->GetHeight(x, y, 400.0f);
                 summoned->GetMotionMaster()->MoveJump(x, y, z, 0.0f, 10, 20);
             }
         };

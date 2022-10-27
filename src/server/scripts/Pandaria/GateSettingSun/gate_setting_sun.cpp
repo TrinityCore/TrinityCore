@@ -20,6 +20,9 @@
 #include "ScriptedCreature.h"
 #include "Vehicle.h"
 #include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "Player.h"
+#include "MotionMaster.h"
 
 enum spells
 {
@@ -227,7 +230,7 @@ class vehicle_artillery_to_wall : public VehicleScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const 
         {
             return new vehicle_artillery_to_wallAI(creature);
         }

@@ -19,6 +19,61 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "mogu_shan_palace.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include "Creature.h"
 
 #define SPELL_GUARDIAN_GRUNT 85667
 
@@ -39,7 +94,8 @@ public:
         EVENT_TALK_0 = 1,
         EVENT_TALK_1 = 2,
         EVENT_JUMP_XIAN = 3,
-        EVENT_DISAPPEAR = 4
+        EVENT_DISAPPEAR = 4,
+        AREA_MOGUSHAN_PALACE_CRIMSON_ASSEMBLY_HALL,
     };
 
     enum eSpells
@@ -458,7 +514,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (who->ToPlayer() && who->GetAreaId() == AREA_MOGUSHAN_PALACE_CRIMSON_ASSEMBLY_HALL
+            if (who->ToPlayer() && who->GetAreaId() == mob_xian_the_weaponmaster_trigger::eEvents::AREA_MOGUSHAN_PALACE_CRIMSON_ASSEMBLY_HALL
                 && me->GetDistance2d(who) < 2.0f
                 && who->isInFront(me)
                 && status != STATUS_ATTACK_GRUNTS)

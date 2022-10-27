@@ -4,7 +4,72 @@
 #include <G3D/Vector3.h>
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
-#include "SceneHelper.h"
+//#include "SceneHelper.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <Entities/AreaTrigger/AreaTriggerTemplate.h>
 
 // todo readd update spellscripts
 
@@ -2084,7 +2149,7 @@ class npc_garrosh_hellscream_desecrated_weapon : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void Reset() override
+            void Reset() 
             {
                 me->AddAura(IsEmpowered() ? SPELL_EMPOWERED_DESECRATED_WEAPON_VISUAL : SPELL_DESECRATED_WEAPON_VISUAL, me);
                 me->AddAura(SPELL_DESECRATED_WEAPON_2, me);
@@ -2095,7 +2160,7 @@ class npc_garrosh_hellscream_desecrated_weapon : public CreatureScript
                 m_UpdateScaleTimer = 1000;
             }
 
-            void DamageTaken(Unit* who, uint32& damage) override
+            void DamageTaken(Unit* who, uint32& damage) 
             {
                 if (me->GetHealth() <= damage)
                 {
@@ -2106,12 +2171,12 @@ class npc_garrosh_hellscream_desecrated_weapon : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* who) override
+            void JustDied(Unit* who) 
             {
                 me->DespawnOrUnsummon(100);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff) 
             {
                 UpdateTargets(diff);
             }
@@ -2561,26 +2626,26 @@ class npc_garrosh_hellscream_korkron_iron_star : public CreatureScript
 
             const float c_DamageRange = 70.0f;
 
-            void DoAction(const int32 action) override
+            void DoAction(const int32 action) 
             {
                 if (action == ACTION_POWER_IRON_STAR)
                     HandlePowerIronStar();
             }
 
-            void MovementInform(uint32 type, uint32 id) override
+            void MovementInform(uint32 type, uint32 id) 
             {
                 if (type == POINT_MOTION_TYPE && id == POINT_IRON_STAR)
                     HandleExplode();
             }
 
-            void JustDied(Unit* who) override
+            void JustDied(Unit* who) 
             {
                 m_IsPowered = false;
 
                 me->DespawnOrUnsummon(3000);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff) 
             {
                 UpdateTargets(diff);
             }
@@ -2807,10 +2872,10 @@ class npc_garrosh_hellscream_embodied : public CreatureScript
 
             void GetOtherEmbodiedDespairs(std::list<Creature*>& l_Despairs)
             {
-                /*me->GetCreatureListWithEntryInGrid(l_Despairs, Adds::NPC_EMBODIED_DESPAIR, 30.f, [&](Unit const* l_Unit) -> bool
-                {
-                    return l_Unit != me;
-                });*/
+                me->GetCreatureListWithEntryInGrid(l_Despairs, Adds::NPC_EMBODIED_DESPAIR, 30.f, [&](Unit const* l_Unit) -> bool
+                    {
+                        return l_Unit != me;
+                    });
                 me->GetCreatureListWithEntryInGrid(l_Despairs, Adds::NPC_EMBODIED_DESPAIR, 30.0f);
                 for (Creature* creature : l_Despairs)
                     if (creature = me)
@@ -3674,7 +3739,7 @@ class spell_garrosh_hellscream_touch_of_yshaarj : public SpellScriptLoader
                 GetUnitOwner()->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
             }
 
-            /*void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            void OnUpdate(uint32 diff, AuraEffect* aurEff)
             {
                 if (!GetUnitOwner())
                     return;
@@ -3683,7 +3748,7 @@ class spell_garrosh_hellscream_touch_of_yshaarj : public SpellScriptLoader
                     return;
 
                 CastOnPlayers(diff);
-            }*/
+            };
 
             bool RemoveAura(const uint32 diff)
             {

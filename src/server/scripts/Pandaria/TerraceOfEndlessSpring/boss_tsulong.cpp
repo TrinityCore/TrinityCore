@@ -7,6 +7,139 @@
 #include "Spell.h"
 #include "Pet.h"
 #include "Group.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include "Unit.h"
+#include "UnitAI.h"
+#include "UnitDefines.h"
+#include "UnitEvents.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 enum eTsulongEvents
 {
@@ -148,7 +281,7 @@ public:
 
         uint8 phase;
         bool firstSpecialEnabled;
-        bool secondSpecialEnabled;
+        //bool secondSpecialEnabled;
         bool inFly;
         bool hasBeenDefeated;
         bool started;
@@ -389,7 +522,7 @@ public:
                 events.ScheduleEvent(EVENT_SPAWN_SUNBEAM, 2000, 0, PHASE_NIGHT);
                 if (IsHeroic())
                 {
-                    //events.ScheduleEvent(EVENT_DARK_OF_NIGHT, 30000, 0, PHASE_NIGHT);
+                    events.ScheduleEvent(EVENT_DARK_OF_NIGHT, 30000, 0, PHASE_NIGHT);
                     me->RemoveAurasDueToSpell(SPELL_LIGHT_OF_DAY_AURA);
                 }
 
@@ -442,7 +575,7 @@ public:
 
             events.Reset();
 
-            //me->setRegeneratingHealth(false);
+            me->setRegeneratingHealth(false);
             me->SetPower(POWER_ENERGY, 0);
             me->SetMaxPower(POWER_ENERGY, 0);
             me->CombatStop();
@@ -593,7 +726,7 @@ public:
                     DoCast(me, SPELL_BERSERK, true);
                     break;
                 case EVENT_SWITCH_TO_NIGHT_PHASE:
-                    //me->SetDisplayId(DISPLAY_TSULON_NIGHT);
+                    me->SetDisplayId(DISPLAY_TSULON_NIGHT);
                     me->SetFaction(FACTION_NIGHT);
                     me->CastSpell(me, SPELL_DREAD_SHADOWS, true);
                     break;
@@ -646,7 +779,7 @@ public:
                     }
                     break;
                 }
-                //events.ScheduleEvent(EVENT_DARK_OF_NIGHT, 30000, 0, PHASE_NIGHT);
+                events.ScheduleEvent(EVENT_DARK_OF_NIGHT, 30000, 0, PHASE_NIGHT);
                 case EVENT_TSULONG_ENRAGE:
                     me->AddAura(SPELL_TSULONG_ENRAGE, me);
                     break;
@@ -673,7 +806,7 @@ public:
                     events.ScheduleEvent(EVENT_SUN_BREATH, 29000, 0, PHASE_DAY);
                     break;
                 case EVENT_SUMMON_SHA:
-                    //events.ScheduleEvent(EVENT_SUN_BREATH, 30000, 0, PHASE_DAY);
+                    events.ScheduleEvent(EVENT_SUN_BREATH, 30000, 0, PHASE_DAY);
                     break;
                 case EVENT_EVADE_CHECK:
                     HandleEvadeDuringDay();
@@ -707,7 +840,7 @@ public:
             pInstance = creature->GetInstanceScript();
             creature->SetObjectScale(5.0f);
             creature->SetReactState(REACT_PASSIVE);
-            //creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             creature->CastSpell(creature, SPELL_SUNBEAM_DUMMY, true);
         }
 
@@ -734,11 +867,11 @@ class npc_embodied_terror : public CreatureScript
         {
             pInstance = me->GetInstanceScript();
 
-            /*if (pInstance)
+            if (pInstance)
             {
                 if (pInstance->GetData(TYPE_TSULONG) != DONE)
                     terrorizeTimer = urand(3000, 6000);
-            }*/
+            }
 
             died = false;
         }
@@ -911,8 +1044,8 @@ class npc_unstable_sha : public CreatureScript
 
         void IsSummonedBy(Unit* summoner) override
         {
-            //me->GetMotionMaster()->MoveChase(summoner);
-            //me->SetReactState(REACT_PASSIVE);
+            me->GetMotionMaster()->MoveChase(summoner);
+            me->SetReactState(REACT_PASSIVE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
             DoZoneInCombat();
             SetGazeOn(summoner);
@@ -923,18 +1056,18 @@ class npc_unstable_sha : public CreatureScript
             if (!UpdateVictimWithGaze() || riding)
                 return;
 
-            /*if (Unit * summoner = Unit::GetUnit(*me, summonerGUID))
+            if (Unit * summoner = Unit::GetUnit(*me, summonerGUID))
             {
                 if (me->IsWithinMeleeRange(summoner))
                 {
                     riding = true;
-                    //DoCast(summoner, SPELL_INSTABILITY_RIDE);
+                    DoCast(summoner, SPELL_INSTABILITY_RIDE);
                     if (Creature* tsulong = me->FindNearestCreature(NPC_TSULONG, 1.0f, true))
                     {
                         tsulong->CastSpell(tsulong, SPELL_INSTABILITY_DAMAGE);
                     }
                 }
-            }*/
+            }
 
             if (Creature* tsulong = me->FindNearestCreature(NPC_TSULONG, 1.0f, true))
             {

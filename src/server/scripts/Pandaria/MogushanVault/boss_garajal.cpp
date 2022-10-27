@@ -19,6 +19,75 @@
 #include "CreatureTextMgr.h"
 #include "ScriptedCreature.h"
 #include "mogu_shan_vault.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "mogu_shan_vault.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <Instances/InstanceScript.h>
+#include <AI/CreatureAI.cpp>
+#include <AI/ScriptedAI/ScriptedCreature.cpp>
+#include <AI/CoreAI/UnitAI.cpp>
 
 enum eSpells
 {
@@ -569,7 +638,7 @@ class mob_shadowy_minion : public CreatureScript
             ObjectGuid spiritGuid;
             EventMap events;
 
-            void Reset() override
+            void Reset() 
             {
                 events.Reset();
                 spiritGuid = ObjectGuid::Empty;
@@ -598,13 +667,13 @@ class mob_shadowy_minion : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void SummonedCreatureDespawn(Creature* summon) override
+            void SummonedCreatureDespawn(Creature* summon)
             {
                 if (summon->GetEntry() == NPC_SHADOWY_MINION_SPIRIT)
                     me->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* /*p_Attacker*/) override
+            void JustDied(Unit* /*p_Attacker*/) 
             {
                 if (me->GetEntry() == NPC_SHADOWY_MINION_SPIRIT)
                     if (me->ToTempSummon())
@@ -613,7 +682,7 @@ class mob_shadowy_minion : public CreatureScript
                                 summoner->ToCreature()->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff) 
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)

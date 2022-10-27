@@ -3,6 +3,71 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "terrace_of_endless_spring.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <Instances/InstanceScript.h>
 
 #define ENTRANCE_ORIENTATION 4.723f
 
@@ -377,7 +442,7 @@ public:
                         me->AddAura(SPELL_SHA_CORRUPTION, kaolan);
                     }
 
-                    me->ResetLootRecipients();
+                   // me->ResetLootRecipients();
                     break;
                 }
                 case 1:
@@ -394,7 +459,7 @@ public:
                         kaolan->AI()->Talk(TALK_REGAIL_DIES_SECOND_KAOLAN);
                     }
 
-                    me->ResetLootRecipients();
+                   // me->ResetLootRecipients();
                     break;
                 }
                 case 0:
@@ -681,7 +746,7 @@ public:
                         me->AddAura(SPELL_SHA_CORRUPTION, kaolan);
                     }
 
-                    me->ResetLootRecipients();
+                   // me->ResetLootRecipients();
                     break;
                 }
                 case 1:
@@ -698,7 +763,7 @@ public:
                         kaolan->AI()->Talk(TALK_ASANI_DIES_SECOND_KAOLAN);
                     }
 
-                    me->ResetLootRecipients();
+                   // me->ResetLootRecipients();
                     break;
                 }
                 case 0:
@@ -1013,7 +1078,7 @@ public:
                         me->AddAura(SPELL_SHA_CORRUPTION, asani);
                     }
 
-                    me->ResetLootRecipients();
+                   // me->ResetLootRecipients();
                     break;
                 }
                 case 1:
@@ -1028,7 +1093,7 @@ public:
                         asani->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
                     }
 
-                    me->ResetLootRecipients();
+                   // me->ResetLootRecipients();
                     break;
                 }
                 case 0:
@@ -1206,7 +1271,7 @@ public:
         void Reset()
         {
             me->CastSpell(me, SPELL_DEFILED_GROUND_VISUAL, true);
-            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void UpdateAI(uint32 /*diff*/) { }
@@ -1263,7 +1328,7 @@ public:
 
             me->CastSpell(me, SPELL_CLEANSING_WATERS_VISUAL, true);
             me->CastSpell(me, SPELL_CLEANSING_WATERS_REGEN, true);
-            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void UpdateAI(uint32 diff)
@@ -1274,12 +1339,12 @@ public:
             {
             case EVENT_REFRESH_CLEANSING_WATERS:
             {
-                /*if (Creature* regail = me->FindNearestCreature(NPC_ANCIENT_REGAIL, 3.5f, true))
+                if (Creature* regail = me->FindNearestCreature(NPC_ANCIENT_REGAIL, 3.5f, true))
                     me->AddAura(SPELL_CLEANSING_WATERS_REGEN, regail);
                 if (Creature* kaolan = me->FindNearestCreature(NPC_PROTECTOR_KAOLAN, 3.5f, true))
                     me->AddAura(SPELL_CLEANSING_WATERS_REGEN, kaolan);
                 if (Creature* asani = me->FindNearestCreature(NPC_ANCIENT_ASANI, 3.5f, true))
-                    me->AddAura(SPELL_CLEANSING_WATERS_REGEN, asani);*/
+                    me->AddAura(SPELL_CLEANSING_WATERS_REGEN, asani);
                 me->CastSpell(me, SPELL_CLEANSING_WATERS_REGEN, true);
                 break;
             }
@@ -1312,7 +1377,7 @@ public:
         void Reset()
         {
             me->CastSpell(me, SPELL_CORRUPTING_WATERS_AURA, true);
-           // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1378,7 +1443,7 @@ public:
                     return;
                 }
 
-                //protectorTargetedGuid = target->GetGUID();
+                protectorTargetedGuid = target->GetGUID();
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
             }
@@ -1404,7 +1469,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            //me->CastSpell(me, SPELL_CORRUPTED_ESSENCE, true);
+            me->CastSpell(me, SPELL_CORRUPTED_ESSENCE, true);
         }
 
         void DamageTaken(Unit* who, uint32& damage)

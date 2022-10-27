@@ -1,6 +1,70 @@
 #include "siege_of_orgrimmar.hpp"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 enum Spells
 {
@@ -961,9 +1025,9 @@ struct npc_immerseus_sha_bolt : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
 
-        /*if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_SPLASH_AURA))
-            Aura::TryRefreshStackOrCreate(l_SpellInfo, ObjectGuid castId, MAX_EFFECT_MASK, me, me);
-            */
+        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_SPLASH_AURA))
+           // Aura::TryRefreshStackOrCreate(l_SpellInfo, ObjectGuid* castId, MAX_EFFECT_MASK, me, me);
+            
         m_CheckMovingTimer = 1000;
         m_IsMovingToPool = false;
     }

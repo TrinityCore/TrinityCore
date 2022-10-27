@@ -32,8 +32,44 @@
 #include "MoveSplineInit.h"
 #include "Weather.h"
 #include "GameObjectAI.h"
-
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
 #include "heart_of_fear.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include "heart_of_fear.h"
+#include "CreatureData.h"
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "Map.h"
+
 
 /*
 During the fight, you will have to fight Mel'jarak, as well as 9 adds:
@@ -246,7 +282,7 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
         return false;
 
     // Previous boss must have been done
-    if (!pInstance->CheckRequiredBosses(DATA_MELJARAK) && !pInstance->instance->IsLFR())
+    if (!pInstance->CheckRequiredBosses(DATA_MELJARAK) && !pInstance->instance->IsRaid())//IsLFR())
     {
         if (!Meljarak->IsInEvadeMode())
             Meljarak->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_OTHER);
@@ -356,7 +392,7 @@ public:
                     return;
                 }
 
-                if (!instance->CheckRequiredBosses(DATA_MELJARAK) && !IsLFR())
+                if (!instance->CheckRequiredBosses(DATA_MELJARAK)) //&& IsRaid())//!IsLFR())
                 {
                     if (!me->IsInEvadeMode())
                         EnterEvadeMode(EVADE_REASON_OTHER);
@@ -438,7 +474,7 @@ public:
             GetGameObjectListWithEntryInGrid(rackList, me, GOB_WEAPON_RACK, 100.0f);
 
             if (!rackList.empty())
-                for (std::list<GameObject*>::iterator itr = rackList.begin(); itr != rackList.end(); ++itr)
+                for (std::list<GameObject*>::iterator itr = rackList.begin(); itr != rackList.end(); ++itr);
                     if ((*itr)->HasFlag(GO_FLAG_NOT_SELECTABLE))
                         (*itr)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
@@ -522,8 +558,8 @@ public:
                 if (Player* l_Player = l_Itr->GetSource())
                     me->CastSpell(l_Player, SPELL_MELJARAK_BONUS, true);
             }
-
-            /*if (me->GetMap()->IsLFR())
+            /*
+            if (me->GetMap()->IsLFR())
             {
                 me->ResetLootRecipients();
                 Player* l_Player = me->GetMap()->GetPlayers().begin()->GetSource();

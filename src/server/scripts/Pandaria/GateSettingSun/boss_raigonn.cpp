@@ -20,6 +20,21 @@
 #include "gate_setting_sun.h"
 #include "Vehicle.h"
 #include "Spline.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "InstanceScript.h"
+#include "Creature.h"
 
 enum eSpells
 {
@@ -456,7 +471,7 @@ class npc_raigonn_weak_spot : public CreatureScript
                                 Raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
             }
 
-            bool CanBeTargetedOutOfLOS() override
+            bool CanBeTargetedOutOfLOS()
             {
                 return true;
             }
@@ -650,7 +665,7 @@ class vehicle_artillery : public VehicleScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        CreatureAI* GetAI(Creature* creature) const 
         {
             return new vehicle_artilleryAI(creature);
         }

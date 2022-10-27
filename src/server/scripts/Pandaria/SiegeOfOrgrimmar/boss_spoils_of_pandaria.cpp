@@ -3,8 +3,73 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Player.h"
-
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <AI/CreatureAI.cpp>
+#include <Entities/Unit/Unit.cpp>
 
 // There are 36+36 lightweight crates (18 per room),
 // 12+12 stout crates (6 per room),
@@ -1192,7 +1257,7 @@ SpoilsOfPandariaRooms GetOtherRoom(SpoilsOfPandariaRooms room)
     return SpoilsOfPandariaRooms::ROOM_NONE;
 }
 
-/*class RoomChecker
+class RoomChecker
 {
     public:
 
@@ -1248,7 +1313,7 @@ SpoilsOfPandariaRooms GetOtherRoom(SpoilsOfPandariaRooms room)
         }
 };
 
-SimplePoints RoomChecker::m_RoomPoints[MAX_ROOMS];*/
+SimplePoints RoomChecker::m_RoomPoints[MAX_ROOMS];
 
 const Position spoilsOfPandariaPosition = { 1631.799f, -5125.967f, -271.027f, 5.315065f };
 
@@ -1988,7 +2053,7 @@ class npc_secured_stockpile_of_pandaren_spoils : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            void DoAction(const int32 action) override
+            void DoAction(const int32 action) 
             {
                 switch (action)
                 {
@@ -2025,7 +2090,7 @@ class npc_secured_stockpile_of_pandaren_spoils : public CreatureScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 data) 
             {
                 if (type == DATA_LIGHTWEIGHT_DIED)
                 {
@@ -2041,7 +2106,7 @@ class npc_secured_stockpile_of_pandaren_spoils : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const override
+            uint32 GetData(uint32 type) const 
             {
                 switch (type)
                 {
@@ -2054,7 +2119,7 @@ class npc_secured_stockpile_of_pandaren_spoils : public CreatureScript
                 return 0;
             }
 
-            void JustSummoned(Creature* summon) override
+            void JustSummoned(Creature* summon) 
             {
                 summons.Summon(summon);
 
@@ -2062,12 +2127,12 @@ class npc_secured_stockpile_of_pandaren_spoils : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void SummonedCreatureDespawn(Creature* summon) override
+            void SummonedCreatureDespawn(Creature* summon)
             {
                 summons.Despawn(summon);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 if (!IsInProgress(me))
                     return;
@@ -2304,12 +2369,12 @@ class npc_spoils_of_pandaria_lift_hook : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            void Reset() override
+            void Reset() 
             {
                 me->AddAura(SPELL_LIFT_HOOK, me);
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 data) 
             {
                 if (type == DATA_LIFT_HOOK_ROOM)
                 {
@@ -2317,7 +2382,7 @@ class npc_spoils_of_pandaria_lift_hook : public CreatureScript
                 }
             }
 
-            void sGossipHello(Player* player) override
+            void sGossipHello(Player* player) 
             {
                 if (!IsReady())
                     return;
@@ -2333,7 +2398,7 @@ class npc_spoils_of_pandaria_lift_hook : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff) 
             {
                 UpdateCooldown(diff);
             }
@@ -2394,13 +2459,13 @@ class npc_spoils_of_pandaria_unstable_spark : public CreatureScript
                 DoCast(me, SPELL_UNSTABLE_SPARK_VISUAL, true);
             }
 
-            void IsSummonedBy(Unit* owner) override
+            void IsSummonedBy(Unit* owner) 
             {
 
                 DoCast(me, SPELL_SUPERNOVA);
             }
 
-            void JustDied(Unit* who) override
+            void JustDied(Unit* who) 
             {
                 me->DespawnOrUnsummon(2000);
             }
@@ -2781,13 +2846,13 @@ class npc_spoils_of_pandaria_spark_of_life : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset() override
+            void Reset() 
             {
                 me->AddAura(Spells::SPELL_SPARK_OF_LIFE_VISUAL, me);
                 me->AddAura(Spells::SPELL_PULSATION, me);
             }
 
-            void JustDied(Unit* p_Who) override
+            void JustDied(Unit* p_Who) 
             {
                 DoCast(me, Spells::SPELL_NOVA, true);
 

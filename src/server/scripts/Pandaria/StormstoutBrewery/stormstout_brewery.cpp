@@ -19,6 +19,70 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 enum eHabaneroBeer
 {
@@ -290,8 +354,8 @@ public:
 
         void InitializeAI()
         {
-           // if (!me->IsDead())
-            //    Reset();
+            if (!me->IsDead())
+                Reset();
         }
 
         void Reset()
@@ -310,7 +374,7 @@ public:
             // Check stuff for the Brewmasters after Hoptallus.
             if (!said && hasTwo && instance->GetData(DATA_HOPTALLUS_EVENT) == DONE)
             {
-               // if (me->FindNearestPlayer(20.0f, true))
+                if (me->FindNearestPlayer(20.0f, true))
                 {
                     if (Creature* Alemental = me->FindNearestCreature(NPC_BLOATED_BREW_ALEMENTAL, 20.0f, true))
                     {
@@ -331,7 +395,7 @@ public:
                 {
                 case EVENT_SPEAK_HOPTALLUS_1:
                     Talk(SAY_ABM_HOPTALLUS_1);
-                    //me->HandleEmote(EMOTE_ONESHOT_QUESTION);
+                    me->HandleEmote(EMOTE_ONESHOT_QUESTION);
                     events.ScheduleEvent(EVENT_SPEAK_HOPTALLUS_2, 8000);
                     break;
 
@@ -339,7 +403,7 @@ public:
                     if (Creature* brewMaster2 = me->FindNearestCreature(NPC_ANCESTRAL_BREWMASTER_2, 5.0f, true))
                     {
                         brewMaster2->AI()->Talk(SAY_ABM_HOPTALLUS_2);
-                       // brewMaster2->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
+                        brewMaster2->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
                     }
                     break;
 

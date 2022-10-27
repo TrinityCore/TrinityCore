@@ -18,6 +18,19 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+
 
 enum eSpells
 {
@@ -214,7 +227,7 @@ public:
 
             float x = 0.0f;
             float y = 0.0f;
-            me->GetPositionWithDistInOrientation(40.0f, orientation, x, y);
+            GetPositionWithDistInOrientation(me, 40.0f, orientation, x, y);
             me->GetMotionMaster()->MovePoint(1, x, y, me->GetPositionZ());
 
             me->AddAura(SPELL_MUNITION_EXPLOSION_AURA, me);

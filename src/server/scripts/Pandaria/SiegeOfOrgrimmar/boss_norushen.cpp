@@ -2,6 +2,71 @@
 #include "SpellAuraEffects.h"
 #include "ScriptedGossip.h"
 #include "Pet.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <Server/Packets/LFGPackets.h>
 
 enum ScriptedTexts
 {
@@ -1066,7 +1131,7 @@ public:
                 return true;
 
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "We are ready, Keeper.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            //AddGossipItemFor(std::string const& text, uint32 sender, uint32 action)
+        //    AddGossipItemFor(std::string const& text, uint32 sender, uint32 action)
             //player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "We are ready, Keeper.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->PlayerTalkClass->SendGossipMenu(71967, creature->GetGUID());
 
@@ -1448,7 +1513,7 @@ public:
             m_Id = 0;
         }
 
-        void OnSpellClick(Unit* clicker, bool& /*result*/) override
+        void OnSpellClick(Unit* clicker, bool& /*result*/) 
         {
             if (clicker->HasAura(SPELL_PURIFIED))
                 return;
@@ -1485,7 +1550,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const override
+        uint32 GetData(uint32 type) const 
         {
             if (type == DATA_PURIFYING_LIGHT_ID)
             {
@@ -2211,12 +2276,12 @@ public:
             me->SetUnitFlags(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
         }
 
-        void Reset() override
+        void Reset() 
         {
 
         }
 
-        void IsSummonedBy(Unit* owner) override
+        void IsSummonedBy(Unit* owner) 
         {
             DoCast(me, SPELL_RESIDUAL_CORRUPTION_AURA, true);
         }
@@ -2764,7 +2829,7 @@ struct spell_area_norushen_expel_corruption : AreaTriggerAI
             return;
 
         at->Relocate(*pCreature);
-        //at->SetSource(*pCreature);
+       // at->SetSource(*pCreature);
 
         at->SetDestination(*at, 0);
         //todo reimplement
@@ -2890,7 +2955,7 @@ void AddSC_boss_norushen()
 {
     new boss_norushen_amalgam_of_corruption();          // 72276
     new npc_norushen();                                 // 71967
-    //new npc_norushen_lorewalker_cho_2();                // 72872
+    new npc_norushen_lorewalker_cho_2();                // 72872
     new npc_norushen_blind_hatred();                  // 72565
     new npc_norushen_purifying_light();                 // 72065
     new npc_norushen_manifestation_of_corruption_1();   // 71977

@@ -30,8 +30,23 @@
 #include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
 #include "Weather.h"
-
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
 #include "heart_of_fear.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <rapidjson/internal/ieee754.h>
 
 enum eGaralonYells
 {
@@ -375,7 +390,10 @@ public:
                 door->SetGoState(GO_STATE_ACTIVE);
 
             // Opening paths to Mel'jarak
-            if (!IsLFR())
+            if (!IsHeroic()) (DIFFICULTY_FLAG_DISPLAY_HEROIC);
+            //if (!IsNormal()) (DIFFICULTY_FLAG_DISPLAY_NORMAL);
+           // if(!IsMythic()) (DIFFICULTY_FLAG_DISPLAY_MYTHIC);
+            //if (!IsLFR())
             {
                 doorList.clear();
                 GetGameObjectListWithEntryInGrid(doorList, me, GOB_DOOR_TO_MELJARAK, 100.0f);
@@ -788,7 +806,7 @@ class spell_garalon_furious_swipe: public SpellScriptLoader
                 // The target list size indicates how many players Garalon hits. We let him know what to do afterwards.
                 if (targets.empty() || targets.size() < 2) // If he hits less than two players, it's time to go for Fury.
                 {
-                    //CAST_AI(boss_garalon::boss_garalonAI, GetCaster()->ToCreature()->AI())->DoAction(ACTION_FUR_SWIPE_FAILED);
+                    CAST_AI(boss_garalon::boss_garalonAI, GetCaster()->ToCreature()->AI())->DoAction(ACTION_FUR_SWIPE_FAILED);
                     if (Unit* caster = GetCaster())
                         caster->GetAI()->DoAction(ACTION_FUR_SWIPE_FAILED);
                 }
@@ -1034,11 +1052,11 @@ class spell_garalon_broken_leg : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                /*if (targets.empty())
+                if (targets.empty())
                     return;
 
                 // Only casted by boss on self.
-                targets.remove_if(BossCheck());*/
+                targets.remove_if(BossCheck());
                 targets.clear();
             }
 

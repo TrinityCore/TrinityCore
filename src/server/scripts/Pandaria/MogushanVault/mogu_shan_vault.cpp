@@ -22,6 +22,71 @@
 #include "ScriptedEscortAI.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "mogu_shan_vault.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 enum eSpells
 {
@@ -905,11 +970,11 @@ class npc_lorewalker_cho : public CreatureScript
                     // If the trash before Garajal are done, we don't go on the left side
                     case 18:
                     {
-                        /*Creature* skullcharger = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_SKULLCHARGER, 100.0f, true);
+                        Creature* skullcharger = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_SKULLCHARGER, 100.0f, true);
                         Creature* infiltrator  = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_INFILTRATOR,  100.0f, true);
                         Creature* firedancer   = GetClosestCreatureWithEntry(me, NPC_ZANDALARI_FIREDANCER,   100.0f, true);
                         if (!skullcharger && !infiltrator && !firedancer)
-                            SetNextWaypoint(20);*/
+                           // SetNextWaypoint(20);
                         break;
                     }
                     // Going on left side and waiting for the trash before Garajal to be done
@@ -1036,8 +1101,8 @@ class npc_lorewalker_cho : public CreatureScript
                     // Crossroads between Elegon and Will Of Emperor : if Elegon is done, we directly go to WOE
                     case 56:
                     {
-                        /*if (pInstance->GetBossState(DATA_ELEGON) == DONE)
-                            SetNextWaypoint(83);*/
+                        if (pInstance->GetBossState(DATA_ELEGON) == DONE)
+                        //    SetNextWaypoint(83);*/
                         break;
                     }
                     // Opening Elegon's door

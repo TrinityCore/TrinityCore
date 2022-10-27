@@ -5,6 +5,70 @@
 #include "terrace_of_endless_spring.h"
 #include <numeric>
 #include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 enum eShaOfFearSpells
 {
@@ -216,7 +280,7 @@ public:
             pInstance = creature->GetInstanceScript();
             introDone = false;
             isDuringP2Transition = false;
-            //me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
 
             for (int i = 0; i < 3; ++i)
             {
@@ -342,17 +406,17 @@ public:
                 RemoveTimeWarpCooldown();
                 RemoveExhaustionCooldown();
                 me->SetHealth(me->CountPctFromMaxHealth(66));
-                //summons.DespawnAll();
-                //me->SetVisible(true);
-                //DoCast(SPELL_TELEPORT_TO_DREAD_EXPANSE);
-                //DoCast(SPELL_TELEPORT_SHA);
-                //me->CastSpell(me, SPELL_TELEPORT_SHA, true);
-                //DoCast(SPELL_TELEPORT_SHA);
-                //me->SetReactState(REACT_AGGRESSIVE);
-                //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                //SetCombatMovement(true);
-                //events.ScheduleEvent(EVENT_SET_EVADE_TRUE, 2000);
-                //m_canEvade = false;
+                summons.DespawnAll();
+                me->SetVisible(true);
+                DoCast(SPELL_TELEPORT_TO_DREAD_EXPANSE);
+                DoCast(SPELL_TELEPORT_SHA);
+                me->CastSpell(me, SPELL_TELEPORT_SHA, true);
+                DoCast(SPELL_TELEPORT_SHA);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                SetCombatMovement(true);
+                events.ScheduleEvent(EVENT_SET_EVADE_TRUE, 2000);
+                m_canEvade = false;
                 Talk(SAY_PHASE_2);
                 Talk(EMOTE_PHASE_2);
 
@@ -362,19 +426,19 @@ public:
                 if (Player* pPlayer = GetChampionOfLight(me))
                     pPlayer->CastSpell(pPlayer, SPELL_CHAMPION_OF_THE_LIGHT, true);
 
-                //me->RemoveAurasDueToSpell(SPELL_CUSTOM_ENERGY_REGEN);
+                me->RemoveAurasDueToSpell(SPELL_CUSTOM_ENERGY_REGEN);
 
-                //SetupPhaseTwoEvents();
-                //me->SetInCombatWithZone();
-                //events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
+                SetupPhaseTwoEvents();
+                me->SetInCombatWithZone();
+                events.ScheduleEvent(EVENT_CHECK_ENERGY, 1000);
 
-                //me->SetHealth((me->GetMaxHealth() / 66.6f) * 100);
+                me->SetHealth((me->GetMaxHealth() / 66.6f) * 100);
                 break;
             }
             }
 
             m_uiPhase = m_phase;
-            //events.SetPhase(m_phase);
+            events.SetPhase(m_phase);
         }
 
         void GetAvailablePandaAndSummon()
@@ -540,7 +604,7 @@ public:
                     BossAI::EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                 else
                 {
-                    //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
                     m_mEvents.ScheduleEvent(EVENT_EVADE, 10000);
 
@@ -622,19 +686,19 @@ public:
             {
                 if (!terrorCounter)
                 {
-                    /*me->CastSpell(spawnTerrorPos[0].GetPositionX(), spawnTerrorPos[0].GetPositionY(),
+                    me->CastSpell(spawnTerrorPos[0].GetPositionX(), spawnTerrorPos[0].GetPositionY(),
                         spawnTerrorPos[0].GetPositionZ(), SPELL_CONJURE_TERROR_SPAWN_01, true);
                     me->CastSpell(spawnTerrorPos[1].GetPositionX(), spawnTerrorPos[1].GetPositionY(),
-                        spawnTerrorPos[1].GetPositionZ(), SPELL_CONJURE_TERROR_SPAWN_02, true);*/
+                        spawnTerrorPos[1].GetPositionZ(), SPELL_CONJURE_TERROR_SPAWN_02, true);
                     me->SummonCreature(NPC_TERROR_SPAWN, spawnTerrorPos[0].GetPositionX(), spawnTerrorPos[0].GetPositionY(), spawnTerrorPos[0].GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN);
                     me->SummonCreature(NPC_TERROR_SPAWN, spawnTerrorPos[1].GetPositionX(), spawnTerrorPos[1].GetPositionY(), spawnTerrorPos[1].GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN);
                 }
                 else
                 {
-                    /*me->CastSpell(spawnTerrorPos[2].GetPositionX(), spawnTerrorPos[2].GetPositionY(),
+                    me->CastSpell(spawnTerrorPos[2].GetPositionX(), spawnTerrorPos[2].GetPositionY(),
                         spawnTerrorPos[2].GetPositionZ(), SPELL_CONJURE_TERROR_SPAWN_03, true);
                     me->CastSpell(spawnTerrorPos[3].GetPositionX(), spawnTerrorPos[3].GetPositionY(),
-                        spawnTerrorPos[3].GetPositionZ(), SPELL_CONJURE_TERROR_SPAWN_04, true);*/
+                        spawnTerrorPos[3].GetPositionZ(), SPELL_CONJURE_TERROR_SPAWN_04, true);
                     me->SummonCreature(NPC_TERROR_SPAWN, spawnTerrorPos[2].GetPositionX(), spawnTerrorPos[2].GetPositionY(), spawnTerrorPos[2].GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN);
                     me->SummonCreature(NPC_TERROR_SPAWN, spawnTerrorPos[3].GetPositionX(), spawnTerrorPos[3].GetPositionY(), spawnTerrorPos[3].GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN);
                 }
@@ -738,12 +802,12 @@ public:
                 if (me->GetMap()->IsHeroic())
                 {
                     // this is useless wtf
-                    /*if (auto const pInstance = me->GetInstanceScript())
+                    if (auto const pInstance = me->GetInstanceScript())
                     {
                         if (pInstance->GetData(TYPE_LEIS_HOPE) != DONE)
                             pInstance->SetData(TYPE_LEIS_HOPE, DONE);
-                    }*/
-                    //SetPhase(PHASE_DREAD_EXPANSE); DISABLE DUE TO CORE AND GAME CHANGES
+                    }
+                    SetPhase(PHASE_DREAD_EXPANSE);// DISABLE DUE TO CORE AND GAME CHANGES
                 }
             }
         }
@@ -787,16 +851,16 @@ public:
 
             if (!UpdateVictim())
             {
-                //if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
-                    //me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
+                if (pInstance && pInstance->GetData(SPELL_RITUAL_OF_PURIFICATION) == false)
+                    me->RemoveAura(SPELL_RITUAL_OF_PURIFICATION);
 
                 return;
             }
 
             events.Update(diff);
 
-            //if (me->HasUnitState(UNIT_STATE_CASTING))
-             //   return;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -873,7 +937,7 @@ public:
                             if (player->IsAlive() && !player->IsGameMaster() && player->GetDistance(me) < 75.0f)
                             {
                                 rangePlayers = true;
-                                //sWorld->SendWorldText(3, "Players found alive in 75 yards, no wipe.");
+                                sWorld->SendWorldText(3, "Players found alive in 75 yards, no wipe.");
                                 break;
                             }
                     if (!rangePlayers)
@@ -881,7 +945,7 @@ public:
                         me->CombatStop();
                         me->getHostileRefManager().deleteReferences();
                         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                        //sWorld->SendWorldText(3, "No players found alive in 75 yards, wipe.");
+                        sWorld->SendWorldText(3, "No players found alive in 75 yards, wipe.");
                         return;
                     }
                     events.ScheduleEvent(EVENT_CHECK_PLAYERS, 2000, 0, 0);
@@ -968,7 +1032,7 @@ public:
                     break;
                 case EVENT_SUBMERGE:
                 {
-                    //me->AddAura(SPELL_SUBMERGE, me);
+                    me->AddAura(SPELL_SUBMERGE, me);
                     me->SetDisplayId(22452);
                     me->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
                     me->AddUnitState(UNIT_STATE_ROOT);
@@ -990,7 +1054,7 @@ public:
                 case EVENT_EMERGE:
                     me->CastSpell(me, SPELL_EMERGE);
                     phase2Hidden = false;
-                    //me->RestoreDisplayId();
+                    me->RestoreDisplayId();
                     me->SetSpeed(MOVE_WALK, 1.0f);
                     me->SetSpeed(MOVE_RUN, 1.0f);
                     events.ScheduleEvent(EVENT_SPAWN_DREADS, 500, 0, 0);
@@ -1252,8 +1316,8 @@ public:
             if (!targets.empty())
                 for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                     (*itr)->AddAura(SPELL_WATERSPOUT, (*itr));
-            //  me->SummonCreature(NPC_WATERSPOUT, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (*itr)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
-              //DoCast(*itr, SPELL_WATERSPOUT, true);
+              me->SummonCreature(NPC_WATERSPOUT, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (*itr)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
+              DoCast(*itr, SPELL_WATERSPOUT, true);
         }
 
         void CastWaterspout25()
@@ -1263,8 +1327,8 @@ public:
             if (!targets.empty())
                 for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                     (*itr)->AddAura(SPELL_WATERSPOUT, (*itr));
-            // me->SummonCreature(NPC_WATERSPOUT, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (*itr)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
-            // DoCast(*itr, SPELL_WATERSPOUT, true);
+             me->SummonCreature(NPC_WATERSPOUT, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (*itr)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
+             DoCast(*itr, SPELL_WATERSPOUT, true);
         }
 
     private:
@@ -1307,8 +1371,8 @@ public:
             me->CastSpell(me, SPELL_LIGHT_WALL, true);
             me->CastSpell(me, SPELL_LIGHT_WALL_READY, true);
 
-            //Position dst1 = {-989.4236f, -2821.757f, 38.25466f, 0.0f};
-            //Position dst2 = {-1045.602f, -2822.323f, 38.25466f, 0.0f};
+            Position dst1 = {-989.4236f, -2821.757f, 38.25466f, 0.0f};
+            Position dst2 = {-1045.602f, -2822.323f, 38.25466f, 0.0f};
             //
             //ang1 = src.GetAngle(&dst1) * 57.29578f;
             //ang2 = src.GetAngle(&dst2) * 57.29578f;
@@ -1626,7 +1690,7 @@ public:
 };
 
 // Penetrating Bolt - 129075
-/*class bfa_spell_toes_penetrating_bolt : public SpellScriptLoader
+class bfa_spell_toes_penetrating_bolt : public SpellScriptLoader
 {
 public:
     bfa_spell_toes_penetrating_bolt() : SpellScriptLoader("bfa_spell_toes_penetrating_bolt") { }
@@ -1676,7 +1740,7 @@ public:
     {
         return new bfa_spell_toes_penetrating_bolt_SpellScript();
     }
-};*/
+};
 
 // Ominous Cackle - 119593, 119692, 119693
 class bfa_spell_toes_ominous_caclke_target : public SpellScriptLoader
@@ -1881,10 +1945,10 @@ class npc_sha_of_fear_bowman : public CreatureScript
         void Reset() override
         {
             me->AddAura(42716, me); // root
-            //me->SetReactState(REACT_PASSIVE);
-            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             // shoot spell max distance
-            //me->m_ReactDistance = 40.0f;
+            me->m_ReactDistance = 40.0f;
             me->m_CombatDistance = 40.0f;
             lastHealthPct = 99;
             globe = false;
@@ -1962,18 +2026,18 @@ class npc_sha_of_fear_bowman : public CreatureScript
         }
 
         // useless
-        /*void HealReceived(Unit* , uint32& heal) override
+        void HealReceived(Unit* , uint32& heal) override
         {
             lastHealthPct = me->GetHealthPct();
-        }*/
+        }
 
         void DamageTaken(Unit*, uint32& damage) override
         {
-            /*if (me->HealthBelowPctDamaged(lastHealthPct, damage))
+            if (me->HealthBelowPctDamaged(lastHealthPct, damage))
             {
             if (me->HealthBelowPctDamaged(int32(lastHealthPct - 5.0f), damage))
             DoCast(SPELL_SHA_GLOBE);
-            }*/
+            }
 
             if (me->HealthBelowPct(95) && !globe)
             {
@@ -2088,7 +2152,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
             case EVENT_DREAD_SPRAY:
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                //DoCast(me, SPELL_DREAD_SPRAY_INIT, false);
+                DoCast(me, SPELL_DREAD_SPRAY_INIT, false);
                 events.DelayEvents(9000);
                 events.ScheduleEvent(EVENT_DREAD_SPRAY, 20000);
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_END, 8500);
@@ -2121,14 +2185,14 @@ class npc_sha_of_fear_bowman : public CreatureScript
             {
                 if (Creature* dread = me->SummonCreature(60942, -1207.77f, -2808.16f, 41.27f, 4.33f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                 {
-                    //me->SetTarget(0);
+                   // me->SetTarget(0);
                     me->SetFacingToObject(dread);
                     me->AddThreat(dread, 9999999999.0f);
                     me->AI()->AttackStart(dread);
                     me->SetOrientation(4.33f);
                     me->SetFacingTo(4.33f);
                     me->CastSpell(dread, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread, true);
+                    me->Kill(dread, true);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_2, 500);
                 break;
@@ -2137,14 +2201,14 @@ class npc_sha_of_fear_bowman : public CreatureScript
             {
                 if (Creature* dread1 = me->SummonCreature(60942, -1221.70f, -2840.50f, 41.27f, 1.18f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                 {
-                    //->SetTarget(0);
+                    //me->SetTarget(0);
                     me->SetFacingToObject(dread1);
                     me->AddThreat(dread1, 9999999999.0f);
                     me->AI()->AttackStart(dread1);
                     me->SetOrientation(1.18f);
                     me->SetFacingTo(1.18f);
                     me->CastSpell(dread1, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread1, true);
+                    me->Kill(dread1, true);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_3, 500);
                 break;
@@ -2153,14 +2217,14 @@ class npc_sha_of_fear_bowman : public CreatureScript
             {
                 if (Creature* dread3 = me->SummonCreature(60942, -1221.70f, -2840.50f, 41.27f, 1.18f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                 {
-                    //me->SetTarget(0);
+                   // me->SetTarget(0);
                     me->SetFacingToObject(dread3);
                     me->AddThreat(dread3, 9999999999.0f);
                     me->AI()->AttackStart(dread3);
                     me->SetOrientation(1.18f);
                     me->SetFacingTo(1.18f);
                     me->CastSpell(dread3, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread3, false);
+                    me->Kill(dread3, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_4, 500);
                 break;
@@ -2176,7 +2240,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(4.33f);
                     me->SetFacingTo(4.33f);
                     me->CastSpell(dread4, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread4, false);
+                    me->Kill(dread4, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_5, 500);
                 break;
@@ -2192,7 +2256,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.00f);
                     me->SetFacingTo(2.00f);
                     me->CastSpell(dread5, SPELL_DREAD_SPRAY_MISSILE, true);
-                    // me->Kill(dread5, false);
+                     me->Kill(dread5, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_6, 500);
                 break;
@@ -2208,7 +2272,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.00f);
                     me->SetFacingTo(2.00f);
                     me->CastSpell(dread6, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread6, false);
+                    me->Kill(dread6, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_7, 500);
                 break;
@@ -2224,7 +2288,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.00f);
                     me->SetFacingTo(2.00f);
                     me->CastSpell(dread7, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread7, false);
+                    me->Kill(dread7, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_8, 500);
                 break;
@@ -2240,7 +2304,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.00f);
                     me->SetFacingTo(2.00f);
                     me->CastSpell(dread8, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread8, false);
+                    me->Kill(dread8, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_9, 500);
                 break;
@@ -2256,7 +2320,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.72f);
                     me->SetFacingTo(2.72f);
                     me->CastSpell(dread9, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread9, false);
+                    me->Kill(dread9, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_10, 500);
                 break;
@@ -2272,7 +2336,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.72f);
                     me->SetFacingTo(2.72f);
                     me->CastSpell(dread10, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread10, false);
+                    me->Kill(dread10, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_11, 500);
                 break;
@@ -2288,7 +2352,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.72f);
                     me->SetFacingTo(2.72f);
                     me->CastSpell(dread11, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread11, false);
+                    me->Kill(dread11, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_12, 500);
                 break;
@@ -2304,7 +2368,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(2.72f);
                     me->SetFacingTo(2.72f);
                     me->CastSpell(dread12, SPELL_DREAD_SPRAY_MISSILE, true);
-                    //me->Kill(dread12, false);
+                    me->Kill(dread12, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_13, 500);
                 break;
@@ -2319,7 +2383,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(3.56f);
                     me->SetFacingTo(3.56f);
                     me->CastSpell(dread13, SPELL_DREAD_SPRAY_MISSILE, true);
-                    // me->Kill(dread13, false);
+                     me->Kill(dread13, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_14, 500);
                 break;
@@ -2336,7 +2400,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(0.40f);
                     me->SetFacingTo(0.40f);
                     me->CastSpell(dread14, SPELL_DREAD_SPRAY_MISSILE, true);
-                    // me->Kill(dread14, false);
+                     me->Kill(dread14, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_15, 500);
                 break;
@@ -2351,7 +2415,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(0.40f);
                     me->SetFacingTo(0.40f);
                     me->CastSpell(dread15, SPELL_DREAD_SPRAY_MISSILE, true);
-                    // me->Kill(dread15, false);
+                     me->Kill(dread15, false);
                 }
                 events.ScheduleEvent(EVENT_DREAD_SPRAY_LEFT_16, 500);
                 break;
@@ -2367,7 +2431,7 @@ class npc_sha_of_fear_bowman : public CreatureScript
                     me->SetOrientation(3.56f);
                     me->SetFacingTo(3.56f);
                     me->CastSpell(dread16, SPELL_DREAD_SPRAY_MISSILE, true);
-                    // me->Kill(dread16, false);
+                     me->Kill(dread16, false);
                 }
                 break;
             }
@@ -2928,7 +2992,7 @@ public:
     }
 };
 
-/*class bfa_spell_toes_sha_globe_regen : public SpellScriptLoader
+class bfa_spell_toes_sha_globe_regen : public SpellScriptLoader
 {
 public:
     bfa_spell_toes_sha_globe_regen() : SpellScriptLoader("bfa_spell_toes_sha_globe_regen") {}
@@ -2945,7 +3009,7 @@ public:
 
         void Register()
         {
-            BeforeHit += SpellHitFn(bfa_spell_toes_impl::RemoveOldAura);
+            //BeforeHit += SpellHitFn(bfa_spell_toes_impl::RemoveOldAura);
         }
 
         bool prevented;
@@ -2955,7 +3019,7 @@ public:
     {
         return new bfa_spell_toes_impl();
     }
-};*/
+};
 
 // Death Blossom - 119887
 class bfa_spell_toes_death_blossom : public SpellScriptLoader
@@ -3002,7 +3066,7 @@ public:
                 float ori = float(rand_norm()) * static_cast<float>(2 * M_PI);
                 owner->SetOrientation(ori);
                 owner->SetFacingTo(ori);
-                //Position pos;
+                Position pos;
                 //owner->GetRandomNearPosition(pos, 15.0f);
                 owner->CastSpell(owner, 119958, true);
             }
@@ -3173,7 +3237,7 @@ public:
                 me->CastSpell(me->GetVictim(), SPELL_SHA_SPINE);
                 me->RemoveAura(SPELL_GATHERING_SPEED);
                 me->AddAura(SPELL_SEEK_THE_LIGHT, me);
-                //sWorld->SendWorldText(3, "NEW TARGET");
+                sWorld->SendWorldText(3, "NEW TARGET");
                 break;
             }
             }
@@ -3480,13 +3544,13 @@ void AddSC_boss_sha_of_fear()
     new bfa_spell_toes_champion_of_light();
     new bfa_spell_toes_breath_of_fear();
     new bfa_spell_toes_conjure_terror_spawn();
-    //new bfa_spell_toes_penetrating_bolt();
+    new bfa_spell_toes_penetrating_bolt();
     new bfa_spell_toes_ominous_caclke_target();
     new npc_sha_of_fear_bowman();
     //new bfa_spell_toes_dread_spray_stackable();
     new bfa_spell_toes_dread_spray();
     new npc_sha_globe();
-    //new bfa_spell_toes_sha_globe_regen();
+    new bfa_spell_toes_sha_globe_regen();
     new bfa_spell_toes_breath_of_fear_fear();
     new bfa_spell_toes_death_blossom();
     new bfa_spell_toes_teleport_to_dread_expanse();

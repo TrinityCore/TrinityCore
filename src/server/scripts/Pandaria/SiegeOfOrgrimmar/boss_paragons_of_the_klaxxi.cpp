@@ -1,6 +1,70 @@
 #include "siege_of_orgrimmar.hpp"
 #include "SpellAuraEffects.h"
 #include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 // Information:
 // 1. There are many spells that have triggers after 'jump' effects.
@@ -659,7 +723,7 @@ class npc_klaxxi_paragons : public CreatureScript
                 me->setActive(true);
             }
 
-            void Reset() override
+            void Reset() 
             {
                 InitializeParagons();
             }
@@ -669,17 +733,17 @@ class npc_klaxxi_paragons : public CreatureScript
                 ResetBattle();
             }
 
-            void JustSummoned(Creature* summon) override
+            void JustSummoned(Creature* summon) 
             {
                 summons.Summon(summon);
             }
 
-            void SummonedCreatureDespawn(Creature* summon) override
+            void SummonedCreatureDespawn(Creature* summon) 
             {
                 summons.Despawn(summon);
             }
 
-            void DoAction(const int32 action) override
+            void DoAction(const int32 action) 
             {
                 if (action == ACTION_BEGIN_BATTLE)
                 {
@@ -698,7 +762,7 @@ class npc_klaxxi_paragons : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const override
+            uint32 GetData(uint32 type) const 
             {
                 if (type == DATA_ALL_PARAGONS_DIED)
                 {
@@ -708,7 +772,7 @@ class npc_klaxxi_paragons : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 events.Update(diff);
 
@@ -1135,8 +1199,8 @@ private:
         DoZoneInCombat();
 
         // DEBUG:
-        //if (paragonsEntries[(int)paragonsSequence[0]] != me->GetEntry())
-        //    return;
+        if (paragonsEntries[(int)paragonsSequence[0]] != me->GetEntry())
+            return;
 
         EnterBattle();
     }

@@ -2,6 +2,70 @@
 #include "MoveSplineInit.h"
 #include "SpellMgr.h"
 #include <algorithm>
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 enum ScriptedTexts
 {
@@ -280,7 +344,7 @@ class boss_iron_juggernaut : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void RegeneratePower(Powers power, int32& value) override
+            void RegeneratePower(Powers power, int32& value) 
             {
                 value = 0;
             }
@@ -1095,13 +1159,13 @@ class npc_iron_juggernaut_sawblade_ricochet : public CreatureScript
                 me->SetDisplayId(11686);
             }
 
-            /*void SplineMovementUpdate(uint32 type, uint32 id) override
+            void SplineMovementUpdate(uint32 type, uint32 id) 
             {
                 if (type == Movement::MoveSpline::UpdateResult::Result_Arrived)
                 {
                     me->DespawnOrUnsummon(100);
                 }
-            }*/
+            }
 
             void MovementInform(uint32 type, uint32 id) override
             {

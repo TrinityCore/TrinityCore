@@ -19,6 +19,40 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "heart_of_fear.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include "heart_of_fear.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
 
 enum eShekzeerSays
 {
@@ -379,13 +413,13 @@ class boss_shekzeer : public CreatureScript
                         me->CastSpell(l_Player, SPELL_SHEKZEER_BONUS, true);
                 }
 
-                /*if (me->GetMap()->IsLFR())
+                if (me->GetMap()->IsLFR())
                 {
                     me->ResetLootRecipients();
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->GetSource();
                     if (l_Player && l_Player->GetGroup())
                         sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                }*/
+                }
             }
 
             void KilledUnit(Unit* victim) override

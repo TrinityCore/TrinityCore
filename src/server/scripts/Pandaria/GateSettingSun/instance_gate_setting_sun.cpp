@@ -17,10 +17,33 @@
 
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "PhasingHandler.h"
+//#include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
 
 DoorData const doorData[] =
 {
@@ -216,7 +239,7 @@ public:
             {
                 case DATA_KIPTILAK:
                 {
-                    /*if (state == DONE)
+                    if (state == DONE)
                         for (auto itr: mantidBombsGUIDs)
                             if (GameObject* bomb = instance->GetGameObject(itr))
                                 bomb->SetPhaseMask(32768, true); // Set Invisible*/
@@ -224,7 +247,7 @@ public:
                 }
                 case DATA_GADOK:
                 {
-                    /*if (GameObject* portal = instance->GetGameObject(portalTempGadokGUID))
+                    if (GameObject* portal = instance->GetGameObject(portalTempGadokGUID))
                         portal->SetPhaseMask(state == IN_PROGRESS ? 4 : 3, true);*/
                     break;
                 }

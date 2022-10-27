@@ -1,7 +1,74 @@
 #include "siege_of_orgrimmar.hpp"
 #include "GameObjectAI.h"
 #include "ObjectMgr.h"
-#include "SceneHelper.h"
+//#include "SceneHelper.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <AI/CreatureAI.cpp>
+#include <Entities/Unit/Unit.cpp>
+#include <AI/CoreAI/UnitAI.cpp>
 
 #define MAX_SHA_POWER 100
 #define SHA_POWER_PERIODIC 600
@@ -764,7 +831,7 @@ class PrisonController
                 if (GameObject* prisonTrap = GetPrisonTrap(prison, j))
                 {
                     prisonTrap->SetGoState(GO_STATE_ACTIVE);
-                    //prisonTrap->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    prisonTrap->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                 }
             }
         }
@@ -1559,7 +1626,7 @@ class npc_sha_of_pride_norushen : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* /*killer*/) 
             {
                 events.Reset();
             }
@@ -1949,13 +2016,13 @@ class npc_sha_of_pride_rift_of_corruption : public CreatureScript
                 m_IsClosing = false;
             }
 
-            void Reset() override
+            void Reset() 
             {
                 me->AddAura(SPELL_RIFT_OF_CORRUPTION_VISUAL_1, me);
                 me->CastSpell(me, SPELL_UNSTABLE_CORRUPTION_PERIODIC_2, true);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff) 
             {
                 UpdateClose(diff);
             }
@@ -2015,7 +2082,7 @@ class go_sha_of_pride_shadow_prison_trap : public GameObjectScript
                 catchedPlayerGuid = ObjectGuid::Empty;
             }
 
-            void SetGUID(ObjectGuid guid, int32 id) override
+            void SetGUID(ObjectGuid guid, int32 id) 
             {
                 if (id == DATA_TRAPPED_PLAYER)
                 {
@@ -2386,7 +2453,7 @@ class npc_sha_of_pride_portal_to_orgrimmar : public CreatureScript
 
             }
 
-            void sGossipHello(Player* player) override
+            void sGossipHello(Player* player) 
             {
                 if (IsAllianceInstance())
                 {

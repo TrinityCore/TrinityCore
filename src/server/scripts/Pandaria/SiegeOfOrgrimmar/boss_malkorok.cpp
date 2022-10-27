@@ -1,5 +1,69 @@
 #include "siege_of_orgrimmar.hpp"
 #include "SpellAuraEffects.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
 
 #define MALKOROK_POWER_TYPE POWER_ENERGY
 #define MALKOROK_POWER_MAX 100
@@ -725,7 +789,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void Reset() override
+        void Reset() 
         {
             if (IsCenterMiasma())
             {
@@ -733,14 +797,14 @@ public:
             }
         }
 
-        void DamageTaken(Unit* who, uint32& damage) override
+        void DamageTaken(Unit* who, uint32& damage) 
         {
             // UNIT_FLAG_NON_ATTACKABLE is removed because delayed spells cannot hit npc with this flag
             // So protect npc from any damage
             damage = 0;
         }
 
-        void DoAction(const int32 action) override
+        void DoAction(const int32 action) 
         {
             if (action == ACTION_ENDLESS_RAGE)
             {
@@ -816,7 +880,7 @@ class npc_malkorok_implosion : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset() override
+            void Reset() 
             {
                 me->AddAura(SPELL_IMPLODING_ENERGY_AURA, me);
 
@@ -824,7 +888,7 @@ class npc_malkorok_implosion : public CreatureScript
                 m_IsExploded = false;
             }
 
-            void DoAction(const int32 action) override
+            void DoAction(const int32 action) 
             {
                 if (action == ACTION_IMPLOSION_DAMAGE)
                 {
@@ -832,7 +896,7 @@ class npc_malkorok_implosion : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff) 
             {
                 if (m_IsExploded)
                     return;

@@ -19,6 +19,9 @@
 #include "InstanceScript.h"
 #include "VMapFactory.h"
 #include "heart_of_fear.h"
+#include <AI/ScriptedAI/ScriptedCreature.h>
+#include <Globals/ObjectAccessor.h>
+#include <DungeonFinding/LFGMgr.h>
 
 DoorData const doorData[] =
 {
@@ -306,7 +309,7 @@ class instance_heart_of_fear : public InstanceMapScript
 
                 if (!m_SecondPartInitialized && instance->IsLFR())
                 {
-                    /*uint32 l_DungeonID = player->GetGroup() ? sLFGMgr->GetDungeon(player->GetGroup()->GetGUID()) : 0;
+                    uint32 l_DungeonID = player->GetGroup() ? sLFGMgr->GetDungeon(player->GetGroup()->GetGUID()) : 0;
                     if (l_DungeonID == eMisc::HeartOfFearSecondPart)
                     {
                         m_SecondPartInitialized = true;
@@ -315,9 +318,9 @@ class instance_heart_of_fear : public InstanceMapScript
                         {
                             std::list<Unit*> l_TrashMobs;
 
-                            Trinity::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Garalon, l_Garalon, 50.0f);
-                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Garalon, l_TrashMobs, l_Check);
-                            l_Garalon->VisitNearbyObject(50.0f, l_Searcher);
+                           // Trinity::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Garalon, l_Garalon, 50.0f);
+                           // Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Garalon, l_TrashMobs, l_Check);
+                            //l_Garalon->VisitNearbyObject(50.0f, l_Searcher);
 
                             for (Unit* l_Unit : l_TrashMobs)
                             {
@@ -340,7 +343,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 }
             }
 
-            void OnPlayerExit(Player* player) override
+            void OnPlayerExit(Player* player) 
             {
                 InstanceScript::OnPlayerExit(player);
 

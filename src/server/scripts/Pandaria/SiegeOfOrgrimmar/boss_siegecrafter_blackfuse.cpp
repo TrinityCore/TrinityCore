@@ -3,6 +3,71 @@
 #include "MovementGenerator.h"
 #include "MoveSplineInit.h"
 #include "SpellMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <effects.h>
 
 // todo implement movement forces
 
@@ -1364,10 +1429,10 @@ class npc_siegecrafter_blackfuse_sawblade : public CreatureScript
             void HandleJumpToElectromagnet()
             {
                 // Despawn it in 'DespawnUsedSawblades'
-                //if (!IsHeroic())
-                //{
-                //    me->DespawnOrUnsummon(1000);
-                //}
+                if (!IsHeroic())
+                {
+                    me->DespawnOrUnsummon(1000);
+                }
             }
 
             void CheckTargets(const uint32 diff)
@@ -1502,7 +1567,7 @@ class npc_siegecrafter_blackfuse_automated_shredder : public CreatureScript
             void JustDied(Unit* who) override
             {
                 // We handle it at 'SummonedCreatureDies'
-                //DoCast(me, SPELL_AUTOMATED_SHREDDER_DEATH_NOTIFY, true);
+                DoCast(me, SPELL_AUTOMATED_SHREDDER_DEATH_NOTIFY, true);
             }
 
             void UpdateAI(const uint32 diff) override
@@ -1988,10 +2053,10 @@ class npc_siegecrafter_blackfuse_laser_turret : public CreatureScript
                     Position pos = me->GetPosition();
 
                     float l_Angle = me->GetOrientation();
-                    /*float l_Dist = 23.0f; // 6.91f;
+                    float l_Dist = 23.0f;  6.91f;
                     pos.m_positionX = pos.GetPositionX() + l_Dist * cosf(l_Angle);
                     pos.m_positionY = pos.GetPositionY() + l_Dist * sinf(l_Angle);
-                    pos.m_positionZ = pos.GetPositionZ() + 12.3f;*/
+                    pos.m_positionZ = pos.GetPositionZ() + 12.3f;
 
                     float l_Dist = 6.91f;
                     pos.m_positionX = pos.GetPositionX() + me->GetTransOffsetX();
@@ -2110,7 +2175,7 @@ class npc_siegecrafter_blackfuse_laser_target : public CreatureScript
                 }
             }
 
-            //void SplineMovementUpdate(uint32 p_Type, uint32 p_Id) override
+            void SplineMovementUpdate(uint32 p_Type, uint32 p_Id);
             void MovementInform(uint32 p_Type, uint32 p_Id) override
             {
                 if (m_IsOvercharged && p_Type == Movement::MoveSpline::UpdateResult::Result_Arrived)
@@ -2726,7 +2791,7 @@ class npc_siegecrafter_blackfuse_laser_array : public CreatureScript
                 me->SetUnitFlags(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
             }
 
-            void Reset() override
+            void Reset() 
             {
                 me->AddAura(SPELL_CONVEYOR_DEATH_BEAM_DUMMY, me);
 
@@ -2762,7 +2827,7 @@ class npc_siegecrafter_blackfuse_steam_vent : public CreatureScript
                 me->SetUnitFlags(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
             }
 
-            void Reset() override
+            void Reset() 
             {
                 me->AddAura(SPELL_STEAM_VENT, me);
             }
@@ -2868,11 +2933,11 @@ class spell_siegecrafter_blackfuse_laser_ground_effect : public SpellScriptLoade
 
                 std::vector<AreaTrigger*> areaTriggers = GetCaster()->GetAreaTriggers(SPELL_LASER_GROUND_EFFECT);
                 // todo redo this
-                //GetCaster()->GetAreaTriggerList(areaTriggers, SPELL_LASER_GROUND_EFFECT);
-                /*areaTriggers.remove_if([&](AreaTrigger* areaTrigger) -> bool
+                GetCaster()->GetAreaTriggerList(areaTriggers, SPELL_LASER_GROUND_EFFECT);
+                areaTriggers.remove_if([&](AreaTrigger* areaTrigger) -> bool
                 {
                     return GetUnitOwner()->GetExactDist(areaTrigger) > LASER_GROUND_EFFECT_SIZE;
-                });*/
+                });
 
                 if (!areaTriggers.empty())
                 {
@@ -2967,8 +3032,8 @@ class spell_siegecrafter_blackfuse_magnetic_pulse : public SpellScriptLoader
                 if (Creature* pCreature = GetHitUnit()->ToCreature())
                 {
                     pCreature->AI()->SetData(DATA_SAWBLADE_TO_ELECTROMAGNET_PULL, DONE);
-                    //pCreature->CastSpell(GetCaster(), SPELL_MAGNETIC_PULSE_JUMP, true);
-                    //pCreature->GetMotionMaster()->MovePoint(POINT_SAWBLADE_ELECTROMAGNET, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ());
+                    pCreature->CastSpell(GetCaster(), SPELL_MAGNETIC_PULSE_JUMP, true);
+                    pCreature->GetMotionMaster()->MovePoint(POINT_SAWBLADE_ELECTROMAGNET, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ());
                     const Position& randomPos = GetNearestPullPositionToMagnet(GetCaster());
                     pCreature->GetMotionMaster()->MoveCharge(randomPos.GetPositionX(), randomPos.GetPositionY(), randomPos.GetPositionZ());
                 }
@@ -3027,8 +3092,8 @@ class spell_siegecrafter_blackfuse_magnetic_pulse_pull : public SpellScriptLoade
                     pCreature->GetMotionMaster()->MovementExpired(false);
 
                     pCreature->AI()->SetData(DATA_SAWBLADE_TO_ELECTROMAGNET_PULL, DONE);
-                    //pCreature->CastSpell(GetCaster(), SPELL_MAGNETIC_PULSE_JUMP_PULL, true);
-                    //pCreature->GetMotionMaster()->MovePoint(POINT_SAWBLADE_ELECTROMAGNET, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ());
+                    pCreature->CastSpell(GetCaster(), SPELL_MAGNETIC_PULSE_JUMP_PULL, true);
+                    pCreature->GetMotionMaster()->MovePoint(POINT_SAWBLADE_ELECTROMAGNET, GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ());
                     const Position& randomPos = GetNearestPullPositionToMagnet(GetCaster());
                     pCreature->GetMotionMaster()->MoveCharge(randomPos.GetPositionX(), randomPos.GetPositionY(), randomPos.GetPositionZ());
                 }
@@ -3088,8 +3153,8 @@ class spell_siegecrafter_blackfuse_magnetic_pulse_push : public SpellScriptLoade
 
                     pCreature->AI()->SetData(DATA_SAWBLADE_TO_ELECTROMAGNET_PUSH, DONE);
 
-                    //pCreature->CastSpell(sawbladePushPos.GetPositionX() + frand(0.f, 10.f), sawbladePushPos.GetPositionY() + frand(0.f, 20.f), sawbladePushPos.GetPositionZ(), SPELL_MAGNETIC_PULSE_JUMP_PUSH, true);
-                    //pCreature->GetMotionMaster()->MovePoint(POINT_SAWBLADE_ELECTROMAGNET, sawbladePushPos.GetPositionX() + frand(0.f, 10.f), sawbladePushPos.GetPositionY() + frand(0.f, 40.f), sawbladePushPos.GetPositionZ());
+                    pCreature->CastSpell(sawbladePushPos.GetPositionX() + frand(0.f, 10.f), sawbladePushPos.GetPositionY() + frand(0.f, 20.f), sawbladePushPos.GetPositionZ(), SPELL_MAGNETIC_PULSE_JUMP_PUSH, true);
+                    pCreature->GetMotionMaster()->MovePoint(POINT_SAWBLADE_ELECTROMAGNET, sawbladePushPos.GetPositionX() + frand(0.f, 10.f), sawbladePushPos.GetPositionY() + frand(0.f, 40.f), sawbladePushPos.GetPositionZ());
                     const Position& randomPos = sawbladePushPos[urand(0, SAWBLADE_PUSH_POS_COUNT - 1)];
                     pCreature->GetMotionMaster()->MoveCharge(randomPos.GetPositionX(), randomPos.GetPositionY(), randomPos.GetPositionZ());
                 }
@@ -3124,7 +3189,7 @@ class spell_siegecrafter_blackfuse_shockwave_missile_dmg : public SpellScriptLoa
                     return;
 
                 SpellInfo const* spellInfo = GetSpellInfo();
-                //float maxRadius = spellInfo->Effects[EFFECT_1].CalcRadius();
+                float maxRadius = spellInfo->Effects[EFFECT_1].CalcRadius();
                 float maxRadius = spellInfo->GetEffect(EFFECT_1)->CalcRadius();
                 float minRadius = maxRadius - 20.f;
 
@@ -3214,7 +3279,7 @@ class spell_siegecrafter_blackfuse_launch_sawblade : public SpellScriptLoader
                 // HACK: it's blizzlike to use passenger sawblade
                 // but it causes bugs.
                 // Use an alternative way.
-                /*if (Vehicle* pVehicle = caster->GetVehicleKit())
+                if (Vehicle* pVehicle = caster->GetVehicleKit())
                 {
                     if (Unit* pSawblade = pVehicle->GetPassenger(SEAT_SAWBLADE))
                     {
@@ -3222,7 +3287,7 @@ class spell_siegecrafter_blackfuse_launch_sawblade : public SpellScriptLoader
                         pSawblade->StopMoving();
                         pSawblade->CastSpell(target, SPELL_LAUNCH_SAWBLADE_JUMP, true);
                     }
-                }*/
+                }
                 if (Creature* pSawblade = caster->SummonCreature(NPC_SAWBLADE, *caster))
                 {
                     pSawblade->AddAura(SPELL_LAUNCH_SAWBLADE_AURA, pSawblade);
@@ -3369,7 +3434,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush : AreaTriggerAI
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG);
 
-        /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
+        l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
             if (IsOnConveyor(p_Player))
                 return;
@@ -3380,7 +3445,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush : AreaTriggerAI
                 p_Player->GetForcedMovement().Stop();
 
             p_Player->GetForcedMovement().StartPullingTo(*l_Caster, 2.f);
-        });*/
+        });
     }
 
     void OnRemove()
@@ -3389,7 +3454,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush : AreaTriggerAI
         if (!l_Caster)
             return;
 
-       /* l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
+        l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
             if (IsOnConveyor(p_Player))
                 return;
@@ -3397,7 +3462,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush : AreaTriggerAI
             p_Player->RemoveAura(SPELL_MAGNETIC_CRUSH_DMG);
 
             p_Player->GetForcedMovement().Stop();
-        });*/
+        });
     }
 
     bool m_IsUpdated = false;
@@ -3420,7 +3485,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_pull : AreaTriggerAI
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG);
 
-        /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
+        l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
             if (IsOnConveyor(p_Player))
                 return;
@@ -3431,7 +3496,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_pull : AreaTriggerAI
                 p_Player->GetForcedMovement().Stop();
 
             p_Player->GetForcedMovement().StartPullingTo(*l_Caster, 2.f);
-        });*/
+        });
     }
 
     void OnRemove()
@@ -3440,7 +3505,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_pull : AreaTriggerAI
         if (!l_Caster)
             return;
 
-        /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
+        l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
             if (IsOnConveyor(p_Player))
                 return;
@@ -3448,7 +3513,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_pull : AreaTriggerAI
             p_Player->RemoveAura(SPELL_MAGNETIC_CRUSH_DMG);
 
             p_Player->GetForcedMovement().Stop();
-        });*/
+        });
     }
 
     bool m_IsUpdated = false;
@@ -3471,7 +3536,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_push : AreaTriggerAI
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG);
 
-        /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
+        l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
             if (IsOnConveyor(p_Player))
                 return;
@@ -3482,7 +3547,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_push : AreaTriggerAI
                 p_Player->GetForcedMovement().Stop();
 
             p_Player->GetForcedMovement().StartPushingFrom(*l_Caster, 2.f);
-        });*/
+        });
     }
 
     void OnRemove() override
@@ -3491,7 +3556,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_push : AreaTriggerAI
         if (!l_Caster)
             return;
 
-        /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
+        l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
             if (IsOnConveyor(p_Player))
                 return;
@@ -3499,7 +3564,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_push : AreaTriggerAI
             p_Player->RemoveAura(SPELL_MAGNETIC_CRUSH_DMG);
 
             p_Player->GetForcedMovement().Stop();
-        });*/
+        });
     }
 
     bool m_IsUpdated = false;
@@ -3817,14 +3882,14 @@ class at_siegecrafter_blackfuse_conveyor : public AreaTriggerScript
             {
                 player->AddAura(SPELL_ON_CONVEYOR, player);
 
-                /*if (player->GetMovementForces().IsActive())
+                if (player->GetMovementForces().IsActive())
                     player->GetForcedMovement().Stop();
 
-                player->GetForcedMovement().StartPullingTo(endOfFirstConveyorPos, force);*/
+                player->GetForcedMovement().StartPullingTo(endOfFirstConveyorPos, force);
             }
             else
             {
-                //player->GetForcedMovement().Stop();
+                player->GetForcedMovement().Stop();
 
                 /// If the player jumps while is on conveyor he will be out of areatrigger and the aura will be removed here. It's wrong, because he is still on conveyor.
                 /// We cannot modify the height of the areatrigger, so just delay removing. If the player jumps he will receive the aura again on landing.

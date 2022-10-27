@@ -1,4 +1,69 @@
 #include "siege_of_orgrimmar.hpp"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <AI/CoreAI/CombatAI.cpp>
 
 enum ScriptedTextHaromm
 {
@@ -472,7 +537,7 @@ private:
 
                 // make creature attackable
                 //todo check this
-                //me->ClearUnitState(UNIT_STATE_ONVEHICLE);
+               // me->ClearUnitState(UNIT_STATE_ONVEHICLE);
             }
         }
     }
@@ -1121,7 +1186,7 @@ class npc_korkron_dark_shaman_toxic_storm : public CreatureScript
                 me->AddAura(SPELL_TOXIC_STORM_AURA, me);
             }
 
-            void JustSummoned(Creature* summon) override
+            void JustSummoned(Creature* summon) 
             {
                 summons.Summon(summon);
                 if (me->IsInCombat())
@@ -1130,7 +1195,7 @@ class npc_korkron_dark_shaman_toxic_storm : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDespawn(Creature* summon) override
+            void SummonedCreatureDespawn(Creature* summon) 
             {
                 summons.Despawn(summon);
             }
@@ -1339,7 +1404,7 @@ class npc_korkron_dark_shaman_iron_tomb : public CreatureScript
                 me->SetUnitFlags(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
             }
 
-            void IsSummonedBy(Unit* owner) override
+            void IsSummonedBy(Unit* owner) 
             {
                 DoCast(me, SPELL_IRON_TOMB_DMG);
             }

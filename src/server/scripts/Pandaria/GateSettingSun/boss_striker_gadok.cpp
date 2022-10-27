@@ -18,6 +18,18 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+
 
 struct StrafPointStruct
 {

@@ -2,7 +2,77 @@
 #include "GameObjectAI.h"
 #include "GossipDef.h"
 #include "ScriptedCreature.h"
-#include "SceneHelper.h"
+//#include "SceneHelper.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ScriptedCreature.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
+#include "Weather.h"
+#include "GameObjectAI.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "MapManager.h"
+#include "Spell.h"
+#include "Vehicle.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CreatureTextMgr.h"
+#include "Weather.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
+#include "TemporarySummon.h"
+#include "Position.h"
+#include <Globals/ObjectAccessor.h>
+#include <Maps/Map.cpp>
+#include "MapInstanced.h"
+#include <Instances/InstanceScript.h>
+#include <DungeonFinding/LFGMgr.h>
+#include "LFG.h"
+#include "InstanceScript.h"
+#include "EventMap.h"
+#include <Instances/InstanceScript.h>
+#include <AI/CreatureAI.cpp>
+#include <AI/CoreAI/UnitAI.cpp>
+#include <AI/CoreAI/CombatAI.cpp>
+#include <AI/CoreAI/CombatAI.h>
+#include <Unit.cpp>
+#include <ScriptMgr.cpp>
 
 enum ScriptedTextJaina
 {
@@ -877,7 +947,7 @@ class npc_siege_of_orgrimmar_healing_tide_totem : public CreatureScript
                 me->AddAura(SPELL_HEALING_TIDE_AURA, me);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff) 
             {
 
             }
@@ -1159,7 +1229,7 @@ class npc_siege_of_orgrimmar_voljin_1 : public CreatureScript
                 m_SceneHelper.AddSceneActionTalk(SAY_VOLJIN_EVENT_1, 100);
 
                 //move to wp
-                //m_SceneHelper.AddSceneActionMove(moves, false, 100);
+                m_SceneHelper.AddSceneActionMove(moves, false, 100);
 
                 m_SceneHelper.Activate();
 
@@ -1184,7 +1254,7 @@ class npc_siege_of_orgrimmar_voljin_1 : public CreatureScript
         };
 };
 
-/*class npc_siege_of_orgrimmar_baine_bloodhoof_1 : public CreatureScript
+class npc_siege_of_orgrimmar_baine_bloodhoof_1 : public CreatureScript
 {
     public:
         npc_siege_of_orgrimmar_baine_bloodhoof_1() : CreatureScript("npc_siege_of_orgrimmar_baine_bloodhoof_1") { }
@@ -1259,9 +1329,9 @@ class npc_siege_of_orgrimmar_voljin_1 : public CreatureScript
                     pVoljin->AI()->DoAction(ACTION_IRON_JUGGERNAUT_INTRO);
                 }
 
-                //sceneHelper.AddSceneActionTalk(SAY_BAINE_INTRO_1, 1000);
-                //sceneHelper.AddSceneActionTalk(SAY_BAINE_INTRO_2, 25000);
-                //sceneHelper.AddSceneActionTalk(SAY_BAINE_INTRO_3, 38000);
+                sceneHelper.AddSceneActionTalk(SAY_BAINE_INTRO_1, 1000);
+                sceneHelper.AddSceneActionTalk(SAY_BAINE_INTRO_2, 25000);
+                sceneHelper.AddSceneActionTalk(SAY_BAINE_INTRO_3, 38000);
             }
 
             void ProcessIronJuggernautStart()
@@ -1276,14 +1346,14 @@ class npc_siege_of_orgrimmar_voljin_1 : public CreatureScript
                 moves.push_back(baineBloodHoofIronJuggernautPos[1]);
 
                 // move wp to db
-                //m_SceneHelper.AddSceneActionMove(moves, false, 100);
-                //sceneHelper.AddSceneActionTalk(SAY_BAINE_EVENT_1, 4000);
+                m_SceneHelper.AddSceneActionMove(moves, false, 100);
+                sceneHelper.AddSceneActionTalk(SAY_BAINE_EVENT_1, 4000);
 
             }
 
             void ProcessIronJuggernautDead()
             {
-                //m_SceneHelper.AddSceneActionMove(baineBloodHoofIronJuggernautPos[2], false, 100);
+                m_SceneHelper.AddSceneActionMove(baineBloodHoofIronJuggernautPos[2], false, 100);
             }
 
         private:
@@ -1293,7 +1363,7 @@ class npc_siege_of_orgrimmar_voljin_1 : public CreatureScript
             bool m_IsIntroDone;
             SceneHelper sceneHelper;
         };
-};*/
+};
 
 class npc_siege_of_orgrimmar_baine_bloodhoof_1 : public CreatureScript
 {
@@ -1404,8 +1474,8 @@ public:
             moves.push_back(baineBloodHoofIronJuggernautPos[0]);
             moves.push_back(baineBloodHoofIronJuggernautPos[1]);
 
-            //m_SceneHelper.AddSceneActionMove(moves, false, 100);
-            //m_SceneHelper.AddSceneActionTalk(SAY_BAINE_EVENT_1, 4000);
+            m_SceneHelper.AddSceneActionMove(moves, false, 100);
+            m_SceneHelper.AddSceneActionTalk(SAY_BAINE_EVENT_1, 4000);
 
             m_SceneHelper.Activate();
         }
@@ -1414,7 +1484,7 @@ public:
         {
             m_SceneHelper.Clear();
 
-            //m_SceneHelper.AddSceneActionMove(baineBloodHoofIronJuggernautPos[2], false, 100);
+            m_SceneHelper.AddSceneActionMove(baineBloodHoofIronJuggernautPos[2], false, 100);
 
             m_SceneHelper.Activate();
         }
@@ -1428,7 +1498,7 @@ public:
     };
 };
 
-/*class npc_siege_of_orgrimmar_baine_bloodhoof_1 : public CreatureScript
+class npc_siege_of_orgrimmar_baine_bloodhoof_1 : public CreatureScript
 {
 public:
     npc_siege_of_orgrimmar_baine_bloodhoof_1() : CreatureScript("npc_siege_of_orgrimmar_baine_bloodhoof_1") { }
@@ -1450,7 +1520,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            //m_SceneHelper.UpdateSceneHelper(diff);
+            m_SceneHelper.UpdateSceneHelper(diff);
             ptr->UpdateSceneHelper(diff);
             ptr->AddSceneActionTalk(5, 5);
             ptr->Clear();
@@ -1460,7 +1530,7 @@ public:
         SceneHelper m_SceneHelper;
         SceneHelper* ptr = &m_SceneHelper;
     };
-};*/
+};
 
 class npc_siege_of_orgrimmar_blind_blademaster : public CreatureScript
 {
