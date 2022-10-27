@@ -36,7 +36,26 @@ public:
     }
 };
 
+enum SpellAllianceShipCrash
+{
+    MOVIE_ALLIANCE_SHIP_CRASH = 895,
+    SPELL_ALLIANCE_SHIP_CRASH = 305446
+};
+
+class spell_Alliance_ship_crash : public PlayerScript
+{
+public:
+    spell_Alliance_ship_crash() : PlayerScript("spell_Alliance_ship_crash") { }
+
+    void OnMovieComplete(Player* player, uint32 movieId) override
+    {
+        if (movieId == MOVIE_ALLIANCE_SHIP_CRASH)
+            player->CastSpell(player, SPELL_ALLIANCE_SHIP_CRASH, true);
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     new spell_Horde_ship_crash();
+    new spell_Alliance_ship_crash();
 }

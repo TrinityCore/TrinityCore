@@ -15,8 +15,24 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 
 DELETE FROM `spell_script_names` WHERE `spell_id`=325131;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(325131,'spell_q59928_q58208_spell_ship_crash_teleport');
+(325131,'spell_q59928_spell_ship_crash_teleport');
 
 DELETE FROM `spell_area` WHERE `spell`=346799;
 INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,`racemask`,`gender`,`flags`,`quest_start_status`,`quest_end_status`) VALUES
 (346799,10453,59928,0,325131,0,2,1,64,0);
+
+DELETE FROM `scene_template` WHERE `SceneId`=2334;
+INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`ScriptName`) VALUES
+(2334,16,2708,0,'scene_alliance_and_horde_crash');
+
+DELETE FROM `spell_target_position` WHERE `ID`=305425;
+INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`PositionY`,`PositionZ`,`VerifiedBuild`) VALUES
+(305425,4,2175,-462.4,-2619.8,0.4,45745);
+
+DELETE FROM `spell_area` WHERE `spell`=346797;
+INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,`racemask`,`gender`,`flags`,`quest_start_status`,`quest_end_status`) VALUES
+(346797,10453,58208,0,305425,0,2,1,64,0);
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=305425;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(305425,'spell_q58208_spell_ship_crash_teleport');
