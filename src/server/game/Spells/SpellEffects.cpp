@@ -5770,7 +5770,7 @@ void Spell::EffectCreatePrivateConversation()
 
 void Spell::EffectSendChatMessage()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
