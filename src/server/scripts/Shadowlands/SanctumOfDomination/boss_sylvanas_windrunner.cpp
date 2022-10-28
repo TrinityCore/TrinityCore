@@ -1753,11 +1753,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     DoAction(ACTION_RESET_MELEE_KIT);
                 }
                 else
-                {
-                    DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
-
                     events.ScheduleEvent(EVENT_RIVE, 1s, PHASE_INTERMISSION);
-                }
                 break;
             }
 
@@ -2241,6 +2237,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 case EVENT_DOMINATION_CHAINS:
                 {
                     me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
                     DoCastSelf(SPELL_DOMINATION_CHAINS);
                     TeleportShadowcopiesToMe();
                     if (Creature* shadowCopy1 = instance->instance->GetCreature(instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
