@@ -5762,10 +5762,10 @@ void Spell::EffectCreatePrivateConversation()
         return;
 
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
-    if (!unitCaster || !unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitCaster || unitCaster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Conversation::CreateConversation(effectInfo->MiscValue, unitCaster, unitTarget->GetPosition(), unitTarget->GetGUID(), GetSpellInfo());
+    Conversation::CreateConversation(effectInfo->MiscValue, unitCaster, destTarget->GetPosition(), unitCaster->GetGUID(), GetSpellInfo());
 }
 
 void Spell::EffectSendChatMessage()
