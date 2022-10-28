@@ -137,7 +137,10 @@
 #define DEATH_EXPIRE_STEP (5*MINUTE)
 #define MAX_DEATH_COUNT 3
 
-enum ExperienceSpell { SPELL_EXPERIENCE_ELIMINATED = 206662 };
+enum ExperienceSpell
+{
+    SPELL_EXPERIENCE_ELIMINATED = 206662
+};
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
