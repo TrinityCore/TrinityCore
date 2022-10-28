@@ -273,6 +273,13 @@ enum Events
     EVENT_BANSHEES_FURY
 };
 
+enum GroupEvent
+{
+    GROUP_EVENT_NORMAL_EVENTS                           = 0,
+    GROUP_EVENT_WAILING_ARROW_EVENTS                    = 1,
+    GROUP_EVENT_WINDRUNNER_RELATED_EVENTS               = 2
+};
+
 enum Actions
 {
     ACTION_WINDRUNNER_MODEL_ACTIVATE                    = 1,
@@ -811,15 +818,15 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id) override
     {
-        if (type == EFFECT_MOTION_TYPE)
-        {
-            if (id == EVENT_JUMP)
-            {
-                DoCastSelf(SPELL_ANCHOR_HERE, true);
+        if (type != EFFECT_MOTION_TYPE)
+            return;
 
-                if (_onDominationChains)
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS_JUMP, 150ms, 1, _events.GetPhaseMask());
-            }
+        if (id == EVENT_JUMP)
+        {
+            DoCastSelf(SPELL_ANCHOR_HERE, true);
+
+            if (_onDominationChains)
+                _events.ScheduleEvent(EVENT_DOMINATION_CHAINS_JUMP, 150ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
         }
     }
 
@@ -827,6 +834,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     {
         switch (action)
         {
+            // TODO: for testing purposes, the positioning is fixed to Sylvanas' positioning. It should be based on casters' back pos.
             case ACTION_START_WITHERING_FIRE:
                 for (uint8 i = 0; i < 5; i++)
                     _randomWitheringFirePos.push_back(me->GetFirstCollisionPosition(40.0f, 2.0f * float(M_PI) - frand(-0.5f, 0.5f)));
@@ -841,13 +849,13 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 DoAction(ACTION_CALCULATE_ARROWS);
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_02, false);
-                _events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 20ms, 1, _events.GetPhaseMask());
+                _events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 20ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                 break;
 
+            // NOTE: number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive).
             case ACTION_CALCULATE_ARROWS:
             {
-                // NOTE: number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive).
-                uint8 arrowsToSpawn = _events.GetPhaseMask() == PHASE_INTERMISSION ? me->GetMap()->GetPlayersCountExceptGMs()
+                uint8 arrowsToSpawn = _events.IsInPhase(PHASE_INTERMISSION) ? me->GetMap()->GetPlayersCountExceptGMs()
                     : std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3)), 4), 10);
                 _selectedArrowCountsPerJump = SplitArrowCasts(arrowsToSpawn);
                 _jumpCount = 0;
@@ -990,57 +998,57 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 case EVENT_DOMINATION_CHAINS:
                     sylvanas->CastSpell(sylvanas, SPELL_DOMINATION_CHAINS, false);
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 1, 15ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 1, 15ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 1:
                     JumpShadowcopyToPosition(_randomDominationChainsPos[0], SPELL_VISUAL_WINDRUNNER_01);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 2, 120ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 2, 120ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 2:
                     if (sylvanas->IsAIEnabled())
                     {
                         sylvanas->AI()->Talk(SAY_ANNOUNCE_DOMINATION_CHAINS);
-                        sylvanas->AI()->Talk(_events.GetPhaseMask() == PHASE_ONE ? SAY_DOMINATION_CHAINS : SAY_INTERMISSION_BEGIN);
+                        sylvanas->AI()->Talk(_events.IsInPhase(PHASE_ONE) ? SAY_DOMINATION_CHAINS : SAY_INTERMISSION_BEGIN);
                     }
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 3, 616ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 3, 616ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 3:
                     sylvanas->NearTeleportTo(_randomDominationChainsPos[0], true);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 4, 62ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 4, 62ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 4:
                     JumpShadowcopyToPosition(_randomDominationChainsPos[1], SPELL_VISUAL_WINDRUNNER_01);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 5, 750ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 5, 750ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 5:
                     sylvanas->NearTeleportTo(_randomDominationChainsPos[1], true);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 6, 63ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 6, 63ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 6:
                     JumpShadowcopyToPosition(_randomDominationChainsPos[2], SPELL_VISUAL_WINDRUNNER_01);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 7, 560ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 7, 560ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 7:
                     sylvanas->NearTeleportTo(_randomDominationChainsPos[2], true);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 8, 80ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 8, 80ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 8:
                     TeleportShadowcopyToPosition(sylvanas->GetPosition());
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 9, 220ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 9, 220ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 9:
                     sylvanas->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_02);
                     sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 10, 5s, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 10, 5s, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS + 10:
@@ -1051,7 +1059,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case EVENT_DOMINATION_CHAINS_JUMP:
                     DoCastSelf(SPELL_DOMINATION_ARROW_SHOT_VISUAL, true);
-                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS_JUMP + 1, 50ms, 1, _events.GetPhaseMask());
+                    _events.ScheduleEvent(EVENT_DOMINATION_CHAINS_JUMP + 1, 50ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
 
                 case EVENT_DOMINATION_CHAINS_JUMP + 1:
@@ -1545,13 +1553,13 @@ struct boss_sylvanas_windrunner : public BossAI
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
         events.SetPhase(PHASE_ONE);
-        events.ScheduleEvent(EVENT_WINDRUNNER, 7s, 1, PHASE_ONE);
-        events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 23s, 1, PHASE_ONE);
-        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 44s, 1, PHASE_ONE);
+        events.ScheduleEvent(EVENT_WINDRUNNER, 7s, GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+        events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 23s, GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 44s, GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
 
         // NOTE: we need a different event handler for anything unrelated to pure fighting events and Wailing Arrow pointer.
         _specialEvents.SetPhase(PHASE_ONE);
-        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 27s + 500ms, 1, PHASE_ONE);
+        _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 27s + 500ms, GROUP_EVENT_WAILING_ARROW_EVENTS, PHASE_ONE);
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
@@ -1715,10 +1723,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_RANGER_SHOT:
             {
-                if (IsHeartseekerReady() == true)
-                    DoCastVictim(events.GetPhaseMask() == PHASE_THREE ? SPELL_BANSHEES_HEARTSEEKER : SPELL_RANGER_HEARTSEEKER, false);
-                else
-                    DoCastVictim(SPELL_RANGER_SHOT, false);
+                DoCastVictim(IsHeartseekerReady() ? events.IsInPhase(PHASE_THREE) ? SPELL_BANSHEES_HEARTSEEKER : SPELL_RANGER_HEARTSEEKER : SPELL_RANGER_SHOT);
 
                 _rangerShotOnCD = true;
 
@@ -1735,36 +1740,44 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case ACTION_FINISH_DOMINATION_CHAINS:
             {
+                TeleportShadowcopiesToMe();
+
                 for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
                         if (shadowCopy->IsAIEnabled())
                             shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
 
-                if (events.GetPhaseMask() == PHASE_ONE)
+                if (events.IsInPhase(PHASE_ONE))
                 {
                     me->m_Events.AddEvent(new PauseAttackState(me, false), me->m_Events.CalculateTime(1ms));
                     DoAction(ACTION_RESET_MELEE_KIT);
                 }
                 else
+                {
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
+
                     events.ScheduleEvent(EVENT_RIVE, 1s, PHASE_INTERMISSION);
+                }
                 break;
             }
 
+            // TODO: move this to an event because the transition shouldn't happen at all until on-going events are done.
             case ACTION_PREPARE_INTERMISSION:
             {
+                _specialEvents.CancelEventGroup(GROUP_EVENT_WAILING_ARROW_EVENTS);
+                events.CancelEventGroup(GROUP_EVENT_NORMAL_EVENTS);
+                events.CancelEventGroup(GROUP_EVENT_WINDRUNNER_RELATED_EVENTS);
+
+                instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_INTERMISSION_WORLD_STATE);
+
                 for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
                         if (shadowCopy->IsAIEnabled())
                             shadowCopy->AI()->DoAction(ACTION_PREPARE_INTERMISSION);
 
-                _specialEvents.CancelEventGroup(1);
-                events.CancelEventGroup(1);
-
-                instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_INTERMISSION_WORLD_STATE);
-
                 _specialEvents.SetPhase(PHASE_INTERMISSION);
                 events.SetPhase(PHASE_INTERMISSION);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 1s, PHASE_INTERMISSION);
+                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 1s, GROUP_EVENT_NORMAL_EVENTS, PHASE_INTERMISSION);
                 break;
             }
 
@@ -1949,11 +1962,11 @@ struct boss_sylvanas_windrunner : public BossAI
                         if (Player* currentTankToPlayer = currentTank->ToPlayer())
                             everyPlayerButCurrentTank.remove(currentTankToPlayer);
 
-                        if (events.GetPhaseMask() == PHASE_ONE)
+                        if (events.IsInPhase(PHASE_ONE))
                             for (Unit* nonTank : everyPlayerButCurrentTank)
                                 Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
 
-                        scheduler.Schedule(events.GetPhaseMask() == PHASE_ONE ? 5s + 500ms : 6s, [this](TaskContext /*task*/)
+                        scheduler.Schedule(events.IsInPhase(PHASE_ONE) ? 5s + 500ms : 6s, [this](TaskContext /*task*/)
                         {
                             me->m_Events.AddEvent(new PauseAttackState(me, true), me->m_Events.CalculateTime(1ms));
 
@@ -1961,7 +1974,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
                         });
 
-                        scheduler.Schedule(events.GetPhaseMask() == PHASE_ONE ? 6s + 500ms : 7s, [this, arrowTargetGUID](TaskContext /*task*/)
+                        scheduler.Schedule(events.IsInPhase(PHASE_ONE) ? 6s + 500ms : 7s, [this, arrowTargetGUID](TaskContext /*task*/)
                         {
                             Talk(SAY_WAILING_ARROW);
 
@@ -1990,7 +2003,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, Seconds(timerForWailingArrow), PHASE_ONE);
                         });
 
-                        if (events.GetPhaseMask() == PHASE_ONE)
+                        if (events.IsInPhase(PHASE_ONE))
                         {
                             scheduler.Schedule(9s, [this](TaskContext /*task*/)
                             {
@@ -1999,7 +2012,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         }
                     }
 
-                    if (events.GetPhaseMask() == PHASE_THREE)
+                    if (events.IsInPhase(PHASE_THREE))
                     {
                         Trinity::Containers::RandomResize(everyPlayerButCurrentTank, 2);
 
@@ -2233,7 +2246,8 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (Creature* shadowCopy1 = instance->instance->GetCreature(instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
                         if (shadowCopy1->IsAIEnabled())
                             shadowCopy1->AI()->DoAction(ACTION_START_DOMINATION_CHAINS);
-                    events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 53s, 1, PHASE_ONE);
+                    if (events.IsInPhase(PHASE_ONE))
+                        events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 53s, 1, PHASE_ONE);
                     break;
                 }
 
@@ -2353,9 +2367,14 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         scheduler.Schedule(100ms, [this](TaskContext /*task*/)
                         {
-                            for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
-                                if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
-                                    shadowCopy->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
+                            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
+                                shadowCopy->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
+
+                            if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
+                                shadowCopy2->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
+
+                            if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[3]))
+                                shadowCopy3->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
                         });
 
                         scheduler.Schedule(200ms, [this](TaskContext /*task*/)
@@ -3000,7 +3019,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
     bool IsHeartseekerReady()
     {
-        Aura* heartseekerCharge = me->GetAura(events.GetPhaseMask() == PHASE_ONE ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEES_HEARTSEEKER_CHARGE);
+        Aura* heartseekerCharge = me->GetAura(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEES_HEARTSEEKER_CHARGE);
 
         if (heartseekerCharge && heartseekerCharge->GetStackAmount() >= 3)
             return true;
@@ -6259,7 +6278,7 @@ struct at_sylvanas_windrunner_blasphemy : AreaTriggerAI
         if (!_instance)
             return;
 
-        if (unit->IsPlayer() || (!unit->IsPlayer() && unit->GetEntry() == NPC_BOLVAR_FORDRAGON_PINNACLE | unit->GetEntry() == NPC_JAINA_PROUDMOORE_PINNACLE | unit->GetEntry() == NPC_THRALL_PINNACLE))
+        if (unit->IsPlayer() || !unit->IsPlayer() && (unit->GetEntry() == NPC_BOLVAR_FORDRAGON_PINNACLE || unit->GetEntry() == NPC_JAINA_PROUDMOORE_PINNACLE || unit->GetEntry() == NPC_THRALL_PINNACLE))
             at->GetCaster()->CastSpell(unit, SPELL_BLASPHEMY_STUN, true);
     }
 
