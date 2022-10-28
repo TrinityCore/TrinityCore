@@ -36,3 +36,20 @@ INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,
 DELETE FROM `spell_script_names` WHERE `spell_id`=305425;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (305425,'spell_q58208_spell_ship_crash_teleport');
+
+UPDATE `creature` SET `equipment_id`=1 WHERE `guid`=1050189;
+
+UPDATE `scene_template` SET `ScriptName`='scene_alliance_and_horde_ship' WHERE `SceneId`=2486;
+
+DELETE FROM `conversation_actors` WHERE `ConversationId`=10768;
+INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
+(10768,73720,1050145,0,156280,92690,0,0,45745),
+(10768,75916,1050189,1,166573,91669,0,0,45745);
+
+DELETE FROM `conversation_line_template` WHERE `Id`=35650;
+INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(35650,0,1,0,45745);
+
+DELETE FROM `conversation_template` WHERE `Id`=10768 AND `FirstLineId`=35650;
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(10768,35650,0,'',45745);
