@@ -17,19 +17,19 @@
 
 #include "Random.h"
 #include "Errors.h"
-#include "SFMTRand.h"
+#include "PCGRand.h"
 #include <memory>
 #include <random>
 
-static thread_local std::unique_ptr<SFMTRand> sfmtRand;
+static thread_local std::unique_ptr<PCGRand> pcgRand;
 static RandomEngine engine;
 
-static SFMTRand* GetRng()
+static PCGRand* GetRng()
 {
-    if (!sfmtRand)
-        sfmtRand = std::make_unique<SFMTRand>();
+    if (!pcgRand)
+        pcgRand = std::make_unique<PCGRand>();
 
-    return sfmtRand.get();
+    return pcgRand.get();
 }
 
 int32 irand(int32 min, int32 max)

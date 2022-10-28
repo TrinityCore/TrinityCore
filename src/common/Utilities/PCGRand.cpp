@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SFMTRand.h"
+#include "PCGRand.h"
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -23,61 +23,57 @@
 #include <emmintrin.h>
 #include <ctime>
 
-SFMTRand::SFMTRand()
+PCGRand::PCGRand()
 {
     std::random_device dev;
     if (dev.entropy() > 0)
-    {
-        std::array<uint32, SFMT_N32> seed;
-        std::generate(seed.begin(), seed.end(), std::ref(dev));
-
-        sfmt_init_by_array(&_state, seed.data(), seed.size());
-    }
+        _state.seed(pcg_extras::seed_seq_from<std::random_device>());
     else
-        sfmt_init_gen_rand(&_state, uint32(time(nullptr)));
+        _state.seed(uint64(time(nullptr)));
 }
 
-uint32 SFMTRand::RandomUInt32()                            // Output random bits
+uint32 PCGRand::RandomUInt32()                            // Output random bits
 {
-    return sfmt_genrand_uint32(&_state);
+    std::uniform_int_distribution<uint32> dist;
+    return dist(_state);
 }
 
-void* SFMTRand::operator new(size_t size, std::nothrow_t const&)
+void* PCGRand::operator new(size_t size, std::nothrow_t const&)
 {
     return _mm_malloc(size, 16);
 }
 
-void SFMTRand::operator delete(void* ptr, std::nothrow_t const&)
+void PCGRand::operator delete(void* ptr, std::nothrow_t const&)
 {
     _mm_free(ptr);
 }
 
-void* SFMTRand::operator new(size_t size)
+void* PCGRand::operator new(size_t size)
 {
     return _mm_malloc(size, 16);
 }
 
-void SFMTRand::operator delete(void* ptr)
+void PCGRand::operator delete(void* ptr)
 {
     _mm_free(ptr);
 }
 
-void* SFMTRand::operator new[](size_t size, std::nothrow_t const&)
+void* PCGRand::operator new[](size_t size, std::nothrow_t const&)
 {
     return _mm_malloc(size, 16);
 }
 
-void SFMTRand::operator delete[](void* ptr, std::nothrow_t const&)
+void PCGRand::operator delete[](void* ptr, std::nothrow_t const&)
 {
     _mm_free(ptr);
 }
 
-void* SFMTRand::operator new[](size_t size)
+void* PCGRand::operator new[](size_t size)
 {
     return _mm_malloc(size, 16);
 }
 
-void SFMTRand::operator delete[](void* ptr)
+void PCGRand::operator delete[](void* ptr)
 {
     _mm_free(ptr);
 }

@@ -15,19 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SFMTRand_h__
-#define SFMTRand_h__
+#ifndef PCGRand_h__
+#define PCGRand_h__
 
 #include "Define.h"
-#include <SFMT.h>
+#include "pcg_random.hpp"
 #include <new>
 
-/*
- * C++ Wrapper for SFMT
- */
-class SFMTRand {
+ /*
+  * C++ Wrapper for PCG
+  */
+class PCGRand
+{
 public:
-    SFMTRand();
+    PCGRand();
     uint32 RandomUInt32(); // Output random bits
     void* operator new(size_t size, std::nothrow_t const&);
     void operator delete(void* ptr, std::nothrow_t const&);
@@ -38,7 +39,8 @@ public:
     void* operator new[](size_t size);
     void operator delete[](void* ptr);
 private:
-    sfmt_t _state;
+
+    pcg32 _state;
 };
 
-#endif // SFMTRand_h__
+#endif // PCGRand_h__

@@ -66,7 +66,7 @@ target_link_libraries(common
     fmt
     g3dlib
     Detour
-    sfmt
+    pcg
     utf8cpp
     openssl
     valgrind
