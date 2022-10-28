@@ -340,10 +340,9 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=353417 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (353417, 'spell_sylvanas_windrunner_rive');
 
- -- Rive (Fast)
-DELETE FROM `spell_script_names` WHERE `spell_id`=353418 AND `ScriptName`='spell_sylvanas_windrunner_rive_fast';
+DELETE FROM `spell_script_names` WHERE `spell_id`=353418 AND `ScriptName`='spell_sylvanas_windrunner_rive';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(353418, 'spell_sylvanas_windrunner_rive_fast');
+(353418, 'spell_sylvanas_windrunner_rive');
 
  -- Banshee Wail
 DELETE FROM `spell_script_names` WHERE `spell_id`=348094 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail';
