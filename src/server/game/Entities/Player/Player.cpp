@@ -137,6 +137,8 @@
 #define DEATH_EXPIRE_STEP (5*MINUTE)
 #define MAX_DEATH_COUNT 3
 
+enum ExperienceSpell { SPELL_EXPERIENCE_ELIMINATED = 206662 };
+
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 uint64 const MAX_MONEY_AMOUNT = 99999999999ULL;
@@ -13911,14 +13913,14 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         case GossipOptionNpc::DisableXPGain:
         {
             PlayerTalkClass->SendCloseGossip();
-            CastSpell(source->ToPlayer(), 206662, true); // Experience Eliminated
+            CastSpell(nullptr, SPELL_EXPERIENCE_ELIMINATED, true); // Experience Eliminated
             SetPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
         }
         case GossipOptionNpc::EnableXPGain:
         {
             PlayerTalkClass->SendCloseGossip();
-            RemoveAurasDueToSpell(206662); // Experience Eliminated
+            RemoveAurasDueToSpell(SPELL_EXPERIENCE_ELIMINATED); // Experience Eliminated
             RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
         }
