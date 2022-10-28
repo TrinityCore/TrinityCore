@@ -2798,7 +2798,7 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 float distance = 7.0f * step;
 
-                // Let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform
+                // Note: let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform.
                 Position arrowCenter(me->GetPositionX() + (std::cos(orientation) * distance), me->GetPositionY() + (std::sin(orientation) * distance), me->GetPositionZ());
 
                 if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
@@ -6187,6 +6187,17 @@ struct at_sylvanas_windrunner_rive : AreaTriggerAI
 
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             sylvanas->CastSpell(unit, SPELL_RIVE_DAMAGE, true);
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        if (!_instance)
+            return;
+
+        Position areaTriggerPos(at->GetPosition());
+
+        if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&areaTriggerPos, PLATFORM_RADIUS))
+            at->Remove();
     }
 
 private:
