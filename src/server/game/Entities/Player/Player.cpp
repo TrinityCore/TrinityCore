@@ -13672,11 +13672,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                         canTalk = false;
                     break;
                 case GossipOptionNpc::DisableXPGain:
-                    if (HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN))
+                    if (HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN) || GetLevel() == DEFAULT_MAX_LEVEL)
                         canTalk = false;
                     break;
                 case GossipOptionNpc::EnableXPGain:
-                    if (!HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN))
+                    if (!HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN) || GetLevel() == DEFAULT_MAX_LEVEL)
                         canTalk = false;
                     break;
                 case GossipOptionNpc::None:
@@ -13916,14 +13916,14 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         case GossipOptionNpc::DisableXPGain:
         {
             PlayerTalkClass->SendCloseGossip();
-            CastSpell(nullptr, SPELL_EXPERIENCE_ELIMINATED, true); // Experience Eliminated
+            CastSpell(nullptr, SPELL_EXPERIENCE_ELIMINATED, true);
             SetPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
         }
         case GossipOptionNpc::EnableXPGain:
         {
             PlayerTalkClass->SendCloseGossip();
-            RemoveAurasDueToSpell(SPELL_EXPERIENCE_ELIMINATED); // Experience Eliminated
+            RemoveAurasDueToSpell(SPELL_EXPERIENCE_ELIMINATED);
             RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
         }
