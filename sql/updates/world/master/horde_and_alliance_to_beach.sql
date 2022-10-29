@@ -1,15 +1,27 @@
--- Warlord Breka Grimaxe Entry: 140350
+-- Creature fixups
 UPDATE `creature_template` SET `npcflag`=2 WHERE `entry`=166827;
 UPDATE `creature` SET `equipment_id`=1 WHERE `guid`=1050189;
+UPDATE `creature` SET `PhaseId`=15287 WHERE `id`=166827;
+UPDATE `creature` SET `spawntimesecs`=120 WHERE `map`=2369 AND `spawntimesecs`=7200;
+UPDATE `creature` SET `curhealth`=1 WHERE `map`=2369;
+
+-- Spawn Conditions
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry`=166824 AND `SourceId`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(32,5,166824,0,0,47,0,59926,64,0,0,0,0,'','Spawn of creature with entry 166824 requires Quest 59926 rewarded');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry`=166573 AND `SourceId`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(32,5,166573,0,0,47,0,59926,11,0,0,0,0,'','Spawn of creature with entry 166573 requires Quest 59926 not rewarded');
 
 -- Spell
-DELETE FROM `spell_script_names` WHERE `spell_id`=325131;
-INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(325131,'spell_horde_ship_crash');
-
 DELETE FROM `spell_script_names` WHERE `spell_id`=305425;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(305425,'spell_alliance_ship_crash');
+(305425,'spell_alliance_spell_ship_crash_teleport');
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=325131;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(325131,'spell_horde_spell_ship_crash_teleport');
 
 DELETE FROM `spell_target_position` WHERE `ID`=325131;
 INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`PositionY`,`PositionZ`,`VerifiedBuild`) VALUES
@@ -22,6 +34,10 @@ INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`Pos
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=-305445;
 INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
 (-305445,344889,0,'Knocked Down (DNT) removal triggers Knocked Down (DNT)');
+
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=-290901;
+INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
+(-290901,290903,0,'Removing aura Attention! cast DEBUG - Look Right');
 
 DELETE FROM `spell_area` WHERE `spell`=346797;
 INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,`racemask`,`gender`,`flags`,`quest_start_status`,`quest_end_status`) VALUES
@@ -81,3 +97,8 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 DELETE FROM `conversation_template` WHERE `Id`=12798;
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (12798,36096,0,'',45745);
+
+-- quest
+DELETE FROM `quest_template_addon` WHERE `ID`=59926;
+INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
+(59926,'quest_warming_up');

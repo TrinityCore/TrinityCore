@@ -19,63 +19,103 @@
 #include "ScriptMgr.h"
 #include "Conversation.h"
 
-enum PlayerScriptQuestWarmingUp
+// Scripting in this section is from login to arriving on beach for alliance and horde
+
+enum QuestScriptQuestWarmingUp
 {
     QUEST_WARMING_UP        = 59926,
     CONVERSATION_WARMING_UP = 12798
 };
 
-class playerscript_warming_up : public PlayerScript
+class quest_warming_up : public QuestScript
 {
 public:
-    playerscript_warming_up() : PlayerScript("playerscript_warming_up") { }
+    quest_warming_up() : QuestScript("quest_warming_up") { }
 
-    void OnQuestStatusChange(Player* player, uint32 questId) override
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/ , QuestStatus newStatus) override
     {
-        if(questId == QUEST_WARMING_UP && player->GetQuestStatus(QUEST_WARMING_UP) == QUEST_STATUS_COMPLETE)
-            Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
+        switch (newStatus)
+        {
+            case QUEST_STATE_COMPLETE:
+                Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
+                break;
+            case QUEST_STATUS_REWARDED:
+                // Replace Entry: 166824 for player and teleport to X: -10.677 Y: 2.20931 Z: 8.74844 O: 3.164201
+                break;
+
+            default:
+                break;
+        }
     }
 };
 
 enum PlayerScriptHordeShipCrash
 {
-    MOVIE_HORDE_SHIP_CRASH = 931,
-    SPELL_HORDE_SHIP_CRASH = 325133
-};
-
-class playerscript_horde_ship_crash : public PlayerScript
-{
-public:
-    playerscript_horde_ship_crash() : PlayerScript("playerscript_horde_ship_crash") { }
-
-    void OnMovieComplete(Player* player, uint32 movieId) override
-    {
-        if(movieId == MOVIE_HORDE_SHIP_CRASH)
-            player->CastSpell(player, SPELL_HORDE_SHIP_CRASH, true);
-    }
-};
-
-enum PlayerScriptAllianceShipCrash
-{
     MOVIE_ALLIANCE_SHIP_CRASH = 895,
-    SPELL_ALLIANCE_SHIP_CRASH = 305446
+    MOVIE_HORDE_SHIP_CRASH    = 931,
+    SPELL_ALLIANCE_SHIP_CRASH = 305446,
+    SPELL_HORDE_SHIP_CRASH    = 325133
 };
 
-class playerscript_alliance_ship_crash : public PlayerScript
+class player_ship_crash : public PlayerScript
 {
 public:
-    playerscript_alliance_ship_crash() : PlayerScript("playerscript_alliance_ship_crash") { }
+    player_ship_crash() : PlayerScript("player_ship_crash") { }
 
     void OnMovieComplete(Player* player, uint32 movieId) override
     {
-        if (movieId == MOVIE_ALLIANCE_SHIP_CRASH)
-            player->CastSpell(player, SPELL_ALLIANCE_SHIP_CRASH, true);
+        switch (movieId)
+        {
+            case MOVIE_ALLIANCE_SHIP_CRASH:
+                player->CastSpell(player, SPELL_ALLIANCE_SHIP_CRASH, true);
+                break;
+            case MOVIE_HORDE_SHIP_CRASH:
+                player->CastSpell(player, SPELL_HORDE_SHIP_CRASH, true);
+                break;
+            default:
+                break;
+        }
     }
 };
 
-class spell_q59928_spell_ship_crash_teleport : public SpellScript
+enum AllianceHordeShipSceneSpells
 {
-    PrepareSpellScript(spell_q59928_spell_ship_crash_teleport);
+    SPELL_BEGIN_TUTORIAL = 295600,
+    SPELL_KNOCKED_DOWN   = 305445,
+    SPELL_CRASHED_LANDED = 325136
+};
+
+class scene_alliance_and_horde_ship : public SceneScript
+{
+public:
+    scene_alliance_and_horde_ship() : SceneScript("scene_alliance_and_horde_ship") { }
+
+    virtual void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
+    }
+};
+
+class scene_alliance_and_horde_crash : public SceneScript
+{
+public:
+    scene_alliance_and_horde_crash() : SceneScript("scene_alliance_and_horde_crash") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Begin Knockdown Aura")
+            player->CastSpell(player, SPELL_KNOCKED_DOWN, true);
+    }
+
+    virtual void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_CRASHED_LANDED, true);
+    }
+};
+
+class spell_alliance_spell_ship_crash_teleport : public SpellScript
+{
+    PrepareSpellScript(spell_alliance_spell_ship_crash_teleport);
 
     void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
     {
@@ -87,13 +127,13 @@ class spell_q59928_spell_ship_crash_teleport : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q59928_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_3, SPELL_EFFECT_TELEPORT_UNITS);
+        OnEffectHitTarget += SpellEffectFn(spell_alliance_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_4, SPELL_EFFECT_TELEPORT_UNITS);
     }
 };
 
-class spell_q58208_spell_ship_crash_teleport : public SpellScript
+class spell_horde_spell_ship_crash_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_q58208_spell_ship_crash_teleport);
+    PrepareSpellScript(spell_horde_spell_ship_crash_teleport);
 
     void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
     {
@@ -105,15 +145,20 @@ class spell_q58208_spell_ship_crash_teleport : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q58208_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_4, SPELL_EFFECT_TELEPORT_UNITS);
+        OnEffectHitTarget += SpellEffectFn(spell_horde_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_3, SPELL_EFFECT_TELEPORT_UNITS);
     }
 };
+
+// Scripting in this section is from arriving on beach for alliance and horde
 
 void AddSC_zone_exiles_reach()
 {
-    new playerscript_warming_up();
-    new playerscript_horde_ship_crash();
-    new playerscript_alliance_ship_crash();
-    RegisterSpellScript(spell_q59928_spell_ship_crash_teleport);
-    RegisterSpellScript(spell_q58208_spell_ship_crash_teleport);
+    // Ship
+    new quest_warming_up();
+    new player_ship_crash();
+    new scene_alliance_and_horde_ship();
+    new scene_alliance_and_horde_crash();
+    RegisterSpellScript(spell_alliance_spell_ship_crash_teleport);
+    RegisterSpellScript(spell_horde_spell_ship_crash_teleport);
+    // Beach
 }

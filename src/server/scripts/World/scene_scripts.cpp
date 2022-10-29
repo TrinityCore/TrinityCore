@@ -36,44 +36,7 @@ class scene_deathwing_simulator : public SceneScript
     }
 };
 
-enum AllianceHordeShipSceneSpells
-{
-    SPELL_BEGIN_TUTORIAL = 295600,
-    SPELL_KNOCKED_DOWN   = 305445,
-    SPELL_CRASHED_LANDED = 325136
-};
-
-class scene_alliance_and_horde_ship : public SceneScript
-{
-public:
-    scene_alliance_and_horde_ship() : SceneScript("scene_alliance_and_horde_ship") { }
-
-    virtual void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
-    }
-};
-
-class scene_alliance_and_horde_crash : public SceneScript
-{
-public:
-    scene_alliance_and_horde_crash() : SceneScript("scene_alliance_and_horde_crash") { }
-
-    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
-    {
-        if (triggerName == "Begin Knockdown Aura")
-            player->CastSpell(player, SPELL_KNOCKED_DOWN, true);
-    }
-
-    virtual void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        player->CastSpell(player, SPELL_CRASHED_LANDED, true);
-    }
-};
-
 void AddSC_scene_scripts()
 {
     new scene_deathwing_simulator();
-    new scene_alliance_and_horde_ship();
-    new scene_alliance_and_horde_crash();
 }
