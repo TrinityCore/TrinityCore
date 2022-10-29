@@ -13672,11 +13672,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                         canTalk = false;
                     break;
                 case GossipOptionNpc::DisableXPGain:
-                    if (HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN) || GetLevel() == DEFAULT_MAX_LEVEL)
+                    if (HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN) || IsMaxLevel())
                         canTalk = false;
                     break;
                 case GossipOptionNpc::EnableXPGain:
-                    if (!HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN) || GetLevel() == DEFAULT_MAX_LEVEL)
+                    if (!HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN) || IsMaxLevel())
                         canTalk = false;
                     break;
                 case GossipOptionNpc::None:
