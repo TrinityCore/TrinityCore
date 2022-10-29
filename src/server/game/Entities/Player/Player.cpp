@@ -137,7 +137,7 @@
 #define DEATH_EXPIRE_STEP (5*MINUTE)
 #define MAX_DEATH_COUNT 3
 
-enum ExperienceSpell
+enum PlayerSpells
 {
     SPELL_EXPERIENCE_ELIMINATED = 206662
 };
@@ -13914,19 +13914,15 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             SendRespecWipeConfirm(guid, sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost(), SPEC_RESET_PET_TALENTS);
             break;
         case GossipOptionNpc::DisableXPGain:
-        {
             PlayerTalkClass->SendCloseGossip();
             CastSpell(nullptr, SPELL_EXPERIENCE_ELIMINATED, true);
             SetPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
-        }
         case GossipOptionNpc::EnableXPGain:
-        {
             PlayerTalkClass->SendCloseGossip();
             RemoveAurasDueToSpell(SPELL_EXPERIENCE_ELIMINATED);
             RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
-        }
         case GossipOptionNpc::Mailbox:
             GetSession()->SendShowMailBox(guid);
             break;
