@@ -93,6 +93,11 @@ enum SanctumOfDominationGameObjectIds
     GAMEOBJECT_INVISIBLE_WALL_PHASE_2               = 369242
 };
 
+enum SanctumOfDominationSpellIds
+{
+    SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION         = 355537
+};
+
 enum SanctumOfDominationEvents
 {
     EVENT_RESET_PLAYERS_ON_SYLVANAS                 = 1
