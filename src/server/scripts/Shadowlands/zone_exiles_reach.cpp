@@ -17,17 +17,36 @@
 
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "Conversation.h"
 
-enum SpellHordeShipCrash
+enum PlayerScriptQuestWarmingUp
+{
+    QUEST_WARMING_UP        = 59926,
+    CONVERSATION_WARMING_UP = 12798
+};
+
+class playerscript_warming_up : public PlayerScript
+{
+public:
+    playerscript_warming_up() : PlayerScript("playerscript_warming_up") { }
+
+    void OnQuestStatusChange(Player* player, uint32 questId) override
+    {
+        if(questId == QUEST_WARMING_UP && player->GetQuestStatus(QUEST_WARMING_UP) == QUEST_STATUS_COMPLETE)
+            Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
+    }
+};
+
+enum PlayerScriptHordeShipCrash
 {
     MOVIE_HORDE_SHIP_CRASH = 931,
     SPELL_HORDE_SHIP_CRASH = 325133
 };
 
-class spell_Horde_ship_crash : public PlayerScript
+class playerscript_horde_ship_crash : public PlayerScript
 {
 public:
-    spell_Horde_ship_crash() : PlayerScript("spell_Horde_ship_crash") { }
+    playerscript_horde_ship_crash() : PlayerScript("playerscript_horde_ship_crash") { }
 
     void OnMovieComplete(Player* player, uint32 movieId) override
     {
@@ -36,16 +55,16 @@ public:
     }
 };
 
-enum SpellAllianceShipCrash
+enum PlayerScriptAllianceShipCrash
 {
     MOVIE_ALLIANCE_SHIP_CRASH = 895,
     SPELL_ALLIANCE_SHIP_CRASH = 305446
 };
 
-class spell_Alliance_ship_crash : public PlayerScript
+class playerscript_alliance_ship_crash : public PlayerScript
 {
 public:
-    spell_Alliance_ship_crash() : PlayerScript("spell_Alliance_ship_crash") { }
+    playerscript_alliance_ship_crash() : PlayerScript("playerscript_alliance_ship_crash") { }
 
     void OnMovieComplete(Player* player, uint32 movieId) override
     {
@@ -54,8 +73,47 @@ public:
     }
 };
 
+class spell_q59928_spell_ship_crash_teleport : public SpellScript
+{
+    PrepareSpellScript(spell_q59928_spell_ship_crash_teleport);
+
+    void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+
+        if (TransportBase* transport = target->GetTransport())
+            transport->RemovePassenger(target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q59928_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_3, SPELL_EFFECT_TELEPORT_UNITS);
+    }
+};
+
+class spell_q58208_spell_ship_crash_teleport : public SpellScript
+{
+    PrepareSpellScript(spell_q58208_spell_ship_crash_teleport);
+
+    void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+
+        if (TransportBase* transport = target->GetTransport())
+            transport->RemovePassenger(target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q58208_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_4, SPELL_EFFECT_TELEPORT_UNITS);
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
-    new spell_Horde_ship_crash();
-    new spell_Alliance_ship_crash();
+    new playerscript_warming_up();
+    new playerscript_horde_ship_crash();
+    new playerscript_alliance_ship_crash();
+    RegisterSpellScript(spell_q59928_spell_ship_crash_teleport);
+    RegisterSpellScript(spell_q58208_spell_ship_crash_teleport);
 }
