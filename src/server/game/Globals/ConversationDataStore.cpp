@@ -197,6 +197,20 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation actors. DB table `conversation_actors` is empty.");
     }
 
+    // Validate FirstLineId
+    std::unordered_map<uint32, uint32> prevConversationLineIds;
+    for (ConversationLineEntry const* conversationLine : sConversationLineStore)
+        if (conversationLine->NextConversationLineID)
+            prevConversationLineIds[conversationLine->NextConversationLineID] = conversationLine->ID;
+
+    auto getFirstLineIdFromAnyLineId = [&](uint32 lineId)
+    {
+        while (uint32 const* prevLineId = Trinity::Containers::MapGetValuePtr(prevConversationLineIds, lineId))
+            lineId = *prevLineId;
+
+        return lineId;
+    };
+
     if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, TextureKitId, ScriptName FROM conversation_template"))
     {
         uint32 oldMSTime = getMSTime();
@@ -212,6 +226,14 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[3].GetString());
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
+
+            uint32 correctedFirstLineId = getFirstLineIdFromAnyLineId(conversationTemplate.FirstLineId);
+            if (conversationTemplate.FirstLineId != correctedFirstLineId)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `conversation_template` has incorrect FirstLineId %u, it should be %u for Conversation %u, corrected",
+                    conversationTemplate.FirstLineId, correctedFirstLineId, conversationTemplate.Id);
+                conversationTemplate.FirstLineId = correctedFirstLineId;
+            }
 
             ConversationLineEntry const* currentConversationLine = sConversationLineStore.LookupEntry(conversationTemplate.FirstLineId);
             if (!currentConversationLine)
