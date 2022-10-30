@@ -15,16 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Object.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Conversation.h"
+#include "TemporarySummon.h"
 
 // Scripting in this section is from login to arriving on beach for alliance and horde
 
 enum QuestScriptQuestWarmingUp
 {
-    QUEST_WARMING_UP        = 59926,
-    CONVERSATION_WARMING_UP = 12798
+    QUEST_WARMING_UP                = 59926,
+    CONVERSATION_WARMING_UP         = 12798,
+    NPC_WARLORD_BREKA_GRIMAXE1      = 166573,
+    NPC_WARLORD_BREKA_GRIMAXE2      = 166824
 };
 
 class quest_warming_up : public QuestScript
@@ -40,9 +44,10 @@ public:
                 Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
                 break;
             case QUEST_STATUS_REWARDED:
-                // Replace Entry: 166824 for player and teleport to X: -10.677 Y: 2.20931 Z: 8.74844 O: 3.164201
+                if (Creature* breka1 = player->FindNearestCreature(NPC_WARLORD_BREKA_GRIMAXE1, 5.0f))
+                    if (Creature* breka2 = player->FindNearestCreature(NPC_WARLORD_BREKA_GRIMAXE2, 75.0f))
+                        breka2->SummonPersonalClone(breka1->GetPosition(), TempSummonType(TEMPSUMMON_TIMED_DESPAWN), 18s, 0, 0, player);
                 break;
-
             default:
                 break;
         }
@@ -90,7 +95,12 @@ class scene_alliance_and_horde_ship : public SceneScript
 public:
     scene_alliance_and_horde_ship() : SceneScript("scene_alliance_and_horde_ship") { }
 
-    virtual void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
     }
@@ -107,7 +117,7 @@ public:
             player->CastSpell(player, SPELL_KNOCKED_DOWN, true);
     }
 
-    virtual void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->CastSpell(player, SPELL_CRASHED_LANDED, true);
     }

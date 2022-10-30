@@ -5,6 +5,57 @@ UPDATE `creature` SET `PhaseId`=15287 WHERE `id`=166827;
 UPDATE `creature` SET `spawntimesecs`=120 WHERE `map`=2369 AND `spawntimesecs`=7200;
 UPDATE `creature` SET `curhealth`=1 WHERE `map`=2369;
 
+-- Scripting
+SET @ENTRY := 166824;
+SET @SCRIPT := @ENTRY * 100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Just Summoned - Load script"),
+(@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Say 0"),
+(@SCRIPT,9,1,0,0,0,100,0,0,0,0,0,59,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Set Run off"),
+(@SCRIPT,9,2,0,0,0,100,0,0,0,0,0,69,0,1,0,0,0,0,8,0,0,0,-10.602051,8.918945,8.779607,0,"Warlord Breka Grimaxe - Script - Move to position"),
+(@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,5,66,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Emote Salute"),
+(@SCRIPT,9,4,0,0,0,100,0,3000,3000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Load path");
+
+DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+(@ENTRY, 0, 0, 'Throg will spar with you for now. I must speak to the crew about the rain.', 12, 0, 100, 0, 0, 156952, 199040, 0, 'Warlord Breka Grimaxe');
+
+DELETE FROM `waypoints` WHERE `entry`=@SCRIPT;
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
+(@SCRIPT,1,2.480713,9.498291,9.528435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,2,3.480713,9.748291,9.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,3,3.730713,9.998291,10.028435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,4,5.230713,12.248291,10.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,5,6.730713,11.748291,12.278435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,6,9.230713,10.748291,14.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,7,12.480713,9.498291,17.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,8,13.730713,9.498291,18.528435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,9,14.480713,9.248291,18.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,10,15.480713,8.998291,18.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,11,15.480713,6.748291,18.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,12,15.730713,5.748291,18.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,13,15.230713,5.498291,18.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,14,15.230713,5.248291,18.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,15,15.980713,4.248291,19.528435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,16,18.480713,3.248291,22.028435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,17,23.480713,2.248291,26.278435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,18,24.480713,0.24829102,26.528435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,19,25.730713,-1.751709,27.278435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,20,28.730713,-6.001709,27.278435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,21,29.730713,-5.751709,27.528435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,22,32.730713,-7.501709,30.278435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,23,35.480713,-6.751709,33.528435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,24,35.980713,-6.501709,33.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,25,38.730713,-5.501709,34.528435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,26,39.980713,-5.001709,35.028435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,27,40.980713,-4.751709,36.028435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,28,44.480713,-4.001709,39.778435,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,29,45.563477,-3.4223633,39.777264,3.1642,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,30,45.563477,-3.4223633,39.777264,NULL,0,'Warlord Breka Grimaxe');
+
 -- Spawn Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry`=166824 AND `SourceId`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -102,3 +153,4 @@ INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptNa
 DELETE FROM `quest_template_addon` WHERE `ID`=59926;
 INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
 (59926,'quest_warming_up');
+
