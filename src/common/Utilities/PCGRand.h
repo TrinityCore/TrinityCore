@@ -40,7 +40,7 @@ public:
     void operator delete[](void* ptr);
 private:
 
-    pcg32 _state;
+    pcg64 _state;
 };
 
 #endif // PCGRand_h__

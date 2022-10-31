@@ -25,11 +25,7 @@
 
 PCGRand::PCGRand()
 {
-    std::random_device dev;
-    if (dev.entropy() > 0)
-        _state.seed(pcg_extras::seed_seq_from<std::random_device>());
-    else
-        _state.seed(uint64(time(nullptr)));
+    _state.seed(pcg_extras::seed_seq_from<std::random_device>());
 }
 
 uint32 PCGRand::RandomUInt32()                            // Output random bits
