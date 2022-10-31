@@ -12288,6 +12288,13 @@ void Unit::SendTeleportPacket(Position const& pos)
         moveUpdateTeleport.Status->guid = GetGUID();
         moveUpdateTeleport.Status->pos.Relocate(pos);
         moveUpdateTeleport.Status->time = getMSTime();
+        if (TransportBase* transportBase = GetDirectTransport())
+        {
+            float tx, ty, tz, to;
+            pos.GetPosition(tx, ty, tz, to);
+            transportBase->CalculatePassengerOffset(tx, ty, tz, &to);
+            moveUpdateTeleport.Status->transport.pos.Relocate(tx, ty, tz, to);
+        }
     }
 
     // Broadcast the packet to everyone except self.
