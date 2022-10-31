@@ -2977,11 +2977,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 switch (step)
                 {
                     case 1:
-                    {
                         me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                         break;
-                    }
-
                     case 10:
                     {
                         LastFrontSpiralPoint = { pos.GetPositionX() + (std::cos(orientation + 0.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionY() + (std::sin(orientation + 0.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionZ() };
@@ -3584,8 +3581,6 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        if (!target)
-            return;
 
         target->m_Events.AddEvent(new PauseAttackState(target, true), target->m_Events.CalculateTime(0ms));
     }
@@ -3593,10 +3588,8 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        if (!target)
-            return;
 
-        target->m_Events.AddEvent(new PauseAttackState(target, false), target->m_Events.CalculateTime(0ms));
+        target->m_Events.AddEvent(new PauseAttackState(target, false), target->m_Events.CalculateTime(250ms));
     }
 
     void Register() override
@@ -3646,13 +3639,18 @@ class spell_sylvanas_windrunner_withering_fire : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                if (sylvanas->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
-                    sylvanas->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
-            }
+            if (sylvanas->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
+                sylvanas->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
         }
     }
 
@@ -3674,7 +3672,11 @@ class spell_sylvanas_windrunner_desecrating_shot : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -3819,7 +3821,11 @@ class spell_sylvanas_windrunner_ranger_heartseeker_shadow_damage : public SpellS
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_MARK, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), SPELL_BANSHEE_MARK, true);
     }
 
     void Register() override
@@ -3844,8 +3850,12 @@ class spell_sylvanas_windrunner_domination_chains : public SpellScript
 
     void HandleAfterCast()
     {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         std::list<Creature*> arrowList;
-        GetCreatureListWithEntryInGrid(arrowList, GetCaster(), NPC_DOMINATION_ARROW, 500.0f);
+        GetCreatureListWithEntryInGrid(arrowList, caster, NPC_DOMINATION_ARROW, 500.0f);
 
         for (Creature* arrow : arrowList)
             if (arrow->IsAIEnabled())
@@ -3872,7 +3882,11 @@ class spell_sylvanas_windrunner_domination_arrow : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -3893,26 +3907,30 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
+        Unit* target = GetTarget();
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
-        _playerGUID = GetTarget()->GetGUID();
+        _playerGUID = target->GetGUID();
 
-        if (GetTarget()->HasAura(SPELL_BARBED_ARROW))
-            GetTarget()->RemoveAura(SPELL_BARBED_ARROW);
+        if (target->HasAura(SPELL_BARBED_ARROW))
+            target->RemoveAura(SPELL_BARBED_ARROW);
 
-        GetCaster()->CastSpell(GetTarget(), SPELL_DOMINATION_CHAIN_PERIODIC, true);
+        caster->CastSpell(target, SPELL_DOMINATION_CHAIN_PERIODIC, true);
 
-        _arrowAreaTriggerGUID = AreaTrigger::CreateNewMovementForceId(GetCaster()->GetMap(), DATA_AREATRIGGER_DOMINATION_ARROW);
+        _arrowAreaTriggerGUID = AreaTrigger::CreateNewMovementForceId(caster->GetMap(), DATA_AREATRIGGER_DOMINATION_ARROW);
 
-        GetTarget()->ApplyMovementForce(_arrowAreaTriggerGUID, GetCaster()->GetPosition(), 3.20000004768371582f, MovementForceType::Gravity);
+        target->ApplyMovementForce(_arrowAreaTriggerGUID, caster->GetPosition(), 3.20000004768371582f, MovementForceType::Gravity);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveAurasDueToSpell(SPELL_DOMINATION_CHAIN_PERIODIC);
+        Unit* target = GetTarget();
 
-        GetTarget()->RemoveMovementForce(_arrowAreaTriggerGUID);
+        target->RemoveAurasDueToSpell(SPELL_DOMINATION_CHAIN_PERIODIC);
+
+        target->RemoveMovementForce(_arrowAreaTriggerGUID);
     }
 
     void Register() override
@@ -3933,11 +3951,13 @@ class spell_sylvanas_windrunner_domination_chain_periodic : public AuraScript
 
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
-        if (!GetCaster())
+        Unit* target = GetTarget();
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
         if (aurEff->GetTickNumber() == 3)
-            GetCaster()->CastSpell(GetTarget(), SPELL_DOMINATION_CHAIN_PERIODIC, true);
+            caster->CastSpell(target, SPELL_DOMINATION_CHAIN_PERIODIC, true);
     }
 
     void Register() override
@@ -4008,7 +4028,11 @@ class spell_sylvanas_windrunner_wailing_arrow_trigger : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
     }
 
     void Register() override
@@ -4026,7 +4050,6 @@ class spell_sylvanas_windrunner_wailing_arrow_raid_damage : public SpellScript
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-
         if (!caster)
             return;
 
@@ -4068,14 +4091,22 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
 
     void OnPrecast() override
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 9750));
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 9750));
     }
 
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        GetCaster()->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_SCREEN_FOG);
-        GetCaster()->CastSpell(GetCaster(), SPELL_VEIL_OF_DARKNESS_DESELECT, true);
-        GetCaster()->SetPower(GetCaster()->GetPowerType(), 0);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_SCREEN_FOG);
+        caster->CastSpell(caster, SPELL_VEIL_OF_DARKNESS_DESELECT, true);
+        caster->SetPower(caster->GetPowerType(), 0);
     }
 
     void Register() override
@@ -4101,29 +4132,41 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     void OnPrecast() override
     {
-        GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
-        GetCaster()->SetAnimTier(AnimTier::Fly);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        GetCaster()->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(GetCaster(), DATA_CHANGE_SHEATHE_TO_UNARMED, 0), GetCaster()->m_Events.CalculateTime(1ms));
-        GetCaster()->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), GetCaster()->m_Events.CalculateTime(25ms));
+        caster->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
+        caster->SetAnimTier(AnimTier::Fly);
 
-        GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS, 0, 0);
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(1ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(25ms));
+
+        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS, 0, 0);
     }
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
     }
 
     void HandleAfterCast()
     {
-        GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
-        GetCaster()->SetAnimTier(AnimTier::Ground);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        GetCaster()->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), GetCaster()->m_Events.CalculateTime(25ms));
+        caster->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+        caster->SetAnimTier(AnimTier::Ground);
 
-        GetCaster()->m_Events.AddEvent(new PauseAttackState(GetCaster(), false), GetCaster()->m_Events.CalculateTime(250ms));
-        GetCaster()->resetAttackTimer(BASE_ATTACK);
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(25ms));
+
+        caster->m_Events.AddEvent(new PauseAttackState(caster, false), caster->m_Events.CalculateTime(250ms));
+        caster->resetAttackTimer(BASE_ATTACK);
     }
 
     void Register() override
@@ -4151,37 +4194,49 @@ class spell_sylvanas_windrunner_rive : public SpellScript
 
     void OnPrecast() override
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-        {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                {
-                    if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(3)))
-                    {
-                        shadowCopy3->CastSpell(sylvanas, GetSpellInfo()->Id == SPELL_RIVE ? SPELL_RIVE_CHAIN : SPELL_RIVE_CHAIN_FAST, false);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-                        // TODO: change the type of searching to avoid exploiting from players.
-                        if (GameObject* platformSpire = shadowCopy3->FindNearestGameObjectOfType(GameobjectTypes::GAMEOBJECT_TYPE_GOOBER, 15.0f))
-                            platformSpire->SetSpellVisualId(GetSpellInfo()->Id == SPELL_RIVE ? SPELL_VISUAL_TORGHAST_SPIRE_BREAK : SPELL_VISUAL_TORGHAST_SPIRE_BREAK_FAST, sylvanas->GetGUID());
-                    }
-                }
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+        {
+            if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(3)))
+            {
+                shadowCopy3->CastSpell(sylvanas, GetSpellInfo()->Id == SPELL_RIVE ? SPELL_RIVE_CHAIN : SPELL_RIVE_CHAIN_FAST, false);
+
+                // TODO: change the type of searching to avoid exploiting from players.
+                if (GameObject* platformSpire = shadowCopy3->FindNearestGameObjectOfType(GameobjectTypes::GAMEOBJECT_TYPE_GOOBER, 15.0f))
+                    platformSpire->SetSpellVisualId(GetSpellInfo()->Id == SPELL_RIVE ? SPELL_VISUAL_TORGHAST_SPIRE_BREAK : SPELL_VISUAL_TORGHAST_SPIRE_BREAK_FAST, sylvanas->GetGUID());
             }
         }
     }
 
     void HandleAfterCast()
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
         {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                {
-                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(0)))
-                        sylvanas->CastSpell(shadowCopy->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
-                }
-            }
+            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*sylvanas, ai->GetShadowCopyGuid(0)))
+                sylvanas->CastSpell(shadowCopy->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
         }
     }
 
@@ -4208,28 +4263,30 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
 
     void OnPrecast() override
     {
-        if (Unit* caster = GetCaster())
-        {
-            caster->CastSpell(caster, SPELL_BANSHEE_WAIL_EXPIRE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 5000));
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-            std::list<Player*> targetList;
-            GetPlayerListInGrid(targetList, caster, 250.0f);
+        caster->CastSpell(caster, SPELL_BANSHEE_WAIL_EXPIRE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 5000));
 
-            for (Player* target : targetList)
-                caster->CastSpell(target, SPELL_BANSHEE_WAIL_MARKER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 4650));
-        }
+        std::list<Player*> targetList;
+        GetPlayerListInGrid(targetList, caster, 250.0f);
+
+        for (Player* target : targetList)
+            caster->CastSpell(target, SPELL_BANSHEE_WAIL_MARKER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 4650));
     }
 
     void HandleAfterCast()
     {
-        if (Unit* caster = GetCaster())
-        {
-            std::list<Player*> targetList;
-            GetPlayerListInGrid(targetList, caster, 250.0f);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-            for (Player* target : targetList)
-                caster->CastSpell(target, GetEffectInfo(EFFECT_0).TriggerSpell, true);
-        }
+        std::list<Player*> targetList;
+        GetPlayerListInGrid(targetList, caster, 250.0f);
+
+        for (Player* target : targetList)
+            caster->CastSpell(target, GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -4245,7 +4302,9 @@ class spell_sylvanas_windrunner_banshee_wail_marker : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_SCREAM_EXPIRE, 0, 0);
+        Unit* target = GetTarget();
+
+        target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_SCREAM_EXPIRE, 0, 0);
     }
 
     void Register() override
@@ -4270,7 +4329,11 @@ class spell_sylvanas_windrunner_banshee_wail_triggered_missile : public SpellScr
 
     void HandleDummyEffect(SpellEffIndex effIndex)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
     }
 
     void Register() override
@@ -4292,8 +4355,12 @@ class spell_sylvanas_windrunner_banshee_wail_interrupt : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         if (GetHitUnit()->HasUnitState(UNIT_STATE_CASTING))
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_SILENCE, true);
+            caster->CastSpell(GetHitUnit(), SPELL_BANSHEE_WAIL_SILENCE, true);
     }
 
     void Register() override
@@ -4333,6 +4400,10 @@ class spell_sylvanas_windrunner_haunting_wave : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         for (uint8 itr = 0; itr < 2; itr++)
         {
             for (uint8 i = 0; i < _waveCount; ++i)
@@ -4344,12 +4415,12 @@ class spell_sylvanas_windrunner_haunting_wave : public SpellScript
                 else
                     angle = 3.0f + _angleOffset * i;
 
-                Position dest = { GetCaster()->GetPositionX(), GetCaster()->GetPositionY(), GetCaster()->GetPositionZ(), angle };
+                Position dest = { caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), angle };
 
                 if (itr == 1)
-                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(26ms * i));
+                    caster->m_Events.AddEvent(new HauntingWaveEvent(caster, dest, GetEffectInfo(EFFECT_0).TriggerSpell), caster->m_Events.CalculateTime(26ms * i));
                 else
-                    GetCaster()->m_Events.AddEvent(new HauntingWaveEvent(GetCaster(), dest, GetEffectInfo(EFFECT_0).TriggerSpell), GetCaster()->m_Events.CalculateTime(658ms + 26ms * i));
+                    caster->m_Events.AddEvent(new HauntingWaveEvent(caster, dest, GetEffectInfo(EFFECT_0).TriggerSpell), caster->m_Events.CalculateTime(658ms + 26ms * i));
             }
         }
     }
@@ -4376,11 +4447,12 @@ class spell_sylvanas_windrunner_ruin: public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        if (!GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
         std::list<Player*> playerList;
-        GetPlayerListInGrid(playerList, GetCaster(), 500.0f);
+        GetPlayerListInGrid(playerList, caster, 500.0f);
 
         if (playerList.size() > 2)
             Trinity::Containers::RandomResize(playerList, 2);
@@ -4388,8 +4460,8 @@ class spell_sylvanas_windrunner_ruin: public AuraScript
         // TODO: find out why this is kinda buggy atm.
         for (Player* target : playerList)
         {
-            GetCaster()->CastSpell(*target, SPELL_RUIN_VISUAL, true);
-            GetCaster()->CastSpell(*target, aurEff->GetSpellEffectInfo().TriggerSpell, true);
+            caster->CastSpell(*target, SPELL_RUIN_VISUAL, true);
+            caster->CastSpell(*target, aurEff->GetSpellEffectInfo().TriggerSpell, true);
         }
     }
 
@@ -4406,10 +4478,14 @@ class spell_sylvanas_windrunner_banshees_heartseeker : public SpellScript
 
     void OnPrecast() override
     {
-        GetCaster()->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(GetCaster(), DATA_CHANGE_SHEATHE_TO_UNARMED, 0), GetCaster()->m_Events.CalculateTime(16ms));
-        GetCaster()->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(GetCaster(), DATA_CHANGE_SHEATHE_TO_RANGED, 0), GetCaster()->m_Events.CalculateTime(328ms));
-        GetCaster()->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), GetCaster()->m_Events.CalculateTime(343ms));
-        GetCaster()->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(GetCaster(), DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), GetCaster()->m_Events.CalculateTime(2s));
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(343ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(2s));
     }
 
     void Register() override { }
@@ -4455,7 +4531,11 @@ class spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage : public Spel
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_BANSHEES_BANE, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), SPELL_BANSHEES_BANE, true);
     }
 
     void Register() override
@@ -4489,33 +4569,43 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
 
     void OnPrecast() override
     {
-        GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_BANE_ARROWS, 0, 0);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_BANE_ARROWS, 0, 0);
     }
 
     void HandleAfterCast()
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
         {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
             {
-                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                if (!ai->IsPlatformDesecrated(covenantPlatform))
+                    return;
+
+                for (uint8 i = 0; i < 7; i++)
                 {
-                    for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
-                    {
-                        if (!ai->IsPlatformDesecrated(covenantPlatform))
-                            return;
+                    Position const baneArrowPos = ai->GetRandomPointInNonDesecratedPlatform(covenantPlatform);
 
-                        for (uint8 i = 0; i < 7; i++)
-                        {
-                            Position const baneArrowPos = ai->GetRandomPointInNonDesecratedPlatform(covenantPlatform);
+                    uint32 randomSpeed = urand(2040, 3200);
 
-                            uint32 randomSpeed = urand(2040, 3200);
+                    sylvanas->SendPlaySpellVisual(baneArrowPos, 0.0f, SPELL_VISUAL_BANE_ARROW, 0, 0, float(randomSpeed / 1000), true);
 
-                            sylvanas->SendPlaySpellVisual(baneArrowPos, 0.0f, SPELL_VISUAL_BANE_ARROW, 0, 0, float(randomSpeed / 1000), true);
-
-                            sylvanas->m_Events.AddEvent(new BaneArrowEvent(sylvanas, baneArrowPos), sylvanas->m_Events.CalculateTime(Milliseconds(randomSpeed)));
-                        }
-                    }
+                    sylvanas->m_Events.AddEvent(new BaneArrowEvent(sylvanas, baneArrowPos), sylvanas->m_Events.CalculateTime(Milliseconds(randomSpeed)));
                 }
             }
         }
@@ -4551,15 +4641,17 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
+        Unit* target = GetTarget();
+
         uint8 stackAmount = GetStackAmount();
 
         float angleOffset = float(M_PI * 2) / stackAmount;
 
         for (uint8 i = 0; i < stackAmount; ++i)
         {
-            Position bansheeBaneDest = GetTarget()->GetNearPosition(3.6f, angleOffset * i);
+            Position bansheeBaneDest = target->GetNearPosition(3.6f, angleOffset * i);
 
-            if (InstanceScript* instance = GetTarget()->GetInstanceScript())
+            if (InstanceScript* instance = target->GetInstanceScript())
             {
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
@@ -4567,7 +4659,7 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
                     if (!sylvanas->IsInCombat())
                         return;
 
-                    GetTarget()->SendPlaySpellVisual(bansheeBaneDest, 0.0f, SPELL_VISUAL_BANSHEES_BANE_DROP, 0, 0, 0.349999994039535522f, true);
+                    target->SendPlaySpellVisual(bansheeBaneDest, 0.0f, SPELL_VISUAL_BANSHEES_BANE_DROP, 0, 0, 0.349999994039535522f, true);
 
                     sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500ms));
                 }
@@ -4615,36 +4707,40 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
-        GetCaster()->SetNameplateAttachToGUID(ObjectGuid::Empty);
-        GetCaster()->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
-        GetCaster()->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END, 0, 0);
+        caster->SetNameplateAttachToGUID(ObjectGuid::Empty);
+        caster->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END, 0, 0);
 
         // TODO: check on every player if Banshee's Bane is on; if yes, trigger explode on them.
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (!GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-        {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                {
-                    for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
-                    {
-                        if (ai->IsPlatformDesecrated(covenantPlatform))
-                            return;
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
 
-                        for (uint8 i = 0; i < 10; i++)
-                            GetCaster()->m_Events.AddEvent(new BansheesFuryEvent(GetCaster(), covenantPlatform), GetCaster()->m_Events.CalculateTime(50ms * i));
-                    }
-                }
+        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+        {
+            for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
+            {
+                if (ai->IsPlatformDesecrated(covenantPlatform))
+                    return;
+
+                for (uint8 i = 0; i < 10; i++)
+                    caster->m_Events.AddEvent(new BansheesFuryEvent(caster, covenantPlatform), caster->m_Events.CalculateTime(50ms * i));
             }
         }
     }
@@ -4686,13 +4782,21 @@ class spell_sylvanas_windrunner_raze : public SpellScript
 
     void OnPrecast() override
     {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         for (uint8 i = 0; i < 100; i++)
-            GetCaster()->m_Events.AddEvent(new RazeEvent(GetCaster()), GetCaster()->m_Events.CalculateTime(50ms * i));
+            caster->m_Events.AddEvent(new RazeEvent(caster), caster->m_Events.CalculateTime(50ms * i));
     }
 
     void HandleAfterCast()
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WINDRUNNER_DISAPPEAR_02, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_WINDRUNNER_DISAPPEAR_02, true);
     }
 
     void Register() override
@@ -4960,7 +5064,11 @@ class spell_sylvanas_windrunner_runic_mark_triggered : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, false);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, false);
     }
 
     void Register() override
@@ -4976,13 +5084,18 @@ class spell_sylvanas_windrunner_charge_towards_sylvanas : public SpellScript
 
     void HandleCharge(SpellEffIndex /*effIndex*/)
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
         {
-            if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-            {
-                if (bolvar->IsAIEnabled())
-                    bolvar->AI()->DoAction(ACTION_WINDS_OF_ICECROWN);
-            }
+            if (bolvar->IsAIEnabled())
+                bolvar->AI()->DoAction(ACTION_WINDS_OF_ICECROWN);
         }
     }
 
@@ -5004,7 +5117,11 @@ class spell_sylvanas_windrunner_winds_of_icecrown : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WINDS_OF_ICECROWN_INTERRUPT, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), SPELL_WINDS_OF_ICECROWN_INTERRUPT, true);
     }
 
     void Register() override
@@ -5254,7 +5371,11 @@ class spell_sylvanas_windrunner_pulverize : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -5275,7 +5396,11 @@ class spell_sylvanas_windrunner_pulverize_triggered : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -5296,7 +5421,11 @@ class spell_sylvanas_windrunner_stonecrash_phase_one_and_three : public SpellScr
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -5317,7 +5446,11 @@ class spell_sylvanas_windrunner_stonecrash_phase_two : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_1).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_1).TriggerSpell, true);
     }
 
     void Register() override
@@ -6001,10 +6134,12 @@ class spell_sylvanas_windrunner_frigid_shards : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        if (!GetCaster())
+        Unit* target = GetTarget();
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
-        GetCaster()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, true);
+        caster->CastSpell(target, aurEff->GetSpellEffectInfo().TriggerSpell, true);
     }
 
     void Register() override
@@ -6025,7 +6160,11 @@ class spell_sylvanas_windrunner_comet_barrage : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -6046,11 +6185,16 @@ class spell_sylvanas_windrunner_teleport_to_phase_two : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-        {
-            if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
-                GetCaster()->CastSpell(jaina->GetRandomPoint(jaina->GetPosition(), frand(2.0f, 8.0f)), GetEffectInfo(EFFECT_0).TriggerSpell, true);
-        }
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+            caster->CastSpell(jaina->GetRandomPoint(jaina->GetPosition(), frand(2.0f, 8.0f)), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -6071,11 +6215,16 @@ class spell_sylvanas_windrunner_teleport_to_phase_three : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-        {
-            if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
-                GetCaster()->CastSpell(jaina->GetRandomPoint(jaina->GetPosition(), frand(3.0f, 10.0f)), GetEffectInfo(EFFECT_0).TriggerSpell, true);
-        }
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+            caster->CastSpell(jaina->GetRandomPoint(jaina->GetPosition(), frand(3.0f, 10.0f)), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -6096,7 +6245,11 @@ class spell_sylvanas_windrunner_teleport : public SpellScript
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(EFFECT_0).TriggerSpell, true);
     }
 
     void Register() override
@@ -6274,15 +6427,17 @@ class spell_sylvanas_windrunner_blasphemy : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
-        GetCaster()->m_Events.AddEvent(new BlasphemyEvent(GetCaster(), GetCaster()->GetPosition(), 0), GetCaster()->m_Events.CalculateTime(5s));
+        caster->m_Events.AddEvent(new BlasphemyEvent(caster, caster->GetPosition(), 0), caster->m_Events.CalculateTime(5s));
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
             return;
 
         for (uint8 i = 0; i < 20; i++)
@@ -6291,9 +6446,9 @@ class spell_sylvanas_windrunner_blasphemy : public AuraScript
 
             uint32 speedAsTime = urand(800, 1500);
 
-            GetCaster()->SendPlaySpellVisual(blasphemyDestPos, 0.0f, SPELL_VISUAL_BLASPHEMY, 0, 0, float(speedAsTime / 1000), true);
+            caster->SendPlaySpellVisual(blasphemyDestPos, 0.0f, SPELL_VISUAL_BLASPHEMY, 0, 0, float(speedAsTime / 1000), true);
 
-            GetCaster()->m_Events.AddEvent(new BlasphemyEvent(GetCaster(), blasphemyDestPos, 1), GetCaster()->m_Events.CalculateTime(Milliseconds(speedAsTime)));
+            caster->m_Events.AddEvent(new BlasphemyEvent(caster, blasphemyDestPos, 1), caster->m_Events.CalculateTime(Milliseconds(speedAsTime)));
         }
     }
 
@@ -6311,8 +6466,7 @@ class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (!GetCaster())
-            return;
+        Unit* target = GetTarget();
 
         uint8 powerRegenCycle = 0;
         uint32 powerGained = 0;
@@ -6322,7 +6476,7 @@ class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
         if (powerRegenCycle >= 3)
             powerRegenCycle = 0;
 
-        GetTarget()->ModifyPower(GetTarget()->GetPowerType(), powerGained);
+        target->ModifyPower(target->GetPowerType(), powerGained);
     }
 
     void Register() override
@@ -6345,13 +6499,18 @@ class spell_sylvanas_windrunner_activate_phase_intermission : public SpellScript
 
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                if (sylvanas->IsAIEnabled())
-                    sylvanas->AI()->DoAction(ACTION_PREPARE_INTERMISSION);
-            }
+            if (sylvanas->IsAIEnabled())
+                sylvanas->AI()->DoAction(ACTION_PREPARE_INTERMISSION);
         }
     }
 
@@ -6368,13 +6527,18 @@ class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
 
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+        Unit* caster = caster;
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
-            if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            {
-                if (sylvanas->IsAIEnabled())
-                    sylvanas->AI()->DoAction(ACTION_PREPARE_FINISH_BOSS);
-            }
+            if (sylvanas->IsAIEnabled())
+                sylvanas->AI()->DoAction(ACTION_PREPARE_FINISH_BOSS);
         }
     }
 
@@ -6391,12 +6555,16 @@ class spell_sylvanas_windrunner_modify_champions_faction : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetUnitFlag2(UNIT_FLAG2_IGNORE_REPUTATION);
+        Unit* target = GetTarget();
+
+        target->SetUnitFlag2(UNIT_FLAG2_IGNORE_REPUTATION);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_IGNORE_REPUTATION);
+        Unit* target = GetTarget();
+
+        target->RemoveUnitFlag2(UNIT_FLAG2_IGNORE_REPUTATION);
     }
 
     void Register() override
