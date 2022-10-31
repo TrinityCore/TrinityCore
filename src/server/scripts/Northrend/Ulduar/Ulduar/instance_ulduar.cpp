@@ -34,7 +34,6 @@ static BossBoundaryData const boundaries =
     { DATA_IGNIS, new RectangleBoundary(495.0f, 680.0f, 90.0f, 400.0f) },
     { DATA_RAZORSCALE, new RectangleBoundary(370.0f, 810.0f, -542.0f, -55.0f) },
     { DATA_XT002, new RectangleBoundary(755.0f, 940.0f, -125.0f, 95.0f) },
-    { DATA_ASSEMBLY_OF_IRON, new CircleBoundary(Position(1587.2f, 121.0f), 90.0) },
     { DATA_ALGALON, new CircleBoundary(Position(1632.668f, -307.7656f), 45.0) },
     { DATA_ALGALON, new ZRangeBoundary(410.0f, 470.0f) },
     { DATA_HODIR, new EllipseBoundary(Position(2001.5f, -240.0f), 50.0, 75.0) },
@@ -72,72 +71,67 @@ static DoorData const doorData[] =
     { 0,                                0,                      DOOR_TYPE_ROOM },
 };
 
-MinionData const minionData[] =
-{
-    { NPC_STEELBREAKER,   DATA_ASSEMBLY_OF_IRON },
-    { NPC_MOLGEIM,        DATA_ASSEMBLY_OF_IRON },
-    { NPC_BRUNDIR,        DATA_ASSEMBLY_OF_IRON },
-    { 0,                  0,                    }
-};
-
 ObjectData const creatureData[] =
 {
-    { NPC_FLAME_LEVIATHAN,          DATA_FLAME_LEVIATHAN          },
-    { NPC_IGNIS,                    DATA_IGNIS                    },
-    { NPC_RAZORSCALE,               DATA_RAZORSCALE               },
-    { NPC_XT002,                    DATA_XT002                    },
-    { NPC_KOLOGARN,                 DATA_KOLOGARN                 },
-    { NPC_AURIAYA,                  DATA_AURIAYA                  },
-    { NPC_HODIR,                    DATA_HODIR                    },
-    { NPC_THORIM,                   DATA_THORIM                   },
-    { NPC_FREYA,                    DATA_FREYA                    },
-    { NPC_MIMIRON,                  DATA_MIMIRON                  },
-    { NPC_VEZAX,                    DATA_VEZAX                    },
-    { NPC_YOGG_SARON,               DATA_YOGG_SARON               },
-    { NPC_ALGALON,                  DATA_ALGALON                  },
+    { NPC_FLAME_LEVIATHAN,          DATA_FLAME_LEVIATHAN            },
+    { NPC_IGNIS,                    DATA_IGNIS                      },
+    { NPC_RAZORSCALE,               DATA_RAZORSCALE                 },
+    { NPC_XT002,                    DATA_XT002                      },
+    { BOSS_STEELBREAKER,            DATA_STEELBREAKER               },
+    { BOSS_RUNEMASTER_MOLGEIM,      DATA_RUNEMASTER_MOLGEIM         },
+    { BOSS_STORMCALLER_BRUNDIR,     DATA_STORMCALLER_BRUNDIR        },
+    { NPC_KOLOGARN,                 DATA_KOLOGARN                   },
+    { NPC_AURIAYA,                  DATA_AURIAYA                    },
+    { NPC_HODIR,                    DATA_HODIR                      },
+    { NPC_THORIM,                   DATA_THORIM                     },
+    { NPC_FREYA,                    DATA_FREYA                      },
+    { NPC_MIMIRON,                  DATA_MIMIRON                    },
+    { NPC_VEZAX,                    DATA_VEZAX                      },
+    { NPC_YOGG_SARON,               DATA_YOGG_SARON                 },
+    { NPC_ALGALON,                  DATA_ALGALON                    },
 
-    { NPC_EXPEDITION_COMMANDER,     DATA_EXPEDITION_COMMANDER     },
-    { NPC_RAZORSCALE_CONTROLLER,    DATA_RAZORSCALE_CONTROL       },
-    { NPC_SIF,                      DATA_SIF                      },
-    { NPC_RUNIC_COLOSSUS,           DATA_RUNIC_COLOSSUS           },
-    { NPC_RUNE_GIANT,               DATA_RUNE_GIANT               },
-    { NPC_THORIM_CONTROLLER,        DATA_THORIM_CONTROLLER        },
-    { NPC_COMPUTER,                 DATA_COMPUTER                 },
-    { NPC_WORLD_TRIGGER_MIMIRON,    DATA_MIMIRON_WORLD_TRIGGER    },
-    { NPC_VOICE_OF_YOGG_SARON,      DATA_VOICE_OF_YOGG_SARON      },
-    { NPC_SARA,                     DATA_SARA                     },
-    { NPC_BRAIN_OF_YOGG_SARON,      DATA_BRAIN_OF_YOGG_SARON      },
-    { NPC_BRANN_BRONZBEARD_ALG,     DATA_BRANN_BRONZEBEARD_ALG    },
-    { NPC_BRANN_BRONZEBEARD_INTRO,  DATA_BRANN_BRONZEBEARD_INTRO  },
-    { NPC_LORE_KEEPER_OF_NORGANNON, DATA_LORE_KEEPER_OF_NORGANNON },
-    { NPC_HIGH_EXPLORER_DELLORAH,   DATA_DELLORAH                 },
-    { NPC_BRONZEBEARD_RADIO,        DATA_BRONZEBEARD_RADIO        },
-    { NPC_HEART_OF_DECONSTRUCTOR,   DATA_XT002_HEART              },
-    { NPC_AZEROTH,                  DATA_AZEROTH                  },
-    { 0,                            0,                            }
+    { NPC_EXPEDITION_COMMANDER,     DATA_EXPEDITION_COMMANDER       },
+    { NPC_RAZORSCALE_CONTROLLER,    DATA_RAZORSCALE_CONTROL         },
+    { NPC_SIF,                      DATA_SIF                        },
+    { NPC_RUNIC_COLOSSUS,           DATA_RUNIC_COLOSSUS             },
+    { NPC_RUNE_GIANT,               DATA_RUNE_GIANT                 },
+    { NPC_THORIM_CONTROLLER,        DATA_THORIM_CONTROLLER          },
+    { NPC_COMPUTER,                 DATA_COMPUTER                   },
+    { NPC_WORLD_TRIGGER_MIMIRON,    DATA_MIMIRON_WORLD_TRIGGER      },
+    { NPC_VOICE_OF_YOGG_SARON,      DATA_VOICE_OF_YOGG_SARON        },
+    { NPC_SARA,                     DATA_SARA                       },
+    { NPC_BRAIN_OF_YOGG_SARON,      DATA_BRAIN_OF_YOGG_SARON        },
+    { NPC_BRANN_BRONZBEARD_ALG,     DATA_BRANN_BRONZEBEARD_ALG      },
+    { NPC_BRANN_BRONZEBEARD_INTRO,  DATA_BRANN_BRONZEBEARD_INTRO    },
+    { NPC_LORE_KEEPER_OF_NORGANNON, DATA_LORE_KEEPER_OF_NORGANNON   },
+    { NPC_HIGH_EXPLORER_DELLORAH,   DATA_DELLORAH                   },
+    { NPC_BRONZEBEARD_RADIO,        DATA_BRONZEBEARD_RADIO          },
+    { NPC_HEART_OF_DECONSTRUCTOR,   DATA_XT002_HEART                },
+    { NPC_AZEROTH,                  DATA_AZEROTH                    },
+    { 0,                            0,                              }
 };
 
 ObjectData const objectData[] =
 {
-    { GO_MIMIRON_ELEVATOR,             DATA_MIMIRON_ELEVATOR     },
-    { GO_MIMIRON_BUTTON,               DATA_MIMIRON_BUTTON       },
-    { GO_DOODAD_UL_UNIVERSEGLOBE01,    DATA_UNIVERSE_GLOBE       },
-    { GO_DOODAD_UL_ULDUAR_TRAPDOOR_03, DATA_ALGALON_TRAPDOOR     },
-    { GO_RAZOR_HARPOON_1,              GO_RAZOR_HARPOON_1        },
-    { GO_RAZOR_HARPOON_2,              GO_RAZOR_HARPOON_2        },
-    { GO_RAZOR_HARPOON_3,              GO_RAZOR_HARPOON_3        },
-    { GO_RAZOR_HARPOON_4,              GO_RAZOR_HARPOON_4        },
-    { GO_THORIM_LEVER,                 DATA_THORIM_LEVER         },
-    { GO_THORIM_STONE_DOOR,            DATA_STONE_DOOR           },
-    { GO_THORIM_RUNIC_DOOR,            DATA_RUNIC_DOOR           },
-    { GO_DOODAD_UL_SIGILDOOR_01,       DATA_SIGILDOOR_01         },
-    { GO_DOODAD_UL_SIGILDOOR_02,       DATA_SIGILDOOR_02         },
-    { GO_DOODAD_UL_SIGILDOOR_03,       DATA_SIGILDOOR_03         },
-    { GO_DOODAD_UL_UNIVERSEFLOOR_01,   DATA_UNIVERSE_FLOOR_01    },
-    { GO_DOODAD_UL_UNIVERSEFLOOR_02,   DATA_UNIVERSE_FLOOR_02    },
-    { GO_GIFT_OF_THE_OBSERVER_10,      DATA_GIFT_OF_THE_OBSERVER },
-    { GO_GIFT_OF_THE_OBSERVER_25,      DATA_GIFT_OF_THE_OBSERVER },
-    { 0,                               0                         }
+    { GO_MIMIRON_ELEVATOR,             DATA_MIMIRON_ELEVATOR        },
+    { GO_MIMIRON_BUTTON,               DATA_MIMIRON_BUTTON          },
+    { GO_DOODAD_UL_UNIVERSEGLOBE01,    DATA_UNIVERSE_GLOBE          },
+    { GO_DOODAD_UL_ULDUAR_TRAPDOOR_03, DATA_ALGALON_TRAPDOOR        },
+    { GO_RAZOR_HARPOON_1,              GO_RAZOR_HARPOON_1           },
+    { GO_RAZOR_HARPOON_2,              GO_RAZOR_HARPOON_2           },
+    { GO_RAZOR_HARPOON_3,              GO_RAZOR_HARPOON_3           },
+    { GO_RAZOR_HARPOON_4,              GO_RAZOR_HARPOON_4           },
+    { GO_THORIM_LEVER,                 DATA_THORIM_LEVER            },
+    { GO_THORIM_STONE_DOOR,            DATA_STONE_DOOR              },
+    { GO_THORIM_RUNIC_DOOR,            DATA_RUNIC_DOOR              },
+    { GO_DOODAD_UL_SIGILDOOR_01,       DATA_SIGILDOOR_01            },
+    { GO_DOODAD_UL_SIGILDOOR_02,       DATA_SIGILDOOR_02            },
+    { GO_DOODAD_UL_SIGILDOOR_03,       DATA_SIGILDOOR_03            },
+    { GO_DOODAD_UL_UNIVERSEFLOOR_01,   DATA_UNIVERSE_FLOOR_01       },
+    { GO_DOODAD_UL_UNIVERSEFLOOR_02,   DATA_UNIVERSE_FLOOR_02       },
+    { GO_GIFT_OF_THE_OBSERVER_10,      DATA_GIFT_OF_THE_OBSERVER    },
+    { GO_GIFT_OF_THE_OBSERVER_25,      DATA_GIFT_OF_THE_OBSERVER    },
+    { 0,                               0                            }
 };
 
 UlduarKeeperDespawnEvent::UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset) : _owner(owner), _despawnTimer(despawnTimerOffset)
@@ -164,7 +158,6 @@ class instance_ulduar : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
-                LoadMinionData(minionData);
                 LoadObjectData(creatureData, objectData);
 
                 _algalonTimer = 61;
@@ -192,7 +185,6 @@ class instance_ulduar : public InstanceMapScript
             GuidVector LeviathanVehicleGUIDs;
 
             ObjectGuid XTToyPileGUIDs[4];
-            ObjectGuid AssemblyGUIDs[3];
 
             ObjectGuid ElderGUIDs[3];
             ObjectGuid FreyaAchieveTriggerGUID;
@@ -278,6 +270,11 @@ class instance_ulduar : public InstanceMapScript
                     instance->SummonCreature(NPC_MIMIRON_YS, YSKeepersPos[3]);
             }
 
+            void Create() override
+            {
+                instance->SpawnGroupSpawn(SPAWN_GROUP_ASSEMBLY_OF_IRON, true);
+            }
+
             void OnCreatureCreate(Creature* creature) override
             {
                 InstanceScript::OnCreatureCreate(creature);
@@ -304,21 +301,6 @@ class instance_ulduar : public InstanceMapScript
                             }
                         }
                         break;
-
-                    // Assembly of Iron
-                    case NPC_STEELBREAKER:
-                        AssemblyGUIDs[0] = creature->GetGUID();
-                        AddMinion(creature, true);
-                        break;
-                    case NPC_MOLGEIM:
-                        AssemblyGUIDs[1] = creature->GetGUID();
-                        AddMinion(creature, true);
-                        break;
-                    case NPC_BRUNDIR:
-                        AssemblyGUIDs[2] = creature->GetGUID();
-                        AddMinion(creature, true);
-                        break;
-
                     // Freya
                     case NPC_IRONBRANCH:
                         ElderGUIDs[0] = creature->GetGUID();
@@ -378,7 +360,11 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_SANITY_WELL:
                         creature->SetReactState(REACT_PASSIVE);
                         break;
-
+                    case NPC_RUNE_OF_POWER:
+                        if (Creature* molgeim = GetCreature(DATA_RUNEMASTER_MOLGEIM))
+                            if (molgeim->IsAIEnabled())
+                                molgeim->AI()->JustSummoned(creature);
+                        break;
                     // Algalon
                     //! These creatures are summoned by something else than Algalon
                     //! but need to be controlled/despawned by him - so they need to be
@@ -446,11 +432,6 @@ class instance_ulduar : public InstanceMapScript
                                 break;
                             }
                         }
-                        break;
-                    case NPC_STEELBREAKER:
-                    case NPC_MOLGEIM:
-                    case NPC_BRUNDIR:
-                        AddMinion(creature, false);
                         break;
                     default:
                         break;
@@ -617,10 +598,16 @@ class instance_ulduar : public InstanceMapScript
                         if (state == DONE)
                             _events.ScheduleEvent(EVENT_DESPAWN_LEVIATHAN_VEHICLES, 5s);
                         break;
+                    case DATA_ASSEMBLY_OF_IRON:
+                        if (state == FAIL)
+                        {
+                            instance->SpawnGroupDespawn(SPAWN_GROUP_ASSEMBLY_OF_IRON);
+                            _events.ScheduleEvent(EVENT_RESPAWN_ASSEMBLY_OF_IRON, 30s);
+                        }
+                        break;
                     case DATA_IGNIS:
                     case DATA_RAZORSCALE:
                     case DATA_XT002:
-                    case DATA_ASSEMBLY_OF_IRON:
                     case DATA_AURIAYA:
                     case DATA_VEZAX:
                     case DATA_YOGG_SARON:
@@ -794,14 +781,6 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_TOY_PILE_2:
                     case DATA_TOY_PILE_3:
                         return XTToyPileGUIDs[data - DATA_TOY_PILE_0];
-
-                    // Assembly of Iron
-                    case DATA_STEELBREAKER:
-                        return AssemblyGUIDs[0];
-                    case DATA_MOLGEIM:
-                        return AssemblyGUIDs[1];
-                    case DATA_BRUNDIR:
-                        return AssemblyGUIDs[2];
 
                     // Freya
                     case DATA_BRIGHTLEAF:
@@ -981,6 +960,9 @@ class instance_ulduar : public InstanceMapScript
                     _summonObservationRingKeeper[3] = true;
 
                 data >> _CoUAchivePlayerDeathMask;
+
+                if (GetBossState(DATA_ASSEMBLY_OF_IRON) != DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_ASSEMBLY_OF_IRON, true);
             }
 
             void Update(uint32 diff) override
@@ -1019,6 +1001,12 @@ class instance_ulduar : public InstanceMapScript
                                 leviathan->AI()->DoAction(ACTION_MOVE_TO_CENTER_POSITION);
                             if (GameObject* gameObject = instance->GetGameObject(LeviathanGateGUID))
                                 gameObject->SetGoState(GO_STATE_DESTROYED);
+                            break;
+                        case EVENT_RESPAWN_ASSEMBLY_OF_IRON:
+                            SetBossState(DATA_ASSEMBLY_OF_IRON, NOT_STARTED);
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_ASSEMBLY_OF_IRON, true);
+                            break;
+                        default:
                             break;
                     }
                 }

@@ -33,23 +33,23 @@ static constexpr uint8 const MAX_ENCOUNTER = 17;
 
 enum UlduarBosses
 {
-    DATA_FLAME_LEVIATHAN     = 0,
-    DATA_IGNIS               = 1,
-    DATA_RAZORSCALE          = 2,
-    DATA_XT002               = 3,
-    DATA_ASSEMBLY_OF_IRON    = 4,
-    DATA_KOLOGARN            = 5,
-    DATA_AURIAYA             = 6,
-    DATA_HODIR               = 7,
-    DATA_THORIM              = 8,
-    DATA_FREYA               = 9,
-    DATA_MIMIRON             = 10,
-    DATA_VEZAX               = 11,
-    DATA_YOGG_SARON          = 12,
-    DATA_ALGALON             = 13,
-    DATA_BRIGHTLEAF          = 14,
-    DATA_IRONBRANCH          = 15,
-    DATA_STONEBARK           = 16,
+    DATA_FLAME_LEVIATHAN    = 0,
+    DATA_IGNIS              = 1,
+    DATA_RAZORSCALE         = 2,
+    DATA_XT002              = 3,
+    DATA_ASSEMBLY_OF_IRON   = 4,
+    DATA_KOLOGARN           = 5,
+    DATA_AURIAYA            = 6,
+    DATA_HODIR              = 7,
+    DATA_THORIM             = 8,
+    DATA_FREYA              = 9,
+    DATA_MIMIRON            = 10,
+    DATA_VEZAX              = 11,
+    DATA_YOGG_SARON         = 12,
+    DATA_ALGALON            = 13,
+    DATA_BRIGHTLEAF         = 14,
+    DATA_IRONBRANCH         = 15,
+    DATA_STONEBARK          = 16
 };
 
 enum UlduarNPCs
@@ -64,9 +64,6 @@ enum UlduarNPCs
     NPC_STEELFORGED_DEFFENDER               = 33236,
     NPC_XT002                               = 33293,
     NPC_XT_TOY_PILE                         = 33337,
-    NPC_STEELBREAKER                        = 32867,
-    NPC_MOLGEIM                             = 32927,
-    NPC_BRUNDIR                             = 32857,
     NPC_KOLOGARN                            = 32930,
     NPC_FOCUSED_EYEBEAM                     = 33632,
     NPC_FOCUSED_EYEBEAM_RIGHT               = 33802,
@@ -81,6 +78,12 @@ enum UlduarNPCs
     NPC_VEZAX                               = 33271,
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
+
+    // Assembly of Iron
+    BOSS_STEELBREAKER                       = 32867,
+    BOSS_RUNEMASTER_MOLGEIM                 = 32927,
+    BOSS_STORMCALLER_BRUNDIR                = 32857,
+    NPC_RUNE_OF_POWER                       = 33705,
 
     // Razorscale
     NPC_DARK_RUNE_GUARDIAN                  = 33388,
@@ -416,8 +419,8 @@ enum UlduarData
 
     // Assembly of Iron
     DATA_STEELBREAKER,
-    DATA_MOLGEIM,
-    DATA_BRUNDIR,
+    DATA_RUNEMASTER_MOLGEIM,
+    DATA_STORMCALLER_BRUNDIR,
 
     // Hodir
     DATA_HODIR_RARE_CACHE,
@@ -496,11 +499,17 @@ enum UlduarSharedSpells
 
 enum UlduarEvents
 {
-    EVENT_DESPAWN_ALGALON       = 1,
-    EVENT_UPDATE_ALGALON_TIMER  = 2,
-    ACTION_INIT_ALGALON         = 6,
-    EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7,
-    EVENT_LEVIATHAN_BREAK_DOOR   = 8
+    EVENT_DESPAWN_ALGALON               = 1,
+    EVENT_UPDATE_ALGALON_TIMER          = 2,
+    ACTION_INIT_ALGALON                 = 6,
+    EVENT_DESPAWN_LEVIATHAN_VEHICLES    = 7,
+    EVENT_LEVIATHAN_BREAK_DOOR          = 8,
+    EVENT_RESPAWN_ASSEMBLY_OF_IRON      = 9
+};
+
+enum UlduarSpawnGroups
+{
+    SPAWN_GROUP_ASSEMBLY_OF_IRON = 67
 };
 
 enum YoggSaronIllusions
