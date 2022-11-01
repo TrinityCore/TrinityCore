@@ -66,6 +66,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (32,5,166573,0,0,47,0,59926,11,0,0,0,0,'','Spawn of creature with entry 166573 requires Quest 59926 not rewarded');
 
 -- Spell
+DELETE FROM `spell_script_names` WHERE `spell_id`=325108;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(325108,'spell_summon_throg_combat_training');
+
 DELETE FROM `spell_script_names` WHERE `spell_id`=305425;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (305425,'spell_alliance_spell_ship_crash_teleport');
@@ -154,3 +158,87 @@ DELETE FROM `quest_template_addon` WHERE `ID`=59926;
 INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
 (59926,'quest_warming_up');
 
+-- Summon data
+DELETE FROM `creature_summoned_data` WHERE `CreatureID`=166814;
+INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
+(166814,166815,NULL,NULL);
+
+-- Creature script
+UPDATE `creature_template` SET `ScriptName`='npc_horde_sparring_partner' WHERE `entry`=166814;
+
+SET @ENTRY := 166814;
+DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+(@ENTRY, 0, 0, 'I concede! Your strength will see our mission through.', 12, 0, 100, 4, 0, 156976, 195857, 0, 'Grunt Throg');
+
+DELETE FROM `waypoint_data` WHERE `id`=10501870;
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(10501870,1,-10.846191,11.937012,8.9623165,NULL,0,0,0,100,0);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=15284 AND `SourceEntry`=13377;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(26,15284,13377,0,0,47,0,59927,67,0,0,0,0,'','Allow Phase 15284 if Quest 59927 in not taken, complete, or rewarded');
+
+SET @PHASE := 15514;
+SET @CGUID := XXXXX;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+10;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+(@CGUID+0,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-17.644917,-6.061374,9.000128,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+1,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-16.248755,-2.245914,8.885136,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+2,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-4.609498,-7.722448,8.843941,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+3,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-17.633347,5.349984,8.993013,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+4,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-7.1927896,-1.4265188,9.105859,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+5,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-3.5559115,-6.8839636,8.878474,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+6,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-16.220743,-7.592815,8.926627,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+7,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-17.212137,0.9415215,8.992922,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+8,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-7.1881604,4.13693,8.805241,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+9,174971,2369,10424,13377,'0',@PHASE,0,-1,0,0,-3.8145015,-9.154231,8.854396,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+10,168039,2369,10424,13377,'0',@PHASE,0,-1,0,0,-10.630922,-11.896218,8.97435,1.7062142,120,0,0,1,0,0,0,0,0,45745); -- hBoat
+
+UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry` IN (174971,168039);
+
+UPDATE `creature_template` SET `faction`=35,`unit_flags`=33554432,`unit_flags2`=2048,`unit_flags3`=524320 WHERE `entry`=166814;
+
+-- Summon data
+DELETE FROM `creature_summoned_data` WHERE `CreatureID`=166814;
+INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
+(166814,166815,NULL,NULL);
+
+UPDATE `creature_template` SET `ScriptName`='npc_horde_sparring_partner' WHERE `entry`=166814;
+UPDATE `conversation_template` SET `ScriptName`='conversation_horde_sparing_partner' WHERE `Id` IN (14422,14423,14424);
+
+DELETE FROM `conversation_actors` WHERE `ConversationId`=14422 AND `ConversationActorId`=75920;
+INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
+(14422,75920,0,1,166815,91670,0,0,45745);
+
+DELETE FROM `conversation_line_template` WHERE `Id`=36100;
+INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36100,0,1,0,45745);
+
+DELETE FROM `conversation_template` WHERE `Id`=14422 AND `FirstLineId`=36099;
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(14422,36099,0,'',45745);
+
+DELETE FROM `conversation_actors` WHERE `ConversationId`=14423 AND `ConversationActorId`=75920;
+INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
+(14423,75920,0,1,166815,91670,0,0,45745);
+
+DELETE FROM `conversation_line_template` WHERE `Id`=36102;
+INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36102,0,1,0,45745);
+
+DELETE FROM `conversation_template` WHERE `Id`=14423 AND `FirstLineId`=36101;
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(14423,36101,0,'',45745);
+
+DELETE FROM `conversation_actors` WHERE `ConversationId`=14424 AND `ConversationActorId`=75920;
+INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
+(14424,75920,0,1,166815,91670,0,0,45745);
+
+DELETE FROM `conversation_line_template` WHERE `Id`=36104;
+INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36104,0,1,0,45745);
+
+DELETE FROM `conversation_template` WHERE `Id`=14424 AND `FirstLineId`=36103;
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(14424,36103,0,'',45745);

@@ -18,6 +18,7 @@
 #include "Object.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "Transport.h"
 #include "Conversation.h"
 #include "TemporarySummon.h"
 
@@ -51,6 +52,216 @@ public:
             default:
                 break;
         }
+    }
+};
+
+enum HordeSparingPartner
+{
+    CONVERSATION_PREFIGHT       = 14422,
+    CONVERSATION_AGGRO          = 14423,
+    CONVERSATION_JUMP           = 14424,
+    EQUIPMENT_AXE               = 175161,
+    EVENT_MOVE_TO_A_POSITION    = 1,
+    EVENT_PREFIGHT_CONVERSATION = 2,
+    EVENT_WALK_BACK             = 3,
+    NPC_SPARING_PARTNER         = 166814,
+    NPC_SPAR_POINT_ADVERTISMENT = 174971,
+    NPC_GRUNT_THROG             = 166583,
+    QUEST_KILL_CREDIT           = 155607,
+    SPELL_JUMP_BEHIND           = 312757,
+    SPELL_COMBAT_TRAINING       = 323071,
+    SPELL_SUMMON_THROG          = 325107,
+    SPELL_UPDATE_PHASE_SHIFT    = 82238,
+    SAY_I_CONCEDE               = 0
+};
+
+class conversation_horde_sparing_partner : public ConversationScript
+{
+public:
+    conversation_horde_sparing_partner() : ConversationScript("conversation_horde_sparing_partner") { }
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        std::list<Creature*> spar;
+        creator->GetCreatureListWithEntryInGrid(spar, NPC_SPARING_PARTNER, 25.0f);
+        for (Creature* creature : spar)
+        {
+            if (creature->GetDemonCreatorGUID() == creator->GetGUID()) // @TODO requires research about DemonCreator usage for summons to work
+                conversation->AddActor(creature->GetEntry(), 1, creature->GetGUID());
+        }
+    }
+};
+
+struct npc_horde_sparring_partner : public ScriptedAI
+{
+    npc_horde_sparring_partner(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        SetEquipmentSlots(false, EQUIPMENT_AXE, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+    }
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        _jumped = false;
+
+        Unit* summoner = summonerWO->ToUnit();
+        if (!summoner)
+            return;
+
+        if (Creature* throg = me->FindNearestCreature(NPC_GRUNT_THROG, 5.0f))
+            _throgLocation = throg->GetPosition();
+
+        if (summoner->IsPlayer())
+        {  
+            _playerGUID = summoner->GetGUID();
+            _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 2s);
+        }
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (!me->IsAlive())
+            return;
+
+        me->CombatStop(true);
+        EngagementOver();
+        me->ResetPlayerDamageReq();
+        _events.ScheduleEvent(EVENT_WALK_BACK, 1s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiId == 1)
+        {
+            me->SetWalk(true);
+            me->GetMotionMaster()->MovePoint(2, me->GetFirstCollisionPosition(2.0f, (float)rand_norm() * static_cast<float>(2 * M_PI)));
+        }
+
+        if (uiId == 2)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                me->SetFacingToObject(player);
+            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+            me->SetFaction(32); // Hack to be removed
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->SetFacingTo(4.677482f);
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        {
+            player->KilledMonsterCredit(QUEST_KILL_CREDIT);
+            player->RemoveAura(SPELL_SUMMON_THROG);
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->GetHealth() <= damage)
+        {
+            damage = 0;
+            me->SetHealth(1);
+            DoStopAttack();
+            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            {
+                me->SetFacingToObject(player);
+                Talk(SAY_I_CONCEDE, player);
+                player->CastSpell(player, SPELL_COMBAT_TRAINING);
+            }
+        }
+
+        if (me->HealthBelowPct(65) && !_jumped)
+        {
+            _jumped = true;
+            DoCastVictim(SPELL_JUMP_BEHIND, true);
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    Conversation::CreateConversation(CONVERSATION_JUMP, player, *player, player->GetGUID(), nullptr);
+        }
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            if (who == player)
+                Conversation::CreateConversation(CONVERSATION_AGGRO, player, *player, player->GetGUID(), nullptr);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MOVE_TO_A_POSITION:
+                    {
+                        std::list<Creature*> sparpoints;
+                        GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
+                        Trinity::Containers::RandomResize(sparpoints, 1);
+                        for (Creature* creature : sparpoints)
+                        {
+                            me->GetMotionMaster()->MovePoint(1, creature->GetPosition());
+                            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        }
+                        _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
+                    }
+                    break;
+                case EVENT_PREFIGHT_CONVERSATION:
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        Conversation::CreateConversation(CONVERSATION_PREFIGHT, player, *player, player->GetGUID(), nullptr);
+                    }
+                    break;
+                case EVENT_WALK_BACK:
+                    me->GetMotionMaster()->Clear();
+                    me->SetWalk(true);
+                    me->GetMotionMaster()->MovePath(10501870, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    bool _jumped;
+    ObjectGuid _playerGUID;
+    Position _throgLocation;
+};
+
+class spell_summon_throg_combat_training : public SpellScript
+{
+    PrepareSpellScript(spell_summon_throg_combat_training);
+
+    void RelocateDest(SpellEffIndex /*effIndex*/)
+    {
+        // Can't seem to get relocate right
+
+        //Unit* caster = GetCaster();
+
+        //if (Creature* throg = caster->FindNearestCreature(NPC_GRUNT_THROG, 10.0f))
+        //    GetHitDest()->Relocate(throg->GetPosition());
+
+        //Position const position = { -10.898641f, 12.044f, 8.87058f, 4.8911366f };
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_summon_throg_combat_training::RelocateDest, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -165,6 +376,9 @@ void AddSC_zone_exiles_reach()
 {
     // Ship
     new quest_warming_up();
+    new(conversation_horde_sparing_partner);
+    RegisterCreatureAI(npc_horde_sparring_partner);
+    RegisterSpellScript(spell_summon_throg_combat_training);
     new player_ship_crash();
     new scene_alliance_and_horde_ship();
     new scene_alliance_and_horde_crash();
