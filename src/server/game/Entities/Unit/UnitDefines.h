@@ -49,8 +49,8 @@ enum UnitStandStateType : uint8
 // byte flag value (UNIT_FIELD_BYTES_1, 2)
 enum UnitVisFlags : uint8
 {
-    UNIT_VIS_FLAGS_UNK1         = 0x01,
-    UNIT_VIS_FLAGS_CREEP        = 0x02,
+    UNIT_VIS_FLAGS_INVISIBLE    = 0x01,
+    UNIT_VIS_FLAGS_STEALTHED    = 0x02,
     UNIT_VIS_FLAGS_UNTRACKABLE  = 0x04,
     UNIT_VIS_FLAGS_UNK4         = 0x08,
     UNIT_VIS_FLAGS_UNK5         = 0x10,
