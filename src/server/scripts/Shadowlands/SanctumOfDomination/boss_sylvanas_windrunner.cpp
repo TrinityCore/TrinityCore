@@ -553,6 +553,45 @@ Position const DesecratingShotArrowShape[5] =
     {  4.90381f, -0.97601f, 4105.0386f  }
 };
 
+Position const DesecratingShotSpiralShape[3][9] =
+{
+    {
+        { -0.43609f,  4.98095f, 4105.0386f  },
+        {  2.38811f,  4.82665f, 4105.0386f  },
+        {  5.21233f,  4.67245f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  }
+    },
+
+    {
+        { -0.43609f,  4.98095f, 4105.0386f  },
+        {  2.38811f,  4.82665f, 4105.0386f  },
+        {  5.21233f,  4.67245f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  }
+    },
+
+    {
+        { -0.43609f,  4.98095f, 4105.0386f  },
+        {  2.38811f,  4.82665f, 4105.0386f  },
+        {  5.21233f,  4.67245f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  },
+        {  5.05808f,  1.84821f, 4105.0386f  }
+    }
+};
+
 static constexpr float Magnitude = 1.0f;  // Maximum wave outbreak
 
 static Position GetSineWavePoint(Position const& origin, float angle, uint32 tickNumber, float frequency)
@@ -569,10 +608,6 @@ static Position GetSineWavePoint(Position const& origin, float angle, uint32 tic
 
     return point;
 }
-
-Position LastFrontSpiralPoint = { 0.0f, 0.0f, 0.0f };
-Position LastLeftSpiralPoint = { 0.0f, 0.0f, 0.0f };
-Position LastRightSpiralPoint = { 0.0f, 0.0f, 0.0f };
 
 Position const RiveThrowPos[8] =
 {
@@ -3912,12 +3947,20 @@ class spell_sylvanas_windrunner_domination_chain : public AuraScript
         if (!caster)
             return;
 
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
         _playerGUID = target->GetGUID();
 
         if (target->HasAura(SPELL_BARBED_ARROW))
             target->RemoveAura(SPELL_BARBED_ARROW);
 
-        caster->CastSpell(target, SPELL_DOMINATION_CHAIN_PERIODIC, true);
+        sylvanas->CastSpell(target, SPELL_DOMINATION_CHAIN_PERIODIC, true);
 
         _arrowAreaTriggerGUID = AreaTrigger::CreateNewMovementForceId(caster->GetMap(), DATA_AREATRIGGER_DOMINATION_ARROW);
 
