@@ -331,7 +331,7 @@ public:
     {
         switch (newStatus)
         {
-            case QUEST_STATE_COMPLETE:
+            case QUEST_STATUS_COMPLETE:
                 Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
                 break;
             case QUEST_STATUS_REWARDED:
@@ -352,7 +352,7 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        if (newStatus == QUEST_STATE_NONE)
+        if (newStatus == QUEST_STATUS_NONE)
             player->RemoveAura(SPELL_SUMMON_THROG);
     }
 };
