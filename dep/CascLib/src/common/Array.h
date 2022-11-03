@@ -191,7 +191,7 @@ class CASC_ARRAY
                 ItemCountMax = ItemCountMax << 1;
 
             // Allocate new table
-            NewItemArray = CASC_REALLOC(BYTE, m_pItemArray, (ItemCountMax * m_ItemSize));
+            NewItemArray = CASC_REALLOC(m_pItemArray, (ItemCountMax * m_ItemSize));
             if (NewItemArray == NULL)
                 return false;
 
