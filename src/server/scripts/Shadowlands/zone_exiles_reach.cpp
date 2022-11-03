@@ -381,7 +381,7 @@ public:
     conversation_horde_sparing_partner() : ConversationScript("conversation_horde_sparing_partner") { }
 
     void OnConversationCreate(Conversation* conversation, Unit* creator) override
-    {       
+    {
         std::list<Creature*> spar;
         creator->GetCreatureListWithEntryInGrid(spar, NPC_SPARING_PARTNER, 25.0f);
         for (Creature* creature : spar)
