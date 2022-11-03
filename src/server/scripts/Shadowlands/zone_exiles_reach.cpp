@@ -188,7 +188,6 @@ struct npc_horde_sparring_partner : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-
 private:
     EventMap _events;
     bool _jumped;
@@ -308,7 +307,6 @@ struct npc_hboat : public ScriptedAI
             _spawn = false;
         }
     }
-
 private:
     EventMap _events;
     bool _spawn;
