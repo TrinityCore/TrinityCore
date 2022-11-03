@@ -18,7 +18,6 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 -- *** Creature Fixes ***
 
 -- Phase updates
-UPDATE `creature` SET `PhaseId`=13753 WHERE `id`=160737; -- Combat Dummy
 UPDATE `creature` SET `PhaseId`=14349 WHERE `id`=171872; -- Apprentice Kutz
 UPDATE `creature` SET `PhaseId`=14355 WHERE `id`=172033; -- Helmsman Da'vees
 UPDATE `creature` SET `PhaseId`=15286 WHERE `id`=166573; -- Warlord Breka Grimaxe
@@ -106,7 +105,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_horde_sparring_partner' WHERE `
 -- hBoat "Quest: Brace for Impact"
 UPDATE `creature_template` SET `ScriptName`='npc_hboat' WHERE `entry`=168039;
 
--- Grunt Throg "Quest: Brace for Impact"
+-- Grunt Throg "Quest: Stand Your Ground & Brace for Impact"
 SET @ENTRY := 166583;
 SET @SCRIPT := @ENTRY * 100;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
@@ -237,9 +236,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- Phase conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13753,14349,14355,15284,15286,15287,15514,15516) AND `SourceEntry`=13377;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,13753,13377,0,0,6,0,67,0,0,0,0,0,'','Apply Phase 13753 if team is horde'),
-(26,14349,13377,0,0,6,0,67,0,0,0,0,0,'','Apply Phase 14349 if team is horde'),
-(26,14355,13377,0,0,6,0,67,0,0,0,0,0,'','Apply Phase 14355 if team is horde'),
+(26,13753,13377,0,0,6,0,67,0,0,0,0,0,'','Allow Phase 13753 if team is horde'),
+(26,14349,13377,0,0,6,0,67,0,0,0,0,0,'','Allow Phase 14349 if team is horde'),
+(26,14355,13377,0,0,6,0,67,0,0,0,0,0,'','Allow Phase 14355 if team is horde'),
 (26,15284,13377,0,0,47,0,59927,8,0,1,0,0,'','Allow Phase 15284 if Quest 59927 is not inprogress'),
 (26,15284,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15284 if Quest 59928 is not complete'),
 (26,15286,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15286 if Quest 59928 is not complete'),
@@ -251,20 +250,26 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `phase_area` WHERE `AreaId`=13377 AND `PhaseId` IN (13753,14349,14355,15284,15286,15287,15514,15516);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(13377,13753, 'NPE Horde Ship - Combat dummys'),
-(13377,14349, 'NPE Horde Ship - Apprentice Kutz'),
-(13377,14355, 'NPE Horde Ship - Helmsman De\'vees'),
+(13377,13753, 'NPE Horde Ship - Unknown'),
+(13377,14349, 'NPE Horde Ship - Apprentice Kutz'), -- guess
+(13377,14355, 'NPE Horde Ship - Helmsman De\'vees'), -- guess
 (13377,15284, 'NPE Horde Ship - Grunt Throg Stage 1'),
 (13377,15286, 'NPE Horde Ship - Warlord Breka Grimaxe both Stage 1 (Quest 59927 incomplete'),
 (13377,15287, 'NPE Horde Ship - Grunt Throg & Warlord Breka Grimaxe Stage 2 (Quest 59928 complete'),
 (13377,15514, 'NPE Horde Ship - Decoration NPC´s Stage 1 (Quest 59927 incomplete'),
 (13377,15516, 'NPE Horde Ship - Decoration NPC´s Stage 2 (Quest 59928 complete');
 
+DELETE FROM `phase_area` WHERE `AreaId`=10639 AND `PhaseId` IN (13753,14349,14355);
+INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
+(10639,13753, 'NPE Alliance Ship - Unknown'),
+(10639,14349, 'NPE Alliance Ship - Pivate Cole'), -- guess
+(10639,14355, 'NPE Alliance Ship - Helmsman Lenard'); -- guess
+
 DELETE FROM `phase_name` WHERE `ID` IN (13753,14349,14355,15284,15286,15287,15514,15516);
 INSERT INTO `phase_name` (`ID`,`Name`) VALUES
-(13753,'Cosmetic - NPE Horde Ship - Combat dummys'),
-(14349,'Cosmetic - NPE Horde Ship - Apprentice Kutz'),
-(14355,'Cosmetic - NPE Horde Ship - Helmsman De\'vees'),
+(13753,'Cosmetic - NPE Horde/Alliance Ship - Unknown'),
+(14349,'Cosmetic - NPE Horde/Alliance Ship - Apprentice/Pivate'),
+(14355,'Cosmetic - NPE Horde/Alliance Ship - Helmsman'),
 (15284,'Cosmetic - NPE Horde Ship - Grunt Throg Stage 1'),
 (15286,'Cosmetic - NPE Horde Ship - Warlord Breka Grimaxe both Stage 1'),
 (15287,'Cosmetic - NPE Horde Ship - Grunt Throg & Warlord Breka Grimaxe Stage 2'),
