@@ -79,11 +79,10 @@ enum Spells
     SPELL_BARBED_ARROW                                  = 347807,
 
     // Desecrating Shot
-    SPELL_DESECRATING_SHOT_AREATRIGGER                  = 348626,
     SPELL_DESECRATING_SHOT                              = 350652,
+    SPELL_DESECRATING_SHOT_AREATRIGGER                  = 348626,
     SPELL_DESECRATING_SHOT_JUMP_FRONT                   = 347957,
     SPELL_DESECRATING_SHOT_JUMP_LEFT                    = 356191,
-    SPELL_DESECRATING_SHOT_JUMP_STRAIGHT_ARROW          = 358993,
     SPELL_DESECRATING_SHOT_TRIGGERED                    = 348627,
 
     // Ranger Heartseeker
@@ -97,6 +96,7 @@ enum Spells
     // Wailing Arrow
     SPELL_WAILING_ARROW_POINTER                         = 348064,
     SPELL_WAILING_ARROW                                 = 347609,
+    SPELL_WAILING_ARROW_VISUAL_MYTHIC                   = 358993,
 
     // Domination Chains
     SPELL_DOMINATION_CHAINS                             = 349419,
@@ -544,6 +544,7 @@ Position const SylvanasWitheringFireTestPos[5] =
 
 Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
 
+// TODO: remove this since it's not necessary at all.
 Position const DesecratingShotArrowShape[5] =
 {
     { -0.43609f,  4.98095f, 4105.0386f  },
@@ -553,42 +554,56 @@ Position const DesecratingShotArrowShape[5] =
     {  4.90381f, -0.97601f, 4105.0386f  }
 };
 
+float const DesecratingShotArrowShapeDistance[10] =
+{
+    { 0.0f        },
+    { 3.750014f   },
+    { 7.464427f   },
+    { 11.092868f  },
+    { 14.568754f  },
+    { 17.0809464f },
+    { 20.716787f  },
+    { 23.179819f  },
+    { 25.079182f  },
+    { 26.294075f  }
+};
+
 Position const DesecratingShotSpiralShape[3][9] =
 {
     {
-        { -0.43609f,  4.98095f, 4105.0386f  },
-        {  2.38811f,  4.82665f, 4105.0386f  },
-        {  5.21233f,  4.67245f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  }
+        { -1.67459f, 3.35535f, 4105.0386f   },
+        { -3.96713f, 6.32295f, 4105.0386f   },
+        { -6.84033f, 8.73278f, 4105.0386f   },
+        { -10.19638f, 10.40585f, 4105.0386f },
+        { -13.86651f, 11.17572f, 4105.0386f },
+        { -17.60751f, 10.91605f, 4105.0386f },
+        { -21.10965f, 9.57531f, 4105.0386f  },
+        { -24.0202f, 7.21075f, 4105.0386f   },
+        { -25.98541f, 4.01695f, 4105.0386f  }
     },
 
     {
-        { -0.43609f,  4.98095f, 4105.0386f  },
-        {  2.38811f,  4.82665f, 4105.0386f  },
-        {  5.21233f,  4.67245f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  }
+        { -2.06848f, -3.12795f, 4105.0386f  },
+        { -3.49227f, -6.59711f, 4105.0386f  },
+        { -4.14265f, -10.29029f, 4105.0386f },
+        { -3.9136f, -14.03325f, 4105.0386f  },
+        { -2.74517f, -17.59665f, 4105.0386f },
+        { -0.64985f, -20.70661f, 4105.0386f },
+        { 2.26235f, -23.06915f, 4105.0386f  },
+        { 5.76542f, -24.40755f, 4105.0386f  },
+        { 9.51392f, -24.51252f, 4105.0386f  }
     },
 
     {
-        { -0.43609f,  4.98095f, 4105.0386f  },
-        {  2.38811f,  4.82665f, 4105.0386f  },
-        {  5.21233f,  4.67245f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  },
-        {  5.05808f,  1.84821f, 4105.0386f  }
+        { 3.74311f, -0.22745f, 4105.0386f   },
+        { 7.46882f, 0.1986f, 4105.0386f     },
+        { 11.04158f, 1.33789f, 4105.0386f   },
+        { 14.28876f, 3.21362f, 4105.0386f   },
+        { 17.00882f, 5.79505f, 4105.0386f   },
+        { 18.98745f, 8.98055f, 4105.0386f   },
+        { 20.02297f, 12.58471f, 4105.0386f  },
+        { 19.96088f, 16.33425f, 4105.0386f  },
+        { 18.73441f, 19.87799f, 4105.0386f  }
     }
 };
 
@@ -1335,19 +1350,19 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         }
     }
 
-    void StartDesecratingShotEvent(uint8 pattern, Position pos)
+    void StartDesecratingShotEvent(uint8 pattern, Position pos, uint8 copyIndex)
     {
         Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
         if (!sylvanas)
             return;
-
-        sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2550));
 
         switch (pattern)
         {
             case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
             case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
             {
+                sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2550));
+
                 if (sylvanas->IsAIEnabled())
                     sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
 
@@ -1416,15 +1431,50 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_ACTIVATE);
+                me->NearTeleportTo(_desecratingShotSpiralPos[0].GetPositionX(), _desecratingShotSpiralPos[0].GetPositionY(), _desecratingShotSpiralPos[0].GetPositionZ() + 7.048f, _desecratingShotSpiralPos[0].GetOrientation(), false);
 
-                me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 10.0f, false);
-
-                _scheduler.Schedule(400ms, [this, sylvanas](TaskContext /*task*/)
+                if (copyIndex == 2)
                 {
-                    sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                    sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2950));
+                    sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1204));
 
-                    DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_LEFT, false);
+                    sylvanas->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                }
+                else if (copyIndex == 1)
+                {
+                    if (Creature* shadowCopy1 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy1->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                }
+                else
+                {
+                    if (Creature* shadowCopy = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
+                        shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                }
+
+                _scheduler.Schedule(125ms, [this, pos, sylvanas](TaskContext /*task*/)
+                {
+                    DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_FRONT);
+                    sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                });
+
+                _scheduler.Schedule(175ms, [this](TaskContext /*task*/)
+                {
+                    ReleaseDesecratingShots();
+                });
+
+                _scheduler.Schedule(450ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
+                {
+                    _desecratingShotStorage.clear();
+                    _desecratingShotSpiralPos.clear();
+
+                    if (copyIndex == 0)
+                    {
+                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                        sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    }
+
+                    me->NearTeleportTo(sylvanas->GetPosition(), false);
                 });
 
                 break;
@@ -1443,6 +1493,11 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     void StoreDesecratingShots(Position pos, uint8 step, float travelSpeed)
     {
         _desecratingShotStorage.emplace_back(pos, step, travelSpeed);
+    }
+
+    void StoreSpiralPos(Position pos)
+    {
+        _desecratingShotSpiralPos.emplace_back(pos);
     }
 
     void ReleaseDesecratingShots()
@@ -1506,6 +1561,7 @@ private:
     std::vector<ObjectGuid> _witheringFireTargetGUIDs;
     std::vector<Position> _randomDominationChainsPos;
     std::vector<DesecratingShotsStorage> _desecratingShotStorage;
+    std::vector<Position> _desecratingShotSpiralPos;
     bool _onDominationChains;
     uint8 _sayDaggers;
     uint8 _sayDesecrating;
@@ -2290,8 +2346,26 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DESECRATING_SHOT_LAUNCH:
                 {
-                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(_desecratingShotPattern, me->GetPosition());
+                    switch (_windrunnerCastTimes)
+                    {
+                        case DATA_WINDRUNNER_CAST_TIME_ONE:
+                            StartDesecratingShot(_desecratingShotCastTimes == 1 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_STRAIGHT);
+                            break;
+                        case DATA_WINDRUNNER_CAST_TIME_TWO:
+                            StartDesecratingShot(_desecratingShotCastTimes == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
+                            break;
+                        case DATA_WINDRUNNER_CAST_TIME_THREE:
+                            StartDesecratingShot(_desecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
+                            break;
+                        case DATA_WINDRUNNER_CAST_TIME_FOUR:
+                            StartDesecratingShot(_desecratingShotCastTimes == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
+                            break;
+                        case DATA_WINDRUNNER_CAST_TIME_FIVE:
+                            StartDesecratingShot(0);
+                            break;
+                        default:
+                            break;
+                        }
                     break;
                 }
 
@@ -2761,18 +2835,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 int32 step = 1;
 
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 500.0f, true, true))
-                {
-                    float orientation = me->GetAbsoluteAngle(target);
-
-                    while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, me->GetPosition(), orientation))
+                    while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, me->GetPosition(), me->GetAbsoluteAngle(target)))
                         ++step;
-
-                    scheduler.Schedule(2s, [this](TaskContext /*task*/)
-                    {
-                        if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                            ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, me->GetPosition());
-                    });
-                }
                 break;
             }
 
@@ -2788,56 +2852,43 @@ struct boss_sylvanas_windrunner : public BossAI
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
-            {
-                int32 step = 0;
-
-                // WAVE
-
-                scheduler.Schedule(2s, [this](TaskContext /*task*/)
-                {
-                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_WAVE, me->GetPosition());
-                });
                 break;
-            }
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                int32 step = 10;
-                int32 nextCopy = 0;
-
+                // TODO: remove false, it's for testing.
                 std::list<Unit*> targets;
-                SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, true, true);
+                SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, false, true);
+
+                uint8 copyIndex = 2;
 
                 for (Unit* target : targets)
                 {
-                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, 0, step, target->GetPosition(), target->GetOrientation()))
+                    uint8 step = 10;
+
+                    Position targetPos = target->GetPosition();
+
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(copyIndex))
+                    {
+                        shadowCopyAI->StoreDesecratingShots(targetPos, 0, 0.245000004768371f);
+                        shadowCopyAI->StoreSpiralPos(targetPos);
+                    }
+
+                    scheduler.Schedule(35ms, [this, targetPos](TaskContext /*task*/)
+                    {
+                        me->CastSpell(targetPos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+
+                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, copyIndex, step, targetPos, target->GetOrientation()))
                         --step;
 
-                    nextCopy++;
-
-                    scheduler.Schedule(1s + 500ms + Milliseconds(500 * nextCopy), [this, target](TaskContext /*task*/)
-                    {
-                        if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                            ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, target->GetPosition());
-                    });
+                    --copyIndex;
                 }
                 break;
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_JAR:
-            {
-                int32 step = 0;
-
-                // JAR
-
-                scheduler.Schedule(2s, [this](TaskContext /*task*/)
-                {
-                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(DATA_DESECRATING_SHOT_PATTERN_JAR, me->GetPosition());
-                });
                 break;
-            }
 
             default:
                 break;
@@ -2955,138 +3006,84 @@ struct boss_sylvanas_windrunner : public BossAI
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
+                return true;
+
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                /*
-                float distance = -4.0f * step;
+                float distance = DesecratingShotArrowShapeDistance[step];
 
-                if (step == 0)
+                Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                arrowPositions.push_back(spiralLeft);
+
+                Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                arrowPositions.push_back(spiralRight);
+
+                Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                arrowPositions.push_back(spiralFront);
+
+                scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
                 {
-                    Position middleLine(pos.GetPositionX() + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation) * distance), pos.GetPositionZ());
+                    me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                });
 
-                    me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
+                float travelSpeed = 0.245000004768371f;
 
-                    Position rightLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * 4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * 4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-                    me->CastSpell(rightLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-
-                    Position leftLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * -4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * -4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-                    me->CastSpell(leftLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                }
-                else
+                for (uint8 i = 0; i < arrowPositions.size(); i++)
                 {
-                    scheduler.Schedule(50ms, [this, pos, orientation, distance](TaskContext /*task*//*)
-                    {
-                        Position rightLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * 4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * 4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-                        me->CastSpell(rightLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
-
-                    scheduler.Schedule(75ms, [this, pos, orientation, distance](TaskContext /*task*//*)/*
-                    {
-                        Position leftLine(pos.GetPositionX() + (std::cos(orientation - (M_PI / 2)) * -4.0f) + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation - (M_PI / 2)) * -4.0f) + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-                        me->CastSpell(leftLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
-
-                    scheduler.Schedule(100ms, [this, pos, orientation, distance](TaskContext /*task*//*)/*
-                    {
-                        Position middleLine(pos.GetPositionX() + (std::cos(orientation) * distance), pos.GetPositionY() + (std::sin(orientation) * distance), pos.GetPositionZ());
-
-                        me->CastSpell(middleLine, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(amount))
+                        shadowCopyAI->StoreDesecratingShots(arrowPositions[i], step, travelSpeed + float(travelSpeed * (step * 0.1)));
                 }
-                */
 
                 return true;
             }
 
-            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
-            {
-                float distance = 40.0f;
-
-                float angle = 0.1f * (step - 1);
-
-                uint8 spiralCount = 3;
-
-                switch (step)
-                {
-                    case 1:
-                        me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                        break;
-                    case 10:
-                    {
-                        LastFrontSpiralPoint = { pos.GetPositionX() + (std::cos(orientation + 0.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionY() + (std::sin(orientation + 0.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionZ() };
-                        LastLeftSpiralPoint = { pos.GetPositionX() + (std::cos(orientation + 120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionY() + (std::sin(orientation + 120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionZ() };
-                        LastRightSpiralPoint = { pos.GetPositionX() + (std::cos(orientation + -120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionY() + (std::sin(orientation + -120.0f * float(M_PI) / 180.0f) * 26.29406f), pos.GetPositionZ() };
-
-                        scheduler.Schedule(Milliseconds(step * 25), [this](TaskContext /*task*/)
-                        {
-                            me->CastSpell(LastFrontSpiralPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                            me->CastSpell(LastLeftSpiralPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                            me->CastSpell(LastRightSpiralPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                        });
-
-                        break;
-                    }
-
-                    default:
-                    {
-                        Position pointToConvert;
-                        Position nextPoint;
-
-                        for (uint8 i = 0; i < spiralCount; i++)
-                        {
-                            switch (i)
-                            {
-                                case 0:
-                                    pointToConvert = LastFrontSpiralPoint;
-
-                                    nextPoint = { pointToConvert.GetPositionX() + std::cos(angle) * distance * angle / (2 * float(M_PI)), pointToConvert.GetPositionY() + std::sin(angle) * distance * angle / (2 * float(M_PI)),
-                                        pointToConvert.GetPositionZ() };
-                                    break;
-
-                                case 1:
-                                    pointToConvert = LastLeftSpiralPoint;
-
-                                    nextPoint = { pointToConvert.GetPositionX() + std::cos(angle + (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)), pointToConvert.GetPositionY() + std::sin(angle + (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)),
-                                        pointToConvert.GetPositionZ()};
-                                    break;
-
-                                case 2:
-                                    pointToConvert = LastRightSpiralPoint;
-
-                                    nextPoint = { pointToConvert.GetPositionX() + std::cos(angle - (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)), pointToConvert.GetPositionY() + std::sin(angle - (float(M_PI) / 1.5f)) * distance * angle / (2 * float(M_PI)),
-                                        pointToConvert.GetPositionZ() };
-                                    break;
-
-                                default:
-                                    break;
-                            }
-
-                            scheduler.Schedule(Milliseconds(step * 25), [this, nextPoint](TaskContext /*task*/)
-                            {
-                                 me->CastSpell(nextPoint, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                            });
-                        }
-
-                        break;
-                    }
-                }
-
-                break;
-            }
-
             case DATA_DESECRATING_SHOT_PATTERN_JAR:
-            {
-                break;
-            }
+                return true;
 
             default:
                 break;
         }
 
         return true;
+    }
+
+    void StartDesecratingShot(uint8 pattern)
+    {
+        switch (pattern)
+        {
+            case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
+            case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
+                if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
+                    ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 0);
+                break;
+            case DATA_DESECRATING_SHOT_PATTERN_WAVE:
+                break;
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
+            {
+                if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(2))
+                    ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 2);
+
+                scheduler.Schedule(300ms, [this, pattern](TaskContext /*task*/)
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(1))
+                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 1);
+                });
+
+                scheduler.Schedule(600ms, [this, pattern](TaskContext /*task*/)
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
+                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 0);
+                });
+                break;
+            }
+            case DATA_DESECRATING_SHOT_PATTERN_JAR:
+                break;
+            default:
+                break;
+        }
     }
 
     void TeleportShadowcopiesToMe()
@@ -3205,10 +3202,11 @@ struct boss_sylvanas_windrunner : public BossAI
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 13000));
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 1ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
                         events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 3s + 31ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s + 141ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // The disappear should happen at 6s + 31ms
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s + 31ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 6s + 31ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s + 422ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 800ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // The disappear should happen at 12s + 828ms
-                        // Note: Sniffs are not consistent on the queuing of this event. May be related to a dynamic handling based on the stance Sylvanas starts the encounter.
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 422ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 156ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
                         events.ScheduleEvent(EVENT_WINDRUNNER, 55s, GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
@@ -6570,11 +6568,7 @@ class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
 
     void OnCast(SpellMissInfo /*missInfo*/)
     {
-        Unit* caster = caster;
-        if (!caster)
-            return;
-
-        InstanceScript* instance = caster->GetInstanceScript();
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
         if (!instance)
             return;
 
@@ -6709,7 +6703,7 @@ struct at_sylvanas_windrunner_rive : AreaTriggerAI
             sylvanas->CastSpell(unit, SPELL_RIVE_DAMAGE, true);
     }
 
-    void OnUpdate(uint32 diff) override
+    void OnUpdate(uint32 /*diff*/) override
     {
         if (!_instance)
             return;
