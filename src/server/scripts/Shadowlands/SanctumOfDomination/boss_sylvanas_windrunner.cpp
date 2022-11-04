@@ -538,10 +538,10 @@ uint32 const EventsTimersNormal[3][4][5]
     // P1
     {
         // Note: fifth casts are on 0 because timers do not show up, we wait for DF.
-        { 7, 55, 55, 55, 0          }, // Windrunner
-        { 25, 57, 57, 57, 0         }, // Domination Chains
-        { 30.5, 34.5, 28.5, 27.5, 0 }, // Wailing Arrow
-        { 50, 53, 54, 55, 0         }  // Veil of Darkness
+        { 7000, 55000, 55000, 55000, 0  }, // Windrunner
+        { 25000, 57000, 57000, 57000, 0 }, // Domination Chains
+        { 30500, 34500, 28500, 27500, 0 }, // Wailing Arrow
+        { 50000, 53000, 54000, 55000, 0 }  // Veil of Darkness
     },
 
     // P2
@@ -1246,16 +1246,16 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         if (jumpTime == DATA_JUMP_TIME_CERO)
         {
+            // TODO: change to playerlist since this is only for testing.
             // Number of casts is dependent on raid's difficulty and size: if mythic, 15; if not, half the raid (min. 5, max. 15)
-            _totalWitheringFires = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 :
-                std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
+            //_totalWitheringFires = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 : std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
+            _totalWitheringFires = 5;
 
-            std::list<Player*> witheringFireTargetList;
-            GetPlayerListInGrid(witheringFireTargetList, me, 200.0f);
-            Trinity::Containers::RandomResize(witheringFireTargetList, _totalWitheringFires);
+            std::list<Unit*> witheringFireTargetList;
+            SelectTargetList(witheringFireTargetList, _totalWitheringFires, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
-            for (Player* player : witheringFireTargetList)
-                _witheringFireTargetGUIDs.push_back(player->GetGUID());
+            for (Unit* target : witheringFireTargetList)
+                _witheringFireTargetGUIDs.push_back(target->GetGUID());
         }
 
         if (jumpTime == DATA_JUMP_TIME_TWO)
@@ -1263,16 +1263,16 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         else
             currentWitheringFires = _totalWitheringFires > 11 ? 2 : 1;
 
-        std::vector<Player*> targetedPlayers;
+        std::vector<Unit*> targetedPlayers;
         for (uint8 itr = currentWitheringFires; itr > 0 && !_witheringFireTargetGUIDs.empty(); itr--)
         {
-            if (Player* target = ObjectAccessor::GetPlayer(*me, _witheringFireTargetGUIDs.front()))
+            if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs.front()))
                 targetedPlayers.push_back(target);
 
             _witheringFireTargetGUIDs.erase(std::remove(_witheringFireTargetGUIDs.begin(), _witheringFireTargetGUIDs.end(), _witheringFireTargetGUIDs.front()), _witheringFireTargetGUIDs.end());
         }
 
-        for (Player* target : targetedPlayers)
+        for (Unit* target : targetedPlayers)
         {
             uint32 timeToTarget = me->GetDistance(target) * 0.02083 * 1000;
 
@@ -2360,7 +2360,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             shadowCopy1->AI()->DoAction(ACTION_START_DOMINATION_CHAINS);
                     _dominationChainsCastTimes++;
                     if (events.IsInPhase(PHASE_ONE))
-                        events.Repeat(Seconds(EventsTimersNormal[0][1][_dominationChainsCastTimes]));
+                        events.Repeat(Milliseconds(EventsTimersNormal[0][1][_dominationChainsCastTimes]));
                     break;
                 }
 
@@ -2389,7 +2389,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     _wailingArrowCastTimes++;
 
-                    _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, Seconds(EventsTimersNormal[0][2][_wailingArrowCastTimes]), GROUP_EVENT_WAILING_ARROW_EVENTS, PHASE_ONE);
+                    _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, Milliseconds(EventsTimersNormal[0][2][_wailingArrowCastTimes]), GROUP_EVENT_WAILING_ARROW_EVENTS, PHASE_ONE);
                     break;
                 }
 
@@ -2455,7 +2455,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                             _veilOfDarknessCastTimes++;
 
-                            events.Repeat(Seconds(EventsTimersNormal[0][3][_veilOfDarknessCastTimes]));
+                            events.Repeat(Milliseconds(EventsTimersNormal[0][3][_veilOfDarknessCastTimes]));
                         });
                     }
                     else if (events.IsInPhase(PHASE_TWO))
@@ -3131,13 +3131,13 @@ struct boss_sylvanas_windrunner : public BossAI
             case DIFFICULTY_NORMAL_RAID:
             {
                 events.SetPhase(PHASE_ONE);
-                events.ScheduleEvent(EVENT_WINDRUNNER, Seconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Seconds(EventsTimersNormal[0][1][_dominationChainsCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Seconds(EventsTimersNormal[0][3][_veilOfDarknessCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventsTimersNormal[0][1][_dominationChainsCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_veilOfDarknessCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
 
                 // Note: we use a different event handler for Wailing Arrow because the marker is cast during events.
                 _specialEvents.SetPhase(PHASE_ONE);
-                _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, Seconds(EventsTimersNormal[0][2][_wailingArrowCastTimes]), GROUP_EVENT_WAILING_ARROW_EVENTS, PHASE_ONE);
+                _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, Milliseconds(EventsTimersNormal[0][2][_wailingArrowCastTimes]), GROUP_EVENT_WAILING_ARROW_EVENTS, PHASE_ONE);
                 break;
             }
 
@@ -3207,7 +3207,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 7s + 750ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 200ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 10s + 391ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Seconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3221,7 +3221,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s + 422ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 422ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 156ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Seconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3235,7 +3235,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // The disappear should happen at 11s + 219ms
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s + 78ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE); // Fixed
                         // Note: Sniffs are not consistent on the queuing of this event. May be related to a dynamic handling based on the stance Sylvanas starts the encounter.
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Seconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3250,7 +3250,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 500ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, GROUP_EVENT_WINDRUNNER_RELATED_EVENTS, PHASE_ONE);
                         // Note: Sniffs are not consistent on the queuing of this event. May be related to a dynamic handling based on the stance Sylvanas starts the encounter in.
-                        events.ScheduleEvent(EVENT_WINDRUNNER, 53s, GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_windrunnerCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3429,7 +3429,6 @@ private:
     EventMap _specialEvents;
     std::vector<ObjectGuid> _shadowCopyGUID;
     std::vector<ObjectGuid> _invigoratingFieldGUID;
-    std::list<Player*> _witheringFireTargetList;
     bool _maldraxxiDesecrated;
     bool _nightfaeDesecrated;
     bool _kyrianDesecrated;
