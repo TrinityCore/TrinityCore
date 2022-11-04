@@ -2338,13 +2338,13 @@ bool Research::operator==(Research const& right) const
     return ResearchProjectID == right.ResearchProjectID;
 }
 
-void ActivePlayerUnk340::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
+void GlyphInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << uint32(Field_0);
-    data << uint32(Field_10);
+    data << uint32(GlyphSlot);
+    data << uint32(Glyph);
 }
 
-void ActivePlayerUnk340::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
+void GlyphInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
 {
     Mask changesMask = _changesMask;
     if (ignoreChangesMask)
@@ -2357,19 +2357,19 @@ void ActivePlayerUnk340::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, P
     {
         if (changesMask[1])
         {
-            data << uint32(Field_0);
+            data << uint32(GlyphSlot);
         }
         if (changesMask[2])
         {
-            data << uint32(Field_10);
+            data << uint32(Glyph);
         }
     }
 }
 
-void ActivePlayerUnk340::ClearChangesMask()
+void GlyphInfo::ClearChangesMask()
 {
-    Base::ClearChangesMask(Field_0);
-    Base::ClearChangesMask(Field_10);
+    Base::ClearChangesMask(GlyphSlot);
+    Base::ClearChangesMask(Glyph);
     _changesMask.ResetAll();
 }
 
@@ -2542,7 +2542,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << int32(TransportServerTime);
     for (std::size_t i = 0; i < 6; ++i)
     {
-        Unk340[i].WriteCreate(data, owner, receiver);
+        GlyphInfos[i].WriteCreate(data, owner, receiver);
     }
     data << uint8(Unk340_2);
     for (std::size_t i = 0; i < KnownTitles.size(); ++i)
@@ -3424,7 +3424,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         {
             if (changesMask[1484 + i])
             {
-                Unk340[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                GlyphInfos[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
@@ -3565,7 +3565,7 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(BagSlotFlags);
     Base::ClearChangesMask(BankBagSlotFlags);
     Base::ClearChangesMask(QuestCompleted);
-    Base::ClearChangesMask(Unk340);
+    Base::ClearChangesMask(GlyphInfos);
     _changesMask.ResetAll();
 }
 

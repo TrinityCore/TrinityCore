@@ -503,10 +503,10 @@ struct Research : public IsUpdateFieldStructureTag
     bool operator!=(Research const& right) const { return !(*this == right); }
 };
 
-struct ActivePlayerUnk340 : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+struct GlyphInfo : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
-    UpdateField<uint32, 0, 1> Field_0;
-    UpdateField<uint32, 0, 2> Field_10;
+    UpdateField<uint32, 0, 1> GlyphSlot;
+    UpdateField<uint32, 0, 2> Glyph;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const;
@@ -637,7 +637,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateFieldArray<uint32, 4, 594, 595> BagSlotFlags;
     UpdateFieldArray<uint32, 7, 599, 600> BankBagSlotFlags;
     UpdateFieldArray<uint64, 875, 607, 608> QuestCompleted;
-    UpdateFieldArray<UF::ActivePlayerUnk340, 6, 1483, 1484> Unk340;
+    UpdateFieldArray<UF::GlyphInfo, 6, 1483, 1484> GlyphInfos;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
