@@ -13,15 +13,18 @@
 #define __CASCPORT_H__
 
 #ifndef __cplusplus
-  #define bool  char
-  #define true  1
-  #define false 0
+    #include <stdbool.h>
 #endif
 
 //-----------------------------------------------------------------------------
 // Defines for Windows
 
 #if !defined(CASCLIB_PLATFORM_DEFINED) && (defined(_WIN32) || defined(_WIN64))
+
+  // Make sure that headers are only included once in newer SDKs
+  #if defined (_MSC_VER) && (_MSC_VER >= 1020)
+  #pragma once
+  #endif
 
   // In MSVC 8.0, there are some functions declared as deprecated.
   #define _CRT_SECURE_NO_DEPRECATE
@@ -269,6 +272,10 @@
 
 #ifndef ERROR_INDEX_PARSING_DONE
 #define ERROR_INDEX_PARSING_DONE         1010
+#endif
+
+#ifndef ERROR_REPARSE_ROOT
+#define ERROR_REPARSE_ROOT               1011
 #endif
 
 #ifndef _countof
