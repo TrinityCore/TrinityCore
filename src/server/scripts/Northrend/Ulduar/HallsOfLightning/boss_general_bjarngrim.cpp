@@ -106,10 +106,10 @@ enum Texts
     SAY_DEATH                       = 8
 };
 
-enum Equips
+enum VirtualItemIds
 {
-    ITEM_ID_AXE         = 37871,
-    ITEM_ID_SHIELD      = 35642,
+    ITEM_ID_AXE         = 43625,
+    ITEM_ID_SHIELD      = 39384,
     ITEM_ID_GREATAXE    = 43623
 };
 
