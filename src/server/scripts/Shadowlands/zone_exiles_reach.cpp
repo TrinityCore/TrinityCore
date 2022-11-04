@@ -24,7 +24,6 @@
 #include "TemporarySummon.h"
 #include "ScriptedCreature.h"
 
-
 // Scripting in this section is from login to arriving on beach for alliance and horde
 
 enum SparingPartner
@@ -500,9 +499,9 @@ struct npc_alliance_boat_invisbunny : public ScriptedAI
                                 garrickpos.GetPosition(x, y, z, o);
                                 transport->CalculatePassengerPosition(x, y, z, &o);
                                 garrickpos.Relocate(x, y, z, o);
-                                Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player);
-                                if(garrick2->IsAIEnabled())
-                                    garrick2->AI()->SetData(1, 1); // First personal summon
+                                if (Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player))
+                                    if(garrick2->IsAIEnabled())
+                                        garrick2->AI()->SetData(1, 1); // First personal summon
                             }
                         /*
                         // Doesn't work
