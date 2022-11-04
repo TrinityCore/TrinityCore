@@ -25,8 +25,12 @@
 #define TVFS_PTE_PATH_SEPARATOR_POST 0x0002         // There is path separator after the name
 #define TVFS_PTE_NODE_VALUE          0x0004         // The NodeValue in path table entry is valid
 
-#define TVFS_FOLDER_NODE            0x80000000      // Highest bit is set if a file node is a folder
-#define TVFS_FOLDER_SIZE_MASK       0x7FFFFFFF      // Mask to get length of the folder
+#define TVFS_FOLDER_NODE             0x80000000     // Highest bit is set if a file node is a folder
+#define TVFS_FOLDER_SIZE_MASK        0x7FFFFFFF     // Mask to get length of the folder
+
+// Uncomment this to parse TVFS root files for World of Warcraft
+// Note that this is signigicantly slower than using the legacy ROOT file
+//#define TVFS_PARSE_WOW_ROOT
 
 //-----------------------------------------------------------------------------
 // Local structures
@@ -98,6 +102,14 @@ typedef struct _TVFS_PATH_TABLE_ENTRY
     DWORD NodeValue;                                // Node value
 } TVFS_PATH_TABLE_ENTRY, *PTVFS_PATH_TABLE_ENTRY;
 
+typedef struct _TVFS_WOW_ENTRY
+{
+    DWORD  LocaleFlags;
+    USHORT ContentFlags;
+    DWORD  FileDataId;
+    BYTE   ContentKey[MD5_HASH_SIZE];
+} TVFS_WOW_ENTRY, *PTVFS_WOW_ENTRY;
+
 //-----------------------------------------------------------------------------
 // Handler definition for TVFS root file
 
@@ -131,15 +143,15 @@ struct TRootHandler_TVFS : public TFileTreeRoot
     bool PathBuffer_AppendNode(CASC_PATH<char> & PathBuffer, TVFS_PATH_TABLE_ENTRY & PathEntry)
     {
         // Append the prefix separator, if needed
-        if (PathEntry.NodeFlags & TVFS_PTE_PATH_SEPARATOR_PRE)
+        if(PathEntry.NodeFlags & TVFS_PTE_PATH_SEPARATOR_PRE)
             PathBuffer.AppendChar('/');
 
         // Append the name fragment, if any
-        if (PathEntry.pbNameEnd > PathEntry.pbNamePtr)
+        if(PathEntry.pbNameEnd > PathEntry.pbNamePtr)
             PathBuffer.AppendStringN((const char *)PathEntry.pbNamePtr, (PathEntry.pbNameEnd - PathEntry.pbNamePtr), false);
 
         // Append the postfix separator, if needed
-        if (PathEntry.NodeFlags & TVFS_PTE_PATH_SEPARATOR_POST)
+        if(PathEntry.NodeFlags & TVFS_PTE_PATH_SEPARATOR_POST)
             PathBuffer.AppendChar('/');
 
         return true;
@@ -294,19 +306,19 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         PathEntry.NodeValue = 0;
 
         // Zero before the name means prefix path separator
-        if (pbPathTablePtr < pbPathTableEnd && pbPathTablePtr[0] == 0)
+        if(pbPathTablePtr < pbPathTableEnd && pbPathTablePtr[0] == 0)
         {
             PathEntry.NodeFlags |= TVFS_PTE_PATH_SEPARATOR_PRE;
             pbPathTablePtr++;
         }
 
         // Capture the length of the name fragment
-        if (pbPathTablePtr < pbPathTableEnd && pbPathTablePtr[0] != 0xFF)
+        if(pbPathTablePtr < pbPathTableEnd && pbPathTablePtr[0] != 0xFF)
         {
             // Capture length of the name fragment
             size_t nLength = *pbPathTablePtr++;
 
-            if ((pbPathTablePtr + nLength) > pbPathTableEnd)
+            if((pbPathTablePtr + nLength) > pbPathTableEnd)
                 return NULL;
             PathEntry.pbNamePtr = pbPathTablePtr;
             PathEntry.pbNameEnd = pbPathTablePtr + nLength;
@@ -314,18 +326,18 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         }
 
         // Zero after the name means postfix path separator
-        if (pbPathTablePtr < pbPathTableEnd && pbPathTablePtr[0] == 0)
+        if(pbPathTablePtr < pbPathTableEnd && pbPathTablePtr[0] == 0)
         {
             PathEntry.NodeFlags |= TVFS_PTE_PATH_SEPARATOR_POST;
             pbPathTablePtr++;
         }
 
-        if (pbPathTablePtr < pbPathTableEnd)
+        if(pbPathTablePtr < pbPathTableEnd)
         {
             // Check for node value
-            if (pbPathTablePtr[0] == 0xFF)
+            if(pbPathTablePtr[0] == 0xFF)
             {
-                if ((pbPathTablePtr + 1 + sizeof(DWORD)) > pbPathTableEnd)
+                if((pbPathTablePtr + 1 + sizeof(DWORD)) > pbPathTableEnd)
                     return NULL;
                 PathEntry.NodeValue = ConvertBytesToInteger_4(pbPathTablePtr + 1);
                 PathEntry.NodeFlags |= TVFS_PTE_NODE_VALUE;
@@ -352,9 +364,9 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         for (size_t i = 0; i < ItemCount; i++)
         {
             pCKeyEntry = (PCASC_CKEY_ENTRY)hs->VfsRootList.ItemAt(i);
-            if (pCKeyEntry != NULL)
+            if(pCKeyEntry != NULL)
             {
-                if (!memcmp(pCKeyEntry->EKey, EKey, EKeyLength))
+                if(!memcmp(pCKeyEntry->EKey, EKey, EKeyLength))
                     return true;
             }
         }
@@ -380,11 +392,11 @@ struct TRootHandler_TVFS : public TFileTreeRoot
             {
                 // Load the entire file into memory
                 pbVfsData = LoadInternalFileToMemory(hs, pCKeyEntry, &cbVfsData);
-                if (pbVfsData && cbVfsData)
+                if(pbVfsData && cbVfsData)
                 {
                     // Capture the file folder. This also serves as test
                     dwErrCode = CaptureDirectoryHeader(SubHeader, pbVfsData, pbVfsData + cbVfsData);
-                    if (dwErrCode == ERROR_SUCCESS)
+                    if(dwErrCode == ERROR_SUCCESS)
                         return dwErrCode;
 
                     // Clear the captured header
@@ -461,12 +473,12 @@ struct TRootHandler_TVFS : public TFileTreeRoot
             PathBuffer_AppendNode(PathBuffer, PathEntry);
 
             // Folder component
-            if (PathEntry.NodeFlags & TVFS_PTE_NODE_VALUE)
+            if(PathEntry.NodeFlags & TVFS_PTE_NODE_VALUE)
             {
                 // If the TVFS_FOLDER_NODE is set, then the path node is a directory,
                 // with its data immediately following the path node. Lower 31 bits of NodeValue
                 // contain the length of the directory (including the NodeValue!)
-                if (PathEntry.NodeValue & TVFS_FOLDER_NODE)
+                if(PathEntry.NodeValue & TVFS_FOLDER_NODE)
                 {
                     LPBYTE pbDirectoryEnd = pbPathTablePtr + (PathEntry.NodeValue & TVFS_FOLDER_SIZE_MASK) - sizeof(DWORD);
 
@@ -475,7 +487,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
 
                     // Recursively call the folder parser on the same file
                     dwErrCode = ParsePathFileTable(hs, DirHeader, PathBuffer, pbPathTablePtr, pbDirectoryEnd);
-                    if (dwErrCode != ERROR_SUCCESS)
+                    if(dwErrCode != ERROR_SUCCESS)
                         return dwErrCode;
 
                     // Skip the directory data
@@ -512,7 +524,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                         }
 
                         // We need to check whether this is another TVFS directory file
-                        if (IsVfsSubDirectory(hs, DirHeader, SubHeader, SpanEntry.EKey, SpanEntry.ContentSize) == ERROR_SUCCESS)
+                        if(IsVfsSubDirectory(hs, DirHeader, SubHeader, SpanEntry.EKey, SpanEntry.ContentSize) == ERROR_SUCCESS)
                         {
                             // Add colon (':')
                             PathBuffer.AppendChar(':');
@@ -522,15 +534,39 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                             FileTree.InsertByName(pCKeyEntry, PathBuffer);
 
                             // Parse the subdir
-                            ParseDirectoryData(hs, SubHeader, PathBuffer);
+                            dwErrCode = ParseDirectoryData(hs, SubHeader, PathBuffer);
                             CASC_FREE(SubHeader.pbDirectoryData);
+
+                            // On error, stop the parsing
+                            if(dwErrCode != ERROR_SUCCESS)
+                                return dwErrCode;
                         }
                         else
                         {
+                            TVFS_WOW_ENTRY WowEntry;
+
                             // If the content content size is not there, supply it now
                             if(pCKeyEntry->ContentSize == CASC_INVALID_SIZE)
                                 pCKeyEntry->ContentSize = SpanEntry.ContentSize;
-                            FileTree.InsertByName(pCKeyEntry, PathBuffer);
+
+                            // Detect generic file names from World of Warcraft (since build 45779)
+                            switch(dwErrCode = CheckWoWGenericName(PathBuffer, WowEntry))
+                            {
+                                case ERROR_SUCCESS:         // The entry was recognized and has the right format
+                                    FileTree.InsertByName(pCKeyEntry, PathBuffer, WowEntry.FileDataId, WowEntry.LocaleFlags, WowEntry.ContentFlags);
+                                    break;
+
+                                case ERROR_BAD_FORMAT:      // The entry was not recognized as TVFS WoW name
+                                    FileTree.InsertByName(pCKeyEntry, PathBuffer);
+                                    break;
+
+                                default:                    // The entry has a bad format - use classic ROOT file
+                                    assert(dwErrCode == ERROR_REPARSE_ROOT);
+                                    return dwErrCode;
+                            }
+
+                            // If not a generic name, insert to the tree
+                            //printf("%s\n", (const char *)PathBuffer);
                         }
                     }
                     else
@@ -679,6 +715,51 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         return ParseDirectoryData(hs, RootHeader, PathBuffer);
     }
 
+    DWORD CheckWoWGenericName(const CASC_PATH<char> & PathBuffer, TVFS_WOW_ENTRY & WowEntry)
+    {
+        size_t nPathLength = PathBuffer.Length();
+        BYTE BinaryBuffer[4+2+4+16];
+
+        //
+        // WoW Build 45779: 000000020000:000C472F02BA924C604A670B253AA02DBCD9441  (Bug: Missing last digit of the CKey)
+        // WoW Build 46144: 000000020000:000C472F02BA924C604A670B253AA02DBCD9441C
+        //                  LLLLLLLLCCCC IIIIIIIIKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+        //
+        //                  L = Locale flags, C = Content flags, I = File Data ID, K = CKey
+        //
+
+        if(nPathLength == 52 || nPathLength == 53)
+        {
+            if(PathBuffer[12] == ':')
+            {
+                // Check the first part of the TVFS name
+                if(BinaryFromString(&PathBuffer[00], 12, (LPBYTE)(&BinaryBuffer[0])) != ERROR_SUCCESS)
+                    return ERROR_REPARSE_ROOT;
+
+                // Check the second part of the file name
+                if(BinaryFromString(&PathBuffer[13], 40, (LPBYTE)(&BinaryBuffer[6])) != ERROR_SUCCESS)
+                    return ERROR_REPARSE_ROOT;
+
+#ifdef TVFS_PARSE_WOW_ROOT
+                // We accept strings with length 53 chars
+                if(nPathLength == 53)
+                {
+                    WowEntry.LocaleFlags  = ConvertBytesToInteger_4(BinaryBuffer + 0x00);
+                    WowEntry.ContentFlags = ConvertBytesToInteger_2(BinaryBuffer + 0x04);
+                    WowEntry.FileDataId   = ConvertBytesToInteger_4(BinaryBuffer + 0x06);
+                    memcpy(WowEntry.ContentKey, BinaryBuffer + 0x0A, MD5_HASH_SIZE);
+                    return ERROR_SUCCESS;
+                }
+#endif  // TVFS_PARSE_WOW_ROOT
+
+                // An invalid entry - reparse tot he normal root
+                CASCLIB_UNUSED(WowEntry);
+                return ERROR_REPARSE_ROOT;
+            }
+        }
+        return ERROR_BAD_FORMAT;
+    }
+
     CASC_ARRAY SpanArray;           // Array of CASC_SPAN_ENTRY for all multi-span files
 };
 
@@ -701,7 +782,7 @@ DWORD RootHandler_CreateTVFS(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootF
         {
             // Load the root directory. If load failed, we free the object
             dwErrCode = pRootHandler->Load(hs, RootHeader);
-            if(dwErrCode != ERROR_SUCCESS)
+            if(dwErrCode != ERROR_SUCCESS && dwErrCode != ERROR_REPARSE_ROOT)
             {
                 delete pRootHandler;
                 pRootHandler = NULL;
