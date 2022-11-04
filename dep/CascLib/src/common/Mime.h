@@ -16,6 +16,10 @@
 
 #define MAX_LENGTH_BOUNDARY 128
 
+// Flags returned by CASC_MIME_HTTP::IsDataComplete()
+#define HTTP_HEADER_COMPLETE    0x01            // HTML header is complete
+#define HTTP_DATA_COMPLETE      0x02            // HTML data is complete
+
 enum CASC_MIME_ENCODING
 {
     MimeEncodingTextPlain,
@@ -31,15 +35,15 @@ struct CASC_MIME_HTTP
 {
     CASC_MIME_HTTP()
     {
-        response_valid = content_length = content_offset = total_length = 0;
+        total_length = content_offset = content_length = http_flags = 0;
     }
 
-    bool IsDataComplete(const char * response, size_t response_length);
+    size_t IsDataComplete(const char * response, size_t response_length, size_t * ptr_content_length = NULL);
 
-    size_t response_valid;              // Nonzero if this is an already parsed HTTP response
     size_t content_length;              // Parsed value of "Content-Length"
     size_t content_offset;              // Offset of the HTTP data, relative to the begin of the response
     size_t total_length;                // Expected total length of the HTTP response (content_offset + content_size)
+    size_t http_flags;                  // Nonzero if this is an already parsed HTTP response
 };
 
 //-----------------------------------------------------------------------------
@@ -121,10 +125,5 @@ class CASC_MIME
 
     CASC_MIME_ELEMENT root;
 };
-
-//-----------------------------------------------------------------------------
-// HTTP helpers
-
-bool IsHttpResponseComplete(CASC_MIME_HTTP & HttpInfo, const char * response, size_t response_length);
 
 #endif // __MIME_H__

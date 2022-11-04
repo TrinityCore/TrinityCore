@@ -140,7 +140,16 @@ extern unsigned char IntToHexChar[];
 //  - Memory freeing function must check for NULL pointer and do nothing if so
 //
 
-#define CASC_REALLOC(type, ptr, count) (type *)realloc(ptr, (count) * sizeof(type))
+template <typename T>
+T * CASC_REALLOC(T * old_ptr, size_t count)
+{
+    T * new_ptr = (T *)realloc(old_ptr, count * sizeof(T));
+
+    // If realloc fails, then the old buffer remains unfreed
+    if(new_ptr == NULL)
+        free(old_ptr);
+    return new_ptr;
+}
 
 template <typename T>
 T * CASC_ALLOC(size_t nCount)

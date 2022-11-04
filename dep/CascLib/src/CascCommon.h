@@ -15,10 +15,10 @@
 // Compression support
 
 // Include functions from zlib
-#ifndef __SYS_ZLIB
-  #include "zlib/zlib.h"
+#ifndef CASC_USE_SYSTEM_ZLIB
+    #include "zlib/zlib.h"
 #else
-  #include <zlib.h>
+    #include <zlib.h>
 #endif
 
 #include "CascPort.h"
@@ -61,6 +61,9 @@
 
 // For CASC_CDN_DOWNLOAD::Flags
 #define CASC_CDN_FORCE_DOWNLOAD         0x0001      // Force downloading the file even if in the cache
+
+// The maximum size of an inline file
+#define CASC_MAX_ONLINE_FILE_SIZE   0x40000000
 
 //-----------------------------------------------------------------------------
 // In-memory structures
@@ -279,6 +282,7 @@ struct TCascStorage
     CASC_LOCK StorageLock;                          // Lock for multi-threaded operations
 
     LPCTSTR szIndexFormat;                          // Format of the index file name
+    LPTSTR  szCdnHostUrl;                           // CDN host URL for online storage
     LPTSTR  szCodeName;                             // On local storage, this select a product in a multi-product storage. For online storage, this selects a product
     LPTSTR  szRootPath;                             // Path where the build file is
     LPTSTR  szDataPath;                             // This is the directory where data files are
@@ -382,8 +386,9 @@ struct TCascSearch
     TCascSearch(TCascStorage * ahs, LPCTSTR aszListFile, const char * aszMask)
     {
         // Init the class
+        if(ahs != NULL)
+            hs = ahs->AddRef();
         ClassName = CASC_MAGIC_FIND;
-        hs = ahs->AddRef();
 
         // Init provider-specific data
         pCache = NULL;
@@ -399,7 +404,8 @@ struct TCascSearch
     ~TCascSearch()
     {
         // Dereference the CASC storage
-        hs = hs->Release();
+        if(hs != NULL)
+            hs = hs->Release();
         ClassName = 0;
 
         // Free the rest of the members
