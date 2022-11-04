@@ -108,7 +108,7 @@ public:
                 case GAMEOBJECT_TORGHAST_SPIKE_10:
                 case GAMEOBJECT_TORGHAST_SPIKE_11:
                 case GAMEOBJECT_TORGHAST_SPIKE_12:
-                    TorghastSpireGUID.push_back(go->GetGUID());
+                    TorghastSpikeGUID.push_back(go->GetGUID());
                     break;
 
                 case GAMEOBJECT_INVISIBLE_WALL_PHASE_2:
@@ -180,48 +180,49 @@ public:
                     {
                         case NOT_STARTED:
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
+                            for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
+                                if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
+                                    torghastSpike->SetSpellVisualId(0);
+                            for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
+                                if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
+                                    invisibleWall->Respawn();
                             break;
 
                         case IN_PROGRESS:
                         {
+                            Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER);
+                            if (!sylvanas)
+                                return false;
+
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
 
-                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                            if (Creature* bolvar = GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                             {
-                                if (Creature* bolvar = GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
-                                {
-                                    bolvar->CastSpell(bolvar, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
+                                bolvar->CastSpell(bolvar, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
 
-                                    if (bolvar->IsAIEnabled())
-                                        bolvar->AI()->JustEngagedWith(sylvanas);
-                                }
+                                if (bolvar->IsAIEnabled())
+                                    bolvar->AI()->JustEngagedWith(sylvanas);
+                            }
 
-                                if (Creature* thrall = GetCreature(DATA_THRALL_PINNACLE))
-                                {
-                                    thrall->CastSpell(thrall, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
+                            if (Creature* thrall = GetCreature(DATA_THRALL_PINNACLE))
+                            {
+                                thrall->CastSpell(thrall, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
 
-                                    if (thrall->IsAIEnabled())
-                                        thrall->AI()->JustEngagedWith(sylvanas);
-                                }
+                                if (thrall->IsAIEnabled())
+                                    thrall->AI()->JustEngagedWith(sylvanas);
+                            }
 
-                                if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
-                                {
-                                    jaina->CastSpell(jaina, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
+                            if (Creature* jaina = GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
+                            {
+                                jaina->CastSpell(jaina, SPELL_SYLVANAS_MODIFY_CHAMPIONS_FACTION, true);
 
-                                    if (jaina->IsAIEnabled())
-                                        jaina->AI()->JustEngagedWith(sylvanas);
-                                }
+                                if (jaina->IsAIEnabled())
+                                    jaina->AI()->JustEngagedWith(sylvanas);
                             }
                             break;
                         }
 
                         case FAIL:
-                            for (ObjectGuid const& spireGUID : TorghastSpireGUID)
-                                if (GameObject* torghastSpire = instance->GetGameObject(spireGUID))
-                                    torghastSpire->SetSpellVisualId(0);
-                            for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
-                                if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
-                                    invisibleWall->Respawn();
                             SylvanasShadowcopyGUIDs.clear();
                             Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
                             break;
@@ -352,7 +353,7 @@ public:
             ObjectGuid JainaPinnacleGUID;
             ObjectGuid ThrallPinnacleGUID;
             ObjectGuid AnduinCrucibleGUID;
-            std::vector<ObjectGuid> TorghastSpireGUID;
+            std::vector<ObjectGuid> TorghastSpikeGUID;
             std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
     };
 

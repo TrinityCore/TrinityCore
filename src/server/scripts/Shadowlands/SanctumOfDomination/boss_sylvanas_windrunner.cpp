@@ -540,7 +540,7 @@ uint32 const EventsTimersNormal[3][4][5]
         // Note: fifth casts are on 0 because timers do not show up, we wait for DF.
         { 7000, 55000, 55000, 55000, 0  }, // Windrunner
         { 25000, 57000, 57000, 57000, 0 }, // Domination Chains
-        { 30500, 34500, 28500, 27500, 0 }, // Wailing Arrow
+        { 30500, 32500, 28500, 27500, 0 }, // Wailing Arrow
         { 50000, 53000, 54000, 55000, 0 }  // Veil of Darkness
     },
 
@@ -1252,7 +1252,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             _totalWitheringFires = 5;
 
             std::list<Unit*> witheringFireTargetList;
-            SelectTargetList(witheringFireTargetList, _totalWitheringFires, SelectTargetMethod::Random, 0, 500.0f, false, true);
+            if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                sylvanas->AI()->SelectTargetList(witheringFireTargetList, _totalWitheringFires, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
             for (Unit* target : witheringFireTargetList)
                 _witheringFireTargetGUIDs.push_back(target->GetGUID());
@@ -1283,7 +1284,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             _scheduler.Schedule(Milliseconds(timeToTarget), [this, targetGUID](TaskContext /*task*/)
             {
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                    if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                         sylvanas->CastSpell(target, SPELL_WITHERING_FIRE, false);
             });
         }
@@ -1297,7 +1298,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         // TODO: change to playerlist, this is for testing.
         std::list<Unit*> targetList;
-        SelectTargetList(targetList, 1, SelectTargetMethod::Random, 0, 500.0f, false, true);
+        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+            sylvanas->AI()->SelectTargetList(targetList, 1, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
         for (Unit* target : targetList)
         {
@@ -3135,7 +3137,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventsTimersNormal[0][1][_dominationChainsCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
                 events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_veilOfDarknessCastTimes]), GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
 
-                // Note: we use a different event handler for Wailing Arrow because the marker is cast during events.
+                // Note: we use a different event handler for Wailing Arrow because the marker is cast no matter if an event is going on.
                 _specialEvents.SetPhase(PHASE_ONE);
                 _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, Milliseconds(EventsTimersNormal[0][2][_wailingArrowCastTimes]), GROUP_EVENT_WAILING_ARROW_EVENTS, PHASE_ONE);
                 break;
