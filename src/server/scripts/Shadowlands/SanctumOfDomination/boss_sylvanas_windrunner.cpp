@@ -492,7 +492,8 @@ enum Miscellanea
     DATA_DESECRATING_SHOT_PATTERN_SCATTERED             = 2,
     DATA_DESECRATING_SHOT_PATTERN_WAVE                  = 3,
     DATA_DESECRATING_SHOT_PATTERN_SPIRAL                = 4,
-    DATA_DESECRATING_SHOT_PATTERN_JAR                   = 5,
+    DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED       = 5,
+    DATA_DESECRATING_SHOT_PATTERN_JAR                   = 6,
 
     DATA_JUMP_TIME_CERO                                 = 1,
     DATA_JUMP_TIME_ONE                                  = 2,
@@ -540,7 +541,7 @@ uint32 const EventsTimersNormal[3][4][5]
         // Note: fifth casts are on 0 because timers do not show up, we wait for DF.
         { 7000, 55000, 55000, 55000, 0  }, // Windrunner
         { 25000, 57000, 57000, 57000, 0 }, // Domination Chains
-        { 30500, 32500, 28500, 27500, 0 }, // Wailing Arrow
+        { 30500, 32500, 29500, 28500, 0 }, // Wailing Arrow
         { 50000, 53000, 54000, 55000, 0 }  // Veil of Darkness
     },
 
@@ -574,7 +575,7 @@ Position const SylvanasWitheringFireTestPos[5] =
 Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
 
 // TODO: remove this since it's not necessary at all.
-Position const DesecratingShotArrowShape[5] =
+Position const DesecratingShotArrowPatternPos[5] =
 {
     { -0.43609f,  4.98095f, 4105.0386f  },
     {  2.38811f,  4.82665f, 4105.0386f  },
@@ -583,7 +584,7 @@ Position const DesecratingShotArrowShape[5] =
     {  4.90381f, -0.97601f, 4105.0386f  }
 };
 
-float const DesecratingShotArrowShapeDistance[10] =
+float const DesecratingShotNormalSpiralDistance[10] =
 {
     { 0.0f        },
     { 3.750014f   },
@@ -597,43 +598,18 @@ float const DesecratingShotArrowShapeDistance[10] =
     { 26.294075f  }
 };
 
-Position const DesecratingShotSpiralShape[3][9] =
+float const DesecratingShotSpiralEnclosedDistance[10] =
 {
-    {
-        { -1.67459f, 3.35535f, 4105.0386f   },
-        { -3.96713f, 6.32295f, 4105.0386f   },
-        { -6.84033f, 8.73278f, 4105.0386f   },
-        { -10.19638f, 10.40585f, 4105.0386f },
-        { -13.86651f, 11.17572f, 4105.0386f },
-        { -17.60751f, 10.91605f, 4105.0386f },
-        { -21.10965f, 9.57531f, 4105.0386f  },
-        { -24.0202f, 7.21075f, 4105.0386f   },
-        { -25.98541f, 4.01695f, 4105.0386f  }
-    },
-
-    {
-        { -2.06848f, -3.12795f, 4105.0386f  },
-        { -3.49227f, -6.59711f, 4105.0386f  },
-        { -4.14265f, -10.29029f, 4105.0386f },
-        { -3.9136f, -14.03325f, 4105.0386f  },
-        { -2.74517f, -17.59665f, 4105.0386f },
-        { -0.64985f, -20.70661f, 4105.0386f },
-        { 2.26235f, -23.06915f, 4105.0386f  },
-        { 5.76542f, -24.40755f, 4105.0386f  },
-        { 9.51392f, -24.51252f, 4105.0386f  }
-    },
-
-    {
-        { 3.74311f, -0.22745f, 4105.0386f   },
-        { 7.46882f, 0.1986f, 4105.0386f     },
-        { 11.04158f, 1.33789f, 4105.0386f   },
-        { 14.28876f, 3.21362f, 4105.0386f   },
-        { 17.00882f, 5.79505f, 4105.0386f   },
-        { 18.98745f, 8.98055f, 4105.0386f   },
-        { 20.02297f, 12.58471f, 4105.0386f  },
-        { 19.96088f, 16.33425f, 4105.0386f  },
-        { 18.73441f, 19.87799f, 4105.0386f  }
-    }
+    { 0.0f        },
+    { 3.749988f   },
+    { 7.448239f   },
+    { 10.986361f  },
+    { 14.186308f  },
+    { 16.796705f  },
+    { 18.506325f  },
+    { 18.985258f  },
+    { 17.966669f  },
+    { 15.394481f  }
 };
 
 static constexpr float Magnitude = 1.0f;  // Maximum wave outbreak
@@ -1246,7 +1222,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         if (jumpTime == DATA_JUMP_TIME_CERO)
         {
-            // TODO: change to playerlist since this is only for testing.
+            // TODO: remove false param and playerlist, it's just for testing.
             // Number of casts is dependent on raid's difficulty and size: if mythic, 15; if not, half the raid (min. 5, max. 15)
             //_totalWitheringFires = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 : std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
             _totalWitheringFires = 5;
@@ -1296,7 +1272,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         if (!sylvanas)
             return;
 
-        // TODO: change to playerlist, this is for testing.
+        // TODO: remove playerlist, it's just for testing.
         std::list<Unit*> targetList;
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             sylvanas->AI()->SelectTargetList(targetList, 1, SelectTargetMethod::Random, 0, 500.0f, false, true);
@@ -1504,6 +1480,57 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 break;
             }
 
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
+            {
+                // TODO: obtain correct timers on sniff.
+                me->NearTeleportTo(_desecratingShotSpiralPos[0].GetPositionX(), _desecratingShotSpiralPos[0].GetPositionY(), _desecratingShotSpiralPos[0].GetPositionZ() + 7.048f, _desecratingShotSpiralPos[0].GetOrientation(), false);
+
+                if (copyIndex == 2)
+                {
+                    sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2950));
+                    sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1204));
+
+                    sylvanas->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                }
+                else if (copyIndex == 1)
+                {
+                    if (Creature* shadowCopy1 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy1->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                }
+                else
+                {
+                    if (Creature* shadowCopy = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
+                        shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                }
+
+                _scheduler.Schedule(125ms, [this, pos, sylvanas](TaskContext /*task*/)
+                {
+                    DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
+                    sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                });
+
+                _scheduler.Schedule(175ms, [this](TaskContext /*task*/)
+                {
+                    ReleaseDesecratingShots();
+                });
+
+                _scheduler.Schedule(450ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
+                {
+                    _desecratingShotStorage.clear();
+                    _desecratingShotSpiralPos.clear();
+
+                    if (copyIndex == 0)
+                    {
+                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+
+                        sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    }
+
+                    me->NearTeleportTo(sylvanas->GetPosition(), false);
+                });
+                break;
+            }
+
             case DATA_DESECRATING_SHOT_PATTERN_JAR:
             {
                 break;
@@ -1514,14 +1541,14 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         }
     }
 
-    void StoreDesecratingShots(Position pos, uint8 step, float travelSpeed)
-    {
-        _desecratingShotStorage.emplace_back(pos, step, travelSpeed);
-    }
-
     void StoreSpiralPos(Position pos)
     {
         _desecratingShotSpiralPos.emplace_back(pos);
+    }
+
+    void StoreDesecratingShots(Position pos, uint8 step, float travelSpeed)
+    {
+        _desecratingShotStorage.emplace_back(pos, step, travelSpeed);
     }
 
     void ReleaseDesecratingShots()
@@ -2310,7 +2337,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             _desecratingShotPattern = _desecratingShotCastTimes == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL;
                             break;
                         case DATA_WINDRUNNER_CAST_TIME_THREE:
-                            _desecratingShotPattern = _desecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED;
+                            _desecratingShotPattern = _desecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED : DATA_DESECRATING_SHOT_PATTERN_SCATTERED;
                             break;
                         case DATA_WINDRUNNER_CAST_TIME_FOUR:
                             _desecratingShotPattern = _desecratingShotCastTimes == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR;
@@ -2337,7 +2364,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             StartDesecratingShot(_desecratingShotCastTimes == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
                             break;
                         case DATA_WINDRUNNER_CAST_TIME_THREE:
-                            StartDesecratingShot(_desecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
+                            StartDesecratingShot(_desecratingShotCastTimes == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
                             break;
                         case DATA_WINDRUNNER_CAST_TIME_FOUR:
                             StartDesecratingShot(_desecratingShotCastTimes == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
@@ -2870,7 +2897,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                // TODO: remove false, it's for testing.
+                // TODO: remove false and playerlist, it's just for testing.
                 std::list<Unit*> targets;
                 SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
@@ -2884,6 +2911,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(copyIndex))
                     {
+                        // Note: this is the center point, we're keeping it here so we don't have to deal with checks.
                         shadowCopyAI->StoreDesecratingShots(targetPos, 0, 0.245000004768371f);
                         shadowCopyAI->StoreSpiralPos(targetPos);
                     }
@@ -2894,6 +2922,40 @@ struct boss_sylvanas_windrunner : public BossAI
                     });
 
                     while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, copyIndex, step, targetPos, target->GetOrientation()))
+                        --step;
+
+                    --copyIndex;
+                }
+                break;
+            }
+
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
+            {
+                // TODO: remove false and playerlist, it's for testing.
+                std::list<Unit*> targets;
+                SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, false, true);
+
+                uint8 copyIndex = 2;
+
+                for (Unit* target : targets)
+                {
+                    uint8 step = 10;
+
+                    Position targetPos = target->GetPosition();
+
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(copyIndex))
+                    {
+                        // Note: this is the center point, we're keeping it here so we don't have to deal with checks.
+                        shadowCopyAI->StoreDesecratingShots(targetPos, 0, 0.245000004768371f);
+                        shadowCopyAI->StoreSpiralPos(targetPos);
+                    }
+
+                    scheduler.Schedule(35ms, [this, targetPos](TaskContext /*task*/)
+                    {
+                        me->CastSpell(targetPos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+
+                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED, copyIndex, step, targetPos, target->GetOrientation()))
                         --step;
 
                     --copyIndex;
@@ -2971,7 +3033,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
             {
-                // TODO: remove false param, it's just for testing.
+                // TODO: remove false param and playerlist, it's just for testing.
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, false, true))
                 {
                     float distance = frand(2.5f, 5.0f) * step;
@@ -3024,7 +3086,39 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                float distance = DesecratingShotArrowShapeDistance[step];
+                float distance = DesecratingShotNormalSpiralDistance[step];
+
+                Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                arrowPositions.push_back(spiralLeft);
+
+                Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                arrowPositions.push_back(spiralRight);
+
+                Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                arrowPositions.push_back(spiralFront);
+
+                scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                {
+                    me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                });
+
+                // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
+                float travelSpeed = 0.245000004768371f;
+
+                for (uint8 i = 0; i < arrowPositions.size(); i++)
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(amount))
+                        shadowCopyAI->StoreDesecratingShots(arrowPositions[i], step, travelSpeed + float(travelSpeed * (step * 0.1)));
+                }
+
+                return true;
+            }
+
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
+            {
+                float distance = DesecratingShotSpiralEnclosedDistance[step];
 
                 Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
                 arrowPositions.push_back(spiralLeft);
@@ -3077,6 +3171,25 @@ struct boss_sylvanas_windrunner : public BossAI
                 break;
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
+                if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(2))
+                    ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 2);
+
+                scheduler.Schedule(300ms, [this, pattern](TaskContext /*task*/)
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(1))
+                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 1);
+                });
+
+                scheduler.Schedule(600ms, [this, pattern](TaskContext /*task*/)
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
+                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 0);
+                });
+                break;
+            }
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
+            {
+                // TODO: obtain correct timers on sniffs.
                 if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(2))
                     ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 2);
 
