@@ -491,7 +491,7 @@ struct npc_alliance_boat_invisbunny : public ScriptedAI
                         */
 
                         // Not fluid but works
-                        Position garrickpos = { -3.0797f, -0.546193f, 5.29752f, 3.3191178f - float(M_PI) }; // transport offset 
+                        Position garrickpos = { -3.0797f, -0.546193f, 5.29752f, 3.3191178f - float(M_PI) }; // transport offset
 
                         if (TransportBase const* transport = player->GetDirectTransport())
                             if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 75.0f))
@@ -500,9 +500,10 @@ struct npc_alliance_boat_invisbunny : public ScriptedAI
                                 garrickpos.GetPosition(x, y, z, o);
                                 transport->CalculatePassengerPosition(x, y, z, &o);
                                 garrickpos.Relocate(x, y, z, o);
-                                garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player);
+                                Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player);
+                                if(garrick2->IsAIEnabled())
+                                    garrick2->AI()->SetData(1, 1); // First personal summon
                             }
-
                         /*
                         // Doesn't work
                         Creature* garrick1 = nullptr;

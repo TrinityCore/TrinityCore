@@ -113,7 +113,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
 UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
-(@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Just Summoned - Load script"),
+(@ENTRY,0,0,0,38,0,100,0,1,1,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Dataset - Load script"),
 (@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Despawn"),
 (@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 0"),
 (@SCRIPT,9,1,0,0,0,100,0,0,0,0,0,59,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Set Run off"),
@@ -148,9 +148,11 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 DELETE FROM `waypoint_data` WHERE `id` IN (10501460,10501870);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (10501460,1,-13.461914,0.69628906,5.677742,NULL,0,0,0,100,0),
-(10501460,2,-13.461914,0.69628906,5.677742,6.143559,0,0,0,100,0),
+(10501460,2,-13.461914,0.69628906,5.677742,6.143559,1000,0,0,100,0),
+(10501460,3,-13.461914,0.69628906,5.677742,NULL,0,0,0,100,0),
 (10501870,1,-10.846191,11.937012,8.9623165,NULL,0,0,0,100,0),
-(10501870,2,-10.846191,11.937012,8.9623165,4.677482,0,0,0,100,0);
+(10501870,2,-10.846191,11.937012,8.9623165,4.677482,1000,0,0,100,0),
+(10501870,3,-10.846191,11.937012,8.9623165,NULL,0,0,0,100,0);
 UPDATE `creature_template` SET `ScriptName`='npc_sparring_partner' WHERE `entry` IN (157051,166814);
 
 -- Private Cole "Quest: Stand Your Ground & Brace for Impact"
@@ -160,7 +162,18 @@ DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
 UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
-(@ENTRY,0,0,0,19,0,100,0,58209,0,0,0,85,303064,0,0,0,0,0,7,0,0,0,0,0,0,0,'Grunt Throg - On quest accept - Player cast \'Summon Cole\' on self');
+(@ENTRY,0,0,0,19,0,100,0,58209,0,0,0,85,303064,0,0,0,0,0,7,0,0,0,0,0,0,0,'Private Cole - On quest accept - Player cast \'Summon Cole\' on self'),
+(@ENTRY,0,1,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Cole - On summon - Load script"),
+(@ENTRY,0,2,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Cole - Path complete - Despawn"),
+(@SCRIPT,9,0,0,0,0,100,0,3000,3000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Private Cole - Script - Say 0"),
+(@SCRIPT,9,1,0,0,0,100,0,6000,6000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Private Cole - Script - Load path");
+DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+(@ENTRY, 0, 0, 'Captain! We can\'t weather this storm for long!', 12, 0, 100, 0, 0, 152849, 177675, 0, 'Private Cole');
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
+(@SCRIPT,1,30.931396,6.4296875,4.817522,4.1208,1000,'Private Cole'),
+(@SCRIPT,2,30.931396,6.4296875,4.817522,NULL,0,'Private Cole');
 
 -- Grunt Throg "Quest: Stand Your Ground & Brace for Impact"
 SET @ENTRY := 166583;
@@ -182,8 +195,9 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@SCRIPT,1,-3.9334717,1.109375,9.06326,3.353885,1000,'Grunt Throg'),
 (@SCRIPT,2,-3.9334717,1.109375,9.06326,NULL,0,'Grunt Throg');
 
--- hBoat "Quest: Brace for Impact"
+-- "Quest: Brace for Impact"
 UPDATE `creature_template` SET `ScriptName`='npc_hboat' WHERE `entry`=168039;
+UPDATE `creature_template` SET `ScriptName`='npc_aboat' WHERE `entry`=156403;
 
 -- Warlord Breka Grimaxe "Quest: Brace for Impact"
 SET @ENTRY := 166827;
