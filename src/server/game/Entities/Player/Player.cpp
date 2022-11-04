@@ -26409,7 +26409,7 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spe
     if (!talentInfo)
         return TALENT_FAILED_UNKNOWN;
 
-    if (talentInfo->SpecID != int32(GetPrimarySpecialization()))
+    if (talentInfo->SpecID != GetPrimarySpecialization())
         return TALENT_FAILED_UNKNOWN;
 
     if (talentInfo->LevelRequired > GetLevel())
