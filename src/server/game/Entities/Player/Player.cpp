@@ -3521,7 +3521,7 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
         }
 
-        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
         {
             if (m_items[i] == nullptr)
                 continue;
@@ -3686,7 +3686,7 @@ void Player::DestroyForPlayer(Player* target) const
             m_items[i]->DestroyForPlayer(target);
         }
 
-        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+        for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
         {
             if (m_items[i] == nullptr)
                 continue;
@@ -9231,8 +9231,8 @@ uint32 Player::GetFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location /
                         ++freeSlotCount;
     }
 
-    if (location.HasFlag(ItemSearchLocation::ReagentBank))
-        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+    if (location.HasFlag(ItemSearchLocation::KeyRing))
+        for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
             if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 ++freeSlotCount;
 
@@ -9270,7 +9270,7 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
 {
     bool countGems = skipItem && skipItem->GetTemplate()->GetGemProperties();
 
-    ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::ReagentBank;
+    ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::KeyRing;
     if (inBankAlso)
         location |= ItemSearchLocation::Bank;
 
@@ -9346,7 +9346,7 @@ Item* Player::GetItemByPos(uint16 pos) const
 
 Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 {
-    if (bag == INVENTORY_SLOT_BAG_0 && slot < PLAYER_SLOT_END && (slot < BUYBACK_SLOT_START || slot >= BUYBACK_SLOT_END))
+    if (bag == INVENTORY_SLOT_BAG_0 && slot < PLAYER_SLOT_END && (slot < KEYRING_SLOT_START || slot >= KEYRING_SLOT_END))
         return m_items[slot];
     if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
@@ -9504,15 +9504,6 @@ bool Player::IsBankPos(uint8 bag, uint8 slot)
         return true;
     if (bag >= BANK_SLOT_BAG_START && bag < BANK_SLOT_BAG_END)
         return true;
-    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END))
-        return true;
-    return false;
-}
-
-bool Player::IsReagentBankPos(uint8 bag, uint8 slot)
-{
-    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END))
-        return true;
     return false;
 }
 
@@ -9564,8 +9555,8 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const
         if (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END)
             return true;
 
-        // reagent bank bag slots
-        if (slot >= REAGENT_SLOT_START && slot < REAGENT_SLOT_END)
+        // keyring slots
+        if (slot >= KEYRING_SLOT_START && slot < KEYRING_SLOT_END)
             return true;
 
         return false;
@@ -9630,7 +9621,7 @@ void Player::SetInventorySlotCount(uint8 slots)
 
 bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
 {
-    ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::ReagentBank;
+    ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::KeyRing;
     if (inBankAlso)
         location |= ItemSearchLocation::Bank;
 
@@ -9815,6 +9806,13 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
         }
     }
 
+    for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
+    {
+        item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (item && DB2Manager::IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
+            return true;
+    }
+
     for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
     {
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
@@ -9852,12 +9850,12 @@ InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemP
     {
         if (bag == INVENTORY_SLOT_BAG_0)
         {
-            // prevent cheating
-            if ((slot >= BUYBACK_SLOT_START && slot < BUYBACK_SLOT_END) || slot >= PLAYER_SLOT_END)
+            // keyring case
+            if (slot >= KEYRING_SLOT_START && slot < KEYRING_SLOT_START + GetMaxKeyringSize() && !(pProto->GetBagFamily() & BAG_FAMILY_MASK_KEYS))
                 return EQUIP_ERR_WRONG_BAG_TYPE;
 
-            // can't store anything else than crafting reagents in Reagent Bank
-            if (IsReagentBankPos(bag, slot) && (!IsReagentBankUnlocked() || !pProto->IsCraftingReagent()))
+            // prevent cheating
+            if ((slot >= BUYBACK_SLOT_START && slot < BUYBACK_SLOT_END) || slot >= PLAYER_SLOT_END)
                 return EQUIP_ERR_WRONG_BAG_TYPE;
         }
         else
@@ -10417,10 +10415,12 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* offending
     // counts
     uint32 inventoryCounts[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START] = {};
     uint32 bagCounts[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE] = {};
+    uint32 keyringCounts[KEYRING_SLOT_END - KEYRING_SLOT_START] = {};
 
     // Item pointers
     Item* inventoryPointers[INVENTORY_SLOT_ITEM_END - INVENTORY_SLOT_ITEM_START] = {};
     Item* bagPointers[INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START][MAX_BAG_SIZE] = {};
+    Item* keyringPointers[KEYRING_SLOT_END - KEYRING_SLOT_START] = {};
 
     uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
 
@@ -10448,6 +10448,17 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* offending
                     bagPointers[i - INVENTORY_SLOT_BAG_START][j] = item2;
                 }
             }
+
+    for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; i++)
+    {
+        // build items in key ring 'bag'
+        item2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (item2 && !item2->IsInTrade())
+        {
+            keyringCounts[i - KEYRING_SLOT_START] = item2->GetCount();
+            keyringPointers[i - KEYRING_SLOT_START] = item2;
+        }
+    }
 
     // check free space for all items that we wish to add
     for (int k = 0; k < count; ++k)
@@ -10488,6 +10499,25 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* offending
         if (pProto->GetMaxStackSize() != 1)
         {
             bool b_found = false;
+
+            for (uint8 t = KEYRING_SLOT_START; t < KEYRING_SLOT_END; ++t)
+            {
+                item2 = keyringPointers[t - KEYRING_SLOT_START];
+                if (item2 && item2->CanBeMergedPartlyWith(pProto) == EQUIP_ERR_OK && keyringCounts[t - KEYRING_SLOT_START] < pProto->GetMaxStackSize())
+                {
+                    keyringCounts[t - KEYRING_SLOT_START] += remaining_count;
+                    remaining_count = keyringCounts[t - KEYRING_SLOT_START] < pProto->GetMaxStackSize() ? 0 : keyringCounts[t - KEYRING_SLOT_START] - pProto->GetMaxStackSize();
+
+                    b_found = remaining_count == 0;
+
+                    // if no pieces of the stack remain, then stop checking keyring
+                    if (b_found)
+                        break;
+                }
+            }
+
+            if (b_found)
+                continue;
 
             for (int t = INVENTORY_SLOT_ITEM_START; t < inventoryEnd; ++t)
             {
@@ -10541,6 +10571,22 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* offending
         if (pProto->GetBagFamily())
         {
             bool b_found = false;
+
+            if (pProto->GetBagFamily() & BAG_FAMILY_MASK_KEYS)
+            {
+                uint32 keyringSize = GetMaxKeyringSize();
+                for (uint32 t = KEYRING_SLOT_START; t < KEYRING_SLOT_START + keyringSize; ++t)
+                {
+                    if (keyringCounts[t - KEYRING_SLOT_START] == 0)
+                    {
+                        keyringCounts[t - KEYRING_SLOT_START] = remaining_count;
+                        keyringPointers[t - KEYRING_SLOT_START] = item;
+
+                        b_found = true;
+                        break;
+                    }
+                }
+            }
 
             for (int t = INVENTORY_SLOT_BAG_START; !b_found && t < INVENTORY_SLOT_BAG_END; ++t)
             {
@@ -10900,22 +10946,10 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading /*= true*/, bool reagentBankOnly /*= false*/) const
+InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading /*= true*/) const
 {
     if (!pItem)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
-
-    // different slots range if we're trying to store item in Reagent Bank
-    if (reagentBankOnly)
-    {
-        ASSERT(bag == NULL_BAG && slot == NULL_SLOT); // when reagentBankOnly is true then bag & slot must be hardcoded constants, not client input
-    }
-
-    if ((IsReagentBankPos(bag, slot) || reagentBankOnly) && !IsReagentBankUnlocked())
-        return EQUIP_ERR_REAGENT_BANK_LOCKED;
-
-    uint8 slotStart = reagentBankOnly ? uint8(REAGENT_SLOT_START) : uint8(BANK_SLOT_ITEM_START);
-    uint8 slotEnd = reagentBankOnly ? uint8(REAGENT_SLOT_END) : uint8(BANK_SLOT_ITEM_END);
 
     uint32 count = pItem->GetCount();
 
@@ -10982,7 +11016,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
         {
             if (bag == INVENTORY_SLOT_BAG_0)
             {
-                res = CanStoreItem_InInventorySlots(slotStart, slotEnd, dest, pProto, count, true, pItem, bag, slot);
+                res = CanStoreItem_InInventorySlots(BANK_SLOT_ITEM_START, BANK_SLOT_ITEM_END, dest, pProto, count, true, pItem, bag, slot);
                 if (res != EQUIP_ERR_OK)
                     return res;
 
@@ -11006,7 +11040,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
         // search free slot in bag
         if (bag == INVENTORY_SLOT_BAG_0)
         {
-            res = CanStoreItem_InInventorySlots(slotStart, slotEnd, dest, pProto, count, false, pItem, bag, slot);
+            res = CanStoreItem_InInventorySlots(BANK_SLOT_ITEM_START, BANK_SLOT_ITEM_END, dest, pProto, count, false, pItem, bag, slot);
             if (res != EQUIP_ERR_OK)
                 return res;
 
@@ -11033,34 +11067,19 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
     if (pProto->GetMaxStackSize() != 1)
     {
         // in slots
-        res = CanStoreItem_InInventorySlots(slotStart, slotEnd, dest, pProto, count, true, pItem, bag, slot);
+        res = CanStoreItem_InInventorySlots(BANK_SLOT_ITEM_START, BANK_SLOT_ITEM_END, dest, pProto, count, true, pItem, bag, slot);
         if (res != EQUIP_ERR_OK)
             return res;
 
         if (count == 0)
             return EQUIP_ERR_OK;
 
-        // don't try to store reagents anywhere else than in Reagent Bank if we're on it
-        if (!reagentBankOnly)
+        // in special bags
+        if (pProto->GetBagFamily())
         {
-            // in special bags
-            if (pProto->GetBagFamily())
-            {
-                for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
-                {
-                    res = CanStoreItem_InBag(i, dest, pProto, count, true, false, pItem, bag, slot);
-                    if (res != EQUIP_ERR_OK)
-                        continue;
-
-                    if (count == 0)
-                        return EQUIP_ERR_OK;
-                }
-            }
-
-            // in regular bags
             for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
             {
-                res = CanStoreItem_InBag(i, dest, pProto, count, true, true, pItem, bag, slot);
+                res = CanStoreItem_InBag(i, dest, pProto, count, true, false, pItem, bag, slot);
                 if (res != EQUIP_ERR_OK)
                     continue;
 
@@ -11068,10 +11087,21 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
                     return EQUIP_ERR_OK;
             }
         }
+
+        // in regular bags
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
+        {
+            res = CanStoreItem_InBag(i, dest, pProto, count, true, true, pItem, bag, slot);
+            if (res != EQUIP_ERR_OK)
+                continue;
+
+            if (count == 0)
+                return EQUIP_ERR_OK;
+        }
     }
 
-    // search free space in special bags (don't try to store reagents anywhere else than in Reagent Bank if we're on it)
-    if (!reagentBankOnly && pProto->GetBagFamily())
+    // search free space in special bags
+    if (pProto->GetBagFamily())
     {
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
         {
@@ -11085,28 +11115,25 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
     }
 
     // search free space
-    res = CanStoreItem_InInventorySlots(slotStart, slotEnd, dest, pProto, count, false, pItem, bag, slot);
+    res = CanStoreItem_InInventorySlots(BANK_SLOT_ITEM_START, BANK_SLOT_ITEM_END, dest, pProto, count, false, pItem, bag, slot);
     if (res != EQUIP_ERR_OK)
         return res;
 
     if (count == 0)
         return EQUIP_ERR_OK;
 
-    // search free space in regular bags (don't try to store reagents anywhere else than in Reagent Bank if we're on it)
-    if (!reagentBankOnly)
+    // search free space in regular bags
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
     {
-        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
-        {
-            res = CanStoreItem_InBag(i, dest, pProto, count, false, true, pItem, bag, slot);
-            if (res != EQUIP_ERR_OK)
-                continue;
+        res = CanStoreItem_InBag(i, dest, pProto, count, false, true, pItem, bag, slot);
+        if (res != EQUIP_ERR_OK)
+            continue;
 
-            if (count == 0)
-                return EQUIP_ERR_OK;
-        }
+        if (count == 0)
+            return EQUIP_ERR_OK;
     }
 
-    return reagentBankOnly ? EQUIP_ERR_REAGENT_BANK_FULL : EQUIP_ERR_BANK_FULL;
+    return EQUIP_ERR_BANK_FULL;
 }
 
 InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
@@ -12095,6 +12122,34 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
         }
     }
 
+    for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
+    {
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (item->GetEntry() == itemEntry && !item->IsInTrade())
+            {
+                if (item->GetCount() + remcount <= count)
+                {
+                    // all keys can be unequipped
+                    remcount += item->GetCount();
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+
+                    if (remcount >= count)
+                        return remcount;
+                }
+                else
+                {
+                    item->SetCount(item->GetCount() - count + remcount);
+                    ItemRemovedQuestCheck(item->GetEntry(), count - remcount);
+                    if (IsInWorld() && update)
+                        item->SendUpdateToPlayer(this);
+                    item->SetState(ITEM_CHANGED, this);
+                    return count;
+                }
+            }
+        }
+    }
+
     // in equipment and bag list
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; i++)
     {
@@ -12218,34 +12273,6 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
         }
     }
 
-    for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
-    {
-        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-        {
-            if (item->GetEntry() == itemEntry && !item->IsInTrade())
-            {
-                if (item->GetCount() + remcount <= count)
-                {
-                    // all keys can be unequipped
-                    remcount += item->GetCount();
-                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
-
-                    if (remcount >= count)
-                        return remcount;
-                }
-                else
-                {
-                    item->SetCount(item->GetCount() - count + remcount);
-                    ItemRemovedQuestCheck(item->GetEntry(), count - remcount);
-                    if (IsInWorld() && update)
-                        item->SendUpdateToPlayer(this);
-                    item->SetState(ITEM_CHANGED, this);
-                    return count;
-                }
-            }
-        }
-    }
-
     for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
     {
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -12284,6 +12311,11 @@ void Player::DestroyZoneLimitedItem(bool update, uint32 new_zone)
     // in inventory
     uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < inventoryEnd; i++)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->IsLimitedToAnotherMapOrZone(GetMapId(), new_zone))
+                DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+
+    for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->IsLimitedToAnotherMapOrZone(GetMapId(), new_zone))
                 DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
@@ -12350,7 +12382,7 @@ Item* Player::GetItemByEntry(uint32 entry, ItemSearchLocation where /*= ItemSear
 
 std::vector<Item*> Player::GetItemListByEntry(uint32 entry, bool inBankAlso) const
 {
-    ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::ReagentBank;
+    ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::KeyRing;
     if (inBankAlso)
         location |= ItemSearchLocation::Bank;
 
@@ -12600,12 +12632,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
         }
     }
 
-    if (IsReagentBankPos(dst) && !IsReagentBankUnlocked())
-    {
-        SendEquipError(EQUIP_ERR_REAGENT_BANK_LOCKED, pSrcItem, pDstItem);
-        return;
-    }
-
     // NOW this is or item move (swap with empty), or swap with another item (including bags in bag possitions)
     // or swap empty bag with another empty or not empty bag (with items exchange)
 
@@ -12639,8 +12665,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
-            if (!IsReagentBankPos(dst))
-                ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
+            ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
         }
         else if (IsEquipmentPos(dst))
         {

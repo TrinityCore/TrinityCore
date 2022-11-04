@@ -671,41 +671,41 @@ enum InventorySlots : uint8                                 // 4 slots
     INVENTORY_SLOT_BAG_END      = 23
 };
 
-enum InventoryPackSlots : uint8                             // 28 slots
+enum InventoryPackSlots : uint8                             // 24 slots
 {
     INVENTORY_SLOT_ITEM_START   = 23,
-    INVENTORY_SLOT_ITEM_END     = 51
+    INVENTORY_SLOT_ITEM_END     = 47
 };
 
 enum BankItemSlots                                          // 28 slots
 {
-    BANK_SLOT_ITEM_START        = 51,
-    BANK_SLOT_ITEM_END          = 79
+    BANK_SLOT_ITEM_START        = 47,
+    BANK_SLOT_ITEM_END          = 75
 };
 
 enum BankBagSlots                                           // 7 slots
 {
-    BANK_SLOT_BAG_START         = 79,
-    BANK_SLOT_BAG_END           = 86
+    BANK_SLOT_BAG_START         = 75,
+    BANK_SLOT_BAG_END           = 82
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 86,
-    BUYBACK_SLOT_END            = 98
+    BUYBACK_SLOT_START          = 82,
+    BUYBACK_SLOT_END            = 94
 };
 
-enum ReagentSlots                                           // 98 slots
+enum KeyRingSlots : uint8                                   // 32 slots
 {
-    REAGENT_SLOT_START          = 98,
-    REAGENT_SLOT_END            = 196,
+    KEYRING_SLOT_START          = 94,
+    KEYRING_SLOT_END            = 126
 };
 
 enum ChildEquipmentSlots
 {
-    CHILD_EQUIPMENT_SLOT_START   = 196,
-    CHILD_EQUIPMENT_SLOT_END     = 199,
+    CHILD_EQUIPMENT_SLOT_START  = 126,
+    CHILD_EQUIPMENT_SLOT_END    = 129,
 };
 
 struct ItemPosCount
@@ -722,10 +722,10 @@ enum class ItemSearchLocation
     Equipment       = 0x01,
     Inventory       = 0x02,
     Bank            = 0x04,
-    ReagentBank     = 0x08,
+    KeyRing         = 0x08,
 
     Default         = Equipment | Inventory,
-    Everywhere      = Equipment | Inventory | Bank | ReagentBank
+    Everywhere      = Equipment | Inventory | Bank | KeyRing
 };
 
 DEFINE_ENUM_FLAG(ItemSearchLocation);
@@ -1311,8 +1311,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
                                     return false;
             }
 
-            if (flag.HasFlag(ItemSearchLocation::ReagentBank))
-                for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+            if (flag.HasFlag(ItemSearchLocation::KeyRing))
+                for (uint8 i = KEYRING_SLOT_START; i < KEYRING_SLOT_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                         if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
@@ -1349,8 +1349,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
-        static bool IsReagentBankPos(uint16 pos) { return IsReagentBankPos(pos >> 8, pos & 255); }
-        static bool IsReagentBankPos(uint8 bag, uint8 slot);
         static bool IsChildEquipmentPos(uint16 pos) { return IsChildEquipmentPos(pos >> 8, pos & 255); }
         static bool IsChildEquipmentPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
@@ -1385,7 +1383,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
-        InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true, bool reagentBankOnly = false) const;
+        InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true) const;
         InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem, bool skipRequiredLevelCheck = false) const;
@@ -1464,6 +1462,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetBuybackTimestamp(uint32 slot, time_t timestamp) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BuybackTimestamp, slot), timestamp); }
         Item* GetItemFromBuyBackSlot(uint32 slot);
         void RemoveItemFromBuyBackSlot(uint32 slot, bool del);
+        uint32 GetMaxKeyringSize() const { return KEYRING_SLOT_END - KEYRING_SLOT_START; }
         void SendEquipError(InventoryResult msg, Item const* item1 = nullptr, Item const* item2 = nullptr, uint32 itemId = 0) const;
         void SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 param) const;
         void SendSellError(SellResult msg, Creature* creature, ObjectGuid guid) const;
@@ -2638,10 +2637,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
-
-        // Reagent Bank
-        bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
-        void UnlockReagentBank() { SetPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
 
         void CreateGarrison(uint32 garrSiteId);
         void DeleteGarrison();
