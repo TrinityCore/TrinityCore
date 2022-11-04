@@ -3034,7 +3034,7 @@ struct boss_sylvanas_windrunner : public BossAI
             case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
             {
                 // TODO: remove false param and playerlist, it's just for testing.
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, false, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 500.0f, false, true))
                 {
                     float distance = frand(2.5f, 5.0f) * step;
 
@@ -3120,6 +3120,7 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 float distance = DesecratingShotSpiralEnclosedDistance[step];
 
+                // TODO: obtain correct orientation as it seems orientation is higher on the 5th step forward.
                 Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
                 arrowPositions.push_back(spiralLeft);
 
@@ -3627,7 +3628,16 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
         return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
     }
 
-    void OnCast(SpellMissInfo /*missInfo*/)
+    void HandleBeforeHit(SpellMissInfo /*missInfo*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), caster->m_Events.CalculateTime(0ms));
+    }
+
+    void HandleOnCast()
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -3645,12 +3655,12 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), caster->m_Events.CalculateTime(547ms));
     }
 
     void Register() override
     {
-        BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_ranger_bow::OnCast);
+        BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_ranger_bow::HandleBeforeHit);
+        OnCast += SpellCastFn(spell_sylvanas_windrunner_ranger_bow::HandleOnCast);
     }
 };
 
@@ -3659,7 +3669,16 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_dagger);
 
-    void OnCast(SpellMissInfo /*missInfo*/)
+    void HandleBeforeHit(SpellMissInfo /*missInfo*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_ATTACK_SPEED_TO_LOWEST, 0), caster->m_Events.CalculateTime(0ms));
+    }
+
+    void HandleOnCast()
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -3675,12 +3694,12 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_MELEE, 0), caster->m_Events.CalculateTime(313ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_ATTACK_SPEED_TO_LOWEST, 0), caster->m_Events.CalculateTime(547ms));
     }
 
     void Register() override
     {
-        BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_ranger_dagger::OnCast);
+        BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_ranger_dagger::HandleBeforeHit);
+        OnCast += SpellCastFn(spell_sylvanas_windrunner_ranger_dagger::HandleOnCast);
     }
 };
 
@@ -3711,7 +3730,7 @@ class spell_sylvanas_windrunner_ranger_strike : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_strike);
 
-    void OnCast(SpellMissInfo /*missInfo*/)
+    void HandleOnCast()
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -3725,7 +3744,7 @@ class spell_sylvanas_windrunner_ranger_strike : public SpellScript
 
     void Register() override
     {
-        BeforeHit += BeforeSpellHitFn(spell_sylvanas_windrunner_ranger_strike::OnCast);
+        OnCast += SpellCastFn(spell_sylvanas_windrunner_ranger_strike::HandleOnCast);
     }
 };
 
@@ -3772,9 +3791,20 @@ class spell_sylvanas_windrunner_disappear : public AuraScript
         if (!caster)
             return;
 
-        // TODO: the first one is used for Windrunner, the duration is dynamic, most likely dependent on the action performed whereas the second is only for Domination Chains and rest of the phases.
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
         if (GetSpellInfo()->Id == SPELL_WINDRUNNER_DISAPPEAR_02)
-            caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3600));
+        {
+            if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(instance, 0)))
+            {
+                if (caster->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_ONE || shadowCopyAI->GetData(DATA_EVENT_TYPE_SHADOWCOPY) == DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT)
+                    caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3600));
+                else
+                    caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1750));
+            }
+        }
     }
 
     void Register() override
@@ -4136,7 +4166,7 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
 
     int32 CalcCastTime(int32 castTime) override
     {
-        if (GetCaster()->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == 3)
+        if (GetCaster()->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE)
             return 1500;
 
         return castTime;
