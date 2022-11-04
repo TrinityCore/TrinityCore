@@ -97,7 +97,7 @@ void AddSC_boss_sartharion();
 void AddSC_obsidian_sanctum();
 void AddSC_instance_obsidian_sanctum();
 // Ulduar: Halls of Lightning
-void AddSC_boss_bjarngrim();
+void AddSC_boss_general_bjarngrim();
 void AddSC_boss_loken();
 void AddSC_boss_ionar();
 void AddSC_boss_volkhan();
@@ -295,7 +295,7 @@ void AddNorthrendScripts()
     AddSC_obsidian_sanctum();
     AddSC_instance_obsidian_sanctum();
     // Halls of Lightning
-    AddSC_boss_bjarngrim();
+    AddSC_boss_general_bjarngrim();
     AddSC_boss_loken();
     AddSC_boss_ionar();
     AddSC_boss_volkhan();
