@@ -114,7 +114,7 @@ bool CASC_FILE_TREE::InsertToIdTable(PCASC_FILE_NODE pFileNode)
         if(FileDataId != CASC_INVALID_ID)
         {
             // Sanity check
-            assert(FileDataId < 0x10000000);
+            assert(FileDataId < CASC_INVALID_ID);
 
             // Insert the element to the array
             RefElement = (PCASC_FILE_NODE *)FileDataIds.InsertAt(FileDataId);

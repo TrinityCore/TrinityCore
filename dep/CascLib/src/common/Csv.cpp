@@ -186,9 +186,7 @@ CASC_CSV::~CASC_CSV()
 {
     if(m_pLines != NULL)
         delete[] m_pLines;
-    if(m_szCsvFile != NULL)
-        delete [] m_szCsvFile;
-    m_szCsvFile = NULL;
+    CASC_FREE(m_szCsvFile);
 }
 
 DWORD CASC_CSV::SetNextLineProc(CASC_CSV_NEXTPROC PfnNextLineProc, CASC_CSV_NEXTPROC PfnNextColProc, void * pvUserData)
@@ -233,7 +231,7 @@ DWORD CASC_CSV::Load(LPBYTE pbData, size_t cbData)
 {
     DWORD dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
 
-    m_szCsvFile = new char[cbData + 1];
+    m_szCsvFile = CASC_ALLOC<char>(cbData + 1);
     if (m_szCsvFile != NULL)
     {
         // Copy the entire data and terminate them with zero
