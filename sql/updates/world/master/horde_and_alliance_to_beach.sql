@@ -1,7 +1,7 @@
 -- *** Missing Spawns ***
 
 SET @CGUID := 9000000;
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+10;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+25;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+0,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.644917,-6.061374,9.000128,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
 (@CGUID+1,174971,2369,10424,13377,'0',0,0,-1,0,0,-16.248755,-2.245914,8.885136,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
@@ -13,13 +13,28 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+7,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.212137,0.9415215,8.992922,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
 (@CGUID+8,174971,2369,10424,13377,'0',0,0,-1,0,0,-7.1881604,4.13693,8.805241,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
 (@CGUID+9,174971,2369,10424,13377,'0',0,0,-1,0,0,-3.8145015,-9.154231,8.854396,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+10,168039,2369,10424,13377,'0',0,0,-1,0,0,-10.630922,-11.896218,8.97435,1.7062142,120,0,0,1,0,0,0,0,0,45745); -- hBoat
+(@CGUID+10,168039,2369,10424,13377,'0',0,0,-1,0,0,-10.630922,-11.896218,8.97435,1.7062142,120,0,0,1,0,0,0,0,0,45745), -- hBoat
+(@CGUID+11,174971,2261,10424,10639,'0',0,0,-1,0,0,3.8316922,5.474146,5.2092524,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+12,174971,2261,10424,10639,'0',0,0,-1,0,0,2.6647408,6.4705987,5.1801515,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+13,174971,2261,10424,10639,'0',0,0,-1,0,0,9.56842,4.517551,5.1502733,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+14,174971,2261,10424,10639,'0',0,0,-1,0,0,6.701894,6.1971374,5.194476,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+15,174971,2261,10424,10639,'0',0,0,-1,0,0,7.199659,-5.407894,5.216199,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+16,174971,2261,10424,10639,'0',0,0,-1,0,0,0.4600576,-6.25066,5.2069707,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+17,174971,2261,10424,10639,'0',0,0,-1,0,0,3.8914397,-6.136929,5.1904373,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+18,174971,2261,10424,10639,'0',0,0,-1,0,0,0.9357995,5.2422814,5.221966,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+19,174971,2261,10424,10639,'0',0,0,-1,0,0,6.4270716,4.5759077,5.2394466,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+20,174971,2261,10424,10639,'0',0,0,-1,0,0,-9.461674,-4.971889,5.456243,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+21,174971,2261,10424,10639,'0',0,0,-1,0,0,-7.5362535,4.9206376,5.2989116,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+22,174971,2261,10424,10639,'0',0,0,-1,0,0,-6.4343257,-4.8330746,5.2104034,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+23,174971,2261,10424,10639,'0',0,0,-1,0,0,8.676258,-4.551461,5.2418213,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+24,174971,2261,10424,10639,'0',0,0,-1,0,0,-3.2766402,-5.403929,5.293099,0,300,0,0,1,0,0,0,0,0,0), -- Spar Point Advertisement
+(@CGUID+25,156403,2261,10424,10639,'0',0,0,-1,0,0,8.402318,-0.14915128,5.2594776,3.2919948,300,0,0,1,0,0,0,0,0,0); -- aBoat
 
 -- *** Creature Fixes ***
 
 -- Phase updates
-UPDATE `creature` SET `PhaseId`=14349 WHERE `id`=171872; -- Apprentice Kutz
-UPDATE `creature` SET `PhaseId`=14355 WHERE `id`=172033; -- Helmsman Da'vees
+UPDATE `creature` SET `PhaseId`=13753 WHERE `id`=171872; -- Apprentice Kutz
+UPDATE `creature` SET `PhaseId`=13753 WHERE `id`=172033; -- Helmsman Da'vees
 UPDATE `creature` SET `PhaseId`=15286 WHERE `id`=166573; -- Warlord Breka Grimaxe
 UPDATE `creature` SET `PhaseId`=15286 WHERE `id`=166824; -- Warlord Breka Grimaxe
 UPDATE `creature` SET `PhaseId`=15287 WHERE `id`=166827; -- Warlord Breka Grimaxe
@@ -31,10 +46,13 @@ UPDATE `creature` SET `curhealth`=1 WHERE `map`=2369;
 UPDATE `creature_template` SET `npcflag`=2 WHERE `entry`=166827;
 UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry` IN (174971,168039);
 UPDATE `creature_template` SET `faction`=35,`unit_flags`=33554432,`unit_flags2`=2048,`unit_flags3`=524320 WHERE `entry`=166814;
+-- Gryphons had 2 riders
+UPDATE `vehicle_template_accessory` SET `minion`=1 WHERE `entry`=156345;
 
 -- Summon data
-DELETE FROM `creature_summoned_data` WHERE `CreatureID`=166814;
+DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (157051,166814);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
+(157051,155607,NULL,NULL),
 (166814,166815,NULL,NULL);
 
 -- *** Actor Scripting ***
@@ -52,11 +70,9 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@SCRIPT,9,2,0,0,0,100,0,0,0,0,0,69,0,1,0,0,0,0,8,0,0,0,-10.602051,8.918945,8.779607,0,"Warlord Breka Grimaxe - Script - Move to position"),
 (@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,5,66,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Emote Salute"),
 (@SCRIPT,9,4,0,0,0,100,0,3000,3000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Load path");
-
 DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (@ENTRY, 0, 0, 'Throg will spar with you for now. I must speak to the crew about the rain.', 12, 0, 100, 0, 0, 156952, 199040, 0, 'Warlord Breka Grimaxe');
-
 DELETE FROM `waypoints` WHERE `entry`=@SCRIPT;
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
 (@SCRIPT,1,2.480713,9.498291,9.528435,NULL,0,'Warlord Breka Grimaxe'),
@@ -90,20 +106,61 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@SCRIPT,29,45.563477,-3.4223633,39.777264,3.1642,0,'Warlord Breka Grimaxe'),
 (@SCRIPT,30,45.563477,-3.4223633,39.777264,NULL,0,'Warlord Breka Grimaxe');
 
--- Sparing Partner "Quest: Stand Your Ground"
-SET @ENTRY := 166814;
+-- Captain Garrick  "Quest: Warming Up"
+SET @ENTRY := 156280;
+SET @SCRIPT := @ENTRY * 100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Just Summoned - Load script"),
+(@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Despawn"),
+(@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 0"),
+(@SCRIPT,9,1,0,0,0,100,0,0,0,0,0,59,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Set Run off"),
+(@SCRIPT,9,2,0,0,0,100,0,0,0,0,0,69,0,1,0,0,0,0,8,0,0,0,-11.810547,0.9602051,5.5279408,0,"Captain Garrick - Script - Move to position"),
+(@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,5,66,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Emote Salute"),
+(@SCRIPT,9,4,0,0,0,100,0,4000,4000,0,0,53,0,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Load path");
 DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
-(@ENTRY, 0, 0, 'I concede! Your strength will see our mission through.', 12, 0, 100, 4, 0, 156976, 195857, 0, 'Sparing Partner');
+(@ENTRY, 0, 0, 'Private Cole will run you through the rest of the drills. I need to discuss this storm with the helmsman.', 12, 0, 100, 0, 0, 152734, 184106, 0, 'Captain Garrick');
+DELETE FROM `waypoints` WHERE `entry`=@SCRIPT;
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
+(@SCRIPT,1,-0.3022461,-1.409729,5.774313,NULL,0,'Captain Garrick'),
+(@SCRIPT,2,4.697754,-2.659729,5.524313,NULL,0,'Captain Garrick'),
+(@SCRIPT,3,8.697754,-4.159729,5.524313,NULL,0,'Captain Garrick'),
+(@SCRIPT,4,12.447754,-5.159729,5.524313,NULL,0,'Captain Garrick'),
+(@SCRIPT,5,15.947754,-5.409729,6.274313,NULL,0,'Captain Garrick'),
+(@SCRIPT,6,18.947754,-5.409729,9.274313,NULL,0,'Captain Garrick'),
+(@SCRIPT,7,21.197754,-4.659729,9.774313,NULL,0,'Captain Garrick'),
+(@SCRIPT,8,30.197754,-3.659729,11.024313,NULL,0,'Captain Garrick'),
+(@SCRIPT,9,37.706055,-3.779663,12.020686,NULL,0,'Captain Garrick'),
+(@SCRIPT,10,37.83252,-1.4055176,12.501659,3.31911778,0,'Captain Garrick'),
+(@SCRIPT,11,37.83252,-1.4055176,12.501659,NULL,0,'Captain Garrick');
 
-DELETE FROM `waypoint_data` WHERE `id`=10501870;
+-- Invisbunny "Quest: Warming up post script"
+UPDATE `creature_template` SET `ScriptName`='npc_alliance_boat_invisbunny' WHERE `entry`=155125;
+
+-- Sparing Partner "Quest: Stand Your Ground"
+DELETE FROM `creature_text` WHERE `CreatureID` IN (157051,166814);
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+(157051, 0, 0, 'I yield! Well, I\'d say you\'re more than ready for whatever we find on that island.', 12, 0, 100, 4, 0, 152848, 177677, 0, 'Alliance Sparing Partner'),
+(166814, 0, 0, 'I concede! Your strength will see our mission through.', 12, 0, 100, 4, 0, 156976, 195857, 0, 'Horde Sparing Partner');
+DELETE FROM `waypoint_data` WHERE `id` IN (10501460,10501870);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(10501870,1,-10.846191,11.937012,8.9623165,NULL,0,0,0,100,0);
+(10501460,1,-13.461914,0.69628906,5.677742,NULL,0,0,0,100,0),
+(10501460,2,-13.461914,0.69628906,5.677742,6.143559,0,0,0,100,0),
+(10501870,1,-10.846191,11.937012,8.9623165,NULL,0,0,0,100,0),
+(10501870,2,-10.846191,11.937012,8.9623165,4.677482,0,0,0,100,0);
+UPDATE `creature_template` SET `ScriptName`='npc_sparring_partner' WHERE `entry` IN (157051,166814);
 
-UPDATE `creature_template` SET `ScriptName`='npc_horde_sparring_partner' WHERE `entry`=166814;
-
--- hBoat "Quest: Brace for Impact"
-UPDATE `creature_template` SET `ScriptName`='npc_hboat' WHERE `entry`=168039;
+-- Private Cole "Quest: Stand Your Ground & Brace for Impact"
+SET @ENTRY := 160664;
+SET @SCRIPT := @ENTRY * 100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,0,0,0,19,0,100,0,58209,0,0,0,85,303064,0,0,0,0,0,7,0,0,0,0,0,0,0,'Grunt Throg - On quest accept - Player cast \'Summon Cole\' on self');
 
 -- Grunt Throg "Quest: Stand Your Ground & Brace for Impact"
 SET @ENTRY := 166583;
@@ -117,16 +174,16 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,2,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grunt Throg - Path complete - Despawn"),
 (@SCRIPT,9,0,0,0,0,100,0,3000,3000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grunt Throg - Script - Say 0"),
 (@SCRIPT,9,1,0,0,0,100,0,6000,6000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Grunt Throg - Script - Load path");
-
 DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (@ENTRY, 0, 0, 'Warlord! This storm will soon overwhelm us!', 12, 0, 100, 0, 0, 156977, 195892, 0, 'Grunt Throg');
-
-SET @NPC := @SCRIPT;
-DELETE FROM `waypoints` WHERE `entry` IN (@NPC);
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
-(@NPC,1,-3.9334717,1.109375,9.06326,3.353885,1000,'Grunt Throg'),
-(@NPC,2,-3.9334717,1.109375,9.06326,NULL,0,'Grunt Throg');
+(@SCRIPT,1,-3.9334717,1.109375,9.06326,3.353885,1000,'Grunt Throg'),
+(@SCRIPT,2,-3.9334717,1.109375,9.06326,NULL,0,'Grunt Throg');
+
+-- hBoat "Quest: Brace for Impact"
+UPDATE `creature_template` SET `ScriptName`='npc_hboat' WHERE `entry`=168039;
 
 -- Warlord Breka Grimaxe "Quest: Brace for Impact"
 SET @ENTRY := 166827;
@@ -141,21 +198,18 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,3,0,58,0,100,0,0,@SCRIPT+1,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Path complete - Despawn"),
 (@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Say 0"),
 (@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,53,1,@SCRIPT+1,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Load path");
-
 DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (@ENTRY, 0, 0, 'Soldiers, brace yourselves!', 12, 0, 100, 0, 0, 156953, 195893, 0, 'Warlord Breka Grimaxe');
-
-SET @NPC := @SCRIPT;
-DELETE FROM `waypoints` WHERE `entry` IN (@NPC, @NPC+1);
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT, @SCRIPT+1);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
-(@NPC,1,23.386414,-1.0205078,26.200092,NULL,0,'Warlord Breka Grimaxe'),
-(@NPC,2,14.803528,1.5292969,18.348095,NULL,0,'Warlord Breka Grimaxe'),
-(@NPC,3,15.010681,5.6401367,18.400091,NULL,0,'Warlord Breka Grimaxe'),
-(@NPC,4,13.93335,10.104649,18.484093,NULL,0,'Warlord Breka Grimaxe'),
-(@NPC,5,1.4016113,10.96875,9.103544,NULL,0,'Warlord Breka Grimaxe'),
-(@NPC+1,1,-5.3898315,-0.84814453,9.203571,3.146518,1000,'Warlord Breka Grimaxe'),
-(@NPC+1,2,-5.3898315,-0.84814453,9.203571,0,0,'Warlord Breka Grimaxe');
+(@SCRIPT,1,23.386414,-1.0205078,26.200092,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,2,14.803528,1.5292969,18.348095,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,3,15.010681,5.6401367,18.400091,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,4,13.93335,10.104649,18.484093,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT,5,1.4016113,10.96875,9.103544,NULL,0,'Warlord Breka Grimaxe'),
+(@SCRIPT+1,1,-5.3898315,-0.84814453,9.203571,3.146518,1000,'Warlord Breka Grimaxe'),
+(@SCRIPT+1,2,-5.3898315,-0.84814453,9.203571,0,0,'Warlord Breka Grimaxe');
 
 -- Mithdran Dawntracker "Quest: Brace for Impact"
 SET @ENTRY := 166590;
@@ -167,12 +221,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mithdran Dawntracker - On summon - Load script"),
 (@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mithdran Dawntracker - Path complete - Despawn"),
 (@SCRIPT,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Mithdran Dawntracker - Script - Load path");
-
-SET @NPC := @SCRIPT;
-DELETE FROM `waypoints` WHERE `entry` IN (@NPC);
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
-(@NPC,1,-2.8079834,-3.972168,9.100056,3.1526,1000,'Mithdran Dawntracker'),
-(@NPC,2,-2.8079834,-3.972168,9.100056,NULL,0,'Mithdran Dawntracker');
+(@SCRIPT,1,-2.8079834,-3.972168,9.100056,3.1526,1000,'Mithdran Dawntracker'),
+(@SCRIPT,2,-2.8079834,-3.972168,9.100056,NULL,0,'Mithdran Dawntracker');
 
 -- Lana Jordan "Quest: Brace for Impact"
 SET @ENTRY := 166794;
@@ -184,12 +236,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,54,0,100,0,2,1,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lana Jordan - On summon - Load script"),
 (@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lana Jordan - Path complete - Despawn"),
 (@SCRIPT,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Lana Jordan - Script - Load path");
-
-SET @NPC := @SCRIPT;
-DELETE FROM `waypoints` WHERE `entry` IN (@NPC);
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
-(@NPC,1,-4.3847656,-2.7675781,9.160941,2.25859,1000,'Lana Jordan'),
-(@NPC,2,-4.3847656,-2.7675781,9.160941,NULL,0,'Lana Jordan');
+(@SCRIPT,1,-4.3847656,-2.7675781,9.160941,2.25859,1000,'Lana Jordan'),
+(@SCRIPT,2,-4.3847656,-2.7675781,9.160941,NULL,0,'Lana Jordan');
 
 -- Bo "Quest: Brace for Impact"
 SET @ENTRY := 166585;
@@ -201,12 +251,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,54,0,100,0,2,1,0,0,80,@SCRIPT+1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bo - On summon - Load script"),
 (@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bo - Path complete - Despawn"),
 (@SCRIPT+1,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Bo - Script - Load path");
-
-SET @NPC := @SCRIPT;
-DELETE FROM `waypoints` WHERE `entry` IN (@NPC);
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
-(@NPC,1,1.2434692,5.4038086,9.206478,3.52043,1000,'Bo'),
-(@NPC,2,1.2434692,5.4038086,9.206478,NULL,0,'Bo');
+(@SCRIPT,1,1.2434692,5.4038086,9.206478,3.52043,1000,'Bo'),
+(@SCRIPT,2,1.2434692,5.4038086,9.206478,NULL,0,'Bo');
 
 -- Provisoner Jin'hake "Quest: Brace for Impact"
 SET @ENTRY := 166799;
@@ -218,12 +266,10 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,54,0,100,0,2,1,0,0,80,@SCRIPT+1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Provisoner Jin\'hake - On summon - Load script"),
 (@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Provisoner Jin\'hake - Path complete - Despawn"),
 (@SCRIPT+1,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Provisoner Jin\'hake - Script - Load path");
-
-SET @NPC := @SCRIPT;
-DELETE FROM `waypoints` WHERE `entry` IN (@NPC);
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
-(@NPC,1,-2.8266602,3.7973633,9.252101,3.146518,1000,'Provisoner Jin\'hake'),
-(@NPC,2,-2.8266602,3.7973633,9.252101,NULL,0,'Provisoner Jin\'hake');
+(@SCRIPT,1,-2.8266602,3.7973633,9.252101,3.146518,1000,'Provisoner Jin\'hake'),
+(@SCRIPT,2,-2.8266602,3.7973633,9.252101,NULL,0,'Provisoner Jin\'hake');
 
 -- *** Conditions ***
 
@@ -248,28 +294,33 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- *** Phasing ***
 
-DELETE FROM `phase_area` WHERE `AreaId`=13377 AND `PhaseId` IN (13753,14349,14355,15284,15286,15287,15514,15516);
+DELETE FROM `phase_area` WHERE `AreaId`=13377 AND `PhaseId` IN (13753,14349,14350,14355,15284,15286,15287,15514,15516);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(13377,13753, 'NPE Horde Ship - Unknown'),
-(13377,14349, 'NPE Horde Ship - Apprentice Kutz'), -- guess
-(13377,14355, 'NPE Horde Ship - Helmsman De\'vees'), -- guess
+(13377,13753, 'NPE Alliance/Horde Ship - Decoration NPC´s All stages'),
+(13377,14349, 'NPE Alliance Ship - Captain Garrick Stage 1'),
+(13377,14350, 'NPE Alliance Ship - Captain Garrick Stage 1'),
+(13377,14355, 'NPE Alliance Ship - Decoration NPC´s Stage 1'),
 (13377,15284, 'NPE Horde Ship - Grunt Throg Stage 1'),
 (13377,15286, 'NPE Horde Ship - Warlord Breka Grimaxe both Stage 1 (Quest 59927 incomplete'),
 (13377,15287, 'NPE Horde Ship - Grunt Throg & Warlord Breka Grimaxe Stage 2 (Quest 59928 complete'),
 (13377,15514, 'NPE Horde Ship - Decoration NPC´s Stage 1 (Quest 59927 incomplete'),
 (13377,15516, 'NPE Horde Ship - Decoration NPC´s Stage 2 (Quest 59928 complete');
 
-DELETE FROM `phase_area` WHERE `AreaId`=10639 AND `PhaseId` IN (13753,14349,14355);
+DELETE FROM `phase_area` WHERE `AreaId`=10639 AND `PhaseId` IN (13753,14349,14350,14353,14355);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(10639,13753, 'NPE Alliance Ship - Unknown'),
-(10639,14349, 'NPE Alliance Ship - Pivate Cole'), -- guess
-(10639,14355, 'NPE Alliance Ship - Helmsman Lenard'); -- guess
+(10639,13753, 'NPE Alliance/Horde Ship - Decoration NPC´s All stages'),
+(10639,14349, 'NPE Alliance Ship - Captain Garrick Stage 1'),
+(10639,14350, 'NPE Alliance Ship - Captain Garrick Stage 1'),
+(10639,14353, 'NPE Alliance Ship - Decoration NPC´s Stage 2'),
+(10639,14355, 'NPE Alliance Ship - Decoration NPC´s Stage 1');
 
-DELETE FROM `phase_name` WHERE `ID` IN (13753,14349,14355,15284,15286,15287,15514,15516);
+DELETE FROM `phase_name` WHERE `ID` IN (13753,14349,14350,14353,14355,15284,15286,15287,15514,15516);
 INSERT INTO `phase_name` (`ID`,`Name`) VALUES
-(13753,'Cosmetic - NPE Horde/Alliance Ship - Unknown'),
-(14349,'Cosmetic - NPE Horde/Alliance Ship - Apprentice/Pivate'),
-(14355,'Cosmetic - NPE Horde/Alliance Ship - Helmsman'),
+(13753,'Cosmetic - NPE Alliance/Horde Ship - Decoration NPC´s All stages'),
+(14349,'Cosmetic - NPE Alliance Ship - Captain Garrick Stage 1'),
+(14350,'Cosmetic - NPE Alliance Ship - Captain Garrick Stage 1'),
+(14353,'Cosmetic - NPE Alliance Ship - Decoration NPC´s Stage 2'),
+(14355,'Cosmetic - NPE Alliance Ship - Decoration NPC´s Stage 1'),
 (15284,'Cosmetic - NPE Horde Ship - Grunt Throg Stage 1'),
 (15286,'Cosmetic - NPE Horde Ship - Warlord Breka Grimaxe both Stage 1'),
 (15287,'Cosmetic - NPE Horde Ship - Grunt Throg & Warlord Breka Grimaxe Stage 2'),
@@ -281,6 +332,12 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (26,13878,10424,0,0,47,0,54933,64,0,1,0,0,'','Apply Phase 13878 if Quest 54933 is not rewarded'),
 (26,13878,10424,0,0,6,0,469,0,0,0,0,0,'','Apply PHASE 13878 if team is alliance');
+
+-- Fix condition showing Alliance quest phase on horde on ship
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14350) AND `SourceEntry`=10639;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(26,14350,10639,0,0,47,0,56775,64,0,0,0,0,'','Apply Phase 14350 if Quest 56775 is rewarded'),
+(26,14350,10639,0,0,47,0,58208,2,0,1,0,0,'','Apply Phase 14350 if Quest 58208 is not complete');
 
 -- *** Spells ***
 
@@ -319,7 +376,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 -- *** Scenes ***
 
 -- Add scene scripts
-UPDATE `scene_template` SET `ScriptName`='scene_alliance_and_horde_ship' WHERE `SceneId`=2486;
+UPDATE `scene_template` SET `ScriptName`='scene_alliance_and_horde_ship' WHERE `SceneId` IN (2236,2486);
 DELETE FROM `scene_template` WHERE `SceneId` IN (2334,2487);
 INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`ScriptName`) VALUES
 (2334,16,2708,0,'scene_alliance_and_horde_crash'),
@@ -329,94 +386,131 @@ INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`S
 
 -- *** Mostly Horde only atm will cleanup when I get alliance data
 
-UPDATE `conversation_template` SET `ScriptName`='conversation_horde_sparing_partner' WHERE `Id` IN (14422,14423,14424);
+UPDATE `conversation_template` SET `ScriptName`='conversation_sparing_partner' WHERE `Id` IN (14422,14423,14424);
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=10768;
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(10768,73720,1050145,0,156280,92690,0,0,45745),
-(10768,75916,1050189,1,166573,91669,0,0,45745);
+(10768,73720,1050145,0,156280,92690,0,0,45745), -- Alliance
+(10768,75916,1050189,1,166573,91669,0,0,45745); -- Horde
 
-DELETE FROM `conversation_line_template` WHERE `Id`=35650;
+DELETE FROM `conversation_line_template` WHERE `Id` IN (32717,35650);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
-(35650,0,1,0,45745);
+(32717,0,0,0,45745), -- Alliance
+(35650,0,1,0,45745); -- Horde
 
-DELETE FROM `conversation_template` WHERE `Id`=10768 AND `FirstLineId`=35650;
+DELETE FROM `conversation_template` WHERE `Id`=10768 AND `FirstLineId` IN (32717,35650);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(10768,35650,0,'',45745);
+(10768,32717,0,'',45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (32717,35650);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,32717,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 32717 if team is Alliance'),
+(29,0,35650,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 35650 if team is horde');
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=12818;
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(12818,73720,1050145,0,156280,92690,0,0,45745),
-(12818,75916,1050189,1,166573,91669,0,0,45745);
+(12818,73720,1050145,0,156280,92690,0,0,45745), -- Alliance
+(12818,75916,1050189,1,166573,91669,0,0,45745); -- Horde
 
-DELETE FROM `conversation_line_template` WHERE `Id`=36093;
+DELETE FROM `conversation_line_template` WHERE `Id` IN (31445,36093);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
-(36093,0,1,0,45745);
+(31445,0,0,0,45745), -- Alliance
+(36093,0,1,0,45745); -- Horde
 
-DELETE FROM `conversation_template` WHERE `Id`=12818;
+DELETE FROM `conversation_template` WHERE `Id`=12818 AND `FirstLineId` IN (31445,36093);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(12818,36093,0,'',45745);
+(12818,31445,0,'',45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (31445,36093);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,31445,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 31445 if team is Alliance'),
+(29,0,36093,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36093 if team is horde');
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=12798;
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
 (12798,73720,1050145,0,156280,92690,0,0,45745),
 (12798,75916,1050189,1,166573,91669,0,0,45745);
 
-DELETE FROM `conversation_line_template` WHERE `Id`=36096;
+DELETE FROM `conversation_line_template` WHERE `Id` IN (31382,36096);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
-(36096,0,1,0,45745);
+(31382,0,0,0,45745), -- Alliance
+(36096,0,1,0,45745); -- Horde
 
-DELETE FROM `conversation_template` WHERE `Id`=12798;
+DELETE FROM `conversation_template` WHERE `Id`=12798 AND `FirstLineId` IN (31382,36096);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(12798,36096,0,'',45745);
+(12798,31382,0,'',45745);
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (31382,36096);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,31382,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 31382 if team is Alliance'),
+(29,0,36096,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36096 if team is horde');
 
-DELETE FROM `conversation_actors` WHERE `ConversationId`=14422 AND `ConversationActorId`=75920;
+DELETE FROM `conversation_actors` WHERE `ConversationId`=14422 AND `ConversationActorId` IN (68598,75920);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14422,75920,0,1,166815,91670,0,0,45745);
+(14422,68598,0,0,157051,81534,0,0,45745),
+(14422,75920,0,1,166814,91670,0,0,45745);
 
-DELETE FROM `conversation_line_template` WHERE `Id`=36100;
+DELETE FROM `conversation_line_template` WHERE `Id` IN (36099,36100);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36099,0,0,0,45745),
 (36100,0,1,0,45745);
 
-DELETE FROM `conversation_template` WHERE `Id`=14422 AND `FirstLineId`=36099;
+DELETE FROM `conversation_template` WHERE `Id`=14422 AND `FirstLineId` IN (36099,36100);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (14422,36099,0,'',45745);
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36099,36100);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,36099,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36099 if team is Alliance'),
+(29,0,36100,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36100 if team is horde');
 
-DELETE FROM `conversation_actors` WHERE `ConversationId`=14423 AND `ConversationActorId`=75920;
+DELETE FROM `conversation_actors` WHERE `ConversationId`=14423 AND `ConversationActorId` IN (68598,75920);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14423,75920,0,1,166815,91670,0,0,45745);
+(14423,68598,0,0,157051,81534,0,0,45745),
+(14423,75920,0,1,166814,91670,0,0,45745);
 
-DELETE FROM `conversation_line_template` WHERE `Id`=36102;
+DELETE FROM `conversation_line_template` WHERE `Id` IN (36101,36102);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36101,0,0,0,45745),
 (36102,0,1,0,45745);
 
-DELETE FROM `conversation_template` WHERE `Id`=14423 AND `FirstLineId`=36101;
+DELETE FROM `conversation_template` WHERE `Id`=14423 AND `FirstLineId` IN (36101,36102);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (14423,36101,0,'',45745);
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36101,36102);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,36101,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36101 if team is Alliance'),
+(29,0,36102,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36102 if team is horde');
 
-DELETE FROM `conversation_actors` WHERE `ConversationId`=14424 AND `ConversationActorId`=75920;
+DELETE FROM `conversation_actors` WHERE `ConversationId`=14424 AND `ConversationActorId` IN (68598,75920);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14424,75920,0,1,166815,91670,0,0,45745);
+(14424,68598,0,0,157051,81534,0,0,45745),
+(14424,75920,0,1,166814,91670,0,0,45745);
 
-DELETE FROM `conversation_line_template` WHERE `Id`=36104;
+DELETE FROM `conversation_line_template` WHERE `Id` IN (36103,36104);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36103,0,0,0,45745),
 (36104,0,1,0,45745);
 
-DELETE FROM `conversation_template` WHERE `Id`=14424 AND `FirstLineId`=36103;
+DELETE FROM `conversation_template` WHERE `Id`=14424 AND `FirstLineId` IN (36103,36104);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (14424,36103,0,'',45745);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36103,36104);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,36103,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36103 if team is Alliance'),
+(29,0,36104,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36104 if team is horde');
 
 -- *** Quest ***
 
 -- Add quest scripts
-DELETE FROM `quest_template_addon` WHERE `ID`=59926;
+DELETE FROM `quest_template_addon` WHERE `ID` IN (56775,59926); 
 INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
-(59926,'quest_warming_up');
-UPDATE `quest_template_addon` SET `ScriptName`='quest_stand_your_ground' WHERE `ID`=59927;
-UPDATE `quest_template_addon` SET `ScriptName`='quest_brace_for_impact' WHERE `ID`=59928;
+(56775,'quest_warming_up'),(59926,'quest_warming_up');
+
+UPDATE `quest_template_addon` SET `ScriptName`='quest_stand_your_ground' WHERE `ID` IN (58209,59927);
+UPDATE `quest_template_addon` SET `ScriptName`='quest_brace_for_impact' WHERE `ID` IN (58208,59928);
 
 
 
