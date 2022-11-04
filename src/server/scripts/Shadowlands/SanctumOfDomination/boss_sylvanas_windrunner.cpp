@@ -2527,13 +2527,13 @@ struct boss_sylvanas_windrunner : public BossAI
                         scheduler.Schedule(100ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[0]))
-                                shadowCopy->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
+                                shadowCopy->NearTeleportTo(_selectedRivePos[_riveCastTimes], false);
 
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
-                                shadowCopy2->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
+                                shadowCopy2->NearTeleportTo(_selectedRivePos[_riveCastTimes], false);
 
                             if (Creature* shadowCopy3 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[3]))
-                                shadowCopy3->NearTeleportTo(RiveThrowPos[_riveCastTimes], false);
+                                shadowCopy3->NearTeleportTo(_selectedRivePos[_riveCastTimes], false);
                         });
 
                         scheduler.Schedule(200ms, [this](TaskContext /*task*/)
