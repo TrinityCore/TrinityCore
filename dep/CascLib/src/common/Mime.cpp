@@ -37,13 +37,13 @@ static size_t DecodeValueInt32(const char * string, const char * string_end)
     return result;
 }
 
-bool CASC_MIME_HTTP::IsDataComplete(const char * response, size_t response_length)
+size_t CASC_MIME_HTTP::IsDataComplete(const char * response, size_t response_length, size_t * ptr_content_length)
 {
     const char * content_length_ptr;
     const char * content_begin_ptr;
 
     // Do not parse the HTTP response multiple times
-    if(response_valid == 0 && response_length > 8)
+    if((http_flags & HTTP_HEADER_COMPLETE) == 0 && response_length > 8)
     {
         // Check the begin of the response
         if(!strncmp(response, "HTTP/1.1", 8))
@@ -52,24 +52,30 @@ bool CASC_MIME_HTTP::IsDataComplete(const char * response, size_t response_lengt
             if((content_begin_ptr = strstr(response, "\r\n\r\n")) != NULL)
             {
                 // HTTP responses contain "Content-Length: %u\n\r"
-                if((content_length_ptr = strstr(response, "Content-Length: ")) != NULL)
+                if((content_length_ptr = strstr(response, "Content-Length: ")) == NULL)
+                    content_length_ptr = strstr(response, "content-length: ");
+                if(content_length_ptr != NULL)
                 {
-                    // The content length info muse be before the actual content
+                    // The content length info must be before the actual content
                     if(content_length_ptr < content_begin_ptr)
                     {
                         // Fill the HTTP info cache
-                        response_valid = 0x48545450;    // 'HTTP'
                         content_offset = (content_begin_ptr + 4) - response;
                         content_length = DecodeValueInt32(content_length_ptr + 16, content_begin_ptr);
                         total_length = content_offset + content_length;
+                        http_flags = HTTP_HEADER_COMPLETE;
                     }
                 }
             }
         }
     }
 
-    // If we know the expected total length, we can tell whether it's complete or not
-    return ((response_valid != 0) && (total_length == response_length));
+    // Update flags
+    if((http_flags & HTTP_HEADER_COMPLETE) && (ptr_content_length != NULL))
+        ptr_content_length[0] = content_length;
+    if(total_length == response_length)
+        http_flags |= HTTP_DATA_COMPLETE;
+    return http_flags;
 }
 
 //-----------------------------------------------------------------------------
