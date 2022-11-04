@@ -118,7 +118,7 @@ struct npc_sparring_partner : public ScriptedAI
             if (me->GetEntry() == NPC_ALLIANCE_SPARING_PARTNER)
                 player->RemoveAura(SPELL_SUMMON_COLE);
             else
-                player->RemoveAura(SPELL_SUMMON_THROG);     
+                player->RemoveAura(SPELL_SUMMON_THROG);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
         }
     }
