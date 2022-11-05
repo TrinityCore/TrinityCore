@@ -29,33 +29,36 @@
 
 enum SparingPartner
 {
-    CONVERSATION_PREFIGHT         = 14422,
-    CONVERSATION_AGGRO            = 14423,
-    CONVERSATION_JUMP             = 14424,
+    CONVERSATION_PREFIGHT           = 14422,
+    CONVERSATION_AGGRO              = 14423,
+    CONVERSATION_JUMP               = 14424,
 
-    EQUIPMENT_SWORD               = 108493,
-    EQUIPMENT_AXE                 = 175161,
+    EQUIPMENT_SWORD                 = 108493,
+    EQUIPMENT_AXE                   = 175161,
 
-    EVENT_MOVE_TO_A_POSITION      = 1,
-    EVENT_PREFIGHT_CONVERSATION   = 2,
-    EVENT_WALK_BACK               = 3,
+    EVENT_MOVE_TO_A_POSITION        = 1,
+    EVENT_PREFIGHT_CONVERSATION     = 2,
+    EVENT_WALK_BACK                 = 3,
 
-    NPC_ALLIANCE_SPARING_PARTNER  = 157051,
-    NPC_HORDE_SPARING_PARTNER     = 166814,
-    NPC_SPAR_POINT_ADVERTISMENT   = 174971,
-    NPC_GRUNT_THROG               = 166583,
-    NPC_KILL_CREDIT               = 155607,
+    NPC_ALLIANCE_SPARING_PARTNER    = 157051,
+    NPC_HORDE_SPARING_PARTNER       = 166814,
+    NPC_SPAR_POINT_ADVERTISMENT     = 174971,
+    NPC_GRUNT_THROG                 = 166583,
+    NPC_KILL_CREDIT                 = 155607,
 
-    SPELL_JUMP_BEHIND             = 312757,
-    SPELL_COMBAT_TRAINING         = 323071,
-    SPELL_UPDATE_PHASE_SHIFT      = 82238,
-    SPELL_SUMMON_COLE             = 303064,
-    SPELL_SUMMON_THROG            = 325107,
+    PATH_ALLIANCE_SPARING_PARTNER   = 10501460,
+    PATH_HORDE_SPARING_PARTNER      = 10501870,
 
-    TALK_SPARRING_COMPLETE        = 0,
+    POSITION_SPARPOINT_ADVERTISMENT = 1,
+    POSITION_SPARPOINT_READY        = 2,
 
-    PATH_ALLIANCE_SPARING_PARTNER = 10501460,
-    PATH_HORDE_SPARING_PARTNER    = 10501870
+    SPELL_JUMP_BEHIND               = 312757,
+    SPELL_COMBAT_TRAINING           = 323071,
+    SPELL_UPDATE_PHASE_SHIFT        = 82238,
+    SPELL_SUMMON_COLE               = 303064,
+    SPELL_SUMMON_THROG              = 325107,
+
+    TALK_SPARING_COMPLETE           = 0
 };
 
 struct npc_sparring_partner : public ScriptedAI
@@ -83,6 +86,7 @@ struct npc_sparring_partner : public ScriptedAI
         _jumped = false;
 
         Unit* summoner = summonerWO->ToUnit();
+
         if (!summoner)
             return;
 
@@ -111,17 +115,17 @@ struct npc_sparring_partner : public ScriptedAI
 
         switch (uiId)
         {
-            case 1:
+            case POSITION_SPARPOINT_ADVERTISMENT:
             {
                 me->SetWalk(true);
-                me->GetMotionMaster()->MovePoint(2, me->GetFirstCollisionPosition(2.0f, (float)rand_norm() * static_cast<float>(2 * M_PI)));
+                me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, (float)rand_norm() * static_cast<float>(2 * M_PI)));
             }
-            case 2:
+            case POSITION_SPARPOINT_READY:
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     me->SetFacingToObject(player);
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
-                me->SetFaction(32); // *** BIG HACK to be removed after issue with entrying combat with faction 35 fixed ***
+                me->SetFaction(32); // *** HACK to be removed after issue with entrying combat with faction 35 fixed ***
             }
         }
     }
@@ -147,7 +151,7 @@ struct npc_sparring_partner : public ScriptedAI
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
             {
                 me->SetFacingToObject(player);
-                Talk(TALK_SPARRING_COMPLETE, player);
+                Talk(TALK_SPARING_COMPLETE, player);
                 player->CastSpell(player, SPELL_COMBAT_TRAINING);
             }
         }
@@ -183,7 +187,7 @@ struct npc_sparring_partner : public ScriptedAI
                     Trinity::Containers::RandomResize(sparpoints, 1);
                     for (Creature* creature : sparpoints)
                     {
-                        me->GetMotionMaster()->MovePoint(1, creature->GetPosition());
+                        me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
                         me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                     }
                     _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
@@ -191,9 +195,7 @@ struct npc_sparring_partner : public ScriptedAI
                 break;
                 case EVENT_PREFIGHT_CONVERSATION:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
                         Conversation::CreateConversation(CONVERSATION_PREFIGHT, player, *player, player->GetGUID(), nullptr);
-                    }
                     break;
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
@@ -218,7 +220,6 @@ private:
     uint32 _path;
 };
 
-// Handles actors for horde quest Brace For Impact. Could not do spawning in quest script needed a 500ms delay for phase to change.
 enum HordeBoat
 {
     DATA_SET_SPAWN_HORDE_ACTORS = 1,
@@ -240,9 +241,23 @@ struct npc_hboat : public ScriptedAI
     {
         if (data == DATA_SET_SPAWN_HORDE_ACTORS)
         {
-            _events.ScheduleEvent(EVENT_SPAWN_HORDE_ACTORS, 500ms);
             _spawn = true;
+            _events.ScheduleEvent(EVENT_SPAWN_HORDE_ACTORS, 500ms);
         }
+    }
+
+    void SpawnActor(uint32 entry, Position position)
+    {
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            if (Creature* creature = player->FindNearestCreature(entry, 30.0f))
+                if (TransportBase const* transport = player->GetDirectTransport())
+                {
+                    float x, y, z, o;
+                    position.GetPosition(x, y, z, o);
+                    transport->CalculatePassengerPosition(x, y, z, &o);
+                    position.Relocate(x, y, z, o);
+                    creature->SummonPersonalClone(position, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
+                }
     }
 
     void UpdateAI(uint32 diff) override
@@ -269,59 +284,12 @@ struct npc_hboat : public ScriptedAI
                             Position bopos = { -22.1559f, 5.58041f, 9.09176f, 3.5204296f }; // transport offset
                             Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 3.5658937f }; // transport offset
 
-                            if (Creature* breka = player->FindNearestCreature(NPC_WARLORD_BREKA_GRIMAXE3, 30.0f))
-                            {
-                                float x, y, z, o;
-                                brekapos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                brekapos.Relocate(x, y, z, o);
-                                breka->SummonPersonalClone(brekapos, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
-                            }
-
-                            if (Creature* throg = player->FindNearestCreature(NPC_GRUNT_THROG, 30.0f))
-                            {
-                                float x, y, z, o;
-                                throgpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                throgpos.Relocate(x, y, z, o);
-                                throg->SummonPersonalClone(throgpos, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
-                            }
-
-                            if (Creature* mithdran = player->FindNearestCreature(NPC_MITHDRAN_DAWNTRACKER, 30.0f))
-                            {
-                                float x, y, z, o;
-                                mithpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                mithpos.Relocate(x, y, z, o);
-                                mithdran->SummonPersonalClone(mithpos, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
-                            }
-
-                            if (Creature* lana = player->FindNearestCreature(NPC_LANA_JORDAN, 30.0f))
-                            {
-                                float x, y, z, o;
-                                lanapos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                lanapos.Relocate(x, y, z, o);
-                                lana->SummonPersonalClone(lanapos, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
-                            }
-
-                            if (Creature* bo = player->FindNearestCreature(NPC_BO, 30.0f))
-                            {
-                                float x, y, z, o;
-                                bopos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                bopos.Relocate(x, y, z, o);
-                                bo->SummonPersonalClone(bopos, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
-                            }
-
-                            if (Creature* jin = player->FindNearestCreature(NPC_PROVISONER_JIN_HAKE, 30.0f))
-                            {
-                                float x, y, z, o;
-                                jinpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                jinpos.Relocate(x, y, z, o);
-                                jin->SummonPersonalClone(jinpos, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
-                            }
+                            SpawnActor(NPC_WARLORD_BREKA_GRIMAXE3, brekapos);
+                            SpawnActor(NPC_GRUNT_THROG, throgpos);
+                            SpawnActor(NPC_MITHDRAN_DAWNTRACKER, mithpos);
+                            SpawnActor(NPC_LANA_JORDAN, lanapos);
+                            SpawnActor(NPC_BO, bopos);
+                            SpawnActor(NPC_PROVISONER_JIN_HAKE, jinpos);
                         }
                     }
                 }
@@ -339,7 +307,6 @@ public:
     ObjectGuid _playerGUID;
 };
 
-// Handles actors for horde quest Brace For Impact. Could not do spawning in quest script needed a 500ms delay for phase to change.
 enum AllianceBoat
 {
     DATA_SET_SPAWN_ALLIANCE_ACTORS = 1,
@@ -367,6 +334,25 @@ struct npc_aboat : public ScriptedAI
         }
     }
 
+    void SpawnActor(uint32 entry, Position position, uint32 data)
+    {
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            if (Creature* creature = player->FindNearestCreature(entry, 50.0f))
+                if (TransportBase const* transport = player->GetDirectTransport())
+                {
+                    float x, y, z, o;
+                    position.GetPosition(x, y, z, o);
+                    transport->CalculatePassengerPosition(x, y, z, &o);
+                    position.Relocate(x, y, z, o);
+                    creature->SummonPersonalClone(position, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
+                    if (data)
+                    {
+                        if (creature->IsAIEnabled())
+                            creature->AI()->SetData(1, data);
+                    }
+                }
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!_spawn)
@@ -384,68 +370,19 @@ struct npc_aboat : public ScriptedAI
                     {
                         if (TransportBase const* transport = player->GetDirectTransport())
                         {
-                            Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3191178f - float(M_PI) }; // transport offset
-                            Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.3066328f - float(M_PI) }; // transport offset
-                            Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.2952788f - float(M_PI) }; // transport offset
-                            Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 3.2827914f - float(M_PI) }; // transport offset
-                            Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 4.7329445f + float(M_PI) }; // transport offset
+                            Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3191178f }; // transport offset
+                            Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.3066328f }; // transport offset
+                            Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.2952788f }; // transport offset
+                            Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 3.2827914f }; // transport offset
+                            Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 4.7329445f }; // transport offset
                             Position colepos = { -13.3396f, 0.702157f, 5.57996f, 4.1208034f }; // transport offset
 
-                            if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 50.0f))
-                            {
-                                float x, y, z, o;
-                                garrickpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                garrickpos.Relocate(x, y, z, o);
-                                Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
-                                if (garrick2->IsAIEnabled())
-                                    garrick2->AI()->SetData(1, 2); // First personal summon
-                            }
-
-                            if (Creature* richter = player->FindNearestCreature(NPC_QUARTERMASTER_RICHTER, 50.0f))
-                            {
-                                float x, y, z, o;
-                                richterpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                richterpos.Relocate(x, y, z, o);
-                                richter->SummonPersonalClone(richterpos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
-                            }
-
-                            if (Creature* keela = player->FindNearestCreature(NPC_KEE_LA, 50.0f))
-                            {
-                                float x, y, z, o;
-                                keelapos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                keelapos.Relocate(x, y, z, o);
-                                keela->SummonPersonalClone(keelapos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
-                            }
-
-                            if (Creature* bjorn = player->FindNearestCreature(NPC_BJORN_STOUTHANDS, 50.0f))
-                            {
-                                float x, y, z, o;
-                                bjornpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                bjornpos.Relocate(x, y, z, o);
-                                bjorn->SummonPersonalClone(bjornpos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
-                            }
-
-                            if (Creature* austin = player->FindNearestCreature(NPC_AUSTIN_HUXWORTH, 50.0f))
-                            {
-                                float x, y, z, o;
-                                austinpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                austinpos.Relocate(x, y, z, o);
-                                austin->SummonPersonalClone(austinpos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
-                            }
-
-                            if (Creature* cole = player->FindNearestCreature(NPC_PRIVATE_COLE, 50.0f))
-                            {
-                                float x, y, z, o;
-                                colepos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                colepos.Relocate(x, y, z, o);
-                                cole->SummonPersonalClone(colepos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
-                            }
+                            SpawnActor(NPC_CAPTAIN_GARRICK, garrickpos, 2);
+                            SpawnActor(NPC_QUARTERMASTER_RICHTER, richterpos, 0);
+                            SpawnActor(NPC_KEE_LA, keelapos, 0);
+                            SpawnActor(NPC_BJORN_STOUTHANDS, bjornpos, 0);
+                            SpawnActor(NPC_AUSTIN_HUXWORTH, austinpos, 0);
+                            SpawnActor(NPC_PRIVATE_COLE, colepos, 0);
                         }
                     }
                 }
@@ -463,7 +400,6 @@ public:
     ObjectGuid _playerGUID;
 };
 
-// Handles Garrick post alliance quest Warming Up. Could not do spawning in quest script needed a 500ms delay for phase to change.
 enum Invisbunny
 {
     DATA_SET_SPAWN_GARRICK     = 1,
@@ -500,7 +436,7 @@ struct npc_alliance_boat_invisbunny : public ScriptedAI
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
                         // Not fluid but works
-                        Position garrickpos = { -3.0797f, -0.546193f, 5.29752f, 3.3191178f - float(M_PI) }; // transport offset
+                        Position garrickpos = { -3.0797f, -0.546193f, 5.29752f, 3.3191178f }; // transport offset
 
                         if (TransportBase const* transport = player->GetDirectTransport())
                             if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 75.0f))
@@ -511,7 +447,7 @@ struct npc_alliance_boat_invisbunny : public ScriptedAI
                                 garrickpos.Relocate(x, y, z, o);
                                 if (Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player))
                                     if(garrick2->IsAIEnabled())
-                                        garrick2->AI()->SetData(1, 1); // First personal summon
+                                        garrick2->AI()->SetData(1, 1);
                             }
                     }
                 }
