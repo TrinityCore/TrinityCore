@@ -15,18 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_VIOLETHOLD_H
-#define DEF_VIOLETHOLD_H
+#ifndef DEF_VIOLET_HOLD_BROKEN_ISLES_H
+#define DEF_VIOLET_HOLD_BROKEN_ISLES_H
 
 #include "CreatureAIImpl.h"
 
-#define SCScriptName "instance_violethold"
-#define DataHeader "VioletHold"
+#define SCScriptName "instance_violet_hold_broken_isles"
+#define DataHeader "VioletHoldBrokenIsles"
 
 enum SCDataTypes
 {
     // Encounter States/Boss GUIDs
+
     // Additional Data
+
 };
 
 enum SCMisc
@@ -35,9 +37,9 @@ enum SCMisc
 };
 
 template<typename AI>
-inline AI* GetVioletHoldAI(Creature* creature)
+inline AI* GetVioletHoldBrokenIslesAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, SCScriptName);
 }
 
-#endif // DEF_VIOLETHOLD
+#endif // DEF_VIOLET_HOLD_BROKEN_ISLES_H
