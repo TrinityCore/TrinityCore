@@ -34,6 +34,9 @@ enum HOLDataTypes
     DATA_LOKEN              = 3,
 
     // Additional Data
+    /*General Bjarngrim*/
+    DATA_INVISIBLE_STALKER,
+
     /*Volkhan*/
     DATA_VOLKHAN_TEMPER_VISUAL,
     DATA_VOLKHANS_ANVIL,
@@ -45,14 +48,17 @@ enum HOLDataTypes
 enum HOLCreaturesIds
 {
     // Bosses
-    NPC_GENERAL_BJARNGRIM   = 28586,
-    NPC_VOLKHAN             = 28587,
-    NPC_IONAR               = 28546,
-    NPC_LOKEN               = 28923,
+    NPC_GENERAL_BJARNGRIM       = 28586,
+    NPC_VOLKHAN                 = 28587,
+    NPC_IONAR                   = 28546,
+    NPC_LOKEN                   = 28923,
+
+    /*General Bjarngrim*/
+    NPC_INVISIBLE_STALKER       = 30298,
 
     /*Volkhan*/
-    NPC_VOLKHANS_ANVIL      = 28823,
-    NPC_MOLTEN_GOLEM        = 28695
+    NPC_VOLKHANS_ANVIL          = 28823,
+    NPC_MOLTEN_GOLEM            = 28695
 };
 
 enum HOLGameObjectIds
