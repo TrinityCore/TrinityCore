@@ -238,27 +238,32 @@ DELETE FROM `creature_equip_template` WHERE `CreatureID`=176404;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
 (176404, 1, 185997, 0, 0, 185997, 0, 0, 0, 0, 41359);
 
- -- Ranger (Bow)
+-- Ranger (Bow)
 DELETE FROM `spell_script_names` WHERE `spell_id`=347560 AND `ScriptName`='spell_sylvanas_windrunner_ranger_bow';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (347560, 'spell_sylvanas_windrunner_ranger_bow');
 
- -- Ranger (Dagger)
+-- Ranger Shot
+DELETE FROM `spell_script_names` WHERE `spell_id`=347548 AND `ScriptName`='spell_sylvanas_windrunner_ranger_shot';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(347548, 'spell_sylvanas_windrunner_ranger_shot');
+
+-- Ranger (Dagger)
 DELETE FROM `spell_script_names` WHERE `spell_id`=348010 AND `ScriptName`='spell_sylvanas_windrunner_ranger_dagger';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (348010, 'spell_sylvanas_windrunner_ranger_dagger');
 
- -- Windrunner
+-- Ranger Strike
+DELETE FROM `spell_script_names` WHERE `spell_id`=348299 AND `ScriptName`='spell_sylvanas_windrunner_ranger_strike';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(348299, 'spell_sylvanas_windrunner_ranger_strike');
+
+-- Windrunner
 DELETE FROM `jump_charge_params` WHERE `id` IN (529, 530, 531);
 INSERT INTO `jump_charge_params` (`id`, `speed`, `treatSpeedAsMoveTimeSeconds`, `jumpGravity`, `spellVisualId`, `progressCurveId`, `parabolicCurveId`) VALUES 
 (529, 0.501, 1, 47.8086, NULL, 0, NULL),
 (530, 0.501, 1, 47.8086, NULL, 0, NULL),
 (531, 0.151, 1, 526.293, NULL, 0, NULL);
-
- -- Ranger Strike
-DELETE FROM `spell_script_names` WHERE `spell_id`=348299 AND `ScriptName`='spell_sylvanas_windrunner_ranger_strike';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(348299, 'spell_sylvanas_windrunner_ranger_strike');
 
  -- Windrunner
 DELETE FROM `spell_script_names` WHERE `spell_id`=347504 AND `ScriptName`='spell_sylvanas_windrunner_windrunner';

@@ -273,7 +273,7 @@ enum Events
     EVENT_BANSHEES_FURY
 };
 
-enum GroupEvent
+enum EventGroups
 {
     GROUP_EVENT_NORMAL_EVENTS                           = 1,
     GROUP_EVENT_WINDRUNNER_RELATED_EVENTS               = 2,
@@ -541,7 +541,7 @@ uint32 const EventsTimersNormal[3][4][5]
         // Note: fifth casts are guessed since we can't get to know until DF.
         { 7000, 55000, 56000, 55000, 55000  }, // Windrunner
         { 25000, 57000, 57000, 57000, 57000 }, // Domination Chains
-        { 30500, 32500, 30500, 29500, 28500 }, // Wailing Arrow
+        { 29500, 34500, 30500, 29500, 28500 }, // Wailing Arrow
         { 50000, 53000, 54000, 55000, 56000 }  // Veil of Darkness
     },
 
@@ -777,7 +777,7 @@ class PauseAttackStateOrResetAttackTimer : public BasicEvent
                     if (_actor->IsAIEnabled())
                     {
                         if (!_actor->GetVictim())
-                            if (Unit* target = _actor->GetAI()->SelectTarget(SelectTargetMethod::MaxThreat, 0, 250.0f, true))
+                            if (Unit* target = _actor->GetAI()->SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true))
                                 _actor->GetAI()->AttackStart(target);
 
                         if (_resetAttackTimer)
@@ -872,6 +872,8 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetReactState(REACT_PASSIVE);
 
+        SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
+
         _events.SetPhase(PHASE_ONE);
     }
 
@@ -886,20 +888,26 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         _events.Reset();
     }
 
-    void SetData(uint32 type, uint32 value) override
+    uint32 GetData(uint32 id) const override
     {
-        if (type == DATA_EVENT_TYPE_SHADOWCOPY)
+        if (id == DATA_EVENT_TYPE_SHADOWCOPY)
+            return _onDominationChains ? DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT : DATA_EVENT_COPY_NO_EVENT;
+
+        return 0;
+    }
+
+    void SetData(uint32 id, uint32 value) override
+    {
+        if (id == DATA_EVENT_TYPE_SHADOWCOPY)
         {
             switch (value)
             {
                 case DATA_EVENT_COPY_NO_EVENT:
                     _onDominationChains = false;
                     break;
-
                 case DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT:
                     _onDominationChains = true;
                     break;
-
                 default:
                     break;
             }
@@ -1144,7 +1152,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case EVENT_DOMINATION_CHAINS + 10:
                     if (sylvanas->IsAIEnabled())
-                        sylvanas->AI()->DoAction(ACTION_FINISH_DOMINATION_CHAINS);
+                        sylvanas->GetAI()->DoAction(ACTION_FINISH_DOMINATION_CHAINS);
                     _randomDominationChainsPos.clear();
                     break;
 
@@ -1241,7 +1249,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
             std::list<Unit*> witheringFireTargetList;
             if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                sylvanas->AI()->SelectTargetList(witheringFireTargetList, _totalWitheringFires, SelectTargetMethod::Random, 0, 500.0f, false, true);
+                sylvanas->GetAI()->SelectTargetList(witheringFireTargetList, _totalWitheringFires, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
             for (Unit* target : witheringFireTargetList)
                 _witheringFireTargetGUIDs.push_back(target->GetGUID());
@@ -1287,7 +1295,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         // TODO: remove playerlist, it's just for testing.
         std::list<Unit*> targetList;
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-            sylvanas->AI()->SelectTargetList(targetList, 1, SelectTargetMethod::Random, 0, 500.0f, false, true);
+            sylvanas->GetAI()->SelectTargetList(targetList, 1, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
         for (Unit* target : targetList)
         {
@@ -1363,7 +1371,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     if (chooseMe)
                     {
                         if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
+                            sylvanas->GetAI()->DoAction(ACTION_WINDRUNNER_MODEL_DEACTIVATE);
                     }
                 }
             });
@@ -1767,7 +1775,7 @@ struct boss_sylvanas_windrunner : public BossAI
             if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
             {
                 if (bolvar->IsAIEnabled())
-                    bolvar->AI()->DoAction(ACTION_WINDS_OF_ICECROWN_PRE);
+                    bolvar->GetAI()->DoAction(ACTION_WINDS_OF_ICECROWN_PRE);
             }
         }
     }
@@ -1954,11 +1962,11 @@ struct boss_sylvanas_windrunner : public BossAI
                 for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
                         if (shadowCopy->IsAIEnabled())
-                            shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
+                            shadowCopy->GetAI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
 
                 if (events.IsInPhase(PHASE_ONE))
                 {
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(1ms));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(0ms));
                     DoAction(ACTION_RESET_MELEE_KIT);
                 }
                 else
@@ -1982,7 +1990,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
                     if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
                         if (shadowCopy->IsAIEnabled())
-                            shadowCopy->AI()->DoAction(ACTION_PREPARE_INTERMISSION);
+                            shadowCopy->GetAI()->DoAction(ACTION_PREPARE_INTERMISSION);
 
                 _specialEvents.SetPhase(PHASE_INTERMISSION);
                 events.SetPhase(PHASE_INTERMISSION);
@@ -2061,7 +2069,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
                 {
                     if (jaina->IsAIEnabled())
-                        jaina->AI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_THREE);
+                        jaina->GetAI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_THREE);
                 }
                 break;
             }
@@ -2268,7 +2276,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3800));
                             if (Creature* shadowCopy1 = instance->instance->GetCreature(instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
                                 if (shadowCopy1->IsAIEnabled())
-                                    shadowCopy1->AI()->DoAction(ACTION_START_WITHERING_FIRE);
+                                    shadowCopy1->GetAI()->DoAction(ACTION_START_WITHERING_FIRE);
                             break;
 
                         case PHASE_TWO:
@@ -2403,7 +2411,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     TeleportShadowcopiesToMe();
                     if (Creature* shadowCopy1 = instance->instance->GetCreature(instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
                         if (shadowCopy1->IsAIEnabled())
-                            shadowCopy1->AI()->DoAction(ACTION_START_DOMINATION_CHAINS);
+                            shadowCopy1->GetAI()->DoAction(ACTION_START_DOMINATION_CHAINS);
                     _dominationChainsCastTimes++;
                     if (events.IsInPhase(PHASE_ONE))
                         events.Repeat(Milliseconds(EventsTimersNormal[0][1][_dominationChainsCastTimes]));
@@ -2441,15 +2449,14 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_VEIL_OF_DARKNESS:
                 {
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(0ms));
+                    // Note: we must ensure Ranger Shot doesn't reset AttackTimer incorrectly.
+                    me->m_Events.KillAllEvents(true);
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(5ms));
 
                     Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
                     Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
 
-                    if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, me->HasAura(SPELL_RANGER_BOW_STANCE) ? 50ms : 500ms, GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, 500ms, GROUP_EVENT_NORMAL_EVENTS, PHASE_ONE);
                     break;
                 }
 
@@ -2578,14 +2585,14 @@ struct boss_sylvanas_windrunner : public BossAI
                         {
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                                 me->NearTeleportTo(shadowCopy2->GetPosition(), false);
+
+                            me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                         });
 
                         scheduler.Schedule(1s + 150ms, [this](TaskContext /*task*/)
                         {
                             if (Creature* shadowCopy2 = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[2]))
                                 me->CastSpell(shadowCopy2->GetNearPosition(9.0f, 0.0f), SPELL_RIVE_MARKER_AREATRIGGER, true);
-
-                            me->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
                             DoCastSelf(SPELL_ANCHOR_HERE, true);
                         });
@@ -2627,7 +2634,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 shadowCopy->NearTeleportTo(me->GetPosition(), false);
 
                                 if (shadowCopy->IsAIEnabled())
-                                    shadowCopy->AI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
+                                    shadowCopy->GetAI()->SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
                             }
                         }
 
@@ -2701,7 +2708,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         if (Creature* jaina = instance->GetCreature(DATA_JAINA_PROUDMOORE_PINNACLE))
                         {
                             if (jaina->IsAIEnabled())
-                                jaina->AI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_TWO);
+                                jaina->GetAI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_TWO);
                         }
                     });
 
@@ -3722,7 +3729,12 @@ class spell_sylvanas_windrunner_ranger_shot : public SpellScript
             return;
 
         if (caster->IsWithinCombatRange(caster->GetVictim(), 5.5f))
+        {
+            if (caster->IsAIEnabled())
+                caster->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
+
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(300ms));
+        }
     }
 
     void Register() override
@@ -3942,7 +3954,8 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
         if (!caster)
             return;
 
-        // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
+        // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
+        caster->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
         caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(0ms));
@@ -3989,9 +4002,25 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
         caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(562ms));
     }
 
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (caster->IsWithinCombatRange(caster->GetVictim(), 5.5f))
+        {
+            if (caster->IsAIEnabled())
+                caster->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
+
+            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(750ms));
+        }
+    }
+
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_ranger_heartseeker_aura::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_ranger_heartseeker_aura::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -4045,7 +4074,7 @@ class spell_sylvanas_windrunner_domination_chains : public SpellScript
 
         for (Creature* arrow : arrowList)
             if (arrow->IsAIEnabled())
-                arrow->AI()->DoAction(ACTION_ACTIVATE_DOMINATION_ARROW);
+                arrow->GetAI()->DoAction(ACTION_ACTIVATE_DOMINATION_ARROW);
     }
 
     void Register() override
@@ -5153,7 +5182,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
             if (me->IsAIEnabled())
-                me->AI()->AttackStart(sylvanas);
+                me->GetAI()->AttackStart(sylvanas);
         }
 
         _events.ScheduleEvent(EVENT_RUNIC_MARK, 1s, PHASE_ONE);
@@ -5288,7 +5317,7 @@ class spell_sylvanas_windrunner_charge_towards_sylvanas : public SpellScript
         if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
         {
             if (bolvar->IsAIEnabled())
-                bolvar->AI()->DoAction(ACTION_WINDS_OF_ICECROWN);
+                bolvar->GetAI()->DoAction(ACTION_WINDS_OF_ICECROWN);
         }
     }
 
@@ -5423,7 +5452,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
             if (me->IsAIEnabled())
-                me->AI()->AttackStart(sylvanas);
+                me->GetAI()->AttackStart(sylvanas);
         }
 
         _events.ScheduleEvent(EVENT_FLAMEAXE, 1s + 300ms, 1);
@@ -5800,7 +5829,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
             if (me->IsAIEnabled())
-                me->AI()->AttackStartCaster(sylvanas, 25.0f);
+                me->GetAI()->AttackStartCaster(sylvanas, 25.0f);
         }
 
         me->SetBaseAttackTime(BASE_ATTACK, 250);
@@ -5969,7 +5998,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     {
                         if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->DoAction(ACTION_HAUNTING_WAVE_SECOND_CHAIN);
+                            sylvanas->GetAI()->DoAction(ACTION_HAUNTING_WAVE_SECOND_CHAIN);
                     }
                 });
 
@@ -6009,7 +6038,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     if (Creature* thrall = _instance->GetCreature(DATA_THRALL_PINNACLE))
                     {
                         if (thrall->IsAIEnabled())
-                            thrall->AI()->DoAction(ACTION_PREPARE_EARTH_BRIDGE_1);
+                            thrall->GetAI()->DoAction(ACTION_PREPARE_EARTH_BRIDGE_1);
                     }
                 });
                 break;
@@ -6065,7 +6094,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     {
                         if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->DoAction(ACTION_INITIATE_PHASE_THREE);
+                            sylvanas->GetAI()->DoAction(ACTION_INITIATE_PHASE_THREE);
                     }
                 });
 
@@ -6114,7 +6143,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     if (Creature* anduin = _instance->GetCreature(DATA_ANDUIN_CRUCIBLE))
                     {
                         if (anduin->IsAIEnabled())
-                            anduin->AI()->DoAction(ACTION_INITIATE_PHASE_THREE);
+                            anduin->GetAI()->DoAction(ACTION_INITIATE_PHASE_THREE);
                     }
                 });
 
@@ -6188,7 +6217,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                             bolvar->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(bolvar, false), bolvar->m_Events.CalculateTime(1ms));
 
                         if (anduin->IsAIEnabled())
-                            anduin->AI()->AttackStart(me);
+                            anduin->GetAI()->AttackStart(me);
                     }
                 });
 
@@ -6197,7 +6226,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                     if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     {
                         if (sylvanas->IsAIEnabled())
-                            sylvanas->AI()->DoAction(ACTION_START_PHASE_THREE);
+                            sylvanas->GetAI()->DoAction(ACTION_START_PHASE_THREE);
 
                         for (uint8 i = 0; i < 8; i++)
                             sylvanas->CastSpell(InvigoratingFieldPos[i], SPELL_INVIGORATING_FIELD_ACTIVATE, true);
@@ -6703,7 +6732,7 @@ class spell_sylvanas_windrunner_activate_phase_intermission : public SpellScript
         if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
             if (sylvanas->IsAIEnabled())
-                sylvanas->AI()->DoAction(ACTION_PREPARE_INTERMISSION);
+                sylvanas->GetAI()->DoAction(ACTION_PREPARE_INTERMISSION);
         }
     }
 
@@ -6727,7 +6756,7 @@ class spell_sylvanas_windrunner_activate_finish_boss : public SpellScript
         if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
         {
             if (sylvanas->IsAIEnabled())
-                sylvanas->AI()->DoAction(ACTION_PREPARE_FINISH_BOSS);
+                sylvanas->GetAI()->DoAction(ACTION_PREPARE_FINISH_BOSS);
         }
     }
 
