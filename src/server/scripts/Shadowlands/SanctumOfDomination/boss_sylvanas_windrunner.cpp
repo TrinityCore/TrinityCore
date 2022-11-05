@@ -354,7 +354,7 @@ enum Conversations
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_INITIAL                                 = 0
+    SPAWN_GROUP_CHAMPIONS                               = 0
 };
 
 enum Points
@@ -468,6 +468,15 @@ enum SpellVisuals
     SPELL_VISUAL_UNK01_177787                           = 107063  // At 1.0f
 };
 
+enum Platforms : uint8
+{
+    PLATFORM_MALDRAXXI                                  = 0,
+    PLATFORM_NIGHTFAE                                   = 1,
+    PLATFORM_KYRIAN                                     = 2,
+    PLATFORM_VENTHYR                                    = 3,
+    PLATFORM_MAX                                        = 4
+};
+
 enum Miscellanea
 {
     DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL                  = 101311,
@@ -525,12 +534,6 @@ enum Miscellanea
     DATA_BRIDGE_PHASE_TWO_COUNT_4                       = 4,
     DATA_BRIDGE_PHASE_TWO_COUNT_5                       = 5,
     DATA_BRIDGE_PHASE_TWO_COUNT_6                       = 6,
-
-    DATA_PLATFORM_MALDRAXXI                             = 0,
-    DATA_PLATFORM_NIGHTFAE                              = 1,
-    DATA_PLATFORM_KYRIAN                                = 2,
-    DATA_PLATFORM_VENTHYR                               = 3,
-    DATA_PLATFORM_MAX                                   = 4,
 
     DATA_MIDDLE_POS_OUTTER_PLATFORM                     = 0,
     DATA_TOP_RIGHT_POS_VERTEX_PLATFORM                  = 1,
@@ -1714,7 +1717,7 @@ struct boss_sylvanas_windrunner : public BossAI
         _Reset();
 
         // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_RENAME when engaging, meaning they're most likely summoned by Sylvanas.
-        me->SummonCreatureGroup(SPAWN_GROUP_INITIAL);
+        me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS);
 
         me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
@@ -2729,10 +2732,10 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(GetMiddlePointInCurrentPlatform(), SPELL_RAZE, false);
                     });
 
-                    for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
+                    for (uint8 covenentPlaform = PLATFORM_MALDRAXXI; covenentPlaform < 4; covenentPlaform++)
                     {
                         if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
-                            DesecrateCurrentPlatform(covenentPlaform);
+                            DesecratePlatform((Platforms)covenentPlaform);
                     }
 
                     break;
@@ -3441,19 +3444,19 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool IsPlatformDesecrated(uint8 platformIndex)
+    void DesecratePlatform(Platforms platformIndex)
     {
-        return _platformStatus[platformIndex];
+        _desecratedPlatforms |= (1 << platformIndex);
     }
 
-    void DesecrateCurrentPlatform(uint8 platformIndex)
+    bool IsPlatformDesecrated(Platforms platformIndex)
     {
-        ++_platformStatus[platformIndex];
+        return _desecratedPlatforms & (1 << platformIndex);
     }
 
     Position const GetMiddlePointInCurrentPlatform()
     {
-       for (uint8 covenentPlaform = 0; covenentPlaform < DATA_PLATFORM_MAX; covenentPlaform++)
+       for (uint8 covenentPlaform = 0; covenentPlaform < PLATFORM_MAX; covenentPlaform++)
        {
            if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
                return CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
@@ -3498,11 +3501,11 @@ struct boss_sylvanas_windrunner : public BossAI
 private:
     EventMap _specialEvents;
     std::array<uint8, EVENT_COUNTER_MAX> _eventCounter = { };
-    std::array<uint8, DATA_PLATFORM_MAX> _platformStatus = { };
     std::vector<Position> _selectedRivePos;
     std::vector<ObjectGuid> _shadowCopyGUID;
     std::vector<ObjectGuid> _invigoratingFieldGUID;
     ObjectGuid _arrowTargetGUID;
+    uint8 _desecratedPlatforms;
 };
 
 // 176920 - Domination Arrow
@@ -4758,9 +4761,9 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
 
         if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
         {
-            for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
+            for (uint8 covenantPlatform = PLATFORM_MALDRAXXI; covenantPlatform < PLATFORM_MAX; covenantPlatform++)
             {
-                if (!ai->IsPlatformDesecrated(covenantPlatform))
+                if (!ai->IsPlatformDesecrated((Platforms)covenantPlatform))
                     return;
 
                 for (uint8 i = 0; i < 7; i++)
@@ -4900,9 +4903,9 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
 
         if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
         {
-            for (uint8 covenantPlatform = 0; covenantPlatform < 4; covenantPlatform++)
+            for (uint8 covenantPlatform = PLATFORM_MALDRAXXI; covenantPlatform < 4; covenantPlatform++)
             {
-                if (ai->IsPlatformDesecrated(covenantPlatform))
+                if (ai->IsPlatformDesecrated((Platforms)covenantPlatform))
                     return;
 
                 for (uint8 i = 0; i < 10; i++)
