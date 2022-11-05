@@ -536,8 +536,13 @@ enum Miscellanea
     DATA_BRIDGE_PHASE_TWO_COUNT_6                       = 6,
 
     DATA_MIDDLE_POS_OUTTER_PLATFORM                     = 0,
-    DATA_TOP_RIGHT_POS_VERTEX_PLATFORM                  = 1,
-    DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM                = 2
+    DATA_UPPER_INNER_RIGHT_POS_VERTEX_PLATFORM          = 1,
+    DATA_BOTTOM_INNER_LEFT_POS_VERTEX_PLATFORM          = 2,
+    DATA_UPPER_OUTTER_RIGHT_POS_VERTEX_PLATFORM         = 3,
+    DATA_BOTTOM_OUTTER_LEFT_POS_VERTEX_PLATFORM         = 4,
+
+    DATA_PLATFORM_MIDDLE_POINT                          = 0,
+    DATA_PLATFORM_RANDOM_POINT                          = 1
 };
 
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
@@ -678,35 +683,43 @@ Position const SylvanasPhase3PrePos = { -258.991f, -1265.996f,  5667.114f,  0.31
 
 Position const SylvanasPhase3Pos =    { -280.646f, -1245.48f,   5672.13f,   2.3046f   };
 
-// Note: middle is 0, top right is 1, bottom left is 2.
-Position const CovenantPlatformPos[4][3] =
+// Note: middle is 0, top right is 1, bottom left is 2. Points 3 and 4 are 2.0f wider for visual stuff.
+Position const CovenantPlatformPos[4][5] =
 {
     // Maldraxxi
     {
-        { -289.9608f, -1236.4189f, 5671.9052f, 0.0f },
-        { -271.2141f, -1255.5200f, 5671.6704f },
-        { -308.6874f, -1218.0043f, 5671.6704f }
+        { -289.9608f, -1236.4189f, 5671.9052f, 5.50f },
+        { -271.2141f, -1255.5200f, 5671.6704f, 0.00f },
+        { -308.6874f, -1218.0043f, 5671.6704f, 0.00f },
+        { -269.2141f, -1257.5200f, 5671.6704f, 0.00f },
+        { -311.5217f, -1215.6728f, 5671.6704f, 0.00f }
     },
 
     // Nightfae
     {
-        { -290.2621f, -1316.9971f, 5671.9067f, 0.0f },
-        { -271.2889f, -1335.1152f, 5671.6704f },
-        { -308.4179f, -1297.5373f, 5671.6704f }
+        { -290.2621f, -1316.9971f, 5671.9067f, 0.78f },
+        { -271.2889f, -1335.1152f, 5671.6704f, 0.00f },
+        { -308.4179f, -1297.5373f, 5671.6704f, 0.00f },
+        { -268.5888f, -1337.1152f, 5671.6704f, 0.00f },
+        { -310.8308f, -1295.1298f, 5671.6704f, 0.00f }
     },
 
     // Kyrian
     {
-        { -209.5206f, -1316.5284f, 5671.9052f, 0.0f },
-        { -191.8095f, -1334.5333f, 5671.6704f },
-        { -228.8465f, -1297.1842f, 5671.6704f }
+        { -209.5206f, -1316.5284f, 5671.9052f, 2.35f },
+        { -191.8095f, -1334.5333f, 5671.6704f, 0.00f },
+        { -228.8465f, -1297.1842f, 5671.6704f, 0.00f },
+        { -188.6405f, -1337.0092f, 5671.6704f, 0.00f },
+        { -231.9498f, -1294.1281f, 5671.6704f, 0.00f }
     },
 
     // Venthyr
     {
-        { -210.2180f, -1236.2922f, 5671.9067f, 0.0f },
-        { -192.2238f, -1254.8327f, 5671.6704f },
-        { -229.1900f, -1217.7504f, 5671.6704f }
+        { -210.2180f, -1236.2922f, 5671.9067f, 3.88f },
+        { -192.2238f, -1254.8327f, 5671.6704f, 0.00f },
+        { -229.1900f, -1217.7504f, 5671.6704f, 0.00f },
+        { -188.7388f, -1258.4964f, 5671.6704f, 0.00f },
+        { -232.1984f, -1214.5703f, 5671.6704f, 0.00f }
     }
 };
 
@@ -2729,13 +2742,13 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(50ms, [this](TaskContext /*task*/)
                     {
-                        me->CastSpell(GetMiddlePointInCurrentPlatform(), SPELL_RAZE, false);
+                        me->CastSpell(GetPointInCurrentPlatform(DATA_PLATFORM_MIDDLE_POINT), SPELL_RAZE, false);
                     });
 
-                    for (uint8 covenentPlaform = PLATFORM_MALDRAXXI; covenentPlaform < 4; covenentPlaform++)
+                    for (uint8 platform = PLATFORM_MALDRAXXI; platform < 4; platform++)
                     {
-                        if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
-                            DesecratePlatform((Platforms)covenentPlaform);
+                        if (me->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+                            DesecratePlatform((Platforms)platform);
                     }
 
                     break;
@@ -2760,7 +2773,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
 
-                        me->SendPlayOrphanSpellVisual(GetMiddlePointInCurrentPlatform(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        me->SendPlayOrphanSpellVisual(GetPointInCurrentPlatform(DATA_PLATFORM_MIDDLE_POINT), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
                         me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), me->m_Events.CalculateTime(16ms));
 
@@ -2768,7 +2781,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         {
                             me->SetNameplateAttachToGUID(_shadowCopyGUID[0]);
 
-                            shadowCopy->CastSpell(GetMiddlePointInCurrentPlatform(), SPELL_DOMINATION_CHAINS_JUMP, false);
+                            shadowCopy->CastSpell(GetPointInCurrentPlatform(DATA_PLATFORM_MIDDLE_POINT), SPELL_DOMINATION_CHAINS_JUMP, false);
                         }
                     });
 
@@ -2776,7 +2789,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         me->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
 
-                        me->NearTeleportTo(GetMiddlePointInCurrentPlatform(), false);
+                        me->NearTeleportTo(GetPointInCurrentPlatform(DATA_PLATFORM_MIDDLE_POINT), false);
 
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_TELEPORT, 0, 0);
 
@@ -3454,43 +3467,39 @@ struct boss_sylvanas_windrunner : public BossAI
         return _desecratedPlatforms & (1 << platformIndex);
     }
 
-    Position const GetMiddlePointInCurrentPlatform()
+    Position const GetPointInCurrentPlatform(uint8 platformPoint, bool isCombatArea = true)
     {
-       for (uint8 covenentPlaform = 0; covenentPlaform < PLATFORM_MAX; covenentPlaform++)
-       {
-           if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
-               return CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
-       }
-
-        return { };
-    }
-
-    Position const GetRandomPointInCurrentPlatform()
-    {
-        for (uint8 covenentPlaform = 0; covenentPlaform < 4; covenentPlaform++)
+        for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
         {
-            if (me->IsWithinBox(CovenantPlatformPos[covenentPlaform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
-                return GetRandomPointInCovenantPlatform(CovenantPlatformPos[covenentPlaform][DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM], CovenantPlatformPos[covenentPlaform][DATA_TOP_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
+            if (!me->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+                continue;
+
+            if (platformPoint == DATA_PLATFORM_MIDDLE_POINT)
+                return CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
+            else
+                return GetRandomPointInCovenantPlatform(CovenantPlatformPos[platform][isCombatArea ? DATA_BOTTOM_INNER_LEFT_POS_VERTEX_PLATFORM : DATA_BOTTOM_OUTTER_LEFT_POS_VERTEX_PLATFORM],
+                    CovenantPlatformPos[platform][isCombatArea ? DATA_UPPER_INNER_RIGHT_POS_VERTEX_PLATFORM : DATA_UPPER_OUTTER_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
         }
 
         return { };
     }
 
-    Position const GetRandomPointInNonDesecratedPlatform(uint8 index)
+    Position const GetRandomPointInNonDesecratedPlatform(uint8 platformIndex, bool isCombatArea = true)
     {
-        return GetRandomPointInCovenantPlatform(CovenantPlatformPos[index][DATA_BOTTOM_LEFT_POS_VERTEX_PLATFORM], CovenantPlatformPos[index][DATA_TOP_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
+        return GetRandomPointInCovenantPlatform(CovenantPlatformPos[platformIndex][isCombatArea ? DATA_BOTTOM_INNER_LEFT_POS_VERTEX_PLATFORM : DATA_BOTTOM_OUTTER_LEFT_POS_VERTEX_PLATFORM],
+            CovenantPlatformPos[platformIndex][isCombatArea ? DATA_UPPER_INNER_RIGHT_POS_VERTEX_PLATFORM : DATA_UPPER_OUTTER_RIGHT_POS_VERTEX_PLATFORM], me->GetPositionZ());
 
         return { };
     }
 
-    ObjectGuid GetShadowCopyGuid(uint32 index)
+    ObjectGuid GetShadowCopyGuid(uint32 copyIndex)
     {
-        return _shadowCopyGUID[index];
+        return _shadowCopyGUID[copyIndex];
     }
 
-    npc_sylvanas_windrunner_shadowcopy* GetSylvanasCopyAI(uint32 index)
+    npc_sylvanas_windrunner_shadowcopy* GetSylvanasCopyAI(uint32 copyIndex)
     {
-        Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[index]);
+        Creature* shadowCopy = ObjectAccessor::GetCreature(*me, _shadowCopyGUID[copyIndex]);
 
         if (!shadowCopy)
             return nullptr;
@@ -4761,14 +4770,14 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
 
         if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
         {
-            for (uint8 covenantPlatform = PLATFORM_MALDRAXXI; covenantPlatform < PLATFORM_MAX; covenantPlatform++)
+            for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
             {
-                if (!ai->IsPlatformDesecrated((Platforms)covenantPlatform))
+                if (!ai->IsPlatformDesecrated((Platforms)platform))
                     return;
 
                 for (uint8 i = 0; i < 7; i++)
                 {
-                    Position const baneArrowPos = ai->GetRandomPointInNonDesecratedPlatform(covenantPlatform);
+                    Position const baneArrowPos = ai->GetRandomPointInNonDesecratedPlatform(platform);
 
                     uint32 randomSpeed = urand(2040, 3200);
 
@@ -4845,7 +4854,7 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 class BansheesFuryEvent : public BasicEvent
 {
     public:
-        BansheesFuryEvent(Unit* actor, uint8 covenantPlatform) : _actor(actor), _covenantPlatform(covenantPlatform) { }
+        BansheesFuryEvent(Unit* actor, uint8 platform) : _actor(actor), _platform(platform) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
@@ -4856,7 +4865,7 @@ class BansheesFuryEvent : public BasicEvent
                     if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                     {
                         if (sylvanas->HasAura(SPELL_BANSHEES_FURY))
-                            sylvanas->SendPlaySpellVisual(ai->GetRandomPointInNonDesecratedPlatform(_covenantPlatform), 0.0f, SPELL_VISUAL_BANSHEE_FURY, 0, 0, 0.100000001490116119f, true);
+                            sylvanas->SendPlaySpellVisual(ai->GetRandomPointInNonDesecratedPlatform(_platform, false), 0.0f, SPELL_VISUAL_BANSHEE_FURY, 0, 0, 0.100000001490116119f, true);
                     }
                 }
             }
@@ -4866,7 +4875,7 @@ class BansheesFuryEvent : public BasicEvent
 
     private:
         Unit* _actor;
-        uint8 _covenantPlatform;
+        uint8 _platform;
 };
 
 // 354068 - Banshee's Fury
@@ -4903,13 +4912,13 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
 
         if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
         {
-            for (uint8 covenantPlatform = PLATFORM_MALDRAXXI; covenantPlatform < 4; covenantPlatform++)
+            for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
             {
-                if (ai->IsPlatformDesecrated((Platforms)covenantPlatform))
+                if (ai->IsPlatformDesecrated((Platforms)platform))
                     return;
 
                 for (uint8 i = 0; i < 10; i++)
-                    caster->m_Events.AddEvent(new BansheesFuryEvent(caster, covenantPlatform), caster->m_Events.CalculateTime(50ms * i));
+                    caster->m_Events.AddEvent(new BansheesFuryEvent(caster, platform), caster->m_Events.CalculateTime(50ms * i));
             }
         }
     }
@@ -4933,7 +4942,7 @@ class RazeEvent : public BasicEvent
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                 {
                     if (boss_sylvanas_windrunner* ai = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-                        sylvanas->SendPlaySpellVisual(ai->GetRandomPointInCurrentPlatform(), 0.0f, SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
+                        sylvanas->SendPlaySpellVisual(ai->GetPointInCurrentPlatform(DATA_PLATFORM_RANDOM_POINT, false), 0.0f, SPELL_VISUAL_RAZE, 0, 0, 0.100000001490116119f, true);
                 }
             }
 
