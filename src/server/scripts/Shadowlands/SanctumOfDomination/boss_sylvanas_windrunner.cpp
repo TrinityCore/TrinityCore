@@ -262,7 +262,6 @@ enum Events
     EVENT_DESECRATING_SHOT_LAUNCH,
     EVENT_DOMINATION_CHAINS                             = 50,
     EVENT_DOMINATION_CHAINS_JUMP                        = 65,
-    EVENT_WAILING_ARROW_PREPARE,
     EVENT_WAILING_ARROW,
     EVENT_VEIL_OF_DARKNESS                              = 70,
     EVENT_RIVE                                          = 72,
@@ -276,8 +275,7 @@ enum Events
 enum EventGroups
 {
     EVENT_GROUP_NORMAL_EVENTS                           = 1,
-    EVENT_GROUP_WINDRUNNER_EVENTS                       = 2,
-    EVENT_GROUP_WAILING_ARROW_EVENTS                    = 3
+    EVENT_GROUP_WINDRUNNER_EVENTS                       = 2
 };
 
 enum EventCounterValues
@@ -557,20 +555,48 @@ Position const SylvanasIntroPos[4] =
     { 225.73611f, -844.0746f,  4104.9882f, 1.3613f }
 };
 
-uint32 const EventsTimersNormal[3][4][5]
+uint32 const EventsTimersLfr[3][4][5]
 {
     // P1
     {
         // Note: fifth casts are guessed since we can't get to know until DF.
-        { 7000, 55000, 56000, 55000, 55000  }, // Windrunner
-        { 25000, 57000, 57000, 57000, 57000 }, // Domination Chains
-        { 29500, 34500, 30500, 29500, 28500 }, // Wailing Arrow
-        { 50000, 53000, 54000, 55000, 56000 }  // Veil of Darkness
+        { 8000, 62000, 61500, 60000, 59500  }, // Windrunner
+        { 28000, 63000, 63000, 63000, 63000 }, // Domination Chains
+        { 40000, 46000, 36500, 39000, 38000 }, // Wailing Arrow
+        { 55000, 59000, 58000, 57000, 56000 }  // Veil of Darkness
     },
 
     // P2
     {
         {  },
+        {  },
+        {  },
+        {  }
+    },
+
+    // P3
+    {
+        {  },
+        {  },
+        {  },
+        {  }
+    },
+};
+
+uint32 const EventsTimersNormal[3][4][5]
+{
+    // P1
+    {
+        // Note: fifth casts are guessed since we can't get to know until DF.
+        { 7700, 55000, 56000, 55000, 55000  }, // Windrunner
+        { 25000, 58000, 57500, 57500, 57500 }, // Domination Chains
+        { 28000, 37500, 31500, 30000, 30500 }, // Wailing Arrow
+        { 50000, 53500, 53500, 55000, 56000 }  // Veil of Darkness
+    },
+
+    // P2
+    {
+        { 33500, 37500, 31500, 30500, 30500 },
         {  },
         {  },
         {  }
@@ -1483,7 +1509,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                me->NearTeleportTo(_desecratingShotSpiralPos[0].GetPositionX(), _desecratingShotSpiralPos[0].GetPositionY(), _desecratingShotSpiralPos[0].GetPositionZ() + 7.048f, _desecratingShotSpiralPos[0].GetOrientation(), false);
+                me->NearTeleportTo(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), _desecratingShotStorage[27].Pos.GetPositionZ() + 7.048f, false);
 
                 if (copyIndex == 2)
                 {
@@ -1517,7 +1543,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 _scheduler.Schedule(450ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
                 {
                     _desecratingShotStorage.clear();
-                    _desecratingShotSpiralPos.clear();
 
                     if (copyIndex == 0)
                     {
@@ -1535,7 +1560,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
                 // TODO: obtain correct timers on sniff.
-                me->NearTeleportTo(_desecratingShotSpiralPos[0].GetPositionX(), _desecratingShotSpiralPos[0].GetPositionY(), _desecratingShotSpiralPos[0].GetPositionZ() + 7.048f, _desecratingShotSpiralPos[0].GetOrientation(), false);
+                me->NearTeleportTo(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), _desecratingShotStorage[27].Pos.GetPositionZ() + 7.048f, false);
 
                 if (copyIndex == 2)
                 {
@@ -1569,7 +1594,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 _scheduler.Schedule(450ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
                 {
                     _desecratingShotStorage.clear();
-                    _desecratingShotSpiralPos.clear();
 
                     if (copyIndex == 0)
                     {
@@ -1591,11 +1615,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             default:
                 break;
         }
-    }
-
-    void StoreSpiralPos(Position pos)
-    {
-        _desecratingShotSpiralPos.emplace_back(pos);
     }
 
     void StoreDesecratingShots(Position pos, uint8 step, float travelSpeed)
@@ -1664,7 +1683,6 @@ private:
     std::vector<ObjectGuid> _witheringFireTargetGUIDs;
     std::vector<Position> _randomDominationChainsPos;
     std::vector<DesecratingShotsStorage> _desecratingShotStorage;
-    std::vector<Position> _desecratingShotSpiralPos;
     bool _onDominationChains;
     uint8 _sayDaggers;
     uint8 _sayDesecrating;
@@ -1735,7 +1753,6 @@ struct boss_sylvanas_windrunner : public BossAI
         me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
         events.Reset();
-        _specialEvents.Reset();
 
         // Note: Rive positions must be randomized.
         for (uint8 i = 0; i < RiveThrowPos.size(); i++)
@@ -1807,8 +1824,9 @@ struct boss_sylvanas_windrunner : public BossAI
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
-        // Note: each difficulty uses different timers, so we use a method that will handle it all to avoid bloating.
-        HandleCombatRelatedEventsForPhaseOne();
+        events.SetPhase(PHASE_ONE);
+
+        ScheduleEventsForPhaseOne();
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
@@ -1995,7 +2013,6 @@ struct boss_sylvanas_windrunner : public BossAI
             // TODO: move this to an event because the transition shouldn't happen at all until on-going events are done.
             case ACTION_PREPARE_INTERMISSION:
             {
-                _specialEvents.CancelEventGroup(EVENT_GROUP_WAILING_ARROW_EVENTS);
                 events.CancelEventGroup(EVENT_GROUP_NORMAL_EVENTS);
                 events.CancelEventGroup(EVENT_GROUP_WINDRUNNER_EVENTS);
 
@@ -2006,7 +2023,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         if (shadowCopy->IsAIEnabled())
                             shadowCopy->GetAI()->DoAction(ACTION_PREPARE_INTERMISSION);
 
-                _specialEvents.SetPhase(PHASE_INTERMISSION);
                 events.SetPhase(PHASE_INTERMISSION);
                 events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                 break;
@@ -2103,6 +2119,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
 
+                    me->m_Events.KillAllEvents(true);
+
                     me->RemoveAura(SPELL_RANGER_HEARTSEEKER_AURA);
                     me->RemoveAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
                 });
@@ -2150,10 +2168,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     events.ScheduleEvent(EVENT_RAZE, 70s, 1, PHASE_THREE);
                     events.ScheduleEvent(EVENT_BANSHEE_SCREAM, 80s, 1, PHASE_THREE);
 
-                    // We need a separated event handler for this because Wailing Arrow is triggered even if Sylvanas is casting
-                    _specialEvents.SetPhase(PHASE_THREE);
-                    _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, 60s, 1, PHASE_THREE);
-
                     DoCastSelf(SPELL_BANSHEES_HEARTSEEKER_AURA, true);
                 });
                 break;
@@ -2167,94 +2181,6 @@ struct boss_sylvanas_windrunner : public BossAI
     void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
-
-        _specialEvents.Update(diff);
-
-        while (uint32 specialEventId = _specialEvents.ExecuteEvent())
-        {
-            switch (specialEventId)
-            {
-                case EVENT_WAILING_ARROW_PREPARE:
-                {
-                    std::list<Player*> everyPlayerButCurrentTank;
-                    GetPlayerListInGrid(everyPlayerButCurrentTank, me, 250.0f);
-
-                    if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 250.0f, true, true))
-                    {
-                        _arrowTargetGUID = currentTank->GetGUID();
-
-                        Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, currentTank);
-
-                        me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
-
-                        if (Player* currentTankToPlayer = currentTank->ToPlayer())
-                            everyPlayerButCurrentTank.remove(currentTankToPlayer);
-
-                        if (events.IsInPhase(PHASE_ONE))
-                            for (Unit* nonTank : everyPlayerButCurrentTank)
-                                Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
-
-                        events.ScheduleEvent(EVENT_WAILING_ARROW, 5s + 500ms, EVENT_GROUP_WAILING_ARROW_EVENTS, PHASE_ONE);
-                    }
-
-                    if (events.IsInPhase(PHASE_THREE))
-                    {
-                        Trinity::Containers::RandomResize(everyPlayerButCurrentTank, 2);
-
-                        Unit* firstRandomPlayer = everyPlayerButCurrentTank.front();
-                        Unit* secondRandomPlayer = everyPlayerButCurrentTank.back();
-
-                        ObjectGuid arrowfirstRandomTargetGUID = firstRandomPlayer->GetGUID();
-                        ObjectGuid arrowsecondRandomTargetGUID = secondRandomPlayer->GetGUID();
-
-                        scheduler.Schedule(3s, [this, arrowfirstRandomTargetGUID](TaskContext /*task*/)
-                        {
-                            if (Player* target = ObjectAccessor::GetPlayer(*me, arrowfirstRandomTargetGUID))
-                            {
-                                Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, target);
-
-                                me->CastSpell(target, SPELL_WAILING_ARROW_POINTER, true);
-
-                                scheduler.Schedule(7s, [this, arrowfirstRandomTargetGUID](TaskContext /*task*/)
-                                {
-                                    if (Player* target = ObjectAccessor::GetPlayer(*me, arrowfirstRandomTargetGUID))
-                                        me->CastSpell(target, SPELL_WAILING_ARROW, false);
-                                });
-                            }
-                        });
-
-                        scheduler.Schedule(6s, [this, arrowsecondRandomTargetGUID](TaskContext /*task*/)
-                        {
-                            if (Player* target = ObjectAccessor::GetPlayer(*me, arrowsecondRandomTargetGUID))
-                            {
-                                Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, target);
-
-                                me->CastSpell(target, SPELL_WAILING_ARROW_POINTER, true);
-
-                                scheduler.Schedule(7s, [this, arrowsecondRandomTargetGUID](TaskContext /*task*/)
-                                {
-                                    if (Player* target = ObjectAccessor::GetPlayer(*me, arrowsecondRandomTargetGUID))
-                                        me->CastSpell(target, SPELL_WAILING_ARROW, false);
-                                });
-
-                                scheduler.Schedule(10s, [this](TaskContext /*task*/)
-                                {
-                                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(1ms));
-
-                                    // TODO: this timer is wrong, find correct one.
-                                    //_specialEvents.ScheduleEvent(EVENT_WAILING_ARROW, 33s, PHASE_THREE);
-                                });
-                            }
-                        });
-                    }
-
-                    break;
-                }
-
-                default:
-                    break;
-            }
-        }
 
         events.Update(diff);
 
@@ -2275,7 +2201,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (_eventCounter[EVENT_COUNTER_WINDRUNNER] == 5)
                         _eventCounter[EVENT_COUNTER_WINDRUNNER] = 1;
 
-                    HandleWindrunnerRelatedEvents();
+                    ScheduleWindrunnerEvents();
                     break;
                 }
 
@@ -2419,7 +2345,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DOMINATION_CHAINS:
                 {
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(1ms));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(0ms));
                     DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
                     DoCastSelf(SPELL_DOMINATION_CHAINS);
                     TeleportShadowcopiesToMe();
@@ -2434,30 +2360,59 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_WAILING_ARROW:
                 {
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(0ms));
+                    scheduler.Schedule(Milliseconds(EventsTimersNormal[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), [this](TaskContext /*task*/)
+                    {
+                        std::list<Player*> everyPlayerButCurrentTank;
+                        GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
 
-                    if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                        DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+                        if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true, true))
+                        {
+                            _arrowTargetGUID = currentTank->GetGUID();
 
-                    events.ScheduleEvent(EVENT_WAILING_ARROW + 1, me->HasAura(SPELL_RANGER_BOW_STANCE) ? 50ms : 1s, EVENT_GROUP_WAILING_ARROW_EVENTS, PHASE_ONE);
+                            Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, currentTank);
+
+                            me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
+
+                            if (Player* currentTankToPlayer = currentTank->ToPlayer())
+                                everyPlayerButCurrentTank.remove(currentTankToPlayer);
+
+                            if (events.IsInPhase(PHASE_ONE))
+                                for (Unit* nonTank : everyPlayerButCurrentTank)
+                                    Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
+
+                            events.ScheduleEvent(EVENT_WAILING_ARROW + 1, 4s + 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        }
+                    });
                     break;
                 }
 
                 case EVENT_WAILING_ARROW + 1:
+                {
+                    DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
+
+                    // Note: we must ensure Ranger Shot doesn't reset AttackTimer incorrectly.
+                    me->m_Events.KillAllEvents(true);
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(100ms));
+
+                    events.ScheduleEvent(EVENT_WAILING_ARROW + 2, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    break;
+                }
+
+                case EVENT_WAILING_ARROW + 2:
                 {
                     Talk(SAY_WAILING_ARROW);
 
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
                         me->CastSpell(target, SPELL_WAILING_ARROW, false);
                     else
-                        if (Unit* newTarget = SelectTarget(SelectTargetMethod::MaxThreat, 0, 250.0f, true))
+                        if (Unit* newTarget = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true))
                             me->CastSpell(newTarget, SPELL_WAILING_ARROW, false);
 
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(4s));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(4s + 250ms));
 
-                    _eventCounter[EVENT_COUNTER_WAILING_ARROW]++;
+                    ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
 
-                    _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, Milliseconds(EventsTimersNormal[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_WAILING_ARROW_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
                 }
 
@@ -2465,7 +2420,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     // Note: we must ensure Ranger Shot doesn't reset AttackTimer incorrectly.
                     me->m_Events.KillAllEvents(true);
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(1ms));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(100ms));
 
                     Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
                     Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
@@ -2529,7 +2484,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
 
-                        events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventsTimersNormal[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_WAILING_ARROW_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     }
                     break;
                 }
@@ -2704,7 +2659,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
 
                         events.SetPhase(PHASE_TWO);
-                        _specialEvents.SetPhase(PHASE_TWO);
                     });
 
                     scheduler.Schedule(9s + 400ms, [this](TaskContext /*task*/)
@@ -2831,7 +2785,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
     void DoSylvanasAttackIfReady()
     {
-        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_WINDRUNNER))
+        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_WINDRUNNER) || me->HasReactState(REACT_PASSIVE))
             return;
 
         if (me->isAttackReady(BASE_ATTACK))
@@ -2922,18 +2876,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     Position targetPos = target->GetPosition();
 
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(copyIndex))
-                    {
-                        // Note: this is the center point, we're keeping it here so we don't have to deal with checks.
-                        shadowCopyAI->StoreDesecratingShots(targetPos, 0, 0.245000004768371f);
-                        shadowCopyAI->StoreSpiralPos(targetPos);
-                    }
-
-                    scheduler.Schedule(35ms, [this, targetPos](TaskContext /*task*/)
-                    {
-                        me->CastSpell(targetPos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
-
                     while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, copyIndex, step, targetPos, target->GetOrientation()))
                         --step;
 
@@ -2955,18 +2897,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     uint8 step = 10;
 
                     Position targetPos = target->GetPosition();
-
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(copyIndex))
-                    {
-                        // Note: this is the center point, we're keeping it here so we don't have to deal with checks.
-                        shadowCopyAI->StoreDesecratingShots(targetPos, 0, 0.245000004768371f);
-                        shadowCopyAI->StoreSpiralPos(targetPos);
-                    }
-
-                    scheduler.Schedule(35ms, [this, targetPos](TaskContext /*task*/)
-                    {
-                        me->CastSpell(targetPos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
 
                     while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED, copyIndex, step, targetPos, target->GetOrientation()))
                         --step;
@@ -3099,23 +3029,38 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                float distance = DesecratingShotNormalSpiralDistance[step];
+                float distance = DesecratingShotNormalSpiralDistance[step - 1];
 
-                Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                arrowPositions.push_back(spiralLeft);
-
-                Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                arrowPositions.push_back(spiralRight);
-
-                Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                arrowPositions.push_back(spiralFront);
-
-                scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                if (step != 1)
                 {
-                    me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                });
+                    Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    arrowPositions.push_back(spiralLeft);
+
+                    Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    arrowPositions.push_back(spiralRight);
+
+                    Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    arrowPositions.push_back(spiralFront);
+
+                    scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                    {
+                        me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
+                else
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(amount))
+                    {
+                        shadowCopyAI->StoreDesecratingShots(pos, 0, 0.245000004768371f);
+
+                        scheduler.Schedule(Milliseconds(step * 35), [this, pos](TaskContext /*task*/)
+                        {
+                             me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        });
+                    }
+                }
 
                 // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
                 float travelSpeed = 0.245000004768371f;
@@ -3131,24 +3076,38 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
-                float distance = DesecratingShotSpiralEnclosedDistance[step];
+                float distance = DesecratingShotNormalSpiralDistance[step - 1];
 
-                // TODO: obtain correct orientation as it seems orientation is higher on the 5th step forward.
-                Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                arrowPositions.push_back(spiralLeft);
-
-                Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                arrowPositions.push_back(spiralRight);
-
-                Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                arrowPositions.push_back(spiralFront);
-
-                scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                if (step != 1)
                 {
-                    me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                });
+                    Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    arrowPositions.push_back(spiralLeft);
+
+                    Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    arrowPositions.push_back(spiralRight);
+
+                    Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    arrowPositions.push_back(spiralFront);
+
+                    scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                    {
+                        me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
+                else
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetSylvanasCopyAI(amount))
+                    {
+                        shadowCopyAI->StoreDesecratingShots(pos, 0, 0.245000004768371f);
+
+                        scheduler.Schedule(Milliseconds(step * 35), [this, pos](TaskContext /*task*/)
+                        {
+                            me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        });
+                    }
+                }
 
                 // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
                 float travelSpeed = 0.245000004768371f;
@@ -3248,12 +3207,17 @@ struct boss_sylvanas_windrunner : public BossAI
         return true;
     }
 
-    void HandleCombatRelatedEventsForPhaseOne()
+    void ScheduleEventsForPhaseOne()
     {
         switch (me->GetMap()->GetDifficultyID())
         {
             case DIFFICULTY_LFR_NEW:
             {
+                events.SetPhase(PHASE_ONE);
+                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersLfr[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventsTimersLfr[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventsTimersLfr[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersLfr[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 break;
             }
 
@@ -3262,11 +3226,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventsTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-
-                // Note: we use a different event handler for Wailing Arrow because the marker is cast no matter if an event is going on.
-                _specialEvents.SetPhase(PHASE_ONE);
-                _specialEvents.ScheduleEvent(EVENT_WAILING_ARROW_PREPARE, Milliseconds(EventsTimersNormal[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_WAILING_ARROW_EVENTS, PHASE_ONE);
                 break;
             }
 
@@ -3285,7 +3246,7 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    void HandleWindrunnerRelatedEvents()
+    void ScheduleWindrunnerEvents()
     {
         _eventCounter[EVENT_COUNTER_WINDRUNNER]++;
 
@@ -3343,13 +3304,13 @@ struct boss_sylvanas_windrunner : public BossAI
                     case DATA_WINDRUNNER_COUNTER_TWO:
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 13000));
-                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 1ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 3s + 31ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s + 31ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 6s + 31ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 156ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 1ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 3s + 31ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 3s + 31ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 6s + 31ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 156ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
@@ -3357,13 +3318,14 @@ struct boss_sylvanas_windrunner : public BossAI
                     case DATA_WINDRUNNER_COUNTER_THREE:
                     {
                         DoCastSelf(SPELL_WINDRUNNER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 15000));
-                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 1ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 500ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // The disappear should happen at 2s + 750ms
-                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 5s + 438ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 8s + 594ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // The disappear should happen at 11s + 219ms
-                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s + 78ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE); // Fixed
-                        // Note: Sniffs are not consistent on the queuing of this event. May be related to a dynamic handling based on the stance Sylvanas starts the encounter.
+                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 1ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 500ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 2s + 750ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 5s + 438ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SHADOW_DAGGERS, 8s + 594ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 219ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s + 78ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
@@ -3378,7 +3340,6 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 500ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        // Note: Sniffs are not consistent on the queuing of this event. May be related to a dynamic handling based on the stance Sylvanas starts the encounter in.
                         events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
@@ -3508,7 +3469,6 @@ struct boss_sylvanas_windrunner : public BossAI
     }
 
 private:
-    EventMap _specialEvents;
     std::array<uint8, EVENT_COUNTER_MAX> _eventCounter = { };
     std::vector<Position> _selectedRivePos;
     std::vector<ObjectGuid> _shadowCopyGUID;
@@ -3610,7 +3570,9 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
-        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(859ms));
+
+        if (caster->IsInCombat())
+            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(859ms));
     }
 
     void Register() override
@@ -3649,7 +3611,9 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_MELEE, 0), caster->m_Events.CalculateTime(313ms));
-        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(828ms));
+
+        if (caster->IsInCombat())
+            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(828ms));
     }
 
     void Register() override
@@ -3738,7 +3702,10 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
     {
         Unit* target = GetTarget();
 
-        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false), target->m_Events.CalculateTime(300ms));
+        if (target->IsAIEnabled())
+            target->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
+
+        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false, true), target->m_Events.CalculateTime(300ms));
     }
 
     void Register() override
@@ -4172,7 +4139,7 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
         if (caster->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == 1)
         {
             caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(1s + 531ms));
-            caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(3s + 31ms));
+            caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(3s + 331ms));
         }
     }
 
@@ -4772,8 +4739,8 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
         {
             for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
             {
-                if (!ai->IsPlatformDesecrated((Platforms)platform))
-                    return;
+                if (ai->IsPlatformDesecrated((Platforms)platform))
+                    continue;
 
                 for (uint8 i = 0; i < 7; i++)
                 {
@@ -4915,7 +4882,7 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
             for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
             {
                 if (ai->IsPlatformDesecrated((Platforms)platform))
-                    return;
+                    continue;
 
                 for (uint8 i = 0; i < 10; i++)
                     caster->m_Events.AddEvent(new BansheesFuryEvent(caster, platform), caster->m_Events.CalculateTime(50ms * i));
