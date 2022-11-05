@@ -1,6 +1,6 @@
 -- *** Missing Spawns ***
 
-SET @CGUID := 9000000;
+SET @CGUID := XXXXXX;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+25;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+0,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.644917,-6.061374,9.000128,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
@@ -458,11 +458,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- *** Spells ***
 
--- Needs work to relocate target position for "Stand your Ground" Quest "Horde only tested atm"
-DELETE FROM `spell_script_names` WHERE `spell_id`=325108;
-INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(325108,'spell_summon_throg_combat_training');
-
 -- Needed to remove player from transport before teleporting
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (305425,325131);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -496,8 +491,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 UPDATE `scene_template` SET `ScriptName`='scene_alliance_and_horde_ship' WHERE `SceneId` IN (2236,2486);
 DELETE FROM `scene_template` WHERE `SceneId` IN (2334,2487);
 INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`ScriptName`) VALUES
-(2334,16,2708,0,'scene_alliance_and_horde_crash'),
-(2487,16,2708,0,'scene_alliance_and_horde_crash');
+(2334,16,2708,0,'scene_alliance_and_horde_crash'), -- Alliance
+(2487,16,2708,0,'scene_alliance_and_horde_crash'); -- Horde
 
 -- *** Conversations ***
 

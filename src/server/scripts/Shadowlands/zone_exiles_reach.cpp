@@ -25,7 +25,7 @@
 #include "TemporarySummon.h"
 #include "ScriptedCreature.h"
 
-// Scripting in this section is from login to arriving on beach for alliance and horde
+// Ship
 
 enum SparingPartner
 {
@@ -484,14 +484,6 @@ struct npc_alliance_boat_invisbunny : public ScriptedAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
-                        /*
-                        // Doesn't work
-                        if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 75.0f))
-                            if (Creature* garrickold = ObjectAccessor::GetCreature(*me, _garrickGUID))
-                                garrick->SummonPersonalClone(garrickold->GetPosition(), TempSummonType(TEMPSUMMON_TIMED_DESPAWN), 60s, 0, 0, player);
-
-                        */
-
                         // Not fluid but works
                         Position garrickpos = { -3.0797f, -0.546193f, 5.29752f, 3.3191178f - float(M_PI) }; // transport offset
 
@@ -506,27 +498,6 @@ struct npc_alliance_boat_invisbunny : public ScriptedAI
                                     if(garrick2->IsAIEnabled())
                                         garrick2->AI()->SetData(1, 1); // First personal summon
                             }
-                        /*
-                        // Doesn't work
-                        Creature* garrick1 = nullptr;
-                        Creature* garrick2 = nullptr;
-                        std::list<Creature*> garricklist;
-                        player->GetCreatureListWithEntryInGrid(garricklist, NPC_CAPTAIN_GARRICK, 75.0f);
-                        for (Creature* creature : garricklist)
-                        {
-                            if (creature-> GetDBPhase() == PHASE_CAPTAIN_GARRICK1)
-                                garrick1 = creature;
-                            else if (creature->GetDBPhase() == PHASE_CAPTAIN_GARRICK2)
-                                garrick2 = creature;
-                        }
-                        if (garrick1)
-                            printf("Garrick1 guid %s\r\n", garrick1->GetGUID().ToString().c_str());
-                        if (garrick2)
-                            printf("Garrick2 guid %s\r\n", garrick2->GetGUID().ToString().c_str());
-                        if (!garrick1 || !garrick2)
-                            return;
-                        garrick2->SummonPersonalClone(garrick1->GetPosition(), TempSummonType(TEMPSUMMON_TIMED_DESPAWN), 60s, 0, 0, player);
-                        */
                     }
                 }
                 break;
@@ -576,7 +547,8 @@ public:
                         ENSURE_AI(npc_alliance_boat_invisbunny, invisbunny->GetAI())->_playerGUID = player->GetGUID();
                         if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 5.0f))
                             ENSURE_AI(npc_alliance_boat_invisbunny, invisbunny->GetAI())->_garrickGUID = garrick->GetGUID();
-                        invisbunny->AI()->SetData(1, 1);
+                        if(invisbunny->IsAIEnabled())
+                            invisbunny->AI()->SetData(1, 1);
                     }
                 }
                 else if (quest->GetQuestId() == QUEST_WARMING_UP_HORDE)
@@ -690,9 +662,10 @@ public:
 
 enum AllianceHordeShipSceneSpells
 {
-    SPELL_BEGIN_TUTORIAL = 295600,
-    SPELL_KNOCKED_DOWN   = 305445,
-    SPELL_CRASHED_LANDED = 325136
+    SPELL_BEGIN_TUTORIAL          = 295600,
+    SPELL_KNOCKED_DOWN            = 305445,
+    SPELL_CRASHED_LANDED_ALLIANCE = 305464,
+    SPELL_CRASHED_LANDED_HORDE    = 325136
 };
 
 class scene_alliance_and_horde_ship : public SceneScript
@@ -708,48 +681,6 @@ public:
     void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
-    }
-};
-
-class scene_alliance_and_horde_crash : public SceneScript
-{
-public:
-    scene_alliance_and_horde_crash() : SceneScript("scene_alliance_and_horde_crash") { }
-
-    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
-    {
-        if (triggerName == "Begin Knockdown Aura")
-            player->CastSpell(player, SPELL_KNOCKED_DOWN, true);
-    }
-
-    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        player->CastSpell(player, SPELL_CRASHED_LANDED, true);
-    }
-};
-
-class spell_summon_throg_combat_training : public SpellScript
-{
-    PrepareSpellScript(spell_summon_throg_combat_training);
-
-    void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
-    {
-        /*
-        Unit* target = GetHitUnit();
-        Creature* throg = nullptr;
-        std::list<Creature*> throglist;
-        target->GetCreatureListWithEntryInGrid(throglist, NPC_GRUNT_THROG, 5.0f);
-        for (Creature* creature : throglist)
-            throg = creature;
-
-        if (throg)
-            GetHitDest()->RelocateOffset(throg->GetPosition());
-        */
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_summon_throg_combat_training::RelocateTransportOffset, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -789,7 +720,83 @@ class spell_horde_spell_ship_crash_teleport : public SpellScript
     }
 };
 
-// Scripting in this section is from arriving on beach for alliance and horde
+// Beach
+
+class scene_alliance_and_horde_crash : public SceneScript
+{
+public:
+    scene_alliance_and_horde_crash() : SceneScript("scene_alliance_and_horde_crash") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Begin Knockdown Aura")
+            player->CastSpell(player, SPELL_KNOCKED_DOWN, true);
+    }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        if (player->GetTeam() == ALLIANCE)
+            player->CastSpell(player, SPELL_CRASHED_LANDED_ALLIANCE, true);
+        else
+            player->CastSpell(player, SPELL_CRASHED_LANDED_HORDE, true);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        if (player->GetTeam() == ALLIANCE)
+            player->CastSpell(player, SPELL_CRASHED_LANDED_ALLIANCE, true);
+        else
+            player->CastSpell(player, SPELL_CRASHED_LANDED_HORDE, true);
+    }
+};
+
+enum SpellCrashLanded
+{
+    NPC_CAPTAIN_GARRICK2       = 156626,
+    NPC_WARLORD_BREKA_GRIMAXE4 = 166782
+};
+
+class spell_crash_landed_alliance : public SpellScript
+{
+    PrepareSpellScript(spell_crash_landed_alliance);
+
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Player* player = caster->ToPlayer())
+                if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK2, 40.0f))
+                {
+
+                }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_crash_landed_alliance::HandleEffect, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+class spell_crash_landed_horde : public SpellScript
+{
+    PrepareSpellScript(spell_crash_landed_horde);
+
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if(Player * player = caster->ToPlayer())
+                if (Creature* breka = player->FindNearestCreature(NPC_WARLORD_BREKA_GRIMAXE4, 40.0f))
+                {
+                    Creature* breka2 = breka->SummonPersonalClone(breka->GetPosition(), TempSummonType(TEMPSUMMON_TIMED_DESPAWN), 10s, 0, 0, player);
+                    if (breka2->IsAIEnabled())
+                        breka2->AI()->SetData(1, 1);
+                }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_crash_landed_horde::HandleEffect, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+};
 
 void AddSC_zone_exiles_reach()
 {
@@ -804,9 +811,10 @@ void AddSC_zone_exiles_reach()
     new conversation_sparing_partner();
     new player_ship_crash();
     new scene_alliance_and_horde_ship();
-    new scene_alliance_and_horde_crash();
-    RegisterSpellScript(spell_summon_throg_combat_training);
     RegisterSpellScript(spell_alliance_spell_ship_crash_teleport);
     RegisterSpellScript(spell_horde_spell_ship_crash_teleport);
     // Beach
+    new scene_alliance_and_horde_crash();
+    RegisterSpellScript(spell_crash_landed_alliance);
+    RegisterSpellScript(spell_crash_landed_horde);
 }
