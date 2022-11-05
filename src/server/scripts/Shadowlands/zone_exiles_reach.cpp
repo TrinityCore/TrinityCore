@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
+#include "MotionMaster.h"
 #include "Conversation.h"
 #include "CreatureAIImpl.h"
 #include "TemporarySummon.h"
@@ -247,12 +248,12 @@ struct npc_hboat : public ScriptedAI
                 {
                     if (TransportBase const* transport = player->GetDirectTransport())
                     {
-                        Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.1465182f - float(M_PI) }; // transport offset
-                        Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 3.3538847f - float(M_PI) }; // transport offset
-                        Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 3.152601f - float(M_PI) }; // transport offset
-                        Position lanapos = { -5.1971f, -15.0268f, 8.992f, 2.2585895f + float(M_PI) }; // transport offset
-                        Position bopos = { -22.1559f, 5.58041f, 9.09176f, 3.5204296f - float(M_PI) }; // transport offset
-                        Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 3.5658937f - float(M_PI) }; // transport offset
+                        Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.1465182f }; // transport offset
+                        Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 3.3538847f }; // transport offset
+                        Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 3.152601f }; // transport offset
+                        Position lanapos = { -5.1971f, -15.0268f, 8.992f, 2.2585895f }; // transport offset
+                        Position bopos = { -22.1559f, 5.58041f, 9.09176f, 3.5204296f }; // transport offset
+                        Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 3.5658937f }; // transport offset
 
                         if (Creature* breka = player->FindNearestCreature(NPC_WARLORD_BREKA_GRIMAXE3, 30.0f))
                         {
@@ -367,12 +368,12 @@ struct npc_aboat : public ScriptedAI
                 {
                     if (TransportBase const* transport = player->GetDirectTransport())
                     {
-                        Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3191178f - float(M_PI) }; // transport offset Entry: 156280 Captain Garrick
-                        Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.3066328f - float(M_PI) }; // transport offset Entry: 157042 Quartermaster Richter
-                        Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.2952788f - float(M_PI) }; // transport offset Entry: 157043 Kee-La
-                        Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 3.2827914f - float(M_PI) }; // transport offset Entry: 157044 Bjorn Stouthands
-                        Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 4.7329445f + float(M_PI) }; // transport offset Entry: 157046 Austin Huxworth
-                        Position colepos = { -13.3396f, 0.702157f, 5.57996f, 4.1208034f }; // transport offset Entry: 160664 Private Cole
+                        Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3191178f - float(M_PI) }; // transport offset
+                        Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.3066328f - float(M_PI) }; // transport offset
+                        Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.2952788f - float(M_PI) }; // transport offset
+                        Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 3.2827914f - float(M_PI) }; // transport offset
+                        Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 4.7329445f + float(M_PI) }; // transport offset
+                        Position colepos = { -13.3396f, 0.702157f, 5.57996f, 4.1208034f }; // transport offset
 
                         if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 50.0f))
                         {
@@ -380,7 +381,9 @@ struct npc_aboat : public ScriptedAI
                             garrickpos.GetPosition(x, y, z, o);
                             transport->CalculatePassengerPosition(x, y, z, &o);
                             garrickpos.Relocate(x, y, z, o);
-                            garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
+                            Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
+                            if (garrick2->IsAIEnabled())
+                                garrick2->AI()->SetData(1, 2); // First personal summon
                         }
 
                         if (Creature* richter = player->FindNearestCreature(NPC_QUARTERMASTER_RICHTER, 50.0f))

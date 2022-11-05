@@ -106,24 +106,31 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@SCRIPT,29,45.563477,-3.4223633,39.777264,3.1642,0,'Warlord Breka Grimaxe'),
 (@SCRIPT,30,45.563477,-3.4223633,39.777264,NULL,0,'Warlord Breka Grimaxe');
 
--- Captain Garrick  "Quest: Warming Up"
+-- Captain Garrick  "Quest: Warming Up & Brace for Impact"
 SET @ENTRY := 156280;
 SET @SCRIPT := @ENTRY * 100;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@SCRIPT,@SCRIPT+1) AND `source_type`=9;
 UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
-(@ENTRY,0,0,0,38,0,100,0,1,1,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Dataset - Load script"),
+(@ENTRY,0,0,0,38,0,100,0,1,1,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - On dataset - Load script"),
 (@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Despawn"),
+(@ENTRY,0,2,3,38,0,100,0,1,2,0,0,83,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - On dataset - Remove questgiver flag"),
+(@ENTRY,0,3,0,61,0,100,0,0,0,0,0,53,1,@SCRIPT+1,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - On dataset - Load path"),
+(@ENTRY,0,4,0,58,0,100,0,0,@SCRIPT+1,0,0,80,@SCRIPT+1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Load script"),
+(@ENTRY,0,5,0,58,0,100,0,0,@SCRIPT+2,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Despawn"),
 (@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 0"),
 (@SCRIPT,9,1,0,0,0,100,0,0,0,0,0,59,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Set Run off"),
 (@SCRIPT,9,2,0,0,0,100,0,0,0,0,0,69,0,1,0,0,0,0,8,0,0,0,-11.810547,0.9602051,5.5279408,0,"Captain Garrick - Script - Move to position"),
 (@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,5,66,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Emote Salute"),
-(@SCRIPT,9,4,0,0,0,100,0,4000,4000,0,0,53,0,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Load path");
+(@SCRIPT,9,4,0,0,0,100,0,4000,4000,0,0,53,0,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Load path"),
+(@SCRIPT+1,9,0,0,0,0,100,0,1000,1000,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 1"),
+(@SCRIPT+1,9,1,0,0,0,100,0,3000,3000,0,0,53,1,@SCRIPT+2,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Load path");
 DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
-(@ENTRY, 0, 0, 'Private Cole will run you through the rest of the drills. I need to discuss this storm with the helmsman.', 12, 0, 100, 0, 0, 152734, 184106, 0, 'Captain Garrick');
-DELETE FROM `waypoints` WHERE `entry`=@SCRIPT;
+(@ENTRY, 0, 0, 'Private Cole will run you through the rest of the drills. I need to discuss this storm with the helmsman.', 12, 0, 100, 0, 0, 152734, 184106, 0, 'Captain Garrick'),
+(@ENTRY, 1, 0, 'Everyone below decks! Now!', 12, 0, 100, 0, 0, 152735, 177674, 0, 'Captain Garrick');
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT,@SCRIPT+1,@SCRIPT+2);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
 (@SCRIPT,1,-0.3022461,-1.409729,5.774313,NULL,0,'Captain Garrick'),
 (@SCRIPT,2,4.697754,-2.659729,5.524313,NULL,0,'Captain Garrick'),
@@ -135,7 +142,20 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@SCRIPT,8,30.197754,-3.659729,11.024313,NULL,0,'Captain Garrick'),
 (@SCRIPT,9,37.706055,-3.779663,12.020686,NULL,0,'Captain Garrick'),
 (@SCRIPT,10,37.83252,-1.4055176,12.501659,3.31911778,0,'Captain Garrick'),
-(@SCRIPT,11,37.83252,-1.4055176,12.501659,NULL,0,'Captain Garrick');
+(@SCRIPT,11,37.83252,-1.4055176,12.501659,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,1,38.556152,-0.6357422,13.232409,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,2,35.56421,-1.1977539,12.1479,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,3,32.572266,-1.7597656,11.063391,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,4,28.660645,-2.8950195,10.562886,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,5,22.253174,-4.680664,9.82038,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,6,18.129395,-4.897949,8.297633,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,7,13.874268,-5.3256836,5.080761,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,8,10.271484,-5.2910156,5.001395,NULL,0,'Captain Garrick'),
+(@SCRIPT+1,9,4.762451,-3.1137695,5.1861935,NULL,0,'Captain Garrick'),
+(@SCRIPT+2,1,11.084107,3.9018552,5.28156,NULL,0,'Captain Garrick'),
+(@SCRIPT+2,2,17.084106,4.9018555,5.53156,NULL,0,'Captain Garrick'),
+(@SCRIPT+2,3,26.905762,5.4174805,4.876927,3.0892324,1000,'Captain Garrick'),
+(@SCRIPT+2,4,26.905762,5.4174805,4.876927,NULL,0,'Captain Garrick');
 
 -- Invisbunny "Quest: Warming up post script"
 UPDATE `creature_template` SET `ScriptName`='npc_alliance_boat_invisbunny' WHERE `entry`=155125;
@@ -211,7 +231,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,2,0,58,0,100,0,0,@SCRIPT,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Path complete - Load script"),
 (@ENTRY,0,3,0,58,0,100,0,0,@SCRIPT+1,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Path complete - Despawn"),
 (@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Say 0"),
-(@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,53,1,@SCRIPT+1,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Load path");
+(@SCRIPT,9,1,0,0,0,100,0,3000,3000,0,0,53,1,@SCRIPT+1,0,0,0,0,1,0,0,0,0,0,0,0,"Warlord Breka Grimaxe - Script - Load path");
 DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (@ENTRY, 0, 0, 'Soldiers, brace yourselves!', 12, 0, 100, 0, 0, 156953, 195893, 0, 'Warlord Breka Grimaxe');
@@ -284,6 +304,89 @@ DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
 (@SCRIPT,1,-2.8266602,3.7973633,9.252101,3.146518,1000,'Provisoner Jin\'hake'),
 (@SCRIPT,2,-2.8266602,3.7973633,9.252101,NULL,0,'Provisoner Jin\'hake');
+
+-- Quartermaster Richter "Quest: Brace for Impact"
+SET @ENTRY := 157042;
+SET @SCRIPT := @ENTRY * 100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Quartermaster Richter - On summon - Load script"),
+(@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Quartermaster Richter - Path complete - Despawn"),
+(@SCRIPT,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Quartermaster Richter - Script - Load path");
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
+(@SCRIPT,1,-0.9053688,-5.5730305,5.2387342,NULL,0,'Quartermaster Richter'),
+(@SCRIPT,2,0.5946312,-1.3230305,5.4887342,NULL,0,'Quartermaster Richter'),
+(@SCRIPT,3,3.5946312,2.4269695,5.4887342,NULL,0,'Quartermaster Richter'),
+(@SCRIPT,4,9.844631,4.9269695,5.2387342,NULL,0,'Quartermaster Richter'),
+(@SCRIPT,5,17.344631,5.6769695,5.4887342,NULL,0,'Quartermaster Richter'),
+(@SCRIPT,6,24.344631,5.1769695,4.9887342,NULL,0,'Quartermaster Richter'),
+(@SCRIPT,7,26.844631,4.1769695,4.9887342,NULL,0,'Quartermaster Richter'),
+(@SCRIPT,8,30.037842,0.7416992,4.877288,1.413716,1000,'Quartermaster Richter'),
+(@SCRIPT,9,30.037842,0.7416992,4.877288,NULL,0,'Quartermaster Richter');
+
+-- Kee-la "Quest: Brace for Impact"
+SET @ENTRY := 157043;
+SET @SCRIPT := @ENTRY * 100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kee-la - On summon - Load script"),
+(@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kee-lar - Path complete - Despawn"),
+(@SCRIPT,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Kee-la - Script - Load path");
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
+(@SCRIPT,1,-9.640718,3.819191,5.6868877,NULL,0,'Kee-la'),
+(@SCRIPT,2,-3.890718,3.319191,5.4368877,NULL,0,'Kee-la'),
+(@SCRIPT,3,1.609282,3.819191,5.4368877,NULL,0,'Kee-la'),
+(@SCRIPT,4,10.359282,4.819191,5.1868877,NULL,0,'Kee-la'),
+(@SCRIPT,5,16.609282,5.569191,5.1868877,NULL,0,'Kee-la'),
+(@SCRIPT,6,23.859282,5.069191,5.1868877,NULL,0,'Kee-la'),
+(@SCRIPT,7,27.859282,4.069191,5.1868877,NULL,0,'Kee-la'),
+(@SCRIPT,8,29.109282,-0.43080902,5.1868877,NULL,0,'Kee-la'),
+(@SCRIPT,9,27.582764,-0.94091797,4.871175,NULL,0,'Kee-la');
+
+-- Austin Huxworth "Quest: Brace for Impact"
+SET @ENTRY := 157046;
+SET @SCRIPT := @ENTRY * 100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Austin Huxworth - On summon - Load script"),
+(@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Austin Huxworth - Path complete - Despawn"),
+(@SCRIPT,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Austin Huxworth - Script - Load path");
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
+(@SCRIPT,1,-1.4587336,8.48258,5.233676,NULL,0,'Austin Huxworth'),
+(@SCRIPT,2,7.2912664,6.2325807,5.233676,NULL,0,'Austin Huxworth'),
+(@SCRIPT,3,19.541267,5.4825807,5.233676,NULL,0,'Austin Huxworth'),
+(@SCRIPT,4,27.791267,4.7325807,4.983676,NULL,0,'Austin Huxworth'),
+(@SCRIPT,5,30.068604,2.567871,4.8888426,NULL,0,'Austin Huxworth');
+
+-- Bjorn Stouthands "Quest: Brace for Impact"
+SET @ENTRY := 157044;
+SET @SCRIPT := @ENTRY * 100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@SCRIPT AND `source_type`=9;
+UPDATE creature_template SET AIName="SmartAI" WHERE entry=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+(@ENTRY,0,0,0,54,0,100,0,0,0,0,0,80,@SCRIPT,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bjorn Stouthands - On summon - Load script"),
+(@ENTRY,0,1,0,58,0,100,0,0,@SCRIPT,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bjorn Stouthands - Path complete - Despawn"),
+(@SCRIPT,9,0,0,0,0,100,0,8000,8000,0,0,53,1,@SCRIPT,0,0,0,0,1,0,0,0,0,0,0,0,"Bjorn Stouthands - Script - Load path");
+DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
+(@SCRIPT,1,7.726696,-7.4220815,5.1850023,NULL,0,'Bjorn Stouthands'),
+(@SCRIPT,2,7.976696,-2.4220815,5.4350023,NULL,0,'Bjorn Stouthands'),
+(@SCRIPT,3,11.726696,3.5779185,5.1850023,NULL,0,'Bjorn Stouthands'),
+(@SCRIPT,4,16.976696,5.5779185,5.1850023,NULL,0,'Bjorn Stouthands'),
+(@SCRIPT,5,21.726696,5.8279185,4.9350023,NULL,0,'Bjorn Stouthands'),
+(@SCRIPT,6,25.476696,5.5779185,4.9350023,NULL,0,'Bjorn Stouthands'),
+(@SCRIPT,7,29.112793,4.151367,4.889695,3.124139,1000,'Bjorn Stouthands'),
+(@SCRIPT,8,29.112793,4.151367,4.889695,NULL,0,'Bjorn Stouthands');
 
 -- *** Conditions ***
 
@@ -461,8 +564,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=14422 AND `ConversationActorId` IN (68598,75920);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14422,68598,0,0,157051,81534,0,0,45745),
-(14422,75920,0,1,166814,91670,0,0,45745);
+(14422,68598,0,0,160664,81534,0,0,45745),
+(14422,75920,0,1,166583,91670,0,0,45745);
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36099,36100);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
@@ -480,8 +583,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=14423 AND `ConversationActorId` IN (68598,75920);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14423,68598,0,0,157051,81534,0,0,45745),
-(14423,75920,0,1,166814,91670,0,0,45745);
+(14423,68598,0,0,160664,81534,0,0,45745),
+(14423,75920,0,1,166583,91670,0,0,45745);
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36101,36102);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
@@ -499,8 +602,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=14424 AND `ConversationActorId` IN (68598,75920);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14424,68598,0,0,157051,81534,0,0,45745),
-(14424,75920,0,1,166814,91670,0,0,45745);
+(14424,68598,0,0,160664,81534,0,0,45745),
+(14424,75920,0,1,166583,91670,0,0,45745);
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36103,36104);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
@@ -525,20 +628,3 @@ INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
 
 UPDATE `quest_template_addon` SET `ScriptName`='quest_stand_your_ground' WHERE `ID` IN (58209,59927);
 UPDATE `quest_template_addon` SET `ScriptName`='quest_brace_for_impact' WHERE `ID` IN (58208,59928);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
