@@ -47,7 +47,7 @@ enum SparingPartner
     SPELL_UPDATE_PHASE_SHIFT      = 82238,
     SPELL_SUMMON_COLE             = 303064,
     SPELL_SUMMON_THROG            = 325107,
-    SAY_I_CONCEDE                 = 0,
+    TALK_SPARRING_COMPLETE        = 0,
     PATH_ALLIANCE_SPARING_PARTNER = 10501460,
     PATH_HORDE_SPARING_PARTNER    = 10501870
 };
@@ -59,9 +59,17 @@ struct npc_sparring_partner : public ScriptedAI
     void JustAppeared() override
     {
         if (me->GetEntry() == NPC_ALLIANCE_SPARING_PARTNER)
+        {
             SetEquipmentSlots(false, EQUIPMENT_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            _summonSpell = SPELL_SUMMON_COLE;
+            _path = PATH_ALLIANCE_SPARING_PARTNER;
+        }
         else
+        {
             SetEquipmentSlots(false, EQUIPMENT_AXE, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            _summonSpell = SPELL_SUMMON_THROG;
+            _path = PATH_HORDE_SPARING_PARTNER;
+        }
     }
 
     void IsSummonedBy(WorldObject* summonerWO) override
@@ -115,10 +123,7 @@ struct npc_sparring_partner : public ScriptedAI
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             player->KilledMonsterCredit(QUEST_KILL_CREDIT); /// *** MINOR HACK should be done when fight ends but phase change is tied to quest conditions. ***
-            if (me->GetEntry() == NPC_ALLIANCE_SPARING_PARTNER)
-                player->RemoveAura(SPELL_SUMMON_COLE);
-            else
-                player->RemoveAura(SPELL_SUMMON_THROG);
+            player->RemoveAura(_summonSpell);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
         }
     }
@@ -134,7 +139,7 @@ struct npc_sparring_partner : public ScriptedAI
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
             {
                 me->SetFacingToObject(player);
-                Talk(SAY_I_CONCEDE, player);
+                Talk(TALK_SPARRING_COMPLETE, player);
                 player->CastSpell(player, SPELL_COMBAT_TRAINING);
             }
         }
@@ -185,10 +190,7 @@ struct npc_sparring_partner : public ScriptedAI
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
                     me->SetWalk(true);
-                    if (me->GetEntry() == NPC_ALLIANCE_SPARING_PARTNER)
-                        me->GetMotionMaster()->MovePath(PATH_ALLIANCE_SPARING_PARTNER, false);
-                    else
-                        me->GetMotionMaster()->MovePath(PATH_HORDE_SPARING_PARTNER, false);
+                    me->GetMotionMaster()->MovePath(_path, false);
                     break;
                 default:
                     break;
@@ -204,6 +206,8 @@ private:
     EventMap _events;
     bool _jumped;
     ObjectGuid _playerGUID;
+    uint32 _summonSpell;
+    uint32 _path;
 };
 
 // Handles actors for horde quest Brace For Impact. Could not do spawning in quest script needed a 500ms delay for phase to change.
@@ -766,7 +770,9 @@ class spell_crash_landed_alliance : public SpellScript
             if (Player* player = caster->ToPlayer())
                 if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK2, 40.0f))
                 {
-
+                    Creature* garrick2 = garrick->SummonPersonalClone(garrick->GetPosition(), TempSummonType(TEMPSUMMON_TIMED_DESPAWN), 10s, 0, 0, player);
+                    if (garrick2->IsAIEnabled())
+                        garrick2->AI()->SetData(1, 1);
                 }
     }
 
