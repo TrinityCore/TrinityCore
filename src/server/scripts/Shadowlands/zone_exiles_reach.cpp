@@ -21,6 +21,7 @@
 #include "Transport.h"
 #include "MotionMaster.h"
 #include "Conversation.h"
+#include "ObjectAccessor.h"
 #include "CreatureAIImpl.h"
 #include "TemporarySummon.h"
 #include "ScriptedCreature.h"
