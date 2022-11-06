@@ -1436,7 +1436,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     }
 
     // TODO: the root's duration changes per _windrunnerCastTimes and event type. It's not such a big deal since she won't move at all until Windrunner finishes anyway.
-    void StartDesecratingShotEvent(uint8 pattern, Position pos, uint8 copyIndex)
+    void StartDesecratingShotEvent(uint8 pattern, uint8 copyIndex)
     {
         Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
         if (!sylvanas)
@@ -1509,49 +1509,49 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                me->NearTeleportTo(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), _desecratingShotStorage[27].Pos.GetPositionZ() + 7.048f, false);
+                Position spiralShootPos(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), 4112.0386f);
+
+                me->NearTeleportTo(spiralShootPos, false);
 
                 if (copyIndex == 2)
                 {
                     sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2950));
                     sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1204));
 
-                    sylvanas->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    sylvanas->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
                 else if (copyIndex == 1)
                 {
-                    if (Creature* shadowCopy1 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
-                        shadowCopy1->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    if (Creature* shadowCopy2 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_03)))
+                        shadowCopy2->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
                 else
                 {
-                    if (Creature* shadowCopy = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
-                        shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    if (Creature* shadowCopy1 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy1->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
 
-                _scheduler.Schedule(125ms, [this, pos, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(250ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
                 {
-                    DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                    me->CastSpell(spiralShootPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                 });
 
-                _scheduler.Schedule(175ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(275ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
                 {
                     ReleaseDesecratingShots();
                 });
 
-                _scheduler.Schedule(450ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
+                _scheduler.Schedule(350ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
                 {
                     _desecratingShotStorage.clear();
 
                     if (copyIndex == 0)
                     {
-                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.5f, true, false);
 
                         sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     }
-
-                    me->NearTeleportTo(sylvanas->GetPosition(), false);
                 });
 
                 break;
@@ -1560,49 +1560,49 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
                 // TODO: obtain correct timers on sniff.
-                me->NearTeleportTo(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), _desecratingShotStorage[27].Pos.GetPositionZ() + 7.048f, false);
+                Position spiralShootPos(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), 4112.0386f);
+
+                me->NearTeleportTo(spiralShootPos, false);
 
                 if (copyIndex == 2)
                 {
-                    sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3200));
+                    sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2950));
                     sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1204));
 
-                    sylvanas->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    sylvanas->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
                 else if (copyIndex == 1)
                 {
-                    if (Creature* shadowCopy1 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
-                        shadowCopy1->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    if (Creature* shadowCopy2 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_03)))
+                        shadowCopy2->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
                 else
                 {
-                    if (Creature* shadowCopy = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
-                        shadowCopy->SendPlayOrphanSpellVisual(me->GetPosition(), SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    if (Creature* shadowCopy1 = _instance->instance->GetCreature(_instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_02)))
+                        shadowCopy1->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
 
-                _scheduler.Schedule(125ms, [this, pos, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(250ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
                 {
-                    DoCastSelf(SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
+                    me->CastSpell(spiralShootPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                 });
 
-                _scheduler.Schedule(175ms, [this](TaskContext /*task*/)
+                _scheduler.Schedule(275ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
                 {
                     ReleaseDesecratingShots();
                 });
 
-                _scheduler.Schedule(450ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
+                _scheduler.Schedule(350ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
                 {
                     _desecratingShotStorage.clear();
 
                     if (copyIndex == 0)
                     {
-                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.5f, true, false);
 
                         sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     }
-
-                    me->NearTeleportTo(sylvanas->GetPosition(), false);
                 });
                 break;
             }
@@ -2345,8 +2345,9 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DOMINATION_CHAINS:
                 {
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(0ms));
                     DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
+                    me->m_Events.KillAllEvents(true);
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(10ms));
                     DoCastSelf(SPELL_DOMINATION_CHAINS);
                     TeleportShadowcopiesToMe();
                     if (Creature* shadowCopy1 = instance->instance->GetCreature(instance->GetGuidData(DATA_SYLVANAS_SHADOWCOPY_01)))
@@ -2860,7 +2861,9 @@ struct boss_sylvanas_windrunner : public BossAI
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
+            {
                 break;
+            }
 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
@@ -3138,25 +3141,25 @@ struct boss_sylvanas_windrunner : public BossAI
             case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
             case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
                 if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                    ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 0);
+                    ai->StartDesecratingShotEvent(pattern, 0);
                 break;
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
                 break;
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
                 if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(2))
-                    ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 2);
+                    ai->StartDesecratingShotEvent(pattern, 2);
 
-                scheduler.Schedule(300ms, [this, pattern](TaskContext /*task*/)
+                scheduler.Schedule(422ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(1))
-                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 1);
+                        ai->StartDesecratingShotEvent(pattern, 1);
                 });
 
-                scheduler.Schedule(600ms, [this, pattern](TaskContext /*task*/)
+                scheduler.Schedule(750ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 0);
+                        ai->StartDesecratingShotEvent(pattern, 0);
                 });
                 break;
             }
@@ -3164,18 +3167,18 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 // TODO: obtain correct timers on sniffs.
                 if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(2))
-                    ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 2);
+                    ai->StartDesecratingShotEvent(pattern, 2);
 
-                scheduler.Schedule(300ms, [this, pattern](TaskContext /*task*/)
+                scheduler.Schedule(422ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(1))
-                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 1);
+                        ai->StartDesecratingShotEvent(pattern, 1);
                 });
 
-                scheduler.Schedule(600ms, [this, pattern](TaskContext /*task*/)
+                scheduler.Schedule(750ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* ai = GetSylvanasCopyAI(0))
-                        ai->StartDesecratingShotEvent(pattern, me->GetPosition(), 0);
+                        ai->StartDesecratingShotEvent(pattern, 0);
                 });
                 break;
             }
