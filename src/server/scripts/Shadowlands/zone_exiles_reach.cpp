@@ -116,19 +116,15 @@ struct npc_sparring_partner : public ScriptedAI
         switch (uiId)
         {
             case POSITION_SPARPOINT_ADVERTISMENT:
-            {
                 me->SetWalk(true);
                 me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, (float)rand_norm() * static_cast<float>(2 * M_PI)));
                 break;
-            }
             case POSITION_SPARPOINT_READY:
-            {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     me->SetFacingToObject(player);
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
                 me->SetFaction(32); // *** HACK to be removed after issue with entrying combat with faction 35 fixed ***
                 break;
-            }
             default:
                 break;
         }
