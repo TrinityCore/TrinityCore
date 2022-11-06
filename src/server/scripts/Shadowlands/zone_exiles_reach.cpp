@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
+#include "SpellScript.h"
 #include "MotionMaster.h"
 #include "Conversation.h"
 #include "ObjectAccessor.h"
