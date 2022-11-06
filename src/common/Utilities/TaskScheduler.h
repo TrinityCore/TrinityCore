@@ -424,7 +424,7 @@ public:
         : _task(right._task), _owner(right._owner), _consumed(right._consumed) { }
 
     // Move construct
-    TaskContext(TaskContext&& right)
+    TaskContext(TaskContext&& right) noexcept
         : _task(std::move(right._task)), _owner(std::move(right._owner)), _consumed(std::move(right._consumed)) { }
 
     // Copy assign
@@ -437,7 +437,7 @@ public:
     }
 
     // Move assign
-    TaskContext& operator= (TaskContext&& right)
+    TaskContext& operator= (TaskContext&& right) noexcept
     {
         _task = std::move(right._task);
         _owner = std::move(right._owner);
