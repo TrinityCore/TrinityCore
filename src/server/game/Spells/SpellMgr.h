@@ -359,7 +359,7 @@ namespace std
     template<>
     struct hash<SpellGroup>
     {
-        size_t operator()(SpellGroup const& group) const
+        size_t operator()(SpellGroup const& group) const noexcept
         {
             return hash<uint32>()(uint32(group));
         }
