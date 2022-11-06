@@ -17,10 +17,14 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_orderhall_warrior();
+void AddSC_instance_violet_hold_broken_isles();
+void AddSC_viole_thold_broken_isles();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
 {
     AddSC_orderhall_warrior();
+    AddSC_instance_violet_hold_broken_isles();
+    AddSC_viole_thold_broken_isles();
 }
