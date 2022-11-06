@@ -485,6 +485,11 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 (-290901,290903,0,'Removing aura Attention! cast DEBUG - Look Right'),
 (-305445,344889,0,'Knocked Down (DNT) removal triggers Knocked Down (DNT)');
 
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (305464,325136);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(305464,'spell_crash_landed_alliance'),
+(325136,'spell_crash_landed_horde');
+
 -- *** Scenes ***
 
 -- Add scene scripts

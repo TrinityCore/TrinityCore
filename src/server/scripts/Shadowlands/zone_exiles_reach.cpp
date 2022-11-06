@@ -127,6 +127,8 @@ struct npc_sparring_partner : public ScriptedAI
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
                 me->SetFaction(32); // *** HACK to be removed after issue with entrying combat with faction 35 fixed ***
             }
+            default:
+                break;
         }
     }
 
