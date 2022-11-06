@@ -15,32 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
- /*
-After close gossip, npc start a text:
-X: 4572.638 Y: 4010.3723 Z: 83.78008 Position Crystal -> "Text: Prison guards, we are leaving! These adventurers are taking over! Go go go!"
-
-After this, npc start move a waypoint to the door:
-
-    (MovementMonsterSpline)(MovementSpline)[0] Points: X: 4564.37 Y: 4015.36 Z: 83.7801 --> Points behind the door
-    (MovementMonsterSpline)(MovementSpline)[0] WayPoints:  X:  4568.254 Y : 4013.1162 Z : 84.03009
-    (MovementMonsterSpline)(MovementSpline)[1] WayPoints : X : 4567.754 Y : 4013.3662 Z : 84.03009
-    (MovementMonsterSpline)(MovementSpline)[2] WayPoints : X : 4566.004 Y : 4014.3662 Z : 84.03009
-    (MovementMonsterSpline)(MovementSpline)[3] WayPoints : X : 4565.754 Y : 4014.6162 Z : 84.03009
-
-    Behind the door, npc talks again to us, and closes the door.
-
-    X: 4564.37 Y: 4015.36 Z: 83.7801 Position behind door -> "Text: I'm locking the door. Good luck, and thank you for doing this."
-
-*/
-//INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `point_comment`) VALUES
-//(102278, 0, 4568.254, 4013.1162, 84.03009, NULL, 0, 'Lieutenant Sinclari'),
-//(102278, 1, 4567.754, 4013.3662, 84.03009, NULL, 0, 'Lieutenant Sinclari'),
-//(102278, 2, 4566.004, 4014.3662, 84.03009, NULL, 0, 'Lieutenant Sinclari'),
-//(102278, 3, 4565.754, 4014.6162, 84.03009, NULL, 0, 'Lieutenant Sinclari');
-
-//me->MovePosition(Position(float 4564.37, float 4015.36f, float 83.7801f, float 0.0f), 5, 0);
-
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
@@ -53,8 +27,8 @@ After this, npc start move a waypoint to the door:
 
 enum CreatureText
 {
-    SAY_INTRO = 0, // "Text: Prison guards, we are leaving! These adventurers are taking over! Go go go!"
-    SAY_BYE = 1, // "Text: I'm locking the door. Good luck, and thank you for doing this."
+    SAY_INTRO = 0,
+    SAY_BYE = 1,
 };
 
 enum Events
@@ -62,7 +36,8 @@ enum Events
     EVENT_INTRO = 1,
     EVENT_MOVE_DOOR = 2,
     EVENT_TALK_OUTRO = 3,
-    EVENT_DESPAWN = 4
+    EVENT_DESPAWN = 4,
+    EVENT_SUMMONS = 5
 };
 
 enum Actions
@@ -85,6 +60,96 @@ enum GameObjectId
 {
     GO_PRISON_SEAL = 247002
 };
+
+enum CreatureId
+{
+    NPC_SUMMON_PORTAL = 102267,
+    NPC_FELSTALKER_RAVENER = 102269,
+    NPC_EREDAR_INVADER = 102270,
+    NPC_FELGUARD_DESTROYER = 102272,
+    NPC_DOOMGUARD_INFILTRATOR = 102273
+};
+
+Position const TempSummonPositions[3] =
+{   //     X         Y           Z         O
+    { 4623.08f, 4059.6f, 82.7241f, 4.7822f }, // 1 Portal Left
+    { 4685.84f, 4013.8f, 91.8186f, 3.12414f }, // 2 Portal Middle
+    { 4638.16f, 3962.08f, 87.0574f, 1.71042f }, // 3 Portal Right
+};
+
+
+class npc_summon_portal : public CreatureScript
+{
+public:
+    npc_summon_portal() : CreatureScript("npc_summon_portal") { }
+
+    struct npc_summon_portalAI : public ScriptedAI
+    {
+        npc_summon_portalAI(Creature* creature) : ScriptedAI(creature), Summons(me) { }
+
+        void Reset() override
+        {
+            _events.Reset();
+            Summons.DespawnAll();
+        }
+
+        void JustAppeared() override
+        {
+            _events.ScheduleEvent(EVENT_SUMMONS, 20s);
+        }
+
+        void JustSummoned(Creature* summon) override
+        {
+            Summons.Summon(summon);
+
+            switch (summon->GetEntry())
+            {
+            case NPC_FELSTALKER_RAVENER:
+            case NPC_EREDAR_INVADER:
+            case NPC_FELGUARD_DESTROYER:
+            case NPC_DOOMGUARD_INFILTRATOR:
+                summon->RemoveAura(29266);
+                summon->GetMotionMaster()->MovePath(PATH_TO_DOOR, false);
+                break;
+            }
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            Summons.DespawnAll();
+            _events.ScheduleEvent(EVENT_SUMMONS, 20s);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_SUMMONS:
+                    me->SummonCreature(NPC_EREDAR_INVADER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s);
+                    me->SummonCreature(NPC_FELGUARD_DESTROYER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s);
+                    me->SummonCreature(NPC_FELSTALKER_RAVENER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s);
+                    me->SummonCreature(NPC_FELSTALKER_RAVENER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10s);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+        SummonList Summons;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetVioletHolBrokenIslesAI<npc_summon_portalAI>(creature);
+    }
+};
+
 
 class npc_lieutenantSinclari : public CreatureScript
 {
@@ -155,11 +220,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetVioletHoldBrokenIslesAI<npc_lieutenantSinclariAI>(creature);
+        return GetVioletHolBrokenIslesAI<npc_lieutenantSinclariAI>(creature);
     }
 };
 
 void AddSC_viole_thold_broken_isles()
 {
     new npc_lieutenantSinclari();
+    new npc_summon_portal();
 }
