@@ -500,6 +500,12 @@ class TC_GAME_API Battleground
         void AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const& position);
         void RemovePlayerPosition(ObjectGuid guid);
 
+        virtual void OnCreatureCreate(Creature* /*creature*/) { }
+        virtual void OnCreatureRemove(Creature* /*creature*/) { }
+
+        virtual void OnGameObjectCreate(GameObject* /*gameObject*/) { }
+        virtual void OnGameObjectRemove(GameObject* /*gameObject*/) { }
+
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();

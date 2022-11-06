@@ -588,6 +588,10 @@ void GameObject::AddToWorld()
         if (m_zoneScript)
             m_zoneScript->OnGameObjectCreate(this);
 
+        if (BattlegroundMap* bgMap = GetMap()->ToBattlegroundMap())
+            if (Battleground* bg = bgMap->GetBG())
+                bg->OnGameObjectCreate(this);
+
         GetMap()->GetObjectsStore().Insert<GameObject>(GetGUID(), this);
         if (m_spawnId)
             GetMap()->GetGameObjectBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
@@ -614,6 +618,10 @@ void GameObject::RemoveFromWorld()
     {
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
+
+        if (BattlegroundMap* bgMap = GetMap()->ToBattlegroundMap())
+            if (Battleground* bg = bgMap->GetBG())
+                bg->OnGameObjectRemove(this);
 
         RemoveFromOwner();
         if (m_model)
