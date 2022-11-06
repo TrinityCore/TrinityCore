@@ -82,6 +82,46 @@ enum GOSummonType
    GO_SUMMON_TIMED_DESPAWN = 1     // despawns after a specified time
 };
 
+struct TC_GAME_API FindCreatureExtraArgs
+{
+    FindCreatureExtraArgs() = default;
+
+    FindCreatureExtraArgs& SetIsAlive(bool isAlive) { IsAlive = isAlive; return *this; }
+    FindCreatureExtraArgs& SetIsInPhase(bool isInPhase) { IsInPhase = isInPhase; return *this; }
+    FindCreatureExtraArgs& SetIgnoreNotOwnedPrivateObjects(bool ignoreNotOwnedPrivateObjects) { IgnoreNotOwnedPrivateObjects = ignoreNotOwnedPrivateObjects; return *this; }
+    FindCreatureExtraArgs& SetIgnorePrivateObjects(bool ignorePrivateObjects) { IgnorePrivateObjects = ignorePrivateObjects; return *this; }
+    FindCreatureExtraArgs& SetIsInCombat(bool isInCombat) { IsInCombat = isInCombat; return *this; }
+    FindCreatureExtraArgs& SetHasAura(uint32 spellId) { AuraSpellId = spellId; return *this; }
+    FindCreatureExtraArgs& SetIsSummon(bool isSummon) { IsSummon = isSummon; return *this; }
+
+    FindCreatureExtraArgs& SetOwner(ObjectGuid ownerGuid) { OwnerGuid = ownerGuid; return *this; }
+    FindCreatureExtraArgs& SetCharmer(ObjectGuid charmerGuid) { CharmerGuid = charmerGuid; return *this; }
+    FindCreatureExtraArgs& SetCreator(ObjectGuid creatorGuid) { CreatorGuid = creatorGuid; return *this; }
+    FindCreatureExtraArgs& SetDemonCreator(ObjectGuid demonCreatorGuid) { DemonCreatorGuid = demonCreatorGuid; return *this; }
+    FindCreatureExtraArgs& SetPrivateObjectOwner(ObjectGuid privateObjectOwnerGuid) { PrivateObjectOwnerGuid = privateObjectOwnerGuid; return *this; }
+
+    Optional<bool> IsAlive;
+    Optional<bool> IsInPhase;
+    Optional<bool> IsInCombat;
+    Optional<bool> IsSummon;
+
+    Optional<bool> IgnoreNotOwnedPrivateObjects;
+    Optional<bool> IgnorePrivateObjects;
+
+    Optional<uint32> AuraSpellId;
+    Optional<ObjectGuid> OwnerGuid;
+    Optional<ObjectGuid> CharmerGuid;
+    Optional<ObjectGuid> CreatorGuid;
+    Optional<ObjectGuid> DemonCreatorGuid;
+    Optional<ObjectGuid> PrivateObjectOwnerGuid;
+
+    FindCreatureExtraArgs(FindCreatureExtraArgs const&) = delete;
+    FindCreatureExtraArgs(FindCreatureExtraArgs&&) = delete;
+
+    FindCreatureExtraArgs& operator=(FindCreatureExtraArgs const&) = delete;
+    FindCreatureExtraArgs& operator=(FindCreatureExtraArgs&&) = delete;
+};
+
 inline uint64 MAKE_PAIR64(uint32 l, uint32 h)
 {
     return uint64(l | (uint64(h) << 32));
