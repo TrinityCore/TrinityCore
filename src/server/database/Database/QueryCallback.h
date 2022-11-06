@@ -29,8 +29,8 @@ class TC_DATABASE_API QueryCallback
 public:
     explicit QueryCallback(QueryResultFuture&& result);
     explicit QueryCallback(PreparedQueryResultFuture&& result);
-    QueryCallback(QueryCallback&& right);
-    QueryCallback& operator=(QueryCallback&& right);
+    QueryCallback(QueryCallback&& right) noexcept;
+    QueryCallback& operator=(QueryCallback&& right) noexcept;
     ~QueryCallback();
 
     QueryCallback&& WithCallback(std::function<void(QueryResult)>&& callback);
