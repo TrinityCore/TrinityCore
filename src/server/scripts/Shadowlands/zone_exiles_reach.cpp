@@ -86,7 +86,6 @@ struct npc_sparring_partner : public ScriptedAI
         _jumped = false;
 
         Unit* summoner = summonerWO->ToUnit();
-
         if (!summoner)
             return;
 
@@ -156,7 +155,7 @@ struct npc_sparring_partner : public ScriptedAI
             }
         }
 
-        if (me->HealthBelowPct(65) && !_jumped)
+        if (me->HealthBelowPctDamaged(65, damage) && !_jumped)
         {
             _jumped = true;
             DoCastVictim(SPELL_JUMP_BEHIND, true);
