@@ -352,7 +352,7 @@ namespace std
     {
         hash<string> hasher;
 
-        std::size_t operator()(fs::path const& key) const
+        std::size_t operator()(fs::path const& key) const noexcept
         {
             return hasher(key.generic_string());
         }

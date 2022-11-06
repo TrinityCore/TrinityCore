@@ -189,7 +189,7 @@ namespace std
     template<>
     struct hash<AuctionsBucketKey>
     {
-        size_t operator()(AuctionsBucketKey const& key) const
+        size_t operator()(AuctionsBucketKey const& key) const noexcept
         {
             return AuctionsBucketKey::Hash(key);
         }
