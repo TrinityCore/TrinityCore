@@ -119,6 +119,7 @@ struct npc_sparring_partner : public ScriptedAI
             {
                 me->SetWalk(true);
                 me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_READY, me->GetFirstCollisionPosition(2.0f, (float)rand_norm() * static_cast<float>(2 * M_PI)));
+                break;
             }
             case POSITION_SPARPOINT_READY:
             {
@@ -126,6 +127,7 @@ struct npc_sparring_partner : public ScriptedAI
                     me->SetFacingToObject(player);
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
                 me->SetFaction(32); // *** HACK to be removed after issue with entrying combat with faction 35 fixed ***
+                break;
             }
             default:
                 break;
@@ -275,25 +277,19 @@ struct npc_hboat : public ScriptedAI
             {
                 case EVENT_SPAWN_HORDE_ACTORS:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        if (TransportBase const* transport = player->GetDirectTransport())
-                        {
-                            Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.1465182f }; // transport offset
-                            Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 3.3538847f }; // transport offset
-                            Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 3.152601f }; // transport offset
-                            Position lanapos = { -5.1971f, -15.0268f, 8.992f, 2.2585895f }; // transport offset
-                            Position bopos = { -22.1559f, 5.58041f, 9.09176f, 3.5204296f }; // transport offset
-                            Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 3.5658937f }; // transport offset
+                    Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.1465182f }; // transport offset
+                    Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 3.3538847f }; // transport offset
+                    Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 3.152601f }; // transport offset
+                    Position lanapos = { -5.1971f, -15.0268f, 8.992f, 2.2585895f }; // transport offset
+                    Position bopos = { -22.1559f, 5.58041f, 9.09176f, 3.5204296f }; // transport offset
+                    Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 3.5658937f }; // transport offset
 
-                            SpawnActor(NPC_WARLORD_BREKA_GRIMAXE3, brekapos);
-                            SpawnActor(NPC_GRUNT_THROG, throgpos);
-                            SpawnActor(NPC_MITHDRAN_DAWNTRACKER, mithpos);
-                            SpawnActor(NPC_LANA_JORDAN, lanapos);
-                            SpawnActor(NPC_BO, bopos);
-                            SpawnActor(NPC_PROVISONER_JIN_HAKE, jinpos);
-                        }
-                    }
+                    SpawnActor(NPC_WARLORD_BREKA_GRIMAXE3, brekapos);
+                    SpawnActor(NPC_GRUNT_THROG, throgpos);
+                    SpawnActor(NPC_MITHDRAN_DAWNTRACKER, mithpos);
+                    SpawnActor(NPC_LANA_JORDAN, lanapos);
+                    SpawnActor(NPC_BO, bopos);
+                    SpawnActor(NPC_PROVISONER_JIN_HAKE, jinpos);
                 }
                 break;
                 default:
@@ -368,25 +364,19 @@ struct npc_aboat : public ScriptedAI
             {
                 case EVENT_SPAWN_ALLIANCE_ACTORS:
                 {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        if (TransportBase const* transport = player->GetDirectTransport())
-                        {
-                            Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3191178f }; // transport offset
-                            Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.3066328f }; // transport offset
-                            Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.2952788f }; // transport offset
-                            Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 3.2827914f }; // transport offset
-                            Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 4.7329445f }; // transport offset
-                            Position colepos = { -13.3396f, 0.702157f, 5.57996f, 4.1208034f }; // transport offset
+                    Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3191178f }; // transport offset
+                    Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.3066328f }; // transport offset
+                    Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.2952788f }; // transport offset
+                    Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 3.2827914f }; // transport offset
+                    Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 4.7329445f }; // transport offset
+                    Position colepos = { -13.3396f, 0.702157f, 5.57996f, 4.1208034f }; // transport offset
 
-                            SpawnActor(NPC_CAPTAIN_GARRICK, garrickpos, 2);
-                            SpawnActor(NPC_QUARTERMASTER_RICHTER, richterpos, 0);
-                            SpawnActor(NPC_KEE_LA, keelapos, 0);
-                            SpawnActor(NPC_BJORN_STOUTHANDS, bjornpos, 0);
-                            SpawnActor(NPC_AUSTIN_HUXWORTH, austinpos, 0);
-                            SpawnActor(NPC_PRIVATE_COLE, colepos, 0);
-                        }
-                    }
+                    SpawnActor(NPC_CAPTAIN_GARRICK, garrickpos, 2);
+                    SpawnActor(NPC_QUARTERMASTER_RICHTER, richterpos, 0);
+                    SpawnActor(NPC_KEE_LA, keelapos, 0);
+                    SpawnActor(NPC_BJORN_STOUTHANDS, bjornpos, 0);
+                    SpawnActor(NPC_AUSTIN_HUXWORTH, austinpos, 0);
+                    SpawnActor(NPC_PRIVATE_COLE, colepos, 0);
                 }
                 break;
                 default:
