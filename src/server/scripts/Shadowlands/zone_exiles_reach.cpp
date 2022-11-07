@@ -320,14 +320,14 @@ public:
     }
 };
 
-// Issue with phase not changing until after quest complete
+// Not working properly. Issue with phase not changing until after quest complete
 class quest_brace_for_impact : public QuestScript
 {
 public:
     quest_brace_for_impact() : QuestScript("quest_brace_for_impact") { }
 
     void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
-    {    
+    {
         if (newStatus == QUEST_STATUS_COMPLETE)
         {
             if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
