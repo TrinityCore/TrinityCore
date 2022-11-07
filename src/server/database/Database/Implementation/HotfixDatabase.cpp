@@ -736,7 +736,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // Item.db2
     PrepareStatement(HOTFIX_SEL_ITEM, "SELECT ID, ClassID, SubclassID, Material, InventoryType, RequiredLevel, SheatheType, RandomSelect, "
-        "ItemRandomSuffixGroupID, SoundOverrideSubclassID, ModifiedCraftingReagentItemID, IconFileDataID, ItemGroupSoundsID, ContentTuningID, "
+        "ItemRandomSuffixGroupID, SoundOverrideSubclassID, ScalingStatDistributionID, IconFileDataID, ItemGroupSoundsID, ContentTuningID, "
         "MaxDurability, AmmunitionType, ScalingStatValue, DamageType1, DamageType2, DamageType3, DamageType4, DamageType5, Resistances1, "
         "Resistances2, Resistances3, Resistances4, Resistances5, Resistances6, Resistances7, MinDamage1, MinDamage2, MinDamage3, MinDamage4, "
         "MinDamage5, MaxDamage1, MaxDamage2, MaxDamage3, MaxDamage4, MaxDamage5 FROM item WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -908,9 +908,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "InstanceBound, ZoneBound1, ZoneBound2, ItemSet, LockID, PageID, ItemDelay, MinFactionID, RequiredSkillRank, RequiredSkill, ItemLevel, "
         "AllowableClass, ItemRandomSuffixGroupID, RandomSelect, MinDamage1, MinDamage2, MinDamage3, MinDamage4, MinDamage5, MaxDamage1, MaxDamage2, "
         "MaxDamage3, MaxDamage4, MaxDamage5, Resistances1, Resistances2, Resistances3, Resistances4, Resistances5, Resistances6, Resistances7, "
-        "ScalingStatDistributionID, StatModifier_bonusAmount1, StatModifier_bonusAmount2, StatModifier_bonusAmount3, StatModifier_bonusAmount4, "
-        "StatModifier_bonusAmount5, StatModifier_bonusAmount6, StatModifier_bonusAmount7, StatModifier_bonusAmount8, StatModifier_bonusAmount9, "
-        "StatModifier_bonusAmount10, ExpansionID, ArtifactID, SpellWeight, SpellWeightCategory, SocketType1, SocketType2, SocketType3, SheatheType, "
+        "ScalingStatDistributionID, StatModifierBonusAmount1, StatModifierBonusAmount2, StatModifierBonusAmount3, StatModifierBonusAmount4, "
+        "StatModifierBonusAmount5, StatModifierBonusAmount6, StatModifierBonusAmount7, StatModifierBonusAmount8, StatModifierBonusAmount9, "
+        "StatModifierBonusAmount10, ExpansionID, ArtifactID, SpellWeight, SpellWeightCategory, SocketType1, SocketType2, SocketType3, SheatheType, "
         "Material, PageMaterialID, LanguageID, Bonding, DamageType, StatModifierBonusStat1, StatModifierBonusStat2, StatModifierBonusStat3, "
         "StatModifierBonusStat4, StatModifierBonusStat5, StatModifierBonusStat6, StatModifierBonusStat7, StatModifierBonusStat8, "
         "StatModifierBonusStat9, StatModifierBonusStat10, ContainerSlots, MinReputation, RequiredPVPMedal, RequiredPVPRank, InventoryType, "

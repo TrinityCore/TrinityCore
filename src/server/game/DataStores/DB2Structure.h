@@ -1833,7 +1833,7 @@ struct ItemEntry
     uint16 RandomSelect;
     uint16 ItemRandomSuffixGroupID;
     int8 SoundOverrideSubclassID;
-    uint16 ModifiedCraftingReagentItemID;
+    uint16 ScalingStatDistributionID;
     int32 IconFileDataID;
     uint8 ItemGroupSoundsID;
     int32 ContentTuningID;
@@ -2172,7 +2172,7 @@ struct ItemSparseEntry
     std::array<uint16, 5> MaxDamage;
     std::array<int16, 7> Resistances;
     uint16 ScalingStatDistributionID;
-    std::array<int16, MAX_ITEM_PROTO_STATS> StatModifier_bonusAmount;
+    std::array<int16, MAX_ITEM_PROTO_STATS> StatModifierBonusAmount;
     uint8 ExpansionID;
     uint8 ArtifactID;
     uint8 SpellWeight;
