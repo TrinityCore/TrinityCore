@@ -2644,6 +2644,8 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
         if (tempSummon->m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::AttackableBySummoner)
             && target->GetGUID() == tempSummon->GetSummonerGUID())
             return true;
+            
+        return false;
     };
 
     if (isAttackableBySummoner(this, target) || isAttackableBySummoner(target, this))
