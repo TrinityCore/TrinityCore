@@ -68,7 +68,7 @@ public:
                     break;
 
                 case NPC_SYLVANAS_SHADOWCOPY_FIGHTER:
-                    SylvanasShadowcopyGUIDs.push_back(creature->GetGUID());
+                    SylvanasShadowcopyGUID.push_back(creature->GetGUID());
                     break;
 
                 case NPC_BOLVAR_FORDRAGON_PINNACLE:
@@ -128,30 +128,30 @@ public:
                     return SylvanasGUID;
                 case DATA_SYLVANAS_SHADOWCOPY_RIDING:
                     return SylvanasShadowcopyRidingGUID;
+                case DATA_SYLVANAS_SHADOWCOPY_00:
+                    return SylvanasShadowcopyGUID[0];
                 case DATA_SYLVANAS_SHADOWCOPY_01:
-                    return SylvanasShadowcopyGUIDs[0];
+                    return SylvanasShadowcopyGUID[1];
                 case DATA_SYLVANAS_SHADOWCOPY_02:
-                    return SylvanasShadowcopyGUIDs[1];
+                    return SylvanasShadowcopyGUID[2];
                 case DATA_SYLVANAS_SHADOWCOPY_03:
-                    return SylvanasShadowcopyGUIDs[2];
+                    return SylvanasShadowcopyGUID[3];
                 case DATA_SYLVANAS_SHADOWCOPY_04:
-                    return SylvanasShadowcopyGUIDs[3];
+                    return SylvanasShadowcopyGUID[4];
                 case DATA_SYLVANAS_SHADOWCOPY_05:
-                    return SylvanasShadowcopyGUIDs[4];
+                    return SylvanasShadowcopyGUID[5];
                 case DATA_SYLVANAS_SHADOWCOPY_06:
-                    return SylvanasShadowcopyGUIDs[5];
+                    return SylvanasShadowcopyGUID[6];
                 case DATA_SYLVANAS_SHADOWCOPY_07:
-                    return SylvanasShadowcopyGUIDs[6];
+                    return SylvanasShadowcopyGUID[7];
                 case DATA_SYLVANAS_SHADOWCOPY_08:
-                    return SylvanasShadowcopyGUIDs[7];
+                    return SylvanasShadowcopyGUID[8];
                 case DATA_SYLVANAS_SHADOWCOPY_09:
-                    return SylvanasShadowcopyGUIDs[8];
+                    return SylvanasShadowcopyGUID[9];
                 case DATA_SYLVANAS_SHADOWCOPY_10:
-                    return SylvanasShadowcopyGUIDs[9];
+                    return SylvanasShadowcopyGUID[10];
                 case DATA_SYLVANAS_SHADOWCOPY_11:
-                    return SylvanasShadowcopyGUIDs[10];
-                case DATA_SYLVANAS_SHADOWCOPY_12:
-                    return SylvanasShadowcopyGUIDs[11];
+                    return SylvanasShadowcopyGUID[11];
                 case DATA_BOLVAR_FORDRAGON_PINNACLE:
                     return BolvarPinnacleGUID;
                 case DATA_JAINA_PROUDMOORE_PINNACLE:
@@ -223,7 +223,7 @@ public:
                         }
 
                         case FAIL:
-                            SylvanasShadowcopyGUIDs.clear();
+                            SylvanasShadowcopyGUID.clear();
                             Events.ScheduleEvent(EVENT_RESET_PLAYERS_ON_SYLVANAS, 1s);
                             break;
 
@@ -329,6 +329,7 @@ public:
                 return;
 
             Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER);
+
             if (sylvanas && DoCheckEvadeForBossIfNoPlayerIsEngaged(sylvanas))
             {
                 if (sylvanas->IsAIEnabled())
@@ -348,7 +349,7 @@ public:
             EventMap Events;
             ObjectGuid SylvanasGUID;
             ObjectGuid SylvanasShadowcopyRidingGUID;
-            std::vector<ObjectGuid> SylvanasShadowcopyGUIDs;
+            std::vector<ObjectGuid> SylvanasShadowcopyGUID;
             ObjectGuid BolvarPinnacleGUID;
             ObjectGuid JainaPinnacleGUID;
             ObjectGuid ThrallPinnacleGUID;
