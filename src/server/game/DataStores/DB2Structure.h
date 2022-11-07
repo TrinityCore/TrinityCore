@@ -1722,6 +1722,13 @@ struct GlyphRequiredSpecEntry
     uint32 GlyphPropertiesID;
 };
 
+struct GlyphSlotEntry
+{
+    uint32 ID;
+    int32 ToolTip;
+    uint32 Type;
+};
+
 struct GuildColorBackgroundEntry
 {
     uint32 ID;

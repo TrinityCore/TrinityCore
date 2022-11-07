@@ -2421,6 +2421,21 @@ struct GlyphRequiredSpecLoadInfo
     }
 };
 
+struct GlyphSlotLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "ToolTip" },
+            { false, FT_INT, "Type" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), GlyphSlotMeta::Instance(), HOTFIX_SEL_GLYPH_SLOT);
+        return &loadInfo;
+    }
+};
+
 struct GuildColorBackgroundLoadInfo
 {
     static DB2LoadInfo const* Instance()

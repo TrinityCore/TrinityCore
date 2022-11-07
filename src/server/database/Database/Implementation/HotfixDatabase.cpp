@@ -681,6 +681,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GLYPH_REQUIRED_SPEC, "SELECT MAX(ID) + 1 FROM glyph_required_spec", CONNECTION_SYNCH);
 
+    // GlyphSlot.db2
+    PrepareStatement(HOTFIX_SEL_GLYPH_SLOT, "SELECT ID, ToolTip, Type FROM glyph_slot WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_GLYPH_SLOT, "SELECT MAX(ID) + 1 FROM glyph_slot", CONNECTION_SYNCH);
+
     // GuildColorBackground.db2
     PrepareStatement(HOTFIX_SEL_GUILD_COLOR_BACKGROUND, "SELECT ID, Red, Blue, Green FROM guild_color_background WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GUILD_COLOR_BACKGROUND, "SELECT MAX(ID) + 1 FROM guild_color_background", CONNECTION_SYNCH);
