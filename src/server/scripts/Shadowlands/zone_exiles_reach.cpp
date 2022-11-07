@@ -27,7 +27,9 @@
 #include "TemporarySummon.h"
 #include "ScriptedCreature.h"
 
-// Ship
+// ********************************************
+// * Scripting in this section occurs on ship *
+// ********************************************
 
 enum SparingPartner
 {
@@ -45,7 +47,6 @@ enum SparingPartner
     NPC_ALLIANCE_SPARING_PARTNER    = 157051,
     NPC_HORDE_SPARING_PARTNER       = 166814,
     NPC_SPAR_POINT_ADVERTISMENT     = 174971,
-    NPC_GRUNT_THROG                 = 166583,
     NPC_KILL_CREDIT                 = 155607,
 
     PATH_ALLIANCE_SPARING_PARTNER   = 10501460,
@@ -74,12 +75,14 @@ struct npc_sparring_partner : public ScriptedAI
             SetEquipmentSlots(false, EQUIPMENT_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             _summonSpell = SPELL_SUMMON_COLE;
             _path = PATH_ALLIANCE_SPARING_PARTNER;
+            _actorID = 0;
         }
         else
         {
             SetEquipmentSlots(false, EQUIPMENT_AXE, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             _summonSpell = SPELL_SUMMON_THROG;
             _path = PATH_HORDE_SPARING_PARTNER;
+            _actorID = 1;
         }
     }
 
@@ -162,7 +165,11 @@ struct npc_sparring_partner : public ScriptedAI
             _jumped = true;
             DoCastVictim(SPELL_JUMP_BEHIND, true);
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                Conversation::CreateConversation(CONVERSATION_JUMP, player, *player, player->GetGUID(), nullptr);
+            {
+                Conversation* convo = Conversation::CreateConversation(CONVERSATION_JUMP, player, *player, player->GetGUID(), nullptr);
+                convo->AddActor(me->GetEntry(), _actorID, me->GetGUID());
+            }
+
         }
     }
 
@@ -170,7 +177,10 @@ struct npc_sparring_partner : public ScriptedAI
     {
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
             if (who == player)
-                Conversation::CreateConversation(CONVERSATION_AGGRO, player, *player, player->GetGUID(), nullptr);
+            {
+                Conversation* convo = Conversation::CreateConversation(CONVERSATION_AGGRO, player, *player, player->GetGUID(), nullptr);
+                convo->AddActor(me->GetEntry(), _actorID, me->GetGUID());
+            }
     }
 
     void UpdateAI(uint32 diff) override
@@ -196,7 +206,11 @@ struct npc_sparring_partner : public ScriptedAI
                 break;
                 case EVENT_PREFIGHT_CONVERSATION:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Conversation::CreateConversation(CONVERSATION_PREFIGHT, player, *player, player->GetGUID(), nullptr);
+                    {
+                        Conversation* convo = Conversation::CreateConversation(CONVERSATION_PREFIGHT, player, *player, player->GetGUID(), nullptr);
+                        convo->AddActor(me->GetEntry(), _actorID, me->GetGUID());
+                    }
+
                     break;
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
@@ -216,243 +230,10 @@ struct npc_sparring_partner : public ScriptedAI
 private:
     EventMap _events;
     bool _jumped;
+    uint8 _actorID;
     ObjectGuid _playerGUID;
     uint32 _summonSpell;
     uint32 _path;
-};
-
-enum HordeBoat
-{
-    DATA_SET_SPAWN_HORDE_ACTORS = 1,
-
-    EVENT_SPAWN_HORDE_ACTORS    = 1,
-
-    NPC_WARLORD_BREKA_GRIMAXE3  = 166827,
-    NPC_MITHDRAN_DAWNTRACKER    = 166590,
-    NPC_LANA_JORDAN             = 166794,
-    NPC_BO                      = 166585,
-    NPC_PROVISONER_JIN_HAKE     = 166799
-};
-
-struct npc_hboat : public ScriptedAI
-{
-    npc_hboat(Creature* creature) : ScriptedAI(creature), _spawn(false) { }
-
-    void SetData(uint32 /*type*/, uint32 data) override
-    {
-        if (data == DATA_SET_SPAWN_HORDE_ACTORS)
-        {
-            _spawn = true;
-            _events.ScheduleEvent(EVENT_SPAWN_HORDE_ACTORS, 500ms);
-        }
-    }
-
-    void SpawnActor(uint32 entry, Position position)
-    {
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-            if (Creature* creature = player->FindNearestCreature(entry, 30.0f))
-                if (TransportBase const* transport = player->GetDirectTransport())
-                {
-                    float x, y, z, o;
-                    position.GetPosition(x, y, z, o);
-                    transport->CalculatePassengerPosition(x, y, z, &o);
-                    position.Relocate(x, y, z, o);
-                    creature->SummonPersonalClone(position, TEMPSUMMON_TIMED_DESPAWN, 15s, 0, 0, player);
-                }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!_spawn)
-            return;
-
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SPAWN_HORDE_ACTORS:
-                {
-                    Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.1465182f }; // transport offset
-                    Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 3.3538847f }; // transport offset
-                    Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 3.152601f }; // transport offset
-                    Position lanapos = { -5.1971f, -15.0268f, 8.992f, 2.2585895f }; // transport offset
-                    Position bopos = { -22.1559f, 5.58041f, 9.09176f, 3.5204296f }; // transport offset
-                    Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 3.5658937f }; // transport offset
-
-                    SpawnActor(NPC_WARLORD_BREKA_GRIMAXE3, brekapos);
-                    SpawnActor(NPC_GRUNT_THROG, throgpos);
-                    SpawnActor(NPC_MITHDRAN_DAWNTRACKER, mithpos);
-                    SpawnActor(NPC_LANA_JORDAN, lanapos);
-                    SpawnActor(NPC_BO, bopos);
-                    SpawnActor(NPC_PROVISONER_JIN_HAKE, jinpos);
-                }
-                break;
-                default:
-                    break;
-            }
-            _spawn = false;
-        }
-    }
-private:
-    EventMap _events;
-    bool _spawn;
-public:
-    ObjectGuid _playerGUID;
-};
-
-enum AllianceBoat
-{
-    DATA_SET_SPAWN_ALLIANCE_ACTORS = 1,
-
-    EVENT_SPAWN_ALLIANCE_ACTORS    = 1,
-
-    NPC_CAPTAIN_GARRICK            = 156280,
-    NPC_QUARTERMASTER_RICHTER      = 157042,
-    NPC_KEE_LA                     = 157043,
-    NPC_BJORN_STOUTHANDS           = 157044,
-    NPC_AUSTIN_HUXWORTH            = 157046,
-    NPC_PRIVATE_COLE               = 160664
-};
-
-struct npc_aboat : public ScriptedAI
-{
-    npc_aboat(Creature* creature) : ScriptedAI(creature), _spawn(false) { }
-
-    void SetData(uint32 /*type*/, uint32 data) override
-    {
-        if (data == DATA_SET_SPAWN_ALLIANCE_ACTORS)
-        {
-            _events.ScheduleEvent(EVENT_SPAWN_ALLIANCE_ACTORS, 500ms);
-            _spawn = true;
-        }
-    }
-
-    void SpawnActor(uint32 entry, Position position, uint32 data)
-    {
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-            if (Creature* creature = player->FindNearestCreature(entry, 50.0f))
-                if (TransportBase const* transport = player->GetDirectTransport())
-                {
-                    float x, y, z, o;
-                    position.GetPosition(x, y, z, o);
-                    transport->CalculatePassengerPosition(x, y, z, &o);
-                    position.Relocate(x, y, z, o);
-                    creature->SummonPersonalClone(position, TEMPSUMMON_TIMED_DESPAWN, 20s, 0, 0, player);
-                    if (data)
-                    {
-                        if (creature->IsAIEnabled())
-                            creature->AI()->SetData(1, data);
-                    }
-                }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!_spawn)
-            return;
-
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SPAWN_ALLIANCE_ACTORS:
-                {
-                    Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3191178f }; // transport offset
-                    Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.3066328f }; // transport offset
-                    Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.2952788f }; // transport offset
-                    Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 3.2827914f }; // transport offset
-                    Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 4.7329445f }; // transport offset
-                    Position colepos = { -13.3396f, 0.702157f, 5.57996f, 4.1208034f }; // transport offset
-
-                    SpawnActor(NPC_CAPTAIN_GARRICK, garrickpos, 2);
-                    SpawnActor(NPC_QUARTERMASTER_RICHTER, richterpos, 0);
-                    SpawnActor(NPC_KEE_LA, keelapos, 0);
-                    SpawnActor(NPC_BJORN_STOUTHANDS, bjornpos, 0);
-                    SpawnActor(NPC_AUSTIN_HUXWORTH, austinpos, 0);
-                    SpawnActor(NPC_PRIVATE_COLE, colepos, 0);
-                }
-                break;
-                default:
-                    break;
-            }
-            _spawn = false;
-        }
-    }
-private:
-    EventMap _events;
-    bool _spawn;
-public:
-    ObjectGuid _playerGUID;
-};
-
-enum Invisbunny
-{
-    DATA_SET_SPAWN_GARRICK     = 1,
-
-    EVENT_SPAWN_GARRICK        = 1
-};
-
-struct npc_alliance_boat_invisbunny : public ScriptedAI
-{
-    npc_alliance_boat_invisbunny(Creature* creature) : ScriptedAI(creature), _spawn(false) { }
-
-    void SetData(uint32 /*type*/, uint32 data) override
-    {
-        if (data == DATA_SET_SPAWN_GARRICK)
-        {
-            _events.ScheduleEvent(EVENT_SPAWN_GARRICK, 500ms);
-            _spawn = true;
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!_spawn)
-            return;
-
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SPAWN_GARRICK:
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        // Not fluid but works
-                        Position garrickpos = { -3.0797f, -0.546193f, 5.29752f, 3.3191178f }; // transport offset
-
-                        if (TransportBase const* transport = player->GetDirectTransport())
-                            if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 75.0f))
-                            {
-                                float x, y, z, o;
-                                garrickpos.GetPosition(x, y, z, o);
-                                transport->CalculatePassengerPosition(x, y, z, &o);
-                                garrickpos.Relocate(x, y, z, o);
-                                if (Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player))
-                                    if(garrick2->IsAIEnabled())
-                                        garrick2->AI()->SetData(1, 1);
-                            }
-                    }
-                }
-                break;
-            default:
-                break;
-            }
-            _spawn = false;
-        }
-    }
-private:
-    EventMap _events;
-    bool _spawn;
-public:
-    ObjectGuid _playerGUID;
-    ObjectGuid _garrickGUID;
 };
 
 enum QuestScripts
@@ -461,12 +242,23 @@ enum QuestScripts
 
     NPC_WARLORD_BREKA_GRIMAXE1      = 166573,
     NPC_WARLORD_BREKA_GRIMAXE2      = 166824,
-    NPC_ABOAT                       = 156403,
-    NPC_HBOAT                       = 168039,
-    NPC_INVISBUNNY                  = 155125,
+    NPC_WARLORD_BREKA_GRIMAXE3      = 166827,
+    NPC_GRUNT_THROG                 = 166583,
+    NPC_MITHDRAN_DAWNTRACKER        = 166590,
+    NPC_LANA_JORDAN                 = 166794,
+    NPC_BO                          = 166585,
+    NPC_PROVISONER_JIN_HAKE         = 166799,
+    NPC_CAPTAIN_GARRICK             = 156280,
+    NPC_QUARTERMASTER_RICHTER       = 157042,
+    NPC_KEE_LA                      = 157043,
+    NPC_BJORN_STOUTHANDS            = 157044,
+    NPC_AUSTIN_HUXWORTH             = 157046,
+    NPC_PRIVATE_COLE                = 160664,
 
     QUEST_WARMING_UP_ALLIANCE       = 56775,
-    QUEST_WARMING_UP_HORDE          = 59926
+    QUEST_WARMING_UP_HORDE          = 59926,
+    QUEST_BRACE_FOR_IMPACT_ALLIANCE = 58208,
+    QUEST_BRACE_FOR_IMPACT_HORDE    = 59928
 };
 
 class quest_warming_up : public QuestScript
@@ -484,14 +276,19 @@ public:
             case QUEST_STATUS_REWARDED:
                 if (quest->GetQuestId() == QUEST_WARMING_UP_ALLIANCE)
                 {
-                    if (Creature* invisbunny = player->FindNearestCreature(NPC_INVISBUNNY, 30.0f))
-                    {
-                        ENSURE_AI(npc_alliance_boat_invisbunny, invisbunny->GetAI())->_playerGUID = player->GetGUID();
-                        if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 5.0f))
-                            ENSURE_AI(npc_alliance_boat_invisbunny, invisbunny->GetAI())->_garrickGUID = garrick->GetGUID();
-                        if(invisbunny->IsAIEnabled())
-                            invisbunny->AI()->SetData(1, 1);
-                    }
+                    Position garrickpos = { -3.0797f, -0.546193f, 5.29752f, 3.3191178f }; // transport offset
+
+                    if (TransportBase const* transport = player->GetDirectTransport())
+                        if (Creature* garrick = player->FindNearestCreature(NPC_CAPTAIN_GARRICK, 75.0f))
+                        {
+                            float x, y, z, o;
+                            garrickpos.GetPosition(x, y, z, o);
+                            transport->CalculatePassengerPosition(x, y, z, &o);
+                            garrickpos.Relocate(x, y, z, o);
+                            if (Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player))
+                                if (garrick2->IsAIEnabled())
+                                    garrick2->AI()->SetData(1, 1);
+                        }
                 }
                 else if (quest->GetQuestId() == QUEST_WARMING_UP_HORDE)
                 {
@@ -523,56 +320,67 @@ public:
     }
 };
 
+// Issue with phase not changing until after quest complete
 class quest_brace_for_impact : public QuestScript
 {
 public:
     quest_brace_for_impact() : QuestScript("quest_brace_for_impact") { }
 
-    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
-    {
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {    
         if (newStatus == QUEST_STATUS_COMPLETE)
         {
-            if (player->GetTeam() == ALLIANCE)
+            if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
             {
-                if (Creature* aBoat = player->FindNearestCreature(NPC_ABOAT, 30.0f))
-                {
-                    ENSURE_AI(npc_aboat, aBoat->GetAI())->_playerGUID = player->GetGUID();
-                    aBoat->AI()->SetData(1, 1);
-                }
+                Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.31912f };
+                Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.61534f };
+                Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.30938f };
+                Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 4.71238898f };
+                Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 1.5707963f };
+                Position colepos = { -13.3396f, 0.702157f, 5.57996f, 0.079857523f };
+
+                SpawnActor(player, NPC_CAPTAIN_GARRICK, garrickpos);
+                SpawnActor(player, NPC_QUARTERMASTER_RICHTER, richterpos);
+                SpawnActor(player, NPC_KEE_LA, keelapos);
+                SpawnActor(player, NPC_BJORN_STOUTHANDS, bjornpos);
+                SpawnActor(player, NPC_AUSTIN_HUXWORTH, austinpos);
+                SpawnActor(player, NPC_PRIVATE_COLE, colepos);
             }
-            else
+            else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
             {
-                if (Creature* hBoat = player->FindNearestCreature(NPC_HBOAT, 30.0f))
-                {
-                    ENSURE_AI(npc_hboat, hBoat->GetAI())->_playerGUID = player->GetGUID();
-                    hBoat->AI()->SetData(1, 1);
-                }
+                Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.14652f };
+                Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 0.0f };
+                Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 0.0f };
+                Position lanapos = { -5.1971f, -15.0268f, 8.992f, 4.71238898f };
+                Position bopos = { -22.1559f, 5.58041f, 9.09176f, 0.0f };
+                Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 0.0f };
+
+                SpawnActor(player, NPC_WARLORD_BREKA_GRIMAXE3, brekapos);
+                SpawnActor(player, NPC_GRUNT_THROG, throgpos);
+                SpawnActor(player, NPC_MITHDRAN_DAWNTRACKER, mithpos);
+                SpawnActor(player, NPC_LANA_JORDAN, lanapos);
+                SpawnActor(player, NPC_BO, bopos);
+                SpawnActor(player, NPC_PROVISONER_JIN_HAKE, jinpos);
             }
         }
     }
-};
 
-class conversation_sparing_partner : public ConversationScript
-{
-public:
-    conversation_sparing_partner() : ConversationScript("conversation_sparing_partner") { }
-
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void SpawnActor(Player* player, uint32 entry, Position position)
     {
-        uint32 _npc;
+        if (Creature* creature = player->FindNearestCreature(entry, 75.0f))
+            if (TransportBase const* transport = player->GetDirectTransport())
+            {
+                float x, y, z, o;
+                position.GetPosition(x, y, z, o);
+                transport->CalculatePassengerPosition(x, y, z, &o);
+                position.Relocate(x, y, z, o);
+                Creature* actor = creature->SummonPersonalClone(position, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
-        if (creator->ToPlayer()->GetTeam() == ALLIANCE)
-            _npc = NPC_ALLIANCE_SPARING_PARTNER;
-        else
-            _npc = NPC_HORDE_SPARING_PARTNER;
+                if (entry == NPC_CAPTAIN_GARRICK)
+                    if (actor->IsAIEnabled())
+                        actor->AI()->SetData(1, 2);
+            }
 
-        std::list<Creature*> spar;
-        creator->GetCreatureListWithEntryInGrid(spar, _npc, 25.0f);
-        for (Creature* creature : spar)
-        {
-            if (creature->GetDemonCreatorGUID() == creator->GetGUID()) // @TODO requires research about DemonCreator usage for summons to work
-                conversation->AddActor(creature->GetEntry(), 1, creature->GetGUID());
-        }
     }
 };
 
@@ -630,6 +438,7 @@ public:
     }
 };
 
+// Need Spell.cpp updated to handle this
 class spell_alliance_spell_ship_crash_teleport : public SpellScript
 {
     PrepareSpellScript(spell_alliance_spell_ship_crash_teleport);
@@ -648,6 +457,7 @@ class spell_alliance_spell_ship_crash_teleport : public SpellScript
     }
 };
 
+// Need Spell.cpp updated to handle this
 class spell_horde_spell_ship_crash_teleport : public SpellScript
 {
     PrepareSpellScript(spell_horde_spell_ship_crash_teleport);
@@ -666,7 +476,9 @@ class spell_horde_spell_ship_crash_teleport : public SpellScript
     }
 };
 
-// Beach
+// ***************************************************************
+// * Scripting in this section occurs after teleporting to beach *
+// ***************************************************************
 
 class scene_alliance_and_horde_crash : public SceneScript
 {
@@ -680,14 +492,6 @@ public:
     }
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
-    {
-        if (player->GetTeam() == ALLIANCE)
-            player->CastSpell(player, SPELL_CRASHED_LANDED_ALLIANCE, true);
-        else
-            player->CastSpell(player, SPELL_CRASHED_LANDED_HORDE, true);
-    }
-
-    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         if (player->GetTeam() == ALLIANCE)
             player->CastSpell(player, SPELL_CRASHED_LANDED_ALLIANCE, true);
@@ -750,13 +554,9 @@ void AddSC_zone_exiles_reach()
 {
     // Ship
     RegisterCreatureAI(npc_sparring_partner);
-    RegisterCreatureAI(npc_hboat);
-    RegisterCreatureAI(npc_aboat);
-    RegisterCreatureAI(npc_alliance_boat_invisbunny);
     new quest_warming_up();
     new quest_stand_your_ground();
     new quest_brace_for_impact();
-    new conversation_sparing_partner();
     new player_ship_crash();
     new scene_alliance_and_horde_ship();
     RegisterSpellScript(spell_alliance_spell_ship_crash_teleport);

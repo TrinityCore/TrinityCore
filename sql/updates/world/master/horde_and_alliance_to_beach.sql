@@ -33,12 +33,12 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 -- *** Creature Fixes ***
 
 -- Phase updates
-UPDATE `creature` SET `PhaseId`=13753 WHERE `id`=171872; -- Apprentice Kutz
-UPDATE `creature` SET `PhaseId`=13753 WHERE `id`=172033; -- Helmsman Da'vees
+UPDATE `creature` SET `PhaseId`=0 WHERE `id`=171872; -- Apprentice Kutz
+UPDATE `creature` SET `PhaseId`=0 WHERE `id`=172033; -- Helmsman Da'vees
 UPDATE `creature` SET `PhaseId`=15286 WHERE `id`=166573; -- Warlord Breka Grimaxe
 UPDATE `creature` SET `PhaseId`=15286 WHERE `id`=166824; -- Warlord Breka Grimaxe
 UPDATE `creature` SET `PhaseId`=15287 WHERE `id`=166827; -- Warlord Breka Grimaxe
-
+UPDATE `creature` SET `PhaseId`=14353 WHERE `guid` IN (1050176,1050177,1050178,1050179,1050180,1050181);
 -- Misc creature and template fixes
 UPDATE `creature` SET `equipment_id`=1 WHERE `guid`=1050189;
 UPDATE `creature` SET `spawntimesecs`=120 WHERE `map`=2369 AND `spawntimesecs`=7200;
@@ -119,7 +119,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,3,0,61,0,100,0,0,0,0,0,53,1,@SCRIPT+1,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - On dataset - Load path"),
 (@ENTRY,0,4,0,58,0,100,0,0,@SCRIPT+1,0,0,80,@SCRIPT+1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Load script"),
 (@ENTRY,0,5,0,58,0,100,0,0,@SCRIPT+2,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Despawn"),
-(@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 0"),
+(@SCRIPT,9,0,0,0,0,100,0,2000,2000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 0"),
 (@SCRIPT,9,1,0,0,0,100,0,0,0,0,0,59,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Set Run off"),
 (@SCRIPT,9,2,0,0,0,100,0,0,0,0,0,69,0,1,0,0,0,0,8,0,0,0,-11.810547,0.9602051,5.5279408,0,"Captain Garrick - Script - Move to position"),
 (@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,5,66,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Emote Salute"),
@@ -156,9 +156,6 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@SCRIPT+2,2,17.084106,4.9018555,5.53156,NULL,0,'Captain Garrick'),
 (@SCRIPT+2,3,26.905762,5.4174805,4.876927,3.0892324,1000,'Captain Garrick'),
 (@SCRIPT+2,4,26.905762,5.4174805,4.876927,NULL,0,'Captain Garrick');
-
--- Invisbunny "Quest: Warming up post script"
-UPDATE `creature_template` SET `ScriptName`='npc_alliance_boat_invisbunny' WHERE `entry`=155125;
 
 -- Sparing Partner "Quest: Stand Your Ground"
 DELETE FROM `creature_text` WHERE `CreatureID` IN (157051,166814);
@@ -214,10 +211,6 @@ DELETE FROM `waypoints` WHERE `entry` IN (@SCRIPT);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`point_comment`) VALUES
 (@SCRIPT,1,-3.9334717,1.109375,9.06326,3.353885,1000,'Grunt Throg'),
 (@SCRIPT,2,-3.9334717,1.109375,9.06326,NULL,0,'Grunt Throg');
-
--- "Quest: Brace for Impact"
-UPDATE `creature_template` SET `ScriptName`='npc_hboat' WHERE `entry`=168039;
-UPDATE `creature_template` SET `ScriptName`='npc_aboat' WHERE `entry`=156403;
 
 -- Warlord Breka Grimaxe "Quest: Brace for Impact"
 SET @ENTRY := 166827;
@@ -397,11 +390,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (32,5,166824,0,0,47,0,59926,64,0,0,0,0,'','Spawn of creature with entry 166824 requires Quest 59926 rewarded');
 
 -- Phase conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13753,14349,14355,15284,15286,15287,15514,15516) AND `SourceEntry`=13377;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15284,15286,15287,15514,15516) AND `SourceEntry`=13377;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,13753,13377,0,0,6,0,67,0,0,0,0,0,'','Allow Phase 13753 if team is horde'),
-(26,14349,13377,0,0,6,0,67,0,0,0,0,0,'','Allow Phase 14349 if team is horde'),
-(26,14355,13377,0,0,6,0,67,0,0,0,0,0,'','Allow Phase 14355 if team is horde'),
 (26,15284,13377,0,0,47,0,59927,8,0,1,0,0,'','Allow Phase 15284 if Quest 59927 is not inprogress'),
 (26,15284,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15284 if Quest 59928 is not complete'),
 (26,15286,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15286 if Quest 59928 is not complete'),
@@ -409,11 +399,21 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26,15514,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15514 if Quest 59928 is not Complete'),
 (26,15516,13377,0,0,47,0,59928,2,0,0,0,0,'','Allow Phase 15516 if Quest 59928 is Complete');
 
+-- Fix condition showing Alliance quest phase on horde on ship
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13861,14350,14353) AND `SourceEntry`=10639;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(26,13861,10639,0,0,47,0,54933,2,0,0,0,0,'','Apply Phase 13861 if Quest 54933 is complete'),
+(26,14350,10639,0,0,47,0,56775,64,0,0,0,0,'','Apply Phase 14350 if Quest 56775 is rewarded'),
+(26,14350,10639,0,0,47,0,58208,2,0,1,0,0,'','Apply Phase 14350 if Quest 58208 is not complete');
+(26,14353,10639,0,0,47,0,58208,64,0,0,0,0,'','Allow Phase 14353 if Quest 58208 is Rewarded');
+
+UPDATE `conditions` SET `ConditionValue1`=58208, `Comment`='Apply Phase 13861 if Quest 58208 is complete' WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=13861 AND `SourceEntry`=10639;
+
 -- *** Phasing ***
 
 DELETE FROM `phase_area` WHERE `AreaId`=13377 AND `PhaseId` IN (13753,14349,14350,14355,15284,15286,15287,15514,15516);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(13377,13753, 'NPE Alliance/Horde Ship - Decoration NPC´s All stages'),
+(13377,13753, 'NPE both ships all stages Unknown'),
 (13377,14349, 'NPE Alliance Ship - Captain Garrick Stage 1'),
 (13377,14350, 'NPE Alliance Ship - Captain Garrick Stage 1'),
 (13377,14355, 'NPE Alliance Ship - Decoration NPC´s Stage 1'),
@@ -423,19 +423,21 @@ INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
 (13377,15514, 'NPE Horde Ship - Decoration NPC´s Stage 1 (Quest 59927 incomplete'),
 (13377,15516, 'NPE Horde Ship - Decoration NPC´s Stage 2 (Quest 59928 complete');
 
-DELETE FROM `phase_area` WHERE `AreaId`=10639 AND `PhaseId` IN (13753,14349,14350,14353,14355);
+DELETE FROM `phase_area` WHERE `AreaId`=10639 AND `PhaseId` IN (13753,13861,14349,14350,14353,14355);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(10639,13753, 'NPE Alliance/Horde Ship - Decoration NPC´s All stages'),
+(10639,13753, 'NPE both ships all stages Unknown'),
+(10639,13861, 'NPE Alliance Ship - Lightning Stage 2'),
 (10639,14349, 'NPE Alliance Ship - Captain Garrick Stage 1'),
 (10639,14350, 'NPE Alliance Ship - Captain Garrick Stage 1'),
 (10639,14353, 'NPE Alliance Ship - Decoration NPC´s Stage 2'),
 (10639,14355, 'NPE Alliance Ship - Decoration NPC´s Stage 1');
 
-DELETE FROM `phase_name` WHERE `ID` IN (13753,14349,14350,14353,14355,15284,15286,15287,15514,15516);
+DELETE FROM `phase_name` WHERE `ID` IN (13753,13861,14349,14350,14353,14355,15284,15286,15287,15514,15516);
 INSERT INTO `phase_name` (`ID`,`Name`) VALUES
-(13753,'Cosmetic - NPE Alliance/Horde Ship - Decoration NPC´s All stages'),
-(14349,'Cosmetic - NPE Alliance Ship - Captain Garrick Stage 1'),
-(14350,'Cosmetic - NPE Alliance Ship - Captain Garrick Stage 1'),
+(13753,'Cosmetic - NPE both ships all stages Unknown'),
+(13861,'Cosmetic - NPE Alliance Ship - Lightning Stage 2'),
+(14349,'Cosmetic - NPE Alliance Ship - Captain Garrick before quest 56775 complete'),
+(14350,'Cosmetic - NPE Alliance Ship - Captain Garrick after quest 56775 complete'),
 (14353,'Cosmetic - NPE Alliance Ship - Decoration NPC´s Stage 2'),
 (14355,'Cosmetic - NPE Alliance Ship - Decoration NPC´s Stage 1'),
 (15284,'Cosmetic - NPE Horde Ship - Grunt Throg Stage 1'),
@@ -443,18 +445,6 @@ INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 (15287,'Cosmetic - NPE Horde Ship - Grunt Throg & Warlord Breka Grimaxe Stage 2'),
 (15514,'Cosmetic - NPE Horde Ship - Decoration NPC´s Stage 1'),
 (15516,'Cosmetic - NPE Horde Ship - Decoration NPC´s Stage 2');
-
--- Fix condition showing Alliance quest phase on horde on ship
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13878) AND `SourceEntry`=10424;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,13878,10424,0,0,47,0,54933,64,0,1,0,0,'','Apply Phase 13878 if Quest 54933 is not rewarded'),
-(26,13878,10424,0,0,6,0,469,0,0,0,0,0,'','Apply PHASE 13878 if team is alliance');
-
--- Fix condition showing Alliance quest phase on horde on ship
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (14350) AND `SourceEntry`=10639;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,14350,10639,0,0,47,0,56775,64,0,0,0,0,'','Apply Phase 14350 if Quest 56775 is rewarded'),
-(26,14350,10639,0,0,47,0,58208,2,0,1,0,0,'','Apply Phase 14350 if Quest 58208 is not complete');
 
 -- *** Spells ***
 
@@ -500,10 +490,6 @@ INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`S
 (2487,16,2708,0,'scene_alliance_and_horde_crash'); -- Horde
 
 -- *** Conversations ***
-
--- *** Mostly Horde only atm will cleanup when I get alliance data
-
-UPDATE `conversation_template` SET `ScriptName`='conversation_sparing_partner' WHERE `Id` IN (14422,14423,14424);
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=10768;
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
@@ -569,8 +555,8 @@ INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`Conve
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36099,36100);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
-(36099,0,0,0,45745),
-(36100,0,1,0,45745);
+(36099,0,0,0,45745), -- Alliance
+(36100,0,1,0,45745); -- Horde
 
 DELETE FROM `conversation_template` WHERE `Id`=14422 AND `FirstLineId` IN (36099,36100);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
@@ -588,8 +574,8 @@ INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`Conve
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36101,36102);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
-(36101,0,0,0,45745),
-(36102,0,1,0,45745);
+(36101,0,0,0,45745), -- Alliance
+(36102,0,1,0,45745); -- Horde
 
 DELETE FROM `conversation_template` WHERE `Id`=14423 AND `FirstLineId` IN (36101,36102);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
@@ -607,8 +593,8 @@ INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`Conve
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (36103,36104);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
-(36103,0,0,0,45745),
-(36104,0,1,0,45745);
+(36103,0,0,0,45745), -- Alliance
+(36104,0,1,0,45745); -- Horde
 
 DELETE FROM `conversation_template` WHERE `Id`=14424 AND `FirstLineId` IN (36103,36104);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
