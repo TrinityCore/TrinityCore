@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 
 #define CONTACT_DISTANCE                0.5f
 #define INTERACTION_DISTANCE            5.0f
