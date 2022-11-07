@@ -2641,7 +2641,7 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
             return false;
 
         TempSummon const* tempSummon = me->ToUnit()->ToTempSummon();
-        if (!tempSummon)
+        if (!tempSummon || !tempSummon->m_Properties)
             return false;
 
         if (tempSummon->m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::AttackableBySummoner)
