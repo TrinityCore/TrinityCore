@@ -521,7 +521,7 @@ INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`
 (36103,0,0,0,45745), -- Alliance
 (36104,0,1,0,45745); -- Horde
 
-DELETE FROM `conversation_template` WHERE `Id`= (10768,12818,12798,14422,14423,14424);
+DELETE FROM `conversation_template` WHERE `Id` IN (10768,12818,12798,14422,14423,14424);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
 (10768,32717,0,'',45745),
 (12818,31445,0,'',45745),

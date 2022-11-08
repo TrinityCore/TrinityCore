@@ -138,7 +138,7 @@ struct npc_sparring_partner : public ScriptedAI
     {
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
-            player->KilledMonsterCredit(NPC_KILL_CREDIT); /// *** MINOR HACK should be done when fight ends but phase change is tied to quest conditions. ***
+            player->KilledMonsterCredit(NPC_KILL_CREDIT); // *** MINOR HACK should be done when fight ends but phase change is tied to quest conditions. ***
             player->RemoveAura(_summonSpell);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
         }
