@@ -184,7 +184,7 @@ public:
     static bool HandleLearnAllTalentsCommand(ChatHandler* handler)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 playerClass = player->GetClass();
+        uint32 classMask = player->GetClassMask();
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
@@ -192,21 +192,37 @@ public:
             if (!talentInfo)
                 continue;
 
-            if (playerClass != talentInfo->ClassID)
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
+            if (!talentTabInfo)
                 continue;
 
-            if (talentInfo->SpecID && player->GetPrimarySpecialization() != talentInfo->SpecID)
+            if ((classMask & talentTabInfo->ClassMask) == 0)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
+            // search highest talent rank
+            uint32 spellId = 0;
+            for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
+            {
+                if (talentInfo->SpellRank[rank] != 0)
+                {
+                    spellId = talentInfo->SpellRank[rank];
+                    break;
+                }
+            }
+
+            if (!spellId)                                        // ??? none spells in talent
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
-            player->AddTalent(talentInfo, player->GetActiveTalentGroup(), true);
+            player->AddTalent(spellId, player->GetActiveTalentGroup(), true);
             player->LearnSpell(talentInfo->SpellID, false);
         }
 
-        player->SendTalentsInfoData();
+        player->SetFreeTalentPoints(0);
+        player->SendTalentsInfoData(false);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
         return true;

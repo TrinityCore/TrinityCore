@@ -617,7 +617,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<int32, 98, 104> PvpLastWeeksTierMaxFromWins;
     UpdateField<uint8, 98, 105> NumBankSlots;
     UpdateField<int32, 98, 106> TransportServerTime;
-    UpdateField<uint8, 98, 107> Unk340_2;
+    UpdateField<uint8, 98, 107> GlyphsEnabled;
     UpdateFieldArray<ObjectGuid, 129, 108, 109> InvSlots;
     UpdateFieldArray<uint32, 2, 238, 239> TrackResourceMask;
     UpdateFieldArray<float, 7, 241, 242> SpellCritPercentage;

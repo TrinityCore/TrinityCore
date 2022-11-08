@@ -820,7 +820,6 @@ enum OpcodeClient : uint16
     CMSG_HIDE_QUEST_CHOICE                                           = 0xBADD,
     CMSG_ISLAND_QUEUE                                                = 0xBADD,
     CMSG_LEARN_PVP_TALENTS                                           = 0xBADD,
-    CMSG_LEARN_TALENTS                                               = 0xBADD,
     CMSG_LFG_LIST_JOIN                                               = 0xBADD,
     CMSG_LFG_LIST_UPDATE_REQUEST                                     = 0xBADD,
     CMSG_LOAD_SELECTED_TROPHY                                        = 0xBADD,

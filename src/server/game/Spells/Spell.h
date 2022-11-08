@@ -563,6 +563,9 @@ class TC_GAME_API Spell
             // SPELL_EFFECT_UPGRADE_HEIRLOOM
             uint32 ItemId;
 
+            // SPELL_EFFECT_APPLY_GLYPH
+            uint32 GlyphIndex;
+
             struct
             {
                 uint32 Data[2];

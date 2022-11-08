@@ -2924,7 +2924,8 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     std::set<uint32> talentSpells;
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(i))
-            talentSpells.insert(talentInfo->SpellID);
+            for (uint32 spellRank : talentInfo->SpellRank)
+                talentSpells.insert(spellRank);
 
     for (SpellInfo const& spellInfo : mSpellInfoMap)
     {

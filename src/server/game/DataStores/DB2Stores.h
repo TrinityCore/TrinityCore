@@ -169,6 +169,7 @@ TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTre
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
 TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
 TC_GAME_API extern DB2Storage<MovieEntry>                           sMovieStore;
+TC_GAME_API extern DB2Storage<NumTalentsAtLevelEntry>               sNumTalentsAtLevelStore;
 TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
 TC_GAME_API extern DB2Storage<ParagonReputationEntry>               sParagonReputationStore;
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
@@ -265,6 +266,15 @@ struct ShapeshiftFormModelData
     std::vector<ChrCustomizationDisplayInfoEntry const*> Displays;
 };
 
+struct TalentSpellPos
+{
+    TalentSpellPos() : TalentID(0), Rank(0) { }
+    TalentSpellPos(uint16 _TalentID, uint8 _Rank) : TalentID(_TalentID), Rank(_Rank) { }
+
+    uint16 TalentID;
+    uint8 Rank;
+};
+
 struct TaxiPathBySourceAndDestination
 {
     TaxiPathBySourceAndDestination() : ID(0), price(0) { }
@@ -280,12 +290,16 @@ using TaxiPathSetBySource = std::map<uint32, TaxiPathSetForSource>;
 using TaxiPathNodeList = std::vector<TaxiPathNodeEntry const*>;
 using TaxiPathNodesByPath = std::vector<TaxiPathNodeList>;
 
+using TalentSpellPosMap = std::map<uint32, TalentSpellPos>;
+
 TC_GAME_API extern TaxiMask                                         sTaxiNodesMask;
 TC_GAME_API extern TaxiMask                                         sOldContinentsNodesMask;
 TC_GAME_API extern TaxiMask                                         sHordeTaxiNodesMask;
 TC_GAME_API extern TaxiMask                                         sAllianceTaxiNodesMask;
+TC_GAME_API extern TalentSpellPosMap                                sTalentSpellPosMap;
 TC_GAME_API extern TaxiPathSetBySource                              sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
+TC_GAME_API extern std::unordered_set<uint32>                       sPetTalentSpells;
 
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
     struct structure ## Comparator \
@@ -413,6 +427,7 @@ public:
     JournalTierEntry const* GetJournalTier(uint32 index) const;
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
+    uint32 const* /*[MAX_TALENT_TABS]*/ GetTalentTabPages(uint8 cls);
     static uint32 GetLiquidFlags(uint32 liquidType);
     MapDifficultyContainer const& GetMapDifficulties() const;
     MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr) const;
@@ -457,6 +472,8 @@ public:
     std::vector<TransmogSetItemEntry const*> const* GetTransmogSetItems(uint32 transmogSetId) const;
     static bool GetUiMapPosition(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system, bool local,
         int32* uiMapId = nullptr, DBCPosition2D* newPos = nullptr);
+    TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
+    uint32 GetTalentSpellCost(uint32 spellId);
     bool Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     bool IsUiMapPhase(uint32 phaseId) const;

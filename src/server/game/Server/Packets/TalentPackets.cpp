@@ -31,33 +31,43 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::PvPTalent const& 
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::TalentInfo const& talent)
+{
+    data << uint32(talent.TalentID);
+    data << uint8(talent.Rank);
+    return data;
+}
+
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
-    _worldPacket << uint8(Info.ActiveGroup);
-    _worldPacket << uint32(Info.PrimarySpecialization);
-    _worldPacket << uint32(Info.TalentGroups.size());
+    _worldPacket << uint32(UnspentTalentPoints);
+    _worldPacket << uint8(ActiveGroup);
+    _worldPacket << uint32(TalentGroupInfos.size());
 
-    for (auto& talentGroupInfo : Info.TalentGroups)
+    for (auto& talentGroupInfo : TalentGroupInfos)
     {
-        _worldPacket << uint32(talentGroupInfo.SpecID);
-        _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
-        _worldPacket << uint32(talentGroupInfo.PvPTalents.size());
+        _worldPacket << uint8(talentGroupInfo.TalentInfo.size());
+        _worldPacket << uint32(talentGroupInfo.TalentInfo.size());
+        _worldPacket << uint8(MAX_GLYPH_SLOT_INDEX);
+        _worldPacket << uint32(MAX_GLYPH_SLOT_INDEX);
+        _worldPacket << uint8(talentGroupInfo.SpecID);
 
-        for (uint16 talent : talentGroupInfo.TalentIDs)
-            _worldPacket << uint16(talent);
-
-        for (PvPTalent talent : talentGroupInfo.PvPTalents)
+        for (TalentInfo talent : talentGroupInfo.TalentInfo)
             _worldPacket << talent;
+
+        for (uint16 glyph : talentGroupInfo.GlyphInfo)
+            _worldPacket << glyph;
     }
+
+    _worldPacket.WriteBit(false);
 
     return &_worldPacket;
 }
 
-void WorldPackets::Talent::LearnTalents::Read()
+void WorldPackets::Talent::LearnTalent::Read()
 {
-    Talents.resize(_worldPacket.ReadBits(6));
-    for (uint32 i = 0; i < Talents.size(); ++i)
-        _worldPacket >> Talents[i];
+    _worldPacket >> TalentID;
+    _worldPacket >> Rank;
 }
 
 WorldPacket const* WorldPackets::Talent::RespecWipeConfirm::Write()

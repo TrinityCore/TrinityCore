@@ -330,8 +330,10 @@ TaxiMask                                        sTaxiNodesMask;
 TaxiMask                                        sOldContinentsNodesMask;
 TaxiMask                                        sHordeTaxiNodesMask;
 TaxiMask                                        sAllianceTaxiNodesMask;
+TalentSpellPosMap                               sTalentSpellPosMap;
 TaxiPathSetBySource                             sTaxiPathSetBySource;
 TaxiPathNodesByPath                             sTaxiPathNodesByPath;
+std::unordered_set<uint32>                      sPetTalentSpells;
 
 DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry)
 
@@ -476,6 +478,9 @@ namespace
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByWmoGroup[MAX_UI_MAP_SYSTEM];
     std::unordered_set<int32> _uiMapPhases;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
+
+    // store absolute bit position for first rank for talent inspect
+    static uint32 sTalentTabPages[MAX_CLASSES][3];
 }
 
 template<typename T>
@@ -705,6 +710,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGemPropertiesStore);
     //LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphPropertiesStore);
+    LOAD_DB2(sGlyphSlotStore);
     //LOAD_DB2(sGlyphRequiredSpecStore);
     //LOAD_DB2(sGuildColorBackgroundStore);
     //LOAD_DB2(sGuildColorBorderStore);
@@ -1310,7 +1316,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             _skillLinesByParentSkillLine[skill->ParentSkillLineID].push_back(skill);
 
     for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
+    {
         _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillupSkillLineID ? skillLineAbility->SkillupSkillLineID : skillLineAbility->SkillLine].push_back(skillLineAbility);
+    }
 
     for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
         if (sSkillLineStore.LookupEntry(entry->SkillID))
@@ -1331,6 +1339,21 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (SpellVisualMissileEntry const* spellVisualMissile : sSpellVisualMissileStore)
         _spellVisualMissilesBySet[spellVisualMissile->SpellVisualMissileSetID].push_back(spellVisualMissile);
 
+    // create talent spells set
+    for (TalentEntry const* talentInfo : sTalentStore)
+    {
+        TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(talentInfo->TabID);
+        for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
+        {
+            if (talentInfo->SpellRank[j])
+            {
+                sTalentSpellPosMap[talentInfo->SpellRank[j]] = TalentSpellPos(talentInfo->ID, j);
+                if (talentTab && talentTab->PetTalentMask)
+                    sPetTalentSpells.insert(talentInfo->SpellRank[j]);
+            }
+        }
+    }
+
     for (TalentEntry const* talentInfo : sTalentStore)
     {
         ASSERT(talentInfo->ClassID < MAX_CLASSES);
@@ -1338,6 +1361,22 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         ASSERT(talentInfo->ColumnIndex < MAX_TALENT_COLUMNS, "MAX_TALENT_COLUMNS must be at least %u", talentInfo->ColumnIndex + 1);
 
         _talentsByPosition[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
+    }
+
+    // prepare fast data access to bit pos of talent ranks for use at inspecting
+    {
+        // now have all max ranks (and then bit amount used for store talent ranks in inspect)
+        for (TalentTabEntry const* talentTabInfo : sTalentTabStore)
+        {
+            // prevent memory corruption; otherwise cls will become 12 below
+            if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE) == 0)
+                continue;
+
+            // store class talent tab pages
+            for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
+                if (talentTabInfo->ClassMask & (1 << (cls - 1)))
+                    sTalentTabPages[cls][talentTabInfo->OrderIndex] = talentTabInfo->ID;
+        }
     }
 
     for (TaxiPathEntry const* entry : sTaxiPathStore)
@@ -2465,6 +2504,11 @@ uint32 DB2Manager::GetDefaultMapLight(uint32 mapId)
     return 0;
 }
 
+uint32 const* DB2Manager::GetTalentTabPages(uint8 cls)
+{
+    return sTalentTabPages[cls];
+}
+
 uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
 {
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
@@ -3166,6 +3210,23 @@ bool DB2Manager::GetUiMapPosition(float x, float y, float z, int32 mapId, int32 
         *newPos = uiPosition;
 
     return true;
+}
+
+TalentSpellPos const* DB2Manager::GetTalentSpellPos(uint32 spellId)
+{
+    TalentSpellPosMap::const_iterator itr = sTalentSpellPosMap.find(spellId);
+    if (itr == sTalentSpellPosMap.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
+uint32 DB2Manager::GetTalentSpellCost(uint32 spellId)
+{
+    if (TalentSpellPos const* pos = GetTalentSpellPos(spellId))
+        return pos->Rank + 1;
+
+    return 0;
 }
 
 bool DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const

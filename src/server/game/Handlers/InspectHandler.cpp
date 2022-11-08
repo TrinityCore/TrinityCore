@@ -49,7 +49,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
     {
         PlayerTalentMap const* talents = player->GetTalentMap(player->GetActiveTalentGroup());
         for (PlayerTalentMap::value_type const& v : *talents)
-            if (v.second != PLAYERSPELL_REMOVED)
+            if (v.second.state != PLAYERSPELL_REMOVED)
                 inspectResult.Talents.push_back(v.first);
 
         PlayerPvpTalentMap const& pvpTalents = player->GetPvpTalentMap(player->GetActiveTalentGroup());

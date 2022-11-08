@@ -26,28 +26,10 @@
 #include "SpellPackets.h"
 #include "TalentPackets.h"
 
-void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
+void WorldSession::HandleLearnTalentOpcode(WorldPackets::Talent::LearnTalent& packet)
 {
-    WorldPackets::Talent::LearnTalentFailed learnTalentFailed;
-    bool anythingLearned = false;
-    for (uint32 talentId : packet.Talents)
-    {
-        if (TalentLearnResult result = _player->LearnTalent(talentId, &learnTalentFailed.SpellID))
-        {
-            if (!learnTalentFailed.Reason)
-                learnTalentFailed.Reason = result;
-
-            learnTalentFailed.Talents.push_back(talentId);
-        }
-        else
-            anythingLearned = true;
-    }
-
-    if (learnTalentFailed.Reason)
-        SendPacket(learnTalentFailed.Write());
-
-    if (anythingLearned)
-        _player->SendTalentsInfoData();
+    _player->LearnTalent(packet.TalentID, packet.Rank);
+    _player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet)
@@ -71,7 +53,7 @@ void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTal
         SendPacket(learnPvpTalentFailed.Write());
 
     if (anythingLearned)
-        _player->SendTalentsInfoData();
+        _player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)
@@ -99,7 +81,7 @@ void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRe
     if (!_player->ResetTalents())
         return;
 
-    _player->SendTalentsInfoData();
+    _player->SendTalentsInfoData(false);
     unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 

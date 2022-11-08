@@ -33,37 +33,44 @@ namespace WorldPackets
             uint8 Slot = 0;
         };
 
-        struct TalentGroupInfo
+        struct TalentInfo
         {
-            uint32 SpecID = 0;
-            std::vector<uint16> TalentIDs;
-            std::vector<PvPTalent> PvPTalents;
+            uint32 TalentID = 0;
+            uint8 Rank = 0;
         };
 
-        struct TalentInfoUpdate
+        struct TalentGroupInfo
         {
-            uint8 ActiveGroup = 0;
-            uint32 PrimarySpecialization = 0;
-            std::vector<TalentGroupInfo> TalentGroups;
+            uint8 SpecID = 0;
+            std::vector<TalentInfo> TalentInfo;
+            std::array<uint16, MAX_GLYPH_SLOT_INDEX> GlyphInfo;
         };
 
         class UpdateTalentData final : public ServerPacket
         {
         public:
-            UpdateTalentData() : ServerPacket(SMSG_UPDATE_TALENT_DATA, 2+4+4+4+12) { }
+            UpdateTalentData() : ServerPacket(SMSG_UPDATE_TALENT_DATA, 4 + 1 + 1 + 2 + 2 + 2 + 2 + 2 + 2)
+            {
+                for (TalentGroupInfo& talentGroupInfo : TalentGroupInfos)
+                    talentGroupInfo.GlyphInfo.fill(0);
+            }
 
             WorldPacket const* Write() override;
 
-            TalentInfoUpdate Info;
+            uint32 UnspentTalentPoints = 0;
+            uint8 ActiveGroup = 0;
+            std::vector<TalentGroupInfo> TalentGroupInfos;
         };
 
-        class LearnTalents final : public ClientPacket
+        class LearnTalent final : public ClientPacket
         {
         public:
-            LearnTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENTS, std::move(packet)) { }
+            LearnTalent(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENT, std::move(packet)) { }
 
             void Read() override;
-            Array<uint16, MAX_TALENT_TIERS> Talents;
+
+            int32 TalentID = 0;
+            uint16 Rank = 0;
         };
 
         class RespecWipeConfirm final : public ServerPacket

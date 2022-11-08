@@ -3322,45 +3322,59 @@ void Spell::EffectApplyGlyph()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+    if (m_misc.GlyphIndex >= MAX_GLYPH_SLOT_INDEX)
+        return;
+
     Player* player = m_caster->ToPlayer();
     if (!player)
         return;
 
-    std::vector<uint32>& glyphs = player->GetGlyphs(player->GetActiveTalentGroup());
-    std::size_t replacedGlyph = glyphs.size();
-    for (std::size_t i = 0; i < glyphs.size(); ++i)
+    // glyph sockets level requirement
+    uint8 minLevel = 0;
+    switch (m_misc.GlyphIndex)
     {
-        if (std::vector<uint32> const* activeGlyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(glyphs[i]))
+    case 0:
+    case 1: minLevel = 15; break;
+    case 2: minLevel = 50; break;
+    case 3: minLevel = 30; break;
+    case 4: minLevel = 70; break;
+    case 5: minLevel = 80; break;
+    }
+    if (minLevel && player->GetLevel() < minLevel)
+    {
+        SendCastResult(SPELL_FAILED_GLYPH_SOCKET_LOCKED);
+        return;
+    }
+
+    // apply new one
+    if (uint32 glyph = effectInfo->MiscValue)
+    {
+        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
         {
-            if (std::find(activeGlyphBindableSpells->begin(), activeGlyphBindableSpells->end(), m_misc.SpellId) != activeGlyphBindableSpells->end())
+            if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_misc.GlyphIndex)))
             {
-                replacedGlyph = i;
-                player->RemoveAurasDueToSpell(sGlyphPropertiesStore.AssertEntry(glyphs[i])->SpellID);
-                break;
+                if (gp->GlyphSlotFlags != gs->Type)
+                {
+                    SendCastResult(SPELL_FAILED_INVALID_GLYPH);
+                    return;                                 // glyph slot mismatch
+                }
             }
+
+            // remove old glyph
+            if (uint32 oldglyph = player->GetGlyph(m_misc.GlyphIndex))
+            {
+                if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
+                {
+                    player->RemoveAurasDueToSpell(old_gp->SpellID);
+                    player->SetGlyph(m_misc.GlyphIndex, 0);
+                }
+            }
+
+            player->CastSpell(player, gp->SpellID, true);
+            player->SetGlyph(m_misc.GlyphIndex, glyph);
+            player->SendTalentsInfoData(false);
         }
     }
-
-    uint32 glyphId = effectInfo->MiscValue;
-    if (replacedGlyph < glyphs.size())
-    {
-        if (glyphId)
-            glyphs[replacedGlyph] = glyphId;
-        else
-            glyphs.erase(glyphs.begin() + replacedGlyph);
-    }
-    else if (glyphId)
-        glyphs.push_back(glyphId);
-
-    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::ChangeGlyph);
-
-    if (GlyphPropertiesEntry const* glyphProperties = sGlyphPropertiesStore.LookupEntry(glyphId))
-        player->CastSpell(player, glyphProperties->SpellID, this);
-
-    WorldPackets::Talent::ActiveGlyphs activeGlyphs;
-    activeGlyphs.Glyphs.emplace_back(m_misc.SpellId, uint16(glyphId));
-    activeGlyphs.IsFullUpdate = false;
-    player->SendDirectMessage(activeGlyphs.Write());
 }
 
 void Spell::EffectEnchantHeldItem()
@@ -5253,8 +5267,9 @@ void Spell::EffectRemoveTalent()
     if (!player)
         return;
 
-    player->RemoveTalent(talent);
-    player->SendTalentsInfoData();
+    for (uint32 spellId : talent->SpellRank)
+        player->RemoveTalent(spellId);
+    player->SendTalentsInfoData(false);
 }
 
 void Spell::EffectDestroyItem()

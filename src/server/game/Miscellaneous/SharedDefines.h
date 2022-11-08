@@ -929,6 +929,12 @@ enum SpellAttr13 : uint32
 #define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
 #define INITIAL_SPECIALIZATION_INDEX 4
 
+#define MIN_TALENT_SPEC         0
+#define MAX_TALENT_SPEC         1
+#define MIN_TALENT_SPECS        1
+#define MAX_TALENT_SPECS        2
+#define MAX_GLYPH_SLOT_INDEX    6
+
 // Custom values
 enum SpellClickUserTypes
 {

@@ -2544,7 +2544,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     {
         GlyphInfos[i].WriteCreate(data, owner, receiver);
     }
-    data << uint8(Unk340_2);
+    data << uint8(GlyphsEnabled);
     for (std::size_t i = 0; i < KnownTitles.size(); ++i)
     {
         data << uint64(KnownTitles[i]);
@@ -3265,7 +3265,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[107])
         {
-            data << uint8(Unk340_2);
+            data << uint8(GlyphsEnabled);
         }
     }
     if (changesMask[108])
@@ -3545,7 +3545,7 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(PvpLastWeeksTierMaxFromWins);
     Base::ClearChangesMask(NumBankSlots);
     Base::ClearChangesMask(TransportServerTime);
-    Base::ClearChangesMask(Unk340_2);
+    Base::ClearChangesMask(GlyphsEnabled);
     Base::ClearChangesMask(InvSlots);
     Base::ClearChangesMask(TrackResourceMask);
     Base::ClearChangesMask(SpellCritPercentage);

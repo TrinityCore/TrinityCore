@@ -176,6 +176,12 @@ struct PlayerSpell
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
 };
 
+struct PlayerTalent
+{
+    PlayerSpellState state : 8;
+    uint8 spec : 8;
+};
+
 struct StoredAuraTeleportLocation
 {
     WorldLocation Loc;
@@ -284,7 +290,8 @@ struct PlayerCurrency
     uint8 Flags;
 };
 
-typedef std::unordered_map<uint32, PlayerSpellState> PlayerTalentMap;
+typedef std::unordered_map<uint32, PlayerTalent> PlayerTalentMap;
+typedef std::array<uint16, MAX_GLYPH_SLOT_INDEX> PlayerGlyphs;
 typedef std::array<uint32, MAX_PVP_TALENT_SLOTS> PlayerPvpTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::unordered_set<SpellModifier*> SpellModContainer;
@@ -1076,18 +1083,24 @@ enum TalentLearnResult
 
 struct TC_GAME_API SpecializationInfo
 {
-    SpecializationInfo() : PvpTalents(), ResetTalentsCost(0), ResetTalentsTime(0), ActiveGroup(0)
+    SpecializationInfo() : PvpTalents(), Glyphs(), ResetTalentsCost(0), ResetTalentsTime(0), UsedTalentCount(0), QuestRewardTalentCount(0), ActiveGroup(0), TalentGroupCount(1)
     {
         for (PlayerPvpTalentMap& pvpTalents : PvpTalents)
             pvpTalents.fill(0);
+
+        for (PlayerGlyphs& glyphs : Glyphs)
+            glyphs.fill(0);
     }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
+    PlayerGlyphs Glyphs[MAX_TALENT_SPECS];
     PlayerPvpTalentMap PvpTalents[MAX_SPECIALIZATIONS];
-    std::vector<uint32> Glyphs[MAX_SPECIALIZATIONS];
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
+    uint32 UsedTalentCount;
+    uint32 QuestRewardTalentCount;
     uint8 ActiveGroup;
+    uint8 TalentGroupCount;
 
 private:
     SpecializationInfo(SpecializationInfo const&) = delete;
@@ -1815,17 +1828,26 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetPrimarySpecialization(uint32 spec) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentSpecID), spec); }
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
+        uint32 GetUsedTalentCount() const { return _specializationInfo.UsedTalentCount; }
+        void SetUsedTalentCount(uint32 count) { _specializationInfo.UsedTalentCount = count; }
+        uint32 GetQuestRewardTalentCount() const { return _specializationInfo.QuestRewardTalentCount; }
+        void SetQuestRewardTalentCount(uint32 count) { _specializationInfo.QuestRewardTalentCount = count; }
+        uint8 GetTalentGroupCount() const { return _specializationInfo.TalentGroupCount; }
+        void SetTalentGroupCount(uint8 count) { _specializationInfo.TalentGroupCount = count; }
         uint32 GetDefaultSpecId() const;
 
+        uint32 GetFreeTalentPoints() const { return m_activePlayerData->CharacterPoints; }
+        void SetFreeTalentPoints(uint32 points);
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();
         uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
-        void SendTalentsInfoData();
-        TalentLearnResult LearnTalent(uint32 talentId, int32* spellOnCooldown);
-        bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
+        void SendTalentsInfoData(bool pet);
+        void LearnTalent(uint32 talentId, uint32 talentRank);
+        bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
-        void RemoveTalent(TalentEntry const* talent);
+        void RemoveTalent(uint32 spellId);
+        uint32 GetNumTalentsAtLevel(uint32 level, Classes playerClass) const;
         void ResetTalentSpecialization();
 
         TalentLearnResult LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown);
@@ -1842,12 +1864,18 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Dual Spec
         void ActivateTalentGroup(ChrSpecializationEntry const* spec);
 
+        void InitGlyphsForLevel();
+        void UpdateGlyphsEnabled();
+        void SetGlyphSlot(uint8 slotIndex, uint32 slotType) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::GlyphInfos, slotIndex).ModifyValue(&UF::GlyphInfo::GlyphSlot), slotType); }
+        uint32 GetGlyphSlot(uint8 slotIndex) const { return m_activePlayerData->GlyphInfos[slotIndex].GlyphSlot; }
+        void SetGlyph(uint8 slotIndex, uint32 glyph);
+        uint32 GetGlyph(uint8 slotIndex) { return _specializationInfo.Glyphs[GetActiveTalentGroup()][slotIndex]; }
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return &_specializationInfo.Talents[spec]; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return &_specializationInfo.Talents[spec]; }
         PlayerPvpTalentMap const& GetPvpTalentMap(uint8 spec) const { return _specializationInfo.PvpTalents[spec]; }
         PlayerPvpTalentMap& GetPvpTalentMap(uint8 spec) { return _specializationInfo.PvpTalents[spec]; }
-        std::vector<uint32> const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
-        std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
+        PlayerGlyphs const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
+        PlayerGlyphs& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
         void LoadActions(PreparedQueryResult result);
 
