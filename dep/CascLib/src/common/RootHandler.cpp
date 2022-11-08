@@ -58,10 +58,21 @@ PCASC_CKEY_ENTRY TFileTreeRoot::GetFile(TCascStorage * /* hs */, DWORD FileDataI
     return (pFileNode != NULL) ? pFileNode->pCKeyEntry : NULL;
 }
 
+PCASC_CKEY_ENTRY TFileTreeRoot::GetFile(size_t nFileIndex, char * szFileName, size_t ccFileName)
+{
+    PCASC_CKEY_ENTRY pCKeyEntry = NULL;
+    PCASC_FILE_NODE pFileNode;
+
+    // Perform the search in the underlying file tree
+    if((pFileNode = FileTree.PathAt(szFileName, ccFileName, nFileIndex)) != NULL)
+        pCKeyEntry = pFileNode->pCKeyEntry;
+    return pCKeyEntry;
+}
+
 PCASC_CKEY_ENTRY TFileTreeRoot::Search(TCascSearch * pSearch, PCASC_FIND_DATA pFindData)
 {
     PCASC_FILE_NODE pFileNode;
-    size_t nMaxFileIndex = FileTree.GetMaxFileIndex();
+    size_t nMaxFileIndex = GetMaxFileIndex();
 
     // Are we still inside the root directory range?
     while(pSearch->nFileIndex < nMaxFileIndex)
@@ -111,3 +122,29 @@ bool TFileTreeRoot::GetInfo(PCASC_CKEY_ENTRY pCKeyEntry, PCASC_FILE_FULL_INFO pF
     return false;
 }
 
+size_t TFileTreeRoot::Copy(TRootHandler * pRoot)
+{
+    PCASC_CKEY_ENTRY pCKeyEntry;
+    size_t nMaxFileIndex = GetMaxFileIndex();
+    size_t nItemsCopied = 0;
+    char szFileName[0x200];
+
+    for(size_t nFileIndex = 0; nFileIndex < nMaxFileIndex; nFileIndex++)
+    {
+        if((pCKeyEntry = pRoot->GetFile(nFileIndex, szFileName, _countof(szFileName))) != NULL)
+        {
+            if(szFileName[0] != 0)
+            {
+                Insert(szFileName, pCKeyEntry);
+                nItemsCopied++;
+            }
+        }
+    }
+
+    return nItemsCopied;
+}
+
+size_t TFileTreeRoot::GetMaxFileIndex()
+{
+    return FileTree.GetMaxFileIndex();
+}

@@ -37,7 +37,7 @@ namespace std
     template <>
     struct hash<AreaTriggerId>
     {
-        std::size_t operator()(AreaTriggerId const& value) const
+        std::size_t operator()(AreaTriggerId const& value) const noexcept
         {
             size_t hashVal = 0;
             Trinity::hash_combine(hashVal, value.Id);
