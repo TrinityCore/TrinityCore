@@ -159,7 +159,7 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=175732;
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES 
-(175732, 178355, 0, 0, 'Sylvanas Windrunner - Shadowcopy', 6, 30000);
+(175732, 178355, 0, 0, 'Sylvanas Windrunner - Shadowcopy (Riding)', 6, 30000);
 
 DELETE FROM `creature_summon_groups` WHERE `summonerId`=175732;
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`, `Comment`) VALUES 
@@ -252,11 +252,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=348010 AND `ScriptName`='spell_sylvanas_windrunner_ranger_dagger';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (348010, 'spell_sylvanas_windrunner_ranger_dagger');
-
--- Ranger Strike
-DELETE FROM `spell_script_names` WHERE `spell_id`=348299 AND `ScriptName`='spell_sylvanas_windrunner_ranger_strike';
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(348299, 'spell_sylvanas_windrunner_ranger_strike');
 
 -- Windrunner
 DELETE FROM `jump_charge_params` WHERE `id` IN (529, 530, 531);

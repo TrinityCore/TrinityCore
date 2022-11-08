@@ -430,8 +430,8 @@ enum SpellVisuals
 {
     SPELL_VISUAL_RANGER_STRIKE_RIGHT                    = 106153, // At 1.0f
     SPELL_VISUAL_RANGER_STRIKE_LEFT                     = 106160, // At 1.0f
-    SPELL_VISUAL_RANGER_STRIKE_01                       = 106165, // At 1.0f
-    SPELL_VISUAL_RANGER_STRIKE_03                       = 106161, // At 1.0f
+    SPELL_VISUAL_RANGER_STRIKE_FAST_RIGHT               = 106165, // At 1.0f
+    SPELL_VISUAL_RANGER_STRIKE_FAST_LEFT                = 106161, // At 1.0f
     SPELL_VISUAL_WINDRUNNER_01                          = 107722, // At 0.5f
     SPELL_VISUAL_WINDRUNNER_02                          = 110312, // At 0.25f
     SPELL_VISUAL_WINDRUNNER_03                          = 107920, // At 0.25f
@@ -592,9 +592,9 @@ uint32 const EventsTimersNormal[3][4][5]
     // P1
     {
         // Note: fifth casts are guessed since we can't get to know until DF.
-        { 7700, 55000, 56000, 55000, 55000  }, // Windrunner
-        { 25000, 58000, 57500, 57500, 57500 }, // Domination Chains
-        { 28000, 37500, 31500, 30000, 30500 }, // Wailing Arrow
+        { 7700, 55000, 56600, 55000, 55000  }, // Windrunner
+        { 25000, 58500, 57500, 57500, 57500 }, // Domination Chains
+        { 28000, 38000, 31500, 30000, 33500 }, // Wailing Arrow
         { 50000, 53500, 53500, 55000, 56000 }  // Veil of Darkness
     },
 
@@ -1460,6 +1460,11 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         }
     }
 
+    void StoreDesecratingShots(Position pos, uint8 step, float travelSpeed)
+    {
+        _desecratingShotStorage.emplace_back(pos, step, travelSpeed);
+    }
+
     // TODO: the root's duration changes per _windrunnerCastTimes and event type. It's not such a big deal since she won't move at all until Windrunner finishes anyway.
     void StartDesecratingShotEvent(uint8 pattern, uint8 copyIndex)
     {
@@ -1528,97 +1533,45 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
-            {
-                break;
-            }
-
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
-            {
-                Position spiralShootPos(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), 4112.0386f);
-
-                me->NearTeleportTo(spiralShootPos, false);
-
-                if (copyIndex == 2)
-                {
-                    sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2950));
-                    sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1204));
-
-                    sylvanas->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                }
-                else if (copyIndex == 1)
-                {
-                    if (Creature* shadowCopy2 = GetShadowcopy(_instance, DATA_INDEX_02))
-                        shadowCopy2->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                }
-                else
-                {
-                    if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
-                        shadowCopy1->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
-                }
-
-                _scheduler.Schedule(250ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
-                {
-                    sylvanas->SetNameplateAttachToGUID(me->GetGUID());
-                    me->CastSpell(spiralShootPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
-                });
-
-                _scheduler.Schedule(275ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
-                {
-                    ReleaseDesecratingShots();
-                });
-
-                _scheduler.Schedule(350ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
-                {
-                    _desecratingShotStorage.clear();
-
-                    if (copyIndex == 0)
-                    {
-                        me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.5f, true, false);
-
-                        sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                    }
-                });
-
-                break;
-            }
-
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
-                // TODO: obtain correct timers on sniff.
-                Position spiralShootPos(_desecratingShotStorage[27].Pos.GetPositionX(), _desecratingShotStorage[27].Pos.GetPositionY(), 4112.0386f);
+                uint8 shootingPointIndex = pattern == DATA_DESECRATING_SHOT_PATTERN_WAVE ? 0 : 27;
 
-                me->NearTeleportTo(spiralShootPos, false);
+                Position shootingPos(_desecratingShotStorage[shootingPointIndex].Pos.GetPositionX(), _desecratingShotStorage[shootingPointIndex].Pos.GetPositionY(), 4112.0386f);
+
+                me->NearTeleportTo(shootingPos, false);
 
                 if (copyIndex == 2)
                 {
                     sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2950));
                     sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1204));
 
-                    sylvanas->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    sylvanas->SendPlayOrphanSpellVisual(shootingPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
                 else if (copyIndex == 1)
                 {
                     if (Creature* shadowCopy2 = GetShadowcopy(_instance, DATA_INDEX_02))
-                        shadowCopy2->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        shadowCopy2->SendPlayOrphanSpellVisual(shootingPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
                 else
                 {
                     if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
-                        shadowCopy1->SendPlayOrphanSpellVisual(spiralShootPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        shadowCopy1->SendPlayOrphanSpellVisual(shootingPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
                 }
 
-                _scheduler.Schedule(250ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(215ms, [this, shootingPos, sylvanas](TaskContext /*task*/)
                 {
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
-                    me->CastSpell(spiralShootPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
+                    me->CastSpell(shootingPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                 });
 
-                _scheduler.Schedule(275ms, [this, spiralShootPos, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(240ms, [this, shootingPos, sylvanas](TaskContext /*task*/)
                 {
                     ReleaseDesecratingShots();
                 });
 
-                _scheduler.Schedule(350ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
+                _scheduler.Schedule(400ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
                 {
                     _desecratingShotStorage.clear();
 
@@ -1640,11 +1593,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             default:
                 break;
         }
-    }
-
-    void StoreDesecratingShots(Position pos, uint8 step, float travelSpeed)
-    {
-        _desecratingShotStorage.emplace_back(pos, step, travelSpeed);
     }
 
     void ReleaseDesecratingShots()
@@ -1861,8 +1809,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
         events.SetPhase(PHASE_ONE);
 
-        ScheduleEventsForPhaseOne();
-
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
@@ -2033,7 +1979,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 if (events.IsInPhase(PHASE_ONE))
                 {
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(0ms));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(250ms));
                     DoAction(ACTION_RESET_MELEE_KIT);
                 }
                 else
@@ -2334,10 +2280,10 @@ struct boss_sylvanas_windrunner : public BossAI
                             _eventCounter[EVENT_COUNTER_DESECRATING_SHOT_PATTERN] = _eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 1 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_STRAIGHT;
                             break;
                         case DATA_WINDRUNNER_COUNTER_TWO:
-                            _eventCounter[EVENT_COUNTER_DESECRATING_SHOT_PATTERN] = _eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL;
+                            _eventCounter[EVENT_COUNTER_DESECRATING_SHOT_PATTERN] = _eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED;
                             break;
                         case DATA_WINDRUNNER_COUNTER_THREE:
-                            _eventCounter[EVENT_COUNTER_DESECRATING_SHOT_PATTERN] = _eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED : DATA_DESECRATING_SHOT_PATTERN_SCATTERED;
+                            _eventCounter[EVENT_COUNTER_DESECRATING_SHOT_PATTERN] = _eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED;
                             break;
                         case DATA_WINDRUNNER_COUNTER_FOUR:
                             _eventCounter[EVENT_COUNTER_DESECRATING_SHOT_PATTERN] = _eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR;
@@ -2380,11 +2326,11 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DOMINATION_CHAINS:
                 {
-                    DoCastSelf(SPELL_RANGER_BOW_STANCE, true);
+                    TeleportShadowcopiesToMe();
                     me->m_Events.KillAllEvents(true);
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(10ms));
+                    me->AddAura(SPELL_RANGER_BOW_STANCE, me);
                     DoCastSelf(SPELL_DOMINATION_CHAINS);
-                    TeleportShadowcopiesToMe();
                     if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
                         if (shadowCopy->IsAIEnabled())
                             shadowCopy->GetAI()->DoAction(ACTION_START_DOMINATION_CHAINS);
@@ -2513,9 +2459,11 @@ struct boss_sylvanas_windrunner : public BossAI
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
                         });
 
-                        scheduler.Schedule(8s, [this](TaskContext /*task*/)
+                        scheduler.Schedule(7s, [this](TaskContext /*task*/)
                         {
                             TeleportShadowcopiesToMe();
+
+                            me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
                         });
 
                         _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
@@ -2848,8 +2796,17 @@ struct boss_sylvanas_windrunner : public BossAI
                         break;
 
                     case DATA_MELEE_COMBO_RANGER_STRIKE_01:
+                        DoCastVictim(SPELL_RANGER_STRIKE);
+                        me->SendPlaySpellVisual(me->GetVictim(), RAND(SPELL_VISUAL_RANGER_STRIKE_RIGHT, SPELL_VISUAL_RANGER_STRIKE_LEFT), 0, 0, 1.0f, true);
+                        if (roll_chance_i(50))
+                            _eventCounter[EVENT_COUNTER_MELEE_COMBO]++;
+                        else
+                            _eventCounter[EVENT_COUNTER_MELEE_COMBO] = 3;
+                        break;
+
                     case DATA_MELEE_COMBO_RANGER_STRIKE_02:
                         DoCastVictim(SPELL_RANGER_STRIKE);
+                        me->SendPlaySpellVisual(me->GetVictim(), RAND(SPELL_VISUAL_RANGER_STRIKE_FAST_RIGHT, SPELL_VISUAL_RANGER_STRIKE_FAST_LEFT), 0, 0, 1.0f, true);
                         _eventCounter[EVENT_COUNTER_MELEE_COMBO]++;
                         break;
 
@@ -2860,8 +2817,11 @@ struct boss_sylvanas_windrunner : public BossAI
                         break;
 
                     case DATA_MELEE_COMBO_FINISH:
-                        DoAction(ACTION_RESET_MELEE_KIT);
                         DoCastVictim(SPELL_RANGER_SHOT);
+                        if (roll_chance_i(50))
+                            DoAction(ACTION_RESET_MELEE_KIT);
+                        else
+                            DoCastVictim(SPELL_RANGER_SHOT);
                         break;
                     default:
                         break;
@@ -2899,31 +2859,41 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
             {
-                break;
-            }
-
-            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
-            {
-                // TODO: remove false and playerlist, it's just for testing.
-                std::list<Unit*> targets;
-                SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, false, true);
-
                 uint8 copyIndex = 2;
 
-                for (Unit* target : targets)
+                Position pos = me->GetPosition();
+
+                float orientation = me->GetOrientation();
+
+                for (uint8 i = 3; i > 0; --i)
                 {
-                    uint8 step = 10;
+                    int32 step = 0;
 
-                    Position targetPos = target->GetPosition();
+                    Position convertedPos(pos.GetPosition());
 
-                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL, copyIndex, step, targetPos, target->GetOrientation()))
-                        --step;
+                    switch (i)
+                    {
+                        case 1:
+                            convertedPos.m_positionX += (std::cos(orientation + 180.0f * M_PI / 180) * 9.999982f);
+                            convertedPos.m_positionY += (std::sin(orientation + 180.0f * M_PI / 180) * 9.999982f);
+                            break;
+                        case 2:
+                            convertedPos.m_positionX += (std::cos(orientation + 180.0f * M_PI / 180) * 5.000011f);
+                            convertedPos.m_positionY += (std::sin(orientation + 180.0f * M_PI / 180) * 5.000011f);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    while (step < 30 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_WAVE, copyIndex, step, convertedPos, orientation))
+                        ++step;
 
                     --copyIndex;
                 }
                 break;
             }
 
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
                 // TODO: remove false and playerlist, it's for testing.
@@ -3065,58 +3035,146 @@ struct boss_sylvanas_windrunner : public BossAI
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
-                return true;
-
-            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             {
-                float distance = DesecratingShotNormalSpiralDistance[step - 1];
+                float pointDistance = 3.999978f * step;
 
-                if (step != 1)
+                uint32 timer = step <= 1 ? step + 5 : step + 15;
+
+                float additionalTurn = 1.0f * step;
+
+                if (step == 0)
                 {
-                    Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                    arrowPositions.push_back(spiralLeft);
-
-                    Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                    arrowPositions.push_back(spiralRight);
-
-                    Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
-                    arrowPositions.push_back(spiralFront);
-
-                    scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                    if (amount == 2)
                     {
-                        me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                        me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                        me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&pos, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(pos);
+                            me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        }
+                    }
+                    else if (amount == 1)
+                    {
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&pos, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(pos);
+
+                            scheduler.Schedule(47ms, [this, pos](TaskContext /*task*/)
+                            {
+                                me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&pos, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(pos);
+
+                            scheduler.Schedule(78ms, [this, pos](TaskContext /*task*/)
+                            {
+                                me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+                    }
                 }
                 else
                 {
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, amount))
+                    if (amount == 2)
                     {
-                        shadowCopyAI->StoreDesecratingShots(pos, 0, 0.245000004768371f);
+                        Position rightLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
 
-                        scheduler.Schedule(Milliseconds(step * 35), [this, pos](TaskContext /*task*/)
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&rightLineFront, PLATFORM_RADIUS))
                         {
-                             me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                        });
+                            arrowPositions.push_back(rightLineFront);
+
+                            scheduler.Schedule(Milliseconds(50 * timer), [this, rightLineFront](TaskContext /*task*/)
+                            {
+                                me->CastSpell(rightLineFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+
+                        Position rightLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&rightLineBack, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(rightLineBack);
+
+                            scheduler.Schedule(Milliseconds(50 * timer), [this, rightLineBack](TaskContext /*task*/)
+                            {
+                                me->CastSpell(rightLineBack, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+                    }
+                    else if (amount == 1)
+                    {
+                        Position middleLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&middleLineFront, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(middleLineFront);
+
+                            scheduler.Schedule(Milliseconds(60 * timer), [this, middleLineFront](TaskContext /*task*/)
+                            {
+                                me->CastSpell(middleLineFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+
+                        Position middleLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&middleLineBack, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(middleLineBack);
+
+                            scheduler.Schedule(Milliseconds(60 * timer), [this, middleLineBack](TaskContext /*task*/)
+                            {
+                                me->CastSpell(middleLineBack, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        Position leftLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&leftLineFront, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(leftLineFront);
+
+                            scheduler.Schedule(Milliseconds(70 * timer), [this, leftLineFront](TaskContext /*task*/)
+                            {
+                                me->CastSpell(leftLineFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
+
+                        Position leftLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+
+                        if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&leftLineBack, PLATFORM_RADIUS))
+                        {
+                            arrowPositions.push_back(leftLineBack);
+
+                            scheduler.Schedule(Milliseconds(70 * timer), [this, leftLineBack](TaskContext /*task*/)
+                            {
+                                me->CastSpell(leftLineBack, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                            });
+                        }
                     }
                 }
 
                 // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
                 float travelSpeed = 0.245000004768371f;
 
-                for (uint8 i = 0; i < arrowPositions.size(); i++)
+                for (uint8 i = 0; i < arrowPositions.size(); ++i)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, amount))
-                        shadowCopyAI->StoreDesecratingShots(arrowPositions[i], step, travelSpeed + float(travelSpeed * (step * 0.1)));
+                        shadowCopyAI->StoreDesecratingShots(arrowPositions[i], step, travelSpeed + float(travelSpeed * (step * 0.025)));
                 }
 
                 return true;
             }
 
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL: 
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
-                float distance = DesecratingShotNormalSpiralDistance[step - 1];
+                float distance = DATA_DESECRATING_SHOT_PATTERN_SPIRAL ? DesecratingShotNormalSpiralDistance[step - 1] : DesecratingShotSpiralEnclosedDistance[step - 1];
 
                 if (step != 1)
                 {
@@ -3129,7 +3187,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
                     arrowPositions.push_back(spiralFront);
 
-                    scheduler.Schedule(Milliseconds(step * 35), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                    scheduler.Schedule(Milliseconds(step * 24), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
                     {
                         me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                         me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
@@ -3140,9 +3198,9 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, amount))
                     {
-                        shadowCopyAI->StoreDesecratingShots(pos, 0, 0.245000004768371f);
+                        shadowCopyAI->StoreDesecratingShots(pos, 0, 0.165999993681907653);
 
-                        scheduler.Schedule(Milliseconds(step * 35), [this, pos](TaskContext /*task*/)
+                        scheduler.Schedule(Milliseconds(step * 16), [this, pos](TaskContext /*task*/)
                         {
                             me->CastSpell(pos, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                         });
@@ -3152,7 +3210,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
                 float travelSpeed = 0.245000004768371f;
 
-                for (uint8 i = 0; i < arrowPositions.size(); i++)
+                for (uint8 i = 0; i < arrowPositions.size(); ++i)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, amount))
                         shadowCopyAI->StoreDesecratingShots(arrowPositions[i], step, travelSpeed + float(travelSpeed * (step * 0.1)));
@@ -3181,38 +3239,19 @@ struct boss_sylvanas_windrunner : public BossAI
                     shadowCopyAI->StartDesecratingShotEvent(pattern, 0);
                 break;
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
-                break;
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
-            {
-                if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = GetShadowcopyCastAI(instance, DATA_INDEX_02))
-                    shadowCopy2AI->StartDesecratingShotEvent(pattern, 2);
-
-                scheduler.Schedule(422ms, [this, pattern](TaskContext /*task*/)
-                {
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = GetShadowcopyCastAI(instance, DATA_INDEX_01))
-                        shadowCopy1AI->StartDesecratingShotEvent(pattern, 1);
-                });
-
-                scheduler.Schedule(750ms, [this, pattern](TaskContext /*task*/)
-                {
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, DATA_INDEX_00))
-                        shadowCopyAI->StartDesecratingShotEvent(pattern, 0);
-                });
-                break;
-            }
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
-                // TODO: obtain correct timers on sniffs.
                 if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = GetShadowcopyCastAI(instance, DATA_INDEX_02))
                     shadowCopy2AI->StartDesecratingShotEvent(pattern, 2);
 
-                scheduler.Schedule(422ms, [this, pattern](TaskContext /*task*/)
+                scheduler.Schedule(300ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = GetShadowcopyCastAI(instance, DATA_INDEX_01))
                         shadowCopy1AI->StartDesecratingShotEvent(pattern, 1);
                 });
 
-                scheduler.Schedule(750ms, [this, pattern](TaskContext /*task*/)
+                scheduler.Schedule(600ms, [this, pattern](TaskContext /*task*/)
                 {
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, DATA_INDEX_00))
                         shadowCopyAI->StartDesecratingShotEvent(pattern, 0);
@@ -3247,7 +3286,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersLfr[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventsTimersLfr[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventsTimersLfr[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersLfr[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 break;
             }
@@ -3569,17 +3608,6 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
         return ValidateSpellInfo({ SPELL_SYLVANAS_ROOT });
     }
 
-    void HandleBeforeCast()
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
-
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), caster->m_Events.CalculateTime(0ms));
-    }
-
     void HandleOnCast()
     {
         Unit* caster = GetCaster();
@@ -3593,17 +3621,39 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
         else
             caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, 0, 0);
 
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
-
         if (caster->IsInCombat())
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(859ms));
     }
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_sylvanas_windrunner_ranger_bow::HandleBeforeCast);
         OnCast += SpellCastFn(spell_sylvanas_windrunner_ranger_bow::HandleOnCast);
+    }
+};
+
+class spell_sylvanas_windrunner_ranger_bow_aura : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_ranger_bow_aura);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        if (target->HasAura(SPELL_RANGER_DAGGERS_STANCE))
+            target->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
+
+        target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), target->m_Events.CalculateTime(0ms));
+
+        if (target->GetSheath() != SHEATH_STATE_RANGED)
+        {
+            target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), target->m_Events.CalculateTime(0ms));
+            target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_RANGED, 0), target->m_Events.CalculateTime(328ms));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_ranger_bow_aura::OnApply, EFFECT_0, SPELL_AURA_ANIM_REPLACEMENT_SET, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -3674,40 +3724,12 @@ class spell_sylvanas_windrunner_ranger_shot : public SpellScript
             return;
 
         if (caster->IsWithinCombatRange(caster->GetVictim(), 5.5f))
-        {
-            if (caster->IsAIEnabled())
-                caster->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
-
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(300ms));
-        }
     }
 
     void Register() override
     {
         AfterCast += SpellCastFn(spell_sylvanas_windrunner_ranger_shot::HandleAfterCast);
-    }
-};
-
-// 348299 - Ranger Strike
-class spell_sylvanas_windrunner_ranger_strike : public SpellScript
-{
-    PrepareSpellScript(spell_sylvanas_windrunner_ranger_strike);
-
-    void HandleOnCast()
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (urand(0, 1))
-            caster->SendPlaySpellVisual(caster->GetVictim(), SPELL_VISUAL_RANGER_STRIKE_RIGHT, 0, 0, 1.0f, true);
-        else
-            caster->SendPlaySpellVisual(caster->GetVictim(), SPELL_VISUAL_RANGER_STRIKE_LEFT, 0, 0, 1.0f, true);
-    }
-
-    void Register() override
-    {
-        OnCast += SpellCastFn(spell_sylvanas_windrunner_ranger_strike::HandleOnCast);
     }
 };
 
@@ -3730,7 +3752,7 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
         if (target->IsAIEnabled())
             target->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
 
-        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false, true), target->m_Events.CalculateTime(300ms));
+        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false, true), target->m_Events.CalculateTime(500ms));
     }
 
     void Register() override
@@ -3903,11 +3925,8 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
             return;
 
         // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
-        caster->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
         caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
 
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(0ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(343ms));
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(2s));
     }
@@ -3956,6 +3975,8 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
         if (!caster)
             return;
 
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, true), caster->m_Events.CalculateTime(5ms));
+
         if (caster->IsWithinCombatRange(caster->GetVictim(), 5.5f))
         {
             if (caster->IsAIEnabled())
@@ -3963,6 +3984,8 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
 
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(750ms));
         }
+        else
+            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(750ms));
     }
 
     void Register() override
@@ -6867,7 +6890,7 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
     {
         _finalDest = at->GetPosition();
 
-        _finalDest.GetPositionX() + 100.0f * std::cos(at->GetOrientation());
+        //_finalDest.GetPositionX() + 100.0f * std::cos(at->GetOrientation());
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -7025,10 +7048,9 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_shadowcopy_riding);
     RegisterSanctumOfDominationCreatureAI(npc_sylvanas_windrunner_domination_arrow);
 
-    RegisterSpellScript(spell_sylvanas_windrunner_ranger_bow);
+    RegisterSpellAndAuraScriptPair(spell_sylvanas_windrunner_ranger_bow, spell_sylvanas_windrunner_ranger_bow_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_dagger);
     RegisterSpellScript(spell_sylvanas_windrunner_ranger_shot);
-    RegisterSpellScript(spell_sylvanas_windrunner_ranger_strike);
     RegisterSpellScript(spell_sylvanas_windrunner_windrunner);
     RegisterSpellScript(spell_sylvanas_windrunner_disappear);
     RegisterSpellScript(spell_sylvanas_windrunner_withering_fire);
