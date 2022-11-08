@@ -274,7 +274,7 @@ walk(false), HasVelocity(false), TransformForTransport(true)
     path.reserve(path_capacity);
 }
 
-MoveSplineInitArgs::MoveSplineInitArgs(MoveSplineInitArgs&& args) = default;
+MoveSplineInitArgs::MoveSplineInitArgs(MoveSplineInitArgs&& args) noexcept = default;
 
 MoveSplineInitArgs::~MoveSplineInitArgs() = default;
 
