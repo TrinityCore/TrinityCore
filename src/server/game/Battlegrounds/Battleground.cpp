@@ -1575,18 +1575,8 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     uint32 entry = (teamId == TEAM_ALLIANCE) ? BG_CREATURE_ENTRY_A_SPIRITGUIDE : BG_CREATURE_ENTRY_H_SPIRITGUIDE;
 
     if (Creature* creature = AddCreature(entry, type, x, y, z, o, teamId))
-    {
-        creature->setDeathState(DEAD);
-        creature->AddChannelObject(creature->GetGUID());
-        // aura
-        /// @todo Fix display here
-        // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
-        // casting visual effect
-        creature->SetChannelSpellId(SPELL_SPIRIT_HEAL_CHANNEL);
-        creature->SetChannelVisual({ VISUAL_SPIRIT_HEAL_CHANNEL, 0 });
-        //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
-    }
+
     TC_LOG_ERROR("bg.battleground", "Battleground::AddSpiritGuide: cannot create spirit guide (type: {}, entry: {}) for BG (map: {}, instance id: {})!",
         type, entry, GetMapId(), m_InstanceID);
     EndNow();
