@@ -203,11 +203,10 @@ bool WorldSocket::Update()
     MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
-        uint32 packetSize = queued->size() + 2 /*opcode*/;
+        uint32 packetSize = queued->size();
         if (packetSize > MinSizeForCompression && queued->NeedsEncryption())
-            packetSize = deflateBound(_compressionStream, packetSize) + sizeof(CompressedWorldPacket);
+            packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
 
-        // Flush current buffer if too small for next packet
         if (buffer.GetRemainingSpace() < packetSize + sizeof(PacketHeader))
         {
             QueuePacket(std::move(buffer));
@@ -216,7 +215,7 @@ bool WorldSocket::Update()
 
         if (buffer.GetRemainingSpace() >= packetSize + sizeof(PacketHeader))
             WritePacketToBuffer(*queued, buffer);
-        else    // single packet larger than _sendBufferSize
+        else    // single packet larger than 4096 bytes
         {
             MessageBuffer packetBuffer(packetSize + sizeof(PacketHeader));
             WritePacketToBuffer(*queued, packetBuffer);

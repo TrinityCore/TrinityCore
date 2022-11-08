@@ -30,6 +30,7 @@
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "GroupMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Loot.h"
@@ -777,9 +778,6 @@ void Creature::Update(uint32 diff)
             if (m_loot)
                 m_loot->Update();
 
-            for (auto&& [playerOwner, loot] : m_personalLoot)
-                loot->Update();
-
             if (m_corpseRemoveTime <= GameTime::GetGameTime())
             {
                 RemoveCorpse(false);
@@ -1301,7 +1299,23 @@ bool Creature::CanResetTalents(Player* player) const
         && player->GetClass() == GetCreatureTemplate()->trainer_class;
 }
 
-void Creature::SetTappedBy(Unit const* unit, bool withGroup)
+Player* Creature::GetLootRecipient() const
+{
+    if (!m_lootRecipient)
+        return nullptr;
+
+    return ObjectAccessor::FindConnectedPlayer(m_lootRecipient);
+}
+
+Group* Creature::GetLootRecipientGroup() const
+{
+    if (m_lootRecipientGroup.IsEmpty())
+        return nullptr;
+
+    return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
+}
+
+void Creature::SetLootRecipient(Unit* unit, bool withGroup)
 {
     // set the player whose group should receive the right
     // to loot the creature after it dies
@@ -1309,13 +1323,11 @@ void Creature::SetTappedBy(Unit const* unit, bool withGroup)
 
     if (!unit)
     {
-        m_tapList.clear();
+        m_lootRecipient.Clear();
+        m_lootRecipientGroup.Clear();
         RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE | UNIT_DYNFLAG_TAPPED);
         return;
     }
-
-    if (m_tapList.size() >= CREATURE_TAPPERS_SOFT_CAP)
-        return;
 
     if (unit->GetTypeId() != TYPEID_PLAYER && !unit->IsVehicle())
         return;
@@ -1324,52 +1336,29 @@ void Creature::SetTappedBy(Unit const* unit, bool withGroup)
     if (!player)                                             // normal creature, no player involved
         return;
 
-    m_tapList.insert(player->GetGUID());
+    m_lootRecipient = player->GetGUID();
     if (withGroup)
-        if (Group const* group = player->GetGroup())
-            for (auto const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                if (GetMap()->IsRaid() || group->SameSubGroup(player, itr->GetSource()))
-                    m_tapList.insert(itr->GetSource()->GetGUID());
+    {
+        if (Group* group = player->GetGroup())
+            m_lootRecipientGroup = group->GetGUID();
+    }
+    else
+        m_lootRecipientGroup = ObjectGuid::Empty;
 
-    if (m_tapList.size() >= CREATURE_TAPPERS_SOFT_CAP)
-        SetDynamicFlag(UNIT_DYNFLAG_TAPPED);
+    SetDynamicFlag(UNIT_DYNFLAG_TAPPED);
 }
 
 // return true if this creature is tapped by the player or by a member of his group.
 bool Creature::isTappedBy(Player const* player) const
 {
-    return m_tapList.find(player->GetGUID()) != m_tapList.end();
-}
+    if (player->GetGUID() == m_lootRecipient)
+        return true;
 
-Loot* Creature::GetLootForPlayer(Player const* player) const
-{
-    if (m_personalLoot.empty())
-        return m_loot.get();
-
-    if (std::unique_ptr<Loot> const* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
-        return loot->get();
-
-    return nullptr;
-}
-
-bool Creature::IsFullyLooted() const
-{
-    if (m_loot && !m_loot->isLooted())
-        return false;
-
-    for (auto const& [_, loot] : m_personalLoot)
-        if (!loot->isLooted())
-            return false;
+    Group const* playerGroup = player->GetGroup();
+    if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
+        return false;                                           // if creature doesnt have group bound it means it was solo killed by someone else
 
     return true;
-}
-
-bool Creature::IsSkinnedBy(Player const* player) const
-{
-    if (Loot* loot = GetLootForPlayer(player))
-        return loot->loot_type == LOOT_SKINNING;
-
-    return false;
 }
 
 void Creature::SaveToDB()
@@ -1967,9 +1956,9 @@ bool Creature::hasInvolvedQuest(uint32 quest_id) const
     return true;
 }
 
-bool Creature::IsInvisibleDueToDespawn(WorldObject const* seer) const
+bool Creature::IsInvisibleDueToDespawn() const
 {
-    if (Unit::IsInvisibleDueToDespawn(seer))
+    if (Unit::IsInvisibleDueToDespawn())
         return true;
 
     if (IsAlive() || isDying() || m_corpseRemoveTime > GameTime::GetGameTime())
@@ -2147,7 +2136,7 @@ void Creature::setDeathState(DeathState s)
         else
             SetSpawnHealth();
 
-        SetTappedBy(nullptr);
+        SetLootRecipient(nullptr);
         ResetPlayerDamageReq();
 
         SetCannotReachTarget(false);
@@ -2847,6 +2836,10 @@ void Creature::RefreshCanSwimFlag(bool recheck)
 
 void Creature::AllLootRemovedFromCorpse()
 {
+    if ((!m_loot || m_loot->loot_type != LOOT_SKINNING) && !IsPet() && GetCreatureTemplate()->SkinLootId && hasLootRecipient())
+        if (LootTemplates_Skinning.HaveLootFor(GetCreatureTemplate()->SkinLootId))
+            SetUnitFlag(UNIT_FLAG_SKINNABLE);
+
     time_t now = GameTime::GetGameTime();
     // Do not reset corpse remove time if corpse is already removed
     if (m_corpseRemoveTime <= now)
@@ -2856,19 +2849,7 @@ void Creature::AllLootRemovedFromCorpse()
     float decayRate = m_ignoreCorpseDecayRatio ? 1.f : sWorld->getRate(RATE_CORPSE_DECAY_LOOTED);
 
     // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
-    bool isFullySkinned = [&]() -> bool
-    {
-        if (m_loot && m_loot->loot_type == LOOT_SKINNING && m_loot->isLooted())
-            return true;
-
-        for (auto const& [_, loot] : m_personalLoot)
-            if (loot->loot_type != LOOT_SKINNING || !loot->isLooted())
-                return false;
-
-        return true;
-    }();
-
-    if (isFullySkinned)
+    if (m_loot && m_loot->loot_type == LOOT_SKINNING)
         m_corpseRemoveTime = now;
     else
         m_corpseRemoveTime = now + uint32(m_corpseDelay * decayRate);

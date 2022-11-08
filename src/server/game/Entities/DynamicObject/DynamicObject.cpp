@@ -289,7 +289,7 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
     if (requestedDynamicObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_DYNAMICOBJECT);
 
-    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -302,7 +302,7 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock();
+    data->AddUpdateBlock(buffer);
 }
 
 void DynamicObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

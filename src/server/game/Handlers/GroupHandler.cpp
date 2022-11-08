@@ -360,14 +360,13 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& /*pac
     }
 }
 
-void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& /*packet*/)
+void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& packet)
 {
-    // not allowed to change
-    /*
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
+    /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
@@ -390,13 +389,13 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
 
     if (packet.LootMethod == MASTER_LOOT && !group->IsMember(packet.LootMasterGUID))
         return;
+    /********************/
 
     // everything's fine, do it
     group->SetLootMethod(static_cast<LootMethod>(packet.LootMethod));
     group->SetMasterLooterGuid(packet.LootMasterGUID);
     group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
-    */
 }
 
 void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)

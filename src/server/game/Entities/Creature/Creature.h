@@ -29,6 +29,7 @@
 
 class CreatureAI;
 class CreatureGroup;
+class Group;
 class Quest;
 class Player;
 class SpellInfo;
@@ -60,7 +61,6 @@ enum class VendorInventoryReason : uint8
 };
 
 static constexpr uint8 WILD_BATTLE_PET_DEFAULT_LEVEL = 1;
-static constexpr size_t CREATURE_TAPPERS_SOFT_CAP = 5;
 
 //used for handling non-repeatable random texts
 typedef std::vector<uint8> CreatureTextRepeatIds;
@@ -94,7 +94,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
         void LoadTemplateRoot();
-        void ForcedDespawn();
+
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
         void Update(uint32 time) override;                         // overwrited Unit::Update
@@ -225,19 +225,17 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
         std::unique_ptr<Loot> m_loot;
-        std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> m_personalLoot;
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
         bool CanGeneratePickPocketLoot() const;
-        GuidUnorderedSet const& GetTapList() const { return m_tapList; }
-        void SetTapList(GuidUnorderedSet tapList) { m_tapList = std::move(tapList); }
-        bool hasLootRecipient() const { return !m_tapList.empty(); }
+        ObjectGuid GetLootRecipientGUID() const { return m_lootRecipient; }
+        Player* GetLootRecipient() const;
+        Group* GetLootRecipientGroup() const;
+        bool hasLootRecipient() const { return !m_lootRecipient.IsEmpty() || !m_lootRecipientGroup.IsEmpty(); }
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
-        Loot* GetLootForPlayer(Player const* player) const override;
-        bool IsFullyLooted() const;
-        bool IsSkinnedBy(Player const* player) const;
+        Loot* GetLootForPlayer(Player const* /*player*/) const override { return m_loot.get(); }
 
-        void SetTappedBy(Unit const* unit, bool withGroup = true);
+        void SetLootRecipient (Unit* unit, bool withGroup = true);
         void AllLootRemovedFromCorpse();
 
         uint16 GetLootMode() const { return m_LootMode; }
@@ -336,6 +334,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() const { return DisableReputationGain; }
+        bool IsDamageEnoughForLootingAndReward() const { return (m_creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ) || (m_PlayerDamageReq == 0); }
         void LowerPlayerDamageReq(uint64 unDamage);
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
         uint64 m_PlayerDamageReq;
@@ -396,7 +395,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         static float _GetHealthMod(int32 Rank);
 
-        GuidUnorderedSet m_tapList;
+        ObjectGuid m_lootRecipient;
+        ObjectGuid m_lootRecipientGroup;
 
         /// Timers
         time_t _pickpocketLootRestore;
@@ -436,7 +436,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
 
-        bool IsInvisibleDueToDespawn(WorldObject const* seer) const override;
+        bool IsInvisibleDueToDespawn() const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
@@ -497,16 +497,5 @@ class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
         Creature& m_owner;
         Seconds const m_respawnTimer;
 };
-
-class TC_GAME_API ForcedDespawn :public BasicEvent
-{
-    public:
-        ForcedDespawn(Creature& owner,second respawnTimer) :BasicEvent(), m_owner(owner), m_respawnTimer(respawnTimer) { }
-        bool Execute(uint64 e_time, uint32 p_time) override;
-
-    private:
-        Creature* m_owner;
-        Seconds const m_respawnTimer;    
-}
 
 #endif

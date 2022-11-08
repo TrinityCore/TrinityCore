@@ -643,6 +643,7 @@ class TC_GAME_API Spell
         void CancelGlobalCooldown();
         void _cast(bool skipCheck = false);
 
+        void SendLoot(ObjectGuid guid, LootType loottype);
         std::pair<float, float> GetMinMaxRange(bool strict) const;
 
         WorldObject* const m_caster;

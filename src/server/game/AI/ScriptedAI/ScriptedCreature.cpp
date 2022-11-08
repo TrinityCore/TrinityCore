@@ -25,7 +25,6 @@
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "Loot.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
@@ -250,7 +249,7 @@ void ScriptedAI::ForceCombatStop(Creature* who, bool reset /*= true*/)
     if (reset)
     {
         who->LoadCreaturesAddon();
-        who->SetTappedBy(nullptr);
+        who->SetLootRecipient(nullptr);
         who->ResetPlayerDamageReq();
         who->SetLastDamagedTime(0);
         who->SetCannotReachTarget(false);

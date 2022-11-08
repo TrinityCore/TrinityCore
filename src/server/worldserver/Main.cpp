@@ -32,7 +32,7 @@
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
 #include "GitRevision.h"
-#include "InstanceLockMgr.h"
+#include "InstanceSaveMgr.h"
 #include "IoContext.h"
 #include "MapManager.h"
 #include "Metric.h"
@@ -49,7 +49,6 @@
 #include "SecretMgr.h"
 #include "TCSoap.h"
 #include "TerrainMgr.h"
-#include "ThreadPool.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
@@ -249,15 +248,20 @@ extern int main(int argc, char** argv)
 
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetIntDefault("ThreadPool", 1);
+    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioContext](std::vector<std::thread>* del)
+    {
+        ioContext->stop();
+        for (std::thread& thr : *del)
+            thr.join();
+
+        delete del;
+    });
+
     if (numThreads < 1)
         numThreads = 1;
 
-    std::shared_ptr<Trinity::ThreadPool> threadPool = std::make_shared<Trinity::ThreadPool>(numThreads);
-
     for (int i = 0; i < numThreads; ++i)
-        threadPool->PostWork([ioContext]() { ioContext->run(); });
-
-    std::shared_ptr<void> ioContextStopHandle(nullptr, [ioContext](void*) { ioContext->stop(); });
+        threadPool->push_back(std::thread([ioContext]() { ioContext->run(); }));
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -312,10 +316,10 @@ extern int main(int argc, char** argv)
         // unload battleground templates before different singletons destroyed
         sBattlegroundMgr->DeleteAllBattlegrounds();
 
+        sInstanceSaveMgr->Unload();
         sOutdoorPvPMgr->Die();                    // unload it before MapManager
         sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
         sTerrainMgr.UnloadAll();
-        sInstanceLockMgr.Unload();
     });
 
     // Start the Remote Access port (acceptor) if enabled
@@ -401,8 +405,6 @@ extern int main(int argc, char** argv)
     // Shutdown starts here
     WorldPackets::Auth::ConnectTo::ShutdownEncryption();
     WorldPackets::Auth::EnterEncryptedMode::ShutdownEncryption();
-
-    ioContextStopHandle.reset();
 
     threadPool.reset();
 
@@ -493,11 +495,6 @@ void WorldUpdateLoop()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
-    uint32 maxCoreStuckTime = uint32(sConfigMgr->GetIntDefault("MaxCoreStuckTime", 60)) * 1000;
-    uint32 halfMaxCoreStuckTime = maxCoreStuckTime / 2;
-    if (!halfMaxCoreStuckTime)
-        halfMaxCoreStuckTime = std::numeric_limits<uint32>::max();
-
     LoginDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
@@ -512,11 +509,8 @@ void WorldUpdateLoop()
         uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
         if (diff < minUpdateDiff)
         {
-            uint32 sleepTime = minUpdateDiff - diff;
-            if (sleepTime >= halfMaxCoreStuckTime)
-                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for %u ms with MaxCoreStuckTime set to %u ms", sleepTime, maxCoreStuckTime);
             // sleep until enough time passes that we can update all timers
-            std::this_thread::sleep_for(Milliseconds(sleepTime));
+            std::this_thread::sleep_for(Milliseconds(minUpdateDiff - diff));
             continue;
         }
 
@@ -559,14 +553,10 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 freezeDetector->_worldLoopCounter = worldLoopCounter;
             }
             // possible freeze
-            else
+            else if (getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime) > freezeDetector->_maxCoreStuckTimeInMs)
             {
-                uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
-                if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
-                {
-                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
-                    ABORT_MSG("World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
-                }
+                TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
+                ABORT();
             }
 
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));

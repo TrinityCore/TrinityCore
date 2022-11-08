@@ -173,7 +173,7 @@ void SceneObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     if (requestedSceneObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_SCENEOBJECT);
 
-    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -186,7 +186,7 @@ void SceneObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock();
+    data->AddUpdateBlock(buffer);
 }
 
 void SceneObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

@@ -1,0 +1,1 @@
+https://www.wowhead.com/zone=13400/skoldus-hall

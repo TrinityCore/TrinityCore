@@ -31,7 +31,6 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "KillRewarder.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
@@ -1945,10 +1944,7 @@ void Battleground::SetBracket(PVPDifficultyEntry const* bracketEntry)
 void Battleground::RewardXPAtKill(Player* killer, Player* victim)
 {
     if (sWorld->getBoolConfig(CONFIG_BG_XP_FOR_KILL) && killer && victim)
-    {
-        Player* killers[] = { killer };
-        KillRewarder(Trinity::IteratorPair(std::begin(killers), std::end(killers)), victim, true).Reward();
-    }
+        killer->RewardPlayerAndGroupAtKill(victim, true);
 }
 
 uint32 Battleground::GetTeamScore(uint32 teamId) const

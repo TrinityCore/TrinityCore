@@ -29,11 +29,6 @@ uint32 GetGossipActionFor(Player* player, uint32 gossipListId)
     return player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
 }
 
-void InitGossipMenuFor(Player* player, uint32 menuId)
-{
-    player->PlayerTalkClass->GetGossipMenu().SetMenuId(menuId);
-}
-
 void ClearGossipMenuFor(Player* player)
 {
     player->PlayerTalkClass->ClearMenus();

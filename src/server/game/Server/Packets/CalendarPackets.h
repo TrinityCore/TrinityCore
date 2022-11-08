@@ -174,7 +174,7 @@ namespace WorldPackets
             uint64 InstanceID = 0;
             int32 MapID = 0;
             uint32 DifficultyID = 0;
-            int32 ExpireTime = 0;
+            time_t ExpireTime = time_t(0);
         };
 
         struct CalendarSendCalendarEventInfo
@@ -508,11 +508,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            time_t ServerTime = 0;
             int32 MapID = 0;
+            int32 OldTimeRemaining = 0;
+            time_t ServerTime = 0;
             uint32 DifficultyID = 0;
             int32 NewTimeRemaining = 0;
-            int32 OldTimeRemaining = 0;
         };
 
         struct CalendarEventInitialInviteInfo

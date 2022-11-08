@@ -1759,23 +1759,6 @@ struct GarrSiteLevelPlotInstEntry
     uint8 UiMarkerSize;
 };
 
-struct GarrTalentTreeEntry
-{
-    uint32 ID;
-    LocalizedString Name;
-    uint8 GarrTypeID;
-    int32 ClassID;
-    int8 MaxTiers;
-    int8 UiOrder;
-    int32 Flags;
-    uint16 UiTextureKitID;
-    int32 GarrTalentTreeType;
-    int32 PlayerConditionID;
-    int8 FeatureTypeIndex;
-    int8 FeatureSubtypeIndex;
-    int32 CurrencyID;
-};
-
 struct GemPropertiesEntry
 {
     uint32 ID;
@@ -2571,13 +2554,9 @@ struct MapEntry
         }
     }
 
-    bool IsDynamicDifficultyMap() const { return GetFlags().HasFlag(MapFlags::DynamicDifficulty); }
-    bool IsFlexLocking() const { return GetFlags().HasFlag(MapFlags::FlexibleRaidLocking); }
-    bool IsGarrison() const { return GetFlags().HasFlag(MapFlags::Garrison); }
+    bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
+    bool IsGarrison() const { return (Flags[0] & MAP_FLAG_GARRISON) != 0; }
     bool IsSplitByFaction() const { return ID == 609 || ID == 2175; }
-
-    EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags[0]); }
-    EnumFlag<MapFlags2> GetFlags2() const { return static_cast<MapFlags2>(Flags[1]); }
 };
 
 struct MapChallengeModeEntry
@@ -2605,21 +2584,14 @@ struct MapDifficultyEntry
     int32 ContentTuningID;
     uint32 MapID;
 
-    bool HasResetSchedule() const { return ResetInterval != MAP_DIFFICULTY_RESET_ANYTIME; }
-    bool IsUsingEncounterLocks() const { return GetFlags().HasFlag(MapDifficultyFlags::UseLootBasedLockInsteadOfInstanceLock); }
-    bool IsRestoringDungeonState() const { return GetFlags().HasFlag(MapDifficultyFlags::ResumeDungeonProgressBasedOnLockout); }
-    bool IsExtendable() const { return !GetFlags().HasFlag(MapDifficultyFlags::DisableLockExtension); }
-
     uint32 GetRaidDuration() const
     {
-        if (ResetInterval == MAP_DIFFICULTY_RESET_DAILY)
+        if (ResetInterval == 1)
             return 86400;
-        if (ResetInterval == MAP_DIFFICULTY_RESET_WEEKLY)
+        if (ResetInterval == 2)
             return 604800;
         return 0;
     }
-
-    EnumFlag<MapDifficultyFlags> GetFlags() const { return static_cast<MapDifficultyFlags>(Flags); }
 };
 
 struct MapDifficultyXConditionEntry

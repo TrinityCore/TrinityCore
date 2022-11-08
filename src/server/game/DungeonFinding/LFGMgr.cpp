@@ -23,7 +23,7 @@
 #include "GameTime.h"
 #include "Group.h"
 #include "GroupMgr.h"
-#include "InstanceLockMgr.h"
+#include "InstanceSaveMgr.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
 #include "LFGQueue.h"
@@ -841,15 +841,17 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& playe
                     LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId);
                     ASSERT(dungeon);
                     ASSERT(player);
-                    MapDb2Entries entries{ dungeon->map, Difficulty(dungeon->difficulty) };
-                    if (InstanceLock* playerBind = sInstanceLockMgr.FindActiveInstanceLock(guid, entries))
+                    if (InstancePlayerBind* playerBind = player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
                     {
-                        uint32 dungeonInstanceId = playerBind->GetInstanceId();
-                        auto itLockedDungeon = lockedDungeons.find(dungeonId);
-                        if (itLockedDungeon == lockedDungeons.end() || itLockedDungeon->second == dungeonInstanceId)
-                            eraseDungeon = false;
+                        if (InstanceSave* playerSave = playerBind->save)
+                        {
+                            uint32 dungeonInstanceId = playerSave->GetInstanceId();
+                            auto itLockedDungeon = lockedDungeons.find(dungeonId);
+                            if (itLockedDungeon == lockedDungeons.end() || itLockedDungeon->second == dungeonInstanceId)
+                                eraseDungeon = false;
 
-                        lockedDungeons[dungeonId] = dungeonInstanceId;
+                            lockedDungeons[dungeonId] = dungeonInstanceId;
+                        }
                     }
                 }
 
@@ -1731,7 +1733,7 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 return LFG_LOCKSTATUS_NOT_IN_SEASON;
             if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
                 return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (dungeon->difficulty > DIFFICULTY_NORMAL && sInstanceLockMgr.FindActiveInstanceLock(guid, { dungeon->map, Difficulty(dungeon->difficulty) }))
+            if (dungeon->difficulty > DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
                 return LFG_LOCKSTATUS_RAID_LOCKED;
             if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
             {

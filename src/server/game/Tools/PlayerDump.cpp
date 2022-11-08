@@ -640,11 +640,7 @@ inline void AppendTableDump(StringTransaction& trans, TableStruct const& tableSt
                 else
                 {
                     std::vector<uint8> b(fields[i].GetBinary());
-
-                    if (!b.empty())
-                        ss << "0x" << ByteArrayToHexStr(b);
-                    else
-                        ss << '\'' << '\'';
+                    ss << "0x" << ByteArrayToHexStr(b);
                 }
             }
 

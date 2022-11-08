@@ -311,7 +311,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->RemoveAurasOnEvade();
 
     me->CombatStop(true);
-    me->SetTappedBy(nullptr);
+    me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
