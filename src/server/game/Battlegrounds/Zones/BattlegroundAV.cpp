@@ -1000,8 +1000,6 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             //spawning/despawning of aura
             SpawnBGObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION + 3 * node, RESPAWN_IMMEDIATELY); //neutral aura spawn
             SpawnBGObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION + uint32(GetTeamIndexByTeamId(owner)) + 3 * node, RESPAWN_ONE_DAY); //teeamaura despawn
-
-            RelocateDeadPlayers(BgCreatures[node]);
         }
         DePopulateNode(node);
     }

@@ -2289,6 +2289,47 @@ private:
     TaskScheduler _scheduler;
 };
 
+struct npc_bg_spirit_guide : public ScriptedAI
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL = 22011;
+    static constexpr uint32 SPELL_GRAVEYARD_TELEPORT = 46893;
+
+    npc_bg_spirit_guide(Creature * creature) : ScriptedAI(creature) { }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+    void JustAppeared() override
+    {
+        ScheduleSpiritHealChannel();
+    }
+
+    void OnChannelFinished(SpellInfo const* /*spell*/) override
+    {
+        ScheduleSpiritHealChannel();
+    }
+
+    void OnDespawn() override
+    {
+        // this is a hack.
+        // A NPC is summoned (Alliance/Horde Graveyard Teleporter) and this NPC casts the spell.
+        DoCastSelf(SPELL_GRAVEYARD_TELEPORT);
+    }
+
+    void ScheduleSpiritHealChannel()
+    {
+        _scheduler.Schedule(1s, [this](TaskContext context)
+        {
+            DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL);
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2312,4 +2353,5 @@ void AddSC_npcs_special()
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
     RegisterCreatureAI(npc_gen_void_zone);
+    RegisterCreatureAI(npc_bg_spirit_guide);
 }

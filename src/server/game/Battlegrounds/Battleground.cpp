@@ -64,7 +64,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     m_Status            = STATUS_NONE;
     m_ClientInstanceID  = 0;
     m_EndTime           = 0;
-    m_LastResurrectTime = 0;
     m_InvitedAlliance   = 0;
     m_InvitedHorde      = 0;
     m_ArenaType         = 0;
@@ -195,7 +194,6 @@ void Battleground::Update(uint32 diff)
             }
             else
             {
-                _ProcessResurrect(diff);
                 if (sBattlegroundMgr->GetPrematureFinishTime() && (GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam()))
                     _ProcessProgress(diff);
                 else if (m_PrematureCountDown)
@@ -287,65 +285,6 @@ inline void Battleground::_ProcessOfflineQueue()
                 //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
             }
         }
-    }
-}
-
-inline void Battleground::_ProcessResurrect(uint32 diff)
-{
-    // *********************************************************
-    // ***        BATTLEGROUND RESURRECTION SYSTEM           ***
-    // *********************************************************
-    // this should be handled by spell system
-    m_LastResurrectTime += diff;
-    if (m_LastResurrectTime >= RESURRECTION_INTERVAL)
-    {
-        if (GetReviveQueueSize())
-        {
-            for (std::map<ObjectGuid, GuidVector>::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-            {
-                Creature* sh = nullptr;
-                for (GuidVector::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
-                {
-                    Player* player = ObjectAccessor::FindPlayer(*itr2);
-                    if (!player)
-                        continue;
-
-                    if (!sh && player->IsInWorld())
-                    {
-                        sh = player->GetMap()->GetCreature(itr->first);
-                        // only for visual effect
-                        if (sh)
-                            // Spirit Heal, effect 117
-                            sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
-                    }
-
-                    // Resurrection visual
-                    player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
-                    m_ResurrectQueue.push_back(*itr2);
-                }
-                (itr->second).clear();
-            }
-
-            m_ReviveQueue.clear();
-            m_LastResurrectTime = 0;
-        }
-        else
-            // queue is clear and time passed, just update last resurrection time
-            m_LastResurrectTime = 0;
-    }
-    else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
-    {
-        for (GuidVector::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
-        {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
-            if (!player)
-                continue;
-            player->ResurrectPlayer(1.0f);
-            player->CastSpell(player, 6962, true);
-            player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-            player->SpawnCorpseBones(false);
-        }
-        m_ResurrectQueue.clear();
     }
 }
 
@@ -890,8 +829,6 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         PlayerScores.erase(itr2);
     }
 
-    RemovePlayerFromResurrectQueue(guid);
-
     Player* player = ObjectAccessor::FindPlayer(guid);
 
     if (player)
@@ -996,7 +933,6 @@ void Battleground::Reset()
     SetStatus(STATUS_WAIT_QUEUE);
     SetElapsedTime(0);
     SetRemainingTime(0);
-    SetLastResurrectTime(0);
     m_Events = 0;
 
     if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
@@ -1019,7 +955,6 @@ void Battleground::Reset()
 void Battleground::StartBattleground()
 {
     SetElapsedTime(0);
-    SetLastResurrectTime(0);
     // add BG to free slot queue
     AddToBGFreeSlotQueue();
 
@@ -1364,57 +1299,6 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
         itr->second->UpdateScore(type, value);
 
     return true;
-}
-
-void Battleground::AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid)
-{
-    m_ReviveQueue[npc_guid].push_back(player_guid);
-
-    Player* player = ObjectAccessor::FindPlayer(player_guid);
-    if (!player)
-        return;
-
-    player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
-}
-
-void Battleground::RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
-{
-    for (std::map<ObjectGuid, GuidVector>::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-    {
-        for (GuidVector::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-        {
-            if (*itr2 == player_guid)
-            {
-                itr->second.erase(itr2);
-                if (Player* player = ObjectAccessor::FindPlayer(player_guid))
-                    player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
-                return;
-            }
-        }
-    }
-}
-
-void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
-{
-    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    GuidVector& ghostList = m_ReviveQueue[guideGuid];
-    if (!ghostList.empty())
-    {
-        WorldSafeLocsEntry const* closestGrave = nullptr;
-        for (GuidVector::const_iterator itr = ghostList.begin(); itr != ghostList.end(); ++itr)
-        {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
-            if (!player)
-                continue;
-
-            if (!closestGrave)
-                closestGrave = GetClosestGraveyard(player);
-
-            if (closestGrave)
-                player->TeleportTo(closestGrave->Loc);
-        }
-        ghostList.clear();
-    }
 }
 
 bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/, GOState goState)

@@ -2854,6 +2854,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 
+        void SetSpiritHealer(Creature * creature);
+        ObjectGuid const& GetSpiritHealer() const { return _spiritHealerGuid; }
+        void SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid) const;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -3206,6 +3210,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<RestMgr> _restMgr;
 
         bool _usePvpItemLevels;
+        ObjectGuid _spiritHealerGuid;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);

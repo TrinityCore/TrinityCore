@@ -20,6 +20,7 @@
 #include "AreaTrigger.h"
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
+#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "BattlePetMgr.h"
@@ -207,7 +208,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectSpiritHeal,                               //117 SPELL_EFFECT_SPIRIT_HEAL              one spell: Spirit Heal
     &Spell::EffectSkill,                                    //118 SPELL_EFFECT_SKILL                    professions and more
     &Spell::EffectUnused,                                   //119 SPELL_EFFECT_APPLY_AREA_AURA_PET
-    &Spell::EffectNULL,                                     //120 SPELL_EFFECT_TELEPORT_GRAVEYARD
+    &Spell::EffectTeleportGraveyard,                        //120 SPELL_EFFECT_TELEPORT_GRAVEYARD
     &Spell::EffectWeaponDmg,                                //121 SPELL_EFFECT_NORMALIZED_WEAPON_DMG
     &Spell::EffectUnused,                                   //122 SPELL_EFFECT_122                      unused
     &Spell::EffectSendTaxi,                                 //123 SPELL_EFFECT_SEND_TAXI                taxi/flight related (misc value is taxi path id)
@@ -4480,26 +4481,31 @@ void Spell::EffectSkill()
     TC_LOG_DEBUG("spells", "WORLD: SkillEFFECT");
 }
 
-/* There is currently no need for this effect. We handle it in Battleground.cpp
-   If we would handle the resurrection here, the spiritguide would instantly disappear as the
-   player revives, and so we wouldn't see the spirit heal visual effect on the npc.
-   This is why we use a half sec delay between the visual effect and the resurrection itself */
 void Spell::EffectSpiritHeal()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    /*
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-    if (!unitTarget->IsInWorld())
+    Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(unitTarget->GetMap(), unitTarget->GetZoneId());
+    if (bf) // battlefield is handling this
         return;
 
-    //m_spellInfo->Effects[i].BasePoints; == 99 (percent?)
-    //unitTarget->ToPlayer()->setResurrect(m_caster->GetGUID(), unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), unitTarget->GetMaxHealth(), unitTarget->GetMaxPower(POWER_MANA));
-    unitTarget->ToPlayer()->ResurrectPlayer(1.0f);
-    unitTarget->ToPlayer()->SpawnCorpseBones();
-    */
+    Creature* spiritGuide = GetCaster()->ToCreature();
+    if (Player* playerTarget = unitTarget->ToPlayer())
+    {
+        if (!playerTarget->IsInWorld())
+            return;
+
+        // skip if player does not want to live
+        if (spiritGuide && playerTarget->GetSpiritHealer() != spiritGuide->GetGUID())
+            return;
+
+        playerTarget->ResurrectPlayer(1.0f);
+        playerTarget->CastSpell(playerTarget, 6962, true);
+        playerTarget->CastSpell(playerTarget, SPELL_SPIRIT_HEAL_MANA, true);
+        playerTarget->SpawnCorpseBones(false);
+        playerTarget->SetSpiritHealer(nullptr);
+    }
 }
 
 // remove insignia spell effect
@@ -5862,6 +5868,26 @@ void Spell::EffectLearnTransmogIllusion()
         return;
 
     player->GetSession()->GetCollectionMgr()->AddTransmogIllusion(illusionId);
+}
+
+void Spell::EffectTeleportGraveyard()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* player = unitTarget->ToPlayer();
+    if (Battleground* bg = player->GetBattleground())
+    {
+        WorldSafeLocsEntry const* entry = bg->GetClosestGraveyard(player);
+        if (entry)
+        {
+            player->TeleportTo(entry->Loc);
+            return;
+        }
+    }
+
+    if (WorldSafeLocsEntry const* entry = sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player))
+        player->TeleportTo(entry->Loc);
 }
 
 void Spell::EffectModifyAuraStacks()

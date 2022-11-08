@@ -29225,6 +29225,34 @@ std::string Player::GetDebugInfo() const
     return sstr.str();
 }
 
+void Player::SetSpiritHealer(Creature* creature)
+{
+    if (!creature)
+    {
+        _spiritHealerGuid = ObjectGuid::Empty;
+        RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+        return;
+    }
+
+    if (!creature->IsSpiritService())
+        return;
+
+    _spiritHealerGuid = creature->GetGUID();
+    CastSpell(this, SPELL_WAITING_FOR_RESURRECT);
+}
+
+void Player::SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid) const
+{
+    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
+    areaSpiritHealerTime.HealerGuid = spiritHealerGuid;
+
+    if (Creature* creature = GetMap()->GetCreature(spiritHealerGuid))
+        if (Spell* spell = creature->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+            areaSpiritHealerTime.TimeLeft = spell->GetTimer();
+
+    SendDirectMessage(areaSpiritHealerTime.Write());
+}
+
 void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId, Item* item /*= nullptr*/) const
 {
     WorldPackets::Misc::DisplayToast displayToast;
