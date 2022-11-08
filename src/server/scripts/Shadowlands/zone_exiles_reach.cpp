@@ -332,12 +332,12 @@ public:
         {
             if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
             {
-                Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.31912f };
-                Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.61534f };
-                Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.30938f };
-                Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 4.71238898f };
-                Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 1.5707963f };
-                Position colepos = { -13.3396f, 0.702157f, 5.57996f, 0.079857523f };
+                Position garrickpos = { 35.5643f, -1.19837f, 12.1479f, 3.3272014f };
+                Position richterpos = { -1.84858f, -8.38776f, 5.10018f, 1.5184366f };
+                Position keelapos = { -15.3642f, 6.5793f, 5.5026f, 3.1415925f };
+                Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 4.8520155f };
+                Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 1.5184366f };
+                Position colepos = { -13.3396f, 0.702157f, 5.57996f, 0.087266445f };
 
                 SpawnActor(player, NPC_CAPTAIN_GARRICK, garrickpos);
                 SpawnActor(player, NPC_QUARTERMASTER_RICHTER, richterpos);
@@ -348,12 +348,12 @@ public:
             }
             else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
             {
-                Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.14652f };
-                Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 0.0f };
-                Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 0.0f };
-                Position lanapos = { -5.1971f, -15.0268f, 8.992f, 4.71238898f };
-                Position bopos = { -22.1559f, 5.58041f, 9.09176f, 0.0f };
-                Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 0.0f };
+                Position brekapos = { 25.5237f, 0.283005f, 26.5455f, 3.3526998f };
+                Position throgpos = { -10.8399f, 11.9039f, 8.88028f, 6.2308254f };
+                Position mithpos = { -24.4763f, -4.48273f, 9.13471f, 0.62831855f };
+                Position lanapos = { -5.1971f, -15.0268f, 8.992f, 4.712389f };
+                Position bopos = { -22.1559f, 5.58041f, 9.09176f, 6.143559f };
+                Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 6.0737457f };
 
                 SpawnActor(player, NPC_WARLORD_BREKA_GRIMAXE3, brekapos);
                 SpawnActor(player, NPC_GRUNT_THROG, throgpos);

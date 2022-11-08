@@ -491,117 +491,57 @@ INSERT INTO `scene_template` (`SceneId`,`Flags`,`ScriptPackageID`,`Encrypted`,`S
 
 -- *** Conversations ***
 
-DELETE FROM `conversation_actors` WHERE `ConversationId`=10768;
+DELETE FROM `conversation_actors` WHERE `ConversationId` IN (10768,12818,12798,14422,14423,14424);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
 (10768,73720,1050145,0,156280,92690,0,0,45745), -- Alliance
-(10768,75916,1050189,1,166573,91669,0,0,45745); -- Horde
+(10768,75916,1050189,1,166573,91669,0,0,45745), -- Horde
+(12818,73720,1050145,0,156280,92690,0,0,45745), -- Alliance
+(12818,75916,1050189,1,166573,91669,0,0,45745), -- Horde
+(12798,73720,1050145,0,156280,92690,0,0,45745), -- Alliance
+(12798,75916,1050189,1,166573,91669,0,0,45745), -- Horde
+(14422,68598,0,0,160664,81534,0,0,45745), -- Alliance
+(14422,75920,0,1,166583,91670,0,0,45745), -- Horde
+(14423,68598,0,0,160664,81534,0,0,45745), -- Alliance
+(14423,75920,0,1,166583,91670,0,0,45745), -- Horde
+(14424,68598,0,0,160664,81534,0,0,45745), -- Alliance
+(14424,75920,0,1,166583,91670,0,0,45745); -- Horde
 
-DELETE FROM `conversation_line_template` WHERE `Id` IN (32717,35650);
+DELETE FROM `conversation_line_template` WHERE `Id` IN (32717,35650,31445,36093,31382,36096,36099,36100,36101,36102,36103,36104);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
 (32717,0,0,0,45745), -- Alliance
-(35650,0,1,0,45745); -- Horde
-
-DELETE FROM `conversation_template` WHERE `Id`=10768 AND `FirstLineId` IN (32717,35650);
-INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(10768,32717,0,'',45745);
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (32717,35650);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,32717,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 32717 if team is Alliance'),
-(29,0,35650,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 35650 if team is horde');
-
-DELETE FROM `conversation_actors` WHERE `ConversationId`=12818;
-INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(12818,73720,1050145,0,156280,92690,0,0,45745), -- Alliance
-(12818,75916,1050189,1,166573,91669,0,0,45745); -- Horde
-
-DELETE FROM `conversation_line_template` WHERE `Id` IN (31445,36093);
-INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(35650,0,1,0,45745), -- Horde
 (31445,0,0,0,45745), -- Alliance
-(36093,0,1,0,45745); -- Horde
-
-DELETE FROM `conversation_template` WHERE `Id`=12818 AND `FirstLineId` IN (31445,36093);
-INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(12818,31445,0,'',45745);
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (31445,36093);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,31445,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 31445 if team is Alliance'),
-(29,0,36093,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36093 if team is horde');
-
-DELETE FROM `conversation_actors` WHERE `ConversationId`=12798;
-INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(12798,73720,1050145,0,156280,92690,0,0,45745),
-(12798,75916,1050189,1,166573,91669,0,0,45745);
-
-DELETE FROM `conversation_line_template` WHERE `Id` IN (31382,36096);
-INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36093,0,1,0,45745), -- Horde
 (31382,0,0,0,45745), -- Alliance
-(36096,0,1,0,45745); -- Horde
-
-DELETE FROM `conversation_template` WHERE `Id`=12798 AND `FirstLineId` IN (31382,36096);
-INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(12798,31382,0,'',45745);
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (31382,36096);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,31382,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 31382 if team is Alliance'),
-(29,0,36096,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36096 if team is horde');
-
-DELETE FROM `conversation_actors` WHERE `ConversationId`=14422 AND `ConversationActorId` IN (68598,75920);
-INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14422,68598,0,0,160664,81534,0,0,45745),
-(14422,75920,0,1,166583,91670,0,0,45745);
-
-DELETE FROM `conversation_line_template` WHERE `Id` IN (36099,36100);
-INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36096,0,1,0,45745), -- Horde
 (36099,0,0,0,45745), -- Alliance
-(36100,0,1,0,45745); -- Horde
-
-DELETE FROM `conversation_template` WHERE `Id`=14422 AND `FirstLineId` IN (36099,36100);
-INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(14422,36099,0,'',45745);
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36099,36100);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,36099,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36099 if team is Alliance'),
-(29,0,36100,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36100 if team is horde');
-
-DELETE FROM `conversation_actors` WHERE `ConversationId`=14423 AND `ConversationActorId` IN (68598,75920);
-INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14423,68598,0,0,160664,81534,0,0,45745),
-(14423,75920,0,1,166583,91670,0,0,45745);
-
-DELETE FROM `conversation_line_template` WHERE `Id` IN (36101,36102);
-INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36100,0,1,0,45745), -- Horde
 (36101,0,0,0,45745), -- Alliance
-(36102,0,1,0,45745); -- Horde
-
-DELETE FROM `conversation_template` WHERE `Id`=14423 AND `FirstLineId` IN (36101,36102);
-INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
-(14423,36101,0,'',45745);
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36101,36102);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,36101,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36101 if team is Alliance'),
-(29,0,36102,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36102 if team is horde');
-
-DELETE FROM `conversation_actors` WHERE `ConversationId`=14424 AND `ConversationActorId` IN (68598,75920);
-INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(14424,68598,0,0,160664,81534,0,0,45745),
-(14424,75920,0,1,166583,91670,0,0,45745);
-
-DELETE FROM `conversation_line_template` WHERE `Id` IN (36103,36104);
-INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES 
+(36102,0,1,0,45745), -- Horde
 (36103,0,0,0,45745), -- Alliance
 (36104,0,1,0,45745); -- Horde
 
-DELETE FROM `conversation_template` WHERE `Id`=14424 AND `FirstLineId` IN (36103,36104);
+DELETE FROM `conversation_template` WHERE `Id`= (10768,12818,12798,14422,14423,14424);
 INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(10768,32717,0,'',45745),
+(12818,31445,0,'',45745),
+(12798,31382,0,'',45745),
+(14422,36099,0,'',45745),
+(14423,36101,0,'',45745),
 (14424,36103,0,'',45745);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (36103,36104);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (32717,35650,31445,36093,31382,36096,36099,36100,36101,36102,36103,36104);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(29,0,32717,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 32717 if team is Alliance'),
+(29,0,35650,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 35650 if team is horde'),
+(29,0,31445,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 31445 if team is Alliance'),
+(29,0,36093,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36093 if team is horde'),
+(29,0,31382,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 31382 if team is Alliance'),
+(29,0,36096,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36096 if team is horde'),
+(29,0,36099,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36099 if team is Alliance'),
+(29,0,36100,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36100 if team is horde'),
+(29,0,36101,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36101 if team is Alliance'),
+(29,0,36102,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36102 if team is horde'),
 (29,0,36103,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 36103 if team is Alliance'),
 (29,0,36104,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36104 if team is horde');
 
