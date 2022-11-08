@@ -19,6 +19,7 @@
 #define MovementPackets_h__
 
 #include "Packet.h"
+#include "CombatLogPacketsCommon.h"
 #include "Object.h"
 #include "Optional.h"
 
@@ -104,8 +105,7 @@ namespace WorldPackets
             struct Inner
             {
                 int32 Unknown_1 = 0;
-                int32 Unknown_2 = 0;
-                int32 Unknown_3 = 0;
+                Spells::SpellCastVisual Visual;
                 uint32 Unknown_4 = 0;
             };
 
