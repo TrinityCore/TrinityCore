@@ -26895,7 +26895,6 @@ void Player::SendTalentsInfoData(bool pet)
         WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
         groupInfoPkt.SpecID = 0;
 
-
         // find class talent tabs (all players have 3 talent tabs)
         uint32 const* talentTabIds = sDB2Manager.GetTalentTabPages(GetClass());
 
