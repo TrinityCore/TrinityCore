@@ -2199,8 +2199,8 @@ void ObjectMgr::LoadCreatures()
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, "
     //   11               12         13       14            15                 16          17           18                19                   20                    21
         "currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, "
-    //   22                     23                      24                25                   26                       27
-        "creature.dynamicflags, creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName "
+    //   22                     23                      24                25                   26                       27                   28
+        "creature.dynamicflags, creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName, creature.ScriptTag "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_members ON pool_members.type = 0 AND creature.guid = pool_members.spawnId");
@@ -2261,6 +2261,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseGroup     = fields[25].GetUInt32();
         data.terrainSwapMap = fields[26].GetInt32();
         data.scriptId       = GetScriptId(fields[27].GetString());
+        data.scriptTagId    = GetScriptTag(fields[28].GetString());
         data.spawnGroupData = IsTransportMap(data.mapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapId);
@@ -10074,6 +10075,75 @@ bool ObjectMgr::IsScriptDatabaseBound(uint32 id) const
 uint32 ObjectMgr::GetScriptId(std::string const& name, bool isDatabaseBound)
 {
     return _scriptNamesStore.insert(name, isDatabaseBound);
+}
+
+ScriptTag ObjectMgr::GetScriptTag(std::string const& name)
+{
+    return ScriptTag(_scriptTagStore.insert(name));
+}
+
+std::string const& ObjectMgr::GetScriptTag(uint32 id) const
+{
+    auto const itr = _scriptTagStore.find(id);
+    if (itr != _scriptTagStore.end())
+    {
+        return itr->first;
+    }
+    else
+    {
+        static std::string const empty;
+        return empty;
+    }
+}
+
+ObjectMgr::ScriptTagContainer::ScriptTagContainer()
+{
+    // We insert an empty placeholder here so we can use the
+    // scripttag id 0 as dummy for "no script tag found".
+    [[maybe_unused]] uint32 const id = insert("");
+
+    ASSERT(id == 0);
+}
+
+void ObjectMgr::ScriptTagContainer::reserve(size_t capacity)
+{
+    IndexToName.reserve(capacity);
+}
+
+uint32 ObjectMgr::ScriptTagContainer::insert(std::string const& scriptTag)
+{
+    auto result = NameToIndex.try_emplace(scriptTag, static_cast<uint32>(NameToIndex.size()));
+    if (result.second)
+    {
+        ASSERT(NameToIndex.size() <= std::numeric_limits<uint32>::max());
+        IndexToName.emplace_back(result.first);
+    }
+
+    return result.first->second.Id;
+}
+
+size_t ObjectMgr::ScriptTagContainer::size() const
+{
+    return IndexToName.size();
+}
+
+ObjectMgr::ScriptTagContainer::NameMap::const_iterator ObjectMgr::ScriptTagContainer::find(size_t index) const
+{
+    return index < IndexToName.size() ? IndexToName[index] : end();
+}
+
+ObjectMgr::ScriptTagContainer::NameMap::const_iterator ObjectMgr::ScriptTagContainer::find(std::string const& name) const
+{
+    // assume "" is the first element
+    if (name.empty())
+        return end();
+
+    return NameToIndex.find(name);
+}
+
+ObjectMgr::ScriptTagContainer::NameMap::const_iterator ObjectMgr::ScriptTagContainer::end() const
+{
+    return NameToIndex.end();
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)

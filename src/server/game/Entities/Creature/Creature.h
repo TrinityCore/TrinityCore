@@ -212,6 +212,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+        std::string GetScriptTag() const;
+        uint32 GetScriptTagId() const;
 
         // override WorldObject function for proper name localization
         std::string GetNameForLocaleIdx(LocaleConstant locale) const override;

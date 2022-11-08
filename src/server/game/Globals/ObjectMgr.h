@@ -862,6 +862,21 @@ struct SceneTemplate
     uint32 ScriptId = 0;
 };
 
+struct ScriptTag
+{
+    ScriptTag() = default;
+    ScriptTag(uint32 id) : Id(id) { }
+
+    uint32 Id = 0;
+
+    explicit operator bool() const { return Id > 0; }
+
+    bool operator==(uint32 a) const;
+    bool operator!=(uint32 a) const { return !(operator==(a)); }
+
+    operator uint32() const { return Id; }
+};
+
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
 typedef std::unordered_map<uint32, std::string> PhaseNameContainer;
@@ -1134,6 +1149,34 @@ class TC_GAME_API ObjectMgr
             NameMap::const_iterator end() const;
 
             std::unordered_set<std::string> GetAllDBScriptNames() const;
+        };
+
+        class ScriptTagContainer
+        {
+        public:
+            struct Entry
+            {
+                Entry() = default;
+                Entry(uint32 id) : Id(id) { }
+
+                uint32 Id = 0;
+            };
+
+        private:
+            using NameMap = std::map<std::string, Entry>;
+
+            NameMap NameToIndex;
+            std::vector<NameMap::const_iterator> IndexToName;
+
+        public:
+            ScriptTagContainer();
+
+            void reserve(size_t capacity);
+            uint32 insert(std::string const& scriptTag);
+            size_t size() const;
+            NameMap::const_iterator find(size_t index) const;
+            NameMap::const_iterator find(std::string const& name) const;
+            NameMap::const_iterator end() const;
         };
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
@@ -1674,6 +1717,8 @@ class TC_GAME_API ObjectMgr
         std::string const& GetScriptName(uint32 id) const;
         bool IsScriptDatabaseBound(uint32 id) const;
         uint32 GetScriptId(std::string const& name, bool isDatabaseBound = true);
+        ScriptTag GetScriptTag(std::string const& name);
+        std::string const& GetScriptTag(uint32 id) const;
 
         Trinity::IteratorPair<SpellClickInfoContainer::const_iterator> GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
@@ -1860,6 +1905,7 @@ class TC_GAME_API ObjectMgr
         GameTeleContainer _gameTeleStore;
 
         ScriptNameContainer _scriptNamesStore;
+        ScriptTagContainer _scriptTagStore;
 
         SpellClickInfoContainer _spellClickInfoStore;
 
