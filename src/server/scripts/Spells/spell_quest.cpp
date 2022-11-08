@@ -2008,7 +2008,6 @@ class spell_q14386_call_attack_mastiffs : public SpellScript
         OnEffectHit += SpellEffectFn(spell_q14386_call_attack_mastiffs::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
     }
 };
-
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
