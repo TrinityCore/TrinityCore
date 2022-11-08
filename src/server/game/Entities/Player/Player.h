@@ -1083,13 +1083,13 @@ enum TalentLearnResult
 
 struct TC_GAME_API SpecializationInfo
 {
-    SpecializationInfo() : PvpTalents(), Glyphs(), ResetTalentsCost(0), ResetTalentsTime(0), UsedTalentCount(0), QuestRewardTalentCount(0), ActiveGroup(0), TalentGroupCount(1)
+    SpecializationInfo() : Glyphs(), PvpTalents(), ResetTalentsCost(0), ResetTalentsTime(0), UsedTalentCount(0), QuestRewardTalentCount(0), ActiveGroup(0), TalentGroupCount(1)
     {
-        for (PlayerPvpTalentMap& pvpTalents : PvpTalents)
-            pvpTalents.fill(0);
-
         for (PlayerGlyphs& glyphs : Glyphs)
             glyphs.fill(0);
+
+        for (PlayerPvpTalentMap& pvpTalents : PvpTalents)
+            pvpTalents.fill(0);
     }
 
     PlayerTalentMap Talents[MAX_SPECIALIZATIONS];
