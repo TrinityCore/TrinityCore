@@ -2320,7 +2320,7 @@ struct npc_bg_spirit_guide : public ScriptedAI
 
     void ScheduleSpiritHealChannel()
     {
-        _scheduler.Schedule(1s, [this](TaskContext context)
+        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
         {
             DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL);
         });
