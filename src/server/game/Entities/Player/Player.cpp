@@ -2336,7 +2336,7 @@ void Player::GiveLevel(uint8 level)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
 
-    packet.NumNewTalents = DB2Manager::GetNumTalentsAtLevel(level, Classes(GetClass())) - DB2Manager::GetNumTalentsAtLevel(oldLevel, Classes(GetClass()));
+    packet.NumNewTalents = GetNumTalentsAtLevel(level) - GetNumTalentsAtLevel(oldLevel);
     packet.NumNewPvpTalentSlots = sDB2Manager.GetPvpTalentNumSlotsAtLevel(level, Classes(GetClass())) - sDB2Manager.GetPvpTalentNumSlotsAtLevel(oldLevel, Classes(GetClass()));
 
     SendDirectMessage(packet.Write());
@@ -2423,7 +2423,7 @@ void Player::InitTalentForLevel()
             SetActiveTalentGroup(0);
         }
 
-        uint32 talentPointsForLevel = GetNumTalentsAtLevel(GetLevel(), Classes(GetClass()));
+        uint32 talentPointsForLevel = GetNumTalentsAtLevel(GetLevel());
 
         // if used more that have then reset
         if (GetUsedTalentCount() > talentPointsForLevel)
@@ -3505,7 +3505,7 @@ bool Player::ResetTalents(bool noCost)
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
         RemoveAtLoginFlag(AT_LOGIN_RESET_TALENTS, true);
 
-    uint32 talentPointsForLevel = GetNumTalentsAtLevel(GetLevel(), Classes(GetClass()));
+    uint32 talentPointsForLevel = GetNumTalentsAtLevel(GetLevel());
 
     if (GetUsedTalentCount() == 0)
     {
@@ -26165,7 +26165,7 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
         SendEquipError(msg, nullptr, nullptr, item->itemid);
 }
 
-uint32 Player::GetNumTalentsAtLevel(uint32 level, Classes playerClass) const
+uint32 Player::GetNumTalentsAtLevel(uint32 level) const
 {
     NumTalentsAtLevelEntry const* numTalentsAtLevel = sNumTalentsAtLevelStore.LookupEntry(level);
     if (!numTalentsAtLevel)
@@ -26884,7 +26884,7 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
     return false;
 }
 
-void Player::SendTalentsInfoData(bool pet)
+void Player::SendTalentsInfoData(bool /*pet*/)
 {
     WorldPackets::Talent::UpdateTalentData packet;
     packet.UnspentTalentPoints = GetFreeTalentPoints();

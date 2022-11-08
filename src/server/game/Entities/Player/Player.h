@@ -1847,7 +1847,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         void RemoveTalent(uint32 spellId);
-        uint32 GetNumTalentsAtLevel(uint32 level, Classes playerClass) const;
+        uint32 GetNumTalentsAtLevel(uint32 level) const;
         void ResetTalentSpecialization();
 
         TalentLearnResult LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown);

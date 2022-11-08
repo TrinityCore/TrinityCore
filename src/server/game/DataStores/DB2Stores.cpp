@@ -2640,28 +2640,6 @@ ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant 
     return CHAR_NAME_SUCCESS;
 }
 
-int32 DB2Manager::GetNumTalentsAtLevel(uint32 level, Classes playerClass)
-{
-    NumTalentsAtLevelEntry const* numTalentsAtLevel = sNumTalentsAtLevelStore.LookupEntry(level);
-    if (!numTalentsAtLevel)
-        numTalentsAtLevel = sNumTalentsAtLevelStore.LookupEntry(sNumTalentsAtLevelStore.GetNumRows() - 1);
-
-    if (numTalentsAtLevel)
-    {
-        switch (playerClass)
-        {
-            case CLASS_DEATH_KNIGHT:
-                return numTalentsAtLevel->NumTalentsDeathKnight;
-            case CLASS_DEMON_HUNTER:
-                return numTalentsAtLevel->NumTalentsDemonHunter;
-            default:
-                return numTalentsAtLevel->NumTalents;
-        }
-    }
-
-    return 0;
-}
-
 ParagonReputationEntry const* DB2Manager::GetParagonReputation(uint32 factionId) const
 {
     return Trinity::Containers::MapGetValuePtr(_paragonReputations, factionId);
