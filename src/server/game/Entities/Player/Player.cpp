@@ -26177,7 +26177,7 @@ uint32 Player::GetNumTalentsAtLevel(uint32 level) const
         {
         case CLASS_DEATH_KNIGHT:
         {
-            uint32 talentPointsForLevel = numTalentsAtLevel->NumTalentsDeathKnight;
+            int32 talentPointsForLevel = numTalentsAtLevel->NumTalentsDeathKnight;
             talentPointsForLevel += GetQuestRewardTalentCount();
 
             if (talentPointsForLevel > numTalentsAtLevel->NumTalents)
