@@ -736,7 +736,7 @@ struct PointOfInterest
     uint32 Icon;
     uint32 Flags;
     uint32 Importance;
-    uint32 Unknown905;
+    int32 WMOGroupID;
     std::string Name;
 };
 
@@ -747,7 +747,6 @@ struct GossipMenuItems
     GossipOptionNpc     OptionNpc;
     std::string         OptionText;
     uint32              OptionBroadcastTextID;
-    uint32              OptionNpcFlag;
     uint32              Language;
     uint32              ActionMenuID;
     uint32              ActionPoiID;
@@ -756,6 +755,11 @@ struct GossipMenuItems
     std::string         BoxText;
     uint32              BoxBroadcastTextID;
     ConditionContainer  Conditions;
+};
+
+struct GossipMenuItemAddon
+{
+    Optional<int32> GarrTalentTreeID;
 };
 
 struct GossipMenus
@@ -774,9 +778,8 @@ typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
 typedef std::pair<GossipMenusContainer::const_iterator, GossipMenusContainer::const_iterator> GossipMenusMapBounds;
 typedef std::pair<GossipMenusContainer::iterator, GossipMenusContainer::iterator> GossipMenusMapBoundsNonConst;
 typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
-typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
-typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
 typedef std::unordered_map<uint32, GossipMenuAddon> GossipMenuAddonContainer;
+typedef std::unordered_map<std::pair<uint32, uint32>, GossipMenuItemAddon> GossipMenuItemAddonContainer;
 
 struct QuestPOIBlobPoint
 {
@@ -1397,7 +1400,8 @@ class TC_GAME_API ObjectMgr
 
         void LoadGossipMenu();
         void LoadGossipMenuItems();
-        void LoadGossipMenuFriendshipFactions();
+        void LoadGossipMenuAddon();
+        void LoadGossipMenuItemAddon();
 
         void LoadVendors();
         void LoadTrainers();
@@ -1685,18 +1689,25 @@ class TC_GAME_API ObjectMgr
             return _gossipMenusStore.equal_range(uiMenuId);
         }
 
-        GossipMenuItemsMapBounds GetGossipMenuItemsMapBounds(uint32 uiMenuId) const
+        Trinity::IteratorPair<GossipMenuItemsContainer::const_iterator> GetGossipMenuItemsMapBounds(uint32 uiMenuId) const
         {
-            return _gossipMenuItemsStore.equal_range(uiMenuId);
+            return Trinity::Containers::MapEqualRange(_gossipMenuItemsStore, uiMenuId);
         }
-        GossipMenuItemsMapBoundsNonConst GetGossipMenuItemsMapBoundsNonConst(uint32 uiMenuId)
+        Trinity::IteratorPair<GossipMenuItemsContainer::iterator> GetGossipMenuItemsMapBoundsNonConst(uint32 uiMenuId)
         {
-            return _gossipMenuItemsStore.equal_range(uiMenuId);
+            return Trinity::Containers::MapEqualRange(_gossipMenuItemsStore, uiMenuId);
         }
         GossipMenuAddon const* GetGossipMenuAddon(uint32 menuId) const
         {
             GossipMenuAddonContainer::const_iterator itr = _gossipMenuAddonStore.find(menuId);
             if (itr != _gossipMenuAddonStore.end())
+                return &itr->second;
+            return nullptr;
+        }
+        GossipMenuItemAddon const* GetGossipMenuItemAddon(uint32 menuId, uint32 optionId) const
+        {
+            auto itr = _gossipMenuItemAddonStore.find({ menuId, optionId });
+            if (itr != _gossipMenuItemAddonStore.end())
                 return &itr->second;
             return nullptr;
         }
@@ -1834,6 +1845,7 @@ class TC_GAME_API ObjectMgr
         GossipMenusContainer _gossipMenusStore;
         GossipMenuItemsContainer _gossipMenuItemsStore;
         GossipMenuAddonContainer _gossipMenuAddonStore;
+        GossipMenuItemAddonContainer _gossipMenuItemAddonStore;
         PointOfInterestContainer _pointsOfInterestStore;
 
         QuestPOIContainer _questPOIStore;

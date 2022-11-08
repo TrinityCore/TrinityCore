@@ -186,10 +186,19 @@ struct TC_GAME_API LootItem
     LootItem() : itemid(0), LootListId(0), randomBonusListId(0), context(ItemContext::NONE), count(0), is_looted(false), is_blocked(false),
                  freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false) { }
 
-    // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-    bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
+    LootItem(LootItem const&);
+    LootItem(LootItem&&) noexcept;
+    LootItem& operator=(LootItem const&);
+    LootItem& operator=(LootItem&&) noexcept;
+    ~LootItem();
+
+    // Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
+    bool AllowedForPlayer(Player const* player, Loot const* loot) const;
+    static bool AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
+        ConditionContainer const& conditions);
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
+    bool HasAllowedLooter(ObjectGuid const& looter) const;
     Optional<LootSlotType> GetUiTypeForPlayer(Player const* player, Loot const& loot) const;
 };
 
@@ -264,7 +273,6 @@ struct TC_GAME_API Loot
     uint8 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
-    uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
     explicit Loot(Map* map, ObjectGuid owner, LootType type, Group const* group);
     ~Loot();
@@ -276,12 +284,13 @@ struct TC_GAME_API Loot
 
     ObjectGuid const& GetGUID() const { return _guid; }
     ObjectGuid const& GetOwnerGUID() const { return _owner; }
+    ItemContext GetItemContext() const { return _itemContext; }
+    void SetItemContext(ItemContext context) { _itemContext = context; }
     LootMethod GetLootMethod() const { return _lootMethod; }
     ObjectGuid const& GetLootMasterGUID() const { return _lootMaster; }
+    uint32 GetDungeonEncounterId() const { return _dungeonEncounterId; }
+    void SetDungeonEncounterId(uint32 dungeonEncounterId) { _dungeonEncounterId = dungeonEncounterId; }
 
-    void clear();
-
-    bool empty() const { return items.empty() && gold == 0; }
     bool isLooted() const { return gold == 0 && unlootedCount == 0; }
 
     void NotifyLootList(Map const* map) const;
@@ -291,8 +300,11 @@ struct TC_GAME_API Loot
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
+    bool HasAllowedLooter(ObjectGuid const& looter) const;
+
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE);
+    void FillNotNormalLootFor(Player const* player);        // count unlooted items
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const& item);
@@ -311,8 +323,6 @@ struct TC_GAME_API Loot
     void Update();
 
 private:
-    void FillNotNormalLootFor(Player const* player);
-
     GuidSet PlayersLooting;
     NotNormalLootItemMap PlayerFFAItems;
 
@@ -325,6 +335,7 @@ private:
     ObjectGuid _lootMaster;
     GuidUnorderedSet _allowedLooters;
     bool _wasOpened;                                                // true if at least one player received the loot content
+    uint32 _dungeonEncounterId;
 };
 
 class TC_GAME_API AELootResult
@@ -335,11 +346,12 @@ public:
         Item* item;
         uint8 count;
         LootType lootType;
+        uint32 dungeonEncounterId;
     };
 
     typedef std::vector<ResultValue> OrderedStorage;
 
-    void Add(Item* item, uint8 count, LootType lootType);
+    void Add(Item* item, uint8 count, LootType lootType, uint32 dungeonEncounterId);
 
     OrderedStorage::const_iterator begin() const;
     OrderedStorage::const_iterator end() const;

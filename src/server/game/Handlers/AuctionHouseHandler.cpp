@@ -772,7 +772,7 @@ void WorldSession::HandleAuctionSellCommodity(WorldPackets::AuctionHouse::Auctio
     if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
         Item* logItem = items2.begin()->second.first;
-        sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: " UI64FMTD ")",
+        sLog->OutCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: " UI64FMTD ")",
             GetPlayerName().c_str(), GetAccountId(), logItem->GetNameForLocaleIdx(sWorld->GetDefaultDbcLocale()).c_str(), logItem->GetEntry(), totalCount);
     }
 
@@ -928,7 +928,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
 
     if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
-        sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
+        sLog->OutCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
             GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->GetDefaultLocaleName(), item->GetEntry(), item->GetCount());
     }
 

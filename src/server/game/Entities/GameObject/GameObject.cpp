@@ -34,7 +34,6 @@
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "GroupMgr.h"
 #include "Item.h"
 #include "Log.h"
 #include "Loot.h"
@@ -521,8 +520,6 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 
     m_spawnId = UI64LIT(0);
 
-    m_lootGenerationTime = 0;
-
     ResetLootMode(); // restore default loot mode
     m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -904,6 +901,44 @@ void GameObject::Update(uint32 diff)
     if (m_goTypeImpl)
         m_goTypeImpl->Update(diff);
 
+    if (m_perPlayerState)
+    {
+        for (auto itr = m_perPlayerState->begin(); itr != m_perPlayerState->end(); )
+        {
+            if (itr->second.ValidUntil > GameTime::GetSystemTime())
+            {
+                ++itr;
+                continue;
+            }
+
+            Player* seer = ObjectAccessor::GetPlayer(*this, itr->first);
+            bool needsStateUpdate = itr->second.State != GetGoState();
+            bool despawned = itr->second.Despawned;
+
+            itr = m_perPlayerState->erase(itr);
+
+            if (seer)
+            {
+                if (despawned)
+                {
+                    seer->UpdateVisibilityOf(this);
+                }
+                else if (needsStateUpdate)
+                {
+                    UF::ObjectData::Base objMask;
+                    UF::GameObjectData::Base goMask;
+                    goMask.MarkChanged(&UF::GameObjectData::State);
+
+                    UpdateData udata(GetMapId());
+                    BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), seer);
+                    WorldPacket packet;
+                    udata.BuildPacket(&packet);
+                    seer->SendDirectMessage(&packet);
+                }
+            }
+        }
+    }
+
     switch (m_lootState)
     {
         case GO_NOT_READY:
@@ -956,7 +991,11 @@ void GameObject::Update(uint32 diff)
                     // If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
                     m_restockTime = 0;
                     m_lootState = GO_READY;
-                    AddToObjectUpdateIfNeeded();
+                    m_loot = nullptr;
+                    m_personalLoot.clear();
+                    m_unique_users.clear();
+                    m_usetimes = 0;
+                    UpdateDynamicFlagsForNearbyPlayers();
                     break;
                 default:
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
@@ -1176,12 +1215,19 @@ void GameObject::Update(uint32 diff)
                     if (m_loot)
                         m_loot->Update();
 
+                    for (auto&& [playerOwner, loot] : m_personalLoot)
+                        loot->Update();
+
                     // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                    if (GetGOInfo()->chest.consumable == 0 && GameTime::GetGameTime() >= m_restockTime)
+                    if (GetGOInfo()->chest.consumable == 0 && GetGOInfo()->chest.chestRestockTime && GameTime::GetGameTime() >= m_restockTime)
                     {
                         m_restockTime = 0;
                         m_lootState = GO_READY;
-                        AddToObjectUpdateIfNeeded();
+                        m_loot = nullptr;
+                        m_personalLoot.clear();
+                        m_unique_users.clear();
+                        m_usetimes = 0;
+                        UpdateDynamicFlagsForNearbyPlayers();
                     }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
@@ -1255,6 +1301,9 @@ void GameObject::Update(uint32 diff)
             }
 
             m_loot = nullptr;
+            m_personalLoot.clear();
+            m_unique_users.clear();
+            m_usetimes = 0;
 
             // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
             bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
@@ -1265,7 +1314,7 @@ void GameObject::Update(uint32 diff)
                     // Start restock timer when the chest is fully looted
                     m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
                     SetLootState(GO_NOT_READY);
-                    AddToObjectUpdateIfNeeded();
+                    UpdateDynamicFlagsForNearbyPlayers();
                 }
                 else
                     SetLootState(GO_READY);
@@ -1372,6 +1421,14 @@ void GameObject::DespawnOrUnsummon(Milliseconds delay, Seconds forceRespawnTime)
     }
 }
 
+void GameObject::DespawnForPlayer(Player* seer, Seconds respawnTime)
+{
+    PerPlayerState& perPlayerState = GetOrCreatePerPlayerStates()[seer->GetGUID()];
+    perPlayerState.ValidUntil = GameTime::GetSystemTime() + respawnTime;
+    perPlayerState.Despawned = true;
+    seer->UpdateVisibilityOf(this);
+}
+
 void GameObject::Delete()
 {
     SetLootState(GO_NOT_READY);
@@ -1405,44 +1462,48 @@ void GameObject::SendGameObjectDespawn()
     SendMessageToSet(packet.Write(), true);
 }
 
-void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
+Loot* GameObject::GetFishLoot(Player* lootOwner)
 {
-    fishloot->clear();
-
-    uint32 zone, subzone;
     uint32 defaultzone = 1;
-    GetZoneAndAreaId(zone, subzone);
 
-    // if subzone loot exist use it
-    fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true);
-    if (fishloot->empty())  //use this becase if zone or subzone has set LOOT_MODE_JUNK_FISH,Even if no normal drop, fishloot->FillLoot return true. it wrong.
+    Loot* fishLoot = new Loot(GetMap(), GetGUID(), LOOT_FISHING, nullptr);
+
+    uint32 areaId = GetAreaId();
+    while (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId))
     {
-        //subzone no result,use zone loot
-        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true, true);
-        //use zone 1 as default, somewhere fishing got nothing,becase subzone and zone not set, like Off the coast of Storm Peaks.
-        if (fishloot->empty())
-            fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true);
+        fishLoot->FillLoot(areaId, LootTemplates_Fishing, lootOwner, true, true);
+        if (!fishLoot->isLooted())
+            break;
+
+        areaId = areaEntry->ParentAreaID;
     }
+
+    if (fishLoot->isLooted())
+        fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true);
+
+    return fishLoot;
 }
 
-void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
+Loot* GameObject::GetFishLootJunk(Player* lootOwner)
 {
-    fishloot->clear();
-
-    uint32 zone, subzone;
     uint32 defaultzone = 1;
-    GetZoneAndAreaId(zone, subzone);
 
-    // if subzone loot exist use it
-    fishloot->FillLoot(subzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
-    if (fishloot->empty())  //use this becase if zone or subzone has normal mask drop, then fishloot->FillLoot return true.
+    Loot* fishLoot = new Loot(GetMap(), GetGUID(), LOOT_FISHING_JUNK, nullptr);
+
+    uint32 areaId = GetAreaId();
+    while (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId))
     {
-        //use zone loot
-        fishloot->FillLoot(zone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
-        if (fishloot->empty())
-            //use zone 1 as default
-            fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
+        fishLoot->FillLoot(areaId, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
+        if (!fishLoot->isLooted())
+            break;
+
+        areaId = areaEntry->ParentAreaID;
     }
+
+    if (fishLoot->isLooted())
+        fishLoot->FillLoot(defaultzone, LootTemplates_Fishing, lootOwner, true, true, LOOT_MODE_JUNK_FISH);
+
+    return fishLoot;
 }
 
 void GameObject::SaveToDB()
@@ -1780,14 +1841,19 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
     return false;
 }
 
-bool GameObject::IsInvisibleDueToDespawn() const
+bool GameObject::IsInvisibleDueToDespawn(WorldObject const* seer) const
 {
-    if (WorldObject::IsInvisibleDueToDespawn())
+    if (WorldObject::IsInvisibleDueToDespawn(seer))
         return true;
 
     // Despawned
     if (!isSpawned())
         return true;
+
+    if (m_perPlayerState)
+        if (PerPlayerState const* state = Trinity::Containers::MapGetValuePtr(*m_perPlayerState, seer->GetGUID()))
+            if (state->Despawned)
+                return true;
 
     return false;
 }
@@ -1861,7 +1927,10 @@ bool GameObject::ActivateToQuest(Player const* target) const
                 return false;
 
             // scan GO chest with loot including quest items
-            if (target->GetQuestStatus(GetGOInfo()->chest.questID) == QUEST_STATUS_INCOMPLETE || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
+            if (target->GetQuestStatus(GetGOInfo()->chest.questID) == QUEST_STATUS_INCOMPLETE
+                || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestLoot, target)
+                || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestPersonalLoot, target)
+                || LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->chest.chestPushLoot, target))
             {
                 if (Battleground const* bg = target->GetBattleground())
                     return bg->CanActivateGO(GetEntry(), bg->GetPlayerTeam(target->GetGUID()));
@@ -2159,6 +2228,102 @@ void GameObject::Use(Unit* user)
             player->SendPreparedGossip(this);
             return;
         }
+        case GAMEOBJECT_TYPE_CHEST:                         //3
+        {
+            Player* player = user->ToPlayer();
+            if (!player)
+                return;
+
+            if (Battleground* bg = player->GetBattleground())
+                if (!bg->CanActivateGO(GetEntry(), bg->GetPlayerTeam(user->GetGUID())))
+                    return;
+
+            GameObjectTemplate const* info = GetGOInfo();
+            if (!m_loot && info->GetLootId())
+            {
+                if (info->GetLootId())
+                {
+                    Group const* group = player->GetGroup();
+                    bool groupRules = group && info->chest.usegrouplootrules;
+
+                    Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, groupRules ? group : nullptr);
+                    m_loot.reset(loot);
+
+                    loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
+                    loot->FillLoot(info->GetLootId(), LootTemplates_Gameobject, player, !groupRules, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+
+                    if (GetLootMode() > 0)
+                        if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
+                            loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
+                }
+
+                if (info->chest.triggeredEvent)
+                    GameEvents::Trigger(info->chest.triggeredEvent, player, this);
+
+                // triggering linked GO
+                if (uint32 trapEntry = info->chest.linkedTrap)
+                    TriggeringLinkedGameObject(trapEntry, player);
+            }
+            else if (!m_personalLoot.count(player->GetGUID()))
+            {
+                if (info->chest.chestPersonalLoot)
+                {
+                    GameObjectTemplateAddon const* addon = GetTemplateAddon();
+                    if (info->chest.DungeonEncounter)
+                    {
+                        std::vector<Player*> tappers;
+                        for (ObjectGuid tapperGuid : GetTapList())
+                            if (Player* tapper = ObjectAccessor::GetPlayer(*this, tapperGuid))
+                                tappers.push_back(tapper);
+
+                        if (tappers.empty())
+                            tappers.push_back(player);
+
+                        m_personalLoot = GenerateDungeonEncounterPersonalLoot(info->chest.DungeonEncounter, info->chest.chestPersonalLoot,
+                            LootTemplates_Gameobject, LOOT_CHEST, this, addon ? addon->Mingold : 0, addon ? addon->Maxgold : 0,
+                            GetLootMode(), GetMap()->GetDifficultyLootItemContext(), tappers);
+                    }
+                    else
+                    {
+                        Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
+                        m_personalLoot[player->GetGUID()].reset(loot);
+
+                        loot->SetDungeonEncounterId(info->chest.DungeonEncounter);
+                        loot->FillLoot(info->chest.chestPersonalLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+
+                        if (GetLootMode() > 0 && addon)
+                            loot->generateMoneyLoot(addon->Mingold, addon->Maxgold);
+                    }
+                }
+            }
+
+            if (!m_unique_users.count(player->GetGUID()) && !info->GetLootId())
+            {
+                if (info->chest.chestPushLoot)
+                {
+                    Loot pushLoot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
+                    pushLoot.FillLoot(info->chest.chestPushLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+                    pushLoot.AutoStore(player, NULL_BAG, NULL_SLOT);
+                }
+
+                if (info->chest.triggeredEvent)
+                    GameEvents::Trigger(info->chest.triggeredEvent, player, this);
+
+                // triggering linked GO
+                if (uint32 trapEntry = info->chest.linkedTrap)
+                    TriggeringLinkedGameObject(trapEntry, player);
+
+                AddUniqueUse(player);
+            }
+
+            if (getLootState() != GO_ACTIVATED)
+                SetLootState(GO_ACTIVATED, player);
+
+            // Send loot
+            if (Loot* loot = GetLootForPlayer(player))
+                player->SendLoot(*loot);
+            break;
+        }
         case GAMEOBJECT_TYPE_TRAP:                          //6
         {
             GameObjectTemplate const* goInfo = GetGOInfo();
@@ -2176,12 +2341,6 @@ void GameObject::Use(Unit* user)
         case GAMEOBJECT_TYPE_CHAIR:                         //7
         {
             GameObjectTemplate const* info = GetGOInfo();
-            if (!info)
-                return;
-
-            if (user->GetTypeId() != TYPEID_PLAYER)
-                return;
-
             if (ChairListSlots.empty())        // this is called once at first chair use to make list of available slots
             {
                 if (info->chair.chairslots > 0)     // sometimes chairs in DB have error in fields and we dont know number of slots
@@ -2190,8 +2349,6 @@ void GameObject::Use(Unit* user)
                 else
                     ChairListSlots[0].Clear();     // error in DB, make one default slot
             }
-
-            Player* player = user->ToPlayer();
 
             // a chair may have n slots. we have to calculate their positions and teleport the player to the nearest one
 
@@ -2206,35 +2363,35 @@ void GameObject::Use(Unit* user)
             float orthogonalOrientation = GetOrientation() + float(M_PI) * 0.5f;
             // find nearest slot
             bool found_free_slot = false;
-            for (ChairSlotAndUser::iterator itr = ChairListSlots.begin(); itr != ChairListSlots.end(); ++itr)
+            for (auto& [slot, sittingUnit] : ChairListSlots)
             {
                 // the distance between this slot and the center of the go - imagine a 1D space
-                float relativeDistance = (info->size*itr->first) - (info->size*(info->chair.chairslots - 1) / 2.0f);
+                float relativeDistance = (info->size * slot) - (info->size * (info->chair.chairslots - 1) / 2.0f);
 
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
 
-                if (!itr->second.IsEmpty())
+                if (!sittingUnit.IsEmpty())
                 {
-                    if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))
+                    if (Unit* chairUser = ObjectAccessor::GetUnit(*this, sittingUnit))
                     {
-                        if (ChairUser->IsSitState() && ChairUser->GetStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
+                        if (chairUser->IsSitState() && chairUser->GetStandState() != UNIT_STAND_STATE_SIT && chairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->GetStandState() != UNIT_STAND_STATE_SIT check is required.
-                        else
-                            itr->second.Clear(); // This seat is unoccupied.
+
+                        sittingUnit.Clear(); // This seat is unoccupied.
                     }
                     else
-                        itr->second.Clear();     // The seat may of had an occupant, but they're offline.
+                        sittingUnit.Clear();     // The seat may of had an occupant, but they're offline.
                 }
 
                 found_free_slot = true;
 
                 // calculate the distance between the player and this slot
-                float thisDistance = player->GetDistance2d(x_i, y_i);
+                float thisDistance = user->GetDistance2d(x_i, y_i);
 
                 if (thisDistance <= lowestDist)
                 {
-                    nearest_slot = itr->first;
+                    nearest_slot = slot;
                     lowestDist = thisDistance;
                     x_lowest = x_i;
                     y_lowest = y_i;
@@ -2243,26 +2400,32 @@ void GameObject::Use(Unit* user)
 
             if (found_free_slot)
             {
-                ChairSlotAndUser::iterator itr = ChairListSlots.find(nearest_slot);
+                auto itr = ChairListSlots.find(nearest_slot);
                 if (itr != ChairListSlots.end())
                 {
-                    itr->second = player->GetGUID(); //this slot in now used by player
-                    player->TeleportTo(GetMapId(), x_lowest, y_lowest, GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
-                    player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->chair.chairheight));
+                    itr->second = user->GetGUID(); //this slot in now used by player
+                    user->NearTeleportTo(x_lowest, y_lowest, GetPositionZ(), GetOrientation());
+                    user->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->chair.chairheight));
                     if (info->chair.triggeredEvent)
-                        GameEvents::Trigger(info->chair.triggeredEvent, player, this);
+                        GameEvents::Trigger(info->chair.triggeredEvent, user, this);
                     return;
                 }
             }
 
             return;
         }
+        case GAMEOBJECT_TYPE_SPELL_FOCUS:                   //8
+            // triggering linked GO
+            if (uint32 trapEntry = GetGOInfo()->spellFocus.linkedTrap)
+                TriggeringLinkedGameObject(trapEntry, user);
+            break;
         //big gun, its a spell/aura
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
             GameObjectTemplate const* info = GetGOInfo();
+            Player* player = user->ToPlayer();
 
-            if (Player* player = user->ToPlayer())
+            if (player)
             {
                 if (info->goober.pageID)                    // show page...
                 {
@@ -2304,20 +2467,31 @@ void GameObject::Use(Unit* user)
             if (uint32 trapEntry = info->goober.linkedTrap)
                 TriggeringLinkedGameObject(trapEntry, user);
 
-            SetFlag(GO_FLAG_IN_USE);
-            SetLootState(GO_ACTIVATED, user);
-
-            // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
-            if (info->goober.customAnim)
-                SendCustomAnim(GetGoAnimProgress());
+            if (info->goober.AllowMultiInteract && player)
+            {
+                if (info->IsDespawnAtAction())
+                    DespawnForPlayer(player, Seconds(m_respawnDelayTime));
+                else
+                    SetGoStateFor(GO_STATE_ACTIVE, player);
+            }
             else
-                SetGoState(GO_STATE_ACTIVE);
+            {
+                SetFlag(GO_FLAG_IN_USE);
+                SetLootState(GO_ACTIVATED, user);
 
-            m_cooldownTime = GameTime::GetGameTimeMS() + info->GetAutoCloseTime();
+                // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
+                if (info->goober.customAnim)
+                    SendCustomAnim(GetGoAnimProgress());
+                else
+                    SetGoState(GO_STATE_ACTIVE);
+
+                m_cooldownTime = GameTime::GetGameTimeMS() + info->GetAutoCloseTime();
+            }
 
             // cast this spell later if provided
             spellId = info->goober.spell;
-            spellCaster = nullptr;
+            if (!info->goober.playerCast)
+                spellCaster = nullptr;
 
             break;
         }
@@ -2402,10 +2576,16 @@ void GameObject::Use(Unit* user)
                             SetLootState(GO_JUST_DEACTIVATED);
                         }
                         else
-                            player->SendLoot(GetGUID(), LOOT_FISHING);
+                        {
+                            m_loot.reset(GetFishLoot(player));
+                            player->SendLoot(*m_loot);
+                        }
                     }
                     else // If fishing skill is too low, send junk loot.
-                        player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
+                    {
+                        m_loot.reset(GetFishLootJunk(player));
+                        player->SendLoot(*m_loot);
+                    }
                     break;
                 }
                 case GO_JUST_DEACTIVATED:                   // nothing to do, will be deleted at next update
@@ -2617,7 +2797,11 @@ void GameObject::Use(Unit* user)
 
             Player* player = user->ToPlayer();
 
-            player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
+            Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_FISHINGHOLE, nullptr);
+            loot->FillLoot(GetGOInfo()->GetLootId(), LootTemplates_Gameobject, player, true);
+            m_personalLoot[player->GetGUID()].reset(loot);
+
+            player->SendLoot(*loot);
             player->UpdateCriteria(CriteriaType::CatchFishInFishingHole, GetGOInfo()->entry);
             return;
         }
@@ -2764,6 +2948,56 @@ void GameObject::Use(Unit* user)
             gameObjectUILink.UILink = GetGOInfo()->UILink.UILinkType;
             player->SendDirectMessage(gameObjectUILink.Write());
             return;
+        }
+        case GAMEOBJECT_TYPE_GATHERING_NODE:                //50
+        {
+            Player* player = user->ToPlayer();
+            if (!player)
+                return;
+
+            GameObjectTemplate const* info = GetGOInfo();
+            if (!m_personalLoot.count(player->GetGUID()))
+            {
+                if (info->gatheringNode.chestLoot)
+                {
+                    Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, nullptr);
+                    m_personalLoot[player->GetGUID()].reset(loot);
+
+                    loot->FillLoot(info->gatheringNode.chestLoot, LootTemplates_Gameobject, player, true, false, GetLootMode(), GetMap()->GetDifficultyLootItemContext());
+                }
+
+                if (info->gatheringNode.triggeredEvent)
+                    GameEvents::Trigger(info->gatheringNode.triggeredEvent, player, this);
+
+                // triggering linked GO
+                if (uint32 trapEntry = info->gatheringNode.linkedTrap)
+                    TriggeringLinkedGameObject(trapEntry, player);
+
+                if (info->gatheringNode.xpDifficulty && info->gatheringNode.xpDifficulty < 10)
+                    if (QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(player->GetLevel()))
+                        if (uint32 xp = Quest::RoundXPValue(questXp->Difficulty[info->gatheringNode.xpDifficulty]))
+                            player->GiveXP(xp, nullptr);
+
+                spellId = info->gatheringNode.spell;
+            }
+
+            if (m_personalLoot.size() >= info->gatheringNode.MaxNumberofLoots)
+            {
+                SetGoState(GO_STATE_ACTIVE);
+                SetDynamicFlag(GO_DYNFLAG_LO_NO_INTERACT);
+            }
+
+            if (getLootState() != GO_ACTIVATED)
+            {
+                SetLootState(GO_ACTIVATED, player);
+                if (info->gatheringNode.ObjectDespawnDelay)
+                    DespawnOrUnsummon(Seconds(info->gatheringNode.ObjectDespawnDelay));
+            }
+
+            // Send loot
+            if (Loot* loot = GetLootForPlayer(player))
+                player->SendLoot(*loot);
+            break;
         }
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
@@ -3072,9 +3306,52 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     }
 }
 
-void GameObject::SetLootGenerationTime()
+bool GameObject::IsFullyLooted() const
 {
-    m_lootGenerationTime = GameTime::GetGameTime();
+    if (m_loot && !m_loot->isLooted())
+        return false;
+
+    for (auto const& [_, loot] : m_personalLoot)
+        if (!loot->isLooted())
+            return false;
+
+    return true;
+}
+
+void GameObject::OnLootRelease(Player* looter)
+{
+    switch (GetGoType())
+    {
+        case GAMEOBJECT_TYPE_CHEST:
+        {
+            GameObjectTemplate const* goInfo = GetGOInfo();
+            if (!goInfo->chest.consumable && goInfo->chest.chestPersonalLoot)
+            {
+                DespawnForPlayer(looter, goInfo->chest.chestRestockTime
+                    ? Seconds(goInfo->chest.chestRestockTime)
+                    : Seconds(m_respawnDelayTime)); // not hiding this object permanently to prevent infinite growth of m_perPlayerState
+                                                    // while also maintaining some sort of cheater protection (not getting rid of entries on logout)
+            }
+            break;
+        }
+        case GAMEOBJECT_TYPE_GATHERING_NODE:
+        {
+            SetGoStateFor(GO_STATE_ACTIVE, looter);
+
+            UF::ObjectData::Base objMask;
+            UF::GameObjectData::Base goMask;
+            objMask.MarkChanged(&UF::ObjectData::DynamicFlags);
+
+            UpdateData udata(GetMapId());
+            BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), goMask.GetChangesMask(), looter);
+            WorldPacket packet;
+            udata.BuildPacket(&packet);
+            looter->SendDirectMessage(&packet);
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void GameObject::SetGoState(GOState state)
@@ -3099,6 +3376,28 @@ void GameObject::SetGoState(GOState state)
 
         EnableCollision(collision);
     }
+}
+
+GOState GameObject::GetGoStateFor(ObjectGuid const& viewer) const
+{
+    if (m_perPlayerState)
+        if (PerPlayerState const* state = Trinity::Containers::MapGetValuePtr(*m_perPlayerState, viewer))
+            if (state->State)
+                return *state->State;
+
+    return GetGoState();
+}
+
+void GameObject::SetGoStateFor(GOState state, Player const* viewer)
+{
+    PerPlayerState& perPlayerState = GetOrCreatePerPlayerStates()[viewer->GetGUID()];
+    perPlayerState.ValidUntil = GameTime::GetSystemTime() + Seconds(m_respawnDelayTime);
+    perPlayerState.State = state;
+
+    WorldPackets::GameObject::GameObjectSetStateLocal setStateLocal;
+    setStateLocal.ObjectGUID = GetGUID();
+    setStateLocal.State = state;
+    viewer->SendDirectMessage(setStateLocal.Write());
 }
 
 void GameObject::SetDisplayId(uint32 displayid)
@@ -3166,62 +3465,31 @@ void GameObject::UpdateModel()
         GetMap()->InsertGameObjectModel(*m_model);
 }
 
-Player* GameObject::GetLootRecipient() const
-{
-    if (!m_lootRecipient)
-        return nullptr;
-    return ObjectAccessor::FindConnectedPlayer(m_lootRecipient);
-}
-
-Group* GameObject::GetLootRecipientGroup() const
-{
-    if (!m_lootRecipientGroup)
-        return nullptr;
-    return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
-}
-
-void GameObject::SetLootRecipient(Unit* unit, Group* group)
-{
-    // set the player whose group should receive the right
-    // to loot the creature after it dies
-    // should be set to nullptr after the loot disappears
-
-    if (!unit)
-    {
-        m_lootRecipient.Clear();
-        m_lootRecipientGroup = group ? group->GetGUID() : ObjectGuid::Empty;
-        return;
-    }
-
-    if (unit->GetTypeId() != TYPEID_PLAYER && !unit->IsVehicle())
-        return;
-
-    Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-    if (!player)                                             // normal creature, no player involved
-        return;
-
-    m_lootRecipient = player->GetGUID();
-
-    // either get the group from the passed parameter or from unit's one
-    if (group)
-        m_lootRecipientGroup = group->GetGUID();
-    else if (Group* unitGroup = player->GetGroup())
-        m_lootRecipientGroup = unitGroup->GetGUID();
-}
-
 bool GameObject::IsLootAllowedFor(Player const* player) const
 {
-    if (!m_lootRecipient && !m_lootRecipientGroup)
-        return true;
+    if (Loot const* loot = GetLootForPlayer(player)) // check only if loot was already generated
+    {
+        if (loot->isLooted()) // nothing to loot or everything looted.
+            return false;
+        if (!loot->HasAllowedLooter(GetGUID()) || (!loot->hasItemForAll() && !loot->hasItemFor(player))) // no loot in chest for this player
+            return false;
+    }
 
-    if (player->GetGUID() == m_lootRecipient)
-        return true;
-
-    Group const* playerGroup = player->GetGroup();
-    if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
-        return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
+    if (HasLootRecipient())
+        return m_tapList.find(player->GetGUID()) != m_tapList.end();
 
     return true;
+}
+
+Loot* GameObject::GetLootForPlayer(Player const* player) const
+{
+    if (m_personalLoot.empty())
+        return m_loot.get();
+
+    if (std::unique_ptr<Loot> const* loot = Trinity::Containers::MapGetValuePtr(m_personalLoot, player->GetGUID()))
+        return loot->get();
+
+    return nullptr;
 }
 
 GameObject* GameObject::GetLinkedTrap()
@@ -3266,7 +3534,7 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
     if (requestedGameObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_GAMEOBJECT);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -3279,7 +3547,7 @@ void GameObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Object
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
 }
 
 void GameObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
@@ -3370,6 +3638,9 @@ void GameObject::AfterRelocation()
 
 float GameObject::GetInteractionDistance() const
 {
+    if (GetGOInfo()->GetInteractRadiusOverride())
+        return float(GetGOInfo()->GetInteractRadiusOverride()) / 100.0f;
+
     switch (GetGoType())
     {
         case GAMEOBJECT_TYPE_AREADAMAGE:
@@ -3609,6 +3880,26 @@ bool GameObject::CanInteractWithCapturePoint(Player const* target) const
         || m_goValue.CapturePoint.State == WorldPackets::Battleground::BattlegroundCapturePointState::HordeCaptured;
 }
 
+bool GameObject::MeetsInteractCondition(Player const* user) const
+{
+    if (!m_goInfo->GetConditionID1())
+        return true;
+
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(m_goInfo->GetConditionID1()))
+        if (!ConditionMgr::IsPlayerMeetingCondition(user, playerCondition))
+            return false;
+
+    return true;
+}
+
+std::unordered_map<ObjectGuid, GameObject::PerPlayerState>& GameObject::GetOrCreatePerPlayerStates()
+{
+    if (!m_perPlayerState)
+        m_perPlayerState = std::make_unique<std::unordered_map<ObjectGuid, PerPlayerState>>();
+
+    return *m_perPlayerState;
+}
+
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 {
 public:
@@ -3628,12 +3919,10 @@ private:
     GameObject* _owner;
 };
 
-void GameObject::UpdateDynamicFlagsForNearbyPlayers() const
+void GameObject::UpdateDynamicFlagsForNearbyPlayers()
 {
-    ValuesUpdateForPlayerWithMaskSender sender(this);
-    sender.ObjectMask.MarkChanged(&UF::ObjectData::DynamicFlags);
-    Trinity::MessageDistDeliverer<ValuesUpdateForPlayerWithMaskSender> deliverer(this, sender, GetVisibilityRange());
-    Cell::VisitWorldObjects(this, deliverer, GetVisibilityRange());
+    m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags);
+    AddToObjectUpdateIfNeeded();
 }
 
 void GameObject::HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const

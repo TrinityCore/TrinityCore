@@ -51,6 +51,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Util.h"
 #include "World.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/system_error.hpp>
 #include <efsw/efsw.hpp>
@@ -108,14 +109,7 @@ typedef void* HandleType;
 
 static fs::path GetDirectoryOfExecutable()
 {
-    ASSERT((!sConfigMgr->GetArguments().empty()),
-           "Expected the arguments to contain at least 1 element!");
-
-    fs::path path(sConfigMgr->GetArguments()[0]);
-    if (path.is_absolute())
-        return path.parent_path();
-    else
-        return fs::canonical(fs::absolute(path)).parent_path();
+    return boost::dll::program_location().parent_path();
 }
 
 class SharedLibraryUnloader

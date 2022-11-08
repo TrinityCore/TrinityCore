@@ -126,7 +126,7 @@ namespace WorldPackets
         class AzeriteRespecNPC final : public ServerPacket
         {
         public:
-            AzeriteRespecNPC(ObjectGuid npcGuid) : ServerPacket(SMSG_AZERITE_RESPEC_NPC, 1), NpcGUID(npcGuid) { }
+            AzeriteRespecNPC(ObjectGuid npcGuid) : ServerPacket(SMSG_AZERITE_RESPEC_NPC, 16), NpcGUID(npcGuid) { }
 
             WorldPacket const* Write() override;
 

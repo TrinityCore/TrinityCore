@@ -91,7 +91,7 @@ endif()
 # that the program will eventually be linked with a conforming operator new implementation,
 # and can omit all of these extra null checks from your program.
 # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0)
+if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
   # makes this flag a requirement to build TC at all
   target_compile_options(trinity-compile-option-interface
     INTERFACE
@@ -172,7 +172,7 @@ endmacro()
 # This will make compiler behave like in 2019 - compiling num_cpus * num_projects at the same time
 # it is neccessary because of a bug in current implementation that makes scripts build only a single
 # file at the same time after game project finishes building
-if (NOT MSVC_TOOLSET_VERSION LESS 19.2)
+if (NOT MSVC_TOOLSET_VERSION LESS 143)
   file(COPY "${CMAKE_CURRENT_LIST_DIR}/Directory.Build.props" DESTINATION "${CMAKE_BINARY_DIR}")
 endif()
 

@@ -1006,7 +1006,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     }
     data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
     data << uint32(Flags2);
-    data << uint32(Flags3);
+    data << uint32(ViewerDependentValue<Flags3Tag>::GetValue(this, owner, receiver));
     data << uint32(ViewerDependentValue<AuraStateTag>::GetValue(this, owner, receiver));
     for (uint32 i = 0; i < 2; ++i)
     {
@@ -1397,7 +1397,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[45])
         {
-            data << uint32(Flags3);
+            data << uint32(ViewerDependentValue<Flags3Tag>::GetValue(this, owner, receiver));
         }
         if (changesMask[46])
         {
@@ -4270,7 +4270,7 @@ void GameObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fie
     data << float(ParentRotation->z);
     data << float(ParentRotation->w);
     data << int32(FactionTemplate);
-    data << int8(State);
+    data << int8(ViewerDependentValue<StateTag>::GetValue(this, owner, receiver));
     data << int8(TypeID);
     data << uint8(PercentHealth);
     data << uint32(ArtKit);
@@ -4377,7 +4377,7 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[14])
         {
-            data << int8(State);
+            data << int8(ViewerDependentValue<StateTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[15])
         {

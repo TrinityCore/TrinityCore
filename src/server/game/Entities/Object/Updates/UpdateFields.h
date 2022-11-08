@@ -303,6 +303,7 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<194>
     struct FlagsTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 32, 44> Flags2;
     UpdateField<uint32, 32, 45> Flags3;
+    struct Flags3Tag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 32, 46> AuraState;
     struct AuraStateTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 32, 47> RangedAttackRoundBaseTime;
@@ -806,6 +807,7 @@ struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<
     UpdateField<QuaternionData, 0, 12> ParentRotation;
     UpdateField<int32, 0, 13> FactionTemplate;
     UpdateField<int8, 0, 14> State;
+    struct StateTag : ViewerDependentValueTag<int8> {};
     UpdateField<int8, 0, 15> TypeID;
     UpdateField<uint8, 0, 16> PercentHealth;
     UpdateField<uint32, 0, 17> ArtKit;

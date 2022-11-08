@@ -61,11 +61,23 @@ LootItem::LootItem(LootStoreItem const& li)
     rollWinnerGUID = ObjectGuid::Empty;
 }
 
+LootItem::LootItem(LootItem const&) = default;
+LootItem::LootItem(LootItem&&) noexcept = default;
+LootItem& LootItem::operator=(LootItem const&) = default;
+LootItem& LootItem::operator=(LootItem&&) noexcept = default;
+LootItem::~LootItem() = default;
+
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
+bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot) const
+{
+    return AllowedForPlayer(player, loot, itemid, needs_quest, follow_loot_rules, false, conditions);
+}
+
+bool LootItem::AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
+    ConditionContainer const& conditions)
 {
     // DB conditions check
-    if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
+    if (!sConditionMgr->IsObjectMeetToConditions(player, conditions))
         return false;
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
@@ -80,10 +92,8 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
         return false;
 
     // Master looter can see all items even if the character can't loot them
-    if (!isGivenByMasterLooter && player->GetGroup() && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID())
-    {
+    if (loot && loot->GetLootMethod() == MASTER_LOOT && follow_loot_rules && loot->GetLootMasterGUID() == player->GetGUID())
         return true;
-    }
 
     // Don't allow loot for players without profession or those who already know the recipe
     if (pProto->HasFlag(ITEM_FLAG_HIDE_UNUSABLE_RECIPE))
@@ -101,22 +111,18 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
         }
     }
 
-    // Don't allow to loot soulbound recipes that the player has already learned
-    if (pProto->GetClass() == ITEM_CLASS_RECIPE && pProto->GetBonding() == BIND_ON_ACQUIRE)
-    {
-        for (ItemEffectEntry const* itemEffect : pProto->Effects)
-        {
-            if (itemEffect->TriggerType != ITEM_SPELLTRIGGER_ON_LEARN)
-                continue;
-
-            if (player->HasSpell(itemEffect->SpellID))
-                return false;
-        }
-    }
-
     // check quest requirements
     if (!pProto->HasFlag(ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
+
+    if (strictUsabilityCheck)
+    {
+        if ((pProto->IsWeapon() || pProto->IsArmor()) && !pProto->IsUsableByLootSpecialization(player, true))
+            return false;
+
+        if (player->CanRollNeedForItem(pProto, nullptr, false) != EQUIP_ERR_OK)
+            return false;
+    }
 
     return true;
 }
@@ -124,6 +130,11 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
 void LootItem::AddAllowedLooter(const Player* player)
 {
     allowedGUIDs.insert(player->GetGUID());
+}
+
+bool LootItem::HasAllowedLooter(ObjectGuid const& looter) const
+{
+    return allowedGUIDs.find(looter) != allowedGUIDs.end();
 }
 
 Optional<LootSlotType> LootItem::GetUiTypeForPlayer(Player const* player, Loot const& loot) const
@@ -219,7 +230,7 @@ void LootRoll::SendStartRoll()
         startLootRoll.Method = m_loot->GetLootMethod();
         startLootRoll.ValidRolls = m_voteMask;
         // In NEED_BEFORE_GREED need disabled for non-usable item for player
-        if (m_loot->GetLootMethod() == NEED_BEFORE_GREED && player->CanRollForItemInLFG(itemTemplate, m_map) != EQUIP_ERR_OK)
+        if (m_loot->GetLootMethod() == NEED_BEFORE_GREED && player->CanRollNeedForItem(itemTemplate, m_map, true) != EQUIP_ERR_OK)
             startLootRoll.ValidRolls &= ~ROLL_FLAG_TYPE_NEED;
 
         FillPacket(startLootRoll.Item);
@@ -399,7 +410,7 @@ bool LootRoll::TryToStart(Map* map, Loot& loot, uint32 lootListId, uint16 enchan
         for (ObjectGuid allowedLooter : m_lootItem->GetAllowedLooters())
         {
             Player* plr = ObjectAccessor::GetPlayer(m_map, allowedLooter);
-            if (!plr || !m_lootItem->AllowedForPlayer(plr))     // check if player meet the condition to be able to roll this item
+            if (!plr || !m_lootItem->HasAllowedLooter(plr->GetGUID()))     // check if player meet the condition to be able to roll this item
             {
                 m_rollVoteMap[allowedLooter].Vote = RollVote::NotValid;
                 continue;
@@ -604,34 +615,19 @@ void LootRoll::Finish(RollVoteMap::const_iterator winnerItr)
 // --------- Loot ---------
 //
 
-Loot::Loot(Map* map, ObjectGuid owner, LootType type, Group const* group) : gold(0), unlootedCount(0), loot_type(type), maxDuplicates(1),
+Loot::Loot(Map* map, ObjectGuid owner, LootType type, Group const* group) : gold(0), unlootedCount(0), loot_type(type),
     _guid(map ? ObjectGuid::Create<HighGuid::LootObject>(map->GetId(), 0, map->GenerateLowGuid<HighGuid::LootObject>()) : ObjectGuid::Empty),
     _owner(owner), _itemContext(ItemContext::NONE), _lootMethod(group ? group->GetLootMethod() : FREE_FOR_ALL),
-    _lootMaster(group ? group->GetMasterLooterGuid() : ObjectGuid::Empty), _wasOpened(false)
+    _lootMaster(group ? group->GetMasterLooterGuid() : ObjectGuid::Empty), _wasOpened(false), _dungeonEncounterId(0)
 {
 }
 
 Loot::~Loot()
 {
-    clear();
-}
-
-void Loot::clear()
-{
-    PlayerFFAItems.clear();
-
-    for (ObjectGuid playerGuid : PlayersLooting)
+    GuidSet activeLooters = std::move(PlayersLooting);
+    for (ObjectGuid playerGuid : activeLooters)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(playerGuid))
             player->GetSession()->DoLootRelease(this);
-    PlayersLooting.clear();
-
-    items.clear();
-    gold = 0;
-    unlootedCount = 0;
-    roundRobinPlayer.Clear();
-    loot_type = LOOT_NONE;
-    _itemContext = ItemContext::NONE;
-    _rolls.clear();
 }
 
 void Loot::NotifyLootList(Map const* map) const
@@ -662,7 +658,10 @@ void Loot::NotifyItemRemoved(uint8 lootListId, Map const* map)
     {
         LootItem const& item = items[lootListId];
         if (item.GetAllowedLooters().find(*itr) == item.GetAllowedLooters().end())
+        {
+            ++itr;
             continue;
+        }
 
         if (Player* player = ObjectAccessor::GetPlayer(map, *itr))
         {
@@ -730,6 +729,11 @@ void Loot::OnLootOpened(Map* map, ObjectGuid looter)
     }
 }
 
+bool Loot::HasAllowedLooter(ObjectGuid const& looter) const
+{
+    return _allowedLooters.find(looter) != _allowedLooters.end();
+}
+
 void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
 {
     if (maxAmount > 0)
@@ -769,7 +773,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     Group const* group = lootOwner->GetGroup();
     if (!personal && group)
     {
-        roundRobinPlayer = lootOwner->GetGUID();
+        if (loot_type == LOOT_CORPSE)
+            roundRobinPlayer = lootOwner->GetGUID();
 
         for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             if (Player const* player = itr->GetSource())    // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
@@ -848,7 +853,7 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
         if (!lootItem || lootItem->is_looted)
             continue;
 
-        if (!lootItem->AllowedForPlayer(player))
+        if (!lootItem->HasAllowedLooter(player->GetGUID()))
             continue;
 
         if (lootItem->is_blocked)
@@ -1009,7 +1014,7 @@ void Loot::FillNotNormalLootFor(Player const* player)
 
     for (LootItem& item : items)
     {
-        if (!item.AllowedForPlayer(player))
+        if (!item.AllowedForPlayer(player, this))
             continue;
 
         item.AddAllowedLooter(player);
@@ -1034,7 +1039,7 @@ void Loot::FillNotNormalLootFor(Player const* player)
 // --------- AELootResult ---------
 //
 
-void AELootResult::Add(Item* item, uint8 count, LootType lootType)
+void AELootResult::Add(Item* item, uint8 count, LootType lootType, uint32 dungeonEncounterId)
 {
     auto itr = _byItem.find(item);
     if (itr != _byItem.end())
@@ -1046,6 +1051,7 @@ void AELootResult::Add(Item* item, uint8 count, LootType lootType)
         value.item = item;
         value.count = count;
         value.lootType = lootType;
+        value.dungeonEncounterId = dungeonEncounterId;
         _byOrder.push_back(value);
     }
 }

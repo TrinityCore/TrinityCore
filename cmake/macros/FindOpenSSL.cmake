@@ -148,14 +148,6 @@ if(OPENSSL_USE_STATIC_LIBS)
   endif()
 endif()
 
-if (WIN64)
-  # http://www.slproweb.com/products/Win64OpenSSL.html
-  set(_OPENSSL_MSI_INSTALL_GUID "")
-  set(_OPENSSL_ROOT_HINTS
-    ${OPENSSL_ROOT_DIR}
-    ENV OPENSSL_ROOT_DIR
-    )
-
 if (WIN32)
   # http://www.slproweb.com/products/Win32OpenSSL.html
   set(_OPENSSL_MSI_INSTALL_GUID "")
@@ -176,13 +168,6 @@ if (WIN32)
       # under windows 64 bit machine
       file(TO_CMAKE_PATH "$ENV{${_progfiles_x86}}" _programfiles)
     else()
-      # under windows 64 bit machine
-      file(TO_CMAKE_PATH "$ENV{ProgramFiles}" _programfiles)
-    endif()
-     list(APPEND _OPENSSL_ROOT_HINTS "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]")
-  set(_OPENSSL_MSI_INSTALL_GUID "A1EEC576-43B9-4E75-9E02-03DA542D2A38")
-  endif()
-
       # under windows 32 bit machine
       file(TO_CMAKE_PATH "$ENV{ProgramFiles}" _programfiles)
     endif()
@@ -241,8 +226,6 @@ if(WIN32 AND NOT CYGWIN)
     # use also ssl and ssleay32 in debug as fallback for openssl < 0.9.8b
     # enable OPENSSL_MSVC_STATIC_RT to get the libs build /MT (Multithreaded no-DLL)
     # In Visual C++ naming convention each of these four kinds of Windows libraries has it's standard suffix:
-    #   * MD for dynamic-relwithdebinfo
-    #   * MDd for dynamic-relwithdebinfo
     #   * MD for dynamic-release
     #   * MDd for dynamic-debug
     #   * MT for static-release
@@ -252,8 +235,6 @@ if(WIN32 AND NOT CYGWIN)
     # We are using the libraries located in the VC subdir instead of the parent directory even though :
     # libeay32MD.lib is identical to ../libeay32.lib, and
     # ssleay32MD.lib is identical to ../ssleay32.lib
-    # libcrypto64MD.lib is identical to ../libcrypto64.lib, and
-    # libssl64MD.lib is identical to ../libssl64.lib
     # enable OPENSSL_USE_STATIC_LIBS to use the static libs located in lib/VC/static
 
     if (OPENSSL_MSVC_STATIC_RT)
@@ -307,8 +288,6 @@ if(WIN32 AND NOT CYGWIN)
         libcryptod
         libeay32${_OPENSSL_MSVC_RT_MODE}d
         libeay32d
-        libcrypto64${_OPENSSL_MSVC_RT_MODE}d
-        libcrypto64d 
         cryptod
       NAMES_PER_DIR
       ${_OPENSSL_ROOT_HINTS_AND_PATHS}
@@ -470,8 +449,6 @@ else()
       ssl
       ssleay32
       ssleay32MD
-      libcrypto64
-      libcrypto64MD
     NAMES_PER_DIR
     ${_OPENSSL_ROOT_HINTS_AND_PATHS}
     HINTS
@@ -510,11 +487,9 @@ endif()
 function(from_hex HEX DEC)
   string(TOUPPER "${HEX}" HEX)
   set(_res 0)
-  set(_res 1)
   string(LENGTH "${HEX}" _strlen)
 
   while (_strlen GREATER 0)
-  while (_strlen GREATER 1)
     math(EXPR _res "${_res} * 16")
     string(SUBSTRING "${HEX}" 0 1 NIBBLE)
     string(SUBSTRING "${HEX}" 1 -1 HEX)
@@ -592,8 +567,7 @@ foreach(_comp IN LISTS OpenSSL_FIND_COMPONENTS)
     if(EXISTS "${OPENSSL_INCLUDE_DIR}" AND
         (EXISTS "${OPENSSL_CRYPTO_LIBRARY}" OR
         EXISTS "${LIB_EAY_LIBRARY_DEBUG}" OR
-        EXISTS "${LIB_EAY_LIBRARY_RELEASE} OR
-        EXISTS "${LIB_EAY_LIBRARY_RELWITHDEBINFO}")
+        EXISTS "${LIB_EAY_LIBRARY_RELEASE}")
     )
       set(OpenSSL_${_comp}_FOUND TRUE)
     else()
@@ -603,15 +577,13 @@ foreach(_comp IN LISTS OpenSSL_FIND_COMPONENTS)
     if(EXISTS "${OPENSSL_INCLUDE_DIR}" AND
         (EXISTS "${OPENSSL_SSL_LIBRARY}" OR
         EXISTS "${SSL_EAY_LIBRARY_DEBUG}" OR
-        EXISTS "${SSL_EAY_LIBRARY_RELWITHDEBINFO}")
+        EXISTS "${SSL_EAY_LIBRARY_RELEASE}")
     )
       set(OpenSSL_${_comp}_FOUND TRUE)
     else()
       set(OpenSSL_${_comp}_FOUND FALSE)
     endif()
   else()
-    message("${_comp} is valid OpenSSL component")
-    set(OpenSSL_${_comp}_FOUND TRUE)
     message(WARNING "${_comp} is not a valid OpenSSL component")
     set(OpenSSL_${_comp}_FOUND FALSE)
   endif()
@@ -626,8 +598,6 @@ find_package_handle_standard_args(OpenSSL
   VERSION_VAR
     OPENSSL_VERSION
   HANDLE_COMPONENTS
-  FOUND_MESSAGE
-    "Found OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR"
   FAIL_MESSAGE
     "Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR"
 )
@@ -638,8 +608,7 @@ if(OPENSSL_FOUND)
   if(NOT TARGET OpenSSL::Crypto AND
       (EXISTS "${OPENSSL_CRYPTO_LIBRARY}" OR
         EXISTS "${LIB_EAY_LIBRARY_DEBUG}" OR
-        EXISTS "${LIB_EAY_LIBRARY_RELEASE}" OR
-        EXISTS "${LIB_EAY_LIBRARY_RELWITHDEBINFO}")
+        EXISTS "${LIB_EAY_LIBRARY_RELEASE}")
       )
     add_library(OpenSSL::Crypto UNKNOWN IMPORTED)
     set_target_properties(OpenSSL::Crypto PROPERTIES
@@ -648,13 +617,6 @@ if(OPENSSL_FOUND)
       set_target_properties(OpenSSL::Crypto PROPERTIES
         IMPORTED_LINK_INTERFACE_LANGUAGES "C"
         IMPORTED_LOCATION "${OPENSSL_CRYPTO_LIBRARY}")
-    endif()
-    if(EXISTS "${LIB_EAY_LIBRARY_RELWITHDEBINFO}")
-      set_property(TARGET OpenSSL::Crypto APPEND PROPERTY
-        IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
-      set_target_properties(OpenSSL::Crypto PROPERTIES
-        IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C"
-        IMPORTED_LOCATION_RELEASE "${LIB_EAY_LIBRARY_RELWITHDEBINFO}")
     endif()
     if(EXISTS "${LIB_EAY_LIBRARY_RELEASE}")
       set_property(TARGET OpenSSL::Crypto APPEND PROPERTY
@@ -676,8 +638,7 @@ if(OPENSSL_FOUND)
   if(NOT TARGET OpenSSL::SSL AND
       (EXISTS "${OPENSSL_SSL_LIBRARY}" OR
         EXISTS "${SSL_EAY_LIBRARY_DEBUG}" OR
-        EXISTS "${SSL_EAY_LIBRARY_RELEASE} OR
-        EXISTS "${SSL_EAY_LIBRARY_RELWITHDEBINFO}")
+        EXISTS "${SSL_EAY_LIBRARY_RELEASE}")
       )
     add_library(OpenSSL::SSL UNKNOWN IMPORTED)
     set_target_properties(OpenSSL::SSL PROPERTIES
@@ -686,13 +647,6 @@ if(OPENSSL_FOUND)
       set_target_properties(OpenSSL::SSL PROPERTIES
         IMPORTED_LINK_INTERFACE_LANGUAGES "C"
         IMPORTED_LOCATION "${OPENSSL_SSL_LIBRARY}")
-    endif()
-    if(EXISTS "${SSL_EAY_LIBRARY_RELWITHDEBINFO}")
-      set_property(TARGET OpenSSL::SSL APPEND PROPERTY
-        IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
-      set_target_properties(OpenSSL::SSL PROPERTIES
-        IMPORTED_LINK_INTERFACE_LANGUAGES_RELWITHDEBINFO "C"
-        IMPORTED_LOCATION_RELEASE "${SSL_EAY_LIBRARY_RELWITHDEBINFO}")
     endif()
     if(EXISTS "${SSL_EAY_LIBRARY_RELEASE}")
       set_property(TARGET OpenSSL::SSL APPEND PROPERTY

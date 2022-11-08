@@ -1447,16 +1447,9 @@ static bool RetardCheck()
             if (itr->path().extension() == ".MPQ")
             {
                 printf("MPQ files found in Data directory!\n");
-                printf("This tool works only with World of Warcraft: Dragonflight\n");
+                printf("This tool works only with World of Warcraft: Battle for Azeroth\n");
                 printf("\n");
                 printf("To extract maps for Wrath of the Lich King, rebuild tools using 3.3.5 branch!\n");
-                printf("To extract maps for Cataclysm, rebuild tools using 4.3.4 branch!\n");
-                printf("To extract maps for Mist of Pandaria, rebuild tools using 5.4.8 branch!\n");
-                printf("To extract maps for Warlords of Draenor, rebuild tools using 6.2.3 branch!\n");
-                printf("To extract maps for Legion, rebuild tools using 7.3.5 branch!\n");
-                printf("To extract maps for  Battle for Azeroth, rebuild tools using 8.3.7 branch!\n");
-                printf("To extract maps for  Shadowlands, rebuild tools using 9.2.7 branch!\n");
-                printf("To extract maps for  Shadowlands, rebuild tools using 10.0.2 branch!\n");
                 printf("\n");
                 printf("Press ENTER to exit...\n");
                 getchar();

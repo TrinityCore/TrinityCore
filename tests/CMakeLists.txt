@@ -21,7 +21,7 @@ target_link_libraries(tests
   PRIVATE
     trinity-core-interface
     game
-   # Catch2::Catch2)
+    Catch2::Catch2)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -33,7 +33,7 @@ target_include_directories(tests
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-#catch_discover_tests(tests)
+catch_discover_tests(tests)
 
 set_target_properties(tests
     PROPERTIES

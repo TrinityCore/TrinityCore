@@ -84,7 +84,7 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     ExperienceLevel   = fields[5].GetUInt8();
     ZoneID            = int32(fields[6].GetUInt16());
     MapID             = int32(fields[7].GetUInt16());
-    PreloadPos        = Position(fields[8].GetFloat(), fields[8].GetFloat(), fields[10].GetFloat());
+    PreloadPos        = Position(fields[8].GetFloat(), fields[9].GetFloat(), fields[10].GetFloat());
 
     if (ObjectGuid::LowType guildId = fields[11].GetUInt64())
         GuildGUID = ObjectGuid::Create<HighGuid::Guild>(guildId);

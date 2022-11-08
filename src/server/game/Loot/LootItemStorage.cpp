@@ -137,7 +137,6 @@ void LootItemStorage::LoadStorageFromDB()
 
 bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 {
-    Loot* loot = item->GetLootForPlayer(player);
     StoredLootContainer const* container = nullptr;
 
     // read
@@ -152,6 +151,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
     }
 
     // container is never null at this point
+    Loot* loot = new Loot(player->GetMap(), item->GetGUID(), LOOT_ITEM, nullptr);
     loot->gold = container->GetMoney();
 
     if (LootTemplate const* lt = LootTemplates_Item.GetLootFor(item->GetEntry()))
@@ -188,6 +188,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
     }
 
     // Mark the item if it has loot so it won't be generated again on open
+    item->m_loot.reset(loot);
     item->m_lootGenerated = true;
     return true;
 }
@@ -271,7 +272,7 @@ void LootItemStorage::AddNewStoredLoot(uint64 containerId, Loot* loot, Player* p
         // saved to the DB that the player never should have gotten. This check prevents that, so that only
         // items that the player should get in loot are in the DB.
         // IE: Horde items are not saved to the DB for Ally players.
-        if (!li.AllowedForPlayer(player))
+        if (!li.AllowedForPlayer(player, loot))
             continue;
 
         // Don't save currency tokens
