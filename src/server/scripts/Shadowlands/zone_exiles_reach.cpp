@@ -254,6 +254,19 @@ enum QuestScripts
     NPC_BJORN_STOUTHANDS            = 157044,
     NPC_AUSTIN_HUXWORTH             = 157046,
     NPC_PRIVATE_COLE                = 160664,
+    NPC_MECHANICAL_BUNNY_PET        = 167337, // Gnome Hunter Pet
+    NPC_MOTH_PET                    = 167342, // Draenei Hunter Pet
+    NPC_DRAGONHAWK_PET              = 167343, // Blood Elf Hunter Pet
+    NPC_SCORPION_PET                = 167344, // Goblin Hunter Pet
+    NPC_GREY_WOLF_PET               = 167345, // Human Hunter Pet
+    NPC_RED_WOLF_PET                = 167346, // Orc Hunter Pet
+    NPC_TIGER_PET                   = 167347, // Night Elf Hunter Pet
+    NPC_TURTLE_PET                  = 167348, // Pandaren Hunter Pet
+    NPC_PLAINSTRIDER_PET            = 167349, // Tauren Hunter Pet
+    NPC_RAPTOR_PET                  = 167350, // Troll Hunter Pet
+    NPC_BAT_PET                     = 167351, // Undead Hunter Pet
+    NPC_DOG_PET                     = 167352, // Worgan Hunter Pet
+    NPC_BEAR_PET                    = 167375, // Dwarf Hunter Pet
 
     QUEST_WARMING_UP_ALLIANCE       = 56775,
     QUEST_WARMING_UP_HORDE          = 59926,
@@ -338,6 +351,7 @@ public:
                 Position bjornpos = { 12.8406f, -8.49553f, 4.98031f, 4.8520155f };
                 Position austinpos = { -4.48607f, 9.89729f, 5.07851f, 1.5184366f };
                 Position colepos = { -13.3396f, 0.702157f, 5.57996f, 0.087266445f };
+                Position petpos = { -1.4492f, 8.06887f,  5.10348f, 2.6005409f };
 
                 SpawnActor(player, NPC_CAPTAIN_GARRICK, garrickpos);
                 SpawnActor(player, NPC_QUARTERMASTER_RICHTER, richterpos);
@@ -345,6 +359,37 @@ public:
                 SpawnActor(player, NPC_BJORN_STOUTHANDS, bjornpos);
                 SpawnActor(player, NPC_AUSTIN_HUXWORTH, austinpos);
                 SpawnActor(player, NPC_PRIVATE_COLE, colepos);
+
+                // Spawn pet
+                if (player->GetClass() == CLASS_HUNTER)
+                {
+                    switch (player->GetRace())
+                    {
+                    case RACE_HUMAN:
+                        SpawnActor(player, NPC_GREY_WOLF_PET, petpos);
+                        break;
+                    case RACE_DWARF:
+                        SpawnActor(player, NPC_BEAR_PET, petpos);
+                        break;
+                    case RACE_NIGHTELF:
+                        SpawnActor(player, NPC_TIGER_PET, petpos);
+                        break;
+                    case RACE_GNOME:
+                        SpawnActor(player, NPC_MECHANICAL_BUNNY_PET, petpos);
+                        break;
+                    case RACE_DRAENEI:
+                        SpawnActor(player, NPC_MOTH_PET, petpos);
+                        break;
+                    case RACE_WORGEN:
+                        SpawnActor(player, NPC_DOG_PET, petpos);
+                        break;
+                    case RACE_PANDAREN_ALLIANCE:
+                        SpawnActor(player, NPC_TURTLE_PET, petpos);
+                        break;
+                    default:
+                        break;
+                    }
+                }
             }
             else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
             {
@@ -354,6 +399,7 @@ public:
                 Position lanapos = { -5.1971f, -15.0268f, 8.992f, 4.712389f };
                 Position bopos = { -22.1559f, 5.58041f, 9.09176f, 6.143559f };
                 Position jinpos = { -31.9464f, 7.5772f, 10.6408f, 6.0737457f };
+                Position petpos = { -22.8374f, -3.08287f, 9.12613f, 3.857178f };
 
                 SpawnActor(player, NPC_WARLORD_BREKA_GRIMAXE3, brekapos);
                 SpawnActor(player, NPC_GRUNT_THROG, throgpos);
@@ -361,6 +407,37 @@ public:
                 SpawnActor(player, NPC_LANA_JORDAN, lanapos);
                 SpawnActor(player, NPC_BO, bopos);
                 SpawnActor(player, NPC_PROVISONER_JIN_HAKE, jinpos);
+
+                // Spawn pet
+                if (player->GetClass() == CLASS_HUNTER)
+                {
+                    switch (player->GetRace())
+                    {
+                    case RACE_ORC:
+                        SpawnActor(player, NPC_RED_WOLF_PET, petpos);
+                        break;
+                    case RACE_UNDEAD_PLAYER:
+                        SpawnActor(player, NPC_BAT_PET, petpos);
+                        break;
+                    case RACE_TAUREN:
+                        SpawnActor(player, NPC_PLAINSTRIDER_PET, petpos);
+                        break;
+                    case RACE_TROLL:
+                        SpawnActor(player, NPC_RAPTOR_PET, petpos);
+                        break;
+                    case RACE_GOBLIN:
+                        SpawnActor(player, NPC_SCORPION_PET, petpos);
+                        break;
+                    case RACE_BLOODELF:
+                        SpawnActor(player, NPC_DRAGONHAWK_PET, petpos);
+                        break;
+                    case RACE_PANDAREN_HORDE:
+                        SpawnActor(player, NPC_TURTLE_PET, petpos);
+                        break;
+                    default:
+                        break;
+                    }
+                }
             }
         }
     }
@@ -376,11 +453,26 @@ public:
                 position.Relocate(x, y, z, o);
                 Creature* actor = creature->SummonPersonalClone(position, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
-                if (entry == NPC_CAPTAIN_GARRICK)
-                    if (actor->IsAIEnabled())
-                        actor->AI()->SetData(1, 2);
+                // Needed for pathing
+                switch (entry)
+                {
+                    case NPC_CAPTAIN_GARRICK:
+                        if (actor->IsAIEnabled())
+                            actor->AI()->SetData(1, 2);
+                        break;
+                    case NPC_TURTLE_PET:
+                        if (actor->IsAIEnabled())
+                        {
+                            if (player->GetTeam() == TEAM_ALLIANCE)
+                                actor->AI()->SetData(1, 1);
+                            else
+                                actor->AI()->SetData(1, 2);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
-
     }
 };
 
