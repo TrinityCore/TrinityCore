@@ -2002,14 +2002,14 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             tempAbsorb = currentAbsorb;
             absorbAurEff->GetBase()->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, healInfo, tempAbsorb);
 
-            // Check if our aura is using amount to count damage
+            // Check if our aura is using amount to count heal
             if (absorbAurEff->GetAmount() >= 0)
             {
                 // Reduce shield amount
                 absorbAurEff->ChangeAmount(absorbAurEff->GetAmount() - currentAbsorb);
                 // Aura cannot absorb anything more - remove it
                 if (absorbAurEff->GetAmount() <= 0)
-                    absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+                    existExpired = true;
             }
         }
 
