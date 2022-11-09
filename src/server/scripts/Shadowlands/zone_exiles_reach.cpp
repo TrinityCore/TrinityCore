@@ -228,7 +228,6 @@ private:
     bool _jumped;
     uint8 _actorID;
     ObjectGuid _playerGUID;
-    uint32 _summonSpell;
     uint32 _path;
 };
 
