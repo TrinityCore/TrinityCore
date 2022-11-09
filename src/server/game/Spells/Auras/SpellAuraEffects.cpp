@@ -2915,7 +2915,7 @@ void AuraEffect::HandleAuraModStunAndDisableGravity(AuraApplication const* aurAp
         target->GetThreatManager().EvaluateSuppressed();
 
         // Disable gravity if it hasn't been disabled yet.
-        if (!target->IsGravityDisabled() || target->HasAuraType(GetAuraType()) || !target->HasAuraType(SPELL_AURA_FLY))
+        if (!target->IsGravityDisabled() || !target->HasAuraType(GetAuraType()) || !target->HasAuraType(SPELL_AURA_FLY))
             target->SetDisableGravity(apply);
     }
     else
