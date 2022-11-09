@@ -58,8 +58,6 @@ enum SparingPartner
     SPELL_JUMP_BEHIND               = 312757,
     SPELL_COMBAT_TRAINING           = 323071,
     SPELL_UPDATE_PHASE_SHIFT        = 82238,
-    SPELL_SUMMON_COLE               = 303064,
-    SPELL_SUMMON_THROG              = 325107,
 
     TALK_SPARING_COMPLETE           = 0
 };
@@ -73,14 +71,12 @@ struct npc_sparring_partner : public ScriptedAI
         if (me->GetEntry() == NPC_ALLIANCE_SPARING_PARTNER)
         {
             SetEquipmentSlots(false, EQUIPMENT_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-            _summonSpell = SPELL_SUMMON_COLE;
             _path = PATH_ALLIANCE_SPARING_PARTNER;
             _actorID = 0;
         }
         else
         {
             SetEquipmentSlots(false, EQUIPMENT_AXE, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-            _summonSpell = SPELL_SUMMON_THROG;
             _path = PATH_HORDE_SPARING_PARTNER;
             _actorID = 1;
         }
@@ -139,8 +135,8 @@ struct npc_sparring_partner : public ScriptedAI
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             player->KilledMonsterCredit(NPC_KILL_CREDIT); // *** MINOR HACK should be done when fight ends but phase change is tied to quest conditions. ***
-            player->RemoveAura(_summonSpell);
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            me->DespawnOrUnsummon();
         }
     }
 
@@ -271,7 +267,10 @@ enum QuestScripts
     QUEST_WARMING_UP_ALLIANCE       = 56775,
     QUEST_WARMING_UP_HORDE          = 59926,
     QUEST_BRACE_FOR_IMPACT_ALLIANCE = 58208,
-    QUEST_BRACE_FOR_IMPACT_HORDE    = 59928
+    QUEST_BRACE_FOR_IMPACT_HORDE    = 59928,
+
+    SPELL_SUMMON_COLE               = 303064,
+    SPELL_SUMMON_THROG              = 325107,
 };
 
 class quest_warming_up : public QuestScript
