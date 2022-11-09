@@ -593,8 +593,8 @@ uint32 const EventsTimersNormal[3][4][5]
     {
         // Note: fifth casts are guessed since we can't get to know until DF.
         { 7700, 55000, 56600, 55000, 55000  }, // Windrunner
-        { 25000, 58500, 57500, 57500, 57500 }, // Domination Chains
-        { 28000, 38000, 31500, 30000, 33500 }, // Wailing Arrow
+        { 25000, 58500, 59000, 57500, 57500 }, // Domination Chains
+        { 28000, 38000, 31500, 30000, 35500 }, // Wailing Arrow
         { 50000, 53500, 53500, 55000, 56000 }  // Veil of Darkness
     },
 
