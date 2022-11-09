@@ -1574,7 +1574,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
 {
     uint32 entry = (teamId == TEAM_ALLIANCE) ? BG_CREATURE_ENTRY_A_SPIRITGUIDE : BG_CREATURE_ENTRY_H_SPIRITGUIDE;
 
-    if (Creature* creature = AddCreature(entry, type, x, y, z, o, teamId))
+    if (AddCreature(entry, type, x, y, z, o, teamId))
         return true;
 
     TC_LOG_ERROR("bg.battleground", "Battleground::AddSpiritGuide: cannot create spirit guide (type: {}, entry: {}) for BG (map: {}, instance id: {})!",
