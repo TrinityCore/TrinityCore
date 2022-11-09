@@ -753,6 +753,15 @@ Position const CovenantPlatformPos[4][5] =
     }
 };
 
+static Position GetRandomPointInCovenantPlatform(Position const& a, Position const& b, float c)
+{
+    float x = frand(std::min(a.GetPositionX(), b.GetPositionX()), std::max(a.GetPositionX(), b.GetPositionX()));
+    float y = frand(std::min(a.GetPositionY(), b.GetPositionY()), std::max(a.GetPositionY(), b.GetPositionY()));
+    float z = c;
+
+    return Position(x, y, z);
+}
+
 // Note: from left to right, starting on Maldraxxi platform.
 Position const InvigoratingFieldPos[8] =
 {
@@ -766,13 +775,17 @@ Position const InvigoratingFieldPos[8] =
     { -231.528f, -1236.39f, 5671.67f, 3.14159f }
 };
 
-static Position GetRandomPointInCovenantPlatform(Position const& a, Position const& b, float c)
-{
-    float x = frand(std::min(a.GetPositionX(), b.GetPositionX()), std::max(a.GetPositionX(), b.GetPositionX()));
-    float y = frand(std::min(a.GetPositionY(), b.GetPositionY()), std::max(a.GetPositionY(), b.GetPositionY()));
-    float z = c;
+Position const MiddlePlatformNegativeYVertexPos = { -285.9056f, -1276.4102f, 5666.6479f, 0.0f };
 
-    return Position(x, y, z);
+static Position GetRandomPointInMiddlePlatform()
+{
+    G3D::Vector3 point;
+    G3D::CoordinateFrame{ G3D::Matrix3::fromEulerAnglesZYX(DegToRad(-45.0f), 0.0f, 0.0f), { MiddlePlatformNegativeYVertexPos.GetPositionX(), MiddlePlatformNegativeYVertexPos.GetPositionY(), MiddlePlatformNegativeYVertexPos.GetPositionZ() } }
+    .toWorldSpace(G3D::Box{ { 0.0f, 0.0f, 0.0f }, { 50.0f, 50.0f, 0.0f } }).getRandomSurfacePoint(point);
+
+    Position position = Vector3ToPosition(point);
+
+    return Position(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
 }
 
 Position const SylvanasVeilThreePos = { -286.978f, -1245.2378f, 5772.0347f, 0.0f       };
@@ -1808,12 +1821,14 @@ struct boss_sylvanas_windrunner : public BossAI
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
         events.SetPhase(PHASE_ONE);
+        ScheduleEventsForPhaseOne();
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
 
+        // Note: Sylvanas uses her root with 2s at the beginning of the encounter, most likely to avoid her moving when engaging at stance switch.
         DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2000));
     }
 
@@ -2178,7 +2193,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     me->AddAura(SPELL_RANGER_BOW_STANCE, me);
 
-                    // Note: fifth cast will be ignored until I can sniff what happens on that one.
+                    // Note: fifth cast will be ignored until I can sniff what happens on that one in DF.
                     if (_eventCounter[EVENT_COUNTER_WINDRUNNER] == 5)
                         _eventCounter[EVENT_COUNTER_WINDRUNNER] = 1;
 
@@ -6568,20 +6583,6 @@ private:
     TaskScheduler _scheduler;
 };
 
-Position const MiddlePlatformNegativeYVertexPos = { -285.9056f, -1276.4102f, 5666.6479f, 0.0f };
-
-static Position GetRandomPointInMiddlePlatform()
-{
-    G3D::Vector3 point;
-    G3D::CoordinateFrame{ G3D::Matrix3::fromEulerAnglesZYX(DegToRad(-45.0f), 0.0f, 0.0f), { MiddlePlatformNegativeYVertexPos.GetPositionX(), MiddlePlatformNegativeYVertexPos.GetPositionY(), MiddlePlatformNegativeYVertexPos.GetPositionZ()}}
-        .toWorldSpace(G3D::Box{ { 0.0f, 0.0f, 0.0f }, { 50.0f, 50.0f, 0.0f } })
-        .getRandomSurfacePoint(point);
-
-    Position position = Vector3ToPosition(point);
-
-    return Position(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
-}
-
 class BlasphemyEvent : public BasicEvent
 {
     public:
@@ -6669,11 +6670,8 @@ class spell_sylvanas_windrunner_energize_power_aura : public AuraScript
     }
 
 private:
-    static constexpr std::array<int32, 3> _sylvanasPowerRegenCycle =
-    {
-        /// Note: Sylvanas regenerates 10 energy points every 3s roughly.
-        3, 3, 4
-    };
+    // Note: Sylvanas regenerates 10 energy points every 3s roughly.
+    static constexpr std::array<int32, 3> _sylvanasPowerRegenCycle = { 3, 3, 4 };
 };
 
 // 359429 - Activate Phase Intermission
@@ -6886,39 +6884,30 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
     at_sylvanas_windrunner_haunting_wave(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
         _instance(at->GetInstanceScript()) { }
 
-    void OnCreate() override
-    {
-        _finalDest = at->GetPosition();
-
-        //_finalDest.GetPositionX() + 100.0f * std::cos(at->GetOrientation());
-    }
-
     void OnUnitEnter(Unit* unit) override
     {
         if (!_instance || !unit->IsPlayer())
             return;
 
+        Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        float magnitude = 0.0f;
+
         switch (at->GetMap()->GetDifficultyID())
         {
-            case DIFFICULTY_LFR_NEW:
-                _movementForceMagnitude = 4.0f;
-                break;
-            case DIFFICULTY_NORMAL_RAID:
-                _movementForceMagnitude = 5.0f;
-                break;
-            case DIFFICULTY_HEROIC_RAID:
-                _movementForceMagnitude = 6.0f;
-                break;
-            case DIFFICULTY_MYTHIC_RAID:
-                _movementForceMagnitude = 8.0f;
-                break;
-            default:
-                break;
+            case DIFFICULTY_LFR_NEW: magnitude = 4.0f; break;
+            case DIFFICULTY_NORMAL_RAID: magnitude = 5.0f; break;
+            case DIFFICULTY_HEROIC_RAID: magnitude = 6.0f; break;
+            case DIFFICULTY_MYTHIC_RAID: magnitude = 8.0f; break;
+            default: magnitude = 5.0f; break;
         }
 
-        unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), _movementForceMagnitude, MovementForceType::SingleDirectional, _finalDest);
+        // HACKFIX: MovementForce should be 0, research why it doesn't work. Also, remove negative value.
+        unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -magnitude, MovementForceType::Gravity);
 
-        at->GetCaster()->CastSpell(unit, SPELL_HAUNTING_WAVE_DAMAGE, true);
+        sylvanas->CastSpell(unit, SPELL_HAUNTING_WAVE_DAMAGE, true);
     }
 
     void OnUnitExit(Unit* unit) override
@@ -6931,8 +6920,6 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
 
 private:
     InstanceScript* _instance;
-    float _movementForceMagnitude = 0.0f;
-    Position _finalDest;
 };
 
 // 23506 - Blasphemy
@@ -7109,6 +7096,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAreaTriggerAI(at_sylvanas_windrunner_calamity);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_rive);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_bridges);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_haunting_wave);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_banshee_bane);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_raze);
