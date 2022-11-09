@@ -32,6 +32,7 @@
 #include "MovementTypedefs.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -6884,6 +6885,34 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
     at_sylvanas_windrunner_haunting_wave(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
         _instance(at->GetInstanceScript()) { }
 
+    void OnInitialize() override
+    {
+        if (!_instance)
+            return;
+
+        Position originPos = at->GetPosition();
+
+        // Note: max. distance at which the Haunting Wave travels to is 100.0f.
+        float hauntingWaveXOffSet = 100.0f;
+
+        Position destPos(originPos.GetPositionX() + (std::cos(originPos.GetOrientation()) * hauntingWaveXOffSet), originPos.GetPositionY() + (std::sin(originPos.GetOrientation()) * hauntingWaveXOffSet), originPos.GetPositionZ());
+
+        PathGenerator path(at);
+        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+
+        G3D::Vector3 const& endPoint = path.GetPath().back();
+
+        _lastPointPos = { endPoint.x, endPoint.y, endPoint.z };
+
+        // Note: each difficulty has a different TimeToTarget.
+        uint32 timeToTarget = at->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 10000 : 14286;
+
+        float millisecondsPerYard = timeToTarget / hauntingWaveXOffSet;
+
+        at->InitSplines(path.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * millisecondsPerYard);
+
+    }
+
     void OnUnitEnter(Unit* unit) override
     {
         if (!_instance || !unit->IsPlayer())
@@ -6904,8 +6933,16 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
             default: magnitude = 5.0f; break;
         }
 
-        // HACKFIX: MovementForce should be 0, research why it doesn't work. Also, remove negative value.
-        unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -magnitude, MovementForceType::Gravity);
+        Position currentPos = at->GetPosition();
+
+        _vectorPos = _lastPointPos.GetPositionX() - currentPos.GetPositionX(), _lastPointPos.GetPositionY() - currentPos.GetPositionY(), _lastPointPos.GetPositionZ() - currentPos.GetPositionZ();
+
+        // Note: according to Jackpoz, we need to normalize it so that it get to be 1.0f on m_positionX, but if we use this calculation on _directionPos, the force is almost completely neglected.
+        //_distanceMagnitude = std::sqrt(_vectorPos.GetPositionX()  * _vectorPos.GetPositionX() + _vectorPos.GetPositionY() * _vectorPos.GetPositionY() + _vectorPos.GetPositionZ() * _vectorPos.GetPositionZ());
+
+        _directionPos = _vectorPos.GetPositionX() / magnitude, _vectorPos.GetPositionY() / magnitude, _vectorPos.GetPositionZ() / magnitude;
+
+        unit->ApplyMovementForce(at->GetGUID(), currentPos, magnitude, MovementForceType::SingleDirectional, _directionPos);
 
         sylvanas->CastSpell(unit, SPELL_HAUNTING_WAVE_DAMAGE, true);
     }
@@ -6920,6 +6957,10 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
 
 private:
     InstanceScript* _instance;
+    Position _lastPointPos;
+    Position _vectorPos;
+    Position _directionPos;
+    float _distanceMagnitude;
 };
 
 // 23506 - Blasphemy
