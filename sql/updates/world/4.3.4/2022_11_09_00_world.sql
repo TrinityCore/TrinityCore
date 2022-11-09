@@ -1,4 +1,4 @@
-UPDATE `spell_proc` SET `Cooldown`= 8 WHERE `SpellId`= 29074; -- Master of Elements
+UPDATE `spell_proc` SET `Cooldown`= 8 WHERE `SpellId`= -29074; -- Master of Elements
 UPDATE `spell_proc` SET `Cooldown`= 8 WHERE `SpellId`= 10400; -- Flametongue (Passive)
 UPDATE `spell_proc` SET `Cooldown`= 100 WHERE `SpellId`= 56835; -- Reaping (Passive)
 UPDATE `spell_proc` SET `Cooldown`= 500 WHERE `SpellId`= 16164; -- Elemental Focus
