@@ -26931,7 +26931,7 @@ void Player::SendTalentsInfoData(bool /*pet*/)
                 talentInfo.TalentID = talent->ID;
                 talentInfo.Rank = curtalent_maxrank;
 
-                groupInfoPkt.TalentInfo.push_back(talentInfo);
+                groupInfoPkt.TalentInfos.push_back(talentInfo);
             }
         }
 

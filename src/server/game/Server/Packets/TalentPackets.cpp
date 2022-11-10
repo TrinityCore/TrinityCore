@@ -46,13 +46,13 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 
     for (auto& talentGroupInfo : TalentGroupInfos)
     {
-        _worldPacket << uint8(talentGroupInfo.TalentInfo.size());
-        _worldPacket << uint32(talentGroupInfo.TalentInfo.size());
+        _worldPacket << uint8(talentGroupInfo.TalentInfos.size());
+        _worldPacket << uint32(talentGroupInfo.TalentInfos.size());
         _worldPacket << uint8(MAX_GLYPH_SLOT_INDEX);
         _worldPacket << uint32(MAX_GLYPH_SLOT_INDEX);
         _worldPacket << uint8(talentGroupInfo.SpecID);
 
-        for (TalentInfo talent : talentGroupInfo.TalentInfo)
+        for (TalentInfo talent : talentGroupInfo.TalentInfos)
             _worldPacket << talent;
 
         for (uint16 glyph : talentGroupInfo.GlyphInfo)

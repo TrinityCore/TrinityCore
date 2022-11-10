@@ -43,7 +43,7 @@ namespace WorldPackets
         struct TalentGroupInfo
         {
             uint8 SpecID = 0;
-            std::vector<TalentInfo> TalentInfo;
+            std::vector<TalentInfo> TalentInfos;
             std::array<uint16, MAX_GLYPH_SLOT_INDEX> GlyphInfo;
         };
 
