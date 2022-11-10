@@ -3073,9 +3073,9 @@ void SpellInfo::_LoadImmunityInfo()
 
 void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool apply) const
 {
-    ImmunityInfo const* immuneInfo = _immunityInfo + effIndex;
+    ImmunityInfo const& immuneInfo = _immunityInfo[effIndex];
 
-    if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
+    if (uint32 schoolImmunity = immuneInfo.SchoolImmuneMask)
     {
         target->ApplySpellImmune(Id, IMMUNITY_SCHOOL, schoolImmunity, apply);
 
@@ -3095,7 +3095,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
             target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::InvulnerabilityBuff);
     }
 
-    if (uint32 mechanicImmunity = immuneInfo->MechanicImmuneMask)
+    if (uint32 mechanicImmunity = immuneInfo.MechanicImmuneMask)
     {
         for (uint32 i = MECHANIC_CHARM; i < MAX_MECHANIC; ++i)
             if (mechanicImmunity & (1 << i))
@@ -3120,7 +3120,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
         }
     }
 
-    if (uint32 dispelImmunity = immuneInfo->DispelImmune)
+    if (uint32 dispelImmunity = immuneInfo.DispelImmune)
     {
         target->ApplySpellImmune(Id, IMMUNITY_DISPEL, dispelImmunity, apply);
 
@@ -3137,7 +3137,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
         }
     }
 
-    if (uint32 damageImmunity = immuneInfo->DamageSchoolMask)
+    if (uint32 damageImmunity = immuneInfo.DamageSchoolMask)
     {
         target->ApplySpellImmune(Id, IMMUNITY_DAMAGE, damageImmunity, apply);
 
@@ -3145,7 +3145,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
             target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::InvulnerabilityBuff);
     }
 
-    for (AuraType auraType : immuneInfo->AuraTypeImmune)
+    for (AuraType auraType : immuneInfo.AuraTypeImmune)
     {
         target->ApplySpellImmune(Id, IMMUNITY_STATE, auraType, apply);
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
@@ -3156,7 +3156,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
             });
     }
 
-    for (SpellEffects effectType : immuneInfo->SpellEffectImmune)
+    for (SpellEffects effectType : immuneInfo.SpellEffectImmune)
         target->ApplySpellImmune(Id, IMMUNITY_EFFECT, effectType, apply);
 }
 
