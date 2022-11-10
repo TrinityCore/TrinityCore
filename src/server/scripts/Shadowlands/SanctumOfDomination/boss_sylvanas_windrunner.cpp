@@ -3583,7 +3583,10 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
 
                 DoCastSelf(SPELL_DOMINATION_ARROW_ACTIVATE, true);
 
-                if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 250.0f, true, true, -SPELL_DOMINATION_CHAIN_PLAYER))
+                // TODO: the target check should prioritize players at the MinDistance with no SPELL_DOMINATION_CHAIN_PLAYER.
+                // If the condition cannot be met, it should choose people with the least amounts of SPELL_DOMINATION_CHAIN_PLAYER.
+                // Why? Intermission can trigger right after Domination Chains, and every new Domination Chain chooses even the ones already affected.
+                if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 500.0f, true, true, -SPELL_DOMINATION_CHAIN_PLAYER))
                 {
                     _playerGUID = target->GetGUID();
 
@@ -3604,7 +3607,7 @@ struct npc_sylvanas_windrunner_domination_arrow : public ScriptedAI
     {
         if (Player* chainedPlayer = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
-            if (chainedPlayer->HasAura(SPELL_DOMINATION_CHAIN_PLAYER))
+            if (chainedPlayer->HasAura(SPELL_DOMINATION_CHAIN_PLAYER, me->GetGUID()))
                 chainedPlayer->RemoveAura(SPELL_DOMINATION_CHAIN_PLAYER);
         }
     }
