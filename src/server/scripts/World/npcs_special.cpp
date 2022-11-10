@@ -2330,6 +2330,42 @@ private:
     TaskScheduler _scheduler;
 };
 
+struct npc_bg_spirit_guide_personal : public ScriptedAI
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_PLAYER_AURA = 156758;
+    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL_SELF = 305122;
+    static constexpr uint32 SPELL_GRAVEYARD_TELEPORT = 46893;
+
+    npc_bg_spirit_guide_personal(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnDespawn() override
+    {
+        // this is a hack.
+        // A NPC is summoned (Alliance/Horde Graveyard Teleporter) and this NPC casts the spell.
+        DoCastSelf(SPELL_GRAVEYARD_TELEPORT);
+    }
+
+    bool OnSpiritHealerQuery(Player* player) override
+    {
+        if (Aura* aura = player->GetAura(SPELL_SPIRIT_HEAL_PLAYER_AURA))
+        {
+            player->SendAreaSpiritHealerQueryOpcode(me->GetGUID(), aura->GetDuration());
+            return true;
+        }
+
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SPIRIT_HEAL_PLAYER_AURA, DIFFICULTY_NONE))
+        {
+            DoCast(player, SPELL_SPIRIT_HEAL_PLAYER_AURA);
+            player->SendAreaSpiritHealerQueryOpcode(me->GetGUID(), spellInfo->GetDuration());
+            DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL_SELF);
+            return true;
+        }
+
+        return false;
+    }
+};
+
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2354,4 +2390,5 @@ void AddSC_npcs_special()
     new npc_bountiful_table();
     RegisterCreatureAI(npc_gen_void_zone);
     RegisterCreatureAI(npc_bg_spirit_guide);
+    RegisterCreatureAI(npc_bg_spirit_guide_personal);
 }

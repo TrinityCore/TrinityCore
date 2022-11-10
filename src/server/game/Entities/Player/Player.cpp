@@ -29253,6 +29253,14 @@ void Player::SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid)
     SendDirectMessage(areaSpiritHealerTime.Write());
 }
 
+void Player::SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid, int32 timeLeft) const
+{
+    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
+    areaSpiritHealerTime.HealerGuid = spiritHealerGuid;
+    areaSpiritHealerTime.TimeLeft = timeLeft;
+    SendDirectMessage(areaSpiritHealerTime.Write());
+}
+
 void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId, Item* item /*= nullptr*/) const
 {
     WorldPackets::Misc::DisplayToast displayToast;

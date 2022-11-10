@@ -5415,6 +5415,32 @@ private:
     uint32 _exhaustionSpellId;
 };
 
+
+// Personal resurrections in battlegrounds
+// 156758 - Spirit Heal
+class spell_gen_spirit_heal : public AuraScript
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_EFFECT = 156763;
+
+    PrepareAuraScript(spell_gen_spirit_heal);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* owner = GetUnitOwner())
+            if (Player* playerOwner = owner->ToPlayer())
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(playerOwner, SPELL_SPIRIT_HEAL_EFFECT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5584,4 +5610,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
+    RegisterSpellScript(spell_gen_spirit_heal);
 }
