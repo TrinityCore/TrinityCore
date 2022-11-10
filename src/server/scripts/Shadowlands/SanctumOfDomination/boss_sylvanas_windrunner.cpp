@@ -269,7 +269,8 @@ enum Events
     EVENT_BANE_ARROWS,
     EVENT_RAZE,
     EVENT_BANSHEE_SCREAM,
-    EVENT_BANSHEES_FURY
+    EVENT_BANSHEES_FURY,
+    EVENT_SIZE_MAX                                      = 100
 };
 
 enum EventGroups
@@ -594,14 +595,14 @@ uint32 const EventsTimersNormal[3][4][5]
     {
         // Note: fifth casts are guessed since we can't get to know until DF.
         { 7700, 55000, 56600, 55000, 55000  }, // Windrunner
-        { 25000, 58500, 59000, 57500, 57500 }, // Domination Chains
+        { 25000, 59000, 59000, 57500, 57500 }, // Domination Chains
         { 28000, 38000, 31500, 30000, 35500 }, // Wailing Arrow
         { 50000, 53500, 53500, 55000, 56000 }  // Veil of Darkness
     },
 
     // P2
     {
-        { 33500, 37500, 31500, 30500, 30500 },
+        {  },
         {  },
         {  },
         {  }
@@ -2472,7 +2473,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                         scheduler.Schedule(2s, [this](TaskContext /*task*/)
                         {
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 4000));
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1);
                         });
 
                         scheduler.Schedule(7s, [this](TaskContext /*task*/)
@@ -3056,7 +3057,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 uint32 timer = step <= 1 ? step + 5 : step + 15;
 
-                float additionalTurn = 1.0f * step;
+                //float additionalTurn = 1.0f * step;
 
                 if (step == 0)
                 {
@@ -3658,12 +3659,13 @@ class spell_sylvanas_windrunner_ranger_bow_aura : public AuraScript
     {
         Unit* target = GetTarget();
 
-        if (target->HasAura(SPELL_RANGER_DAGGERS_STANCE))
-            target->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
+        target->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
 
         target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), target->m_Events.CalculateTime(0ms));
 
-        if (target->GetSheath() != SHEATH_STATE_RANGED)
+        if (target->FindCurrentSpellBySpellId(SPELL_RANGER_HEARTSEEKER))
+            target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_RANGED, 0), target->m_Events.CalculateTime(50ms));
+        else
         {
             target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), target->m_Events.CalculateTime(0ms));
             target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_RANGED, 0), target->m_Events.CalculateTime(328ms));
@@ -3943,7 +3945,7 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
         if (!caster)
             return;
 
-        // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
+        // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent before Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
         caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(343ms));
@@ -4000,11 +4002,9 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
         {
             if (caster->IsAIEnabled())
                 caster->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
-
-            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(750ms));
         }
-        else
-            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(750ms));
+
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(750ms));
     }
 
     void Register() override
@@ -4317,7 +4317,11 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
         if (!caster)
             return;
 
-        caster->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_SCREEN_FOG);
+        InstanceScript* instance = caster->GetInstanceScript();
+        if (!instance)
+            return;
+
+        instance->DoCastSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_SCREEN_FOG);
         caster->CastSpell(caster, SPELL_VEIL_OF_DARKNESS_DESELECT, true);
         caster->SetPower(caster->GetPowerType(), 0);
     }
@@ -4341,6 +4345,14 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
             spellInfo->GetEffect(EFFECT_0).TriggerSpell,
             spellInfo->GetEffect(EFFECT_1).TriggerSpell
         });
+    }
+
+    int32 CalcCastTime(int32 castTime) override
+    {
+        if (GetCaster()->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_ONE)
+            return 4000;
+
+        return castTime;
     }
 
     void OnPrecast() override
@@ -6963,7 +6975,7 @@ private:
     Position _lastPointPos;
     Position _vectorPos;
     Position _directionPos;
-    float _distanceMagnitude;
+    //float _distanceMagnitude;
 };
 
 // 23506 - Blasphemy
