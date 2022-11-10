@@ -2911,23 +2911,16 @@ void AuraEffect::HandleAuraModStunAndDisableGravity(AuraApplication const* aurAp
     target->SetControlled(apply, UNIT_STATE_STUNNED);
 
     if (apply)
-    {
         target->GetThreatManager().EvaluateSuppressed();
 
-        // Disable gravity if it hasn't been disabled yet.
-        if (!target->IsGravityDisabled() || !target->HasAuraType(GetAuraType()) || !target->HasAuraType(SPELL_AURA_FLY))
-            target->SetDisableGravity(apply);
-    }
-    else
-    {
-        // Do not remove if there are more than this auraEffect of that kind on the unit.
-        if (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_FLY))
-            return;
+    // Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
+    if (target->HasAuraType(GetAuraType()) || (target->IsCreature() && target->ToCreature()->GetMovementTemplate().Flight == CreatureFlightMovementType::DisableGravity))
+        return;
 
-        if (target->SetCanFly(apply))
-            if (!target->IsGravityDisabled())
-                target->GetMotionMaster()->MoveFall();
-    }
+    target->SetDisableGravity(apply);
+
+    if (target->SetCanFly(apply) && !target->IsGravityDisabled())
+        target->GetMotionMaster()->MoveFall();
 }
 
 /***************************/
