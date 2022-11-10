@@ -386,54 +386,6 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                 bg->HandleQuestComplete(packet.QuestID, _player);
 
             _player->RewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, object);
-
-            switch (object->GetTypeId())
-            {
-                case TYPEID_UNIT:
-                case TYPEID_PLAYER:
-                {
-                    //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
-                    {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
-                        {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
-
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
-                        }
-                    }
-
-                    _player->PlayerTalkClass->ClearMenus();
-                    if (Creature* creatureQGiver = object->ToCreature())
-                        creatureQGiver->AI()->OnQuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
-                    break;
-                }
-                case TYPEID_GAMEOBJECT:
-                {
-                    GameObject* questGiver = object->ToGameObject();
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
-                    {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
-                        {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
-
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
-                        }
-                    }
-
-                    _player->PlayerTalkClass->ClearMenus();
-                    questGiver->AI()->OnQuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
-                    break;
-                }
-                default:
-                    break;
-            }
         }
     }
     else
