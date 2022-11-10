@@ -1,0 +1,1 @@
+ALTER TABLE smart_scripts ADD COLUMN `action_param7` int AFTER `action_param6`;
