@@ -22,6 +22,7 @@
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
+#include "SharedDefines.h"
 
 namespace WorldPackets
 {
