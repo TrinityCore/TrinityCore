@@ -264,7 +264,7 @@ enum Events
     EVENT_DOMINATION_CHAINS_JUMP                        = 65,
     EVENT_WAILING_ARROW,
     EVENT_VEIL_OF_DARKNESS                              = 70,
-    EVENT_RIVE                                          = 72,
+    EVENT_RIVE                                          = 77,
     EVENT_FINISH_INTERMISSION,
     EVENT_BANE_ARROWS,
     EVENT_RAZE,
@@ -484,7 +484,10 @@ enum Miscellanea
     DATA_INDEX_03                                       = 3,
 
     DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL                  = 101311,
-    DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL              = 100930,
+    DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL              = 101310,
+
+    DATA_DISPLAY_ID_SYLVANAS_DAGGER                     = 185997,
+    DATA_DISPLAY_ID_SYLVANAS_BOW                        = 181374,
 
     DATA_MELEE_COMBO_SWITCH_TO_MELEE                    = 0,
     DATA_MELEE_COMBO_RANGER_STRIKE_01                   = 1,
@@ -561,18 +564,24 @@ Position const SylvanasIntroPos[4] =
     { 225.73611f, -844.0746f,  4104.9882f, 1.3613f }
 };
 
-uint32 const EventsTimersLfr[3][4][5]
+/* Note: any timer that's set to 90000 means it hasn't been obtained because either there's no proof in sniffs
+ * due to the fact that there's no raid group taking so long to switch phase or because DBM or BigWigs do not show
+ * timers. Also, it can mean it hasn't been calculated (Black Arrow or Wailing Arrow). We will wait for Dragonflight
+ * to correctly obtain the missing ones.
+ */
+
+uint32 const EventsTimersLfr[3][6][8]
 {
-    // P1
+    // Phase 1
     {
-        // Note: fifth casts are guessed since we can't get to know until DF.
-        { 8000, 62000, 61500, 60000, 59500  }, // Windrunner
-        { 28000, 63000, 63000, 63000, 63000 }, // Domination Chains
-        { 40000, 46000, 36500, 39000, 38000 }, // Wailing Arrow
-        { 55000, 59000, 58000, 57000, 56000 }  // Veil of Darkness
+        { 8900, 62000, 62000, 61000, 90000  }, // Windrunner
+        { 29000, 63900, 63900, 63000, 90000 }, // Domination Chains
+        { 40000, 46000, 36500, 39000, 90000 }, // Wailing Arrow
+        { 56600, 59300, 59300, 57000, 90000 }, // Veil of Darkness
+        { 22200, 19300, 18700, 19700, 20800, 18800, 18700, 19400 } // Ranger's Heartseeker
     },
 
-    // P2
+    // Phase 2
     {
         {  },
         {  },
@@ -580,18 +589,30 @@ uint32 const EventsTimersLfr[3][4][5]
         {  }
     },
 
-    // P3
+    // Phase 3
     {
-        {  },
-        {  },
-        {  },
-        {  }
+        { 36100, 87800, 87900, 88800, 87900               }, // Bane Arrows
+        { 54000, 89100, 93200, 84800                      }, // Shadow Dagger
+        { 105700, 62100, 62000, 63100, 59900              }, // Banshee Scream
+        { 86100, 64800, 64900, 64400, 65000               }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 44000, 68700, 66200, 67200, 67400, 67400,       }, // Veil of Darkness
+        { 95200, 89400, 86500, 90100                      }  // Raze
     },
 };
 
-uint32 const EventsTimersNormal[3][4][5]
+uint32 const EventsTimersNormal[3][7][7]
 {
-    // P1
+    // Phase 1
+    {
+        // Note: fifth casts are guessed since we can't get to know until DF.
+        { 7800, 55500, 55900, 55400, 90000  }, // Windrunner
+        { 25600, 58300, 57400, 57500, 90000 }, // Domination Chains
+        { 28000, 38000, 31500, 30000, 90000 }, // Wailing Arrow
+        { 52400, 53300, 54800, 55000, 90000 }, // Veil of Darkness
+        { 22500, 20500, 33300, 16000, 19200, 22800, 19800 } // Ranger's Heartseeker
+    },
+
+    // Phase 2
     {
         // Note: fifth casts are guessed since we can't get to know until DF.
         { 7700, 55000, 56600, 55000, 55000  }, // Windrunner
@@ -600,44 +621,80 @@ uint32 const EventsTimersNormal[3][4][5]
         { 50000, 53500, 53500, 55000, 56000 }  // Veil of Darkness
     },
 
-    // P2
+    // Phase 3
     {
-        {  },
-        {  },
-        {  },
-        {  }
-    },
-
-    // P3
-    {
-        {  },
-        {  },
-        {  },
-        {  }
+        { 30700, 80400, 76200, 79300, 78600               }, // Bane Arrows
+        { 48100, 80000, 83600, 76900, 87600               }, // Shadow Dagger
+        { 96600, 51000, 55700, 55700, 58200, 59800        }, // Banshee Scream
+        { 77000, 57800, 57600, 58600, 58200, 59300        }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 41800, 64300, 68600, 46500, 62700, 57500, 61900 }, // Veil of Darkness
+        { 86000, 76100, 78200, 85400                      }  // Raze
     },
 };
 
-// TODO: remove this.
-Position const SylvanasWitheringFireTestPos[5] =
+uint32 const EventsTimersHeroic[3][7][11]
 {
-    { 253.3075f, -830.7087f, 4104.9900f },
-    { 250.9643f, -820.1835f, 4104.9900f },
-    { 246.7454f, -815.5137f, 4104.9900f },
-    { 239.9896f, -811.9060f, 4104.9900f },
-    { 232.9633f, -810.9619f, 4104.9900f }
+    // Phase 1
+    {
+        // Note: fifth casts are guessed since we can't get to know until DF.
+        { 7000, 51300, 48800, 47500, 90000  }, // Windrunner
+        { 23200, 53400, 49600, 53900, 90000 }, // Domination Chains
+        { 90000, 90000, 90000, 90000, 90000 }, // Wailing Arrow (FIX NEEDED)
+        { 44900, 49400, 46500, 46300, 90000 },  // Veil of Darkness
+        { 20100, 19100, 17100, 29900, 4800, 32200, 16100, 12000, 25700, 20600, 4700 } // Ranger's Heartseeker
+    },
+
+    // Phase 2
+    {
+        {  },
+        {  },
+        {  },
+        {  }
+    },
+
+    // Phase 3
+    {
+        { 29100, 76800, 73200, 76100, 74500               }, // Bane Arrows
+        { 45500, 77400, 79900, 73400                      }, // Shadow Dagger
+        { 93300, 47400, 54500, 52000, 54900               }, // Banshee Scream
+        { 73700, 55800, 53700, 55000, 57800               }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 41600, 61600, 50400, 58000, 61900               }, // Veil of Darkness
+        { 82700, 73600, 71300, 81200                      }, // Raze
+        { 17200, 49400, 49600, 52600, 47400, 47800, 58000 }  // Banshee's Fury
+    },
+};
+
+uint32 const EventsTimersMythic[3][9][10]
+{
+    // Phase 1
+    {
+        { 6500, 57000, 55100, 56200, 90000  }, // Windrunner
+        { 29000, 55000, 64100, 90000, 90000 }, // Domination Chains
+        { 90000, 90000, 90000, 90000, 90000 }, // Black Arrow
+        { 48000, 43400, 46500, 52400, 90000 }, // Veil of Darkness
+        { 20000, 17000, 25000, 17000, 23000, 4000, 31000, 20000, 3000, 8000 } // Ranger's Heartseeker
+    },
+
+    // Phase 2
+    {
+
+    },
+
+    // Phase 3
+    {
+        { 15400, 93900, 100000, 93000                     }, // Bane Arrows
+        { 45500, 77400, 79900, 73400                      }, // Shadow Dagger
+        { 71600, 111000, 112000                           }, // Banshee Scream
+        { 59500, 69500, 68000, 69000, 69000               }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 23500, 58000, 55000, 55000, 57000, 57000, 63000 }, // Veil of Darkness
+        { 45400, 105000, 106000, 104000                   }, // Raze
+        { 38300, 60800, 64000, 58000, 62000, 66000        }, // Banshee's Fury
+        { 65700, 54700, 54300, 55000, 54000, 50000        }, // Death Knives
+        { 17200, 49400, 49600, 52600, 47400, 47800, 58000 }, // Merciless
+    },
 };
 
 Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
-
-// TODO: remove this since it's not necessary at all.
-Position const DesecratingShotArrowPatternPos[5] =
-{
-    { -0.43609f,  4.98095f, 4105.0386f  },
-    {  2.38811f,  4.82665f, 4105.0386f  },
-    {  5.21233f,  4.67245f, 4105.0386f  },
-    {  5.05808f,  1.84821f, 4105.0386f  },
-    {  4.90381f, -0.97601f, 4105.0386f  }
-};
 
 float const DesecratingShotNormalSpiralDistance[10] =
 {
@@ -2416,79 +2473,40 @@ struct boss_sylvanas_windrunner : public BossAI
                 }
 
                 case EVENT_VEIL_OF_DARKNESS:
-                {
                     // Note: we must ensure Ranger Shot doesn't reset AttackTimer incorrectly.
                     me->m_Events.KillAllEvents(true);
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(100ms));
-
                     Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
                     Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
-
                     events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
-                }
 
                 case EVENT_VEIL_OF_DARKNESS + 1:
-                {
-                    if (events.IsInPhase(PHASE_ONE))
-                    {
-                        scheduler.Schedule(250ms, [this](TaskContext /*task*/)
-                        {
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE, true);
-                        });
-
-                        scheduler.Schedule(500ms, [this](TaskContext /*task*/)
-                        {
-                            me->NearTeleportTo(SylvanasVeilOnePos, false);
-                        });
-
-                        scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
-                        {
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
-
-                            if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
-                            {
-                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, SylvanasNonMeleeSelector(me)))
-                                {
-                                    me->NearTeleportTo(target->GetPosition(), false);
-
-                                    // TODO: find out which number for SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_MM is.
-                                }
-                            }
-                            else
-                            {
-                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 500.0f, true, true))
-                                {
-                                    me->NearTeleportTo(target->GetPosition(), false);
-
-                                    float x = target->GetPositionX();
-                                    float y = target->GetPositionY();
-                                    float z = target->GetPositionZ() + 0.5f;
-
-                                    me->SendPlayOrphanSpellVisual(Position{ x, y, z }, me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID ? SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC
-                                        : SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM, 5.0f, true, false);
-                                }
-                            }
-                        });
-
-                        scheduler.Schedule(2s, [this](TaskContext /*task*/)
-                        {
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1);
-                        });
-
-                        scheduler.Schedule(7s, [this](TaskContext /*task*/)
-                        {
-                            TeleportShadowcopiesToMe();
-
-                            me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
-                        });
-
-                        _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
-
-                        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                    }
+                    DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE);
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
-                }
+
+                case EVENT_VEIL_OF_DARKNESS + 2:
+                    me->NearTeleportTo(SylvanasVeilOnePos, false);
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 3, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    break;
+
+                case EVENT_VEIL_OF_DARKNESS + 3:
+                    DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    break;
+
+                case EVENT_VEIL_OF_DARKNESS + 4:
+                    DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1);
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 5, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    break;
+
+                case EVENT_VEIL_OF_DARKNESS + 5:
+                    TeleportShadowcopiesToMe();
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
+                    _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    break;
 
                 case EVENT_RIVE:
                 {
@@ -3770,10 +3788,12 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
     {
         Unit* target = GetTarget();
 
+        target->setAttackTimer(WeaponAttackType::BASE_ATTACK, 500);
+
         if (target->IsAIEnabled())
             target->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
 
-        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false, true), target->m_Events.CalculateTime(500ms));
+        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false), target->m_Events.CalculateTime(0ms));
     }
 
     void Register() override
@@ -4285,9 +4305,9 @@ class spell_sylvanas_windrunner_wailing_arrow_raid_damage : public SpellScript
     }
 };
 
-// 352470 - Veil of Darkness (Fase - Phase 1)
+// 352470 - Veil of Darkness (Fade - Phase 1)
 // 353273 - Veil of Darkness (Fade - Phase 2)
-// 354168 - Veil of Darkness (Fase - Phase 3)
+// 354168 - Veil of Darkness (Fade - Phase 3)
 class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_fade);
@@ -4332,7 +4352,64 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
     }
 };
 
-// 347726 - Veil of Darkness (Phase 1)
+// 350335 - Veil of Darkness (Grow - Phase 1)
+class spell_sylvanas_windrunner_veil_of_darkness_grow : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_veil_of_darkness_grow);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Fly);
+        target->SetDisableGravity(true);
+        target->SetHover(true);
+
+        target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
+        target->SetVirtualItem(0, 0);
+        target->SetVirtualItem(1, 0);
+        target->SetVirtualItem(2, 0);
+
+        target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), target->m_Events.CalculateTime(25ms));
+
+        if (Unit* darknessTarget = target->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 500.0f, true, true))
+        {
+            Position darknessTargetPos(darknessTarget->GetPositionX(), darknessTarget->GetPositionY(), darknessTarget->GetPositionZ());
+
+            // TODO: handle LFR as well with a switch instead.
+            target->SendPlayOrphanSpellVisual(Position(darknessTargetPos.GetPositionX(), darknessTargetPos.GetPositionY(), darknessTargetPos.GetPositionZ() + 0.25f),
+                target->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID ? SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC : SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM, 5.0f, true, false);
+
+            target->NearTeleportTo(darknessTargetPos, false);
+        }
+
+        target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS, 0, 0);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Ground);
+        target->SetDisableGravity(false);
+        target->SetHover(false);
+
+        target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+        target->SetVirtualItem(0, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(1, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(2, DATA_DISPLAY_ID_SYLVANAS_BOW);
+
+        target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), target->m_Events.CalculateTime(25ms));
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_veil_of_darkness_grow::OnApply, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow::OnRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 347726 - Veil of Darkness (Cast - Phase 1)
 class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_1);
@@ -4341,7 +4418,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW,
             spellInfo->GetEffect(EFFECT_0).TriggerSpell,
             spellInfo->GetEffect(EFFECT_1).TriggerSpell
         });
@@ -4353,20 +4429,6 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
             return 4000;
 
         return castTime;
-    }
-
-    void OnPrecast() override
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
-        caster->SetAnimTier(AnimTier::Fly);
-
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(25ms));
-
-        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS, 0, 0);
     }
 
     void HandleDummyEffect(SpellEffIndex effIndex)
@@ -4384,12 +4446,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
         if (!caster)
             return;
 
-        caster->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
-        caster->SetAnimTier(AnimTier::Ground);
-
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(25ms));
-
-        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false), caster->m_Events.CalculateTime(250ms));
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false), caster->m_Events.CalculateTime(500ms));
         caster->resetAttackTimer(BASE_ATTACK);
     }
 
@@ -7108,6 +7165,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_trigger);
     RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_raid_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_fade);
+    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_grow);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_1);
     RegisterSpellScript(spell_sylvanas_windrunner_rive);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail);

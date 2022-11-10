@@ -325,17 +325,22 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=357618 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357618, 'spell_sylvanas_windrunner_wailing_arrow_raid_damage');
 
- -- Veil of Darkness (Phase 1 - Fade)
+-- Veil of Darkness (Fade - Phase 1)
 DELETE FROM `spell_script_names` WHERE `spell_id`=352470 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_fade';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (352470, 'spell_sylvanas_windrunner_veil_of_darkness_fade');
 
- -- Veil of Darkness (Phase 1 - Cast)
+ -- Veil of Darkness (Grow - Phase 1)
+DELETE FROM `spell_script_names` WHERE `spell_id`=350335 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_grow';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(350335, 'spell_sylvanas_windrunner_veil_of_darkness_grow');
+
+-- Veil of Darkness (Cast - Phase 1)
 DELETE FROM `spell_script_names` WHERE `spell_id`=347726 AND `ScriptName`='spell_sylvanas_windrunner_veil_of_darkness_phase_1';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (347726, 'spell_sylvanas_windrunner_veil_of_darkness_phase_1');
 
- -- Rive
+-- Rive
 DELETE FROM `spell_script_names` WHERE `spell_id`=353417 AND `ScriptName`='spell_sylvanas_windrunner_rive';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (353417, 'spell_sylvanas_windrunner_rive');
