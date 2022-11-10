@@ -1247,6 +1247,7 @@ struct SmartAction
             uint32 param4;
             uint32 param5;
             uint32 param6;
+            uint32 param7;
         } raw;
     };
 };
