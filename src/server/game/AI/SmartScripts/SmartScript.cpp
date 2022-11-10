@@ -2553,7 +2553,7 @@ SmartScriptHolder SmartScript::CreateSmartEvent(SMART_EVENT e, uint32 event_flag
     script.action.raw.param4 = action_param4;
     script.action.raw.param5 = action_param5;
     script.action.raw.param6 = action_param6;
-    script.action.raw.param6 = action_param7;
+    script.action.raw.param7 = action_param7;
 
     script.target.type = t;
     script.target.raw.param1 = target_param1;
