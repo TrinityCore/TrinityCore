@@ -200,6 +200,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
 
     WorldPackets::Query::CreatureStats& stats = queryTemp.Stats;
 
+    stats.Civilian = Civilian;
     stats.Leader = RacialLeader;
 
     stats.Name[0] = Name;
@@ -211,6 +212,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     stats.CreatureType = type;
     stats.CreatureFamily = family;
     stats.Classification = rank;
+    stats.PetSpellDataId = PetSpellDataId;
 
     for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
         stats.ProxyCreatureID[i] = KillCredit[i];

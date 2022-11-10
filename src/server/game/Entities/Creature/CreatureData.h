@@ -434,6 +434,7 @@ struct TC_GAME_API CreatureTemplate
     float   speed_run;
     float   scale;
     uint32  rank;
+    uint32  PetSpellDataId;
     uint32  dmgschool;
     uint32  BaseAttackTime;
     uint32  RangeAttackTime;
@@ -468,6 +469,7 @@ struct TC_GAME_API CreatureTemplate
     float   ModArmor;
     float   ModDamage;
     float   ModExperience;
+    bool    Civilian;
     bool    RacialLeader;
     uint32  movementId;
     int32   CreatureDifficultyID;

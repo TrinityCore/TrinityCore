@@ -359,11 +359,11 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "type_flags, type_flags2, lootid, pickpocketloot, skinloot, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                        46          47        48          49          50         51          52                         53           54              55                   56            57                 58             59              60
     //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        61            62          63                    64           65                        66
-    //                                       "RacialLeader, movementId, CreatureDifficultyID, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
-    //                                        67                    68                        69
+    //                                        61            62          63                    64           65                        66           67        68
+    //                                       "RacialLeader, movementId, CreatureDifficultyID, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, Civilian, PetSpellDataId"
+    //                                        69                    70                        71
     //                                       "mechanic_immune_mask, spell_school_immune_mask, flags_extra, "
-    //                                        70
+    //                                        72
     //                                       "ScriptName FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -494,10 +494,12 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.WidgetSetID            = fields[64].GetInt32();
     creatureTemplate.WidgetSetUnitConditionID = fields[65].GetInt32();
     creatureTemplate.RegenHealth            = fields[66].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[67].GetUInt32();
-    creatureTemplate.SpellSchoolImmuneMask  = fields[68].GetUInt32();
-    creatureTemplate.flags_extra            = fields[69].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[70].GetString());
+    creatureTemplate.Civilian               = fields[67].GetBool();
+    creatureTemplate.PetSpellDataId         = fields[68].GetUInt32();
+    creatureTemplate.MechanicImmuneMask     = fields[69].GetUInt32();
+    creatureTemplate.SpellSchoolImmuneMask  = fields[70].GetUInt32();
+    creatureTemplate.flags_extra            = fields[71].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[72].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
