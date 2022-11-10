@@ -256,6 +256,7 @@ enum Phases
 enum Events
 {
     EVENT_WINDRUNNER                                    = 1,
+    EVENT_RANGER_HEARTSEEKER                            = 2,
     EVENT_WITHERING_FIRE                                = 10,
     EVENT_SHADOW_DAGGERS                                = 30,
     EVENT_DESECRATING_SHOT,
@@ -263,8 +264,9 @@ enum Events
     EVENT_DOMINATION_CHAINS                             = 50,
     EVENT_DOMINATION_CHAINS_JUMP                        = 65,
     EVENT_WAILING_ARROW,
-    EVENT_VEIL_OF_DARKNESS                              = 70,
-    EVENT_RIVE                                          = 77,
+    EVENT_WAILING_ARROW_MARKER                          = 70,
+    EVENT_VEIL_OF_DARKNESS                              = 71,
+    EVENT_RIVE                                          = 78,
     EVENT_FINISH_INTERMISSION,
     EVENT_BANE_ARROWS,
     EVENT_RAZE,
@@ -284,13 +286,15 @@ enum EventCounterValues
     EVENT_COUNTER_WINDRUNNER                            = 0,
     EVENT_COUNTER_DOMINATION_CHAINS                     = 1,
     EVENT_COUNTER_WAILING_ARROW                         = 2,
-    EVENT_COUNTER_VEIL_OF_DARKNESS                      = 3,
-    EVENT_COUNTER_DESECRATING_SHOT                      = 4,
-    EVENT_COUNTER_DESECRATING_SHOT_PATTERN              = 5,
-    EVENT_COUNTER_RIVE                                  = 6,
-    EVENT_COUNTER_HAUNTING_WAVE                         = 7,
-    EVENT_COUNTER_MELEE_COMBO                           = 8,
-    EVENT_COUNTER_MAX                                   = 9
+    EVENT_COUNTER_WAILING_ARROW_MARKER                  = 3,
+    EVENT_COUNTER_VEIL_OF_DARKNESS                      = 4,
+    EVENT_COUNTER_RANGER_HEARTSEEKER                    = 5,
+    EVENT_COUNTER_DESECRATING_SHOT                      = 6,
+    EVENT_COUNTER_DESECRATING_SHOT_PATTERN              = 7,
+    EVENT_COUNTER_RIVE                                  = 8,
+    EVENT_COUNTER_HAUNTING_WAVE                         = 9,
+    EVENT_COUNTER_MELEE_COMBO                           = 10,
+    EVENT_COUNTER_MAX                                   = 11
 };
 
 enum Actions
@@ -570,7 +574,7 @@ Position const SylvanasIntroPos[4] =
  * to correctly obtain the missing ones.
  */
 
-uint32 const EventsTimersLfr[3][6][8]
+uint32 const EventTimersLfr[3][6][8]
 {
     // Phase 1
     {
@@ -600,25 +604,20 @@ uint32 const EventsTimersLfr[3][6][8]
     },
 };
 
-uint32 const EventsTimersNormal[3][7][7]
+uint32 const EventTimersNormal[3][7][7]
 {
     // Phase 1
     {
-        // Note: fifth casts are guessed since we can't get to know until DF.
         { 7800, 55500, 55900, 55400, 90000  }, // Windrunner
-        { 25600, 58300, 57400, 57500, 90000 }, // Domination Chains
-        { 28000, 38000, 31500, 30000, 90000 }, // Wailing Arrow
-        { 52400, 53300, 54800, 55000, 90000 }, // Veil of Darkness
-        { 22500, 20500, 33300, 16000, 19200, 22800, 19800 } // Ranger's Heartseeker
+        { 25600, 59000, 57400, 57500, 90000 }, // Domination Chains
+        { 28600, 39800, 28300, 30100, 90000 }, // Wailing Arrow (Marker)
+        { 34600, 45800, 34300, 36100, 90000 }, // Wailing Arrow
+        { 50000, 53300, 54800, 55000, 90000 }, // Veil of Darkness
+        { 22500, 20500, 34300, 17300, 17000, 22800, 18800 } // Ranger's Heartseeker
     },
 
     // Phase 2
     {
-        // Note: fifth casts are guessed since we can't get to know until DF.
-        { 7700, 55000, 56600, 55000, 55000  }, // Windrunner
-        { 25000, 59000, 59000, 57500, 57500 }, // Domination Chains
-        { 28000, 38000, 31500, 30000, 35500 }, // Wailing Arrow
-        { 50000, 53500, 53500, 55000, 56000 }  // Veil of Darkness
     },
 
     // Phase 3
@@ -632,11 +631,10 @@ uint32 const EventsTimersNormal[3][7][7]
     },
 };
 
-uint32 const EventsTimersHeroic[3][7][11]
+uint32 const EventTimersHeroic[3][7][11]
 {
     // Phase 1
     {
-        // Note: fifth casts are guessed since we can't get to know until DF.
         { 7000, 51300, 48800, 47500, 90000  }, // Windrunner
         { 23200, 53400, 49600, 53900, 90000 }, // Domination Chains
         { 90000, 90000, 90000, 90000, 90000 }, // Wailing Arrow (FIX NEEDED)
@@ -664,7 +662,7 @@ uint32 const EventsTimersHeroic[3][7][11]
     },
 };
 
-uint32 const EventsTimersMythic[3][9][10]
+uint32 const EventTimersMythic[3][9][10]
 {
     // Phase 1
     {
@@ -2398,6 +2396,20 @@ struct boss_sylvanas_windrunner : public BossAI
                     break;
                 }
 
+                case EVENT_RANGER_HEARTSEEKER:
+                {
+                    DoCastVictim(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER : SPELL_BANSHEES_HEARTSEEKER,
+                        CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
+
+                    me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), me->m_Events.CalculateTime(0ms));
+                    me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_RANGED, 0), me->m_Events.CalculateTime(328ms));
+
+                    ++_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER];
+
+                    events.Repeat(Milliseconds(EventTimersNormal[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]));
+                    break;
+                }
+
                 case EVENT_DOMINATION_CHAINS:
                 {
                     TeleportShadowcopiesToMe();
@@ -2410,13 +2422,13 @@ struct boss_sylvanas_windrunner : public BossAI
                             shadowCopy->GetAI()->DoAction(ACTION_START_DOMINATION_CHAINS);
                     _eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]++;
                     if (events.IsInPhase(PHASE_ONE))
-                        events.Repeat(Milliseconds(EventsTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]));
+                        events.Repeat(Milliseconds(EventTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]));
                     break;
                 }
 
-                case EVENT_WAILING_ARROW:
+                case EVENT_WAILING_ARROW_MARKER:
                 {
-                    scheduler.Schedule(Milliseconds(EventsTimersNormal[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), [this](TaskContext /*task*/)
+                    scheduler.Schedule(Milliseconds(EventTimersNormal[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER]]), [this](TaskContext /*task*/)
                     {
                         std::list<Player*> everyPlayerButCurrentTank;
                         GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
@@ -2436,26 +2448,17 @@ struct boss_sylvanas_windrunner : public BossAI
                                 for (Unit* nonTank : everyPlayerButCurrentTank)
                                     Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
 
-                            events.ScheduleEvent(EVENT_WAILING_ARROW + 1, 4s + 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            ++_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER];
                         }
                     });
                     break;
                 }
 
-                case EVENT_WAILING_ARROW + 1:
+                case EVENT_WAILING_ARROW:
                 {
-                    DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-
                     // Note: we must ensure Ranger Shot doesn't reset AttackTimer incorrectly.
                     me->m_Events.KillAllEvents(true);
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(100ms));
 
-                    events.ScheduleEvent(EVENT_WAILING_ARROW + 2, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                    break;
-                }
-
-                case EVENT_WAILING_ARROW + 2:
-                {
                     Talk(SAY_WAILING_ARROW);
 
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
@@ -2468,7 +2471,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
 
-                    events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersNormal[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
                 }
 
@@ -2483,6 +2487,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_VEIL_OF_DARKNESS + 1:
                     DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE);
+                    _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersNormal[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
 
@@ -2504,8 +2510,6 @@ struct boss_sylvanas_windrunner : public BossAI
                 case EVENT_VEIL_OF_DARKNESS + 5:
                     TeleportShadowcopiesToMe();
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
-                    _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
 
                 case EVENT_RIVE:
@@ -2811,14 +2815,15 @@ struct boss_sylvanas_windrunner : public BossAI
 
         if (me->isAttackReady(BASE_ATTACK))
         {
-            if (IsHeartseekerReady())
-                DoCastVictim(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER : SPELL_BANSHEES_HEARTSEEKER, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
-            else if (!me->IsWithinCombatRange(me->GetVictim(), 5.5f))
+            if (!me->IsWithinCombatRange(me->GetVictim(), 5.5f))
             {
                 if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                     DoCastSelf(SPELL_RANGER_BOW_STANCE);
                 else
-                    DoCastVictim(SPELL_RANGER_SHOT);
+                {
+                    if (!IsEventIncoming(1000))
+                        DoCastVictim(SPELL_RANGER_SHOT);
+                }
             }
             else
             {
@@ -2833,7 +2838,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     case DATA_MELEE_COMBO_RANGER_STRIKE_01:
                         DoCastVictim(SPELL_RANGER_STRIKE);
                         me->SendPlaySpellVisual(me->GetVictim(), RAND(SPELL_VISUAL_RANGER_STRIKE_RIGHT, SPELL_VISUAL_RANGER_STRIKE_LEFT), 0, 0, 1.0f, true);
-                        if (roll_chance_i(50))
+                        if (roll_chance_i(30))
                             _eventCounter[EVENT_COUNTER_MELEE_COMBO]++;
                         else
                             _eventCounter[EVENT_COUNTER_MELEE_COMBO] = 3;
@@ -2852,11 +2857,17 @@ struct boss_sylvanas_windrunner : public BossAI
                         break;
 
                     case DATA_MELEE_COMBO_FINISH:
-                        DoCastVictim(SPELL_RANGER_SHOT);
-                        if (roll_chance_i(50))
-                            DoAction(ACTION_RESET_MELEE_KIT);
-                        else
+                        if (!IsEventIncoming(1000))
+                        {
                             DoCastVictim(SPELL_RANGER_SHOT);
+
+                            if (roll_chance_i(50))
+                                DoAction(ACTION_RESET_MELEE_KIT);
+                            else
+                                DoCastVictim(SPELL_RANGER_SHOT);
+                        }
+                        else
+                            DoAction(ACTION_RESET_MELEE_KIT);
                         break;
                     default:
                         break;
@@ -2865,6 +2876,17 @@ struct boss_sylvanas_windrunner : public BossAI
 
             me->resetAttackTimer(BASE_ATTACK);
         }
+    }
+
+    bool IsEventIncoming(uint32 milliseconds)
+    {
+        for (uint32 incomingEvents = EVENT_WINDRUNNER; incomingEvents < EVENT_COUNTER_MAX; incomingEvents++)
+        {
+            if (events.GetTimeUntilEvent(incomingEvents) <= Milliseconds(milliseconds))
+                return true;
+        }
+
+        return false;
     }
 
     void ChooseDesecratingShotPattern(uint8 pattern)
@@ -3300,39 +3322,31 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool IsHeartseekerReady()
-    {
-        Aura* heartseekerCharge = me->GetAura(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEES_HEARTSEEKER_CHARGE);
-
-        if (heartseekerCharge && heartseekerCharge->GetStackAmount() >= 3)
-            return true;
-        else
-            return false;
-
-        return true;
-    }
-
     void ScheduleEventsForPhaseOne()
     {
+        events.SetPhase(PHASE_ONE);
+
         switch (me->GetMap()->GetDifficultyID())
         {
             case DIFFICULTY_LFR_NEW:
             {
-                events.SetPhase(PHASE_ONE);
-                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersLfr[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventsTimersLfr[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersLfr[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersNormal[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersNormal[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersNormal[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 break;
             }
 
             case DIFFICULTY_NORMAL_RAID:
             {
-                events.SetPhase(PHASE_ONE);
-                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventsTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventsTimersNormal[0][3][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersNormal[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersNormal[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersNormal[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 break;
             }
 
@@ -3402,7 +3416,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 7s + 750ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 200ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 10s + 391ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3416,7 +3430,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 156ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3431,7 +3445,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 219ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s + 78ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3445,7 +3459,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 500ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventsTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3681,9 +3695,7 @@ class spell_sylvanas_windrunner_ranger_bow_aura : public AuraScript
 
         target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), target->m_Events.CalculateTime(0ms));
 
-        if (target->FindCurrentSpellBySpellId(SPELL_RANGER_HEARTSEEKER))
-            target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_RANGED, 0), target->m_Events.CalculateTime(50ms));
-        else
+        if (target->GetSheath() != SHEATH_STATE_RANGED)
         {
             target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), target->m_Events.CalculateTime(0ms));
             target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_RANGED, 0), target->m_Events.CalculateTime(328ms));
