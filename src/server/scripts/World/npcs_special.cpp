@@ -2365,7 +2365,6 @@ struct npc_bg_spirit_guide_personal : public ScriptedAI
     }
 };
 
-
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
