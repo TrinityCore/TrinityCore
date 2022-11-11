@@ -4635,7 +4635,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Rive Marker
     ApplySpellFix({ 353419 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5s
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(65); // 1.5s
     });
 
     // Banshee Wail (Marker)
