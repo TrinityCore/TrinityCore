@@ -1638,12 +1638,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     me->CastSpell(shootingPos, SPELL_DESECRATING_SHOT_JUMP_FRONT, true);
                 });
 
-                _scheduler.Schedule(240ms, [this, shootingPos, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(240ms, [this, sylvanas](TaskContext /*task*/)
                 {
                     ReleaseDesecratingShots();
                 });
 
-                _scheduler.Schedule(400ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
+                _scheduler.Schedule(450ms, [this, sylvanas, copyIndex](TaskContext /*task*/)
                 {
                     _desecratingShotStorage.clear();
 
