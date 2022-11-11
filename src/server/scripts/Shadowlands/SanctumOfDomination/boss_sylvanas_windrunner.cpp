@@ -5261,13 +5261,13 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                     sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RUIN_INTERRUPTED, 0, 0);
                 });
 
-                _scheduler.Schedule(1s, [this, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(1s, [sylvanas](TaskContext /*task*/)
                 {
                     if (sylvanas->IsAIEnabled())
                         sylvanas->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(sylvanas, false), sylvanas->m_Events.CalculateTime(1ms));
                 });
 
-                _scheduler.Schedule(1s + 454ms, [this, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(1s + 454ms, [sylvanas](TaskContext /*task*/)
                 {
                     if (sylvanas->IsAIEnabled())
                         sylvanas->AI()->Talk(SAY_WINDS_OF_ICECROWN_AFTER_01);
@@ -5285,13 +5285,13 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
                     sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RUIN_INTERRUPTED, 0, 0);
                 });
 
-                _scheduler.Schedule(1s, [this, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(1s, [sylvanas](TaskContext /*task*/)
                 {
                     if (sylvanas->IsAIEnabled())
                         sylvanas->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(sylvanas, false), sylvanas->m_Events.CalculateTime(1ms));
                 });
 
-                _scheduler.Schedule(1s + 454ms, [this, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(1s + 454ms, [sylvanas](TaskContext /*task*/)
                 {
                     if (sylvanas->IsAIEnabled())
                         sylvanas->AI()->Talk(SAY_WINDS_OF_ICECROWN_AFTER_02);
