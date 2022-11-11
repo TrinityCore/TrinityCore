@@ -4501,7 +4501,7 @@ void Spell::EffectSpiritHeal()
             return;
 
         playerTarget->ResurrectPlayer(1.0f);
-        playerTarget->CastSpell(playerTarget, 6962, true);
+        playerTarget->CastSpell(playerTarget, SPELL_PET_SUMMONED, true);
         playerTarget->CastSpell(playerTarget, SPELL_SPIRIT_HEAL_MANA, true);
         playerTarget->SpawnCorpseBones(false);
         playerTarget->SetSpiritHealer(nullptr);
