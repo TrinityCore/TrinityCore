@@ -2078,14 +2078,10 @@ class spell_mage_combustion : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_MAGE_COMBUSTION_DAMAGE,
-                SPELL_MAGE_LIVING_BOMB
-            });
+        return ValidateSpellInfo({ SPELL_MAGE_COMBUSTION_DAMAGE });
     }
 
-    void HandleDotEffect(SpellEffIndex /*effIndex*/)
+    void HandleScriptEffect(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -2093,41 +2089,30 @@ class spell_mage_combustion : public SpellScript
 
         Unit* target = GetHitUnit();
 
-        int32 totalAmount = 0;
+        int32 basePoints = 0;
+        float scalingFactor = static_cast<float>(GetEffectValue());
+
         for (AuraEffect const* aurEff : target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE))
         {
-            if (aurEff->GetCasterGUID() == caster->GetGUID() && aurEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
-            {
-                if (aurEff->GetSpellInfo()->Id == SPELL_MAGE_COMBUSTION_DAMAGE)
-                    continue;
+            if (aurEff->GetCasterGUID() != caster->GetGUID()
+                || !(aurEff->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_FIRE)
+                || aurEff->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_MAGE)
+                continue;
 
-                switch (aurEff->GetSpellInfo()->Id)
-                {
-                    case SPELL_MAGE_IGNITE:
-                        totalAmount += aurEff->GetAmount() / 2;
-                        break;
-                    case SPELL_MAGE_LIVING_BOMB:
-                    case SPELL_MAGE_PYROBLAST:
-                    case SPELL_MAGE_PYROBLAST_HOT_STREAK:
-                        totalAmount += aurEff->GetAmount() / 3;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            // Only combine auras specified in the script effect's class mask
+            if (!aurEff->GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, GetSpellInfo()->Effects[effIndex].SpellClassMask))
+                continue;
+
+            basePoints = CalculatePct(aurEff->GetAmount(), scalingFactor);
+            if (basePoints > 0)
+                caster->CastSpell(target, SPELL_MAGE_COMBUSTION_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(basePoints));
         }
-
-        if (totalAmount)
-            caster->CastSpell(target, SPELL_MAGE_COMBUSTION_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(totalAmount));
     }
 
     void Register() override
     {
-        OnEffectHitTarget.Register(&spell_mage_combustion::HandleDotEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_mage_combustion::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
-
-private:
-    std::vector<Aura*> _fireDotEffects;
 };
 
 // 44614 - Frostfire Bolt
