@@ -1723,7 +1723,6 @@ private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
-    uint32 _totalWitheringFires;
     std::vector<ObjectGuid> _witheringFireTargetGUIDs;
     std::vector<Position> _witheringFirePos;
     std::vector<DesecratingShotsStorage> _desecratingShotStorage;
@@ -1731,8 +1730,9 @@ private:
     bool _onDominationChains;
     uint8 _sayDaggers;
     uint8 _sayDesecrating;
-    std::array<uint32, 3> _selectedArrowCountsPerJump = { };
     uint8 _jumpCount;
+    uint32 _totalWitheringFires;
+    std::array<uint32, 3> _selectedArrowCountsPerJump = { };
 };
 
 // 178355 - Sylvanas Shadowcopy (Riding)
