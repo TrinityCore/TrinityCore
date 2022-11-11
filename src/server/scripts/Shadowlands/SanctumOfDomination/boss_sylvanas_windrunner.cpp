@@ -6005,7 +6005,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                             thrall->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(thrall, true), thrall->m_Events.CalculateTime(1ms));
                     }
 
-                    _scheduler.Schedule(50ms, [this, playerList](TaskContext /*task*/)
+                    _scheduler.Schedule(50ms, [playerList](TaskContext /*task*/)
                     {
                         for (Player* player : playerList)
                             player->CastSpell(player, SPELL_TELEPORT_TO_PHASE_TWO, true);
@@ -6042,7 +6042,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         }
                     });
 
-                    _scheduler.Schedule(1s, [this, sylvanas](TaskContext /*task*/)
+                    _scheduler.Schedule(1s, [sylvanas](TaskContext /*task*/)
                     {
                         if (boss_sylvanas_windrunner* sylvanasAI = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
                             sylvanasAI->TeleportShadowcopiesToMe();
@@ -6053,7 +6053,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         Talk(SAY_PREPARE_PHASE_TWO);
                     });
 
-                    _scheduler.Schedule(3s + 500ms, [this, sylvanas](TaskContext /*task*/)
+                    _scheduler.Schedule(3s + 500ms, [sylvanas](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00))
                             sylvanas->SetNameplateAttachToGUID(shadowCopy->GetGUID());
@@ -6066,7 +6066,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                             shadowCopy->CastSpell(SylvanasWavePos[0], SPELL_WINDRUNNER_MOVE, true);
                     });
 
-                    _scheduler.Schedule(4s, [this, sylvanas](TaskContext /*task*/)
+                    _scheduler.Schedule(4s, [sylvanas](TaskContext /*task*/)
                     {
                         sylvanas->NearTeleportTo(SylvanasWavePos[0], false);
 
@@ -6088,13 +6088,13 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                             thrall->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[0], false);
                     });
 
-                    _scheduler.Schedule(6s + 200ms, [this](TaskContext /*task*/)
+                    _scheduler.Schedule(6s + 200ms, [](TaskContext /*task*/)
                     {
                         if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                             bolvar->AI()->Talk(SAY_FIRST_CHAIN);
                     });
 
-                    _scheduler.Schedule(6s + 890ms, [this](TaskContext /*task*/)
+                    _scheduler.Schedule(6s + 890ms, [](TaskContext /*task*/)
                     {
                         if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                             bolvar->GetMotionMaster()->MovePoint(0, BolvarPhaseTwoPos[1], false);
