@@ -7208,15 +7208,10 @@ struct at_sylvanas_windrunner_z_check : AreaTriggerAI
             if (player->IsGameMaster())
                 return;
 
-            if ((player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE && player->GetPositionZ() < 4100.5336f) ||
-                (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS && player->GetPositionZ() < 4966.5229f) ||
-                (player->GetAreaId() == AREA_THE_CRUCIBLE && player->GetPositionZ() < 5650.1690f))
-            {
-                player->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, player->GetMaxHealth());
+            player->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, player->GetMaxHealth());
 
-                if (player->IsAlive())
-                    player->KillPlayer();
-            }
+            if (player->IsAlive())
+                player->KillPlayer();
         }
     }
 
