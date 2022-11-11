@@ -6053,7 +6053,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         Talk(SAY_PREPARE_PHASE_TWO);
                     });
 
-                    _scheduler.Schedule(3s + 500ms, [sylvanas](TaskContext /*task*/)
+                    _scheduler.Schedule(3s + 500ms, [this, sylvanas](TaskContext /*task*/)
                     {
                         if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00))
                             sylvanas->SetNameplateAttachToGUID(shadowCopy->GetGUID());
@@ -6066,7 +6066,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                             shadowCopy->CastSpell(SylvanasWavePos[0], SPELL_WINDRUNNER_MOVE, true);
                     });
 
-                    _scheduler.Schedule(4s, [sylvanas](TaskContext /*task*/)
+                    _scheduler.Schedule(4s, [this, sylvanas](TaskContext /*task*/)
                     {
                         sylvanas->NearTeleportTo(SylvanasWavePos[0], false);
 
@@ -6088,13 +6088,13 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                             thrall->GetMotionMaster()->MovePoint(0, ThrallPhaseTwoPos[0], false);
                     });
 
-                    _scheduler.Schedule(6s + 200ms, [](TaskContext /*task*/)
+                    _scheduler.Schedule(6s + 200ms, [this](TaskContext /*task*/)
                     {
                         if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                             bolvar->AI()->Talk(SAY_FIRST_CHAIN);
                     });
 
-                    _scheduler.Schedule(6s + 890ms, [](TaskContext /*task*/)
+                    _scheduler.Schedule(6s + 890ms, [this](TaskContext /*task*/)
                     {
                         if (Creature* bolvar = _instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                             bolvar->GetMotionMaster()->MovePoint(0, BolvarPhaseTwoPos[1], false);
