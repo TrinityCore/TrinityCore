@@ -755,7 +755,7 @@ std::array<Position, 8> const RiveThrowPos =
     }
 };
 
-Position const RiveFinishPos =        { 235.1163f, -829.901f,  4105.0386f, 5.4824f   };
+Position const RiveFinishPos =        { 235.1163f, -829.901f,  4105.0386f, 5.4824f    };
 
 Position const SylvanasPhase2PrePos = { -14.5625f, -943.441f,   4999.990f,  0.8928f   };
 
@@ -4005,7 +4005,7 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
         if (!caster)
             return;
 
-        // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent before Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
+        // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
         caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(343ms));
@@ -5814,6 +5814,7 @@ enum JainaSpells
     SPELL_FRIGID_SHARDS                                 = 354933,
     SPELL_CONE_OF_COLD                                  = 350003,
     SPELL_SEARING_BLAST                                 = 355507,
+    SPELL_BLINK                                         = 362844,
 
     SPELL_TELEPORT_TO_PHASE_2                           = 355073,
     SPELL_TELEPORT_PHASE_TWO_MASTER                     = 351890,
@@ -5835,7 +5836,9 @@ enum JainaEvents
 {
     EVENT_FRIGID_SHARDS                                 = 1,
     EVENT_CONE_OF_COLD,
-    EVENT_COMET_BARRAGE
+    EVENT_COMET_BARRAGE,
+    EVENT_BLINK,
+    EVENT_RANDOM_MOVEMENT
 };
 
 enum JainaActions
@@ -5958,7 +5961,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                 me->GetAI()->AttackStartCaster(sylvanas, 25.0f);
         }
 
-        me->SetBaseAttackTime(BASE_ATTACK, 250);
+        me->setAttackTimer(BASE_ATTACK, 100);
     }
 
     void DoAction(int32 action) override
@@ -7189,6 +7192,38 @@ private:
     InstanceScript* _instance;
 };
 
+// Serverside - Sylvanas Windrunner's Position Z Check
+struct at_sylvanas_windrunner_z_check : AreaTriggerAI
+{
+    at_sylvanas_windrunner_z_check(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!_instance || !unit->IsAlive())
+            return;
+
+        if (Player* player = unit->ToPlayer())
+        {
+            if (player->IsGameMaster())
+                return;
+
+            if ((player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE && player->GetPositionZ() < 4100.5336f) ||
+                (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS && player->GetPositionZ() < 4966.5229f) ||
+                (player->GetAreaId() == AREA_THE_CRUCIBLE && player->GetPositionZ() < 5650.1690f))
+            {
+                player->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, player->GetMaxHealth());
+
+                if (player->IsAlive())
+                    player->KillPlayer();
+            }
+        }
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
 // 17368 - Sylvanas Windrunner's Introduction Conversation
 class conversation_sylvanas_windrunner_introduction : public ConversationScript
 {
@@ -7276,6 +7311,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_banshee_bane);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_raze);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_z_check);
 
     new conversation_sylvanas_windrunner_introduction();
 }

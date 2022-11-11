@@ -34,6 +34,18 @@ INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptNam
 (20546, 0, '2450', NULL, '', 'Sanctum of Domination - Heroic Difficulty - Testing state'),
 (20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic Difficulty - Testing state');
 
+-- Areatrigger Check Z
+DELETE FROM `areatrigger_template` WHERE `Id`=7 AND `IsServerSide`=1;
+INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
+(7, 1, 1, 0, 250, 250, 5, 0, 0, 0, 0, 0, 0);
+
+DELETE FROM `areatrigger` WHERE `SpawnId` IN (7, 8, 9, 10);
+INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES 
+(7, 7, 1, 2450, 235.217, -830.563, 4094.99, 2.6387, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Pinnacle of Dominance (Z Check)'),
+(8, 7, 1, 2450, -115.461, -1102.84, 4976.29, 0.7831, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
+(9, 7, 1, 2450, 225.434, -766.006, 4983.74, 3.9239, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
+(10, 7, 1, 2450, -249.124, -1277.07, 5605.18, 5.48411, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - The Crucible (Z Check)');
+
  --
  -- Introduction
  
