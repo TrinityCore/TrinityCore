@@ -5674,8 +5674,8 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
     {
         me->CastSpell(jumpPos, SPELL_JUMP_PHASE_TWO_MASTER, false);
 
-        uint32 bridgeAreaTriggerSpell;
-        uint32 bridgeGameObjectSpell;
+        uint32 bridgeAreaTriggerSpell = 0;
+        uint32 bridgeGameObjectSpell = 0;
 
         switch (uint8 randomBridge = urand(DATA_BRIDGE_PHASE_TWO_1, DATA_BRIDGE_PHASE_TWO_3))
         {
@@ -6436,8 +6436,8 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
     {
         me->CastSpell(teleportPos, SPELL_TELEPORT_PHASE_TWO_MASTER, false);
 
-        uint32 bridgeAreaTriggerSpell;
-        uint32 bridgeGameObjectSpell;
+        uint32 bridgeAreaTriggerSpell = 0;
+        uint32 bridgeGameObjectSpell = 0;
 
         switch (uint8 randomBridge = urand(DATA_BRIDGE_PHASE_TWO_1, DATA_BRIDGE_PHASE_TWO_3))
         {
