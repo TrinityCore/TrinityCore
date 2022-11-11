@@ -862,19 +862,19 @@ struct SceneTemplate
     uint32 ScriptId = 0;
 };
 
-struct ScriptTag
+struct StringIdIndex
 {
-    ScriptTag() = default;
-    ScriptTag(uint32 id) : Id(id) { }
+    StringIdIndex() = default;
+    StringIdIndex(uint32 index) : Index(index) { }
 
-    uint32 Id = 0;
+    uint32 Index = 0;
 
-    explicit operator bool() const { return Id > 0; }
+    explicit operator bool() const { return Index > 0; }
 
     bool operator==(uint32 a) const;
     bool operator!=(uint32 a) const { return !(operator==(a)); }
 
-    operator uint32() const { return Id; }
+    operator uint32() const { return Index; }
 };
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
@@ -1151,15 +1151,15 @@ class TC_GAME_API ObjectMgr
             std::unordered_set<std::string> GetAllDBScriptNames() const;
         };
 
-        class ScriptTagContainer
+        class StringIdContainer
         {
         public:
             struct Entry
             {
                 Entry() = default;
-                Entry(uint32 id) : Id(id) { }
+                Entry(uint32 index) : Index(index) { }
 
-                uint32 Id = 0;
+                uint32 Index = 0;
             };
 
         private:
@@ -1169,10 +1169,10 @@ class TC_GAME_API ObjectMgr
             std::vector<NameMap::const_iterator> IndexToName;
 
         public:
-            ScriptTagContainer();
+            StringIdContainer();
 
             void reserve(size_t capacity);
-            uint32 insert(std::string const& scriptTag);
+            uint32 insert(std::string const& stringId);
             size_t size() const;
             NameMap::const_iterator find(size_t index) const;
             NameMap::const_iterator find(std::string const& name) const;
@@ -1717,8 +1717,8 @@ class TC_GAME_API ObjectMgr
         std::string const& GetScriptName(uint32 id) const;
         bool IsScriptDatabaseBound(uint32 id) const;
         uint32 GetScriptId(std::string const& name, bool isDatabaseBound = true);
-        ScriptTag GetScriptTag(std::string const& name);
-        std::string const& GetScriptTag(uint32 id) const;
+        StringIdIndex GetStringIdIndex(std::string const& name);
+        std::string const& GetStringId(uint32 index) const;
 
         Trinity::IteratorPair<SpellClickInfoContainer::const_iterator> GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
@@ -1905,7 +1905,7 @@ class TC_GAME_API ObjectMgr
         GameTeleContainer _gameTeleStore;
 
         ScriptNameContainer _scriptNamesStore;
-        ScriptTagContainer _scriptTagStore;
+        StringIdContainer _stringIdStore;
 
         SpellClickInfoContainer _spellClickInfoStore;
 

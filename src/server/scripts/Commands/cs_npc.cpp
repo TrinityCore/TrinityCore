@@ -534,7 +534,7 @@ public:
 
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
         handler->PSendSysMessage(LANG_NPCINFO_POSITION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-        handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str(), target->GetScriptTag().c_str(), target->GetScriptTagId());
+        handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, target->GetAIName().c_str(), target->GetScriptName().c_str(), target->GetStringId().c_str(), target->GetStringIdIndex());
         handler->PSendSysMessage(LANG_NPCINFO_REACTSTATE, DescribeReactState(target->GetReactState()));
         if (CreatureAI const* ai = target->AI())
             handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, GetTypeName(*ai).c_str());

@@ -380,6 +380,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         Pet* GetPet(ObjectGuid const& guid);
         Transport* GetTransport(ObjectGuid const& guid);
         Creature* GetCreatureBySpawnId(ObjectGuid::LowType spawnId) const;
+        Creature* GetCreatureByStringId(uint32 stringId) const;
         GameObject* GetGameObjectBySpawnId(ObjectGuid::LowType spawnId) const;
         AreaTrigger* GetAreaTriggerBySpawnId(ObjectGuid::LowType spawnId) const;
         WorldObject* GetWorldObjectBySpawnId(SpawnObjectType type, ObjectGuid::LowType spawnId) const
@@ -410,6 +411,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         typedef std::unordered_multimap<ObjectGuid::LowType, AreaTrigger*> AreaTriggerBySpawnIdContainer;
         AreaTriggerBySpawnIdContainer& GetAreaTriggerBySpawnIdStore() { return _areaTriggerBySpawnIdStore; }
         AreaTriggerBySpawnIdContainer const& GetAreaTriggerBySpawnIdStore() const { return _areaTriggerBySpawnIdStore; }
+
+        typedef std::unordered_multimap<uint32, Creature*> CreatureByStringIdContainer;
+        CreatureByStringIdContainer& GetCreatureByStringIdStore() { return _creatureByStringIdStore; }
+        CreatureByStringIdContainer const& GetCreatureByStringIdStore() const { return _creatureByStringIdStore; }
 
         std::unordered_set<Corpse*> const* GetCorpsesInCell(uint32 cellId) const
         {
@@ -781,6 +786,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         CreatureBySpawnIdContainer _creatureBySpawnIdStore;
         GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;
         AreaTriggerBySpawnIdContainer _areaTriggerBySpawnIdStore;
+        CreatureByStringIdContainer _creatureByStringIdStore;
+
         std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
         std::unordered_set<Corpse*> _corpseBones;

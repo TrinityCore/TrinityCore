@@ -2200,7 +2200,7 @@ void ObjectMgr::LoadCreatures()
     //   11               12         13       14            15                 16          17           18                19                   20                    21
         "currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, "
     //   22                     23                      24                25                   26                       27                   28
-        "creature.dynamicflags, creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName, creature.ScriptTag "
+        "creature.dynamicflags, creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName, creature.StringId "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_members ON pool_members.type = 0 AND creature.guid = pool_members.spawnId");
@@ -2261,7 +2261,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseGroup     = fields[25].GetUInt32();
         data.terrainSwapMap = fields[26].GetInt32();
         data.scriptId       = GetScriptId(fields[27].GetString());
-        data.scriptTagId    = GetScriptTag(fields[28].GetString());
+        data.stringIdIndex    = GetStringIdIndex(fields[28].GetString());
         data.spawnGroupData = IsTransportMap(data.mapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapId);
@@ -10077,15 +10077,15 @@ uint32 ObjectMgr::GetScriptId(std::string const& name, bool isDatabaseBound)
     return _scriptNamesStore.insert(name, isDatabaseBound);
 }
 
-ScriptTag ObjectMgr::GetScriptTag(std::string const& name)
+StringIdIndex ObjectMgr::GetStringIdIndex(std::string const& name)
 {
-    return ScriptTag(_scriptTagStore.insert(name));
+    return StringIdIndex(_stringIdStore.insert(name));
 }
 
-std::string const& ObjectMgr::GetScriptTag(uint32 id) const
+std::string const& ObjectMgr::GetStringId(uint32 index) const
 {
-    auto const itr = _scriptTagStore.find(id);
-    if (itr != _scriptTagStore.end())
+    auto const itr = _stringIdStore.find(index);
+    if (itr != _stringIdStore.end())
     {
         return itr->first;
     }
@@ -10096,43 +10096,43 @@ std::string const& ObjectMgr::GetScriptTag(uint32 id) const
     }
 }
 
-ObjectMgr::ScriptTagContainer::ScriptTagContainer()
+ObjectMgr::StringIdContainer::StringIdContainer()
 {
     // We insert an empty placeholder here so we can use the
-    // scripttag id 0 as dummy for "no script tag found".
-    [[maybe_unused]] uint32 const id = insert("");
+    // stringId index 0 as dummy for "no stringid found".
+    [[maybe_unused]] uint32 const index = insert("");
 
-    ASSERT(id == 0);
+    ASSERT(index == 0);
 }
 
-void ObjectMgr::ScriptTagContainer::reserve(size_t capacity)
+void ObjectMgr::StringIdContainer::reserve(size_t capacity)
 {
     IndexToName.reserve(capacity);
 }
 
-uint32 ObjectMgr::ScriptTagContainer::insert(std::string const& scriptTag)
+uint32 ObjectMgr::StringIdContainer::insert(std::string const& stringId)
 {
-    auto result = NameToIndex.try_emplace(scriptTag, static_cast<uint32>(NameToIndex.size()));
+    auto result = NameToIndex.try_emplace(stringId, static_cast<uint32>(NameToIndex.size()));
     if (result.second)
     {
         ASSERT(NameToIndex.size() <= std::numeric_limits<uint32>::max());
         IndexToName.emplace_back(result.first);
     }
 
-    return result.first->second.Id;
+    return result.first->second.Index;
 }
 
-size_t ObjectMgr::ScriptTagContainer::size() const
+size_t ObjectMgr::StringIdContainer::size() const
 {
     return IndexToName.size();
 }
 
-ObjectMgr::ScriptTagContainer::NameMap::const_iterator ObjectMgr::ScriptTagContainer::find(size_t index) const
+ObjectMgr::StringIdContainer::NameMap::const_iterator ObjectMgr::StringIdContainer::find(size_t index) const
 {
     return index < IndexToName.size() ? IndexToName[index] : end();
 }
 
-ObjectMgr::ScriptTagContainer::NameMap::const_iterator ObjectMgr::ScriptTagContainer::find(std::string const& name) const
+ObjectMgr::StringIdContainer::NameMap::const_iterator ObjectMgr::StringIdContainer::find(std::string const& name) const
 {
     // assume "" is the first element
     if (name.empty())
@@ -10141,7 +10141,7 @@ ObjectMgr::ScriptTagContainer::NameMap::const_iterator ObjectMgr::ScriptTagConta
     return NameToIndex.find(name);
 }
 
-ObjectMgr::ScriptTagContainer::NameMap::const_iterator ObjectMgr::ScriptTagContainer::end() const
+ObjectMgr::StringIdContainer::NameMap::const_iterator ObjectMgr::StringIdContainer::end() const
 {
     return NameToIndex.end();
 }
