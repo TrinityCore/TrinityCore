@@ -29243,14 +29243,12 @@ void Player::SetSpiritHealer(Creature* creature)
 
 void Player::SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid) const
 {
-    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
-    areaSpiritHealerTime.HealerGuid = spiritHealerGuid;
-
+    int32 timeLeft = 0;
     if (Creature* creature = GetMap()->GetCreature(spiritHealerGuid))
         if (Spell* spell = creature->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-            areaSpiritHealerTime.TimeLeft = spell->GetTimer();
+            timeLeft = spell->GetTimer();
 
-    SendDirectMessage(areaSpiritHealerTime.Write());
+    SendAreaSpiritHealerQueryOpcode(spiritHealerGuid, timeLeft);
 }
 
 void Player::SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid, int32 timeLeft) const
