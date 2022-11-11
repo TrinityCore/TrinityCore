@@ -4405,9 +4405,9 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow : public AuraScript
         target->SetHover(true);
 
         target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
-        target->SetVirtualItem(0, 0);
-        target->SetVirtualItem(1, 0);
-        target->SetVirtualItem(2, 0);
+
+        for (uint8 virtualItem = 0; virtualItem < 3; ++virtualItem)
+            target->SetVirtualItem(virtualItem, 0);
 
         target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), target->m_Events.CalculateTime(25ms));
 
@@ -4415,9 +4415,19 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow : public AuraScript
         {
             Position darknessTargetPos(darknessTarget->GetPositionX(), darknessTarget->GetPositionY(), darknessTarget->GetPositionZ());
 
-            // TODO: handle LFR as well with a switch instead.
-            target->SendPlayOrphanSpellVisual(Position(darknessTargetPos.GetPositionX(), darknessTargetPos.GetPositionY(), darknessTargetPos.GetPositionZ() + 0.25f),
-                target->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID ? SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC : SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM, 5.0f, true, false);
+            uint32 spellVisual = 0;
+
+            // TODO: add LFR and Mythic values.
+            switch (target->GetMap()->GetDifficultyID())
+            {
+                case DIFFICULTY_LFR_NEW: spellVisual = 0; break;
+                case DIFFICULTY_NORMAL_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_NM; break;
+                case DIFFICULTY_HEROIC_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_01_HC; break;
+                case DIFFICULTY_MYTHIC_RAID: spellVisual = 0; break;
+                default: break;
+            }
+
+            target->SendPlayOrphanSpellVisual(Position(darknessTargetPos.GetPositionX(), darknessTargetPos.GetPositionY(), darknessTargetPos.GetPositionZ() + 0.25f), spellVisual, 5.0f, true, false);
 
             target->NearTeleportTo(darknessTargetPos, false);
         }
@@ -4434,6 +4444,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow : public AuraScript
         target->SetHover(false);
 
         target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+
         target->SetVirtualItem(0, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
         target->SetVirtualItem(1, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
         target->SetVirtualItem(2, DATA_DISPLAY_ID_SYLVANAS_BOW);
@@ -5245,7 +5256,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
 
                 me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(1ms));
 
-                _scheduler.Schedule(47ms, [this, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(47ms, [sylvanas](TaskContext /*task*/)
                 {
                     sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RUIN_INTERRUPTED, 0, 0);
                 });
@@ -5269,7 +5280,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
 
                 me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(1ms));
 
-                _scheduler.Schedule(47ms, [this, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(47ms, [sylvanas](TaskContext /*task*/)
                 {
                     sylvanas->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RUIN_INTERRUPTED, 0, 0);
                 });
