@@ -3,3 +3,4 @@ UPDATE trinity_string SET content_default = 'AIName: %s\r\nScriptName: %s\r\Stri
 
 ALTER TABLE creature 
   ADD COLUMN StringId VARCHAR(64) DEFAULT NULL;
+  
