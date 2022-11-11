@@ -698,30 +698,30 @@ Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
 
 float const DesecratingShotNormalSpiralDistance[10] =
 {
-    { 0.0f        },
-    { 3.750014f   },
-    { 7.464427f   },
-    { 11.092868f  },
-    { 14.568754f  },
-    { 17.0809464f },
-    { 20.716787f  },
-    { 23.179819f  },
-    { 25.079182f  },
-    { 26.294075f  }
+    0.0f,
+    3.750014f,
+    7.464427f,
+    11.092868f,
+    14.568754f,
+    17.0809464f,
+    20.716787f,
+    23.179819f,
+    25.079182f,
+    26.294075f
 };
 
 float const DesecratingShotSpiralEnclosedDistance[10] =
 {
-    { 0.0f        },
-    { 3.749988f   },
-    { 7.448239f   },
-    { 10.986361f  },
-    { 14.186308f  },
-    { 16.796705f  },
-    { 18.506325f  },
-    { 18.985258f  },
-    { 17.966669f  },
-    { 15.394481f  }
+    0.0f,
+    3.749988f,
+    7.448239f,
+    10.986361f,
+    14.186308f,
+    16.796705f,
+    18.506325f,
+    18.985258f,
+    17.966669f,
+    15.394481f
 };
 
 static constexpr float Magnitude = 1.0f;  // Maximum wave outbreak
@@ -3256,7 +3256,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 return true;
             }
 
-            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL: 
+            case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
                 float distance = DATA_DESECRATING_SHOT_PATTERN_SPIRAL ? DesecratingShotNormalSpiralDistance[step - 1] : DesecratingShotSpiralEnclosedDistance[step - 1];
