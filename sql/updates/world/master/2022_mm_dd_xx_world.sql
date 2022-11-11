@@ -11,3 +11,8 @@ INSERT INTO `serverside_spell_effect` (`SpellID`, `EffectIndex`, `DifficultyID`,
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_gen_spirit_heal';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (156758, 'spell_gen_spirit_heal');
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN (26350, 26351);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(26350, 0, 0, 0, 1, 0, 0, 0, 0, 0, '8149'), -- 26350 (Alliance Graveyard Teleporter) - Super Invis
+(26351, 0, 0, 0, 1, 0, 0, 0, 0, 0, '8149'); -- 26351 (Horde Graveyard Teleporter) - Super Invis

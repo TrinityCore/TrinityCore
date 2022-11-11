@@ -2289,12 +2289,51 @@ private:
     TaskScheduler _scheduler;
 };
 
-struct npc_bg_spirit_guide : public ScriptedAI
+struct SpiritGuideAI : public ScriptedAI
 {
-    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL = 22011;
     static constexpr uint32 SPELL_GRAVEYARD_TELEPORT = 46893;
 
-    npc_bg_spirit_guide(Creature * creature) : ScriptedAI(creature) { }
+    static constexpr uint32 HORDE_FACTION = 83;
+    static constexpr uint32 ALLIANCE_FACTION = 84;
+
+    static constexpr uint32 NPC_ALLIANCE_GRAVEYARD_TELEPORT = 26350;
+    static constexpr uint32 NPC_HORDE_GRAVEYARD_TELEPORT = 26351;
+
+    SpiritGuideAI(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnDespawn() override
+    {
+        switch (me->GetFaction())
+        {
+            case HORDE_FACTION:
+                SummonGraveyardTeleporter(NPC_HORDE_GRAVEYARD_TELEPORT);
+                break;
+            case ALLIANCE_FACTION:
+                SummonGraveyardTeleporter(NPC_ALLIANCE_GRAVEYARD_TELEPORT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SummonGraveyardTeleporter(uint32 npcEntry)
+    {
+        // maybe NPC is summoned with these spells:
+        // ID - 24237 Summon Alliance Graveyard Teleporter (SERVERSIDE)
+        // ID - 46894 Summon Horde Graveyard Teleporter (SERVERSIDE)
+        if (TempSummon* summon = me->SummonCreature(npcEntry, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN, 0s, 0, 0))
+        {
+            summon->SetDemonCreatorGUID(me->GetGUID());
+            summon->CastSpell(summon, SPELL_GRAVEYARD_TELEPORT);
+        }
+    }
+};
+
+struct npc_bg_spirit_guide : public SpiritGuideAI
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL = 22011;
+
+    npc_bg_spirit_guide(Creature * creature) : SpiritGuideAI(creature) { }
 
     void UpdateAI(uint32 diff) override
     {
@@ -2311,13 +2350,6 @@ struct npc_bg_spirit_guide : public ScriptedAI
         ScheduleSpiritHealChannel();
     }
 
-    void OnDespawn() override
-    {
-        // this is a hack.
-        // A NPC is summoned (Alliance/Horde Graveyard Teleporter) and this NPC casts the spell.
-        DoCastSelf(SPELL_GRAVEYARD_TELEPORT);
-    }
-
     void ScheduleSpiritHealChannel()
     {
         _scheduler.Schedule(1s, [this](TaskContext /*context*/)
@@ -2330,20 +2362,12 @@ private:
     TaskScheduler _scheduler;
 };
 
-struct npc_bg_spirit_guide_personal : public ScriptedAI
+struct npc_bg_spirit_guide_personal : public SpiritGuideAI
 {
     static constexpr uint32 SPELL_SPIRIT_HEAL_PLAYER_AURA = 156758;
     static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL_SELF = 305122;
-    static constexpr uint32 SPELL_GRAVEYARD_TELEPORT = 46893;
 
-    npc_bg_spirit_guide_personal(Creature* creature) : ScriptedAI(creature) { }
-
-    void OnDespawn() override
-    {
-        // this is a hack.
-        // A NPC is summoned (Alliance/Horde Graveyard Teleporter) and this NPC casts the spell.
-        DoCastSelf(SPELL_GRAVEYARD_TELEPORT);
-    }
+    npc_bg_spirit_guide_personal(Creature* creature) : SpiritGuideAI(creature) { }
 
     bool OnSpiritHealerQuery(Player* player) override
     {
