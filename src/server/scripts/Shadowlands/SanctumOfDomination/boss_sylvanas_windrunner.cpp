@@ -4639,7 +4639,7 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
         caster->CastSpell(caster, SPELL_BANSHEE_WAIL_EXPIRE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 5000));
 
         std::list<Player*> targetList;
-        GetPlayerListInGrid(targetList, caster, 250.0f);
+        GetPlayerListInGrid(targetList, caster, 500.0f);
 
         for (Player* target : targetList)
             caster->CastSpell(target, SPELL_BANSHEE_WAIL_MARKER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 4650));
@@ -4652,7 +4652,7 @@ class spell_sylvanas_windrunner_banshee_wail : public SpellScript
             return;
 
         std::list<Player*> targetList;
-        GetPlayerListInGrid(targetList, caster, 250.0f);
+        GetPlayerListInGrid(targetList, caster, 500.0f);
 
         for (Player* target : targetList)
             caster->CastSpell(target, GetEffectInfo(EFFECT_0).TriggerSpell, true);
@@ -4735,6 +4735,47 @@ class spell_sylvanas_windrunner_banshee_wail_interrupt : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_banshee_wail_interrupt::HandleHit, EFFECT_0, SPELL_EFFECT_INTERRUPT_CAST);
+    }
+};
+
+// 348146 - Banshee Form
+class spell_sylvanas_windrunner_banshee_form : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_banshee_form);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Fly);
+        target->SetDisableGravity(true);
+        target->SetHover(true);
+
+        for (uint8 virtualItem = 0; virtualItem < 3; ++virtualItem)
+            target->SetVirtualItem(virtualItem, 0);
+
+        target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), target->m_Events.CalculateTime(0ms));
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Ground);
+        target->SetDisableGravity(false);
+        target->SetHover(false);
+
+        target->SetVirtualItem(0, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(1, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(2, DATA_DISPLAY_ID_SYLVANAS_BOW);
+
+        target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), target->m_Events.CalculateTime(0ms));
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_banshee_form::OnApply, EFFECT_0, SPELL_AURA_FLY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_form::OnRemove, EFFECT_0, SPELL_AURA_FLY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -7278,6 +7319,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_marker);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_triggered_missile);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_wail_interrupt);
+    RegisterSpellScript(spell_sylvanas_windrunner_banshee_form);
     RegisterSpellScript(spell_sylvanas_windrunner_haunting_wave);
     RegisterSpellScript(spell_sylvanas_windrunner_ruin);
     RegisterSpellAndAuraScriptPair(spell_sylvanas_windrunner_banshees_heartseeker, spell_sylvanas_windrunner_banshees_heartseeker_aura);

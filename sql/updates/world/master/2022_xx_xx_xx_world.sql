@@ -361,27 +361,32 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=353418 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (353418, 'spell_sylvanas_windrunner_rive');
 
- -- Banshee Wail
+-- Banshee Wail
 DELETE FROM `spell_script_names` WHERE `spell_id`=348094 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (348094, 'spell_sylvanas_windrunner_banshee_wail');
 
- -- Banshee Wail (Marker)
+-- Banshee Wail (Marker)
 DELETE FROM `spell_script_names` WHERE `spell_id`=357719 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_marker';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (357719, 'spell_sylvanas_windrunner_banshee_wail_marker');
 
- -- Banshee Wail (Triggered Missile)
+-- Banshee Wail (Triggered Missile)
 DELETE FROM `spell_script_names` WHERE `spell_id`=348108 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_triggered_missile';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (348108, 'spell_sylvanas_windrunner_banshee_wail_triggered_missile');
 
- -- Banshee Wail (Interrupt)
+-- Banshee Wail (Interrupt)
 DELETE FROM `spell_script_names` WHERE `spell_id`=351252 AND `ScriptName`='spell_sylvanas_windrunner_banshee_wail_interrupt';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (351252, 'spell_sylvanas_windrunner_banshee_wail_interrupt');
 
- -- Haunting Wave
+-- Banshee Form
+DELETE FROM `spell_script_names` WHERE `spell_id`=348146 AND `ScriptName`='spell_sylvanas_windrunner_banshee_form';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(348146, 'spell_sylvanas_windrunner_banshee_form');
+
+-- Haunting Wave
 DELETE FROM `spell_script_names` WHERE `spell_id`=352271 AND `ScriptName`='spell_sylvanas_windrunner_haunting_wave';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (352271, 'spell_sylvanas_windrunner_haunting_wave');
