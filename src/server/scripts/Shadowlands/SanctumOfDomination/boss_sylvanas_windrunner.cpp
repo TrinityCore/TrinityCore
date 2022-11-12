@@ -755,11 +755,11 @@ std::array<Position, 8> const RiveThrowPos =
     }
 };
 
-Position const RiveFinishPos =        { 235.1163f, -829.901f,  4105.0386f, 5.4824f    };
+Position const SylvanasIntermissionFinishPos = { 235.1163f, -829.901f,  4105.0386f, 5.4824f    };
 
 Position const SylvanasPhase2PrePos = { -14.5625f, -943.441f,   4999.990f,  0.8928f   };
 
-Position const SylvanasWavePos[10] =
+Position const SylvanasHauntingWavePos[10] =
 {
     { 133.5104f, -829.4792f, 4999.968f, 0.4383f },
     { 91.66666f, -835.0868f, 4999.968f, 0.4383f },
@@ -847,9 +847,10 @@ static Position GetRandomPointInMiddlePlatform()
     return Position(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
 }
 
+// TODO: confirm if this is always the same one or just an increase in Z.
 Position const SylvanasVeilThreePos = { -286.978f, -1245.2378f, 5772.0347f, 0.0f       };
 
-Position const SylvanasEndPos =       { -249.876f, -1252.4791f, 5667.1157f, 3.3742f    };
+Position const SylvanasEncounterFinishPos = { -249.876f, -1252.4791f, 5667.1157f, 3.3742f };
 
 Creature* GetShadowcopy(InstanceScript* instance, uint8 copyIndex)
 {
@@ -1805,16 +1806,16 @@ struct boss_sylvanas_windrunner : public BossAI
         // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_RENAME when engaging, meaning they're most likely summoned by Sylvanas.
         me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS);
 
-        me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
+        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
         events.Reset();
 
         // Note: Rive positions must be randomized.
         for (uint8 i = 0; i < RiveThrowPos.size(); i++)
             _selectedRivePos.push_back(RiveThrowPos[i]);
-
         Trinity::Containers::RandomShuffle(_selectedRivePos);
 
+        // TODO: remove this.
         DoCastSelf(SPELL_RANGER_BOW_STANCE);
     }
 
@@ -2096,12 +2097,12 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(500ms, [this](TaskContext /*task*/)
                     {
-                        me->SendPlayOrphanSpellVisual(SylvanasWavePos[_eventCounter[EVENT_COUNTER_HAUNTING_WAVE]], SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
+                        me->SendPlayOrphanSpellVisual(SylvanasHauntingWavePos[_eventCounter[EVENT_COUNTER_HAUNTING_WAVE]], SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
                     });
 
                     scheduler.Schedule(750ms, [this](TaskContext /*task*/)
                     {
-                        me->NearTeleportTo(SylvanasWavePos[_eventCounter[EVENT_COUNTER_HAUNTING_WAVE]], false);
+                        me->NearTeleportTo(SylvanasHauntingWavePos[_eventCounter[EVENT_COUNTER_HAUNTING_WAVE]], false);
                         me->RemoveAura(SPELL_WINDRUNNER_DISAPPEAR_02);
                     });
 
@@ -2213,7 +2214,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(1ms));
 
-                    me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
+                    instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
 
                     events.SetPhase(PHASE_THREE);
                     events.ScheduleEvent(EVENT_BANSHEES_FURY, 1s + 500ms, 1, PHASE_THREE);
@@ -2263,11 +2264,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_WITHERING_FIRE:
                 {
-                    TeleportShadowcopiesToMe();
-
                     switch (events.GetPhaseMask())
                     {
                         case PHASE_ONE:
+                            TeleportShadowcopiesToMe();
                             DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 2062));
                             DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3800));
                             if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
@@ -2284,7 +2284,18 @@ struct boss_sylvanas_windrunner : public BossAI
                                 std::list<Player*> targetList;
                                 GetPlayerListInGrid(targetList, me, 500.0f);
 
-                                Trinity::Containers::RandomResize(targetList, 4);
+                                uint8 targetSize = 0;
+
+                                switch (me->GetMap()->GetDifficultyID())
+                                {
+                                    case DIFFICULTY_LFR_NEW: targetSize = 2; break;
+                                    case DIFFICULTY_NORMAL_RAID: targetSize = 3; break;
+                                    case DIFFICULTY_HEROIC_RAID: targetSize = 4; break;
+                                    case DIFFICULTY_MYTHIC_RAID: targetSize = 5; break;
+                                    default: break;
+                                }
+
+                                Trinity::Containers::RandomResize(targetList, targetSize);
 
                                 for (Player* target : targetList)
                                 {
@@ -2669,10 +2680,10 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
 
-                    me->SendPlayOrphanSpellVisual(RiveFinishPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                    me->SendPlayOrphanSpellVisual(SylvanasIntermissionFinishPos, SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
                     if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
-                        shadowCopy->CastSpell(RiveFinishPos, SPELL_DOMINATION_CHAINS_JUMP, true);
+                        shadowCopy->CastSpell(SylvanasIntermissionFinishPos, SPELL_DOMINATION_CHAINS_JUMP, true);
 
                     scheduler.Schedule(100ms, [this](TaskContext /*task*/)
                     {
@@ -2682,7 +2693,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(500ms, [this](TaskContext /*task*/)
                     {
-                        me->NearTeleportTo(RiveFinishPos, false);
+                        me->NearTeleportTo(SylvanasIntermissionFinishPos, false);
 
                         me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     });
@@ -2706,10 +2717,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     scheduler.Schedule(8s + 500ms, [this](TaskContext /*task*/)
                     {
-                        me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_STUN);
-                        me->GetInstanceScript()->DoCastSpellOnPlayers(SPELL_INTERMISSION_SCENE);
+                        instance->DoCastSpellOnPlayers(SPELL_INTERMISSION_STUN);
+                        instance->DoCastSpellOnPlayers(SPELL_INTERMISSION_SCENE);
 
-                        me->GetInstanceScript()->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
+                        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
 
                         events.SetPhase(PHASE_TWO);
                     });
@@ -6057,15 +6068,15 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
 
                         sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 500));
 
-                        sylvanas->SendPlayOrphanSpellVisual(SylvanasWavePos[0], SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
+                        sylvanas->SendPlayOrphanSpellVisual(SylvanasHauntingWavePos[0], SPELL_VISUAL_WINDRUNNER_01, 0.5f, true, false);
 
                         if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00))
-                            shadowCopy->CastSpell(SylvanasWavePos[0], SPELL_WINDRUNNER_MOVE, true);
+                            shadowCopy->CastSpell(SylvanasHauntingWavePos[0], SPELL_WINDRUNNER_MOVE, true);
                     });
 
                     _scheduler.Schedule(4s, [this, sylvanas](TaskContext /*task*/)
                     {
-                        sylvanas->NearTeleportTo(SylvanasWavePos[0], false);
+                        sylvanas->NearTeleportTo(SylvanasHauntingWavePos[0], false);
 
                         sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
 
@@ -7077,14 +7088,14 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
 
         Position currentPos = at->GetPosition();
 
-        _vectorPos = _lastPointPos.GetPositionX() - currentPos.GetPositionX(), _lastPointPos.GetPositionY() - currentPos.GetPositionY(), _lastPointPos.GetPositionZ() - currentPos.GetPositionZ();
+        Position vectorPos = { _lastPointPos.GetPositionX() - currentPos.GetPositionX(), _lastPointPos.GetPositionY() - currentPos.GetPositionY(), _lastPointPos.GetPositionZ() - currentPos.GetPositionZ() };
 
         // Note: according to Jackpoz, we need to normalize it so that it get to be 1.0f on m_positionX, but if we use this calculation on _directionPos, the force is almost completely neglected.
         //_distanceMagnitude = std::sqrt(_vectorPos.GetPositionX()  * _vectorPos.GetPositionX() + _vectorPos.GetPositionY() * _vectorPos.GetPositionY() + _vectorPos.GetPositionZ() * _vectorPos.GetPositionZ());
 
-        _directionPos = _vectorPos.GetPositionX() / magnitude, _vectorPos.GetPositionY() / magnitude, _vectorPos.GetPositionZ() / magnitude;
+        Position directionPos = { vectorPos.GetPositionX() / magnitude, vectorPos.GetPositionY() / magnitude, vectorPos.GetPositionZ() / magnitude };
 
-        unit->ApplyMovementForce(at->GetGUID(), currentPos, magnitude, MovementForceType::SingleDirectional, _directionPos);
+        unit->ApplyMovementForce(at->GetGUID(), currentPos, magnitude, MovementForceType::SingleDirectional, directionPos);
 
         sylvanas->CastSpell(unit, SPELL_HAUNTING_WAVE_DAMAGE, true);
     }
@@ -7100,9 +7111,6 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
 private:
     InstanceScript* _instance;
     Position _lastPointPos;
-    Position _vectorPos;
-    Position _directionPos;
-    //float _distanceMagnitude;
 };
 
 // 23506 - Blasphemy
