@@ -613,7 +613,7 @@ uint32 const EventTimersNormal[3][7][7]
         { 28600, 39800, 28300, 30100, 90000 }, // Wailing Arrow (Marker)
         { 34600, 45800, 34300, 36100, 90000 }, // Wailing Arrow
         { 50000, 52300, 54800, 55000, 90000 }, // Veil of Darkness
-        { 22500, 20500, 34300, 17300, 16500, 24300, 17800 } // Ranger's Heartseeker
+        { 22500, 20500, 34300, 17300, 16500, 24300, 18300 } // Ranger's Heartseeker
     },
 
     // Phase 2
@@ -1584,7 +1584,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                         _sayDesecrating = 0;
                     }
-            });
+                });
 
                 _scheduler.Schedule(146ms, [this, sylvanas](TaskContext /*task*/)
                 {
@@ -1679,7 +1679,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
             me->SendPlaySpellVisual(desecratingShot.Pos, 0, SPELL_VISUAL_DESECRATING_ARROW, 0, 0, travelSpeed, true);
 
-            uint32 timeToTarget = uint32(travelSpeed) * 1000;
+            uint32 timeToTarget = uint32(travelSpeed * 1000);
 
             _scheduler.Schedule(Milliseconds(timeToTarget), [this, desecratingShot](TaskContext /*task*/)
             {
@@ -2390,19 +2390,19 @@ struct boss_sylvanas_windrunner : public BossAI
                     switch (_eventCounter[EVENT_COUNTER_WINDRUNNER])
                     {
                         case DATA_WINDRUNNER_COUNTER_ONE:
-                            StartDesecratingShot(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 1 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_STRAIGHT);
+                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 1 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_STRAIGHT);
                             break;
                         case DATA_WINDRUNNER_COUNTER_TWO:
-                            StartDesecratingShot(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
+                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
                             break;
                         case DATA_WINDRUNNER_COUNTER_THREE:
-                            StartDesecratingShot(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
+                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
                             break;
                         case DATA_WINDRUNNER_COUNTER_FOUR:
-                            StartDesecratingShot(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
+                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
                             break;
                         case DATA_WINDRUNNER_COUNTER_FIVE:
-                            StartDesecratingShot(0);
+                            StartDesecratingShotPattern(0);
                             break;
                         default:
                             break;
@@ -2941,28 +2941,35 @@ struct boss_sylvanas_windrunner : public BossAI
         {
             case DATA_DESECRATING_SHOT_PATTERN_STRAIGHT:
             {
-                int32 step = 1;
+                int8 step = 1;
 
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 500.0f, true, true))
-                    while (DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, me->GetPosition(), me->GetAbsoluteAngle(target)))
+                    while (step < 30 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_STRAIGHT, 0, step, me->GetPosition(), me->GetAbsoluteAngle(target)))
                         ++step;
                 break;
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
             {
-                int32 step = 1;
+                int8 targetSize = std::max<uint8>(4, static_cast<uint8>(std::ceil(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
 
-                int32 amount = std::max<uint8>(4, static_cast<uint8>(std::ceil(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
+                // TODO: remove false and playerlist, it's for testing.
+                std::list<Unit*> targets;
+                SelectTargetList(targets, targetSize, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
-                while (amount > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, amount, step, me->GetPosition(), me->GetOrientation()))
-                    --amount;
+                for (Unit* target : targets)
+                {
+                    int8 step = 1;
+
+                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, targetSize, step, target->GetPosition(), target->GetOrientation()))
+                        --step;
+                }
                 break;
             }
 
             case DATA_DESECRATING_SHOT_PATTERN_WAVE:
             {
-                uint8 copyIndex = 2;
+                int8 copyIndex = 2;
 
                 Position pos = me->GetPosition();
 
@@ -2970,7 +2977,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 for (uint8 i = 3; i > 0; --i)
                 {
-                    int32 step = 0;
+                    int8 step = 0;
 
                     Position convertedPos(pos.GetPosition());
 
@@ -3003,11 +3010,11 @@ struct boss_sylvanas_windrunner : public BossAI
                 std::list<Unit*> targets;
                 SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
-                uint8 copyIndex = 2;
+                int8 copyIndex = 2;
 
                 for (Unit* target : targets)
                 {
-                    uint8 step = 10;
+                    int8 step = 10;
 
                     Position targetPos = target->GetPosition();
 
@@ -3027,7 +3034,7 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool DrawDesecratingShotPattern(uint8 pattern, uint32 amount, int32 step, Position pos, float orientation)
+    bool DrawDesecratingShotPattern(uint8 pattern, int8 amount, int8 step, Position pos, float orientation)
     {
         std::vector<Position> arrowPositions;
 
@@ -3037,42 +3044,65 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 float distance = 7.0f * step;
 
-                // Note: let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform.
                 Position arrowCenter(me->GetPositionX() + (std::cos(orientation) * distance), me->GetPositionY() + (std::sin(orientation) * distance), me->GetPositionZ());
 
-                if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
-                    return false;
-
-                arrowPositions.push_back(arrowCenter);
-
-                scheduler.Schedule(Milliseconds(step * 25), [this, arrowCenter](TaskContext /*task*/)
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
                 {
-                    me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                });
+                    arrowPositions.push_back(arrowCenter);
+
+                    scheduler.Schedule(Milliseconds(step * 25), [this, arrowCenter](TaskContext /*task*/)
+                    {
+                        me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
 
                 Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
-                arrowPositions.push_back(arrowInnerLeft);
+
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowInnerLeft, PLATFORM_RADIUS))
+                {
+                    arrowPositions.push_back(arrowInnerLeft);
+
+                    scheduler.Schedule(Milliseconds(step * 35), [this, arrowInnerLeft](TaskContext /*task*/)
+                    {
+                        me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
 
                 Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
-                arrowPositions.push_back(arrowInnerRight);
 
-                scheduler.Schedule(Milliseconds(step * 35), [this, arrowInnerLeft, arrowInnerRight](TaskContext /*task*/)
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowInnerRight, PLATFORM_RADIUS))
                 {
-                    me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                });
+                    arrowPositions.push_back(arrowInnerRight);
+
+                    scheduler.Schedule(Milliseconds(step * 35), [this, arrowInnerRight](TaskContext /*task*/)
+                    {
+                        me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
 
                 Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionZ());
-                arrowPositions.push_back(arrowOuterLeft);
+
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowOuterLeft, PLATFORM_RADIUS))
+                {
+                    arrowPositions.push_back(arrowOuterLeft);
+
+                    scheduler.Schedule(Milliseconds(step * 50), [this, arrowOuterLeft](TaskContext /*task*/)
+                    {
+                        me->CastSpell(arrowOuterLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
 
                 Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionZ());
-                arrowPositions.push_back(arrowOuterRight);
 
-                scheduler.Schedule(Milliseconds(step * 50), [this, arrowOuterLeft, arrowOuterRight](TaskContext /*task*/)
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowOuterRight, PLATFORM_RADIUS))
                 {
-                    me->CastSpell(arrowOuterLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    me->CastSpell(arrowOuterRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                });
+                    arrowPositions.push_back(arrowOuterRight);
+
+                    scheduler.Schedule(Milliseconds(step * 50), [this, arrowOuterRight](TaskContext /*task*/)
+                    {
+                        me->CastSpell(arrowOuterRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                    });
+                }
 
                 // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
                 constexpr std::array<float, 5> travelSpeed = { 0.245000004768371f, 0.384000003337860f, 0.358999997377395f, 0.517000019550323f, 0.470999985933303f };
@@ -3088,49 +3118,49 @@ struct boss_sylvanas_windrunner : public BossAI
 
             case DATA_DESECRATING_SHOT_PATTERN_SCATTERED:
             {
-                // TODO: remove false param and playerlist, it's just for testing.
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 500.0f, false, true))
+                Position arrowCenter(pos.GetPositionX() + (std::cos(orientation)), pos.GetPositionY() + (std::sin(orientation)), me->GetPositionZ());
+
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
                 {
-                    float distance = frand(2.5f, 5.0f) * step;
-
-                    // Note: let's obtain the arrow's center so we can stop summoning arrows if it goes beyond the boundaries of the platform.
-                    Position arrowCenter(target->GetPositionX() + (std::cos(orientation) * distance), target->GetPositionY() + (std::sin(orientation) * distance), me->GetPositionZ());
-
-                    // TODO: it shouldn't return false at this point because it doesn't stop building, it's just the part that is outside won't spawn ATs and shouldn't be stored at all.
-                    if (!SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowCenter, PLATFORM_RADIUS))
-                        return false;
-
                     arrowPositions.push_back(arrowCenter);
 
                     scheduler.Schedule(Milliseconds(step * 5), [this, arrowCenter](TaskContext /*task*/)
                     {
                         me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
+                }
 
-                    Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionZ());
+
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowInnerLeft, PLATFORM_RADIUS))
+                {
                     arrowPositions.push_back(arrowInnerLeft);
 
-                    scheduler.Schedule(Milliseconds(step * 50), [this, arrowInnerLeft](TaskContext /*task*/)
+                    scheduler.Schedule(Milliseconds(step * 500), [this, arrowInnerLeft](TaskContext /*task*/)
                     {
                         me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
+                }
 
-                    Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 5.196156f), arrowCenter.GetPositionZ());
+
+                if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&arrowInnerRight, PLATFORM_RADIUS))
+                {
                     arrowPositions.push_back(arrowInnerRight);
 
-                    scheduler.Schedule(Milliseconds(step * 100), [this, arrowInnerRight](TaskContext /*task*/)
+                    scheduler.Schedule(Milliseconds(step * 1000), [this, arrowInnerRight](TaskContext /*task*/)
                     {
                         me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
+                }
 
-                    // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
-                    constexpr std::array<float, 3> travelSpeed = { 0.245000004768371f, 0.384000003337860f, 0.470999985933303f };
+                // Note: after hours of research and Pitagoras, each part of the arrow has a different travelSpeed.
+                constexpr std::array<float, 3> travelSpeed = { 0.245000004768371f, 0.384000003337860f, 0.470999985933303f };
 
-                    for (uint8 i = 0; i < arrowPositions.size(); i++)
-                    {
-                        if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, DATA_INDEX_00))
-                            shadowCopyAI->StoreDesecratingShots(arrowPositions[i], step, travelSpeed[i]);
-                    }
+                for (uint8 i = 0; i < arrowPositions.size(); i++)
+                {
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, DATA_INDEX_00))
+                        shadowCopyAI->StoreDesecratingShots(arrowPositions[i], step, travelSpeed[i]);
                 }
 
                 return true;
@@ -3281,20 +3311,40 @@ struct boss_sylvanas_windrunner : public BossAI
                 if (step != 1)
                 {
                     Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
-                    arrowPositions.push_back(spiralLeft);
+
+                    if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&spiralLeft, PLATFORM_RADIUS))
+                    {
+                        arrowPositions.push_back(spiralLeft);
+
+                        scheduler.Schedule(Milliseconds(step * 24), [this, spiralLeft](TaskContext /*task*/)
+                        {
+                            me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        });
+                    }
 
                     Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
-                    arrowPositions.push_back(spiralRight);
+
+                    if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&spiralRight, PLATFORM_RADIUS))
+                    {
+                        arrowPositions.push_back(spiralRight);
+
+                        scheduler.Schedule(Milliseconds(step * 24), [this, spiralRight](TaskContext /*task*/)
+                        {
+                            me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        });
+                    }
 
                     Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
-                    arrowPositions.push_back(spiralFront);
 
-                    scheduler.Schedule(Milliseconds(step * 24), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
+                    if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&spiralFront, PLATFORM_RADIUS))
                     {
-                        me->CastSpell(spiralLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                        me->CastSpell(spiralRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                        me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
-                    });
+                        arrowPositions.push_back(spiralFront);
+
+                        scheduler.Schedule(Milliseconds(step * 24), [this, spiralFront](TaskContext /*task*/)
+                        {
+                            me->CastSpell(spiralFront, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
+                        });
+                    }
                 }
                 else
                 {
@@ -3331,7 +3381,7 @@ struct boss_sylvanas_windrunner : public BossAI
         return true;
     }
 
-    void StartDesecratingShot(uint8 pattern)
+    void StartDesecratingShotPattern(uint8 pattern)
     {
         switch (pattern)
         {
