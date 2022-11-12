@@ -1104,7 +1104,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             case ACTION_CALCULATE_ARROWS:
             {
                 uint8 arrowsToSpawn = _events.IsInPhase(PHASE_INTERMISSION) ? me->GetMap()->GetPlayersCountExceptGMs()
-                    : std::min<uint8>(std::max<uint8>(std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs() / 3)), 4), 10);
+                    : std::min<uint8>(std::max<uint8>(static_cast<uint8>(std::ceil(me->GetMap()->GetPlayersCountExceptGMs() / 3)), 4), 10);
                 _selectedArrowCountsPerJump = SplitArrowCasts(arrowsToSpawn);
                 _jumpCount = 0;
                 break;
@@ -1425,7 +1425,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         for (Unit* target : targetedPlayers)
         {
-            uint32 timeToTarget = me->GetDistance(target) * 0.02083 * 1000;
+            uint32 timeToTarget = uint32(me->GetDistance(target) * 0.02083 * 1000);
 
             ObjectGuid targetGUID = target->GetGUID();
 
@@ -1678,7 +1678,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
             me->SendPlaySpellVisual(desecratingShot.Pos, 0, SPELL_VISUAL_DESECRATING_ARROW, 0, 0, travelSpeed, true);
 
-            uint32 timeToTarget = travelSpeed * 1000;
+            uint32 timeToTarget = uint32(travelSpeed) * 1000;
 
             _scheduler.Schedule(Milliseconds(timeToTarget), [this, desecratingShot](TaskContext /*task*/)
             {
@@ -2935,7 +2935,7 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 int32 step = 1;
 
-                int32 amount = std::max<uint8>(4, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
+                int32 amount = std::max<uint8>(4, static_cast<uint8>(std::ceil(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
 
                 while (amount > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SCATTERED, amount, step, me->GetPosition(), me->GetOrientation()))
                     --amount;
@@ -2959,12 +2959,12 @@ struct boss_sylvanas_windrunner : public BossAI
                     switch (i)
                     {
                         case 1:
-                            convertedPos.m_positionX += (std::cos(orientation + 180.0f * M_PI / 180) * 9.999982f);
-                            convertedPos.m_positionY += (std::sin(orientation + 180.0f * M_PI / 180) * 9.999982f);
+                            convertedPos.m_positionX += std::cos(orientation + 180.0f * float(M_PI) / 180) * 9.999982f;
+                            convertedPos.m_positionY += std::sin(orientation + 180.0f * float(M_PI) / 180) * 9.999982f;
                             break;
                         case 2:
-                            convertedPos.m_positionX += (std::cos(orientation + 180.0f * M_PI / 180) * 5.000011f);
-                            convertedPos.m_positionY += (std::sin(orientation + 180.0f * M_PI / 180) * 5.000011f);
+                            convertedPos.m_positionX += std::cos(orientation + 180.0f * float(M_PI) / 180) * 5.000011f;
+                            convertedPos.m_positionY += std::sin(orientation + 180.0f * float(M_PI) / 180) * 5.000011f;
                             break;
                         default:
                             break;
@@ -3032,10 +3032,10 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                 });
 
-                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
                 arrowPositions.push_back(arrowInnerLeft);
 
-                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
                 arrowPositions.push_back(arrowInnerRight);
 
                 scheduler.Schedule(Milliseconds(step * 35), [this, arrowInnerLeft, arrowInnerRight](TaskContext /*task*/)
@@ -3044,10 +3044,10 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->CastSpell(arrowInnerRight, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                 });
 
-                Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
+                Position arrowOuterLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionZ());
                 arrowPositions.push_back(arrowOuterLeft);
 
-                Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 5.6568f), arrowCenter.GetPositionZ());
+                Position arrowOuterRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 5.6568f), arrowCenter.GetPositionZ());
                 arrowPositions.push_back(arrowOuterRight);
 
                 scheduler.Schedule(Milliseconds(step * 50), [this, arrowOuterLeft, arrowOuterRight](TaskContext /*task*/)
@@ -3089,7 +3089,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(arrowCenter, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
 
-                    Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                    Position arrowInnerLeft(arrowCenter.GetPositionX() + (std::cos(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + 135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
                     arrowPositions.push_back(arrowInnerLeft);
 
                     scheduler.Schedule(Milliseconds(step * 50), [this, arrowInnerLeft](TaskContext /*task*/)
@@ -3097,7 +3097,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(arrowInnerLeft, SPELL_DESECRATING_SHOT_AREATRIGGER, true);
                     });
 
-                    Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * M_PI / 180) * 2.8284f), arrowCenter.GetPositionZ());
+                    Position arrowInnerRight(arrowCenter.GetPositionX() + (std::cos(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionY() + (std::sin(orientation + -135.0f * float(M_PI) / 180) * 2.8284f), arrowCenter.GetPositionZ());
                     arrowPositions.push_back(arrowInnerRight);
 
                     scheduler.Schedule(Milliseconds(step * 100), [this, arrowInnerRight](TaskContext /*task*/)
@@ -3165,7 +3165,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     if (amount == 2)
                     {
-                        Position rightLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+                        Position rightLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
                         if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&rightLineFront, PLATFORM_RADIUS))
                         {
@@ -3177,7 +3177,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             });
                         }
 
-                        Position rightLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+                        Position rightLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
                         if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&rightLineBack, PLATFORM_RADIUS))
                         {
@@ -3191,7 +3191,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else if (amount == 1)
                     {
-                        Position middleLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+                        Position middleLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
                         if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&middleLineFront, PLATFORM_RADIUS))
                         {
@@ -3203,7 +3203,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             });
                         }
 
-                        Position middleLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+                        Position middleLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
                         if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&middleLineBack, PLATFORM_RADIUS))
                         {
@@ -3217,7 +3217,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     }
                     else
                     {
-                        Position leftLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+                        Position leftLineFront(pos.GetPositionX() + (std::cos(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + 90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
                         if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&leftLineFront, PLATFORM_RADIUS))
                         {
@@ -3229,7 +3229,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             });
                         }
 
-                        Position leftLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * M_PI / 180) * pointDistance), pos.GetPositionZ());
+                        Position leftLineBack(pos.GetPositionX() + (std::cos(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionY() + (std::sin(orientation + -90.0f * float(M_PI) / 180) * pointDistance), pos.GetPositionZ());
 
                         if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&leftLineBack, PLATFORM_RADIUS))
                         {
@@ -3262,13 +3262,13 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 if (step != 1)
                 {
-                    Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    Position spiralLeft(pos.GetPositionX() + (std::cos((orientation + 120.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 120.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
                     arrowPositions.push_back(spiralLeft);
 
-                    Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    Position spiralRight(pos.GetPositionX() + (std::cos((orientation + 240.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 240.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
                     arrowPositions.push_back(spiralRight);
 
-                    Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * M_PI / 180) * distance), pos.GetPositionZ());
+                    Position spiralFront(pos.GetPositionX() + (std::cos((orientation + 360.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionY() + (std::sin((orientation + 360.0f + float(10 * step)) * float(M_PI) / 180) * distance), pos.GetPositionZ());
                     arrowPositions.push_back(spiralFront);
 
                     scheduler.Schedule(Milliseconds(step * 24), [this, spiralLeft, spiralRight, spiralFront](TaskContext /*task*/)
@@ -3978,7 +3978,7 @@ class HeartseekerMissileEvent : public BasicEvent
         {
             _actor->SendPlaySpellVisual(_victim, SPELL_VISUAL_HEARTSEEKER, 0, 0, 36.0f, false);
 
-            uint32 timeToTarget = _actor->GetDistance(_victim) * (0.0277 * 1000);
+            uint32 timeToTarget = uint32(_actor->GetDistance(_victim) * 0.0277 * 1000);
 
             _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timeToTarget)));
 
@@ -4326,14 +4326,14 @@ class spell_sylvanas_windrunner_wailing_arrow_raid_damage : public SpellScript
             return;
 
         // Note: this is completely based off research on different sniffs. The reduction might be inaccurate, but it's pretty close to Blizzard's.
-        uint32 damage = GetHitDamage();
+        int32 damage = GetHitDamage();
 
         float distanceDmgMod = caster->GetExactDist2d(GetHitUnit()) / 4.5f;
 
         if (distanceDmgMod < 1.0f)
             return;
 
-        damage /= distanceDmgMod;
+        damage /= uint32(distanceDmgMod);
 
         SetHitDamage(damage);
     }
@@ -5303,8 +5303,7 @@ struct npc_sylvanas_windrunner_bolvar : public ScriptedAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
-        if (me->HealthBelowPctDamaged(85.0f, damage))
-            damage = 0;
+        damage = 0;
     }
 
     void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
@@ -5573,8 +5572,7 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
-        if (me->HealthBelowPctDamaged(85.0f, damage))
-            damage = 0;
+        damage = 0;
     }
 
     void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
@@ -5953,8 +5951,7 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
-        if (me->HealthBelowPctDamaged(85.0f, damage))
-            damage = 0;
+        damage = 0;
     }
 
     void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
@@ -6654,8 +6651,7 @@ struct npc_sylvanas_windrunner_anduin : public ScriptedAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         // HACKFIX: sparring system is not implemented yet, this is a workaround
-        if (me->HealthBelowPctDamaged(85.0f, damage))
-            damage = 0;
+        damage = 0;
     }
 
     void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
@@ -7053,9 +7049,9 @@ struct at_sylvanas_windrunner_haunting_wave : AreaTriggerAI
         // Note: each difficulty has a different TimeToTarget.
         uint32 timeToTarget = at->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 10000 : 14286;
 
-        float millisecondsPerYard = timeToTarget / hauntingWaveXOffSet;
+        uint32 millisecondsPerYard = uint32(timeToTarget / hauntingWaveXOffSet);
 
-        at->InitSplines(path.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * millisecondsPerYard);
+        at->InitSplines(path.GetPath(), uint32(at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * millisecondsPerYard));
 
     }
 
@@ -7218,7 +7214,7 @@ struct at_sylvanas_windrunner_z_check : AreaTriggerAI
             if (player->IsGameMaster())
                 return;
 
-            player->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, player->GetMaxHealth());
+            player->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, uint32(player->GetMaxHealth()));
 
             if (player->IsAlive())
                 player->KillPlayer();
