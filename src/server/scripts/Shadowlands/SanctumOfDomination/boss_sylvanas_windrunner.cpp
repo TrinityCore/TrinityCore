@@ -612,8 +612,8 @@ uint32 const EventTimersNormal[3][7][7]
         { 25600, 59000, 57400, 57500, 90000 }, // Domination Chains
         { 28600, 39800, 28300, 30100, 90000 }, // Wailing Arrow (Marker)
         { 34600, 45800, 34300, 36100, 90000 }, // Wailing Arrow
-        { 50000, 53300, 54800, 55000, 90000 }, // Veil of Darkness
-        { 22500, 20500, 34300, 17300, 17000, 22800, 18800 } // Ranger's Heartseeker
+        { 50000, 52300, 54800, 55000, 90000 }, // Veil of Darkness
+        { 22500, 20500, 34300, 17300, 16500, 24300, 17800 } // Ranger's Heartseeker
     },
 
     // Phase 2
@@ -2412,11 +2412,11 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_RANGER_HEARTSEEKER:
                 {
-                    DoCastVictim(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER : SPELL_BANSHEES_HEARTSEEKER,
-                        CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
-
                     me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), me->m_Events.CalculateTime(0ms));
                     me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_RANGED, 0), me->m_Events.CalculateTime(328ms));
+
+                    DoCastVictim(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER : SPELL_BANSHEES_HEARTSEEKER,
+                        CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
 
                     ++_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER];
 
@@ -2481,7 +2481,8 @@ struct boss_sylvanas_windrunner : public BossAI
                         if (Unit* newTarget = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true))
                             me->CastSpell(newTarget, SPELL_WAILING_ARROW, false);
 
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(4s + 250ms));
+                    me->setAttackTimer(WeaponAttackType::BASE_ATTACK, 4500);
+                    me->resetAttackTimer(WeaponAttackType::BASE_ATTACK);
 
                     ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
 
@@ -2860,7 +2861,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     DoCastSelf(SPELL_RANGER_BOW_STANCE);
                 else
                 {
-                    if (!IsEventIncoming(1000))
+                    if (!IsEventIncoming())
                         DoCastVictim(SPELL_RANGER_SHOT);
                 }
             }
@@ -2896,7 +2897,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         break;
 
                     case DATA_MELEE_COMBO_FINISH:
-                        if (!IsEventIncoming(1000))
+                        if (!IsEventIncoming())
                         {
                             DoCastVictim(SPELL_RANGER_SHOT);
 
@@ -2917,12 +2918,18 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool IsEventIncoming(uint32 milliseconds)
+    bool IsEventIncoming()
     {
         for (uint32 incomingEvents = EVENT_WINDRUNNER; incomingEvents < EVENT_COUNTER_MAX; incomingEvents++)
         {
-            if (events.GetTimeUntilEvent(incomingEvents) <= Milliseconds(milliseconds))
-                return true;
+            if (incomingEvents == EVENT_RANGER_HEARTSEEKER)
+            {
+                if (events.GetTimeUntilEvent(incomingEvents) <= Milliseconds(350))
+                    return true;
+            }
+            else
+                if (events.GetTimeUntilEvent(incomingEvents) <= Milliseconds(500))
+                    return true;
         }
 
         return false;
@@ -3838,12 +3845,12 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
     {
         Unit* target = GetTarget();
 
-        target->setAttackTimer(WeaponAttackType::BASE_ATTACK, 500);
+        target->setAttackTimer(WeaponAttackType::BASE_ATTACK, 750);
 
         if (target->IsAIEnabled())
             target->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
 
-        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false), target->m_Events.CalculateTime(0ms));
+        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false), target->m_Events.CalculateTime(500ms));
     }
 
     void Register() override
