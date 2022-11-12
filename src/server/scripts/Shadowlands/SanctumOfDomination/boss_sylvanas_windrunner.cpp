@@ -2412,9 +2412,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_RANGER_HEARTSEEKER:
                 {
-                    me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), me->m_Events.CalculateTime(0ms));
-                    me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_RANGED, 0), me->m_Events.CalculateTime(328ms));
-
                     DoCastVictim(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER : SPELL_BANSHEES_HEARTSEEKER,
                         CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
 
@@ -3871,6 +3868,8 @@ class spell_sylvanas_windrunner_ranger_shot : public SpellScript
 
         if (caster->IsWithinCombatRange(caster->GetVictim(), 5.5f))
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(300ms));
+        else
+            caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(500ms));
     }
 
     void Register() override
@@ -4112,9 +4111,9 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
 
         caster->SetFacingToObject(actualTank);
 
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(1ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(281ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(562ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(0ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(280ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, actualTank), caster->m_Events.CalculateTime(561ms));
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
