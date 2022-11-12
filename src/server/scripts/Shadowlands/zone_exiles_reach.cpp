@@ -169,7 +169,6 @@ struct npc_sparring_partner : public ScriptedAI
                 Conversation* convo = Conversation::CreateConversation(CONVERSATION_JUMP, player, *player, player->GetGUID(), nullptr);
                 convo->AddActor(me->GetEntry(), _actorID, me->GetGUID());
             }
-
         }
     }
 
@@ -192,25 +191,24 @@ struct npc_sparring_partner : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_MOVE_TO_A_POSITION:
-                {
-                    std::list<Creature*> sparpoints;
-                    GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
-                    Trinity::Containers::RandomResize(sparpoints, 1);
-                    for (Creature* creature : sparpoints)
                     {
-                        me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
-                        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        std::list<Creature*> sparpoints;
+                        GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
+                        Trinity::Containers::RandomResize(sparpoints, 1);
+                        for (Creature* creature : sparpoints)
+                        {
+                            me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
+                            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        }
+                        _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
                     }
-                    _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
-                }
-                break;
+                    break;
                 case EVENT_PREFIGHT_CONVERSATION:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     {
                         Conversation* convo = Conversation::CreateConversation(CONVERSATION_PREFIGHT, player, *player, player->GetGUID(), nullptr);
                         convo->AddActor(me->GetEntry(), _actorID, me->GetGUID());
                     }
-
                     break;
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
@@ -300,8 +298,11 @@ public:
                             transport->CalculatePassengerPosition(x, y, z, &o);
                             garrickpos.Relocate(x, y, z, o);
                             if (Creature* garrick2 = garrick->SummonPersonalClone(garrickpos, TEMPSUMMON_TIMED_DESPAWN, 60s, 0, 0, player))
+                            {
+                                garrick2->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                                 if (garrick2->IsAIEnabled())
                                     garrick2->AI()->SetData(1, 1);
+                            }
                         }
                 }
                 else if (quest->GetQuestId() == QUEST_WARMING_UP_HORDE)
@@ -366,29 +367,29 @@ public:
                 {
                     switch (player->GetRace())
                     {
-                    case RACE_HUMAN:
-                        SpawnActor(player, NPC_GREY_WOLF_PET, petpos);
-                        break;
-                    case RACE_DWARF:
-                        SpawnActor(player, NPC_BEAR_PET, petpos);
-                        break;
-                    case RACE_NIGHTELF:
-                        SpawnActor(player, NPC_TIGER_PET, petpos);
-                        break;
-                    case RACE_GNOME:
-                        SpawnActor(player, NPC_MECHANICAL_BUNNY_PET, petpos);
-                        break;
-                    case RACE_DRAENEI:
-                        SpawnActor(player, NPC_MOTH_PET, petpos);
-                        break;
-                    case RACE_WORGEN:
-                        SpawnActor(player, NPC_DOG_PET, petpos);
-                        break;
-                    case RACE_PANDAREN_ALLIANCE:
-                        SpawnActor(player, NPC_TURTLE_PET, petpos);
-                        break;
-                    default:
-                        break;
+                        case RACE_HUMAN:
+                            SpawnActor(player, NPC_GREY_WOLF_PET, petpos);
+                            break;
+                        case RACE_DWARF:
+                            SpawnActor(player, NPC_BEAR_PET, petpos);
+                            break;
+                        case RACE_NIGHTELF:
+                            SpawnActor(player, NPC_TIGER_PET, petpos);
+                            break;
+                        case RACE_GNOME:
+                            SpawnActor(player, NPC_MECHANICAL_BUNNY_PET, petpos);
+                            break;
+                        case RACE_DRAENEI:
+                            SpawnActor(player, NPC_MOTH_PET, petpos);
+                            break;
+                        case RACE_WORGEN:
+                            SpawnActor(player, NPC_DOG_PET, petpos);
+                            break;
+                        case RACE_PANDAREN_ALLIANCE:
+                            SpawnActor(player, NPC_TURTLE_PET, petpos);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -414,29 +415,29 @@ public:
                 {
                     switch (player->GetRace())
                     {
-                    case RACE_ORC:
-                        SpawnActor(player, NPC_RED_WOLF_PET, petpos);
-                        break;
-                    case RACE_UNDEAD_PLAYER:
-                        SpawnActor(player, NPC_BAT_PET, petpos);
-                        break;
-                    case RACE_TAUREN:
-                        SpawnActor(player, NPC_PLAINSTRIDER_PET, petpos);
-                        break;
-                    case RACE_TROLL:
-                        SpawnActor(player, NPC_RAPTOR_PET, petpos);
-                        break;
-                    case RACE_GOBLIN:
-                        SpawnActor(player, NPC_SCORPION_PET, petpos);
-                        break;
-                    case RACE_BLOODELF:
-                        SpawnActor(player, NPC_DRAGONHAWK_PET, petpos);
-                        break;
-                    case RACE_PANDAREN_HORDE:
-                        SpawnActor(player, NPC_TURTLE_PET, petpos);
-                        break;
-                    default:
-                        break;
+                        case RACE_ORC:
+                            SpawnActor(player, NPC_RED_WOLF_PET, petpos);
+                            break;
+                        case RACE_UNDEAD_PLAYER:
+                            SpawnActor(player, NPC_BAT_PET, petpos);
+                            break;
+                        case RACE_TAUREN:
+                            SpawnActor(player, NPC_PLAINSTRIDER_PET, petpos);
+                            break;
+                        case RACE_TROLL:
+                            SpawnActor(player, NPC_RAPTOR_PET, petpos);
+                            break;
+                        case RACE_GOBLIN:
+                            SpawnActor(player, NPC_SCORPION_PET, petpos);
+                            break;
+                        case RACE_BLOODELF:
+                            SpawnActor(player, NPC_DRAGONHAWK_PET, petpos);
+                            break;
+                        case RACE_PANDAREN_HORDE:
+                            SpawnActor(player, NPC_TURTLE_PET, petpos);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -652,8 +653,8 @@ void AddSC_zone_exiles_reach()
     new quest_brace_for_impact();
     new player_ship_crash();
     new scene_alliance_and_horde_ship();
-    RegisterSpellScript(spell_alliance_spell_ship_crash_teleport);
-    RegisterSpellScript(spell_horde_spell_ship_crash_teleport);
+    RegisterSpellScript(spell_alliance_spell_ship_crash_teleport); // Need update in spell.cpp to remove this.
+    RegisterSpellScript(spell_horde_spell_ship_crash_teleport); // Need update in spell.cpp to remove this.
     // Beach
     new scene_alliance_and_horde_crash();
     RegisterSpellScript(spell_crash_landed_alliance);
