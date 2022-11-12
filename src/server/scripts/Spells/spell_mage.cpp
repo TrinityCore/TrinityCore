@@ -822,15 +822,12 @@ class spell_mage_ignite : public AuraScript
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
+
         DamageInfo* damage = eventInfo.GetDamageInfo();
 
         int32 bp = CalculatePct(damage->GetDamage(), aurEff->GetAmount()) * 0.5f;
-
-        if (AuraEffect const* ignite = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_MAGE_IGNITE, EFFECT_0, target->GetGUID()))
-            if (!ignite->GetTickNumber())
-                bp += ignite->GetAmount();
-
-        target->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
+        if (bp > 0)
+            target->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -839,6 +836,50 @@ class spell_mage_ignite : public AuraScript
         OnEffectProc.Register(&spell_mage_ignite::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
+
+// 12654 - Ignite
+class spell_mage_ignite_periodic : public AuraScript
+{
+    void CalculateRefreshedDot(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+        _critDamageValues.emplace_back(std::make_pair(2, amount));
+
+        amount = 0;
+        for (auto const& damageValuePair : _critDamageValues)
+            amount += damageValuePair.second;
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        int32 newDotValue = 0;
+        bool changed = false;
+        for (std::vector<std::pair<uint8, int32>>::iterator itr = _critDamageValues.begin(); itr != _critDamageValues.end();)
+        {
+            --itr->first;
+            newDotValue += itr->second;
+            if (itr->first == 0)
+            {
+                itr = _critDamageValues.erase(itr);
+                changed = true;
+            }
+            else
+                ++itr;
+        }
+
+        if (changed)
+            const_cast<AuraEffect*>(aurEff)->SetAmount(newDotValue);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount.Register(&spell_mage_ignite_periodic::CalculateRefreshedDot, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic.Register(&spell_mage_ignite_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+private:
+    std::vector<std::pair<uint8, int32>> _critDamageValues;
+};
+
 // 543 - Mage Ward
 /// Updated 4.3.4
 class spell_mage_mage_ward : public SpellScriptLoader
@@ -2175,6 +2216,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
     RegisterSpellScript(spell_mage_ignite);
+    RegisterSpellScript(spell_mage_ignite_periodic);
     RegisterSpellScript(spell_mage_impact);
     RegisterSpellScript(spell_mage_impact_triggered);
     new spell_mage_improved_hot_streak();
