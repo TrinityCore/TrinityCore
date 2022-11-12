@@ -119,7 +119,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,3,0,61,0,100,0,0,0,0,0,53,1,@SCRIPT+1,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - On dataset - Load path"),
 (@ENTRY,0,4,0,58,0,100,0,0,@SCRIPT+1,0,0,80,@SCRIPT+1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Load script"),
 (@ENTRY,0,5,0,58,0,100,0,0,@SCRIPT+2,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Path complete - Despawn"),
-(@SCRIPT,9,0,0,0,0,100,0,2000,2000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 0"),
+(@SCRIPT,9,0,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Say 0"),
 (@SCRIPT,9,1,0,0,0,100,0,0,0,0,0,59,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Set Run off"),
 (@SCRIPT,9,2,0,0,0,100,0,0,0,0,0,69,0,1,0,0,0,0,8,0,0,0,-11.810547,0.9602051,5.5279408,0,"Captain Garrick - Script - Move to position"),
 (@SCRIPT,9,3,0,0,0,100,0,3000,3000,0,0,5,66,0,0,0,0,0,1,0,0,0,0,0,0,0,"Captain Garrick - Script - Emote Salute"),
