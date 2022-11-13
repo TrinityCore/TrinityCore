@@ -5128,6 +5128,8 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 
         uint8 stackAmount = GetStackAmount();
 
+        float _angleOffset = float(M_PI * 2) / stackAmount;
+
         // TODO: not the correct way, we should find space on the current platform to fill up any gaps taking the player's pos as initial.
         for (uint8 i = 0; i < stackAmount; ++i)
         {
@@ -5143,10 +5145,6 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_bane::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
-
-private:
-    uint8 _stackAmount = GetStackAmount();
-    float _angleOffset = float(M_PI * 2) / _stackAmount;
 };
 
 class BansheesFuryEvent : public BasicEvent
