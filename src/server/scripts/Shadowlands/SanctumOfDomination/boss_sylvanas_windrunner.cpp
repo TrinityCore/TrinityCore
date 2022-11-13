@@ -574,26 +574,94 @@ Position const SylvanasIntroPos[4] =
  * to correctly obtain the missing ones.
  */
 
-uint32 const EventTimersLfr[3][6][8]
+uint32 const EventTimersPhaseOne[4][6][11] =
 {
-    // Phase 1
+    // Looking for Raid
     {
-        { 8900, 62000, 62000, 61000, 90000  }, // Windrunner
-        { 29000, 63900, 63900, 63000, 90000 }, // Domination Chains
-        { 40000, 46000, 36500, 39000, 90000 }, // Wailing Arrow
-        { 56600, 59300, 59300, 57000, 90000 }, // Veil of Darkness
+        { 8900, 62000, 62000, 61000, 90000                }, // Windrunner
+        { 29000, 63900, 63900, 63000, 90000               }, // Domination Chains
+        { 34000, 40000, 30000, 33000, 90000               }, // Wailing Arrow (Marker)
+        { 40000, 46000, 36500, 39000, 90000               }, // Wailing Arrow
+        { 56600, 59300, 59300, 57000, 90000               }, // Veil of Darkness
         { 22200, 19300, 18700, 19700, 20800, 18800, 18700, 19400 } // Ranger's Heartseeker
     },
 
-    // Phase 2
+    // Normal
     {
-        {  }, // Shadow daggers
-        {  }, // Veil of Darkness
-        {  }, // Banshee's Wail
-        {  }
+        { 7800, 55500, 55900, 55400, 90000                }, // Windrunner
+        { 25600, 59000, 57400, 57500, 90000               }, // Domination Chains
+        { 28600, 39800, 28300, 30100, 90000               }, // Wailing Arrow (Marker)
+        { 34600, 45800, 34300, 36100, 90000               }, // Wailing Arrow
+        { 50000, 52300, 54800, 55000, 90000               }, // Veil of Darkness
+        { 22500, 20500, 34300, 17300, 16500, 24300, 18300 } // Ranger's Heartseeker
     },
 
-    // Phase 3
+    // Heroic
+    {
+        { 7000, 51300, 48800, 47500, 52700                }, // Windrunner
+        { 23600, 53400, 49600, 53900, 90000               }, // Domination Chains
+        { 28900, 32000, 24500, 25700, 31700               }, // Wailing Arrow (Marker)
+        { 34900, 38000, 30500, 31700, 37700, 31700        }, // Wailing Arrow
+        { 44900, 49400, 46500, 46300, 90000               },  // Veil of Darkness
+        { 20100, 19100, 17100, 29900, 4800, 32200, 16100, 12000, 25700, 20600, 4700 } // Ranger's Heartseeker
+    },
+
+    // Mythic
+    {
+        { 6500, 57000, 55100, 56200, 90000                }, // Windrunner
+        { 29000, 55000, 64100, 90000, 90000               }, // Domination Chains
+        { 34600, 57300, 57300,                            }, // Black Arrow (Marker)
+        { 40600, 63300, 63300                             }, // Black Arrow
+        { 48000, 43400, 46500, 52400, 90000               }, // Veil of Darkness
+        { 20000, 17000, 25000, 17000, 23000, 4000, 31000, 20000, 3000, 8000 } // Ranger's Heartseeker
+    }
+};
+
+uint32 const EventTimersPhaseTwo[4][6][11] =
+{
+    // Looking for Raid
+    {
+        { 8900, 62000, 62000, 61000, 90000                }, // Banshee Wave
+        { 29000, 63900, 63900, 63000, 90000               }, // Shadow Dagger
+        { 34000, 40000, 30000, 33000, 90000               }, // Ruin
+        { 40000, 46000, 36500, 39000, 90000               }, // Banshee's Wail
+        { 56600, 59300, 59300, 57000, 90000               }, // Veil of Darkness
+        { 22200, 19300, 18700, 19700, 20800, 18800, 18700, 19400 } // Ranger's Heartseeker
+    },
+
+    // Normal
+    {
+        { 8900, 62000, 62000, 61000, 90000                }, // Banshee Wave
+        { 29000, 63900, 63900, 63000, 90000               }, // Shadow Dagger
+        { 34000, 40000, 30000, 33000, 90000               }, // Ruin
+        { 40000, 46000, 36500, 39000, 90000               }, // Banshee's Wail
+        { 56600, 59300, 59300, 57000, 90000               }, // Veil of Darkness
+        { 22200, 19300, 18700, 19700, 20800, 18800, 18700, 19400 } // Ranger's Heartseeker
+    },
+
+    // Heroic
+    {
+        { 8900, 62000, 62000, 61000, 90000                }, // Banshee Wave
+        { 29000, 63900, 63900, 63000, 90000               }, // Shadow Dagger
+        { 34000, 40000, 30000, 33000, 90000               }, // Ruin
+        { 40000, 46000, 36500, 39000, 90000               }, // Banshee's Wail
+        { 56600, 59300, 59300, 57000, 90000               }, // Veil of Darkness
+        { 22200, 19300, 18700, 19700, 20800, 18800, 18700, 19400 } // Ranger's Heartseeker
+    },
+
+    // Mythic
+    {
+        { 8900, 62000, 62000, 61000, 90000                }, // Banshee Wave
+        { 29000, 63900, 63900, 63000, 90000               }, // Shadow Dagger
+        { 34000, 40000, 30000, 33000, 90000               }, // Ruin
+        { 40000, 46000, 36500, 39000, 90000               }, // Banshee's Wail
+        { 56600, 59300, 59300, 57000, 90000               }, // Veil of Darkness
+        { 22200, 19300, 18700, 19700, 20800, 18800, 18700, 19400 } // Ranger's Heartseeker
+    }
+};
+
+uint32 const EventTimersPhaseThree[4][9][11] =
+{
     {
         { 36100, 87800, 87900, 88800, 87900               }, // Bane Arrows
         { 54000, 89100, 93200, 84800                      }, // Shadow Dagger
@@ -602,25 +670,7 @@ uint32 const EventTimersLfr[3][6][8]
         { 44000, 68700, 66200, 67200, 67400, 67400,       }, // Veil of Darkness
         { 95200, 89400, 86500, 90100                      }  // Raze
     },
-};
 
-uint32 const EventTimersNormal[3][7][7]
-{
-    // Phase 1
-    {
-        { 7800, 55500, 55900, 55400, 90000  }, // Windrunner
-        { 25600, 59000, 57400, 57500, 90000 }, // Domination Chains
-        { 28600, 39800, 28300, 30100, 90000 }, // Wailing Arrow (Marker)
-        { 34600, 45800, 34300, 36100, 90000 }, // Wailing Arrow
-        { 50000, 52300, 54800, 55000, 90000 }, // Veil of Darkness
-        { 22500, 20500, 34300, 17300, 16500, 24300, 18300 } // Ranger's Heartseeker
-    },
-
-    // Phase 2
-    {
-    },
-
-    // Phase 3
     {
         { 30700, 80400, 76200, 79300, 78600               }, // Bane Arrows
         { 48100, 80000, 83600, 76900, 87600               }, // Shadow Dagger
@@ -629,29 +679,7 @@ uint32 const EventTimersNormal[3][7][7]
         { 41800, 64300, 68600, 46500, 62700, 57500, 61900 }, // Veil of Darkness
         { 86000, 76100, 78200, 85400                      }  // Raze
     },
-};
 
-uint32 const EventTimersHeroic[3][7][11]
-{
-    // Phase 1
-    {
-        { 7000, 51300, 48800, 47500, 52700         }, // Windrunner
-        { 23600, 53400, 49600, 53900, 90000        }, // Domination Chains
-        { 28900, 32000, 24500, 25700, 31700        }, // Wailing Arrow (Marker)
-        { 34900, 38000, 30500, 31700, 37700, 31700 }, // Wailing Arrow
-        { 44900, 49400, 46500, 46300, 90000        },  // Veil of Darkness
-        { 20100, 19100, 17100, 29900, 4800, 32200, 16100, 12000, 25700, 20600, 4700 } // Ranger's Heartseeker
-    },
-
-    // Phase 2
-    {
-        {  },
-        {  },
-        {  },
-        {  }
-    },
-
-    // Phase 3
     {
         { 29100, 76800, 73200, 76100, 74500               }, // Bane Arrows
         { 45500, 77400, 79900, 73400                      }, // Shadow Dagger
@@ -661,26 +689,7 @@ uint32 const EventTimersHeroic[3][7][11]
         { 82700, 73600, 71300, 81200                      }, // Raze
         { 17200, 49400, 49600, 52600, 47400, 47800, 58000 }  // Banshee's Fury
     },
-};
 
-uint32 const EventTimersMythic[3][9][10]
-{
-    // Phase 1
-    {
-        { 6500, 57000, 55100, 56200, 90000  }, // Windrunner
-        { 29000, 55000, 64100, 90000, 90000 }, // Domination Chains
-        { 34600, 57300, 57300,              }, // Black Arrow (Marker)
-        { 40600, 63300, 63300               }, // Black Arrow
-        { 48000, 43400, 46500, 52400, 90000 }, // Veil of Darkness
-        { 20000, 17000, 25000, 17000, 23000, 4000, 31000, 20000, 3000, 8000 } // Ranger's Heartseeker
-    },
-
-    // Phase 2
-    {
-
-    },
-
-    // Phase 3
     {
         { 15400, 93900, 100000, 93000                     }, // Bane Arrows
         { 45500, 77400, 79900, 73400                      }, // Shadow Dagger
@@ -690,8 +699,8 @@ uint32 const EventTimersMythic[3][9][10]
         { 45400, 105000, 106000, 104000                   }, // Raze
         { 38300, 60800, 64000, 58000, 62000, 66000        }, // Banshee's Fury
         { 65700, 54700, 54300, 55000, 54000, 50000        }, // Death Knives
-        { 17200, 49400, 49600, 52600, 47400, 47800, 58000 }, // Merciless
-    },
+        { 17200, 49400, 49600, 52600, 47400, 47800, 58000 }  // Merciless
+    }
 };
 
 Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
@@ -2417,7 +2426,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     ++_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER];
 
-                    events.Repeat(Milliseconds(EventTimersNormal[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]));
+                    events.Repeat(Milliseconds(EventTimersPhaseOne[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]));
                     break;
                 }
 
@@ -2433,13 +2442,13 @@ struct boss_sylvanas_windrunner : public BossAI
                             shadowCopy->GetAI()->DoAction(ACTION_START_DOMINATION_CHAINS);
                     _eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]++;
                     if (events.IsInPhase(PHASE_ONE))
-                        events.Repeat(Milliseconds(EventTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]));
+                        events.Repeat(Milliseconds(EventTimersPhaseOne[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]));
                     break;
                 }
 
                 case EVENT_WAILING_ARROW_MARKER:
                 {
-                    scheduler.Schedule(Milliseconds(EventTimersNormal[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER]]), [this](TaskContext /*task*/)
+                    scheduler.Schedule(Milliseconds(EventTimersPhaseOne[0][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER]]), [this](TaskContext /*task*/)
                     {
                         std::list<Player*> everyPlayerButCurrentTank;
                         GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
@@ -2484,7 +2493,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
 
                     events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                    events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersNormal[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
                 }
 
@@ -2500,7 +2509,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 case EVENT_VEIL_OF_DARKNESS + 1:
                     DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE);
                     _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersNormal[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                     break;
 
@@ -3422,23 +3431,23 @@ struct boss_sylvanas_windrunner : public BossAI
         {
             case DIFFICULTY_LFR_NEW:
             {
-                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersPhaseOne[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersNormal[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersNormal[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersNormal[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersPhaseOne[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 break;
             }
 
             case DIFFICULTY_NORMAL_RAID:
             {
-                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersNormal[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersPhaseOne[0][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersNormal[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersNormal[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersNormal[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[0][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[0][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersPhaseOne[0][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                 break;
             }
 
@@ -3508,7 +3517,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 7s + 750ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 200ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 10s + 391ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3522,7 +3531,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 8s + 422ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 156ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3537,7 +3546,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 9s, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT_LAUNCH, 11s + 219ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 13s + 78ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -3551,7 +3560,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_DESECRATING_SHOT, 500ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
                         events.ScheduleEvent(EVENT_WITHERING_FIRE, 5ms, EVENT_GROUP_WINDRUNNER_EVENTS, PHASE_ONE);
-                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersNormal[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[0][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                         break;
                     }
 
@@ -5109,27 +5118,24 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
     {
         Unit* target = GetTarget();
 
+        InstanceScript* instance = target->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas || !sylvanas->IsInCombat())
+            return;
+
         uint8 stackAmount = GetStackAmount();
 
-        float angleOffset = float(M_PI * 2) / stackAmount;
-
+        // TODO: not the correct way, we should find space on the current platform to fill up any gaps taking the player's pos as initial.
         for (uint8 i = 0; i < stackAmount; ++i)
         {
-            Position bansheeBaneDest = target->GetNearPosition(3.6f, angleOffset * i);
+            Position bansheeBaneDest = target->GetNearPosition(3.6f, _angleOffset * i);
 
-            if (InstanceScript* instance = target->GetInstanceScript())
-            {
-                if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                {
-                    // TODO: not the best condition, maybe check for current boss state.
-                    if (!sylvanas->IsInCombat())
-                        return;
+            target->SendPlaySpellVisual(bansheeBaneDest, 0.0f, SPELL_VISUAL_BANSHEES_BANE_DROP, 0, 0, 0.349999994039535522f, true);
 
-                    target->SendPlaySpellVisual(bansheeBaneDest, 0.0f, SPELL_VISUAL_BANSHEES_BANE_DROP, 0, 0, 0.349999994039535522f, true);
-
-                    sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500ms));
-                }
-            }
+            sylvanas->m_Events.AddEvent(new BansheeBaneEvent(sylvanas, bansheeBaneDest), sylvanas->m_Events.CalculateTime(500ms));
         }
     }
 
@@ -5137,6 +5143,10 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_bane::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
+
+private:
+    uint8 _stackAmount = GetStackAmount();
+    float _angleOffset = float(M_PI * 2) / _stackAmount;
 };
 
 class BansheesFuryEvent : public BasicEvent
@@ -5171,19 +5181,6 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_banshee_fury);
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->SetNameplateAttachToGUID(ObjectGuid::Empty);
-        caster->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
-        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END, 0, 0);
-
-        // TODO: check on every player if Banshee's Bane is on; if yes, trigger explode on them.
-    }
-
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetCaster();
@@ -5209,6 +5206,19 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
                     caster->m_Events.AddEvent(new BansheesFuryEvent(caster, platform), caster->m_Events.CalculateTime(50ms * i));
             }
         }
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->SetNameplateAttachToGUID(ObjectGuid::Empty);
+        caster->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END, 0, 0);
+
+        // TODO: check on every player if Banshee's Bane is on; if yes, trigger explode on them.
     }
 
     void Register() override
