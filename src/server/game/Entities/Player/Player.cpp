@@ -21450,20 +21450,10 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             {
                 WorldPackets::Spells::SpellModifierData modData;
 
-                if (mod->type == SPELLMOD_FLAT)
-                {
-                    modData.ModifierValue = 0.0f;
-                    for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_FLAT])
-                        if (spellMod->mask & mask)
-                            modData.ModifierValue += spellMod->value;
-                }
-                else
-                {
-                    modData.ModifierValue = 1.0f;
-                    for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][SPELLMOD_PCT])
-                        if (spellMod->mask & mask)
-                            modData.ModifierValue *= 1.0f + CalculatePct(1.0f, spellMod->value);
-                }
+                modData.ModifierValue = 0.0f;
+                for (SpellModifier* spellMod : m_spellMods[AsUnderlyingType(mod->op)][AsUnderlyingType(mod->type)])
+                    if (spellMod->mask & mask)
+                        modData.ModifierValue += spellMod->value;
 
                 modData.ClassIndex = eff;
 
