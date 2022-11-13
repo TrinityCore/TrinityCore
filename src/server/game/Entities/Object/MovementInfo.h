@@ -84,11 +84,10 @@ struct MovementInfo
 
     } jump;
 
-    // spline
-    float splineElevation;
+    float stepUpStartElevation;
 
     MovementInfo() :
-        flags(0), flags2(0), flags3(0), time(0), pitch(0.0f), splineElevation(0.0f)
+        flags(0), flags2(0), flags3(0), time(0), pitch(0.0f), stepUpStartElevation(0.0f)
     {
         pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         transport.Reset();
