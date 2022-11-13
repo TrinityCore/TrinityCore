@@ -1080,7 +1080,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         switch (action)
         {
-            // TODO: for testing purposes, the positioning is fixed to Sylvanas' positioning. It should be based on casters' back pos.
+            // TESTING: the positioning is fixed to being random. It should be based on casters' back pos.
             case ACTION_START_WITHERING_FIRE:
                 for (uint8 i = 0; i < 5; ++i)
                 {
@@ -1398,7 +1398,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
     {
         uint32 currentWitheringFires = 0;
 
-        // TODO: remove false param and playerlist, it's just for testing.
+        // TESTING: remove false param and playerlist.
         // Number of casts is dependent on raid's difficulty and size: if mythic, 15; if not, half the raid (min. 5, max. 15)
         //_totalWitheringFires = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 : std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
         _totalWitheringFires = 6;
@@ -1447,7 +1447,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         if (!sylvanas)
             return;
 
-        // TODO: remove playerlist, it's just for testing.
+        // TESTING: remove playerlist.
         std::list<Unit*> targetList;
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             sylvanas->GetAI()->SelectTargetList(targetList, 1, SelectTargetMethod::Random, 0, 500.0f, false, true);
@@ -2950,7 +2950,7 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 int8 targetSize = std::max<uint8>(4, static_cast<uint8>(std::ceil(me->GetMap()->GetPlayersCountExceptGMs()) / 3));
 
-                // TODO: remove false and playerlist, it's for testing.
+                // TESTING: remove false and playerlist.
                 std::list<Unit*> targets;
                 SelectTargetList(targets, targetSize, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
