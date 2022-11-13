@@ -1252,7 +1252,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
 
                 case EVENT_DOMINATION_CHAINS:
-                    sylvanas->CastSpell(sylvanas, SPELL_DOMINATION_CHAINS, false);
+                    sylvanas->CastSpell(sylvanas, SPELL_DOMINATION_CHAINS);
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
                     _events.ScheduleEvent(EVENT_DOMINATION_CHAINS + 1, 15ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                     break;
@@ -2054,14 +2054,14 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 if (events.IsInPhase(PHASE_ONE))
                 {
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(250ms));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(500ms));
                     DoAction(ACTION_RESET_MELEE_KIT);
                 }
                 else
                 {
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true, false), me->m_Events.CalculateTime(0ms));
                     TeleportShadowcopiesToMe();
-                    events.ScheduleEvent(EVENT_RIVE, 1s + 141ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
+                    events.ScheduleEvent(EVENT_RIVE, 641ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                 }
                 break;
             }
@@ -2852,7 +2852,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
         if (me->isAttackReady(BASE_ATTACK))
         {
-            if (!me->IsWithinCombatRange(me->GetVictim(), 5.5f))
+            if (!me->IsWithinCombatRange(me->GetVictim(), 4.0f))
             {
                 if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
                     DoCastSelf(SPELL_RANGER_BOW_STANCE);
@@ -3866,7 +3866,7 @@ class spell_sylvanas_windrunner_ranger_shot : public SpellScript
         if (!caster)
             return;
 
-        if (caster->IsWithinCombatRange(caster->GetVictim(), 5.5f))
+        if (caster->IsWithinCombatRange(caster->GetVictim(), 4.0f))
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(300ms));
         else
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(500ms));
@@ -4124,7 +4124,7 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
 
         caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, true), caster->m_Events.CalculateTime(5ms));
 
-        if (caster->IsWithinCombatRange(caster->GetVictim(), 5.5f))
+        if (caster->IsWithinCombatRange(caster->GetVictim(), 4.0f))
         {
             if (caster->IsAIEnabled())
                 caster->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
@@ -7221,7 +7221,7 @@ struct at_sylvanas_windrunner_blasphemy : AreaTriggerAI
         if (!_instance)
             return;
 
-        if (unit->IsPlayer() || !unit->IsPlayer() && (unit->GetEntry() == NPC_BOLVAR_FORDRAGON_PINNACLE || unit->GetEntry() == NPC_JAINA_PROUDMOORE_PINNACLE || unit->GetEntry() == NPC_THRALL_PINNACLE))
+        if (unit->IsPlayer() || (!unit->IsPlayer() && (unit->GetEntry() == NPC_BOLVAR_FORDRAGON_PINNACLE || unit->GetEntry() == NPC_JAINA_PROUDMOORE_PINNACLE || unit->GetEntry() == NPC_THRALL_PINNACLE)))
             at->GetCaster()->CastSpell(unit, SPELL_BLASPHEMY_STUN, true);
     }
 
