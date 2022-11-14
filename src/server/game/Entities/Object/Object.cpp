@@ -2119,7 +2119,7 @@ Creature* WorldObject::FindNearestCreatureWithOptions(uint32 entry, float range,
 {
     Creature* creature = nullptr;
     Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck checker(*this, entry, range, &args);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck> searcher(this, creature, checker);
+    Trinity::CreatureWithoutPhaseLastSearcher<Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck> searcher(this, creature, checker);
     Cell::VisitAllObjects(this, searcher, range);
     return creature;
 }

@@ -542,6 +542,21 @@ namespace Trinity
 
     // Last accepted by Check Creature if any (Check can change requirements at each call)
     template<class Check>
+    struct CreatureWithoutPhaseLastSearcher
+    {
+        WorldObject const* _searcher;
+        Creature* &i_object;
+        Check & i_check;
+
+        CreatureWithoutPhaseLastSearcher(WorldObject const* searcher, Creature* & result, Check & check)
+            : _searcher(searcher), i_object(result), i_check(check) { }
+
+        void Visit(CreatureMapType &m);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
     struct CreatureLastSearcher
     {
         PhaseShift const* i_phaseShift;
@@ -1455,8 +1470,9 @@ namespace Trinity
                 if (u->GetGUID() == i_obj.GetGUID() || u->GetEntry() != i_entry)
                     return false;
 
-                if (!i_obj.IsInMap(u) || !i_obj.IsWithinDist(u, i_range))
-                    return false;
+                // Why is that needed? Cell::VisitAllObjects already does that, doesnt it?
+                //if (!i_obj.IsInMap(u) || !i_obj.IsWithinDist(u, i_range))
+                //    return false;
 
                 if (i_args)
                 {
