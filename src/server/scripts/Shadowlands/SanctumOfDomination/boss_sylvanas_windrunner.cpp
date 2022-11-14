@@ -1115,17 +1115,20 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         switch (action)
         {
-            // TESTING: the positioning is fixed to being random. It should be based on casters' back pos.
+            // TESTING: remove unitlist.
             case ACTION_START_WITHERING_FIRE:
-                for (uint8 i = 0; i < 5; ++i)
-                {
-                    Position witheringPos(me->GetRandomPoint(SylvanasFirstPhasePlatformCenter, 30.0f));
-                    me->MovePositionToFirstCollision(witheringPos, 30.0f, me->GetAbsoluteAngle(witheringPos));
-                    _witheringFirePos.push_back(witheringPos);
-                }
-                TeleportShadowcopyToPosition(_witheringFirePos[0], SPELL_VISUAL_WINDRUNNER_02);
+            {
+                std::list<Unit*> witheringFireTargets;
+                sylvanas->GetAI()->SelectTargetList(witheringFireTargets, 5, SelectTargetMethod::Random, 0, 500.0f, false, true);
+
+                for (Unit* target : witheringFireTargets)
+                    _witheringFireTargetGUIDs.push_back(target->GetGUID());
+
+                if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[0]))
+                    TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f), SPELL_VISUAL_WINDRUNNER_02);
                 _events.ScheduleEvent(EVENT_WITHERING_FIRE, 15ms, 1, PHASE_ONE);
                 break;
+            }
 
             // TESTING: remove unitlist.
             case ACTION_START_SHADOW_DAGGER:
@@ -1137,7 +1140,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     _shadowDaggerTargetGUIDs.push_back(target->GetGUID());
 
                 if (Unit* target = ObjectAccessor::GetUnit(*me, _shadowDaggerTargetGUIDs[0]))
-                    TeleportShadowcopyToPosition(target->GetNearPosition(3.5f, Position::NormalizeOrientation(frand(0.0f, 6.0f))), SPELL_VISUAL_WINDRUNNER_01);
+                    TeleportShadowcopyToPosition(target->GetNearPosition(-3.5f, 0.0f), SPELL_VISUAL_WINDRUNNER_01);
                 _events.ScheduleEvent(EVENT_SHADOW_DAGGER, 16ms, 1, PHASE_ONE);
                 break;
             }
@@ -1151,9 +1154,9 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 _events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 20ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                 break;
 
-            // Note: number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive).
             case ACTION_CALCULATE_ARROWS:
             {
+                // Note: number of arrows spawned is dependent on raid's difficulty and size: min. 4, max. 10 (unless on intermission, which is every player alive).
                 uint8 arrowsToSpawn = _events.IsInPhase(PHASE_INTERMISSION) ? me->GetMap()->GetPlayersCountExceptGMs()
                     : std::min<uint8>(std::max<uint8>(static_cast<uint8>(std::ceil(me->GetMap()->GetPlayersCountExceptGMs() / 3)), 4), 10);
                 _selectedArrowCountsPerJump = SplitArrowCasts(arrowsToSpawn);
@@ -1186,47 +1189,56 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_WITHERING_FIRE:
-                    me->CastSpell(_witheringFirePos[0], SPELL_WITHERING_FIRE_COPY, true);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[0]))
+                        me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 1, 204ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 1:
-                    TeleportShadowcopyToPosition(_witheringFirePos[1], SPELL_VISUAL_WINDRUNNER_02);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[1]))
+                        TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f), SPELL_VISUAL_WINDRUNNER_02);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 2, 62ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 2:
-                    me->CastSpell(_witheringFirePos[1], SPELL_WITHERING_FIRE_COPY, true);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[1]))
+                        me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 3, 219ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 3:
-                    TeleportShadowcopyToPosition(_witheringFirePos[2], SPELL_VISUAL_WINDRUNNER_02);
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->TeleportShadowcopyToPosition(_witheringFirePos[0]);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[2]))
+                        TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f), SPELL_VISUAL_WINDRUNNER_02);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[0]))
+                        if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
+                            shadowCopy1AI->TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f));
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 4, 16ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 4:
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
                         shadowCopy1AI->ExecuteWitheringFire(DATA_JUMP_TIME_CERO);
-                    me->CastSpell(_witheringFirePos[2], SPELL_WITHERING_FIRE_COPY, true);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[2]))
+                        me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
                     if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
                         shadowCopy1->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 5, 234ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 5:
-                    TeleportShadowcopyToPosition(_witheringFirePos[3], SPELL_VISUAL_WINDRUNNER_02);
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->TeleportShadowcopyToPosition(_witheringFirePos[1]);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[3]))
+                        TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f), SPELL_VISUAL_WINDRUNNER_02);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[1]))
+                        if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
+                            shadowCopy1AI->TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f));
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 6, 50ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 6:
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
                         shadowCopy1AI->ExecuteWitheringFire(DATA_JUMP_TIME_ONE);
-                    me->CastSpell(_witheringFirePos[3], SPELL_WITHERING_FIRE_COPY, true);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[3]))
+                        me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
                     if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
                         shadowCopy1->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 7, 75ms, 1, PHASE_ONE);
@@ -1239,20 +1251,23 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case EVENT_WITHERING_FIRE + 8:
                     sylvanas->SetNameplateAttachToGUID(me->GetGUID());
-                    me->CastSpell(_witheringFirePos[2], SPELL_WINDRUNNER_MOVE, false);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[2]))
+                        me->CastSpell(target->GetNearPosition(-15.0f, 0.0f), SPELL_WINDRUNNER_MOVE, false);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 9, 175ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 9:
                     ExecuteWitheringFire(DATA_JUMP_TIME_TWO);
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->TeleportShadowcopyToPosition(_witheringFirePos[4], SPELL_VISUAL_WINDRUNNER_02);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[4]))
+                        if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
+                            shadowCopy1AI->TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f), SPELL_VISUAL_WINDRUNNER_02);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 10, 100ms, 1, PHASE_ONE);
                     break;
 
                 case EVENT_WITHERING_FIRE + 10:
-                    if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
-                        shadowCopy1->CastSpell(_witheringFirePos[4], SPELL_WITHERING_FIRE_COPY, true);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[4]))
+                        if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
+                            shadowCopy1->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
                     me->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 11, 103ms, 1, PHASE_ONE);
                     break;
@@ -1263,8 +1278,9 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
 
                 case EVENT_WITHERING_FIRE + 12:
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->TeleportShadowcopyToPosition(_witheringFirePos[3]);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[3]))
+                        if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
+                            shadowCopy1AI->TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f));
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 13, 140ms, 1, PHASE_ONE);
                     break;
 
@@ -1278,8 +1294,9 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
 
                 case EVENT_WITHERING_FIRE + 14:
-                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->TeleportShadowcopyToPosition(_witheringFirePos[4]);
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[4]))
+                        if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
+                            shadowCopy1AI->TeleportShadowcopyToPosition(target->GetNearPosition(-15.0f, 0.0f));
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 15, 75ms, 1, PHASE_ONE);
                     break;
 
@@ -1298,7 +1315,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
 
                 case EVENT_WITHERING_FIRE + 17:
-                    _witheringFirePos.clear();
+                    _witheringFireTargetGUIDs.clear();
                     break;
 
                 case EVENT_SHADOW_DAGGER:
@@ -1310,7 +1327,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 case EVENT_SHADOW_DAGGER + 1:
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _shadowDaggerTargetGUIDs[1]))
                         if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                            shadowCopy1AI->TeleportShadowcopyToPosition(target->GetNearPosition(3.5f, Position::NormalizeOrientation(frand(0.0f, 6.0f))));
+                            shadowCopy1AI->TeleportShadowcopyToPosition(target->GetNearPosition(-3.5f, 0.0f));
                     _events.ScheduleEvent(EVENT_SHADOW_DAGGER + 2, 16ms, 1, PHASE_ONE);
                     break;
 
@@ -1323,7 +1340,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 case EVENT_SHADOW_DAGGER + 3:
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _shadowDaggerTargetGUIDs[2]))
                         if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_02)))
-                            shadowCopy2AI->TeleportShadowcopyToPosition(target->GetNearPosition(3.5f, Position::NormalizeOrientation(frand(0.0f, 6.0f))));
+                            shadowCopy2AI->TeleportShadowcopyToPosition(target->GetNearPosition(-3.5f, 0.0f));
                     _events.ScheduleEvent(EVENT_SHADOW_DAGGER + 4, 31ms, 1, PHASE_ONE);
                     break;
 
@@ -1344,7 +1361,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 case EVENT_SHADOW_DAGGER + 6:
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _shadowDaggerTargetGUIDs[3]))
                         if (npc_sylvanas_windrunner_shadowcopy* shadowCopy3AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_03)))
-                            shadowCopy3AI->TeleportShadowcopyToPosition(target->GetNearPosition(3.5f, Position::NormalizeOrientation(frand(0.0f, 6.0f))));
+                            shadowCopy3AI->TeleportShadowcopyToPosition(target->GetNearPosition(-3.5f, 0.0f));
                     if (Creature* shadowCopy4 = GetShadowcopy(_instance, DATA_INDEX_04))
                     {
                         sylvanas->SetNameplateAttachToGUID(shadowCopy4->GetGUID());
@@ -1373,7 +1390,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 case EVENT_SHADOW_DAGGER + 9:
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _shadowDaggerTargetGUIDs[4]))
                         if (npc_sylvanas_windrunner_shadowcopy* shadowCopy5AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_05)))
-                            shadowCopy5AI->TeleportShadowcopyToPosition(target->GetNearPosition(3.5f, Position::NormalizeOrientation(frand(0.0f, 6.0f))));
+                            shadowCopy5AI->TeleportShadowcopyToPosition(target->GetNearPosition(-3.5f, 0.0f));
                     _events.ScheduleEvent(EVENT_SHADOW_DAGGER + 10, 16ms, 1, PHASE_ONE);
                     break;
 
@@ -1574,14 +1591,14 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         // TESTING: remove false param and playerlist.
         // Number of casts is dependent on raid's difficulty and size: if mythic, 15; if not, half the raid (min. 5, max. 15)
         //_totalWitheringFires = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 15 : std::max<uint8>(5, std::ceil(float(me->GetMap()->GetPlayersCountExceptGMs()) / 2));
-        _totalWitheringFires = 6;
+        _totalWitheringFires = 10;
 
         std::list<Unit*> witheringFireTargetList;
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
             sylvanas->GetAI()->SelectTargetList(witheringFireTargetList, _totalWitheringFires, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
         for (Unit* target : witheringFireTargetList)
-            _witheringFireTargetGUIDs.push_back(target->GetGUID());
+            _witheringFireExecuteTargetGUIDs.push_back(target->GetGUID());
 
         if (jumpTime == DATA_JUMP_TIME_TWO)
             currentWitheringFires = _totalWitheringFires > 11 ? _totalWitheringFires - 8 : _totalWitheringFires - 4;
@@ -1589,12 +1606,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             currentWitheringFires = _totalWitheringFires > 11 ? 2 : 1;
 
         std::vector<Unit*> targetedPlayers;
-        for (uint8 itr = currentWitheringFires; itr > 0 && !_witheringFireTargetGUIDs.empty(); itr--)
+        for (uint8 itr = currentWitheringFires; itr > 0 && !_witheringFireExecuteTargetGUIDs.empty(); itr--)
         {
-            if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs.front()))
+            if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireExecuteTargetGUIDs.front()))
                 targetedPlayers.push_back(target);
 
-            _witheringFireTargetGUIDs.erase(std::remove(_witheringFireTargetGUIDs.begin(), _witheringFireTargetGUIDs.end(), _witheringFireTargetGUIDs.front()), _witheringFireTargetGUIDs.end());
+            _witheringFireExecuteTargetGUIDs.erase(std::remove(_witheringFireExecuteTargetGUIDs.begin(), _witheringFireExecuteTargetGUIDs.end(), _witheringFireExecuteTargetGUIDs.front()), _witheringFireExecuteTargetGUIDs.end());
         }
 
         for (Unit* target : targetedPlayers)
@@ -1619,7 +1636,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         _desecratingShotStorage.emplace_back(pos, step, travelSpeed);
     }
 
-    // TODO: the root's duration changes per _windrunnerCastTimes and event type. It's not such a big deal since she won't move at all until Windrunner finishes anyway.
     void StartDesecratingShotEvent(uint8 pattern, uint8 copyIndex)
     {
         Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
@@ -1634,11 +1650,11 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 sylvanas->CastSpell(sylvanas, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2550));
                 sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 633));
 
-                me->NearTeleportTo(sylvanas->GetNearPosition(5.0f, float(M_PI)), false);
+                me->NearTeleportTo(sylvanas->GetNearPosition(-5.0f, 0.0f), false);
 
                 _scheduler.Schedule(5ms, [this, sylvanas](TaskContext /*task*/)
                 {
-                    me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 5.048f, sylvanas->GetOrientation(), false);
+                    me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 5.048f, me->GetOrientation(), false);
                 });
 
                 _scheduler.Schedule(15ms, [this, sylvanas](TaskContext /*task*/)
@@ -1805,8 +1821,8 @@ private:
     InstanceScript* _instance;
     EventMap _events;
     TaskScheduler _scheduler;
+    std::vector<ObjectGuid> _witheringFireExecuteTargetGUIDs;
     std::vector<ObjectGuid> _witheringFireTargetGUIDs;
-    std::vector<Position> _witheringFirePos;
     std::vector<ObjectGuid> _shadowDaggerTargetGUIDs;
     std::vector<DesecratingShotsStorage> _desecratingShotStorage;
     std::vector<Position> _randomDominationChainsPos;
@@ -2455,6 +2471,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_DESECRATING_SHOT_LAUNCH:
                 {
+                    TeleportShadowcopiesToMe();
+
                     switch (_eventCounter[EVENT_COUNTER_WINDRUNNER])
                     {
                         case DATA_WINDRUNNER_COUNTER_ONE:
