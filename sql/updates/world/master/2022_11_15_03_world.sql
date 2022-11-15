@@ -1,0 +1,20 @@
+SET @TEL_ID := 1877;
+
+DELETE FROM `game_tele` WHERE `id` BETWEEN @TEL_ID+0 AND @TEL_ID+15;
+INSERT INTO `game_tele` (`id`,`position_x`,`position_y`,`position_z`,`orientation`,`map`,`name`) VALUES
+(@TEL_ID+0,-1463.22,-255.234,0.33297,2.65163,870,'AnglersWharf'),
+(@TEL_ID+1,-2072.05,1479.75,0.314278,3.12362,870,'CradleOfChiJi'),
+(@TEL_ID+2,-1169.28,1029.27,21.8805,0.995247,870,'CraneWingRefuge'),
+(@TEL_ID+3,-1711,1589.53,15.2868,0.63472,870,'DawnchaserRetreat'),
+(@TEL_ID+4,-1292.77,1541.88,14.4849,2.97676,870,'FallsongVillage'),
+(@TEL_ID+5,-1098.13,1315.52,15.1519,1.97699,870,'KrasariFalls'),
+(@TEL_ID+6,-2490.17,504.531,2.95876,3.69307,870,'Marista'),
+(@TEL_ID+7,-2728.59,835.659,0.97416,6.04063,870,'NayeliLagoon'),
+(@TEL_ID+8,-1240.43,345.942,62.6721,0.00483107,870,'RuinsOfDojan'),
+(@TEL_ID+9,-1488.75,1948.15,12.6269,4.71248,870,'RuinsOfKorja'),
+(@TEL_ID+10,-1170,1774.8,15.2872,3.42129,870,'SentinelBasecamp'),
+(@TEL_ID+11,-1126.83,-191.716,30.1567,4.52087,870,'TheIncursion'),
+(@TEL_ID+12,-1798.51,2056.05,1.69991,2.15209,870,'TheSouthernIsles'),
+(@TEL_ID+13,-887.335,148.45,13.2188,4.54131,870,'ThunderCleft'),
+(@TEL_ID+14,-2981.58,897.865,6.33893,6.28173,870,'UngaIngoo'),
+(@TEL_ID+15,-380.237,-651.468,117.839,1.1421,870,'ZhusWatch');
