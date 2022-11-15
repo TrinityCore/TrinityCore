@@ -20782,7 +20782,10 @@ void Player::Say(std::string_view text, Language language, WorldObject const* /*
 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_SAY, language, this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    
+    SendDirectMessage(&data);
+    Trinity::ChatMessageDistDeliverer notifier(this, &data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+    Cell::VisitWorldObjects(this, notifier, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
 }
 
 void Player::Say(uint32 textId, WorldObject const* target /*= nullptr*/)
@@ -20797,7 +20800,10 @@ void Player::Yell(std::string_view text, Language language, WorldObject const* /
 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_YELL, language, this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
+
+    SendDirectMessage(&data);
+    Trinity::ChatMessageDistDeliverer notifier(this, &data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
+    Cell::VisitWorldObjects(this, notifier, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
 }
 
 void Player::Yell(uint32 textId, WorldObject const* target /*= nullptr*/)
@@ -20812,7 +20818,10 @@ void Player::TextEmote(std::string_view text, WorldObject const* /*= nullptr*/, 
 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
+
+    SendDirectMessage(&data);
+    Trinity::ChatMessageDistDeliverer notifier(this, &data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
+    Cell::VisitWorldObjects(this, notifier, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 }
 
 void Player::TextEmote(uint32 textId, WorldObject const* target /*= nullptr*/, bool /*isBossEmote = false*/)
