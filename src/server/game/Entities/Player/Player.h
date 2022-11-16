@@ -2476,6 +2476,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool IsInstanceLoginGameMasterException() const;
 
+        void SendChatMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only) const;
+        
         MapReference m_mapRef;
 
         uint32 m_lastFallTime;

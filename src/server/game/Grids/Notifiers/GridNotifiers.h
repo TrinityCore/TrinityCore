@@ -122,10 +122,12 @@ namespace Trinity
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
+        bool required3dDist;
+        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr, bool req3dDist = false)
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
             , team(0)
             , skipped_receiver(skipped)
+            , required3dDist(req3dDist)
         {
             if (own_team_only)
                 if (Player const* player = src->ToPlayer())
@@ -171,42 +173,6 @@ namespace Trinity
         {
             // never send packet to self
             if (player == i_source || !player->HaveAtClient(i_source) || player->IsFriendlyTo(i_source))
-                return;
-
-            player->SendDirectMessage(i_message);
-        }
-    };
-
-    struct TC_GAME_API ChatMessageDistDeliverer
-    {
-        WorldObject const* i_source;
-        WorldPacket const* i_message;
-        uint32 i_phaseMask;
-        float i_distSq;
-        uint32 team;
-        Player const* skipped_receiver;
-        ChatMessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
-            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
-            , team(0)
-            , skipped_receiver(skipped)
-        {
-            if (own_team_only)
-                if (Player const* player = src->ToPlayer())
-                    team = player->GetTeam();
-        }
-
-        void Visit(PlayerMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(DynamicObjectMapType &m);
-        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
-
-        void SendPacket(Player* player)
-        {
-            // never send packet to self
-            if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
-                return;
-
-            if (!player->HaveAtClient(i_source))
                 return;
 
             player->SendDirectMessage(i_message);
