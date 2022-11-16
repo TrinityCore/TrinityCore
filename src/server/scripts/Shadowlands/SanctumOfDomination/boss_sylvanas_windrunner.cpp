@@ -1925,9 +1925,6 @@ struct boss_sylvanas_windrunner : public BossAI
         for (uint8 i = 0; i < RiveThrowPos.size(); i++)
             _selectedRivePos.push_back(RiveThrowPos[i]);
         Trinity::Containers::RandomShuffle(_selectedRivePos);
-
-        // TODO: remove this.
-        DoCastSelf(SPELL_RANGER_BOW_STANCE);
     }
 
     void JustSummoned(Creature* summon) override
@@ -2508,8 +2505,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_RANGER_HEARTSEEKER:
                 {
-                    DoCastVictim(events.IsInPhase(PHASE_ONE) ? SPELL_RANGER_HEARTSEEKER : SPELL_BANSHEES_HEARTSEEKER,
-                        CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
+                    DoCastVictim(SPELL_RANGER_HEARTSEEKER, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
 
                     ++_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER];
 
@@ -2523,7 +2519,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->m_Events.KillAllEvents(true);
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(10ms));
                     me->AddAura(SPELL_RANGER_BOW_STANCE, me);
-                    DoCastSelf(SPELL_DOMINATION_CHAINS);
                     if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
                         if (shadowCopy->IsAIEnabled())
                             shadowCopy->GetAI()->DoAction(ACTION_START_DOMINATION_CHAINS);
@@ -2937,23 +2932,12 @@ struct boss_sylvanas_windrunner : public BossAI
         DoSylvanasAttackIfReady();
     }
 
-    void CombatRangeCheckToSwitchStance()
-    {
-        if (!me->IsWithinCombatRange(me->GetVictim(), 4.0f))
-        {
-            if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
-                _eventCounter[EVENT_COUNTER_MELEE_COMBO] = 3;
-            else
-                _eventCounter[EVENT_COUNTER_MELEE_COMBO] = 4;
-        }
-    }
-
     void DoSylvanasAttackIfReady()
     {
         if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(SPELL_WINDRUNNER) || me->HasReactState(REACT_PASSIVE))
             return;
 
-        CombatRangeCheckToSwitchStance();
+        IncomingEventAndRangeCheck();
 
         if (me->isAttackReady(BASE_ATTACK))
         {
@@ -2970,7 +2954,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (roll_chance_i(70))
                         _eventCounter[EVENT_COUNTER_MELEE_COMBO]++;
                     else
-                        _eventCounter[EVENT_COUNTER_MELEE_COMBO] = 3;
+                        _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_SWITCH_TO_RANGED;
                     break;
 
                 case DATA_MELEE_COMBO_RANGER_STRIKE_02:
@@ -2985,16 +2969,10 @@ struct boss_sylvanas_windrunner : public BossAI
                     break;
 
                 case DATA_MELEE_COMBO_FINISH:
-                    if (!IsEventIncoming())
-                    {
-                        DoCastVictim(SPELL_RANGER_SHOT);
-
-                        if (roll_chance_i(65))
-                            if (me->IsWithinCombatRange(me->GetVictim(), 4.0f))
-                                DoAction(ACTION_RESET_MELEE_KIT);
-                    }
-                    else
-                        DoAction(ACTION_RESET_MELEE_KIT);
+                    DoCastVictim(SPELL_RANGER_SHOT);
+                    if (roll_chance_i(65))
+                        if (me->IsWithinCombatRange(me->GetVictim(), 4.0f))
+                            DoAction(ACTION_RESET_MELEE_KIT);
                     break;
                 default:
                     break;
@@ -3004,21 +2982,26 @@ struct boss_sylvanas_windrunner : public BossAI
         }
     }
 
-    bool IsEventIncoming()
+    void IncomingEventAndRangeCheck()
     {
-        for (uint32 incomingEvents = EVENT_WINDRUNNER; incomingEvents < EVENT_COUNTER_MAX; incomingEvents++)
+        for (uint32 incomingEvents = EVENT_WINDRUNNER; incomingEvents < EVENT_SIZE_MAX; incomingEvents++)
         {
-            if (incomingEvents == EVENT_RANGER_HEARTSEEKER)
-            {
-                if (events.GetTimeUntilEvent(incomingEvents) <= Milliseconds(350))
-                    return true;
-            }
-            else
-                if (events.GetTimeUntilEvent(incomingEvents) <= Milliseconds(500))
-                    return true;
-        }
+            if (incomingEvents != EVENT_WINDRUNNER && incomingEvents != EVENT_DOMINATION_CHAINS && incomingEvents != EVENT_VEIL_OF_DARKNESS && incomingEvents != EVENT_RANGER_HEARTSEEKER)
+                continue;
 
-        return false;
+            if (events.GetTimeUntilEvent(incomingEvents) <= Milliseconds(500))
+                _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_SWITCH_TO_MELEE;
+            else
+            {
+                if (!me->IsWithinCombatRange(me->GetVictim(), 4.0f))
+                {
+                    if (!me->HasAura(SPELL_RANGER_BOW_STANCE))
+                        _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_SWITCH_TO_RANGED;
+                    else
+                        _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_FINISH;
+                }
+            }
+        }
     }
 
     void ChooseDesecratingShotPattern(uint8 pattern)
@@ -3847,12 +3830,14 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
         if (!caster)
             return;
 
+        caster->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
+
         caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1600));
 
-        if (urand(0, 1))
-            caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN, 0, 0);
-        else
-            caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, 0, 0);
+        caster->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN), 0, 0);
+
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(0ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
 
         if (caster->IsInCombat())
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(859ms));
@@ -3872,16 +3857,11 @@ class spell_sylvanas_windrunner_ranger_bow_aura : public AuraScript
     {
         Unit* target = GetTarget();
 
-        target->RemoveAura(SPELL_RANGER_DAGGERS_STANCE);
-
         target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), target->m_Events.CalculateTime(0ms));
 
         if (target->GetSheath() != SHEATH_STATE_RANGED)
         {
-            if (urand(0, 1))
-                target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN, 0, 0);
-            else
-                target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, 0, 0);
+            target->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN), 0, 0);
 
             target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), target->m_Events.CalculateTime(0ms));
             target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_RANGED, 0), target->m_Events.CalculateTime(328ms));
@@ -3899,7 +3879,7 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 {
     PrepareSpellScript(spell_sylvanas_windrunner_ranger_dagger);
 
-    void HandleBeforeCast()
+    void HandleOnCast()
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -3908,21 +3888,11 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
         caster->RemoveAura(SPELL_RANGER_BOW_STANCE);
 
         caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_ATTACK_SPEED_TO_LOWEST, 0), caster->m_Events.CalculateTime(0ms));
-    }
 
-    void HandleOnCast()
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        caster->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN), 0, 0);
 
-        if (urand(0, 1))
-            caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN, 0, 0);
-        else
-            caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS, 0, 0);
-
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_MELEE, 0), caster->m_Events.CalculateTime(313ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(0ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_MELEE, 0), caster->m_Events.CalculateTime(328ms));
 
         if (caster->IsInCombat())
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(828ms));
@@ -3930,7 +3900,6 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_sylvanas_windrunner_ranger_dagger::HandleBeforeCast);
         OnCast += SpellCastFn(spell_sylvanas_windrunner_ranger_dagger::HandleOnCast);
     }
 };
@@ -3964,28 +3933,18 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_windrunner);
 
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-
-        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, true), target->m_Events.CalculateTime(0ms));
-    }
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
-        target->setAttackTimer(WeaponAttackType::BASE_ATTACK, 750);
-
         if (target->IsAIEnabled())
             target->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
 
-        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false), target->m_Events.CalculateTime(500ms));
+        target->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(target, false, true), target->m_Events.CalculateTime(600ms));
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_windrunner::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_windrunner::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
@@ -4691,10 +4650,10 @@ class spell_sylvanas_windrunner_rive : public SpellScript
         {
             shadowCopy3->CastSpell(sylvanas, GetSpellInfo()->Id == SPELL_RIVE ? SPELL_RIVE_CHAIN : SPELL_RIVE_CHAIN_FAST);
 
-            for (uint32 platformSpireIndex = GAMEOBJECT_TORGHAST_SPIKE_01; platformSpireIndex < GAMEOBJECT_TORGHAST_SPIKE_12; platformSpireIndex++)
+            for (uint32 platformSpireIndex = GAMEOBJECT_TORGHAST_SPIKE_01; platformSpireIndex < GAMEOBJECT_TORGHAST_SPIKE_12 + 1; platformSpireIndex++)
             {
                 std::list<GameObject*> platformSpire;
-                shadowCopy3->GetGameObjectListWithEntryInGrid(platformSpire, platformSpireIndex, 15.0f);
+                shadowCopy3->GetGameObjectListWithEntryInGrid(platformSpire, platformSpireIndex, 10.0f);
 
                 if (platformSpire.empty())
                     continue;
