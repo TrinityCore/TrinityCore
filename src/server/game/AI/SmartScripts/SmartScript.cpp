@@ -1850,9 +1850,23 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_JUMP_TO_POS:
         {
-            for (WorldObject* target : targets)
-                if (Creature* creature = target->ToCreature())
-                    creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, 0.0f, float(e.action.jump.speedxy), float(e.action.jump.speedz)); // @todo add optional jump orientation support?
+            WorldObject* target = nullptr;
+
+            if (!targets.empty())
+                target = Trinity::Containers::SelectRandomContainerElement(targets);
+
+            if (!target)
+            {
+                me->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, 0.0f, float(e.action.jump.speedxy), float(e.action.jump.speedz), e.action.jump.PointId);
+            }
+            else
+            {
+                float x, y, z;
+                target->GetPosition(x, y, z);
+                if (e.action.jump.ContactDistance > 0)
+                    target->GetContactPoint(me, x, y, z, e.action.moveToPos.ContactDistance);
+                me->GetMotionMaster()->MoveJump(x + e.target.x, y + e.target.y, z + e.target.z, 0.0f, float(e.action.jump.speedxy), float(e.action.jump.speedz), e.action.jump.PointId);
+            }
             break;
         }
         case SMART_ACTION_GO_SET_LOOT_STATE:
