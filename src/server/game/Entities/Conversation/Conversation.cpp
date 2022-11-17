@@ -228,7 +228,7 @@ bool Conversation::Start()
 {
     for (UF::ConversationLine const& line : *m_conversationData->Lines)
     {
-        UF::ConversationActor const* actor = &m_conversationData->Actors[line.ActorIndex];
+        UF::ConversationActor const* actor = line.ActorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[line.ActorIndex] : nullptr;
         if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
         {
             TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", GetEntry(), line.ActorIndex);
