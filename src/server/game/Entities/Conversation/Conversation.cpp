@@ -106,7 +106,7 @@ Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* c
         delete conversation;
         return nullptr;
     }
-    
+
     return conversation;
 }
 
