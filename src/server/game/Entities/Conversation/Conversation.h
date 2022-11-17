@@ -61,7 +61,7 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         uint32 GetTextureKitId() const { return _textureKitId; }
 
         static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr, bool autoStart = true);
-        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr, bool autoStart = true);
+        void Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
         bool Start();
         void AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid);
         void AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId);
