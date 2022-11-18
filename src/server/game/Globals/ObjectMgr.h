@@ -862,21 +862,6 @@ struct SceneTemplate
     uint32 ScriptId = 0;
 };
 
-struct StringIdIndex
-{
-    StringIdIndex() = default;
-    StringIdIndex(uint32 index) : Index(index) { }
-
-    uint32 Index = 0;
-
-    explicit operator bool() const { return Index > 0; }
-
-    bool operator==(uint32 a) const;
-    bool operator!=(uint32 a) const { return !(operator==(a)); }
-
-    operator uint32() const { return Index; }
-};
-
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
 typedef std::unordered_map<uint32, std::string> PhaseNameContainer;
@@ -1717,7 +1702,7 @@ class TC_GAME_API ObjectMgr
         std::string const& GetScriptName(uint32 id) const;
         bool IsScriptDatabaseBound(uint32 id) const;
         uint32 GetScriptId(std::string const& name, bool isDatabaseBound = true);
-        StringIdIndex GetStringIdIndex(std::string const& name);
+        uint32 GetStringIdIndex(std::string const& name);
         std::string const& GetStringId(uint32 index) const;
 
         Trinity::IteratorPair<SpellClickInfoContainer::const_iterator> GetSpellClickInfoMapBounds(uint32 creature_id) const

@@ -366,8 +366,8 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "RacialLeader, movementId, CreatureDifficultyID, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
     //                                        67                    68                        69
     //                                       "mechanic_immune_mask, spell_school_immune_mask, flags_extra, "
-    //                                        70
-    //                                       "ScriptName FROM creature_template WHERE entry = ? OR 1 = ?");
+    //                                        70          71
+    //                                       "ScriptName, StringId FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
     stmt->setUInt32(0, 0);
@@ -501,6 +501,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.SpellSchoolImmuneMask  = fields[68].GetUInt32();
     creatureTemplate.flags_extra            = fields[69].GetUInt32();
     creatureTemplate.ScriptID               = GetScriptId(fields[70].GetString());
+    creatureTemplate.StringIdIndex          = GetStringIdIndex(fields[71].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -2261,7 +2262,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseGroup     = fields[25].GetUInt32();
         data.terrainSwapMap = fields[26].GetInt32();
         data.scriptId       = GetScriptId(fields[27].GetString());
-        data.stringIdIndex    = GetStringIdIndex(fields[28].GetString());
+        data.StringIdIndex  = GetStringIdIndex(fields[28].GetString());
         data.spawnGroupData = IsTransportMap(data.mapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapId);
@@ -10077,9 +10078,9 @@ uint32 ObjectMgr::GetScriptId(std::string const& name, bool isDatabaseBound)
     return _scriptNamesStore.insert(name, isDatabaseBound);
 }
 
-StringIdIndex ObjectMgr::GetStringIdIndex(std::string const& name)
+uint32 ObjectMgr::GetStringIdIndex(std::string const& name)
 {
-    return StringIdIndex(_stringIdStore.insert(name));
+    return _stringIdStore.insert(name);
 }
 
 std::string const& ObjectMgr::GetStringId(uint32 index) const

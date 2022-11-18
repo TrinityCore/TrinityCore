@@ -3019,10 +3019,10 @@ std::string Creature::GetStringId() const
 uint32 Creature::GetStringIdIndex() const
 {
     if (CreatureData const* creatureData = GetCreatureData())
-        if (uint32 stringIdIndex = creatureData->stringIdIndex)
+        if (uint32 stringIdIndex = creatureData->StringIdIndex)
             return stringIdIndex;
 
-    return 0;
+    return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->StringIdIndex;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
