@@ -2187,9 +2187,11 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     if (jaina->IsAIEnabled())
                         jaina->GetAI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_TWO);
+
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INTERMISSION_STUN);
+                    instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
+                    events.SetPhase(PHASE_TWO);
                 }
-                instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
-                events.SetPhase(PHASE_TWO);
                 break;
             }
 

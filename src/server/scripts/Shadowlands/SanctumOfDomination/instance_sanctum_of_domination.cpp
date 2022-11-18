@@ -231,7 +231,7 @@ public:
                                 if (Player* player = itr->GetSource())
                                 {
                                     if (player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
-                                        SylvanasIntermissionData++;
+                                        ++SylvanasIntermissionData;
                                 }
                             }
                             break;
@@ -254,19 +254,6 @@ public:
             }
 
             return true;
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_SYLVANAS_INTERMISSION_FINISH:
-                    return SylvanasIntermissionData;
-                default:
-                    break;
-            }
-
-            return 0;
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -316,7 +303,7 @@ public:
                 }
 
                 case DATA_SYLVANAS_INTERMISSION_FINISH:
-                    if (GetBossState(DATA_SYLVANAS_WINDRUNNER) == IN_PROGRESS && SylvanasIntermissionData == 0)
+                    if (GetBossState(DATA_SYLVANAS_WINDRUNNER) == IN_PROGRESS && data == 0)
                         if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             if (sylvanas->IsAIEnabled())
                                 sylvanas->GetAI()->DoAction(ACTION_START_PHASE_TWO_ON_SYLVANAS);
@@ -324,6 +311,19 @@ public:
                 default:
                     break;
             }
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            switch (type)
+            {
+                case DATA_SYLVANAS_INTERMISSION_FINISH:
+                    return SylvanasIntermissionData;
+                default:
+                    break;
+            }
+
+            return 0;
         }
 
         void Update(uint32 diff) override
