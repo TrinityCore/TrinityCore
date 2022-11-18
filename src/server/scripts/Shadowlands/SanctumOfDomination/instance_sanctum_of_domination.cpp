@@ -48,6 +48,8 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
+
+            SylvanasIntermissionData = 0;
         }
 
         void OnPlayerEnter(Player* /*player*/) override
@@ -181,6 +183,7 @@ public:
                     {
                         case NOT_STARTED:
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
+                            SylvanasIntermissionData = 0;
                             for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
                                 if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
                                     torghastSpike->SetSpellVisualId(0);
@@ -220,6 +223,17 @@ public:
                                 if (jaina->IsAIEnabled())
                                     jaina->AI()->JustEngagedWith(sylvanas);
                             }
+
+                            Map::PlayerList const& playerList = instance->GetPlayers();
+
+                            for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                            {
+                                if (Player* player = itr->GetSource())
+                                {
+                                    if (player->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE)
+                                        SylvanasIntermissionData++;
+                                }
+                            }
                             break;
                         }
 
@@ -240,6 +254,19 @@ public:
             }
 
             return true;
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            switch (type)
+            {
+                case DATA_SYLVANAS_INTERMISSION_FINISH:
+                    return SylvanasIntermissionData;
+                default:
+                    break;
+            }
+
+            return 0;
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -287,6 +314,13 @@ public:
                     }
                     break;
                 }
+
+                case DATA_SYLVANAS_INTERMISSION_FINISH:
+                    if (GetBossState(DATA_SYLVANAS_WINDRUNNER) == IN_PROGRESS && SylvanasIntermissionData == 0)
+                        if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                            if (sylvanas->IsAIEnabled())
+                                sylvanas->GetAI()->DoAction(ACTION_START_PHASE_TWO_ON_SYLVANAS);
+                    break;
                 default:
                     break;
             }
@@ -357,6 +391,7 @@ public:
             ObjectGuid AnduinCrucibleGUID;
             std::vector<ObjectGuid> TorghastSpikeGUID;
             std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
+            uint8 SylvanasIntermissionData;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

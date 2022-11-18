@@ -54,7 +54,9 @@ enum SanctumOfDominationDataTypes
     DATA_SYLVANAS_SHADOWCOPY_08,
     DATA_SYLVANAS_SHADOWCOPY_09,
     DATA_SYLVANAS_SHADOWCOPY_10,
-    DATA_SYLVANAS_SHADOWCOPY_11
+    DATA_SYLVANAS_SHADOWCOPY_11,
+
+    DATA_SYLVANAS_INTERMISSION_FINISH               = 32
 };
 
 enum SanctumOfDominationCreatureIds
@@ -104,6 +106,7 @@ enum SanctumOfDominationEvents
 
 enum SanctumOfDominationActions
 {
+    ACTION_START_PHASE_TWO_ON_SYLVANAS              = 20,
     ACTION_START_SYLVANAS_INTRO                     = 50
 };
 
