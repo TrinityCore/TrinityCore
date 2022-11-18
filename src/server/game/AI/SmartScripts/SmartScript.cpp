@@ -1864,7 +1864,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 float x, y, z;
                 target->GetPosition(x, y, z);
                 if (e.action.jump.ContactDistance > 0)
-                    target->GetContactPoint(me, x, y, z, e.action.moveToPos.ContactDistance);
+                    target->GetContactPoint(me, x, y, z, e.action.jump.ContactDistance);
                 me->GetMotionMaster()->MoveJump(x + e.target.x, y + e.target.y, z + e.target.z, 0.0f, float(e.action.jump.speedxy), float(e.action.jump.speedz), e.action.jump.PointId);
             }
             break;
