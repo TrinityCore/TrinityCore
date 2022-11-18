@@ -229,8 +229,9 @@ enum Spells
     SPELL_DUAL_WIELD                                    = 42459,
     SPELL_SYLVANAS_POWER_ENERGIZE_AURA                  = 352312,
 
-    SPELL_INTERMISSION_STUN                             = 355488,
+    SPELL_INTERMISSION_SCENE_AND_STUN                   = 355488,
     SPELL_INTERMISSION_SCENE                            = 359062,
+    SPELL_INTERMISSION_STUN                             = 358550,
     SPELL_PLATFORMS_SCENE                               = 350943,
     SPELL_FINAL_SCENE                                   = 358806,
     SPELL_FINAL_CINEMATIC                               = 358985,
@@ -2202,7 +2203,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     scheduler.Schedule(250ms, [this](TaskContext /*task*/)
                     {
                         DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, true);
-                        DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 5500));
+                        DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 7000));
                     });
 
                     scheduler.Schedule(500ms, [this](TaskContext /*task*/)
@@ -2697,27 +2698,25 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->SendPlayOrphanSpellVisual(shadowCopy2->GetPosition(), SPELL_VISUAL_WINDRUNNER_03, 0.25f, true, false);
 
                         if (Creature* shadowCopy1 = GetShadowcopy(instance, DATA_INDEX_01))
+                        {
+                            me->SetNameplateAttachToGUID(shadowCopy1->GetGUID());
+
                             shadowCopy1->CastSpell(shadowCopy2->GetPosition(), SPELL_DOMINATION_CHAINS_JUMP, true);
+                        }
                     }
-                    events.ScheduleEvent(EVENT_RIVE + 5, 10ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
+                    events.ScheduleEvent(EVENT_RIVE + 5, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                     break;
                 }
 
                 case EVENT_RIVE + 5:
-                    if (Creature* shadowCopy1 = GetShadowcopy(instance, DATA_INDEX_01))
-                        me->SetNameplateAttachToGUID(shadowCopy1->GetGUID());
-                    events.ScheduleEvent(EVENT_RIVE + 6, 10ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
-                    break;
-
-                case EVENT_RIVE + 6:
                     if (Creature* shadowCopy2 = GetShadowcopy(instance, DATA_INDEX_02))
                         me->NearTeleportTo(shadowCopy2->GetPosition(), false);
                     DoCastSelf(SPELL_ANCHOR_HERE, true);
                     me->SetNameplateAttachToGUID(ObjectGuid::Empty);
-                    events.ScheduleEvent(EVENT_RIVE + 7, 200ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
+                    events.ScheduleEvent(EVENT_RIVE + 6, 10ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                     break;
 
-                case EVENT_RIVE + 7:
+                case EVENT_RIVE + 6:
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
                     {
@@ -2727,12 +2726,12 @@ struct boss_sylvanas_windrunner : public BossAI
                         // HACKFIX: remove orientation when SPELL_ATTR12_UNK11 (Face Destination) is implemented.
                         me->SetFacingToObject(target);
 
-                        events.ScheduleEvent(EVENT_RIVE + 8, 35ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
+                        events.ScheduleEvent(EVENT_RIVE + 7, 35ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                     }
                     break;
                 }
 
-                case EVENT_RIVE + 8:
+                case EVENT_RIVE + 7:
                 {
                     if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
                     {
@@ -2803,7 +2802,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     break;
 
                 case EVENT_FINISH_INTERMISSION + 5:
-                    instance->DoCastSpellOnPlayers(SPELL_INTERMISSION_STUN);
+                    instance->DoCastSpellOnPlayers(SPELL_INTERMISSION_SCENE_AND_STUN);
                     instance->DoCastSpellOnPlayers(SPELL_INTERMISSION_SCENE);
                     events.ScheduleEvent(EVENT_FINISH_INTERMISSION + 6, 900ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                     break;
