@@ -183,13 +183,13 @@ public:
                     {
                         case NOT_STARTED:
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
-                            SylvanasIntermissionData = 0;
                             for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
                                 if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
                                     torghastSpike->SetSpellVisualId(0);
                             for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
                                 if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
                                     invisibleWall->Respawn();
+                            SylvanasIntermissionData = 0;
                             break;
 
                         case IN_PROGRESS:
@@ -303,7 +303,8 @@ public:
                 }
 
                 case DATA_SYLVANAS_INTERMISSION_FINISH:
-                    if (GetBossState(DATA_SYLVANAS_WINDRUNNER) == IN_PROGRESS && data == 0)
+                    --SylvanasIntermissionData;
+                    if (GetBossState(DATA_SYLVANAS_WINDRUNNER) == IN_PROGRESS && SylvanasIntermissionData == 0)
                         if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             if (sylvanas->IsAIEnabled())
                                 sylvanas->GetAI()->DoAction(ACTION_START_PHASE_TWO_ON_SYLVANAS);

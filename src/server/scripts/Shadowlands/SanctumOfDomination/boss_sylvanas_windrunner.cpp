@@ -2626,6 +2626,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_RIVE:
                 {
+                    me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+
                     if (_eventCounter[EVENT_COUNTER_RIVE] < 8)
                     {
                         if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
@@ -2704,7 +2706,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             shadowCopy1->CastSpell(shadowCopy2->GetPosition(), SPELL_DOMINATION_CHAINS_JUMP, true);
                         }
                     }
-                    events.ScheduleEvent(EVENT_RIVE + 5, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
+                    events.ScheduleEvent(EVENT_RIVE + 5, 10ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                     break;
                 }
 
@@ -2712,7 +2714,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     if (Creature* shadowCopy2 = GetShadowcopy(instance, DATA_INDEX_02))
                         me->NearTeleportTo(shadowCopy2->GetPosition(), false);
                     DoCastSelf(SPELL_ANCHOR_HERE, true);
-                    me->SetNameplateAttachToGUID(ObjectGuid::Empty);
                     events.ScheduleEvent(EVENT_RIVE + 6, 10ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                     break;
 
@@ -7390,11 +7391,7 @@ class scene_sylvanas_windrunner_intermission : public SceneScript
             return;
 
         if (InstanceScript* instance = player->GetInstanceScript())
-        {
-            uint8 currentData = instance->GetData(DATA_SYLVANAS_INTERMISSION_FINISH);
-
-            instance->SetData(DATA_SYLVANAS_INTERMISSION_FINISH, currentData - 1);
-        }
+            instance->SetData(DATA_SYLVANAS_INTERMISSION_FINISH, 1);
     }
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
@@ -7403,11 +7400,7 @@ class scene_sylvanas_windrunner_intermission : public SceneScript
             return;
 
         if (InstanceScript* instance = player->GetInstanceScript())
-        {
-            uint8 currentData = instance->GetData(DATA_SYLVANAS_INTERMISSION_FINISH);
-
-            instance->SetData(DATA_SYLVANAS_INTERMISSION_FINISH, currentData - 1);
-        }
+            instance->SetData(DATA_SYLVANAS_INTERMISSION_FINISH, 1);
     }
 };
 
