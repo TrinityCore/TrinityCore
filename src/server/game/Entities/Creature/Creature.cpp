@@ -330,9 +330,6 @@ void Creature::AddToWorld()
         if (m_spawnId)
             GetMap()->GetCreatureBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
 
-        if (uint32 stringIdIndex = GetStringIdIndex())
-            GetMap()->GetCreatureByStringIdStore().insert(std::make_pair(stringIdIndex, this));
-
         Unit::AddToWorld();
         SearchFormation();
         AIM_Initialize();
@@ -358,9 +355,6 @@ void Creature::RemoveFromWorld()
 
         if (m_spawnId)
             Trinity::Containers::MultimapErasePair(GetMap()->GetCreatureBySpawnIdStore(), m_spawnId, this);
-
-        if (uint32 stringIdIndex = GetStringIdIndex())
-            Trinity::Containers::MultimapErasePair(GetMap()->GetCreatureByStringIdStore(), stringIdIndex, this);
 
         GetMap()->GetObjectsStore().Remove<Creature>(GetGUID());
     }

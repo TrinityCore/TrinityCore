@@ -3374,20 +3374,6 @@ Creature* Map::GetCreatureBySpawnId(ObjectGuid::LowType spawnId) const
     return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
 }
 
-Creature* Map::GetCreatureByStringId(uint32 stringId) const
-{
-    auto const bounds = GetCreatureByStringIdStore().equal_range(stringId);
-    if (bounds.first == bounds.second)
-        return nullptr;
-
-    std::unordered_multimap<uint32, Creature*>::const_iterator creatureItr = std::find_if(bounds.first, bounds.second, [](Map::CreatureByStringIdContainer::value_type const& pair)
-    {
-        return pair.second->IsAlive();
-    });
-
-    return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
-}
-
 GameObject* Map::GetGameObjectBySpawnId(ObjectGuid::LowType spawnId) const
 {
     auto const bounds = GetGameObjectBySpawnIdStore().equal_range(spawnId);
