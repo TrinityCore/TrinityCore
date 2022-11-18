@@ -437,7 +437,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster, int32 const* bp, Uni
     // base amount modification based on spell lvl vs caster lvl
     if (Scaling.Coefficient != 0.0f)
     {
-        uint32 level = _spellInfo->SpellLevel;
+        int32 level = _spellInfo->SpellLevel;
         if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_2))
             level = target->getLevel();
         else if (casterUnit)
@@ -452,14 +452,14 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster, int32 const* bp, Uni
             if (!_spellInfo->Scaling.Class)
                 return 0;
 
-            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry((_spellInfo->Scaling.Class != -1 ? _spellInfo->Scaling.Class - 1 : MAX_CLASSES - 1) * 100 + level - 1))
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry(((_spellInfo->Scaling.Class > 0 ? _spellInfo->Scaling.Class : ((MAX_CLASSES - 1 /*last class*/) - _spellInfo->Scaling.Class)) - 1) * 100 + level - 1))
                 value = gtScaling->value;
 
-            if (int32(level) < _spellInfo->Scaling.CastTimeMaxLevel && _spellInfo->Scaling.CastTimeMax)
+            if (level < _spellInfo->Scaling.CastTimeMaxLevel && _spellInfo->Scaling.CastTimeMax)
                 value *= float(_spellInfo->Scaling.CastTimeMin + (level - 1) * (_spellInfo->Scaling.CastTimeMax - _spellInfo->Scaling.CastTimeMin) / (_spellInfo->Scaling.CastTimeMaxLevel - 1)) / float(_spellInfo->Scaling.CastTimeMax);
 
-            if (int32(level) < _spellInfo->Scaling.NerfMaxLevel)
-                value *= ((((1.0f - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
+            if (level < _spellInfo->Scaling.NerfMaxLevel)
+                value *= ((((1.0 - _spellInfo->Scaling.NerfFactor) * (level - 1)) / (_spellInfo->Scaling.NerfMaxLevel - 1)) + _spellInfo->Scaling.NerfFactor);
         }
 
         value *= Scaling.Coefficient;
@@ -468,9 +468,8 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster, int32 const* bp, Uni
 
         if (Scaling.Variance)
         {
-            float delta = fabs(Scaling.Variance * 0.5f);
-            float valueVariance = frand(-delta, delta);
-            value += value * valueVariance;
+            float delta = fabs(Scaling.Variance * value * 0.5f);
+            value += frand(-delta, delta);
         }
 
         basePoints = int32(round(value));
@@ -926,7 +925,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     Scaling.CastTimeMax = _scaling ? _scaling->CastTimeMax : 0;
     Scaling.CastTimeMaxLevel = _scaling ? _scaling->CastTimeMaxLevel : 0;
     Scaling.Class = _scaling ? _scaling->Class : 0;
-    Scaling.NerfFactor = _scaling ? _scaling->NerfFactor : 0;
+    Scaling.NerfFactor = _scaling ? _scaling->NerfFactor : 0.f;
     Scaling.NerfMaxLevel = _scaling ? _scaling->NerfMaxLevel : 0;
 
     // SpellAuraOptionsEntry
