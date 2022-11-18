@@ -4196,6 +4196,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
             case SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS:
             case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:
+            case SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE:
                 return false;
             case SPELL_AURA_MECHANIC_IMMUNITY:
             {
