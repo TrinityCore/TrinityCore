@@ -781,7 +781,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         CreatureBySpawnIdContainer _creatureBySpawnIdStore;
         GameObjectBySpawnIdContainer _gameobjectBySpawnIdStore;
         AreaTriggerBySpawnIdContainer _areaTriggerBySpawnIdStore;
-
         std::unordered_map<uint32/*cellId*/, std::unordered_set<Corpse*>> _corpsesByCell;
         std::unordered_map<ObjectGuid, Corpse*> _corpsesByPlayer;
         std::unordered_set<Corpse*> _corpseBones;
