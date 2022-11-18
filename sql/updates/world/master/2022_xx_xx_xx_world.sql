@@ -18,12 +18,13 @@ DELETE FROM `instance_encounters` WHERE `entry`=2435;
 INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES 
 (2435, 0, 0, 0, 'Sylvanas Windrunner'); -- TODO: find if her encounter ends with her Id or a spell on players, most likely a spell since she's feigning death
 
-DELETE FROM `scene_template` WHERE `SceneId` IN (2798, 2723, 2799);
-INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`) VALUES
-(2798, 20, 3301, 0),
-(2723, 20, 3218, 0),
-(2799, 16, 3314, 0);
+DELETE FROM `scene_template` WHERE `SceneId` IN (2799, 2798, 2723);
+INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`, `Encrypted`, `ScriptName`) VALUES 
+(2799, 16, 3314, 0, 'scene_sylvanas_windrunner_intermission'),
+(2798, 20, 3301, 0, 'scene_sylvanas_windrunner_finish'),
+(2723, 20, 3218, 0, '');
 
+-- TODO: find out why even after setting the correct worldstates, it won't allow entrance.
 DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20554, 20555, 20545, 20546, 20547);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
 (20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter phase'),

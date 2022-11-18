@@ -1907,6 +1907,7 @@ struct boss_sylvanas_windrunner : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINATION_CHAIN_PLAYER);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINATION_CHAIN_PERIODIC);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VEIL_OF_DARKNESS_ABSORB_AURA);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PLATFORMS_SCENE);
 
         _DespawnAtEvade();
     }
@@ -7382,8 +7383,8 @@ public:
 // 2799 - Sylvanas Windrunner's Intermission Scene
 class scene_sylvanas_windrunner_intermission : public SceneScript
 {
-    public:
-        scene_sylvanas_windrunner_intermission() : SceneScript("scene_sylvanas_windrunner_intermission") { }
+public:
+    scene_sylvanas_windrunner_intermission() : SceneScript("scene_sylvanas_windrunner_intermission") { }
 
     void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
@@ -7401,6 +7402,21 @@ class scene_sylvanas_windrunner_intermission : public SceneScript
 
         if (InstanceScript* instance = player->GetInstanceScript())
             instance->SetData(DATA_SYLVANAS_INTERMISSION_FINISH, 1);
+    }
+};
+
+// 2798 - Sylvanas Windrunner's Finish Scene
+class scene_sylvanas_windrunner_finish : public SceneScript
+{
+public:
+    scene_sylvanas_windrunner_finish() : SceneScript("scene_sylvanas_windrunner_finish") { }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        if (player->GetAreaId() != AREA_THE_CRUCIBLE)
+            return;
+
+        player->CastSpell(player, SPELL_FINAL_CINEMATIC, true);
     }
 };
 
@@ -7483,4 +7499,5 @@ void AddSC_boss_sylvanas_windrunner()
 
     new conversation_sylvanas_windrunner_introduction();
     new scene_sylvanas_windrunner_intermission();
+    new scene_sylvanas_windrunner_finish();
 }
