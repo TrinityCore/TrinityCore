@@ -1196,7 +1196,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 x = pos.GetPositionX() + (std::cos(o - (M_PI / 2))*e.target.x) + (std::cos(o)*e.target.y);
                 y = pos.GetPositionY() + (std::sin(o - (M_PI / 2))*e.target.x) + (std::sin(o)*e.target.y);
                 z = pos.GetPositionZ() + e.target.z;
-                target->ToCreature()->GetMotionMaster()->MovePoint(SMART_RANDOM_POINT, x, y, z);
+                target->ToCreature()->GetMotionMaster()->MovePoint(e.action.moveOffset.PointId, x, y, z);
             }
             break;
         }
