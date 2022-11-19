@@ -655,11 +655,15 @@ struct spell_jindo_body_slam : public SpellScript
 {
     void HandleShieldBreakEffect(SpellEffIndex /*effIndex*/)
     {
-        Unit* target = GetHitCreature();
+        Unit* target = GetHitUnit();
         if (!target)
             return;
 
-        if (target->GetEntry() == NPC_HAKKARS_CHAINS && target->HasAura(SPELL_BRITTLE_BARRIER))
+        // Sniffs confirm that the spell is going to negate the damage against immune targets rather than not hitting at all
+        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
+            SetHitDamage(0);
+
+        if (target->IsCreature() && target->GetEntry() == NPC_HAKKARS_CHAINS && target->HasAura(SPELL_BRITTLE_BARRIER))
         {
             target->RemoveAurasDueToSpell(SPELL_BRITTLE_BARRIER);
             target->CastSpell(target, SPELL_ARCANE_EXPLOSION_VISUAL);
