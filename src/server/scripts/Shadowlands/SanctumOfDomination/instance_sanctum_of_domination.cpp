@@ -73,6 +73,10 @@ public:
                     ThrallPinnacleGUID = creature->GetGUID();
                     break;
 
+                case NPC_THRONE_OF_THE_DAMNED:
+                    ThroneOfTheDamnedGUID = creature->GetGUID();
+                    break;
+
                 default:
                     break;
             }
@@ -114,6 +118,8 @@ public:
                     return JainaPinnacleGUID;
                 case DATA_THRALL_PINNACLE:
                     return ThrallPinnacleGUID;
+                case DATA_THRONE_OF_THE_DAMNED:
+                    return ThroneOfTheDamnedGUID;
                 default:
                     break;
             }
@@ -137,10 +143,14 @@ public:
                             for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
                                 if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
                                     torghastSpike->SetSpellVisualId(0);
+                            if (Creature* throneTeleport = GetCreature(DATA_THRONE_OF_THE_DAMNED))
+                                throneTeleport->SetVisible(true);
                             break;
 
                         case IN_PROGRESS:
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
+                            if (Creature* throneTeleport = GetCreature(DATA_THRONE_OF_THE_DAMNED))
+                                throneTeleport->SetVisible(false);
                             break;
 
                         default:
@@ -209,6 +219,7 @@ public:
         ObjectGuid BolvarPinnacleGUID;
         ObjectGuid JainaPinnacleGUID;
         ObjectGuid ThrallPinnacleGUID;
+        ObjectGuid ThroneOfTheDamnedGUID;
         std::vector<ObjectGuid> TorghastSpikeGUID;
         uint8 SylvanasIntroductionData;
     };

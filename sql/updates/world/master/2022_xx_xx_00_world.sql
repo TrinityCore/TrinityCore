@@ -106,7 +106,7 @@ DELETE FROM `areatrigger` WHERE `SpawnId`=11;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES 
 (11, 8, 1, 2450, 234.9542, -829.9804, 4104.986, 0.0, 0, 0, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_introduction', 'Sanctum of Domination - Pinnacle of Dominance (Conv. Introduction)');
 
--- Throne of the Damned
+-- Throne of the Damned (Teleporter from Pinnacle of Domination to Throne of the Damned)
 UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=190, `npcflag`=16777216, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `unit_flags3`=1, `CreatureDifficultyID`=204469 WHERE `entry`=180803;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=180803;
@@ -120,14 +120,21 @@ INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingD
 (180803, 16, 0, 0, 2106, 41488),
 (180803, 17, 0, 0, 2107, 41488);
 
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=180803;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
+(180803, 0, 0, 1, 1, 0, 0);
+
+DELETE FROM `creature` WHERE `guid`=@CGUID+1;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
+(@CGUID+1, 180803, 2450, 13561, 13653, '14,15,16,17', 0, 0, 0, -1, 0, 1, 284.060760498046875, -781.0867919921875, 4105.0224609375, 3.911483526229858398, 7200, 0, 0, 46116, 0, 0, 0, 0, 0, 0, 0, '', 41079);
+
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=180803 AND `spell_id`=358839;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES 
-(180803, 358839, 3, 3);
+(180803, 358839, 0, 1);
 
--- TODO: find out whether the teleport goes back to Kel'thuzad's room or the raid's entrance.
 DELETE FROM `spell_target_position` WHERE `ID`=358839 AND `EffectIndex`=0;
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES 
-(358839, 0, 0, 0, 0, 0, 41079);
+(358839, 0, 2450, 233.3006, -540.5422, 3707.7519, 41079);
 
 -- Sylvanas Windrunner
 UPDATE `creature_template` SET `minlevel`=63, `maxlevel`=63, `faction`=16, `BaseAttackTime`=1000, `unit_flags`=832, `unit_flags3`=0, `VehicleId`=7461, `CreatureDifficultyID`=204624, `mechanic_immune_mask`=617299839, `ScriptName`='boss_sylvanas_windrunner' WHERE `entry`=175732; 

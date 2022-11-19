@@ -36,7 +36,8 @@ enum SanctumOfDominationDataTypes
     DATA_SYLVANAS_SHADOWCOPY_RIDING,
     DATA_BOLVAR_FORDRAGON_PINNACLE,
     DATA_JAINA_PROUDMOORE_PINNACLE,
-    DATA_THRALL_PINNACLE
+    DATA_THRALL_PINNACLE,
+    DATA_THRONE_OF_THE_DAMNED
 };
 
 enum SanctumOfDominationCreatureIds
@@ -51,7 +52,9 @@ enum SanctumOfDominationCreatureIds
     NPC_SYLVANAS_SHADOWCOPY_RIDING             = 178355,
     NPC_BOLVAR_FORDRAGON_PINNACLE              = 178081,
     NPC_JAINA_PROUDMOORE_PINNACLE              = 176533,
-    NPC_THRALL_PINNACLE                        = 176532
+    NPC_THRALL_PINNACLE                        = 176532,
+
+    NPC_THRONE_OF_THE_DAMNED                   = 180803
 };
 
 enum SanctumOfDominationGameObjectIds
