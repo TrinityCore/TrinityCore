@@ -136,26 +136,15 @@ public:
             {
                 case DATA_SYLVANAS_WINDRUNNER:
                 {
-                    switch (state)
+                    if (state == NOT_STARTED)
                     {
-                        case NOT_STARTED:
-                            DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
-                            for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
-                                if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
-                                    torghastSpike->SetSpellVisualId(0);
-                            if (Creature* throneTeleport = GetCreature(DATA_THRONE_OF_THE_DAMNED))
-                                throneTeleport->SetVisible(true);
-                            break;
-
-                        case IN_PROGRESS:
-                            DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
-                            if (Creature* throneTeleport = GetCreature(DATA_THRONE_OF_THE_DAMNED))
-                                throneTeleport->SetVisible(false);
-                            break;
-
-                        default:
-                            break;
+                        DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
+                        for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
+                            if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
+                                torghastSpike->SetSpellVisualId(0);
                     }
+                    else if (state == IN_PROGRESS)
+                        DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
 
                     break;
                 }

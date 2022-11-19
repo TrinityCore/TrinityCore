@@ -85,7 +85,8 @@ enum Conversations
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_CHAMPIONS                               = 0
+    SPAWN_GROUP_CHAMPIONS                               = 0,
+    SPAWN_GROUP_PORTALS
 };
 
 enum Points
@@ -172,6 +173,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
         // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_RENAME when engaging, meaning they're most likely summoned by Sylvanas.
         me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS);
+        me->SummonCreatureGroup(SPAWN_GROUP_PORTALS);
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
@@ -212,10 +214,14 @@ struct boss_sylvanas_windrunner : public BossAI
 
         events.SetPhase(PHASE_ONE);
 
+        // Note: the teleporter gets removed on engage.
+        if (Creature* throneTeleporter = instance->GetCreature(DATA_THRONE_OF_THE_DAMNED))
+            throneTeleporter->DespawnOrUnsummon();
+
         // Note: Sylvanas uses her root with 2s at the beginning of the encounter, most likely to avoid moving when engaging at stance switch.
         DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2000));
 
-        // Note: We won't allow engaging until Phase 1 PR is merged.
+        // Note: we won't allow engaging until Phase 1 PR is merged.
         EnterEvadeMode(CreatureAI::EvadeReason::EVADE_REASON_OTHER);
     }
 
