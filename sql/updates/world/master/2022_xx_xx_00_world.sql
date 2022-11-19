@@ -18,18 +18,26 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 -- TODO: find out if her encounter ends with her npcId or a spell on players, most likely a spell since she's feigning death.
 DELETE FROM `instance_encounters` WHERE `entry`=2435;
 INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES 
-(2435, 0, 0, 0, 'Sylvanas Windrunner');
+(2435, 0, 0, 2224, 'Sylvanas Windrunner');
 
 -- TODO: find out why even after setting the correct worldstates, it won't allow entrance without GM on.
-DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20554, 20555, 20545, 20546, 20547);
+-- Not entirely sure if Testing State is correct. It might refer to Closed instead and Open State could be Week of Release reached.
+DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20545, 20546, 20547, 20549, 20550, 20551, 20552, 20554, 20555, 20556, 20557, 20558);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
 (20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter phase'),
 (20346, 0, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter started'),
-(20554, 1, '2450', NULL, '', 'Sanctum of Domination - Normal and heroic week - Opened'),
-(20555, 1, '2450', NULL, '', 'Sanctum of Domination - Mythic week - Opened'),
-(20545, 0, '2450', NULL, '', 'Sanctum of Domination - Normal Difficulty - Testing state'),
-(20546, 0, '2450', NULL, '', 'Sanctum of Domination - Heroic Difficulty - Testing state'),
-(20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic Difficulty - Testing state');
+(20545, 0, '2450', NULL, '', 'Sanctum of Domination - Normal difficulty - Testing State'),
+(20546, 0, '2450', NULL, '', 'Sanctum of Domination - Heroic difficulty - Testing State'),
+(20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic difficulty - Testing State');
+(20549, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Jailer\'s Vanguard - Testing State'),
+(20550, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Testing State'),
+(20551, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Testing State'),
+(20552, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Testing State'),
+(20554, 1, '2450', NULL, '', 'Sanctum of Domination - Normal and Heroic difficulties - Open State'),
+(20555, 1, '2450', NULL, '', 'Sanctum of Domination - Mythic difficulty and LFR difficulty: The Jailer\'s Vanguard - Open State'),
+(20556, 1, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Open State'),
+(20557, 1, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Open State'),
+(20558, 1, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Open State');
 
 -- Spikes (Pinnacle of Domination)
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);

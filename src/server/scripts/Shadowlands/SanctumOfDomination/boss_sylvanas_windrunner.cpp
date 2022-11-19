@@ -247,106 +247,105 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01, 0, 0);
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 1, 1s + 140ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 1, 1s + 140ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 1:
                     me->GetMotionMaster()->MovePoint(POINT_INTRO_01, SylvanasIntroPos[0], false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 2, 1s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 2, 1s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 2:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 3, 3s + 360ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 3, 3s + 360ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 3:
                     me->GetMotionMaster()->MovePoint(POINT_INTRO_02, SylvanasIntroPos[1], false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 4, 469ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 4, 469ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 4:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 5, 3s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 5, 3s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 5:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 6, 2s, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 6, 2s, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 6:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 7, 5s, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 7, 5s, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 7:
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 8, 750ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 8, 750ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 8:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 9, 457ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 9, 457ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 9:
                     me->GetMotionMaster()->MovePoint(POINT_INTRO_03, SylvanasIntroPos[2], false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 10, 5s + 89ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 10, 5s + 89ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 10:
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                     {
                         bolvar->SetFacingToObject(me);
-
                         bolvar->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01, 0, 0);
                     }
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 11, 13s + 567ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 11, 13s + 567ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 11:
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 12, 484ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 12, 484ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 12:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 13, 5s + 516ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 13, 5s + 516ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 13:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 14, 1s + 516ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 14, 1s + 516ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 14:
                     me->NearTeleportTo(SylvanasIntroPos[3], false);
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_TELEPORT, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 15, 1s + 265ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 15, 1s + 265ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 15:
                     if (Creature* bolvar = instance->GetCreature(DATA_BOLVAR_FORDRAGON_PINNACLE))
                         me->SetFacingToObject(bolvar);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 16, 969ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 16, 969ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 16:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 17, 4s + 766ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 17, 4s + 766ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 17:
                     me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10, 0, 0);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 18, 3s + 250ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 18, 3s + 250ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 18:
                     DoCastSelf(SPELL_RANGER_BOW_STANCE, false);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 19, 16ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 19, 16ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 19:
