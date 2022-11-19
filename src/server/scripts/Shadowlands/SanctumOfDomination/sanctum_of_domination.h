@@ -18,6 +18,8 @@
 #ifndef DEF_SANCTUM_OF_DOMINATION_H_
 #define DEF_SANCTUM_OF_DOMINATION_H_
 
+#include "CreatureAIImpl.h"
+
 #define DataHeader "SD"
 #define SDScriptName "instance_sanctum_of_domination"
 
@@ -49,8 +51,7 @@ enum SanctumOfDominationCreatureIds
     NPC_SYLVANAS_SHADOWCOPY_RIDING             = 178355,
     NPC_BOLVAR_FORDRAGON_PINNACLE              = 178081,
     NPC_JAINA_PROUDMOORE_PINNACLE              = 176533,
-    NPC_THRALL_PINNACLE                        = 176532,
-
+    NPC_THRALL_PINNACLE                        = 176532
 };
 
 enum SanctumOfDominationGameObjectIds

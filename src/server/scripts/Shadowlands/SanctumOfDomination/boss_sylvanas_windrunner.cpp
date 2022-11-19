@@ -18,6 +18,8 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
