@@ -15,12 +15,12 @@ DELETE FROM `instance_template` WHERE `map`=2450;
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (2450, 0, 'instance_sanctum_of_domination');
 
--- TODO: find if her encounter ends with her npcId or a spell on players, most likely a spell since she's feigning death.
+-- TODO: find out if her encounter ends with her npcId or a spell on players, most likely a spell since she's feigning death.
 DELETE FROM `instance_encounters` WHERE `entry`=2435;
 INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES 
 (2435, 0, 0, 0, 'Sylvanas Windrunner');
 
--- TODO: find out why even after setting the correct worldstates, it won't allow entrance.
+-- TODO: find out why even after setting the correct worldstates, it won't allow entrance without GM on.
 DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20554, 20555, 20545, 20546, 20547);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
 (20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter phase'),
@@ -31,7 +31,7 @@ INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptNam
 (20546, 0, '2450', NULL, '', 'Sanctum of Domination - Heroic Difficulty - Testing state'),
 (20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic Difficulty - Testing state');
 
--- Spikes
+-- Spikes (Pinnacle of Domination)
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `mingold`, `maxgold`, `WorldEffectID`, `AIAnimKitID`) VALUES 
 (368743, 1375, 0, 0, 0, 0, 0),
