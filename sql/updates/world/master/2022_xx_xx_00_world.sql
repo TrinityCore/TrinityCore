@@ -28,7 +28,7 @@ INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptNam
 (20346, 0, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter started'),
 (20545, 0, '2450', NULL, '', 'Sanctum of Domination - Normal difficulty - Testing State'),
 (20546, 0, '2450', NULL, '', 'Sanctum of Domination - Heroic difficulty - Testing State'),
-(20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic difficulty - Testing State');
+(20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic difficulty - Testing State'),
 (20549, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Jailer\'s Vanguard - Testing State'),
 (20550, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Testing State'),
 (20551, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Testing State'),
