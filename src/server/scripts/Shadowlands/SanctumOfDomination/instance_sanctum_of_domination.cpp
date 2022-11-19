@@ -165,19 +165,18 @@ public:
                 {
                     switch (data)
                     {
-                        Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER);
-                        if (!sylvanas)
-                            return;
-
                         case NOT_STARTED:
                             SylvanasIntroductionData = 0;
                             break;
 
                         case DONE:
                             SylvanasIntroductionData = 3;
-                            sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                            sylvanas->SetImmuneToAll(false);
-                            sylvanas->SetSpeed(MOVE_RUN, 14.0f);
+                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                            {
+                                sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+                                sylvanas->SetImmuneToAll(false);
+                                sylvanas->SetSpeed(MOVE_RUN, 14.0f);
+                            }
                             break;
 
                         default:
