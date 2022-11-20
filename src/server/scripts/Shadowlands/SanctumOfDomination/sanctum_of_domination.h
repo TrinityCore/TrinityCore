@@ -20,8 +20,8 @@
 
 #include "CreatureAIImpl.h"
 
-#define DataHeader "SD"
-#define SDScriptName "instance_sanctum_of_domination"
+#define DataHeader "SOD"
+#define SODScriptName "instance_sanctum_of_domination"
 
 uint32 const EncounterCount = 10;
 
@@ -104,7 +104,7 @@ enum SanctumofDominationWorldStates
 template <class AI, class T>
 inline AI* GetSanctumOfDominationAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, SDScriptName);
+    return GetInstanceAI<AI>(obj, SODScriptName);
 }
 
 #define RegisterSanctumOfDominationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSanctumOfDominationAI)

@@ -117,8 +117,7 @@ enum SpellVisualKits
 // 178355 - Sylvanas Shadowcopy (Riding)
 struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
 {
-    npc_sylvanas_windrunner_shadowcopy_riding(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()) { }
+    npc_sylvanas_windrunner_shadowcopy_riding(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -126,9 +125,6 @@ struct npc_sylvanas_windrunner_shadowcopy_riding : public ScriptedAI
         me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetReactState(REACT_PASSIVE);
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // 175732 - Sylvanas Windrunner
@@ -375,7 +371,7 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!_instance || !unit->IsPlayer() || (_instance->GetData(DATA_SYLVANAS_INTRO) == IN_PROGRESS || _instance->GetData(DATA_SYLVANAS_INTRO) == DONE))
+        if (!_instance || _instance->GetData(DATA_SYLVANAS_INTRO) != NOT_STARTED || !unit->IsPlayer())
             return;
 
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))

@@ -36,7 +36,7 @@ ObjectData const creatureData[] =
 class instance_sanctum_of_domination : public InstanceMapScript
 {
 public:
-    instance_sanctum_of_domination() : InstanceMapScript(SDScriptName, 2450) { }
+    instance_sanctum_of_domination() : InstanceMapScript(SODScriptName, 2450) { }
 
     struct instance_sanctum_of_domination_InstanceMapScript : public InstanceScript
     {
