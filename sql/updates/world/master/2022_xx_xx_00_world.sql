@@ -369,7 +369,7 @@ INSERT INTO `conversation_template` (`Id`, `FirstLineId`, `TextureKitId`, `Scrip
 
 DELETE FROM `conversation_actors` WHERE `ConversationId`=17368;
 INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `ConversationActorGuid`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `VerifiedBuild`) VALUES 
-(17368, 80339, 1200000, 0, 0, 0, 41079);
+(17368, 80339, @CGUID, 0, 0, 0, 41079);
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (44219, 44218, 44217, 44216, 44215);
 INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `VerifiedBuild`) VALUES
