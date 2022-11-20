@@ -197,7 +197,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (175732, 26, 0, '|TInterface\\ICONS\\Spell_AnimaMaw_GroundState.blp:20|t %s begins to cast |cFFFF0000|Hspell:354145|h[Raze]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Raze warning'),
 (175732, 27, 0, 'Shadows draw near!', 14, 0, 100, 0, 0, 181354, 0, 210352, 0, 'Black Arrow 01'),
 (175732, 27, 1, 'Do you fear the shadows?', 14, 0, 100, 0, 0, 181353, 0, 210351, 0, 'Black Arrow 02'),
-(175732, 28, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t %s begins to cast |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 181353, 0, 0, 0, 'Black Arrow warning'),
+(175732, 28, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t %s begins to cast |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Black Arrow warning'),
 (175732, 29, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Black Arrow target warning');
 
 DELETE FROM `creature_text_locale` WHERE `CreatureID`=175732;
