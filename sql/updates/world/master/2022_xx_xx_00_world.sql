@@ -170,7 +170,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (175732, 4, 0, 'No mercy!', 14, 0, 100, 0, 0, 181471, 0, 210324, 0, 'Shadow Dagger'),
 (175732, 5, 0, 'To the death!', 14, 0, 100, 0, 0, 181473, 0, 210326, 0, 'Desecrating Shot'),
 (175732, 6, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t %s begins to cast |cFFFF0000|Hspell:347609|h[Wailing Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Wailing Arrow warning'),
-(175732, 7, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:347609|h[Wailing Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Wailing Arrow tank warning'),
+(175732, 7, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:347609|h[Wailing Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Wailing Arrow target warning'),
 (175732, 8, 0, 'I never miss!', 14, 0, 100, 0, 0, 181474, 0, 210327, 0, 'Wailing Arrow 01'),
 (175732, 8, 1, 'I always hit my mark.', 14, 0, 100, 0, 0, 181470, 0, 210339, 0, 'Wailing Arrow 02'),
 (175732, 9, 0, '|TInterface\\Icons\\INV_BELT_44.BLP:20|t %s begins to cast |cFFFF0000|Hspell:349458|h[Domination Chains]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Domination Chains warning'),
@@ -196,7 +196,9 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (175732, 25, 1, 'Hear my cry and despair!', 14, 0, 100, 0, 0, 181335, 0, 210350, 0, 'Banshee\'s Fury 02'),
 (175732, 26, 0, '|TInterface\\ICONS\\Spell_AnimaMaw_GroundState.blp:20|t %s begins to cast |cFFFF0000|Hspell:354145|h[Raze]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 0, 'Raze warning'),
 (175732, 27, 0, 'Shadows draw near!', 14, 0, 100, 0, 0, 181354, 0, 210352, 0, 'Black Arrow 01'),
-(175732, 27, 1, 'Do you fear the shadows?', 14, 0, 100, 0, 0, 181353, 0, 210351, 0, 'Black Arrow 02');
+(175732, 27, 1, 'Do you fear the shadows?', 14, 0, 100, 0, 0, 181353, 0, 210351, 0, 'Black Arrow 02'),
+(175732, 28, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t %s begins to cast |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 181353, 0, 0, 0, 'Black Arrow warning'),
+(175732, 29, 0, '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t You have been targetted by |cFFFF0000|Hspell:358704|h[Black Arrow]|h|r!', 41, 0, 100, 0, 0, 0, 0, 0, 5, 'Black Arrow target warning');
 
 DELETE FROM `creature_text_locale` WHERE `CreatureID`=175732;
 INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`) VALUES 
@@ -208,7 +210,9 @@ INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Te
 (175732, 14, 0, 'esES', '|TInterface\\ICONS\\SPELL_SHADOW_SOULLEECH_3.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:348109|h[Lamento de alma en pena]|h|r!'),
 (175732, 16, 0, 'esES', '|TInterface\\ICONS\\UI_darkshore_warfront_horde_banshee.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:351869|h[Oleada inquietante]|h|r!'),
 (175732, 17, 0, 'esES', '|TInterface\\ICONS\\Ability_IronMaidens_ConvulsiveShadows.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:355540|h[Ruina]|h|r!'),
-(175732, 20, 0, 'esES', '|TInterface\\ICONS\\ABILITY_WARLOCK_IMPROVEDSOULLEECH.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:353955|h[Alarido de alma en pena]|h|r!');
+(175732, 20, 0, 'esES', '|TInterface\\ICONS\\ABILITY_WARLOCK_IMPROVEDSOULLEECH.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:353955|h[Alarido de alma en pena]|h|r!'),
+(175732, 28, 0, 'esES', '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t ¡%s empieza a lanzar |cFFFF0000|Hspell:358704|h[Flecha negra]|h|r!'),
+(175732, 29, 0, 'esES', '|TInterface\\Icons\\ABILITY_THEBLACKARROW.BLP:20|t ¡Te han marcado con |cFFFF0000|Hspell:358704|h[Flecha negra]|h|r!');
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=175732;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES 
