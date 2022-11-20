@@ -42,7 +42,7 @@ enum Spells
     SPELL_RANGER_BOW_STANCE                             = 347560,
     SPELL_RANGER_DAGGERS_STANCE                         = 348010,
 
-    // Miscelanea
+    // Miscellanea
     SPELL_GENERIC_ANCHOR_HERE                           = 45313,
     SPELL_GENERIC_DUAL_WIELD                            = 42459,
     SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING              = 352311,
