@@ -390,12 +390,11 @@ private:
 // Serverside - Sylvanas Windrunner's Position Z Check
 struct at_sylvanas_windrunner_z_check : AreaTriggerAI
 {
-    at_sylvanas_windrunner_z_check(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
-        _instance(at->GetInstanceScript()) { }
+    at_sylvanas_windrunner_z_check(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!_instance || !unit->IsAlive())
+        if (!unit->IsAlive())
             return;
 
         if (Player* player = unit->ToPlayer())
@@ -409,9 +408,6 @@ struct at_sylvanas_windrunner_z_check : AreaTriggerAI
                 player->KillPlayer();
         }
     }
-
-private:
-    InstanceScript* _instance;
 };
 
 // 17368 - Sylvanas Windrunner's Introduction Conversation
