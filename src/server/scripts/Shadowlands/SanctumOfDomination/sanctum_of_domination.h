@@ -25,6 +25,8 @@
 
 uint32 const EncounterCount = 10;
 
+Position const ThroneOfTheDamnedPos = { 284.060f, -781.086f, 4105.022f, 3.91f };
+
 enum SanctumOfDominationDataTypes
 {
     DATA_SYLVANAS_WINDRUNNER                   = 9,
