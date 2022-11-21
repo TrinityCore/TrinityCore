@@ -187,16 +187,22 @@ public:
                     switch (state)
                     {
                         case NOT_STARTED:
+                        {
                             DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
+
                             TempSummon* throneTeleporter = instance->SummonCreature(NPC_THRONE_OF_THE_DAMNED, ThroneOfTheDamnedPos);
+
                             for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
                                 if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
                                     torghastSpike->SetSpellVisualId(0);
+
                             for (ObjectGuid const& invisibleWallGUID : InvisibleWallPhaseTwoGUID)
                                 if (GameObject* invisibleWall = instance->GetGameObject(invisibleWallGUID))
                                     invisibleWall->Respawn();
+
                             SylvanasIntermissionData = 0;
                             break;
+                        }
 
                         case IN_PROGRESS:
                         {
