@@ -33,6 +33,7 @@ ObjectData const creatureData[] =
     { NPC_JAINA_PROUDMOORE_PINNACLE,   DATA_JAINA_PROUDMOORE_PINNACLE   },
     { NPC_THRALL_PINNACLE,             DATA_THRALL_PINNACLE             },
     { NPC_ANDUIN_CRUCIBLE,             DATA_ANDUIN_CRUCIBLE             },
+    { NPC_THRONE_OF_THE_DAMNED,        DATA_THRONE_OF_THE_DAMNED        },
     { 0,                               0                                } // END
 };
 
@@ -49,11 +50,8 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
 
+            SylvanasIntroductionData = 0;
             SylvanasIntermissionData = 0;
-        }
-
-        void OnPlayerEnter(Player* /*player*/) override
-        {
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -135,6 +133,16 @@ public:
                     return SylvanasGUID;
                 case DATA_SYLVANAS_SHADOWCOPY_RIDING:
                     return SylvanasShadowcopyRidingGUID;
+                case DATA_BOLVAR_FORDRAGON_PINNACLE:
+                    return BolvarPinnacleGUID;
+                case DATA_JAINA_PROUDMOORE_PINNACLE:
+                    return JainaPinnacleGUID;
+                case DATA_THRALL_PINNACLE:
+                    return ThrallPinnacleGUID;
+                case DATA_THRONE_OF_THE_DAMNED:
+                    return ThroneOfTheDamnedGUID;
+                case DATA_ANDUIN_CRUCIBLE:
+                    return AnduinCrucibleGUID;
                 case DATA_SYLVANAS_SHADOWCOPY_00:
                     return SylvanasShadowcopyGUID[0];
                 case DATA_SYLVANAS_SHADOWCOPY_01:
@@ -159,16 +167,6 @@ public:
                     return SylvanasShadowcopyGUID[10];
                 case DATA_SYLVANAS_SHADOWCOPY_11:
                     return SylvanasShadowcopyGUID[11];
-                case DATA_BOLVAR_FORDRAGON_PINNACLE:
-                    return BolvarPinnacleGUID;
-                case DATA_JAINA_PROUDMOORE_PINNACLE:
-                    return JainaPinnacleGUID;
-                case DATA_THRALL_PINNACLE:
-                    return ThrallPinnacleGUID;
-                case DATA_ANDUIN_CRUCIBLE:
-                    return AnduinCrucibleGUID;
-                case DATA_THRONE_OF_THE_DAMNED:
-                    return ThroneOfTheDamnedGUID;
                 default:
                     break;
             }
@@ -266,12 +264,12 @@ public:
         {
             switch (type)
             {
-                case DATA_SYLVANAS_INTRO:
+                case DATA_SYLVANAS_INTRODUCTION:
                 {
                     switch (data)
                     {
-                        case NOT_STARTED:
-                            SylvanasIntroductionData = 0;
+                        case IN_PROGRESS:
+                            SylvanasIntroductionData = 1;
                             break;
 
                         case DONE:
@@ -306,7 +304,7 @@ public:
         {
             switch (type)
             {
-                case DATA_SYLVANAS_INTRO:
+                case DATA_SYLVANAS_INTRODUCTION:
                     return SylvanasIntroductionData;
                 case DATA_SYLVANAS_INTERMISSION_FINISH:
                     return SylvanasIntermissionData;
@@ -335,7 +333,7 @@ public:
                         {
                             if (Player* player = itr->GetSource())
                             {
-                                if (player->GetAreaId() != AREA_PINNACLE_OF_DOMINANCE)
+                                if (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_THE_CRUCIBLE)
                                     player->NearTeleportTo(SylvanasPlatformRevivePos, false);
                             }
                         }

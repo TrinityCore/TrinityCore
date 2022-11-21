@@ -7,7 +7,7 @@ SET @OGUID := 650000;
 -- Phase 1
 
 -- Sylvanas
-DELETE FROM `creature_summon_groups` WHERE `summonerId`=175732;
+DELETE FROM `creature_summon_groups` WHERE `summonerId`=175732 AND `groupId`=2;
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`, `Comment`) VALUES 
 (175732, 0, 2, 178072, -249.161, -1271.62, 5667.08, 4.56334, 8, 0, 'Anduin - Sylvanas Windrunner Encounter');
 

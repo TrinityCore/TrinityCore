@@ -34,7 +34,7 @@ enum SanctumOfDominationDataTypes
     // Encounter-related data
 
     // Sylvanas Windrunner
-    DATA_SYLVANAS_INTRO,
+    DATA_SYLVANAS_INTRODUCTION,
     DATA_SYLVANAS_SHADOWCOPY_RIDING,
     DATA_DOMINATION_ARROW,
     DATA_BOLVAR_FORDRAGON_PINNACLE,
@@ -108,7 +108,7 @@ enum SanctumOfDominationEvents
 enum SanctumOfDominationActions
 {
     ACTION_START_PHASE_TWO_ON_SYLVANAS              = 20,
-    ACTION_START_SYLVANAS_INTRO                     = 50
+    ACTION_START_SYLVANAS_INTRODUCTION              = 50
 };
 
 enum SanctumOfDominationAreas
