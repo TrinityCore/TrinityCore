@@ -50,7 +50,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
 
-            SylvanasIntroductionData = 0;
+            SylvanasIntroductionData = NOT_STARTED;
             SylvanasIntermissionData = 0;
         }
 
@@ -269,11 +269,11 @@ public:
                     switch (data)
                     {
                         case IN_PROGRESS:
-                            SylvanasIntroductionData = 1;
+                            SylvanasIntroductionData = IN_PROGRESS;
                             break;
 
                         case DONE:
-                            SylvanasIntroductionData = 3;
+                            SylvanasIntroductionData = DONE;
                             if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             {
                                 sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
