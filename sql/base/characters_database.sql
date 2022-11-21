@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.30, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.31, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	8.0.30-0ubuntu0.20.04.2
+-- Server version	8.0.31-0ubuntu0.20.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1106,7 +1106,7 @@ CREATE TABLE `character_instance_lock` (
   `lockId` int unsigned NOT NULL,
   `instanceId` int unsigned DEFAULT NULL,
   `difficulty` tinyint unsigned DEFAULT NULL,
-  `data` text COLLATE utf8mb4_unicode_ci,
+  `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `completedEncountersMask` int unsigned DEFAULT NULL,
   `entranceWorldSafeLocId` int unsigned DEFAULT NULL,
   `expiryTime` bigint unsigned DEFAULT NULL,
@@ -2570,7 +2570,7 @@ DROP TABLE IF EXISTS `instance`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `instance` (
   `instanceId` int unsigned NOT NULL,
-  `data` text COLLATE utf8mb4_unicode_ci,
+  `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `completedEncountersMask` int unsigned DEFAULT NULL,
   `entranceWorldSafeLocId` int unsigned DEFAULT NULL,
   PRIMARY KEY (`instanceId`)
@@ -3602,10 +3602,11 @@ INSERT INTO `updates` VALUES
 ('2022_07_25_00_characters.sql','3159BB2F3C346A7881920AB2B1F8108247CF13EE','ARCHIVED','2022-07-25 18:44:10',0),
 ('2022_08_19_00_characters.sql','1C076A24F2B48F32E8EF835C01F8907CA9E86491','ARCHIVED','2022-08-19 23:43:01',0),
 ('2022_08_21_00_characters.sql','1D75688392FBDA18CD8494F32CF682DCB49642EC','ARCHIVED','2022-08-21 00:02:03',0),
-('2022_09_18_00_characters.sql','A7DF0C1F0E074F3E63A6CDD0AF873A1F3DC33B29','RELEASED','2022-09-18 21:48:42',0),
-('2022_10_03_00_characters.sql','7B062787230D9158A622EB4AFE7FA6D18AB47BB3','RELEASED','2022-10-03 22:32:58',0),
-('2022_10_03_01_characters.sql','7CF58BD9CC366301CC992017028568C8774C4BC2','RELEASED','2022-10-03 22:36:38',0),
-('2022_10_03_02_characters.sql','33135AB3132943F15F4849A16EC5EFEA402F24F6','RELEASED','2022-10-03 22:38:27',0);
+('2022_09_18_00_characters.sql','A7DF0C1F0E074F3E63A6CDD0AF873A1F3DC33B29','ARCHIVED','2022-09-18 21:48:42',0),
+('2022_10_03_00_characters.sql','7B062787230D9158A622EB4AFE7FA6D18AB47BB3','ARCHIVED','2022-10-03 22:32:58',0),
+('2022_10_03_01_characters.sql','7CF58BD9CC366301CC992017028568C8774C4BC2','ARCHIVED','2022-10-03 22:36:38',0),
+('2022_10_03_02_characters.sql','33135AB3132943F15F4849A16EC5EFEA402F24F6','ARCHIVED','2022-10-03 22:38:27',0),
+('2022_11_20_00_characters.sql','4EB8BB24CAF16B0962DF3EF92C77BE05E234CFA6','ARCHIVED','2022-11-20 11:05:20',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3731,4 +3732,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-21  0:02:06
+-- Dump completed on 2022-11-20 11:05:23
