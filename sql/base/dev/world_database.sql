@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.30, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.31, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.30-0ubuntu0.20.04.2
+-- Server version	8.0.31-0ubuntu0.20.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1518,7 +1518,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1824 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
+) ENGINE=InnoDB AUTO_INCREMENT=1951 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1867,11 +1867,9 @@ DROP TABLE IF EXISTS `gossip_menu_option`;
 CREATE TABLE `gossip_menu_option` (
   `MenuID` int unsigned NOT NULL DEFAULT '0',
   `OptionID` int unsigned NOT NULL DEFAULT '0',
-  `OptionIcon` tinyint unsigned NOT NULL DEFAULT '0',
+  `OptionNpc` tinyint unsigned NOT NULL DEFAULT '0',
   `OptionText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `OptionBroadcastTextID` int unsigned NOT NULL DEFAULT '0',
-  `OptionType` int unsigned NOT NULL DEFAULT '0',
-  `OptionNpcFlag` bigint unsigned NOT NULL DEFAULT '0',
   `Language` int unsigned NOT NULL DEFAULT '0',
   `ActionMenuID` int unsigned NOT NULL DEFAULT '0',
   `ActionPoiID` int unsigned NOT NULL DEFAULT '0',
@@ -1879,6 +1877,22 @@ CREATE TABLE `gossip_menu_option` (
   `BoxMoney` int unsigned NOT NULL DEFAULT '0',
   `BoxText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BoxBroadcastTextID` int unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`MenuID`,`OptionID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gossip_menu_option_addon`
+--
+
+DROP TABLE IF EXISTS `gossip_menu_option_addon`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gossip_menu_option_addon` (
+  `MenuID` int unsigned NOT NULL DEFAULT '0',
+  `OptionID` int unsigned NOT NULL DEFAULT '0',
+  `GarrTalentTreeID` int DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`MenuID`,`OptionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2860,7 +2874,7 @@ CREATE TABLE `points_of_interest` (
   `Flags` int unsigned NOT NULL DEFAULT '0',
   `Importance` int unsigned NOT NULL DEFAULT '0',
   `Name` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `Unknown905` int NOT NULL DEFAULT '0',
+  `WMOGroupID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -4782,4 +4796,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-21  0:02:08
+-- Dump completed on 2022-11-20 11:05:24
