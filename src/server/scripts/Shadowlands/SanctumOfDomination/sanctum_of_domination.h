@@ -23,6 +23,7 @@
 #define DataHeader "SOD"
 #define SODScriptName "instance_sanctum_of_domination"
 
+Position const ThroneOfTheDamnedPos = { 284.060f, -781.086f, 4105.022f, 3.91f };
 Position const SylvanasPlatformRevivePos = { 265.834f, -799.287f, 4104.977f, 3.811291f };
 
 uint32 const EncounterCount = 10;

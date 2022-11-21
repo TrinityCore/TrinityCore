@@ -457,12 +457,13 @@ enum SpellVisuals
     SPELL_VISUAL_TORGHAST_SPIRE_BREAK                   = 108070,
     SPELL_VISUAL_TORGHAST_SPIRE_BREAK_FAST              = 108071,
     SPELL_VISUAL_RIVEN_DEBRIS                           = 107877, // At 2.203702926635742187f - 1.52007603645324707f
-    SPELL_VISUAL_WITHERING_FIRE_PHASE_TWO               = 110435, // At 3.5f - 2.7f
+    SPELL_VISUAL_WITHERING_FIRE_PHASE_TWO               = 110435, // At 4.128731250762939453f - 1.461606025695800781f
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_LFR         = 000000, // At 3.0f UNK!
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_NM          = 109371, // At 3.0f
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_HC          = 000000, // At 3.0f UNK!
     SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_MM          = 109368, // At 3.0f
-    SPELL_VISUAL_BANE_ARROW                             = 108112, // At 3.2f - 2.04f
+    SPELL_VISUAL_BANE_ARROWS_NM_AND_HC                  = 108112, // At 3.240910291671752929f - 2.04f
+    SPELL_VISUAL_BANE_ARROWS_MM                         = 110644, // At 2.609101772308349609f - 1.790414214134216308f
     SPELL_VISUAL_BANSHEE_FURY                           = 108130, // At 0.100000001490116119f
     SPELL_VISUAL_RAZE                                   = 110336, // At 0.100000001490116119f
     SPELL_VISUAL_RAZE_MISSILE                           = 108154, // At 0.33f - 0.14f
@@ -1641,17 +1642,19 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         for (Unit* target : targetedPlayers)
         {
-            uint32 timeToTarget = uint32(me->GetDistance(target) * 0.02083 * 1000);
+            float speed = 48.0f;
+
+            me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE, 0, 0, speed, false);
 
             ObjectGuid targetGUID = target->GetGUID();
 
-            me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE, 0, 0, 48.0f, false);
+            uint32 timer = uint32(me->GetDistance(target) * 0.02083 * 1000);
 
-            _scheduler.Schedule(Milliseconds(timeToTarget), [this, targetGUID](TaskContext /*task*/)
+            _scheduler.Schedule(Milliseconds(timer), [this, targetGUID](TaskContext /*task*/)
             {
                 if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
                     if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
-                        sylvanas->CastSpell(target, SPELL_WITHERING_FIRE, false);
+                        sylvanas->CastSpell(target, SPELL_WITHERING_FIRE);
             });
         }
     }
@@ -1799,9 +1802,9 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
             me->SendPlaySpellVisual(desecratingShot.Pos, 0, SPELL_VISUAL_DESECRATING_ARROW, 0, 0, travelSpeed, true);
 
-            uint32 timeToTarget = uint32(travelSpeed * 1000);
+            uint32 timer = uint32(travelSpeed * 1000);
 
-            _scheduler.Schedule(Milliseconds(timeToTarget), [this, desecratingShot](TaskContext /*task*/)
+            _scheduler.Schedule(Milliseconds(timer), [this, desecratingShot](TaskContext /*task*/)
             {
                 Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
                 if (!sylvanas)
@@ -1931,7 +1934,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
         // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_RENAME when engaging, meaning they're most likely summoned by Sylvanas.
         me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS);
-        me->SummonCreatureGroup(SPAWN_GROUP_PORTALS);
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
@@ -2020,10 +2022,6 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_INTERMISSION, true);
         DoCastSelf(SPELL_HEALTH_PCT_CHECK_FINISH, true);
-
-        // Note: the teleporter to the Pinnacle gets removed on engage.
-        if (Creature* throneTeleporter = instance->GetCreature(DATA_THRONE_OF_THE_DAMNED))
-            throneTeleporter->DespawnOrUnsummon();
 
         // Note: Sylvanas uses her root with 2s at the beginning of the encounter, most likely to avoid her moving when engaging at stance switch.
         DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2000));
@@ -2412,10 +2410,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                 switch (me->GetMap()->GetDifficultyID())
                                 {
-                                    case DIFFICULTY_LFR_NEW: targetSize = 2; break;
-                                    case DIFFICULTY_NORMAL_RAID: targetSize = 3; break;
-                                    case DIFFICULTY_HEROIC_RAID: targetSize = 4; break;
-                                    case DIFFICULTY_MYTHIC_RAID: targetSize = 5; break;
+                                    case DIFFICULTY_LFR_NEW: targetSize = 3; break;
+                                    case DIFFICULTY_NORMAL_RAID: targetSize = 4; break;
+                                    case DIFFICULTY_HEROIC_RAID: targetSize = 5; break;
+                                    case DIFFICULTY_MYTHIC_RAID: targetSize = 4; break;
                                     default: break;
                                 }
 
@@ -2423,13 +2421,15 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                 for (Player* target : targetList)
                                 {
-                                    uint32 randomSpeed = urand(2700, 3500);
+                                    float speed = frand(1.461606025695800781f, 4.128731250762939453f);
 
-                                    me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_TWO, 0, 0, float(randomSpeed / 1000), true);
+                                    me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_TWO, 0, 0, speed, true);
 
                                     ObjectGuid targetGUID = target->GetGUID();
 
-                                    scheduler.Schedule(Milliseconds(randomSpeed), [this, targetGUID](TaskContext /*task*/)
+                                    uint32 timer = uint32(speed * 1000);
+
+                                    scheduler.Schedule(Milliseconds(timer), [this, targetGUID](TaskContext /*task*/)
                                     {
                                         if (Player* target = ObjectAccessor::GetPlayer(*me, targetGUID))
                                             me->CastSpell(target, SPELL_WITHERING_FIRE, false);
@@ -4093,9 +4093,9 @@ class HeartseekerMissileEvent : public BasicEvent
         {
             _actor->SendPlaySpellVisual(_victim, SPELL_VISUAL_HEARTSEEKER, 0, 0, 36.0f, false);
 
-            uint32 timeToTarget = uint32(_actor->GetDistance(_victim) * 0.0277 * 1000);
+            uint32 timer = uint32(_actor->GetDistance(_victim) * 0.0277 * 1000);
 
-            _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timeToTarget)));
+            _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timer)));
 
             if (Aura* heartseeker = _actor->GetAura(_actor->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEES_HEARTSEEKER_CHARGE))
                 heartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
@@ -5119,11 +5119,26 @@ class spell_sylvanas_windrunner_bane_arrows : public SpellScript
                 {
                     Position const baneArrowPos = sylvanasAI->GetRandomPointInNonDesecratedPlatform(platform);
 
-                    uint32 randomSpeed = urand(2040, 3200);
+                    uint32 visual = 0;
+                    float speed = 0;
 
-                    sylvanas->SendPlaySpellVisual(baneArrowPos, 0.0f, SPELL_VISUAL_BANE_ARROW, 0, 0, float(randomSpeed / 1000), true);
+                    switch (sylvanas->GetMap()->GetDifficultyID())
+                    {
+                        case DIFFICULTY_MYTHIC_RAID:
+                            visual = SPELL_VISUAL_BANE_ARROWS_MM;
+                            speed = frand(1.790414214134216308f, 2.609101772308349609f);
+                            break;
+                        default:
+                            visual = SPELL_VISUAL_BANE_ARROWS_NM_AND_HC;
+                            speed = frand(2.04f, 3.240910291671752929f);
+                            break;
+                    }
 
-                    sylvanas->m_Events.AddEvent(new BaneArrowEvent(sylvanas, baneArrowPos), sylvanas->m_Events.CalculateTime(Milliseconds(randomSpeed)));
+                    sylvanas->SendPlaySpellVisual(baneArrowPos, 0.0f, visual, 0, 0, speed, true);
+
+                    uint32 timer = uint32(speed * 1000);
+
+                    sylvanas->m_Events.AddEvent(new BaneArrowEvent(sylvanas, baneArrowPos), sylvanas->m_Events.CalculateTime(Milliseconds(timer)));
                 }
             }
         }
@@ -7137,7 +7152,7 @@ struct at_sylvanas_windrunner_rive : AreaTriggerAI
 
                 if (SylvanasFirstPhasePlatformCenter.IsInDist2d(&debrisPos, PLATFORM_RADIUS))
                 {
-                    float speed = urand(1.52007603645324707f, 2.203702926635742187f);
+                    float speed = frand(1.52007603645324707f, 2.203702926635742187f);
 
                     at->SendPlayOrphanSpellVisual(debrisPos, SPELL_VISUAL_RIVEN_DEBRIS, speed, true, false);
 
