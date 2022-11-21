@@ -21,7 +21,6 @@
 #include "Map.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TemporarySummon.h"
 #include "sanctum_of_domination.h"
 
 ObjectData const creatureData[] =
@@ -144,7 +143,8 @@ public:
                     {
                         DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 0);
 
-                        TempSummon* throneTeleporter = instance->SummonCreature(NPC_THRONE_OF_THE_DAMNED, ThroneOfTheDamnedPos);
+                        if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
+                            throneTeleporter->SetVisible(true);
 
                         for (ObjectGuid const& spikeGUID : TorghastSpikeGUID)
                             if (GameObject* torghastSpike = instance->GetGameObject(spikeGUID))
@@ -155,7 +155,7 @@ public:
                         DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_STARTED, 1);
 
                         if (Creature* throneTeleporter = GetCreature(DATA_THRONE_OF_THE_DAMNED))
-                            throneTeleporter->DespawnOrUnsummon();
+                            throneTeleporter->SetVisible(false);
                     }
 
                     break;
