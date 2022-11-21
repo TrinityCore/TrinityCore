@@ -85,8 +85,7 @@ enum Conversations
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_CHAMPIONS                               = 0,
-    SPAWN_GROUP_PORTALS
+    SPAWN_GROUP_CHAMPIONS                               = 0
 };
 
 enum Points
