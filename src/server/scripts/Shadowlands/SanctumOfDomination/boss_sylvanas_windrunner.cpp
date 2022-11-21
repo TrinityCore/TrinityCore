@@ -137,7 +137,7 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_GENERIC_DUAL_WIELD, true);
         DoCastSelf(SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING, true);
 
-        if (instance->GetData(DATA_SYLVANAS_INTRO) == DONE)
+        if (instance->GetData(DATA_SYLVANAS_INTRODUCTION) == DONE)
         {
             me->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
             me->SetImmuneToAll(false);
@@ -356,7 +356,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_INTRODUCTION + 20:
                     DoCastSelf(SPELL_GENERIC_ANCHOR_HERE, true);
-                    instance->SetData(DATA_SYLVANAS_INTRO, DONE);
+                    instance->SetData(DATA_SYLVANAS_INTRODUCTION, DONE);
                     break;
             }
         }
@@ -371,7 +371,7 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!_instance || _instance->GetData(DATA_SYLVANAS_INTRO) != NOT_STARTED || !unit->IsPlayer())
+        if (!_instance || _instance->GetData(DATA_SYLVANAS_INTRODUCTION) != NOT_STARTED || !unit->IsPlayer())
             return;
 
         if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
@@ -379,7 +379,7 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
             if (sylvanas->IsAIEnabled())
                 sylvanas->GetAI()->DoAction(ACTION_START_SYLVANAS_INTRO);
 
-            _instance->SetData(DATA_SYLVANAS_INTRO, IN_PROGRESS);
+            _instance->SetData(DATA_SYLVANAS_INTRODUCTION, IN_PROGRESS);
         }
     }
 

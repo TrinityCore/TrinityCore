@@ -30,6 +30,7 @@ ObjectData const creatureData[] =
     { NPC_BOLVAR_FORDRAGON_PINNACLE,   DATA_BOLVAR_FORDRAGON_PINNACLE   },
     { NPC_JAINA_PROUDMOORE_PINNACLE,   DATA_JAINA_PROUDMOORE_PINNACLE   },
     { NPC_THRALL_PINNACLE,             DATA_THRALL_PINNACLE             },
+    { NPC_THRONE_OF_THE_DAMNED,        DATA_THRONE_OF_THE_DAMNED        },
     { 0,                               0                                } // END
 };
 
@@ -45,6 +46,8 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
+
+            SylvanasIntroductionData = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -160,12 +163,12 @@ public:
         {
             switch (type)
             {
-                case DATA_SYLVANAS_INTRO:
+                case DATA_SYLVANAS_INTRODUCTION:
                 {
                     switch (data)
                     {
-                        case NOT_STARTED:
-                            SylvanasIntroductionData = 0;
+                        case IN_PROGRESS:
+                            SylvanasIntroductionData = 1;
                             break;
 
                         case DONE:
@@ -193,7 +196,7 @@ public:
         {
             switch (type)
             {
-                case DATA_SYLVANAS_INTRO:
+                case DATA_SYLVANAS_INTRODUCTION:
                     return SylvanasIntroductionData;
                 default:
                     break;

@@ -32,7 +32,7 @@ enum SanctumOfDominationDataTypes
     /* Encounter-related data */
 
     /* Sylvanas Windrunner */
-    DATA_SYLVANAS_INTRO,
+    DATA_SYLVANAS_INTRODUCTION,
     DATA_SYLVANAS_SHADOWCOPY_RIDING,
     DATA_BOLVAR_FORDRAGON_PINNACLE,
     DATA_JAINA_PROUDMOORE_PINNACLE,
