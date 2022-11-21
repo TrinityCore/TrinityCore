@@ -90,7 +90,7 @@ void AddSC_instance_eye_of_eternity();
 void AddSC_boss_sartharion();            //Obsidian Sanctum
 void AddSC_obsidian_sanctum();
 void AddSC_instance_obsidian_sanctum();
-void AddSC_boss_bjarngrim();             //Ulduar Halls of Lightning
+void AddSC_boss_general_bjarngrim();             //Ulduar Halls of Lightning
 void AddSC_boss_loken();
 void AddSC_boss_ionar();
 void AddSC_boss_volkhan();
@@ -273,7 +273,7 @@ void AddNorthrendScripts()
     AddSC_boss_sartharion();            //Obsidian Sanctum
     AddSC_obsidian_sanctum();
     AddSC_instance_obsidian_sanctum();
-    AddSC_boss_bjarngrim();             //Ulduar Halls of Lightning
+    AddSC_boss_general_bjarngrim();     //Ulduar Halls of Lightning
     AddSC_boss_loken();
     AddSC_boss_ionar();
     AddSC_boss_volkhan();
