@@ -313,6 +313,7 @@ enum Actions
     ACTION_WAILING_ARROW,
     ACTION_PREPARE_INTERMISSION,
     ACTION_OPEN_PORTAL_TO_PHASE_TWO,
+    ACTION_START_PHASE_TWO,
     ACTION_HAUNTING_WAVE_SECOND_CHAIN,
     ACTION_START_VEIL_OF_DARKNESS,
     ACTION_WINDS_OF_ICECROWN_PRE,
@@ -1063,7 +1064,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
 
-        _events.SetPhase(PHASE_TWO);
+        _events.SetPhase(PHASE_ONE);
     }
 
     void Reset() override
@@ -1185,6 +1186,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             {
                 _events.CancelEventGroup(EVENT_GROUP_NORMAL_EVENTS);
                 _events.SetPhase(PHASE_INTERMISSION);
+                break;
+            }
+
+            case ACTION_START_PHASE_TWO:
+            {
+                _events.SetPhase(PHASE_TWO);
                 break;
             }
 
@@ -2101,8 +2108,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
-        events.SetPhase(PHASE_TWO);
-        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 5s, 0, PHASE_TWO);
+        events.SetPhase(PHASE_ONE);
+        ScheduleEventsForPhaseOne();
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
@@ -2174,6 +2181,15 @@ struct boss_sylvanas_windrunner : public BossAI
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INTERMISSION_STUN);
                     instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
                     events.SetPhase(PHASE_TWO);
+
+                    for (ObjectGuid const& shadowCopiesGUID : _shadowCopyGUID)
+                    {
+                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, shadowCopiesGUID))
+                        {
+                            if (shadowCopy->IsAIEnabled())
+                                shadowCopy->GetAI()->DoAction(ACTION_START_PHASE_TWO);
+                        }
+                    }
                 }
                 break;
             }
