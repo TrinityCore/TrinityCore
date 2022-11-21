@@ -47,262 +47,262 @@
 enum Spells
 {
     // Stances
-    SPELL_RANGER_BOW_STANCE                             = 347560,
-    SPELL_RANGER_DAGGERS_STANCE                         = 348010,
+    SPELL_RANGER_BOW_STANCE                                       = 347560,
+    SPELL_RANGER_DAGGERS_STANCE                                   = 348010,
 
     // Ranger Shot
-    SPELL_RANGER_SHOT                                   = 347548,
+    SPELL_RANGER_SHOT                                             = 347548,
 
     // Ranger Strike
-    SPELL_RANGER_STRIKE                                 = 348299,
+    SPELL_RANGER_STRIKE                                           = 348299,
 
     // Windrunner
-    SPELL_WINDRUNNER                                    = 347504,
-    SPELL_WINDRUNNER_DISAPPEAR_01                       = 352303,
-    SPELL_WINDRUNNER_DISAPPEAR_02                       = 358975,
-    SPELL_WINDRUNNER_SPIN                               = 351187,
-    SPELL_WINDRUNNER_MOVE                               = 347606,
-    SPELL_WINDRUNNER_SHOT_01                            = 347604, // Not on the sniff
-    SPELL_WINDRUNNER_JUMP_02                            = 347605, // Not on the sniff
-    SPELL_WINDRUNNER_DAGGER_01                          = 350737, // Not on the sniff
-    SPELL_WINDRUNNER_BANSHEE                            = 352211,
+    SPELL_WINDRUNNER                                              = 347504,
+    SPELL_WINDRUNNER_DISAPPEAR_01                                 = 352303,
+    SPELL_WINDRUNNER_DISAPPEAR_02                                 = 358975,
+    SPELL_WINDRUNNER_SPIN                                         = 351187,
+    SPELL_WINDRUNNER_MOVE                                         = 347606,
+    SPELL_WINDRUNNER_SHOT_01                                      = 347604, // Not on the sniff
+    SPELL_WINDRUNNER_JUMP_02                                      = 347605, // Not on the sniff
+    SPELL_WINDRUNNER_DAGGER_01                                    = 350737, // Not on the sniff
+    SPELL_WINDRUNNER_BANSHEE                                      = 352211,
 
     // Shadow Dagger
-    SPELL_SHADOW_DAGGER_COPY                            = 358964,
-    SPELL_SHADOW_DAGGER                                 = 347670,
-    SPELL_SHADOW_DAGGER_AOE                             = 353935,
-    SPELL_SHADOW_DAGGER_MISSILE                         = 348089,
-    SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE             = 353935,
+    SPELL_SHADOW_DAGGER_COPY                                      = 358964,
+    SPELL_SHADOW_DAGGER                                           = 347670,
+    SPELL_SHADOW_DAGGER_AOE                                       = 353935,
+    SPELL_SHADOW_DAGGER_MISSILE                                   = 348089,
+    SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE                       = 353935,
 
     // Withering Fire
-    SPELL_WITHERING_FIRE_COPY                           = 358981,
-    SPELL_WITHERING_FIRE                                = 347928,
-    SPELL_BARBED_ARROW                                  = 347807,
+    SPELL_WITHERING_FIRE_COPY                                     = 358981,
+    SPELL_WITHERING_FIRE                                          = 347928,
+    SPELL_BARBED_ARROW                                            = 347807,
 
     // Desecrating Shot
-    SPELL_DESECRATING_SHOT                              = 350652,
-    SPELL_DESECRATING_SHOT_AREATRIGGER                  = 348626,
-    SPELL_DESECRATING_SHOT_JUMP_FRONT                   = 347957,
-    SPELL_DESECRATING_SHOT_JUMP_LEFT                    = 356191,
-    SPELL_DESECRATING_SHOT_TRIGGERED                    = 348627,
+    SPELL_DESECRATING_SHOT                                        = 350652,
+    SPELL_DESECRATING_SHOT_AREATRIGGER                            = 348626,
+    SPELL_DESECRATING_SHOT_JUMP_FRONT                             = 347957,
+    SPELL_DESECRATING_SHOT_JUMP_LEFT                              = 356191,
+    SPELL_DESECRATING_SHOT_TRIGGERED                              = 348627,
 
     // Ranger Heartseeker
-    SPELL_RANGER_HEARTSEEKER_AURA                       = 352649,
-    SPELL_RANGER_HEARTSEEKER_CHARGE                     = 352650,
-    SPELL_RANGER_HEARTSEEKER                            = 352663,
-    SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE            = 352651,
-    SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE              = 352652,
-    SPELL_BANSHEE_MARK                                  = 347607,
+    SPELL_RANGER_HEARTSEEKER_AURA                                 = 352649,
+    SPELL_RANGER_HEARTSEEKER_CHARGE                               = 352650,
+    SPELL_RANGER_HEARTSEEKER                                      = 352663,
+    SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE                      = 352651,
+    SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE                        = 352652,
+    SPELL_BANSHEE_MARK                                            = 347607,
 
     // Wailing Arrow
-    SPELL_WAILING_ARROW_POINTER                         = 348064,
-    SPELL_WAILING_ARROW                                 = 347609,
-    SPELL_WAILING_ARROW_VISUAL_MYTHIC                   = 358993,
+    SPELL_WAILING_ARROW_POINTER                                   = 348064,
+    SPELL_WAILING_ARROW                                           = 347609,
+    SPELL_WAILING_ARROW_VISUAL_MYTHIC                             = 358993,
 
     // Domination Chains
-    SPELL_DOMINATION_CHAINS                             = 349419,
-    SPELL_DOMINATION_CHAINS_JUMP                        = 347602,
-    SPELL_DOMINATION_ARROW_SHOT_VISUAL                  = 350426,
-    SPELL_DOMINATION_ARROW_FALL                         = 352317,
-    SPELL_DOMINATION_ARROW_FALL_AND_VISUAL              = 352319,
-    SPELL_DOMINATION_ARROW_ACTIVATE                     = 356650,
-    SPELL_DOMINATION_ARROW_CALAMITY_VISUAL              = 356769,
-    SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER         = 356624,
-    SPELL_DOMINATION_ARROW_CALAMITY_DAMAGE              = 356649,
+    SPELL_DOMINATION_CHAINS                                       = 349419,
+    SPELL_DOMINATION_CHAINS_JUMP                                  = 347602,
+    SPELL_DOMINATION_ARROW_SHOT_VISUAL                            = 350426,
+    SPELL_DOMINATION_ARROW_FALL                                   = 352317,
+    SPELL_DOMINATION_ARROW_FALL_AND_VISUAL                        = 352319,
+    SPELL_DOMINATION_ARROW_ACTIVATE                               = 356650,
+    SPELL_DOMINATION_ARROW_CALAMITY_VISUAL                        = 356769,
+    SPELL_DOMINATION_ARROW_CALAMITY_AREATRIGGER                   = 356624,
+    SPELL_DOMINATION_ARROW_CALAMITY_DAMAGE                        = 356649,
 
-    SPELL_DOMINATION_CHAIN_PLAYER                       = 349451,
-    SPELL_DOMINATION_CHAIN_PERIODIC                     = 349458,
+    SPELL_DOMINATION_CHAIN_PLAYER                                 = 349451,
+    SPELL_DOMINATION_CHAIN_PERIODIC                               = 349458,
 
     // Veil of Darkness (Generic)
-    SPELL_VEIL_OF_DARKNESS_DESELECT                     = 354366,
-    SPELL_VEIL_OF_DARKNESS_SCREEN_FOG                   = 354580,
-    SPELL_VEIL_OF_DARKNESS_ABSORB_AURA                  = 347704,
-    SPELL_VEIL_OF_DARKNESS_VISUAL_SPREAD                = 355749,
+    SPELL_VEIL_OF_DARKNESS_DESELECT                               = 354366,
+    SPELL_VEIL_OF_DARKNESS_SCREEN_FOG                             = 354580,
+    SPELL_VEIL_OF_DARKNESS_ABSORB_AURA                            = 347704,
+    SPELL_VEIL_OF_DARKNESS_VISUAL_SPREAD                          = 355749,
 
     // Veil of Darkness (Phase 1)
-    SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE                 = 352470,
-    SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW                 = 350335,
-    SPELL_VEIL_OF_DARKNESS_PHASE_1_AREA                 = 357726,
-    SPELL_VEIL_OF_DARKNESS_PHASE_1                      = 347726,
+    SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE                           = 352470,
+    SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW                           = 350335,
+    SPELL_VEIL_OF_DARKNESS_PHASE_1_AREA                           = 357726,
+    SPELL_VEIL_OF_DARKNESS_PHASE_1                                = 347726,
 
     // Banshee Shroud
-    SPELL_BANSHEE_SHROUD                                = 350857,
+    SPELL_BANSHEE_SHROUD                                          = 350857,
 
     // Rive
-    SPELL_RIVE_DISAPPEAR                                = 353519,
-    SPELL_RIVE                                          = 353417,
-    SPELL_RIVE_FAST                                     = 353418,
-    SPELL_RIVE_MARKER_AREATRIGGER                       = 353419,
-    SPELL_RIVE_CHAIN                                    = 353504,
-    SPELL_RIVE_CHAIN_FAST                               = 353510,
-    SPELL_RIVE_AREATRIGGER                              = 353375,
-    SPELL_RIVE_DAMAGE                                   = 348145,
-    SPELL_RIVEN_DEBRIS                                  = 353413,
-    SPELL_RIVE_MYTHIC_COPY                              = 358431,
+    SPELL_RIVE_DISAPPEAR                                          = 353519,
+    SPELL_RIVE                                                    = 353417,
+    SPELL_RIVE_FAST                                               = 353418,
+    SPELL_RIVE_MARKER_AREATRIGGER                                 = 353419,
+    SPELL_RIVE_CHAIN                                              = 353504,
+    SPELL_RIVE_CHAIN_FAST                                         = 353510,
+    SPELL_RIVE_AREATRIGGER                                        = 353375,
+    SPELL_RIVE_DAMAGE                                             = 348145,
+    SPELL_RIVEN_DEBRIS                                            = 353413,
+    SPELL_RIVE_MYTHIC_COPY                                        = 358431,
 
     // Banshee Wail
-    SPELL_BANSHEE_WAIL                                  = 348094,
-    SPELL_BANSHEE_WAIL_TRIGGERED_MISSILE                = 348108,
-    SPELL_BANSHEE_WAIL_MISSILE                          = 348133,
-    SPELL_BANSHEE_WAIL_SILENCE                          = 351253,
-    SPELL_BANSHEE_WAIL_MARKER                           = 357719,
-    SPELL_BANSHEE_WAIL_EXPIRE                           = 355489,
+    SPELL_BANSHEE_WAIL                                            = 348094,
+    SPELL_BANSHEE_WAIL_TRIGGERED_MISSILE                          = 348108,
+    SPELL_BANSHEE_WAIL_MISSILE                                    = 348133,
+    SPELL_BANSHEE_WAIL_SILENCE                                    = 351253,
+    SPELL_BANSHEE_WAIL_MARKER                                     = 357719,
+    SPELL_BANSHEE_WAIL_EXPIRE                                     = 355489,
 
-    SPELL_TELEPORT_TO_PHASE_TWO                         = 350903,
-    SPELL_TELEPORT_NO_IDEA                              = 350905, // TARGET_DEST_DB, not sniffed
+    SPELL_TELEPORT_TO_PHASE_TWO                                   = 350903,
+    SPELL_TELEPORT_NO_IDEA                                        = 350905, // TARGET_DEST_DB, not sniffed
 
     // Banshee Form
-    SPELL_BANSHEE_FORM                                  = 348146,
-    SPELL_BANSHEE_READY_STANCE                          = 357758,
+    SPELL_BANSHEE_FORM                                            = 348146,
+    SPELL_BANSHEE_READY_STANCE                                    = 357758,
 
     // Haunting Wave
-    SPELL_HAUNTING_WAVE                                 = 352271,
-    SPELL_HAUNTING_WAVE_DAMAGE                          = 351870,
+    SPELL_HAUNTING_WAVE                                           = 352271,
+    SPELL_HAUNTING_WAVE_DAMAGE                                    = 351870,
 
-    SPELL_CALL_EARTH_DEBRIS                             = 355491,
+    SPELL_CALL_EARTH_DEBRIS                                       = 355491,
 
     // Ruin
-    SPELL_RUIN                                          = 355540,
-    SPELL_RUIN_VISUAL                                   = 358990,
+    SPELL_RUIN                                                    = 355540,
+    SPELL_RUIN_VISUAL                                             = 358990,
 
     // Veil of Darkness (Phase 2)
-    SPELL_VEIL_OF_DARKNESS_PHASE_2_FADE                 = 353273,
-    SPELL_VEIL_OF_DARKNESS_PHASE_2_GROW                 = 352239,
-    SPELL_VEIL_OF_DARKNESS_PHASE_2_AREA                 = 352225,
-    SPELL_VEIL_OF_DARKNESS_PHASE_2                      = 347741,
+    SPELL_VEIL_OF_DARKNESS_PHASE_2_FADE                           = 353273,
+    SPELL_VEIL_OF_DARKNESS_PHASE_2_GROW                           = 352239,
+    SPELL_VEIL_OF_DARKNESS_PHASE_2_AREA                           = 352225,
+    SPELL_VEIL_OF_DARKNESS_PHASE_2                                = 347741,
 
     // Invigorating Field
-    SPELL_INVIGORATING_FIELD_ACTIVATE                   = 353660,
-    SPELL_INVIGORATING_FIELD                            = 354175,
-    SPELL_INVIGORATING_FIELD_JUMP                       = 353642,
+    SPELL_INVIGORATING_FIELD_ACTIVATE                             = 353660,
+    SPELL_INVIGORATING_FIELD                                      = 354175,
+    SPELL_INVIGORATING_FIELD_JUMP                                 = 353642,
 
     // Platform Change
-    SPELL_SWITCH_PLATFORM_STOMP                         = 354141, // 27887 areatrigger forces MovementForce 1 with Magnitude -14 on players for 150ms
+    SPELL_SWITCH_PLATFORM_STOMP                                   = 354141, // 27887 areatrigger forces MovementForce 1 with Magnitude -14 on players for 150ms
 
     // Banshee's Heartseeker
-    SPELL_BANSHEES_HEARTSEEKER_AURA                     = 353966,
-    SPELL_BANSHEES_HEARTSEEKER_CHARGE                   = 353965,
-    SPELL_BANSHEES_HEARTSEEKER                          = 353969,
-    SPELL_BANSHEES_HEARTSEEKER_PHYSICAL_DAMAGE          = 353968,
-    SPELL_BANSHEES_HEARTSEEKER_SHADOW_DAMAGE            = 353967,
+    SPELL_BANSHEES_HEARTSEEKER_AURA                               = 353966,
+    SPELL_BANSHEES_HEARTSEEKER_CHARGE                             = 353965,
+    SPELL_BANSHEES_HEARTSEEKER                                    = 353969,
+    SPELL_BANSHEES_HEARTSEEKER_PHYSICAL_DAMAGE                    = 353968,
+    SPELL_BANSHEES_HEARTSEEKER_SHADOW_DAMAGE                      = 353967,
 
     // Banshee's Bane
-    SPELL_BANSHEES_BANE                                 = 353929,
-    SPELL_BANSHEES_BANE_AREATRIGGER                     = 353930,
+    SPELL_BANSHEES_BANE                                           = 353929,
+    SPELL_BANSHEES_BANE_AREATRIGGER                               = 353930,
 
     // Bane Arrows
-    SPELL_BANE_ARROWS                                   = 354011,
-    SPELL_BANE_ARROWS_DAMAGE                            = 353972,
+    SPELL_BANE_ARROWS                                             = 354011,
+    SPELL_BANE_ARROWS_DAMAGE                                      = 353972,
 
     // Banshee's Blades
-    SPELL_BANSHEE_BLADE_PHYSICAL_DAMAGE                 = 358182,
-    SPELL_BANSHEE_BLADE_SHADOW_DAMAGE                   = 358183,
+    SPELL_BANSHEE_BLADE_PHYSICAL_DAMAGE                           = 358182,
+    SPELL_BANSHEE_BLADE_SHADOW_DAMAGE                             = 358183,
 
     // Banshee Scream
-    SPELL_BANSHEE_SCREAM                                = 353952,
+    SPELL_BANSHEE_SCREAM                                          = 353952,
 
     // Veil of Darkness (Phase 3)
-    SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE                 = 354168,
-    SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW                 = 354143,
-    SPELL_VEIL_OF_DARKNESS_PHASE_3                      = 354142,
-    SPELL_VEIL_OF_DARKNESS_PHASE_3_TARGETED             = 357876,
+    SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE                           = 354168,
+    SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW                           = 354143,
+    SPELL_VEIL_OF_DARKNESS_PHASE_3                                = 354142,
+    SPELL_VEIL_OF_DARKNESS_PHASE_3_TARGETED                       = 357876,
 
     // Banshee's Fury
-    SPELL_BANSHEES_FURY                                 = 354068,
-    SPELL_BANSHEES_FURY_EXPLODE                         = 357526,
+    SPELL_BANSHEES_FURY                                           = 354068,
+    SPELL_BANSHEES_FURY_EXPLODE                                   = 357526,
 
     // Raze
-    SPELL_RAZE                                          = 354147,
-    SPELL_RAZE_PERIODIC                                 = 354146,
+    SPELL_RAZE                                                    = 354147,
+    SPELL_RAZE_PERIODIC                                           = 354146,
 
     // The Jailer
-    SPELL_JAILER_GROW_SOULS                             = 355347,
-    SPELL_JAILER_CAST_SOULS                             = 355348,
+    SPELL_JAILER_GROW_SOULS                                       = 355347,
+    SPELL_JAILER_CAST_SOULS                                       = 355348,
 
     // Anduin Wrynn
-    SPELL_FOCUSING_PRISM_AURA                           = 358166, // Related to the achievement
+    SPELL_FOCUSING_PRISM_AURA                                     = 358166, // Related to the achievement
 
     // Miscelanea
-    SPELL_GENERIC_ANCHOR_HERE                           = 45313,
-    SPELL_GENERIC_DUAL_WIELD                            = 42459,
-    SPELL_SYLVANAS_ROOT                                 = 347608,
-    SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING              = 352311,
-    SPELL_SYLVANAS_POWER_ENERGIZE_AURA                  = 352312,
+    SPELL_GENERIC_ANCHOR_HERE                                     = 45313,
+    SPELL_GENERIC_DUAL_WIELD                                      = 42459,
+    SPELL_SYLVANAS_ROOT                                           = 347608,
+    SPELL_SYLVANAS_DISPLAY_POWER_SUFFERING                        = 352311,
+    SPELL_SYLVANAS_POWER_ENERGIZE_AURA                            = 352312,
 
-    SPELL_INTERMISSION_SCENE_AND_STUN                   = 355488,
-    SPELL_INTERMISSION_SCENE                            = 359062,
-    SPELL_INTERMISSION_STUN                             = 358550,
-    SPELL_PLATFORMS_SCENE                               = 350943,
-    SPELL_FINAL_SCENE                                   = 358806,
-    SPELL_FINAL_CINEMATIC                               = 358985,
-    SPELL_SYLVANAS_REWARD_ACHIEVEMENT                   = 358178,
-    SPELL_SYLVANAS_UNK_05                               = 353687, // NPC 179262 casts it at the end of the encounter before Sylvanas teleports to its dead pos and casts feign death
-    SPELL_SYLVANAS_FEIGN_DEATH                          = 358844,
+    SPELL_INTERMISSION_SCENE_AND_STUN                             = 355488,
+    SPELL_INTERMISSION_SCENE                                      = 359062,
+    SPELL_INTERMISSION_STUN                                       = 358550,
+    SPELL_PLATFORMS_SCENE                                         = 350943,
+    SPELL_FINAL_SCENE                                             = 358806,
+    SPELL_FINAL_CINEMATIC                                         = 358985,
+    SPELL_SYLVANAS_REWARD_ACHIEVEMENT                             = 358178,
+    SPELL_SYLVANAS_UNK_05                                         = 353687, // NPC 179262 casts it at the end of the encounter before Sylvanas teleports to its dead pos and casts feign death
+    SPELL_SYLVANAS_FEIGN_DEATH                                    = 358844,
 
-    SPELL_HEALTH_PCT_CHECK_INTERMISSION                 = 358794,
-    SPELL_ACTIVATE_INTERMISSION                         = 359429,
-    SPELL_HEALTH_PCT_CHECK_FINISH                       = 359430,
-    SPELL_ACTIVATE_FINISH                               = 359431
+    SPELL_HEALTH_PCT_CHECK_INTERMISSION                           = 358794,
+    SPELL_ACTIVATE_INTERMISSION                                   = 359429,
+    SPELL_HEALTH_PCT_CHECK_FINISH                                 = 359430,
+    SPELL_ACTIVATE_FINISH                                         = 359431
 };
 
 enum Phases
 {
-    PHASE_ONE                                           = 1,
-    PHASE_INTERMISSION                                  = 4,
-    PHASE_TWO                                           = 2,
-    PHASE_THREE                                         = 3,
-    PHASE_INTERMISSION_WORLD_STATE                      = 11
+    PHASE_ONE                                                     = 1,
+    PHASE_INTERMISSION                                            = 4,
+    PHASE_TWO                                                     = 2,
+    PHASE_THREE                                                   = 3,
+    PHASE_INTERMISSION_WORLD_STATE                                = 11
 };
 
 enum Events
 {
-    EVENT_INTRODUCTION                                  = 1,
-    EVENT_WINDRUNNER                                    = 22,
-    EVENT_RANGER_HEARTSEEKER                            = 23,
-    EVENT_WITHERING_FIRE                                = 24,
-    EVENT_SHADOW_DAGGER                                 = 42,
-    EVENT_DESECRATING_SHOT                              = 60,
-    EVENT_DESECRATING_SHOT_LAUNCH                       = 61,
-    EVENT_DOMINATION_CHAINS                             = 62,
-    EVENT_DOMINATION_CHAINS_JUMP                        = 75,
-    EVENT_WAILING_ARROW                                 = 130,
-    EVENT_WAILING_ARROW_MARKER                          = 131,
-    EVENT_VEIL_OF_DARKNESS                              = 132,
-    EVENT_RIVE                                          = 138,
-    EVENT_FINISH_INTERMISSION                           = 160,
-    EVENT_BANE_ARROWS                                   = 180,
+    EVENT_INTRODUCTION                                            = 1,
+    EVENT_WINDRUNNER                                              = 22,
+    EVENT_RANGER_HEARTSEEKER                                      = 23,
+    EVENT_WITHERING_FIRE                                          = 24,
+    EVENT_SHADOW_DAGGER                                           = 42,
+    EVENT_DESECRATING_SHOT                                        = 60,
+    EVENT_DESECRATING_SHOT_LAUNCH                                 = 61,
+    EVENT_DOMINATION_CHAINS                                       = 62,
+    EVENT_DOMINATION_CHAINS_JUMP                                  = 75,
+    EVENT_WAILING_ARROW                                           = 130,
+    EVENT_WAILING_ARROW_MARKER                                    = 131,
+    EVENT_VEIL_OF_DARKNESS                                        = 132,
+    EVENT_RIVE                                                    = 138,
+    EVENT_FINISH_INTERMISSION                                     = 160,
+    EVENT_BANE_ARROWS                                             = 180,
     EVENT_RAZE,
     EVENT_BANSHEE_SCREAM,
     EVENT_BANSHEES_FURY,
-    EVENT_SIZE_MAX                                      = 200
+    EVENT_SIZE_MAX                                                = 200
 };
 
 enum EventGroups
 {
-    EVENT_GROUP_NORMAL_EVENTS                           = 1,
-    EVENT_GROUP_WINDRUNNER_EVENTS                       = 2,
-    EVENT_GROUP_INTRODUCTION_EVENTS                     = 3
+    EVENT_GROUP_NORMAL_EVENTS                                     = 1,
+    EVENT_GROUP_WINDRUNNER_EVENTS                                 = 2,
+    EVENT_GROUP_INTRODUCTION_EVENTS                               = 3
 };
 
 enum EventCounterValues
 {
-    EVENT_COUNTER_WINDRUNNER                            = 0,
-    EVENT_COUNTER_DOMINATION_CHAINS                     = 1,
-    EVENT_COUNTER_WAILING_ARROW                         = 2,
-    EVENT_COUNTER_WAILING_ARROW_MARKER                  = 3,
-    EVENT_COUNTER_VEIL_OF_DARKNESS                      = 4,
-    EVENT_COUNTER_RANGER_HEARTSEEKER                    = 5,
-    EVENT_COUNTER_DESECRATING_SHOT                      = 6,
-    EVENT_COUNTER_DESECRATING_SHOT_PATTERN              = 7,
-    EVENT_COUNTER_RIVE                                  = 8,
-    EVENT_COUNTER_HAUNTING_WAVE                         = 9,
-    EVENT_COUNTER_MELEE_COMBO                           = 10,
-    EVENT_COUNTER_MAX                                   = 11
+    EVENT_COUNTER_WINDRUNNER                                      = 0,
+    EVENT_COUNTER_DOMINATION_CHAINS                               = 1,
+    EVENT_COUNTER_WAILING_ARROW                                   = 2,
+    EVENT_COUNTER_WAILING_ARROW_MARKER                            = 3,
+    EVENT_COUNTER_VEIL_OF_DARKNESS                                = 4,
+    EVENT_COUNTER_RANGER_HEARTSEEKER                              = 5,
+    EVENT_COUNTER_DESECRATING_SHOT                                = 6,
+    EVENT_COUNTER_DESECRATING_SHOT_PATTERN                        = 7,
+    EVENT_COUNTER_RIVE                                            = 8,
+    EVENT_COUNTER_HAUNTING_WAVE                                   = 9,
+    EVENT_COUNTER_MELEE_COMBO                                     = 10,
+    EVENT_COUNTER_MAX                                             = 11
 };
 
 enum Actions
 {
-    ACTION_RESET_MELEE_KIT                              = 1,
+    ACTION_RESET_MELEE_KIT                                        = 1,
     ACTION_ACTIVATE_DOMINATION_ARROW,
     ACTION_RANGER_HEARTSEEKER,
     ACTION_START_WITHERING_FIRE,
@@ -314,6 +314,7 @@ enum Actions
     ACTION_PREPARE_INTERMISSION,
     ACTION_OPEN_PORTAL_TO_PHASE_TWO,
     ACTION_HAUNTING_WAVE_SECOND_CHAIN,
+    ACTION_START_VEIL_OF_DARKNESS,
     ACTION_WINDS_OF_ICECROWN_PRE,
     ACTION_PREPARE_PHASE_THREE,
     ACTION_OPEN_PORTAL_TO_PHASE_THREE,
@@ -324,247 +325,242 @@ enum Actions
 
 enum Texts
 {
-    SAY_AGGRO                                           = 0,
-    SAY_SLAY                                            = 1,
-    SAY_DISENGAGE                                       = 2,
-    SAY_ANNOUNCE_WINDRUNNER                             = 3,
-    SAY_SHADOW_DAGGER                                   = 4,
-    SAY_DESECRATING_SHOT                                = 5,
-    SAY_ANNOUNCE_WAILING_ARROW                          = 6,
-    SAY_ANNOUNCE_WAILING_ARROW_AFFECTED                 = 7,
-    SAY_WAILING_ARROW                                   = 8,
-    SAY_ANNOUNCE_DOMINATION_CHAINS                      = 9,
-    SAY_DOMINATION_CHAINS                               = 10,
-    SAY_ANNOUNCE_VEIL_OF_DARKNESS                       = 11,
-    SAY_VEIL_OF_DARKNESS_PHASE_ONE                      = 12,
-    SAY_INTERMISSION_BEGIN                              = 13,
-    SAY_ANNOUNCE_BANSHEE_WAIL                           = 14,
-    SAY_INTERMISSION_END                                = 15,
-    SAY_ANNOUNCE_HAUNTING_WAVE                          = 16,
-    SAY_ANNOUNCE_RUIN                                   = 17,
-    SAY_WINDS_OF_ICECROWN_AFTER_01                      = 18,
-    SAY_VEIL_OF_DARKNESS_PHASE_TWO_AND_THREE            = 19,
-    SAY_ANNOUNCE_BANSHEE_SCREAM                         = 20,
-    SAY_BANSHEE_SCREAM                                  = 21,
-    SAY_WINDS_OF_ICECROWN_AFTER_02                      = 22,
-    SAY_START_PHASE_THREE                               = 23,
-    SAY_BANSHEES_FURY                                   = 24,
-    SAY_ANNOUNCE_RAZE                                   = 25
+    SAY_AGGRO                                                     = 0,
+    SAY_SLAY                                                      = 1,
+    SAY_DISENGAGE                                                 = 2,
+    SAY_ANNOUNCE_WINDRUNNER                                       = 3,
+    SAY_SHADOW_DAGGER                                             = 4,
+    SAY_DESECRATING_SHOT                                          = 5,
+    SAY_ANNOUNCE_WAILING_ARROW                                    = 6,
+    SAY_ANNOUNCE_WAILING_ARROW_AFFECTED                           = 7,
+    SAY_WAILING_ARROW                                             = 8,
+    SAY_ANNOUNCE_DOMINATION_CHAINS                                = 9,
+    SAY_DOMINATION_CHAINS                                         = 10,
+    SAY_ANNOUNCE_VEIL_OF_DARKNESS                                 = 11,
+    SAY_VEIL_OF_DARKNESS_PHASE_ONE                                = 12,
+    SAY_INTERMISSION_BEGIN                                        = 13,
+    SAY_ANNOUNCE_BANSHEE_WAIL                                     = 14,
+    SAY_INTERMISSION_END                                          = 15,
+    SAY_ANNOUNCE_HAUNTING_WAVE                                    = 16,
+    SAY_ANNOUNCE_RUIN                                             = 17,
+    SAY_WINDS_OF_ICECROWN_AFTER_01                                = 18,
+    SAY_VEIL_OF_DARKNESS_PHASE_TWO_AND_THREE                      = 19,
+    SAY_ANNOUNCE_BANSHEE_SCREAM                                   = 20,
+    SAY_BANSHEE_SCREAM                                            = 21,
+    SAY_WINDS_OF_ICECROWN_AFTER_02                                = 22,
+    SAY_START_PHASE_THREE                                         = 23,
+    SAY_BANSHEES_FURY                                             = 24,
+    SAY_ANNOUNCE_RAZE                                             = 25
 };
 
 enum Conversations
 {
-    CONVERSATION_INTRO                                  = 17368
+    CONVERSATION_INTRO                                            = 17368
 };
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_CHAMPIONS                               = 0,
+    SPAWN_GROUP_CHAMPIONS                                         = 0,
     SPAWN_GROUP_CRUCIBLE
 };
 
 enum Points
 {
-    POINT_INTRO_01                                      = 1,
-    POINT_INTRO_02                                      = 2,
-    POINT_INTRO_03                                      = 3,
-    POINT_INTRO_FINISHED                                = 4
+    POINT_INTRO_01                                                = 1,
+    POINT_INTRO_02                                                = 2,
+    POINT_INTRO_03                                                = 3,
+    POINT_INTRO_FINISHED                                          = 4
 };
 
 enum SpellVisualKits
 {
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01      = 150067,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02      = 150068,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03      = 150069,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04      = 150071,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05      = 150072,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06      = 150070,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07      = 150074,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08      = 150077,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09      = 150076,
-    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10      = 150075,
-    SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01        = 150073,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01                = 150067,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02                = 150068,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_03                = 150069,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_04                = 150071,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_05                = 150072,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_06                = 150070,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_07                = 150074,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_08                = 150077,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_09                = 150076,
+    SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_10                = 150075,
+    SPELL_VISUAL_KIT_BOLVAR_INTRODUCTION_TALK_01                  = 150073,
 
-    SPELL_VISUAL_KIT_SYLVANAS_DOMINATION_CHAINS_FINISH  = 142405,
-    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW             = 143939,
-    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN        = 142389,
-    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS         = 143940,
-    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN    = 142388,
-    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS          = 142021,
-    SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK                = 145541,
-    SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK_FAST           = 145608,
-    SPELL_VISUAL_KIT_SYLVANAS_TRANSFORM_INTO_BANSHEE    = 146063,
-    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_SCREAM_EXPIRE     = 148298,
-    SPELL_VISUAL_KIT_SYLVANAS_WINDS_01                  = 149160,
-    SPELL_VISUAL_KIT_SYLVANAS_RUIN_INTERRUPTED          = 145486,
-    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_TELEPORT          = 148270,
-    SPELL_VISUAL_KIT_SYLVANAS_TRANSFORM_INTO_HUMAN      = 146626,
-    SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER             = 145482,
-    SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER_SOUND       = 145850,
-    SPELL_VISUAL_KIT_SYLVANAS_WITHERING_FIRE_PHASE_TWO  = 149795,
-    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_VEIL_OF_DARKNESS1 = 144927,
-    SPELL_VISUAL_KIT_SYLVANAS_WINDS_02                  = 149161,
-    SPELL_VISUAL_KIT_SYLVANAS_DARK_FOG                  = 150066,
-    SPELL_VISUAL_KIT_SYLVANAS_STOMP                     = 148200,
-    SPELL_VISUAL_KIT_SYLVANAS_SWITCH_PLATFORM           = 149580,
-    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_SCREAM            = 146059,
-    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_BANE_ARROWS       = 145872,
-    SPELL_VISUAL_KIT_SYLVANAS_BLACKEN_WITH_DAGGERS      = 149487, // NOT SNIFFED
-    SPELL_VISUAL_KIT_SYLVANAS_DISAPPEAR_MODEL           = 149491, // NOT SNIFFED
-    SPELL_VISUAL_KIT_SYLVANAS_TELEPORT                  = 150078,
-    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_3_01     = 148191,
-    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_3_02     = 148193,
-    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_3_03     = 148192,
-    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END          = 148130,
+    SPELL_VISUAL_KIT_SYLVANAS_DOMINATION_CHAINS_FINISH            = 142405,
+    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW                       = 143939,
+    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN                  = 142389,
+    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS                   = 143940,
+    SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN              = 142388,
+    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_ONE          = 142021,
+    SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK                          = 145541,
+    SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK_FAST                     = 145608,
+    SPELL_VISUAL_KIT_SYLVANAS_TRANSFORM_INTO_BANSHEE              = 146063,
+    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_SCREAM_EXPIRE               = 148298,
+    SPELL_VISUAL_KIT_SYLVANAS_WINDS_01                            = 149160,
+    SPELL_VISUAL_KIT_SYLVANAS_RUIN_INTERRUPTED                    = 145486,
+    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_TELEPORT                    = 148270,
+    SPELL_VISUAL_KIT_SYLVANAS_TRANSFORM_INTO_HUMAN                = 146626,
+    SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER                       = 145482,
+    SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER_SOUND                 = 145850,
+    SPELL_VISUAL_KIT_SYLVANAS_WITHERING_FIRE_PHASE_TWO            = 149795,
+    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_TWO_COPY     = 144927,
+    SPELL_VISUAL_KIT_SYLVANAS_WINDS_02                            = 149161,
+    SPELL_VISUAL_KIT_SYLVANAS_DARK_FOG                            = 150066,
+    SPELL_VISUAL_KIT_SYLVANAS_STOMP                               = 148200,
+    SPELL_VISUAL_KIT_SYLVANAS_SWITCH_PLATFORM                     = 149580,
+    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_SCREAM                      = 146059,
+    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_BANE_ARROWS                 = 145872,
+    SPELL_VISUAL_KIT_SYLVANAS_BLACKEN_WITH_DAGGERS                = 149487, // NOT SNIFFED
+    SPELL_VISUAL_KIT_SYLVANAS_DISAPPEAR_MODEL                     = 149491, // NOT SNIFFED
+    SPELL_VISUAL_KIT_SYLVANAS_TELEPORT                            = 150078,
+    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_THREE        = 148193,
+    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_THREE_FLOOR  = 148191,
+    SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_THREE_FINISH = 148192,
+    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_FURY_END                    = 148130,
 
-    SPELL_VISUAL_KIT_SYLVANAS_BANSHEE_VEIL_OF_DARKNESS2 = 144927, // Same as 17
+    SPELL_VISUAL_KIT_JAINA_KNEEL_THEN_STAND                       = 146285,
+    SPELL_VISUAL_KIT_JAINA_FROZEN_BRIDGE                          = 142472, // NOT ON SNIFF
 
-    SPELL_VISUAL_KIT_JAINA_KNEEL_THEN_STAND             = 146285,
-    SPELL_VISUAL_KIT_JAINA_FROZEN_BRIDGE                = 142472, // NOT ON SNIFF
+    SPELL_VISUAL_KIT_THRALL_KNEEL_THEN_STAND                      = 147632,
+    SPELL_VISUAL_KIT_THRALL_EARTHEN_BRIDGE                        = 142473,
 
-    SPELL_VISUAL_KIT_THRALL_KNEEL_THEN_STAND            = 147632,
-    SPELL_VISUAL_KIT_THRALL_EARTHEN_BRIDGE              = 142473,
+    SPELL_VISUAL_KIT_ANDUIN_FINISH_BLASPHEMY                      = 148315,
 
-    SPELL_VISUAL_KIT_ANDUIN_FINISH_BLASPHEMY            = 148315,
+    SPELL_VISUAL_KIT_JAILER_IDK_01                                = 149329,
 
-    SPELL_VISUAL_KIT_JAILER_IDK_01                      = 149329,
+    SPELL_VISUAL_KIT_PLAYER_ACTIVATE_FIELDS                       = 144754,
 
-    SPELL_VISUAL_KIT_PLAYER_ACTIVATE_FIELDS             = 144754,
-
-    SPELL_VISUAL_KIT_GENERIC_TELEPORT                   = 147629,
-    SPELL_VISUAL_KIT_GENERIC_CHEERS                     = 147631,
+    SPELL_VISUAL_KIT_GENERIC_TELEPORT                             = 147629,
+    SPELL_VISUAL_KIT_GENERIC_CHEERS                               = 147631,
 };
 
 enum SpellVisuals
 {
-    SPELL_VISUAL_RANGER_STRIKE_RIGHT                    = 106153, // At 1.0f
-    SPELL_VISUAL_RANGER_STRIKE_LEFT                     = 106160, // At 1.0f
-    SPELL_VISUAL_RANGER_STRIKE_FAST_RIGHT               = 106165, // At 1.0f
-    SPELL_VISUAL_RANGER_STRIKE_FAST_LEFT                = 106161, // At 1.0f
-    SPELL_VISUAL_WINDRUNNER_01                          = 107722, // At 0.5f
-    SPELL_VISUAL_WINDRUNNER_02                          = 110312, // At 0.25f
-    SPELL_VISUAL_WINDRUNNER_03                          = 107920, // At 0.25f
-    SPELL_VISUAL_DESECRATING_ARROW                      = 106363, // At 0.40f - 0.12f
-    SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE               = 105944, // At 48.0f, false as time
-    SPELL_VISUAL_HEARTSEEKER                            = 107607, // At 36f, false as time
-    SPELL_VISUAL_DOMINATION_ARROW                       = 107501, // At 2.5f
-    SPELL_VISUAL_DOMINATION_ARROW_SPAWN                 = 109620, // At 2.5f
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_LFR         = 000000, // At 5.0f UNK!
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_NM          = 109159, // At 5.0f
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_HC          = 107567, // At 5.0f
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_MM          = 109161, // At 5.0f
-    SPELL_VISUAL_TORGHAST_SPIRE_BREAK                   = 108070,
-    SPELL_VISUAL_TORGHAST_SPIRE_BREAK_FAST              = 108071,
-    SPELL_VISUAL_RIVEN_DEBRIS                           = 107877, // At 2.203702926635742187f - 1.52007603645324707f
-    SPELL_VISUAL_WITHERING_FIRE_PHASE_TWO               = 110435, // At 4.128731250762939453f - 1.461606025695800781f
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_LFR         = 000000, // At 3.0f UNK!
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_NM          = 109371, // At 3.0f
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_HC          = 000000, // At 3.0f UNK!
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_MM          = 109368, // At 3.0f
-    SPELL_VISUAL_BANE_ARROWS_NM_AND_HC                  = 108112, // At 3.240910291671752929f - 2.04f
-    SPELL_VISUAL_BANE_ARROWS_MM                         = 110644, // At 2.609101772308349609f - 1.790414214134216308f
-    SPELL_VISUAL_BANSHEE_FURY                           = 108130, // At 0.100000001490116119f
-    SPELL_VISUAL_RAZE                                   = 110336, // At 0.100000001490116119f
-    SPELL_VISUAL_RAZE_MISSILE                           = 108154, // At 0.33f - 0.14f
-    SPELL_VISUAL_BLASPHEMY                              = 109680, // At 1.0f
-    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_03_HC           = 105852, // At 3.0f
-    SPELL_VISUAL_JAILER_BOLT                            = 107337, // At 90.0f, false as time
-    SPELL_VISUAL_BANSHEES_BANE_ABSORB                   = 108093, // At 0.5f
-    SPELL_VISUAL_BANSHEES_BANE_DROP                     = 107839, // At 0.349999994039535522f
+    SPELL_VISUAL_RANGER_STRIKE_RIGHT                              = 106153, // At 1.0f
+    SPELL_VISUAL_RANGER_STRIKE_LEFT                               = 106160, // At 1.0f
+    SPELL_VISUAL_RANGER_STRIKE_FAST_RIGHT                         = 106165, // At 1.0f
+    SPELL_VISUAL_RANGER_STRIKE_FAST_LEFT                          = 106161, // At 1.0f
+    SPELL_VISUAL_WINDRUNNER_01                                    = 107722, // At 0.5f
+    SPELL_VISUAL_WINDRUNNER_02                                    = 110312, // At 0.25f
+    SPELL_VISUAL_WINDRUNNER_03                                    = 107920, // At 0.25f
+    SPELL_VISUAL_DESECRATING_ARROW                                = 106363, // At 0.40f - 0.12f
+    SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE                         = 105944, // At 48.0f, false as time
+    SPELL_VISUAL_HEARTSEEKER                                      = 107607, // At 36f, false as time
+    SPELL_VISUAL_DOMINATION_ARROW                                 = 107501, // At 2.5f
+    SPELL_VISUAL_DOMINATION_ARROW_SPAWN                           = 109620, // At 2.5f
+    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_LFR_AND_NM            = 109159, // At 5.0f
+    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_HC                    = 107567, // At 5.0f
+    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_MM                    = 109161, // At 5.0f
+    SPELL_VISUAL_TORGHAST_SPIRE_BREAK                             = 108070,
+    SPELL_VISUAL_TORGHAST_SPIRE_BREAK_FAST                        = 108071,
+    SPELL_VISUAL_RIVEN_DEBRIS                                     = 107877, // At 2.203702926635742187f - 1.52007603645324707f
+    SPELL_VISUAL_WITHERING_FIRE_PHASE_TWO                         = 110435, // At 4.128731250762939453f - 1.461606025695800781f
+    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_LFR_AND_NM            = 109371, // At 3.0f
+    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_HC                    = 105852, // At 3.0f
+    SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_MM                    = 109368, // At 3.0f
+    SPELL_VISUAL_BANE_ARROWS_NM_AND_HC                            = 108112, // At 3.240910291671752929f - 2.04f
+    SPELL_VISUAL_BANE_ARROWS_MM                                   = 110644, // At 2.609101772308349609f - 1.790414214134216308f
+    SPELL_VISUAL_BANSHEE_FURY                                     = 108130, // At 0.100000001490116119f
+    SPELL_VISUAL_RAZE                                             = 110336, // At 0.100000001490116119f
+    SPELL_VISUAL_RAZE_MISSILE                                     = 108154, // At 0.33f - 0.14f
+    SPELL_VISUAL_BLASPHEMY                                        = 109680, // At 1.0f
+    SPELL_VISUAL_JAILER_BOLT                                      = 107337, // At 90.0f, false as time
+    SPELL_VISUAL_BANSHEES_BANE_ABSORB                             = 108093, // At 0.5f
+    SPELL_VISUAL_BANSHEES_BANE_DROP                               = 107839, // At 0.349999994039535522f
 
-    SPELL_VISUAL_UNK_02                                 = 108094, // At 1.5f
-    SPELL_VISUAL_SHADOW_DAGGER                          = 108096, // At 100.0f, false as time
-    SPELL_VISUAL_MOST_LIKELY_SPREAD_OUT_FOG             = 108092, // At 0.64f - 0.52f
-    SPELL_VISUAL_UNK01_177054                           = 107069, // At 1.0f
-    SPELL_VISUAL_BANSHEE_FURY_IDK                       = 107476, // At 1.5f
-    SPELL_VISUAL_UNK01_177787                           = 107063  // At 1.0f
+    SPELL_VISUAL_UNK_02                                           = 108094, // At 1.5f
+    SPELL_VISUAL_SHADOW_DAGGER                                    = 108096, // At 100.0f, false as time
+    SPELL_VISUAL_MOST_LIKELY_SPREAD_OUT_FOG                       = 108092, // At 0.64f - 0.52f
+    SPELL_VISUAL_UNK01_177054                                     = 107069, // At 1.0f
+    SPELL_VISUAL_BANSHEE_FURY_IDK                                 = 107476, // At 1.5f
+    SPELL_VISUAL_UNK01_177787                                     = 107063  // At 1.0f
 };
 
 enum Platforms : uint8
 {
-    PLATFORM_MALDRAXXI                                  = 0,
-    PLATFORM_NIGHTFAE                                   = 1,
-    PLATFORM_KYRIAN                                     = 2,
-    PLATFORM_VENTHYR                                    = 3,
-    PLATFORM_MAX                                        = 4
+    PLATFORM_MALDRAXXI                                            = 0,
+    PLATFORM_NIGHTFAE                                             = 1,
+    PLATFORM_KYRIAN                                               = 2,
+    PLATFORM_VENTHYR                                              = 3,
+    PLATFORM_MAX                                                  = 4
 };
 
 enum Miscellanea
 {
-    DATA_INDEX_00                                       = 0,
-    DATA_INDEX_01                                       = 1,
-    DATA_INDEX_02                                       = 2,
-    DATA_INDEX_03                                       = 3,
-    DATA_INDEX_04                                       = 4,
-    DATA_INDEX_05                                       = 5,
+    DATA_INDEX_00                                                 = 0,
+    DATA_INDEX_01                                                 = 1,
+    DATA_INDEX_02                                                 = 2,
+    DATA_INDEX_03                                                 = 3,
+    DATA_INDEX_04                                                 = 4,
+    DATA_INDEX_05                                                 = 5,
 
-    DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL                  = 101311,
-    DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL              = 101310,
+    DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL                            = 101311,
+    DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL                        = 101310,
 
-    DATA_DISPLAY_ID_SYLVANAS_DAGGER                     = 185997,
-    DATA_DISPLAY_ID_SYLVANAS_BOW                        = 181374,
+    DATA_DISPLAY_ID_SYLVANAS_DAGGER                               = 185997,
+    DATA_DISPLAY_ID_SYLVANAS_BOW                                  = 181374,
 
-    DATA_MELEE_COMBO_SWITCH_TO_MELEE                    = 0,
-    DATA_MELEE_COMBO_RANGER_STRIKE_01                   = 1,
-    DATA_MELEE_COMBO_RANGER_STRIKE_02                   = 2,
-    DATA_MELEE_COMBO_SWITCH_TO_RANGED                   = 3,
-    DATA_MELEE_COMBO_FINISH                             = 4,
+    DATA_MELEE_COMBO_SWITCH_TO_MELEE                              = 0,
+    DATA_MELEE_COMBO_RANGER_STRIKE_01                             = 1,
+    DATA_MELEE_COMBO_RANGER_STRIKE_02                             = 2,
+    DATA_MELEE_COMBO_SWITCH_TO_RANGED                             = 3,
+    DATA_MELEE_COMBO_FINISH                                       = 4,
 
-    DATA_CHANGE_SHEATHE_TO_UNARMED                      = 0,
-    DATA_CHANGE_SHEATHE_TO_MELEE                        = 1,
-    DATA_CHANGE_SHEATHE_TO_RANGED                       = 2,
-    DATA_CHANGE_NAMEPLATE_TO_COPY                       = 3,
-    DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY                = 4,
-    DATA_CHANGE_NAMEPLATE_TO_SYLVANAS                   = 5,
-    DATA_CHANGE_ATTACK_SPEED_TO_LOWEST                  = 6,
-    DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST                 = 7,
+    DATA_CHANGE_SHEATHE_TO_UNARMED                                = 0,
+    DATA_CHANGE_SHEATHE_TO_MELEE                                  = 1,
+    DATA_CHANGE_SHEATHE_TO_RANGED                                 = 2,
+    DATA_CHANGE_NAMEPLATE_TO_COPY                                 = 3,
+    DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY                          = 4,
+    DATA_CHANGE_NAMEPLATE_TO_SYLVANAS                             = 5,
+    DATA_CHANGE_ATTACK_SPEED_TO_LOWEST                            = 6,
+    DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST                           = 7,
 
-    DATA_EVENT_TYPE_SHADOWCOPY                          = 1,
-    DATA_EVENT_COPY_NO_EVENT                            = 1,
-    DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT              = 2,
+    DATA_EVENT_TYPE_SHADOWCOPY                                    = 1,
+    DATA_EVENT_COPY_NO_EVENT                                      = 1,
+    DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT                        = 2,
 
-    DATA_AREATRIGGER_DOMINATION_ARROW                   = 27683,
+    DATA_AREATRIGGER_DOMINATION_ARROW                             = 27683,
 
-    DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR              = 1,
+    DATA_SPLINEPOINT_RIVE_MARKER_DISAPPEAR                        = 1,
 
-    DATA_WINDRUNNER_COUNTER_ONE                         = 1,
-    DATA_WINDRUNNER_COUNTER_TWO                         = 2,
-    DATA_WINDRUNNER_COUNTER_THREE                       = 3,
-    DATA_WINDRUNNER_COUNTER_FOUR                        = 4,
-    DATA_WINDRUNNER_COUNTER_FIVE                        = 5,
+    DATA_WINDRUNNER_COUNTER_ONE                                   = 1,
+    DATA_WINDRUNNER_COUNTER_TWO                                   = 2,
+    DATA_WINDRUNNER_COUNTER_THREE                                 = 3,
+    DATA_WINDRUNNER_COUNTER_FOUR                                  = 4,
+    DATA_WINDRUNNER_COUNTER_FIVE                                  = 5,
 
-    DATA_DESECRATING_SHOT_PATTERN_STRAIGHT              = 1,
-    DATA_DESECRATING_SHOT_PATTERN_SCATTERED             = 2,
-    DATA_DESECRATING_SHOT_PATTERN_WAVE                  = 3,
-    DATA_DESECRATING_SHOT_PATTERN_SPIRAL                = 4,
-    DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED       = 5,
-    DATA_DESECRATING_SHOT_PATTERN_JAR                   = 6,
+    DATA_DESECRATING_SHOT_PATTERN_STRAIGHT                        = 1,
+    DATA_DESECRATING_SHOT_PATTERN_SCATTERED                       = 2,
+    DATA_DESECRATING_SHOT_PATTERN_WAVE                            = 3,
+    DATA_DESECRATING_SHOT_PATTERN_SPIRAL                          = 4,
+    DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED                 = 5,
+    DATA_DESECRATING_SHOT_PATTERN_JAR                             = 6,
 
-    DATA_JUMP_TIME_CERO                                 = 0,
-    DATA_JUMP_TIME_ONE                                  = 1,
-    DATA_JUMP_TIME_TWO                                  = 2,
-    DATA_JUMP_TIME_THREE                                = 3,
-    DATA_JUMP_TIME_FOUR                                 = 4,
+    DATA_JUMP_TIME_CERO                                           = 0,
+    DATA_JUMP_TIME_ONE                                            = 1,
+    DATA_JUMP_TIME_TWO                                            = 2,
+    DATA_JUMP_TIME_THREE                                          = 3,
+    DATA_JUMP_TIME_FOUR                                           = 4,
 
-    DATA_BRIDGE_PHASE_TWO_1                             = 1,
-    DATA_BRIDGE_PHASE_TWO_2                             = 2,
-    DATA_BRIDGE_PHASE_TWO_3                             = 3,
+    DATA_BRIDGE_PHASE_TWO_1                                       = 1,
+    DATA_BRIDGE_PHASE_TWO_2                                       = 2,
+    DATA_BRIDGE_PHASE_TWO_3                                       = 3,
 
-    DATA_BRIDGE_PHASE_TWO_COUNT_1                       = 1,
-    DATA_BRIDGE_PHASE_TWO_COUNT_2                       = 2,
-    DATA_BRIDGE_PHASE_TWO_COUNT_3                       = 3,
-    DATA_BRIDGE_PHASE_TWO_COUNT_4                       = 4,
-    DATA_BRIDGE_PHASE_TWO_COUNT_5                       = 5,
-    DATA_BRIDGE_PHASE_TWO_COUNT_6                       = 6,
+    DATA_BRIDGE_PHASE_TWO_COUNT_1                                 = 1,
+    DATA_BRIDGE_PHASE_TWO_COUNT_2                                 = 2,
+    DATA_BRIDGE_PHASE_TWO_COUNT_3                                 = 3,
+    DATA_BRIDGE_PHASE_TWO_COUNT_4                                 = 4,
+    DATA_BRIDGE_PHASE_TWO_COUNT_5                                 = 5,
+    DATA_BRIDGE_PHASE_TWO_COUNT_6                                 = 6,
 
-    DATA_MIDDLE_POS_OUTTER_PLATFORM                     = 0,
-    DATA_UPPER_INNER_RIGHT_POS_VERTEX_PLATFORM          = 1,
-    DATA_BOTTOM_INNER_LEFT_POS_VERTEX_PLATFORM          = 2,
-    DATA_UPPER_OUTTER_RIGHT_POS_VERTEX_PLATFORM         = 3,
-    DATA_BOTTOM_OUTTER_LEFT_POS_VERTEX_PLATFORM         = 4,
+    DATA_MIDDLE_POS_OUTTER_PLATFORM                               = 0,
+    DATA_UPPER_INNER_RIGHT_POS_VERTEX_PLATFORM                    = 1,
+    DATA_BOTTOM_INNER_LEFT_POS_VERTEX_PLATFORM                    = 2,
+    DATA_UPPER_OUTTER_RIGHT_POS_VERTEX_PLATFORM                   = 3,
+    DATA_BOTTOM_OUTTER_LEFT_POS_VERTEX_PLATFORM                   = 4,
 
-    DATA_PLATFORM_MIDDLE_POINT                          = 0,
-    DATA_PLATFORM_RANDOM_POINT                          = 1
+    DATA_PLATFORM_MIDDLE_POINT                                    = 0,
+    DATA_PLATFORM_RANDOM_POINT                                    = 1
 };
 
 Position const SylvanasFirstPhasePlatformCenter = { 234.9542f, -829.9804f, 4104.986f };
@@ -738,8 +734,6 @@ uint8 const GetDifficultyForTimer(Creature* creature)
 
     return difficulty;
 }
-
-Position const SylvanasVeilOnePos =   { 255.0392f, -824.6999f, 4205.122f };
 
 float const DesecratingShotNormalSpiralDistance[10] =
 {
@@ -1069,7 +1063,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
         SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_NO_EVENT);
 
-        _events.SetPhase(PHASE_ONE);
+        _events.SetPhase(PHASE_TWO);
     }
 
     void Reset() override
@@ -1167,6 +1161,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             }
 
             case ACTION_START_DOMINATION_CHAINS:
+            {
                 for (uint8 i = 0; i < 3; i++)
                     _randomDominationChainsPos.push_back(sylvanas->GetRandomPoint(SylvanasFirstPhasePlatformCenter, frand(25.0f, 35.0f)));
                 SetData(DATA_EVENT_TYPE_SHADOWCOPY, DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT);
@@ -1174,6 +1169,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 sylvanas->CastSpell(sylvanas, SPELL_WINDRUNNER_DISAPPEAR_02, false);
                 _events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 20ms, 1, _events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_INTERMISSION);
                 break;
+            }
 
             case ACTION_CALCULATE_ARROWS:
             {
@@ -1186,9 +1182,30 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             }
 
             case ACTION_PREPARE_INTERMISSION:
+            {
                 _events.CancelEventGroup(EVENT_GROUP_NORMAL_EVENTS);
                 _events.SetPhase(PHASE_INTERMISSION);
                 break;
+            }
+
+            // TESTING: remove unitlist.
+            case ACTION_START_VEIL_OF_DARKNESS:
+            {
+                _veilOfDarknessPos.clear();
+
+                uint8 targetSize = me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID ? 3 : 2;
+
+                std::list<Unit*> veilOfDarknessTargets;
+                sylvanas->GetAI()->SelectTargetList(veilOfDarknessTargets, targetSize, SelectTargetMethod::Random, 0, 500.0f, false, false);
+
+                for (Unit* target : veilOfDarknessTargets)
+                    _veilOfDarknessPos.push_back(target->GetPosition());
+
+                Trinity::Containers::RandomShuffle(_veilOfDarknessPos);
+
+                _events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 343ms, 1, _events.IsInPhase(PHASE_TWO) ? PHASE_TWO : PHASE_THREE);
+                break;
+            }
 
             default:
                 break;
@@ -1576,6 +1593,23 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
                 }
 
+                case EVENT_VEIL_OF_DARKNESS:
+                    StartVeilOfDarkness(_veilOfDarknessPos, DATA_INDEX_00);
+                    _events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, 313ms, 1, PHASE_TWO);
+                    break;
+
+                case EVENT_VEIL_OF_DARKNESS + 1:
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
+                        shadowCopy1AI->StartVeilOfDarkness(_veilOfDarknessPos, DATA_INDEX_01);
+                    if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+                        _events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 313ms, 1, PHASE_TWO);
+                    break;
+
+                case EVENT_VEIL_OF_DARKNESS + 2:
+                    if (npc_sylvanas_windrunner_shadowcopy* shadowCopy2AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_02)))
+                        shadowCopy2AI->StartVeilOfDarkness(_veilOfDarknessPos, DATA_INDEX_02);
+                    break;
+
                 default:
                     break;
             }
@@ -1824,6 +1858,58 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         }
     }
 
+    void StartVeilOfDarkness(std::vector<Position> vectorPos, uint8 targetCount)
+    {
+        Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        uint32 spellVisual = 0;
+
+        switch (me->GetMap()->GetDifficultyID())
+        {
+            case DIFFICULTY_HEROIC_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_HC; break;
+            case DIFFICULTY_MYTHIC_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_MM; break;
+            default: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_LFR_AND_NM; break;
+        }
+
+        Position targetPos = vectorPos[targetCount].GetPosition();
+
+        if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00 + targetCount))
+            shadowCopy->NearTeleportTo(targetPos, false);
+
+        sylvanas->SendPlayOrphanSpellVisual(Position(targetPos.GetPositionX(), targetPos.GetPositionY(), targetPos.GetPositionZ() + 0.05f), spellVisual, 3.0f, true, false);
+
+        _scheduler.Schedule(828ms, [this, vectorPos, targetCount](TaskContext /*task*/)
+        {
+            if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_00 + targetCount)))
+                shadowCopyAI->SendVeilOfDarkness(vectorPos, targetCount);
+        });
+    }
+
+    void SendVeilOfDarkness(std::vector<Position> vectorPos, uint8 targetCount)
+    {
+        if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00 + targetCount))
+            shadowCopy->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_TWO_COPY, 0, 0);
+
+        _scheduler.Schedule(2s, [this, vectorPos, targetCount](TaskContext /*task*/)
+        {
+            if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_00 + targetCount)))
+                shadowCopyAI->ExecuteVeilOfDarkness(vectorPos, targetCount);
+        });
+    }
+
+    void ExecuteVeilOfDarkness(std::vector<Position> vectorPos, uint8 targetCount)
+    {
+        Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        Position targetPos = vectorPos[targetCount].GetPosition();
+
+        sylvanas->CastSpell(targetPos, SPELL_VEIL_OF_DARKNESS_PHASE_2_AREA, true);
+    }
+
     std::array<uint32, 3> SplitArrowCasts(uint32 totalArrows)
     {
         std::array<uint32, 3> arrowsPerWave = { };
@@ -1851,6 +1937,7 @@ private:
     std::vector<ObjectGuid> _shadowDaggerTargetGUIDs;
     std::vector<DesecratingShotsStorage> _desecratingShotStorage;
     std::vector<Position> _randomDominationChainsPos;
+    std::vector<Position> _veilOfDarknessPos;
     bool _onDominationChains;
     uint8 _sayDaggers;
     uint8 _sayDesecrating;
@@ -2014,8 +2101,8 @@ struct boss_sylvanas_windrunner : public BossAI
 
         instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
-        events.SetPhase(PHASE_ONE);
-        ScheduleEventsForPhaseOne();
+        events.SetPhase(PHASE_TWO);
+        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 5s, 0, PHASE_TWO);
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
@@ -2409,7 +2496,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                                 switch (me->GetMap()->GetDifficultyID())
                                 {
-                                    case DIFFICULTY_LFR_NEW: targetSize = 3; break;
+                                    case DIFFICULTY_LFR_NEW: targetSize = 5; break;
                                     case DIFFICULTY_NORMAL_RAID: targetSize = 4; break;
                                     case DIFFICULTY_HEROIC_RAID: targetSize = 5; break;
                                     case DIFFICULTY_MYTHIC_RAID: targetSize = 4; break;
@@ -2531,9 +2618,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 }
 
                 case EVENT_RANGER_HEARTSEEKER:
-                {
                     break;
-                }
 
                 case EVENT_DOMINATION_CHAINS:
                 {
@@ -2601,40 +2686,135 @@ struct boss_sylvanas_windrunner : public BossAI
                 }
 
                 case EVENT_VEIL_OF_DARKNESS:
+                {
                     // Note: we must ensure Ranger Shot doesn't reset AttackTimer incorrectly.
                     me->m_Events.KillAllEvents(true);
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(5ms));
                     Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
-                    Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+
+                    switch (events.GetPhaseMask())
+                    {
+                        case PHASE_ONE:
+                            Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            break;
+                        case PHASE_TWO:
+                            Talk(SAY_VEIL_OF_DARKNESS_PHASE_TWO_AND_THREE);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
+                            break;
+                        case PHASE_THREE:
+                            Talk(SAY_VEIL_OF_DARKNESS_PHASE_TWO_AND_THREE);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 1, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
+                }
 
                 case EVENT_VEIL_OF_DARKNESS + 1:
-                    DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE);
-                    _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                {
+                    switch (events.GetPhaseMask())
+                    {
+                        case PHASE_ONE:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE);
+                            _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            break;
+                        case PHASE_TWO:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_2_FADE);
+                            _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
+                            break;
+                        case PHASE_THREE:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE);
+                            _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
+                }
 
                 case EVENT_VEIL_OF_DARKNESS + 2:
-                    me->NearTeleportTo(SylvanasVeilOnePos);
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 3, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                {
+                    me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 100.0f, me->GetOrientation(), false);
+
+                    switch (events.GetPhaseMask())
+                    {
+                        case PHASE_ONE:
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 3, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            break;
+                        case PHASE_TWO:
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 3, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
+                            break;
+                        case PHASE_THREE:
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 3, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
+                }
 
                 case EVENT_VEIL_OF_DARKNESS + 3:
-                    DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                {
+                    switch (events.GetPhaseMask())
+                    {
+                        case PHASE_ONE:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            break;
+                        case PHASE_TWO:
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 500.0f, true, true))
+                                me->NearTeleportTo(target->GetPosition(), false);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 250ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
+                            break;
+                        case PHASE_THREE:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 2000));
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
+                }
 
                 case EVENT_VEIL_OF_DARKNESS + 4:
-                    DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1);
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 5, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                {
+                    switch (events.GetPhaseMask())
+                    {
+                        case PHASE_ONE:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 5, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            break;
+                        case PHASE_TWO:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_2_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 3000));
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_2);
+                            if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
+                                if (shadowCopy->IsAIEnabled())
+                                    shadowCopy->GetAI()->DoAction(ACTION_START_VEIL_OF_DARKNESS);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 5, 4s, EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
+                            break;
+                        case PHASE_THREE:
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 5, 2s, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
+                }
 
                 case EVENT_VEIL_OF_DARKNESS + 5:
+                {
                     TeleportShadowcopiesToMe();
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
                     break;
+                }
 
                 case EVENT_RIVE:
                 {
@@ -4474,8 +4654,17 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
         if (!caster)
             return;
 
-        // TODO: this changes depending on the phase.
-        caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 9750));
+        uint32 duration = 0;
+
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE: duration = 9750; break;
+            case SPELL_VEIL_OF_DARKNESS_PHASE_2_FADE: duration = 7750; break;
+            case SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE: duration = 5750; break;
+            default: break;
+        }
+
+        caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, duration));
     }
 
     void OnCast(SpellMissInfo /*missInfo*/)
@@ -4500,9 +4689,9 @@ class spell_sylvanas_windrunner_veil_of_darkness_fade : public SpellScript
 };
 
 // 350335 - Veil of Darkness (Grow - Phase 1)
-class spell_sylvanas_windrunner_veil_of_darkness_grow : public AuraScript
+class spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1 : public AuraScript
 {
-    PrepareAuraScript(spell_sylvanas_windrunner_veil_of_darkness_grow);
+    PrepareAuraScript(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1);
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -4529,19 +4718,17 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow : public AuraScript
             // TODO: add LFR value.
             switch (target->GetMap()->GetDifficultyID())
             {
-                case DIFFICULTY_LFR_NEW: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_LFR; break;
-                case DIFFICULTY_NORMAL_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_NM; break;
                 case DIFFICULTY_HEROIC_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_HC; break;
                 case DIFFICULTY_MYTHIC_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_MM; break;
-                default: break;
+                default: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_ONE_LFR_AND_NM; break;
             }
 
-            target->SendPlayOrphanSpellVisual(Position(darknessTargetPos.GetPositionX(), darknessTargetPos.GetPositionY(), darknessTargetPos.GetPositionZ() + 0.25f), spellVisual, 5.0f, true, false);
+            target->SendPlayOrphanSpellVisual(Position(darknessTargetPos.GetPositionX(), darknessTargetPos.GetPositionY(), darknessTargetPos.GetPositionZ() + 0.05f), spellVisual, 5.0f, true, false);
 
             target->NearTeleportTo(darknessTargetPos);
         }
 
-        target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS, 0, 0);
+        target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_ONE, 0, 0);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4563,8 +4750,8 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_veil_of_darkness_grow::OnApply, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow::OnRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1::OnApply, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1::OnRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5077,6 +5264,138 @@ class BaneArrowEvent : public BasicEvent
     private:
         Unit* _actor;
         Position _arrowDestPos;
+};
+
+// 352239 - Veil of Darkness (Grow - Phase 2)
+class spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2 : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Fly);
+        target->SetDisableGravity(true);
+
+        target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
+
+        for (uint8 virtualItem = 0; virtualItem < 3; ++virtualItem)
+            target->SetVirtualItem(virtualItem, 0);
+
+        target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), target->m_Events.CalculateTime(0ms));
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Ground);
+        target->SetDisableGravity(false);
+
+        target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+
+        target->SetVirtualItem(0, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(1, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(2, DATA_DISPLAY_ID_SYLVANAS_BOW);
+
+        target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), target->m_Events.CalculateTime(0ms));
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2::OnApply, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2::OnRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 347741 - Veil of Darkness (Cast - Phase 2)
+class spell_sylvanas_windrunner_veil_of_darkness_phase_2 : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_2);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo
+        ({
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell,
+            SPELL_VEIL_OF_DARKNESS_PHASE_2_AREA
+        });
+    }
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        uint32 spellVisual = 0;
+
+        switch (caster->GetMap()->GetDifficultyID())
+        {
+            case DIFFICULTY_HEROIC_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_HC; break;
+            case DIFFICULTY_MYTHIC_RAID: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_MM; break;
+            default: spellVisual = SPELL_VISUAL_VEIL_OF_DARKNESS_PHASE_TWO_LFR_AND_NM; break;
+        }
+
+        caster->SendPlayOrphanSpellVisual(Position(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 0.05f), spellVisual, 3.0f, true, false);
+    }
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitDest()->GetPosition(), GetEffectInfo(effIndex).TriggerSpell, true);
+        caster->CastSpell(GetHitDest()->GetPosition(), SPELL_VEIL_OF_DARKNESS_PHASE_2_AREA, true);
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false), caster->m_Events.CalculateTime(500ms));
+        caster->resetAttackTimer(BASE_ATTACK);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_veil_of_darkness_phase_2::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_sylvanas_windrunner_veil_of_darkness_phase_2::HandleAfterCast);
+    }
+};
+
+// 352225 - Veil of Darkness (Area - Phase 2)
+class spell_sylvanas_windrunner_veil_of_darkness_area_phase_2 : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_area_phase_2);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo
+        ({
+            spellInfo->GetEffect(EFFECT_0).TriggerSpell,
+            spellInfo->GetEffect(EFFECT_1).TriggerSpell
+        });
+    }
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(GetHitUnit(), GetEffectInfo(effIndex).TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_veil_of_darkness_area_phase_2::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_veil_of_darkness_area_phase_2::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 354011 - Bane Arrows
@@ -5762,10 +6081,10 @@ struct npc_sylvanas_windrunner_thrall : public ScriptedAI
                 me->GetAI()->AttackStart(sylvanas);
         }
 
-        _events.ScheduleEvent(EVENT_FLAMEAXE, 4s + 300ms, 1);
-        _events.ScheduleEvent(EVENT_PULVERIZE, 7s, 1);
+        _events.ScheduleEvent(EVENT_FLAMEAXE, 6s + 300ms, 1);
+        _events.ScheduleEvent(EVENT_PULVERIZE, 9s, 1);
         //_events.ScheduleEvent(EVENT_STONECRASH_PHASE_ONE_AND_THREE, 8s + 400ms, 1, PHASE_ONE);
-        _events.ScheduleEvent(EVENT_EARTHEN_GRASP, 9s + 800ms, 1);
+        _events.ScheduleEvent(EVENT_EARTHEN_GRASP, 11s + 800ms, 1);
     }
 
     void DoAction(int32 action) override
@@ -7495,7 +7814,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_trigger);
     RegisterSpellScript(spell_sylvanas_windrunner_wailing_arrow_raid_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_fade);
-    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_grow);
+    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_1);
     RegisterSpellScript(spell_sylvanas_windrunner_rive);
     RegisterSpellScript(spell_sylvanas_windrunner_rive_areatrigger);
@@ -7508,6 +7827,9 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_ruin);
     RegisterSpellAndAuraScriptPair(spell_sylvanas_windrunner_banshees_heartseeker, spell_sylvanas_windrunner_banshees_heartseeker_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage);
+    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2);
+    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_2);
+    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_area_phase_2);
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_bane);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_fury);
