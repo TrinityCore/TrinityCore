@@ -28,18 +28,18 @@
 ObjectData const creatureData[] =
 {
     { BOSS_SYLVANAS_WINDRUNNER,        DATA_SYLVANAS_WINDRUNNER         },
+    { NPC_SYLVANAS_SHADOWCOPY_RIDING,  DATA_SYLVANAS_SHADOWCOPY_RIDING  },
     { NPC_BOLVAR_FORDRAGON_PINNACLE,   DATA_BOLVAR_FORDRAGON_PINNACLE   },
     { NPC_JAINA_PROUDMOORE_PINNACLE,   DATA_JAINA_PROUDMOORE_PINNACLE   },
     { NPC_THRALL_PINNACLE,             DATA_THRALL_PINNACLE             },
     { NPC_ANDUIN_CRUCIBLE,             DATA_ANDUIN_CRUCIBLE             },
-    { NPC_SYLVANAS_SHADOWCOPY_RIDING,  DATA_SYLVANAS_SHADOWCOPY_RIDING  },
     { 0,                               0                                } // END
 };
 
 class instance_sanctum_of_domination : public InstanceMapScript
 {
 public:
-    instance_sanctum_of_domination() : InstanceMapScript(SDScriptName, 2450) { }
+    instance_sanctum_of_domination() : InstanceMapScript(SODScriptName, 2450) { }
 
     struct instance_sanctum_of_domination_InstanceMapScript : public InstanceScript
     {
@@ -88,6 +88,10 @@ public:
 
                 case NPC_ANDUIN_CRUCIBLE:
                     AnduinCrucibleGUID = creature->GetGUID();
+                    break;
+
+                case NPC_THRONE_OF_THE_DAMNED:
+                    ThroneOfTheDamnedGUID = creature->GetGUID();
                     break;
 
                 default:
@@ -163,6 +167,8 @@ public:
                     return ThrallPinnacleGUID;
                 case DATA_ANDUIN_CRUCIBLE:
                     return AnduinCrucibleGUID;
+                case DATA_THRONE_OF_THE_DAMNED:
+                    return ThroneOfTheDamnedGUID;
                 default:
                     break;
             }
@@ -265,36 +271,18 @@ public:
                     switch (data)
                     {
                         case NOT_STARTED:
-                        {
-                            /*
-                            if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != DONE)
-                            {
-                                if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                                {
-                                    sylvanas->SetUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                    sylvanas->SetImmuneToAll(true);
-
-                                    sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 4.0f);
-                                }
-                            }
-                            */
+                            SylvanasIntroductionData = 0;
                             break;
-                        }
 
                         case DONE:
-                        {
-                            if (GetBossState(DATA_SYLVANAS_WINDRUNNER) != DONE)
+                            SylvanasIntroductionData = 3;
+                            if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
                             {
-                                if (Creature* sylvanas = GetCreature(DATA_SYLVANAS_WINDRUNNER))
-                                {
-                                    sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
-                                    sylvanas->SetImmuneToAll(false);
-
-                                    sylvanas->SetSpeed(UnitMoveType::MOVE_RUN, 14.0f);
-                                }
+                                sylvanas->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
+                                sylvanas->SetImmuneToAll(false);
+                                sylvanas->SetSpeed(MOVE_RUN, 14.0f);
                             }
                             break;
-                        }
 
                         default:
                             break;
@@ -318,6 +306,8 @@ public:
         {
             switch (type)
             {
+                case DATA_SYLVANAS_INTRO:
+                    return SylvanasIntroductionData;
                 case DATA_SYLVANAS_INTERMISSION_FINISH:
                     return SylvanasIntermissionData;
                 default:
@@ -390,8 +380,10 @@ public:
             ObjectGuid JainaPinnacleGUID;
             ObjectGuid ThrallPinnacleGUID;
             ObjectGuid AnduinCrucibleGUID;
+            ObjectGuid ThroneOfTheDamnedGUID;
             std::vector<ObjectGuid> TorghastSpikeGUID;
             std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
+            uint8 SylvanasIntroductionData;
             uint8 SylvanasIntermissionData;
     };
 

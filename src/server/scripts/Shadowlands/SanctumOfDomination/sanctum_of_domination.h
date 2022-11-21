@@ -20,8 +20,8 @@
 
 #include "CreatureAIImpl.h"
 
-#define DataHeader "SD"
-#define SDScriptName "instance_sanctum_of_domination"
+#define DataHeader "SOD"
+#define SODScriptName "instance_sanctum_of_domination"
 
 Position const SylvanasPlatformRevivePos = { 265.834f, -799.287f, 4104.977f, 3.811291f };
 
@@ -35,13 +35,13 @@ enum SanctumOfDominationDataTypes
 
     // Sylvanas Windrunner
     DATA_SYLVANAS_INTRO,
+    DATA_SYLVANAS_SHADOWCOPY_RIDING,
+    DATA_DOMINATION_ARROW,
     DATA_BOLVAR_FORDRAGON_PINNACLE,
     DATA_JAINA_PROUDMOORE_PINNACLE,
     DATA_THRALL_PINNACLE,
+    DATA_THRONE_OF_THE_DAMNED,
     DATA_ANDUIN_CRUCIBLE,
-    DATA_DOMINATION_ARROW,
-
-    DATA_SYLVANAS_SHADOWCOPY_RIDING,
 
     DATA_SYLVANAS_SHADOWCOPY_00                     = 20,
     DATA_SYLVANAS_SHADOWCOPY_01,
@@ -65,16 +65,17 @@ enum SanctumOfDominationCreatureIds
     BOSS_SYLVANAS_WINDRUNNER                        = 175732,
 
     // Sylvanas Windrunner
+    NPC_SYLVANAS_SHADOWCOPY_RIDING                  = 178355,
+    NPC_SYLVANAS_SHADOWCOPY_FIGHTER                 = 176369,
+    NPC_DOMINATION_ARROW                            = 176920,
+
     NPC_BOLVAR_FORDRAGON_PINNACLE                   = 178081,
     NPC_JAINA_PROUDMOORE_PINNACLE                   = 176533,
     NPC_THRALL_PINNACLE                             = 176532,
+    NPC_THRONE_OF_THE_DAMNED                        = 180803,
+
     NPC_ANDUIN_CRUCIBLE                             = 178072,
-
-    NPC_SYLVANAS_SHADOWCOPY_RIDING                  = 178355,
-    NPC_SYLVANAS_SHADOWCOPY_FIGHTER                 = 176369,
     NPC_SYLVANAS_JAILER_SOUL                        = 179262,
-
-    NPC_DOMINATION_ARROW                            = 176920
 };
 
 enum SanctumOfDominationGameObjectIds
@@ -136,7 +137,7 @@ enum SanctumofDominationWorldStates
 template <class AI, class T>
 inline AI* GetSanctumOfDominationAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, SDScriptName);
+    return GetInstanceAI<AI>(obj, SODScriptName);
 }
 
 #define RegisterSanctumOfDominationCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSanctumOfDominationAI)
