@@ -590,18 +590,16 @@ uint32 const EventTimersPhaseOne[4][6][11] =
         { 29000, 63900, 63900, 63000, 90000               }, // Domination Chains
         { 34250, 40250, 30250, 33250, 90000               }, // Wailing Arrow (Marker)
         { 40000, 46000, 36500, 39000, 90000               }, // Wailing Arrow
-        { 56600, 59300, 59300, 57000, 90000               }, // Veil of Darkness
-        { 22200, 19300, 18200, 19700, 20800, 18800, 18700, 19400 } // Ranger's Heartseeker
+        { 56600, 59300, 59300, 57000, 90000               }  // Veil of Darkness
     },
 
     // Normal
     {
         { 7800, 54750, 56650, 56400, 90000                }, // Windrunner
-        { 25600, 59000, 57400, 57500, 90000               }, // Domination Chains
-        { 28350, 40300, 28300, 31100, 90000               }, // Wailing Arrow (Marker)
-        { 33600, 45550, 33550, 36350, 90000               }, // Wailing Arrow
-        { 50000, 52300, 54800, 55000, 90000               }, // Veil of Darkness
-        { 22250, 20500, 34300, 16800, 16500, 24300, 18300 }  // Ranger's Heartseeker
+        { 25600, 59250, 57150, 57350, 90000               }, // Domination Chains
+        { 28350, 40300, 28300, 31600, 90000               }, // Wailing Arrow (Marker)
+        { 34350, 46300, 34300, 37600, 90000               }, // Wailing Arrow
+        { 50000, 52300, 54800, 55000, 90000               }  // Veil of Darkness
     },
 
     // Heroic
@@ -1014,7 +1012,7 @@ class SetSheatheOrNameplateOrAttackSpeed : public BasicEvent
                     break;
 
                 case DATA_CHANGE_ATTACK_SPEED_TO_LOWEST:
-                    _actor->SetBaseAttackTime(BASE_ATTACK, 1000);
+                    _actor->SetBaseAttackTime(BASE_ATTACK, 900);
                     break;
 
                 case DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST:
@@ -2616,10 +2614,10 @@ struct boss_sylvanas_windrunner : public BossAI
                             StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 1 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_STRAIGHT);
                             break;
                         case DATA_WINDRUNNER_COUNTER_TWO:
-                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL);
+                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 3 ? DATA_DESECRATING_SHOT_PATTERN_WAVE : DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED);
                             break;
                         case DATA_WINDRUNNER_COUNTER_THREE:
-                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
+                            StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 5 ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SCATTERED);
                             break;
                         case DATA_WINDRUNNER_COUNTER_FOUR:
                             StartDesecratingShotPattern(_eventCounter[EVENT_COUNTER_DESECRATING_SHOT] == 7 ? DATA_DESECRATING_SHOT_PATTERN_SCATTERED : DATA_DESECRATING_SHOT_PATTERN_JAR);
@@ -2692,7 +2690,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         if (Unit* newTarget = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true))
                             me->CastSpell(newTarget, SPELL_WAILING_ARROW);
 
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(4s + 500ms));
+                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(4s + 484ms));
 
                     ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
 
@@ -2828,7 +2826,6 @@ struct boss_sylvanas_windrunner : public BossAI
                 case EVENT_VEIL_OF_DARKNESS + 5:
                 {
                     TeleportShadowcopiesToMe();
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
                     break;
                 }
 
@@ -3189,7 +3186,6 @@ struct boss_sylvanas_windrunner : public BossAI
             else
             {
                 Aura* heartseekerAura = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
-
                 if (heartseekerAura && heartseekerAura->GetStackAmount() >= 3)
                 {
                     me->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(me, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), me->m_Events.CalculateTime(0ms));
@@ -3290,7 +3286,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     Position targetPos = target->GetPosition();
 
-                    while (step > 0 && DrawDesecratingShotPattern(DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED, copyIndex, step, targetPos, target->GetOrientation()))
+                    while (step > 0 && DrawDesecratingShotPattern(pattern == DATA_DESECRATING_SHOT_PATTERN_SPIRAL ? DATA_DESECRATING_SHOT_PATTERN_SPIRAL : DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED, copyIndex, step, targetPos, target->GetOrientation()))
                         --step;
 
                     --copyIndex;
@@ -3578,7 +3574,7 @@ struct boss_sylvanas_windrunner : public BossAI
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL:
             case DATA_DESECRATING_SHOT_PATTERN_SPIRAL_ENCLOSED:
             {
-                float distance = DATA_DESECRATING_SHOT_PATTERN_SPIRAL ? DesecratingShotNormalSpiralDistance[step - 1] : DesecratingShotSpiralEnclosedDistance[step - 1];
+                float distance = pattern == DATA_DESECRATING_SHOT_PATTERN_SPIRAL ? DesecratingShotNormalSpiralDistance[step - 1] : DesecratingShotSpiralEnclosedDistance[step - 1];
 
                 if (step != 1)
                 {
@@ -4039,8 +4035,8 @@ class spell_sylvanas_windrunner_ranger_bow : public SpellScript
 
         caster->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN), 0, 0);
 
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(0ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(359ms));
 
         if (caster->IsInCombat())
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(859ms));
@@ -4061,14 +4057,6 @@ class spell_sylvanas_windrunner_ranger_bow_aura : public AuraScript
         Unit* target = GetTarget();
 
         target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_ATTACK_SPEED_TO_HIGHEST, 0), target->m_Events.CalculateTime(0ms));
-
-        if (target->GetSheath() != SHEATH_STATE_RANGED)
-        {
-            target->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW_SPIN), 0, 0);
-
-            target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), target->m_Events.CalculateTime(0ms));
-            target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_SHEATHE_TO_RANGED, 0), target->m_Events.CalculateTime(328ms));
-        }
     }
 
     void Register() override
@@ -4094,8 +4082,8 @@ class spell_sylvanas_windrunner_ranger_dagger : public SpellScript
 
         caster->SendPlaySpellVisualKit(RAND(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS, SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_DAGGERS_SPIN), 0, 0);
 
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(0ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_MELEE, 0), caster->m_Events.CalculateTime(328ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_MELEE, 0), caster->m_Events.CalculateTime(281ms));
 
         if (caster->IsInCombat())
             caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(828ms));
@@ -4140,7 +4128,7 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
     {
         Unit* target = GetTarget();
 
-        target->setAttackTimer(WeaponAttackType::BASE_ATTACK, 750);
+        target->setAttackTimer(WeaponAttackType::BASE_ATTACK, 500);
 
         if (target->IsAIEnabled())
             target->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
@@ -4316,12 +4304,13 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
 
         // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
         caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
-        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_UNSHEATHE_BOW, 0, 0);
 
-        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(2s));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(31ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(297ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(406ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(1s + 953ms));
 
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(343ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(2s));
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(2s + 984ms));
     }
 
     void HandleTriggerSpell(SpellEffIndex effIndex)
@@ -4354,8 +4343,8 @@ class spell_sylvanas_windrunner_ranger_heartseeker_aura : public AuraScript
             return;
 
         target->m_Events.AddEvent(new HeartseekerMissileEvent(target, victim), target->m_Events.CalculateTime(0ms));
-        target->m_Events.AddEvent(new HeartseekerMissileEvent(target, victim), target->m_Events.CalculateTime(280ms));
-        target->m_Events.AddEvent(new HeartseekerMissileEvent(target, victim), target->m_Events.CalculateTime(550ms));
+        target->m_Events.AddEvent(new HeartseekerMissileEvent(target, victim), target->m_Events.CalculateTime(265ms));
+        target->m_Events.AddEvent(new HeartseekerMissileEvent(target, victim), target->m_Events.CalculateTime(562ms));
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4411,6 +4400,9 @@ class spell_sylvanas_windrunner_domination_chains : public SpellScript
         Unit* caster = GetCaster();
         if (!caster)
             return;
+
+        if (caster->IsAIEnabled())
+            caster->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
 
         caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_DOMINATION_CHAINS_FINISH, 0, 0);
     }
@@ -4808,8 +4800,9 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
         if (!caster)
             return;
 
-        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false), caster->m_Events.CalculateTime(500ms));
-        caster->resetAttackTimer(BASE_ATTACK);
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(1s + 985ms));
+
+        caster->CastSpell(caster, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3750));
     }
 
     void Register() override

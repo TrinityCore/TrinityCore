@@ -344,7 +344,7 @@ public:
                         {
                             if (Player* player = itr->GetSource())
                             {
-                                if (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_THE_CRUCIBLE)
+                                if (player->GetAreaId() == AREA_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_SOD_SPACE_IN_EDGE_OF_THE_ABYSS || player->GetAreaId() == AREA_THE_CRUCIBLE)
                                     player->NearTeleportTo(SylvanasPlatformRevivePos, false);
                             }
                         }

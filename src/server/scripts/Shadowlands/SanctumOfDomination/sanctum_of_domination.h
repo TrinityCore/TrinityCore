@@ -116,6 +116,7 @@ enum SanctumOfDominationAreas
 {
     AREA_PINNACLE_OF_DOMINANCE                      = 13653,
     AREA_EDGE_OF_THE_ABYSS                          = 13654,
+    AREA_SOD_SPACE_IN_EDGE_OF_THE_ABYSS             = 13561,
     AREA_THE_CRUCIBLE                               = 13655
 };
 
