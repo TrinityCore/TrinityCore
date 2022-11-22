@@ -2831,8 +2831,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_RIVE:
                 {
-                    me->SetNameplateAttachToGUID(ObjectGuid::Empty);
-
                     if (_eventCounter[EVENT_COUNTER_RIVE] < 8)
                     {
                         if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
@@ -2898,7 +2896,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_RIVE + 4:
                 {
-                    DoCastSelf(SPELL_RIVE_DISAPPEAR, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 297));
+                    DoCastSelf(SPELL_RIVE_DISAPPEAR, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 500));
 
                     if (Creature* shadowCopy2 = GetShadowcopy(instance, DATA_INDEX_02))
                     {
@@ -2939,36 +2937,38 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_RIVE + 7:
                 {
-                    if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
+                    scheduler.Schedule(445ms, [this](TaskContext /*task*/)
                     {
-                        if (_eventCounter[EVENT_COUNTER_RIVE] == 0 || _eventCounter[EVENT_COUNTER_RIVE] == 5)
+                        me->SetNameplateAttachToGUID(ObjectGuid::Empty);
+                    });
+
+                    if (_eventCounter[EVENT_COUNTER_RIVE] == 0 || _eventCounter[EVENT_COUNTER_RIVE] == 5)
+                    {
+                        DoCastSelf(SPELL_RIVE);
+
+                        scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
                         {
-                            DoCastSelf(SPELL_RIVE);
+                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK, 0, 0);
+                        });
 
-                            scheduler.Schedule(1s + 750ms, [this](TaskContext /*task*/)
-                            {
-                                me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK, 0, 0);
-                            });
-
-                            scheduler.Schedule(2s + 484ms, [this](TaskContext /*task*/)
-                            {
-                                if (Creature* shadowCopy2 = GetShadowcopy(instance, DATA_INDEX_02))
-                                    me->CastSpell(me->GetNearPosition(9.0f, 0.0f), SPELL_RIVE_MARKER_AREATRIGGER, true);
-                            });
-
-                            events.ScheduleEvent(EVENT_RIVE, 4s + 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
-                        }
-                        else
+                        scheduler.Schedule(2s + 484ms, [this](TaskContext /*task*/)
                         {
-                            DoCastSelf(SPELL_RIVE_FAST);
-
-                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK_FAST, 0, 0);
-
                             if (Creature* shadowCopy2 = GetShadowcopy(instance, DATA_INDEX_02))
                                 me->CastSpell(me->GetNearPosition(9.0f, 0.0f), SPELL_RIVE_MARKER_AREATRIGGER, true);
+                        });
 
-                            events.ScheduleEvent(EVENT_RIVE, 2s, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
-                        }
+                        events.ScheduleEvent(EVENT_RIVE, 4s + 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
+                    }
+                    else
+                    {
+                        DoCastSelf(SPELL_RIVE_FAST);
+
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_RIVE_BREAK_FAST, 0, 0);
+
+                        if (Creature* shadowCopy2 = GetShadowcopy(instance, DATA_INDEX_02))
+                            me->CastSpell(me->GetNearPosition(9.0f, 0.0f), SPELL_RIVE_MARKER_AREATRIGGER, true);
+
+                        events.ScheduleEvent(EVENT_RIVE, 2s, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                     }
 
                     _eventCounter[EVENT_COUNTER_RIVE]++;
