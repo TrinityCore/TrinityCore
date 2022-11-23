@@ -1,7 +1,7 @@
 ALTER TABLE `creature_template_addon`   
 	ADD COLUMN `StandState` TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER `MountCreatureID`,
 	ADD COLUMN `AnimTier` TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER `StandState`,
-	ADD COLUMN `SheathState` TINYINT UNSIGNED DEFAULT 1 NOT NULL AFTER `AnimTier`;
+	ADD COLUMN `SheathState` TINYINT UNSIGNED DEFAULT 1 NOT NULL AFTER `AnimTier`,
 	ADD COLUMN `PvPFlags` TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER `SheathState`;
 	
 UPDATE `creature_template_addon` SET `StandState`= 1 WHERE (`bytes1` & 0x1) != 0;
@@ -35,7 +35,7 @@ UPDATE `creature_template_addon` SET `PvPFlags`= 0x80 WHERE (`bytes2` & 0x8000) 
 ALTER TABLE `creature_addon`   
 	ADD COLUMN `StandState` TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER `MountCreatureID`,
 	ADD COLUMN `AnimTier` TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER `StandState`,
-	ADD COLUMN `SheathState` TINYINT UNSIGNED DEFAULT 1 NOT NULL AFTER `AnimTier`;
+	ADD COLUMN `SheathState` TINYINT UNSIGNED DEFAULT 1 NOT NULL AFTER `AnimTier`,
 	ADD COLUMN `PvPFlags` TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER `SheathState`;
 	
 UPDATE `creature_addon` SET `StandState`= 1 WHERE (`bytes1` & 0x1) != 0;
