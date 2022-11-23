@@ -479,8 +479,10 @@ struct CreatureAddon
 {
     uint32 path_id;
     uint32 mount;
-    uint32 bytes1;
-    uint32 bytes2;
+    uint8 standState;
+    uint8 animTier;
+    uint8 sheathState;
+    uint8 pvpFlags;
     uint32 emote;
     std::vector<uint32> auras;
     VisibilityDistanceType visibilityDistanceType;
