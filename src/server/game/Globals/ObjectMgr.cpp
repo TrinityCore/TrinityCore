@@ -711,8 +711,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5               6               7
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, visibilityDistanceType, auras FROM creature_template_addon");
+    //                                               0      1        2      3           4         5            6         7      8                       9
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, SheathState, PvPFlags, emote, visibilityDistanceType, auras FROM creature_template_addon");
 
     if (!result)
     {
@@ -737,12 +737,14 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         creatureAddon.path_id                   = fields[1].GetUInt32();
         creatureAddon.mount                     = fields[2].GetUInt32();
-        creatureAddon.bytes1                    = fields[3].GetUInt32();
-        creatureAddon.bytes2                    = fields[4].GetUInt32();
-        creatureAddon.emote                     = fields[5].GetUInt32();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[6].GetUInt8());
+        uint8 standState                        = fields[3].GetUInt8();
+        uint8 animTier                          = fields[4].GetUInt8();
+        uint8 sheathState                       = fields[5].GetUInt8();
+        uint8 pvpFlags                          = fields[6].GetUInt8();
+        creatureAddon.emote                     = fields[7].GetUInt32();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[8].GetUInt8());
 
-        for (std::string_view aura : Trinity::Tokenize(fields[7].GetStringView(), ' ', false))
+        for (std::string_view aura : Trinity::Tokenize(fields[9].GetStringView(), ' ', false))
         {
 
             SpellInfo const* spellInfo = nullptr;
@@ -781,6 +783,30 @@ void ObjectMgr::LoadCreatureTemplateAddons()
                 creatureAddon.mount = 0;
             }
         }
+
+        if (standState >= MAX_UNIT_STAND_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid unit stand state (%u) defined in `creature_addon`. Truncated to 0", entry, standState);
+            standState = 0;
+        }
+        creatureAddon.bytes1 |= uint32(uint32(standState) << (UNIT_BYTES_1_OFFSET_STAND_STATE * 8));
+
+        if (AnimTier(animTier) >= AnimTier::Max)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid animation tier (%u) defined in `creature_addon`. Truncated to 0", entry, standState);
+            animTier = 0;
+        }
+        creatureAddon.bytes1 |= uint32(uint32(animTier) << (UNIT_BYTES_1_OFFSET_ANIM_TIER * 8));
+
+        if (sheathState >= MAX_SHEATH_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid sheath state (%u) defined in `creature_addon`. Truncated to 0", entry, standState);
+            sheathState = 0;
+        }
+        creatureAddon.bytes2 |= uint32(uint32(sheathState) << (UNIT_BYTES_2_OFFSET_SHEATH_STATE * 8));
+
+        // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
+        creatureAddon.bytes2 |= uint32(uint32(pvpFlags) << (UNIT_BYTES_2_OFFSET_PVP_FLAG * 8));
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
         {
@@ -1259,8 +1285,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5              6               7
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, visibilityDistanceType, auras FROM creature_addon");
+    //                                               0     1        2      3           4         5            6         7      8                       9
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, SheathState, PvPFlags, emote, visibilityDistanceType, auras FROM creature_addon");
 
     if (!result)
     {
@@ -1292,12 +1318,14 @@ void ObjectMgr::LoadCreatureAddons()
         }
 
         creatureAddon.mount                     = fields[2].GetUInt32();
-        creatureAddon.bytes1                    = fields[3].GetUInt32();
-        creatureAddon.bytes2                    = fields[4].GetUInt32();
-        creatureAddon.emote                     = fields[5].GetUInt32();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[6].GetUInt8());
+        uint8 standState                        = fields[3].GetUInt8();
+        uint8 animTier                          = fields[4].GetUInt8();
+        uint8 sheathState                       = fields[5].GetUInt8();
+        uint8 pvpFlags                          = fields[6].GetUInt8();
+        creatureAddon.emote                     = fields[7].GetUInt32();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[8].GetUInt8());
 
-        for (std::string_view aura : Trinity::Tokenize(fields[7].GetStringView(), ' ', false))
+        for (std::string_view aura : Trinity::Tokenize(fields[9].GetStringView(), ' ', false))
         {
             SpellInfo const* spellInfo = nullptr;
             if (Optional<uint32> spellId = Trinity::StringTo<uint32>(aura))
@@ -1335,6 +1363,30 @@ void ObjectMgr::LoadCreatureAddons()
                 creatureAddon.mount = 0;
             }
         }
+
+        if (standState >= MAX_UNIT_STAND_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has invalid unit stand state (%u) defined in `creature_addon`. Truncated to 0", guid, standState);
+            standState = 0;
+        }
+        creatureAddon.bytes1 |= uint32(uint32(standState) << (UNIT_BYTES_1_OFFSET_STAND_STATE * 8));
+
+        if (AnimTier(animTier) >= AnimTier::Max)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has invalid animation tier (%u) defined in `creature_addon`. Truncated to 0", guid, standState);
+            animTier = 0;
+        }
+        creatureAddon.bytes1 |= uint32(uint32(animTier) << (UNIT_BYTES_1_OFFSET_ANIM_TIER * 8));
+
+        if (sheathState >= MAX_SHEATH_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has invalid sheath state (%u) defined in `creature_addon`. Truncated to 0", guid, standState);
+            sheathState = 0;
+        }
+        creatureAddon.bytes2 |= uint32(uint32(sheathState) << (UNIT_BYTES_2_OFFSET_SHEATH_STATE * 8));
+
+        // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
+        creatureAddon.bytes2 |= uint32(uint32(pvpFlags) << (UNIT_BYTES_2_OFFSET_PVP_FLAG * 8));
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
         {
