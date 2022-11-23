@@ -23,14 +23,14 @@ UPDATE `creature_template_addon` SET `SheathState`= 0 WHERE (`bytes2` & 0x1 | 0x
 UPDATE `creature_template_addon` SET `SheathState`= 1 WHERE (`bytes2` & 0x1) != 0;
 UPDATE `creature_template_addon` SET `SheathState`= 2 WHERE (`bytes2` & 0x2) != 0;
 
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x1 WHERE (`bytes2` & 0x100) != 0;
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x2 WHERE (`bytes2` & 0x200) != 0;
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x4 WHERE (`bytes2` & 0x400) != 0;
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x8 WHERE (`bytes2` & 0x800) != 0;
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x10 WHERE (`bytes2` & 0x1000) != 0;
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x20 WHERE (`bytes2` & 0x2000) != 0;
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x40 WHERE (`bytes2` & 0x4000) != 0;
-UPDATE `creature_template_addon` SET `PvPFlags`= 0x80 WHERE (`bytes2` & 0x8000) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x1 WHERE (`bytes2` & 0x100) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x2 WHERE (`bytes2` & 0x200) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x4 WHERE (`bytes2` & 0x400) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x8 WHERE (`bytes2` & 0x800) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x10 WHERE (`bytes2` & 0x1000) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x20 WHERE (`bytes2` & 0x2000) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x40 WHERE (`bytes2` & 0x4000) != 0;
+UPDATE `creature_template_addon` SET `PvPFlags`= `PvPFlags`|0x80 WHERE (`bytes2` & 0x8000) != 0;
 
 ALTER TABLE `creature_addon`   
 	ADD COLUMN `StandState` TINYINT UNSIGNED DEFAULT 0 NOT NULL AFTER `MountCreatureID`,
@@ -57,14 +57,14 @@ UPDATE `creature_addon` SET `SheathState`= 0 WHERE (`bytes2` & 0x1 | 0x2) = 0;
 UPDATE `creature_addon` SET `SheathState`= 1 WHERE (`bytes2` & 0x1) != 0;
 UPDATE `creature_addon` SET `SheathState`= 2 WHERE (`bytes2` & 0x2) != 0;
 
-UPDATE `creature_addon` SET `PvPFlags`= 0x1 WHERE (`bytes2` & 0x100) != 0;
-UPDATE `creature_addon` SET `PvPFlags`= 0x2 WHERE (`bytes2` & 0x200) != 0;
-UPDATE `creature_addon` SET `PvPFlags`= 0x4 WHERE (`bytes2` & 0x400) != 0;
-UPDATE `creature_addon` SET `PvPFlags`= 0x8 WHERE (`bytes2` & 0x800) != 0;
-UPDATE `creature_addon` SET `PvPFlags`= 0x10 WHERE (`bytes2` & 0x1000) != 0;
-UPDATE `creature_addon` SET `PvPFlags`= 0x20 WHERE (`bytes2` & 0x2000) != 0;
-UPDATE `creature_addon` SET `PvPFlags`= 0x40 WHERE (`bytes2` & 0x4000) != 0;
-UPDATE `creature_addon` SET `PvPFlags`= 0x80 WHERE (`bytes2` & 0x8000) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x1 WHERE (`bytes2` & 0x100) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x2 WHERE (`bytes2` & 0x200) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x4 WHERE (`bytes2` & 0x400) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x8 WHERE (`bytes2` & 0x800) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x10 WHERE (`bytes2` & 0x1000) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x20 WHERE (`bytes2` & 0x2000) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x40 WHERE (`bytes2` & 0x4000) != 0;
+UPDATE `creature_addon` SET `PvPFlags`= `PvPFlags`|0x80 WHERE (`bytes2` & 0x8000) != 0;
 
 -- Conversion done, drop old columns
 ALTER TABLE `creature_template_addon`  
