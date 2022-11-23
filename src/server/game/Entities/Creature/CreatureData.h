@@ -483,6 +483,7 @@ struct CreatureAddon
     uint8 animTier;
     uint8 sheathState;
     uint8 pvpFlags;
+    uint8 visibilityFlags;
     uint32 emote;
     std::vector<uint32> auras;
     VisibilityDistanceType visibilityDistanceType;
