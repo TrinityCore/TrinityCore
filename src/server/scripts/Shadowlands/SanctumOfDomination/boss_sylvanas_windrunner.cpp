@@ -5633,17 +5633,17 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
         if (!instance)
             return;
 
-        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
-        if (!sylvanas || !sylvanas->IsInCombat())
-            return;
-
-        for (uint8 stackAmount = GetStackAmount(); stackAmount > 0; stackAmount--)
+        AuraRemoveMode mode = GetTargetApplication()->GetRemoveMode();
+        if (mode == AURA_REMOVE_BY_ENEMY_SPELL || mode == AURA_REMOVE_BY_DEATH)
         {
-            Position bansheeBanePos = GetClosestPossibleBanePosition(target);
+            for (uint8 stackAmount = GetStackAmount(); stackAmount > 0; stackAmount--)
+            {
+                Position bansheeBanePos = GetClosestPossibleBanePosition(target);
 
-            FlyingBaneAts.push_back(bansheeBanePos);
+                FlyingBaneAts.push_back(bansheeBanePos);
 
-            target->m_Events.AddEvent(new BansheeBaneVisualEvent(target, bansheeBanePos, target), target->m_Events.CalculateTime(0ms));
+                target->m_Events.AddEvent(new BansheeBaneVisualEvent(target, bansheeBanePos, target), target->m_Events.CalculateTime(0ms));
+            }
         }
     }
 
