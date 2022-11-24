@@ -712,7 +712,7 @@ uint32 const EventTimersPhaseThree[4][9][11] =
     }
 };
 
-uint8 const GetDifficultyForTimer(Creature* creature)
+uint8 GetDifficultyForTimer(Creature* creature)
 {
     uint8 difficulty = 0;
 
@@ -891,7 +891,7 @@ Position const GetPointInCurrentPlatform(Unit* unit, uint8 pointType, bool isCom
 {
     for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
     {
-        if (!unit->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+        if (!unit->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 16.0f, 16.0f, 16.0f))
             continue;
 
         if (pointType == DATA_PLATFORM_MIDDLE_POINT)
@@ -3062,7 +3062,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                     for (uint8 platform = PLATFORM_MALDRAXXI; platform < 4; platform++)
                     {
-                        if (me->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 14.0f, 14.0f, 14.0f))
+                        if (me->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
                             DesecratePlatform((Platforms)platform);
                     }
 
@@ -4122,7 +4122,7 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_windrunner);
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
@@ -4136,7 +4136,7 @@ class spell_sylvanas_windrunner_windrunner : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_windrunner::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_windrunner::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -4710,7 +4710,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1 : public AuraScrip
         target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_ONE, 0, 0);
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
@@ -4730,7 +4730,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1 : public AuraScrip
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1::OnApply, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1::OnRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_1::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5023,7 +5023,7 @@ class spell_sylvanas_windrunner_banshee_form : public AuraScript
         target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), target->m_Events.CalculateTime(0ms));
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
@@ -5041,7 +5041,7 @@ class spell_sylvanas_windrunner_banshee_form : public AuraScript
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_banshee_form::OnApply, EFFECT_0, SPELL_AURA_FLY, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_form::OnRemove, EFFECT_0, SPELL_AURA_FLY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_form::AfterRemove, EFFECT_0, SPELL_AURA_FLY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5262,7 +5262,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2 : public AuraScrip
         target->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(target, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), target->m_Events.CalculateTime(0ms));
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
@@ -5281,7 +5281,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2 : public AuraScrip
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2::OnApply, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2::OnRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5557,7 +5557,7 @@ bool FindClosestPositionFromAreaTrigger(Unit* unit, Position const& origin, Posi
         if (IsPositionWithinBaneAreaTriggers(unit, offsetPos))
             continue;
 
-        if (!offsetPos.IsWithinBox(platformOrigin, 14.0f, 14.0f, 14.0f))
+        if (!offsetPos.IsWithinBox(platformOrigin, 17.0f, 17.0f, 17.0f))
             continue;
 
         outPos = offsetPos;
@@ -5578,7 +5578,7 @@ Position const TranslocateBanePosition(Position bansheeBanePos, Position closest
     {
         offsetPos.Relocate(bansheeBanePos.GetPositionX() + dist * std::cos(angle), bansheeBanePos.GetPositionY() + dist * std::sin(angle), 5671.90f);
         dist += 1.0f;
-    } while (!offsetPos.IsWithinBox(closestPlatformOrigin, 14.0f, 14.0f, 14.0f));
+    } while (!offsetPos.IsWithinBox(closestPlatformOrigin, 17.0f, 17.0f, 17.0f));
 
     return offsetPos;
 }
@@ -5625,7 +5625,7 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 {
     PrepareAuraScript(spell_sylvanas_windrunner_banshee_bane);
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
 
@@ -5649,7 +5649,7 @@ class spell_sylvanas_windrunner_banshee_bane : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_bane::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_bane::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5712,7 +5712,7 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
         }
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -5728,7 +5728,7 @@ class spell_sylvanas_windrunner_banshee_fury : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_sylvanas_windrunner_banshee_fury::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_fury::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_banshee_fury::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -7393,7 +7393,7 @@ class spell_sylvanas_windrunner_blasphemy : public AuraScript
         caster->m_Events.AddEvent(new BlasphemyEvent(caster, caster->GetPosition(), 0), caster->m_Events.CalculateTime(5s));
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -7415,7 +7415,7 @@ class spell_sylvanas_windrunner_blasphemy : public AuraScript
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_blasphemy::OnApply, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_blasphemy::OnRemove, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_blasphemy::AfterRemove, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
     }
 
 private:
