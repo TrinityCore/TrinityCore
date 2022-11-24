@@ -3161,7 +3161,7 @@ struct SpellCooldownsEntry
     int32 CategoryRecoveryTime;
     int32 RecoveryTime;
     int32 StartRecoveryTime;
-    int32 SpellID;
+    uint32 SpellID;
 };
 
 struct SpellDurationEntry
