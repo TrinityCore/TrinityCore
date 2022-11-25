@@ -1747,7 +1747,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 me->NearTeleportTo(sylvanas->GetNearPosition(-5.0f, 0.0f), false);
 
-                _scheduler.Schedule(5ms, [this, sylvanas](TaskContext /*task*/)
+                _scheduler.Schedule(5ms, [this](TaskContext /*task*/)
                 {
                     me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 5.048f, me->GetOrientation(), false);
                 });
