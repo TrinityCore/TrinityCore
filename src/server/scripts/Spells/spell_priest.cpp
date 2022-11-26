@@ -116,6 +116,7 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_IMPROVED_MIND_BLAST              = 95,
     PRIEST_ICON_ID_MIND_MELT                        = 3139,
     PRIEST_ICON_ID_SHADOW_ORB                       = 4941,
+    PRIEST_ICON_ID_GLYPH_OF_PSYCHIC_SCREAM          = 1488,
     PRIEST_ICON_ID_GLYPH_OF_SHADOW_WORD_DEATH       = 1980,
     PRIEST_ICON_ID_IMPROVED_DEVOURING_PLAGUE        = 3790
 };
@@ -1804,6 +1805,21 @@ class spell_pri_devouring_plague : public AuraScript
     }
 };
 
+// 8122 - Psychic Scream
+class spell_pri_psychic_scream : public SpellScript
+{
+    void FilterGlyphTargets(std::list<WorldObject*>& targets)
+    {
+        if (!GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_GLYPH_OF_PSYCHIC_SCREAM, EFFECT_0))
+            targets.clear();
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect.Register(&spell_pri_psychic_scream::FilterGlyphTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
@@ -1840,6 +1856,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_pain_and_suffering_proc);
     RegisterSpellScript(spell_pri_penance);
     RegisterSpellScript(spell_pri_phantasm);
+    RegisterSpellScript(spell_pri_psychic_scream);
     RegisterSpellScript(spell_power_word_barrier);
     RegisterSpellAndAuraScriptPair(spell_pri_power_word_shield, spell_pri_power_word_shield_AuraScript);
     RegisterSpellScript(spell_pri_prayer_of_mending_heal);
