@@ -168,6 +168,29 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
         };
+
+        struct SpellDispellData
+        {
+            bool Harmful = false;
+            int32 SpellID = 0;
+            int32 Rolled = 0;
+            int32 Needed = 0;
+        };
+
+        // This packet covers SMSG_SPELL_DISPEL_LOG, SMSG_SPELL_BREAK_LOG and SMSG_SPELL_STEAL_LOG
+        class SpellDispellLog final : public ServerPacket
+        {
+        public:
+            SpellDispellLog(OpcodeServer opcode) : ServerPacket(opcode, 8 + 8 + 4 + 1 + 1) { }
+
+            bool Debug = false;
+            int32 DispelledBySpellID = 0;
+            ObjectGuid TargetGUID;
+            ObjectGuid CasterGUID;
+            std::vector<SpellDispellData> DispellData;
+
+            WorldPacket const* Write() override;
+        };
     }
 }
 

@@ -182,3 +182,34 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::CombatLog::SpellDispellData const& dispellData)
+{
+    data << int32(dispellData.SpellID);
+    data << bool(dispellData.Harmful);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::CombatLog::SpellDispellLog::Write()
+{
+    _worldPacket << TargetGUID.WriteAsPacked();
+    _worldPacket << CasterGUID.WriteAsPacked();
+    _worldPacket << int32(DispelledBySpellID);
+    _worldPacket << bool(Debug);
+    _worldPacket << int32(DispellData.size());
+
+    for (SpellDispellData const& dispellData : DispellData)
+        _worldPacket << dispellData;
+
+    if (Debug)
+    {
+        for (SpellDispellData const& dispellData : DispellData)
+        {
+            _worldPacket << int32(dispellData.Needed);
+            _worldPacket << int32(dispellData.Rolled);
+        }
+    }
+
+    return &_worldPacket;
+}

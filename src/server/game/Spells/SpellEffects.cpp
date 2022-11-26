@@ -23,6 +23,7 @@
 #include "Common.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CombatLogPackets.h"
 #include "DatabaseEnv.h"
 #include "DynamicObject.h"
 #include "Formulas.h"
@@ -2114,21 +2115,22 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
     if (successList.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8 + 8 + 4 + 1 + 4 + successList.size() * 5);
-    // Send packet header
-    dataSuccess << unitTarget->GetPackGUID();         // Victim GUID
-    dataSuccess << m_caster->GetPackGUID();           // Caster GUID
-    dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
-    dataSuccess << uint8(0);                               // not used
-    dataSuccess << uint32(successList.size());            // count
-    for (DispelChargesList::iterator itr = successList.begin(); itr != successList.end(); ++itr)
+    WorldPackets::CombatLog::SpellDispellLog spellDispellLog(SMSG_SPELL_DISPEL_LOG);
+    spellDispellLog.TargetGUID = unitTarget->GetGUID();
+    spellDispellLog.CasterGUID = m_caster->GetGUID();
+    spellDispellLog.DispelledBySpellID = m_spellInfo->Id;
+
+    for (DispelableAura const& dispelableAura : successList)
     {
-        // Send dispelled spell info
-        dataSuccess << uint32(itr->GetAura()->GetId());         // Spell Id
-        dataSuccess << uint8(0);                                // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellByDispel(itr->GetAura()->GetId(), m_spellInfo->Id, itr->GetAura()->GetCasterGUID(), m_caster, itr->GetDispelCharges());
+        WorldPackets::CombatLog::SpellDispellData dispellData;
+        dispellData.SpellID = dispelableAura.GetAura()->GetId();
+        dispellData.Harmful = false; // TODO: use me
+
+        unitTarget->RemoveAurasDueToSpellByDispel(dispelableAura.GetAura()->GetId(), m_spellInfo->Id, dispelableAura.GetAura()->GetCasterGUID(), m_caster, dispelableAura.GetDispelCharges());
+        spellDispellLog.DispellData.emplace_back(dispellData);
     }
-    m_caster->SendMessageToSet(&dataSuccess, true);
+
+    m_caster->SendMessageToSet(spellDispellLog.Write(), true);
 
     CallScriptSuccessfulDispel(effIndex);
 
