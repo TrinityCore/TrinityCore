@@ -4658,6 +4658,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Invigorating Field Jump
+    ApplySpellFix({ 353642 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_3, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_APPLY_AURA;
+            spellEffectInfo->ApplyAuraName = SPELL_AURA_TRIGGER_SPELL_ON_EXPIRE;
+        });
+    });
+
     // END OF SANCTUM OF DOMINATION
 
     // Summon Master Li Fei

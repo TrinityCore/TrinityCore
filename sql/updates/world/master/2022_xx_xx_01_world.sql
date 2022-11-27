@@ -319,7 +319,7 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId
 (23673, 27927, 0, 28419, 0, 0, -1, 0, 0, 10000, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 0, 0, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Mythic Mode (351869)
 (23693, 27928, 0, 28658, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 0, 0, 'at_sylvanas_windrunner_haunting_wave', 41488), -- Haunting Wave - Heroic Mode (351869)
 (23694, 27929, 0, 28659, 0, 0, -1, 0, 0, 14286, 10000, 1, 1.75, 4, 2, 1.75, 4, 2, 0, 0, 'at_sylvanas_windrunner_haunting_wave', 41079), -- Haunting Wave - Normal Mode (351869)
-(40001, 27432, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 2, 19.5, 5, 2, 19.5, 5, 0, 0, 'at_sylvanas_windrunner_invigorating_field', 0); -- Invigorating Field (353660) NOTE: This one is a custom Id.
+(40001, 27432, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 2, 37.4, 5, 2, 19.5, 5, 0, 0, 'at_sylvanas_windrunner_invigorating_field', 0); -- Invigorating Field (353660) NOTE: This one is a custom Id.
 
 DELETE FROM `areatrigger_create_properties_spline_point` WHERE `AreaTriggerCreatePropertiesId` IN (23028);
 INSERT INTO `areatrigger_create_properties_spline_point` (`AreaTriggerCreatePropertiesId`, `Idx`, `X`, `Y`, `Z`, `VerifiedBuild`) VALUES

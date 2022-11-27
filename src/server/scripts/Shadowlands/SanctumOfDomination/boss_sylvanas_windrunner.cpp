@@ -4004,10 +4004,10 @@ struct boss_sylvanas_windrunner : public BossAI
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[0]);
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[1]);
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[7]);
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[2]);
                 break;
 
             case PLATFORM_NIGHTFAE:
-                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[2]);
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[3]);
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[4]);
                 break;
@@ -8007,6 +8007,35 @@ private:
     InstanceScript* _instance;
 };
 
+// 40001 - Invigorating Field
+struct at_sylvanas_windrunner_invigorating_field : AreaTriggerAI
+{
+    at_sylvanas_windrunner_invigorating_field(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
+        _instance(at->GetInstanceScript()) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!_instance || !unit->IsPlayer() || unit->HasAura(SPELL_INVIGORATING_FIELD_JUMP))
+            return;
+
+        Position dest = unit->GetPosition();
+
+        if ((at->GetPositionX() == -268.229f && at->GetPositionY() == -1236.99f) || (at->GetPositionX() == -268.229f && at->GetPositionY() == -1316.38f))
+            dest.m_positionX += 45.0f;
+        else if ((at->GetPositionX() == -289.297f && at->GetPositionY() == -1258.25f) || (at->GetPositionX() == -210.795f && at->GetPositionY() == -1257.88f))
+            dest.m_positionY += -45.0f;
+        else if ((at->GetPositionX() == -289.569f && at->GetPositionY() == -1294.9f) || (at->GetPositionX() == -210.512f && at->GetPositionY() == -1294.48f))
+            dest.m_positionY += 45.0f;
+        else
+            dest.m_positionX += -45.0f;
+
+        unit->CastSpell(Position(dest.GetPositionX(), dest.GetPositionY(), 5671.9052f), SPELL_INVIGORATING_FIELD_JUMP, true);
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
 // Serverside - Sylvanas Windrunner's Conversation Introduction
 struct at_sylvanas_windrunner_introduction : AreaTriggerAI
 {
@@ -8187,6 +8216,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAreaTriggerAI(at_sylvanas_windrunner_blasphemy);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_banshee_bane);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_raze);
+    RegisterAreaTriggerAI(at_sylvanas_windrunner_invigorating_field);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_introduction);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_z_check);
 
