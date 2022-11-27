@@ -224,6 +224,11 @@ namespace WorldPackets
         class UpdateMissileTrajectory;
     }
 
+    namespace Ticket
+    {
+        class Complaint;
+    }
+
     namespace Trade
     {
         class AcceptTrade;
@@ -1149,7 +1154,7 @@ class TC_GAME_API WorldSession
         void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
         void HandleCancelMountAuraOpcode(WorldPacket& recvData);
         void HandleSelfResOpcode(WorldPacket& recvData);
-        void HandleComplainOpcode(WorldPacket& recvData);
+        void HandleComplaintOpcode(WorldPackets::Ticket::Complaint& packet);
         void HandleRequestPetInfoOpcode(WorldPacket& recvData);
 
         // Socket gem

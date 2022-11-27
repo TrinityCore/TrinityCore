@@ -276,3 +276,12 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
         sTicketMgr->SendTicket(this, nullptr);
     }
 }
+
+void WorldSession::HandleComplaintOpcode(WorldPackets::Ticket::Complaint& packet)
+{
+    // Complaint Received message
+    WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
+    data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
+    data << uint8(0); // value 0xC generates a "CalendarError" in client.
+    SendPacket(&data);
+}
