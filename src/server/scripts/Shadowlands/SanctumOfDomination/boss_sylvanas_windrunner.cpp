@@ -323,7 +323,7 @@ enum Actions
     ACTION_OPEN_PORTAL_TO_PHASE_THREE,
     ACTION_INITIATE_PHASE_THREE,
     ACTION_START_PHASE_THREE,
-    ACTION_SWITCH_PLATFORM,
+    ACTION_SWITCH_PLATFORM                                        = 21,
     ACTION_PREPARE_FINISH_BOSS
 };
 
@@ -1251,11 +1251,6 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                 break;
             }
 
-            case ACTION_SWITCH_PLATFORM:
-                me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(0ms));
-                _events.ScheduleEvent(EVENT_SWITCH_PLATFORM, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
-                break;
-
             default:
                 break;
         }
@@ -2068,6 +2063,8 @@ struct boss_sylvanas_windrunner : public BossAI
     {
         _Reset();
 
+        _desecratedPlatforms = 0;
+
         // Note: every creature involved in the fight adds UNIT_FLAG_PET_IN_COMBAT or UNIT_FLAG_RENAME when engaging, meaning they're most likely summoned by Sylvanas.
         me->SummonCreatureGroup(SPAWN_GROUP_CHAMPIONS);
 
@@ -2397,6 +2394,11 @@ struct boss_sylvanas_windrunner : public BossAI
                 });
                 break;
             }
+
+            case ACTION_SWITCH_PLATFORM:
+                me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(0ms));
+                events.ScheduleEvent(EVENT_SWITCH_PLATFORM, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                break;
 
             default:
                 break;
@@ -3091,6 +3093,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(GetPointInCurrentPlatform(me, DATA_PLATFORM_MIDDLE_POINT), SPELL_RAZE);
                     });
 
+                    events.Repeat(75s);
                     break;
                 }
 
@@ -3165,14 +3168,16 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
                     {
-                        if (!me->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 150.f))
+                        if (IsPlatformDesecrated(Platforms(platform)))
                             continue;
 
-                        Position nextPlatformPos = CovenantPlatformPos[platform + 1][DATA_MIDDLE_POS_OUTTER_PLATFORM];
+                        Position nextPlatformPos = CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM];
 
                         me->NearTeleportTo(nextPlatformPos.GetPositionX(), nextPlatformPos.GetPositionY(), nextPlatformPos.GetPositionZ(), nextPlatformPos.GetOrientation(), false);
+
+                        events.ScheduleEvent(EVENT_SWITCH_PLATFORM + 2, 16ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                        break;
                     }
-                    events.ScheduleEvent(EVENT_SWITCH_PLATFORM + 2, 16ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
                     break;
                 }
 
@@ -3990,6 +3995,37 @@ struct boss_sylvanas_windrunner : public BossAI
     void DesecratePlatform(Platforms platformIndex)
     {
         _desecratedPlatforms |= (1 << platformIndex);
+
+        std::vector<ObjectGuid> invigoratingFieldToDesecrateGUID;
+
+        switch (platformIndex)
+        {
+            case PLATFORM_MALDRAXXI:
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[0]);
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[1]);
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[7]);
+                break;
+
+            case PLATFORM_NIGHTFAE:
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[2]);
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[3]);
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[4]);
+                break;
+
+            case PLATFORM_KYRIAN:
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[5]);
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[6]);
+                break;
+
+            default:
+                break;
+        }
+
+        for (ObjectGuid const& invigoratingFieldGUID : invigoratingFieldToDesecrateGUID)
+        {
+            if (AreaTrigger* invigoratingField = ObjectAccessor::GetAreaTrigger(*me, invigoratingFieldGUID))
+                invigoratingField->Remove();
+        }
     }
 
     bool IsPlatformDesecrated(Platforms platformIndex)
