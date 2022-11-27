@@ -180,11 +180,11 @@ enum Spells
     SPELL_SWITCH_PLATFORM_AURA                                    = 354141, // 27887 areatrigger forces MovementForce 1 with Magnitude -14 on players for 150ms
 
     // Banshee's Heartseeker
-    SPELL_BANSHEES_HEARTSEEKER_AURA                               = 353966,
-    SPELL_BANSHEES_HEARTSEEKER_CHARGE                             = 353965,
-    SPELL_BANSHEES_HEARTSEEKER                                    = 353969,
-    SPELL_BANSHEES_HEARTSEEKER_PHYSICAL_DAMAGE                    = 353968,
-    SPELL_BANSHEES_HEARTSEEKER_SHADOW_DAMAGE                      = 353967,
+    SPELL_BANSHEE_HEARTSEEKER_AURA                                = 353966,
+    SPELL_BANSHEE_HEARTSEEKER_CHARGE                              = 353965,
+    SPELL_BANSHEE_HEARTSEEKER                                     = 353969,
+    SPELL_BANSHEE_HEARTSEEKER_PHYSICAL_DAMAGE                     = 353968,
+    SPELL_BANSHEE_HEARTSEEKER_SHADOW_DAMAGE                       = 353967,
 
     // Banshee's Bane
     SPELL_BANSHEES_BANE                                           = 353929,
@@ -2390,7 +2390,8 @@ struct boss_sylvanas_windrunner : public BossAI
                     events.ScheduleEvent(EVENT_RAZE, 70s, 1, PHASE_THREE);
                     events.ScheduleEvent(EVENT_BANSHEE_SCREAM, 80s, 1, PHASE_THREE);
 
-                    DoCastSelf(SPELL_BANSHEES_HEARTSEEKER_AURA, true);
+                    me->SetPower(me->GetPowerType(), 0);
+                    DoCastSelf(SPELL_BANSHEE_HEARTSEEKER_AURA, true);
                 });
                 break;
             }
@@ -3243,9 +3244,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case DATA_MELEE_COMBO_FINISH:
                 {
-                    Aura* heartseekerAura = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
+                    Aura* heartseekerAura = me->GetAura(me->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_CHARGE : SPELL_RANGER_HEARTSEEKER_CHARGE);
                     if (heartseekerAura && heartseekerAura->GetStackAmount() >= 3)
-                        DoCastVictim(SPELL_RANGER_HEARTSEEKER, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
+                        DoCastVictim(me->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER : SPELL_RANGER_HEARTSEEKER,
+                            CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
                     else
                         DoCastVictim(SPELL_RANGER_SHOT);
                     if (roll_chance_i(65))
@@ -3272,7 +3274,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_SWITCH_TO_RANGED;
             else
             {
-                Aura* heartseekerAura = me->GetAura(SPELL_RANGER_HEARTSEEKER_CHARGE);
+                Aura* heartseekerAura = me->GetAura(me->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_CHARGE : SPELL_RANGER_HEARTSEEKER_CHARGE);
                 if (heartseekerAura && heartseekerAura->GetStackAmount() >= 3)
                     _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_FINISH;
                 else if (!me->IsWithinCombatRange(me->GetVictim(), 4.0f))
@@ -4361,8 +4363,8 @@ class HeartseekerDamageEvent : public BasicEvent
         {
             if (_actor->GetAreaId() == AREA_THE_CRUCIBLE)
             {
-                _actor->CastSpell(_victim, SPELL_BANSHEES_HEARTSEEKER_PHYSICAL_DAMAGE, true);
-                _actor->CastSpell(_victim, SPELL_BANSHEES_HEARTSEEKER_SHADOW_DAMAGE, true);
+                _actor->CastSpell(_victim, SPELL_BANSHEE_HEARTSEEKER_PHYSICAL_DAMAGE, true);
+                _actor->CastSpell(_victim, SPELL_BANSHEE_HEARTSEEKER_SHADOW_DAMAGE, true);
             }
             else
             {
@@ -4391,7 +4393,7 @@ class HeartseekerMissileEvent : public BasicEvent
 
             _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timer)));
 
-            if (Aura* heartseeker = _actor->GetAura(_actor->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEES_HEARTSEEKER_CHARGE))
+            if (Aura* heartseeker = _actor->GetAura(_actor->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEE_HEARTSEEKER_CHARGE))
                 heartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
 
             return true;
@@ -5269,64 +5271,67 @@ class spell_sylvanas_windrunner_ruin: public AuraScript
 };
 
 // 353969 - Banshee's Heartseeker
-class spell_sylvanas_windrunner_banshees_heartseeker : public SpellScript
+class spell_sylvanas_windrunner_banshee_heartseeker : public SpellScript
 {
-    PrepareSpellScript(spell_sylvanas_windrunner_banshees_heartseeker);
+    PrepareSpellScript(spell_sylvanas_windrunner_banshee_heartseeker);
 
     void OnPrecast() override
     {
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
 
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(16ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(328ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(343ms));
-        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(2s));
+        // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
+        caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
+
+        if (caster->GetSheath() != SHEATH_STATE_RANGED)
+            caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_UNARMED, 0), caster->m_Events.CalculateTime(31ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_SHEATHE_TO_RANGED, 0), caster->m_Events.CalculateTime(297ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(406ms));
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(1s + 953ms));
+
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(2s + 984ms));
     }
 
-    void Register() override { }
-};
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
 
-class spell_sylvanas_windrunner_banshees_heartseeker_aura : public AuraScript
-{
-    PrepareAuraScript(spell_sylvanas_windrunner_banshees_heartseeker_aura);
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(0ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(265ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(562ms));
+    }
 
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleTriggerSpell(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
         if (!caster)
             return;
 
-        Unit* currentTank = caster->GetVictim();
-        if (!currentTank)
-            return;
-
-        // TODO: find out if this is needed since it's a channel spell, it should be handled by spell itself.
-        caster->SetFacingToObject(currentTank);
-
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, currentTank), caster->m_Events.CalculateTime(1ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, currentTank), caster->m_Events.CalculateTime(281ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, currentTank), caster->m_Events.CalculateTime(562ms));
+        // Note: the default duration is 4s and this should be 3.75s, so we need to prevent to send the correct duration.
+        PreventHitDefaultEffect(effIndex);
+        caster->CastSpell(caster, GetEffectInfo().TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3750));
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_banshees_heartseeker_aura::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_sylvanas_windrunner_banshee_heartseeker::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_sylvanas_windrunner_banshee_heartseeker::HandleTriggerSpell, EFFECT_2, SPELL_EFFECT_TRIGGER_SPELL);
     }
 };
 
 // 353967 - Banshees's Heartseeker (Shadow damage)
-class spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage : public SpellScript
+class spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage : public SpellScript
 {
-    PrepareSpellScript(spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage);
+    PrepareSpellScript(spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BANSHEES_BANE });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -5337,7 +5342,7 @@ class spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage : public Spel
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -5896,27 +5901,10 @@ class spell_sylvanas_windrunner_raze : public SpellScript
         if (!caster)
             return;
 
-        InstanceScript* instance = caster->GetInstanceScript();
-        if (!instance)
-            return;
-
-        Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
-        if (!sylvanas)
-            return;
-
-        if (boss_sylvanas_windrunner* sylvanasAI = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
-        {
-            for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
-            {
-                if (sylvanas->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
-                    sylvanasAI->DesecratePlatform((Platforms)platform);
-            }
-        }
-
         caster->CastSpell(caster, SPELL_WINDRUNNER_DISAPPEAR_02, true);
 
-        if (sylvanas->IsAIEnabled())
-            sylvanas->GetAI()->DoAction(ACTION_SWITCH_PLATFORM);
+        if (caster->IsAIEnabled())
+            caster->GetAI()->DoAction(ACTION_SWITCH_PLATFORM);
     }
 
     void Register() override
@@ -7986,6 +7974,22 @@ struct at_sylvanas_windrunner_raze : AreaTriggerAI
     at_sylvanas_windrunner_raze(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger),
         _instance(at->GetInstanceScript()) { }
 
+    void OnCreate() override
+    {
+        Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER);
+        if (!sylvanas)
+            return;
+
+        if (boss_sylvanas_windrunner* sylvanasAI = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+        {
+            for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
+            {
+                if (sylvanas->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
+                    sylvanasAI->DesecratePlatform((Platforms)platform);
+            }
+        }
+    }
+
     void OnUnitEnter(Unit* unit) override
     {
         if (!_instance || !unit->IsPlayer())
@@ -8172,11 +8176,11 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_form);
     RegisterSpellScript(spell_sylvanas_windrunner_haunting_wave);
     RegisterSpellScript(spell_sylvanas_windrunner_ruin);
-    RegisterSpellAndAuraScriptPair(spell_sylvanas_windrunner_banshees_heartseeker, spell_sylvanas_windrunner_banshees_heartseeker_aura);
-    RegisterSpellScript(spell_sylvanas_windrunner_banshees_heartseeker_shadow_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_2);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_2);
     RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_area_phase_2);
+    RegisterSpellScript(spell_sylvanas_windrunner_banshee_heartseeker);
+    RegisterSpellScript(spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage);
     RegisterSpellScript(spell_sylvanas_windrunner_bane_arrows);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_bane);
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_fury);
