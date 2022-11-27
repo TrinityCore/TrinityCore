@@ -13,7 +13,9 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 
 DELETE FROM `creature_summon_groups` WHERE `summonerId`=175732 AND `groupId`=2;
 INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `entry`, `position_x`, `position_y`, `position_z`, `orientation`, `summonType`, `summonTime`, `Comment`) VALUES 
-(175732, 0, 2, 178072, -249.161, -1271.62, 5667.08, 4.56334, 8, 0, 'Anduin - Sylvanas Windrunner Encounter');
+(175732, 0, 2, 178072, -249.161, -1271.62, 5667.08, 4.56334, 8, 0, 'Anduin - Sylvanas Windrunner Encounter'),
+(175732, 0, 2, 178079, -249.634, -1227.17, 5672.13, 4.67994, 8, 0, 'The Jailer - Sylvanas Windrunner Encounter'),
+(175732, 0, 2, 178082, -250.247, -1385.28, 5640.44, 1.57011, 8, 0, 'The Arbiter - Sylvanas Windrunner Encounter');
 
 -- Sylvanas Shadowcopy (Fight)
 UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2099200, `unit_flags3`=1, `CreatureDifficultyID`=199018, `ScriptName`='npc_sylvanas_windrunner_shadowcopy' WHERE `entry`=176369;
@@ -72,15 +74,20 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=347560 AND `ScriptName`='spell
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (347560, 'spell_sylvanas_windrunner_ranger_bow');
 
+-- Ranger (Dagger)
+DELETE FROM `spell_script_names` WHERE `spell_id`=348010 AND `ScriptName`='spell_sylvanas_windrunner_ranger_dagger';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(348010, 'spell_sylvanas_windrunner_ranger_dagger');
+
 -- Ranger Shot
 DELETE FROM `spell_script_names` WHERE `spell_id`=347548 AND `ScriptName`='spell_sylvanas_windrunner_ranger_shot';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (347548, 'spell_sylvanas_windrunner_ranger_shot');
 
--- Ranger (Dagger)
-DELETE FROM `spell_script_names` WHERE `spell_id`=348010 AND `ScriptName`='spell_sylvanas_windrunner_ranger_dagger';
+-- Ranger Strike
+DELETE FROM `spell_script_names` WHERE `spell_id`=348299 AND `ScriptName`='spell_sylvanas_windrunner_ranger_strike';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
-(348010, 'spell_sylvanas_windrunner_ranger_dagger');
+(348299, 'spell_sylvanas_windrunner_ranger_strike');
 
 -- Windrunner
 DELETE FROM `jump_charge_params` WHERE `id` IN (529, 530, 531);
@@ -301,9 +308,9 @@ INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data
 DELETE FROM `areatrigger_create_properties` WHERE `Id` IN (23349, 23389, 22400, 23034, 23028, 5428, 23694, 23693, 23673, 23096, 23507, 23506, 23117, 40001);
 INSERT INTO `areatrigger_create_properties` (`Id`, `AreaTriggerId`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `TimeToTarget`, `TimeToTargetScale`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
 (5428, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_bridges', 41079), -- Channel Ice (354476, 354574, 354573) and Call Earth (354577, 354575, 354576)
-(22400, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 5000, 0, 6, 6, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_disecrating_shot', 41079), -- Desecrating Shot (348626)
+(22400, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 5000, 0, 6, 6, 0, 0, 0, 0, 0, 0, '', 41079), -- Desecrating Shot (348626)
 (23028, 27408, 25793, 0, 0, 0, -1, 0, 0, 2653, 4000, 1, 5, 2.5, 3.5, 5, 2.5, 3.5, 0, 0, 'at_sylvanas_windrunner_rive', 41079), -- Rive (353375)
-(23034, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 2500, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_rive_marker', 41079), -- Rive Marker (353419)
+(23034, 6197, 0, 0, 0, 0, -1, 0, 0, 0, 2500, 0, 1, 1, 0, 0, 0, 0, 0, 0, '', 41079), -- Rive Marker (353419)
 (23096, 27461, 0, 0, 0, 0, -1, 0, 460, 0, 600000, 0, 3.6, 3.6, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_banshee_bane', 41488), -- Rive Marker (353419)
 (23117, 27480, 0, 0, 0, 0, -1, 0, 462, 0, 0, 1, 20, 20, 5, 20, 20, 5, 0, 0, 'at_sylvanas_windrunner_raze', 41079), -- Raze (354145)
 (23389, 27687, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_calamity', 41488), -- Calamity - Heroic Mode
@@ -568,10 +575,15 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=354011;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354011, 'spell_sylvanas_windrunner_bane_arrows');
 
- -- Raze
+-- Raze
 DELETE FROM `spell_script_names` WHERE `spell_id`=354147;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (354147, 'spell_sylvanas_windrunner_raze');
+
+-- Sylvanas' Push
+DELETE FROM `spell_script_names` WHERE `spell_id`=354141;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354141, 'spell_sylvanas_windrunner_sylvanas_push');
 
  -- The Jailer
 UPDATE `creature_template` SET `minlevel`=63, `maxlevel`=63, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71303168, `unit_flags3`=32769, `VehicleId`=7513 WHERE `entry`=178079;
@@ -598,10 +610,6 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=178079;
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES 
 (178079, 179784, 3, 1, 'The Jailer - Soul Leader 3', 6, 30000);
-
-DELETE FROM `creature` WHERE `guid`=@CGUID+4;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+4, 178079, 2450, 13561, 13655, '14,15,16,17', 0, 0, 0, -1, 0, 0, -249.634, -1227.17, 5672.13, 4.67994, 7200, 0, 0, 11248000, 0, 0, 0, 0, 0, 0, 0, '', 41079);
 
  -- Soul Leader 1 (Last Phase - Rides 178079)
 UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=33556512, `unit_flags3`=1, `VehicleId`=7536 WHERE `entry`=179788;
@@ -787,11 +795,6 @@ INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingD
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=178082;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES 
 (178082, 1, 0, 1, 0, 0, 0);
-
-DELETE FROM `creature` WHERE `guid`=@CGUID+6;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES 
-(@CGUID+6, 178082, 2450, 13561, 13655, '14,15,16,17', 0, 0, 0, -1, 0, 0, -250.247, -1385.28, 5640.44, 1.57011, 7200, 0, 0, 11248000, 0, 0, 0, 0, 0, 0, 0, '', 41079);
-
 
  -- Outroduction
  
