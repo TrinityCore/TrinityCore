@@ -6173,20 +6173,23 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
             caster->SendPlaySpellVisual(visualPos, 0.0f, SPELL_VISUAL_SHADOW_DAGGER_MARKER_PHASE_THREE, 0, 0, 1.5f, true);
 
             Position nextFirstVisualPos(caster->GetPositionX() + (std::cos(angle) * 8.0f), caster->GetPositionY() + (std::sin(angle) * 8.0f), caster->GetPositionZ());
-            _destPos.push_back(nextFirstVisualPos);
+            _visualDestPos.push_back(nextFirstVisualPos);
 
             Position nextSecondVisualPos(caster->GetPositionX() + (std::cos(angle) * 16.0f), caster->GetPositionY() + (std::sin(angle) * 16.0f), caster->GetPositionZ());
-            _destPos.push_back(nextSecondVisualPos);
+            _visualDestPos.push_back(nextSecondVisualPos);
 
             Position nextThirdVisualPos(caster->GetPositionX() + (std::cos(angle) * 24.0f), caster->GetPositionY() + (std::sin(angle) * 24.0f), caster->GetPositionZ());
-            _destPos.push_back(nextThirdVisualPos);
+            _visualDestPos.push_back(nextThirdVisualPos);
 
             Position nextFourthVisualPos(caster->GetPositionX() + (std::cos(angle) * 32.0f), caster->GetPositionY() + (std::sin(angle) * 32.0f), caster->GetPositionZ());
-            _destPos.push_back(nextFourthVisualPos);
+            _visualDestPos.push_back(nextFourthVisualPos);
+
+            Position finalDestPos(caster->GetPositionX() + (std::cos(angle) * 53.0f), caster->GetPositionY() + (std::sin(angle) * 53.0f), caster->GetPositionZ());
+            _finalDestPos.push_back(finalDestPos);
         }
     }
 
-    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    void HandleDummyEffect(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -6200,12 +6203,30 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
             if (!caster->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
                 continue;
 
-            for (Position& destPos : _destPos)
+            for (Position& destPos : _visualDestPos)
             {
                 if (!destPos.IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
                     continue;
 
                 caster->SendPlaySpellVisual(destPos, 0.0f, SPELL_VISUAL_SHADOW_DAGGER_PHASE_THREE, 0, 0, 100.0f, false);
+            }
+        }
+
+        std::list<Player*> playerList;
+        GetPlayerListInGrid(playerList, caster, 53.0f);
+
+        for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
+        {
+            for (Player* player : playerList)
+            {
+                if (!player->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
+                    continue;
+
+                for (uint8 i = 0; i < _visualCount; i++)
+                {
+                    if (player->IsInBetween(caster->GetPosition(), _finalDestPos[_visualCount], 1.0f))
+                        caster->CastSpell(player, SPELL_SHADOW_DAGGER, true);
+                }
             }
         }
     }
@@ -6218,7 +6239,8 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
 private:
     uint8 _visualCount = 8;
     float _angleOffset = float(M_PI * 2) / _visualCount;
-    std::vector<Position> _destPos;
+    std::vector<Position> _visualDestPos;
+    std::vector<Position> _finalDestPos;
 };
 
 enum BolvarSpells
