@@ -277,7 +277,7 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
     }
 }
 
-void WorldSession::HandleComplaintOpcode(WorldPackets::Ticket::Complaint& packet)
+void WorldSession::HandleComplaintOpcode(WorldPackets::Ticket::Complaint& /*packet*/)
 {
     // Complaint Received message
     WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
