@@ -35,6 +35,8 @@
 // @tswow-begin
 #include "TSUnit.h"
 #include "TSCreature.h"
+#include "TSEvents.h"
+#include "TSVehicle.h"
 // @tswow-end
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
@@ -81,8 +83,17 @@ Vehicle::~Vehicle()
 void Vehicle::Install()
 {
     _status = STATUS_INSTALLED;
+    // @tswow-begin
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
+    {
         sScriptMgr->OnInstall(this);
+        FIRE_ID(GetBase()->ToCreature()->GetCreatureTemplate()->events.id, Vehicle, OnInstall, TSVehicle(this));
+    }
+    else
+    {
+        FIRE(Vehicle, OnInstall, TSVehicle(this));
+    }
+    // @tswow-end
 }
 
 void Vehicle::InstallAllAccessories(bool evading)
@@ -123,8 +134,17 @@ void Vehicle::Uninstall()
     TC_LOG_DEBUG("entities.vehicle", "Vehicle::Uninstall Entry: %u, %s", _creatureEntry, _me->GetGUID().ToString().c_str());
     RemoveAllPassengers();
 
+    // @tswow-begin
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
+    {
         sScriptMgr->OnUninstall(this);
+        FIRE_ID(GetBase()->ToCreature()->GetCreatureTemplate()->events.id, Vehicle, OnUninstall, TSVehicle(this))
+    }
+    else
+    {
+        FIRE(Vehicle, OnUninstall, TSVehicle(this))
+    }
+    // @tswow-end
 }
 
 /**
@@ -150,6 +170,17 @@ void Vehicle::Reset(bool evading /*= false*/)
         InstallAllAccessories(evading);
 
     sScriptMgr->OnReset(this);
+
+    // @tswow-begin
+    if (GetBase()->GetTypeId() == TYPEID_UNIT)
+    {
+        FIRE_ID(GetBase()->ToCreature()->GetCreatureTemplate()->events.id, Vehicle, OnReset, TSVehicle(this));
+    }
+    else
+    {
+        FIRE(Vehicle, OnReset, TSVehicle(this));
+    }
+    // @tswow-end
 }
 
 /**
@@ -546,8 +577,17 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
+    // @tswow-begin
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
+    {
         sScriptMgr->OnRemovePassenger(this, unit);
+        FIRE_ID(GetBase()->ToCreature()->GetCreatureTemplate()->events.id, Vehicle, OnRemovePassenger, TSVehicle(this), TSUnit(unit),seat->first);
+    }
+    else
+    {
+        FIRE(Vehicle, OnRemovePassenger, TSVehicle(this), TSUnit(unit),seat->first);
+    }
+    // @tswow-end
 
     unit->SetVehicle(nullptr);
     return this;
@@ -910,6 +950,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     {
         // @tswow-begin
         FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnPassengerBoarded,TSCreature(creature),TSUnit(Passenger),Seat->first,true);
+        FIRE_ID(creature->GetCreatureTemplate()->events.id, Vehicle, OnAddPassenger, TSVehicle(Target), TSUnit(Passenger), Seat->first);
         // @tswow-end
         if (CreatureAI* ai = creature->AI())
             ai->PassengerBoarded(Passenger, Seat->first, true);
@@ -920,6 +961,12 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         if (Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
             sScriptMgr->OnInstallAccessory(Target, Passenger->ToCreature());
     }
+    // @tswow-begin
+    else
+    {
+        FIRE(Vehicle, OnAddPassenger, TSVehicle(Target), TSUnit(Passenger), Seat->first);
+    }
+    // @tswow-end
 
     return true;
 }
