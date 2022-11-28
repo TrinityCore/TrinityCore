@@ -70,9 +70,8 @@ enum Spells
     // Shadow Dagger
     SPELL_SHADOW_DAGGER_COPY                                      = 358964,
     SPELL_SHADOW_DAGGER                                           = 347670,
-    SPELL_SHADOW_DAGGER_AOE                                       = 353935,
     SPELL_SHADOW_DAGGER_MISSILE                                   = 348089,
-    SPELL_SHADOW_DAGGER_PHASE_TWO_AND_THREE                       = 353935,
+    SPELL_SHADOW_DAGGER_PHASE_THREE                               = 353935,
 
     // Withering Fire
     SPELL_WITHERING_FIRE_COPY                                     = 358981,
@@ -177,7 +176,7 @@ enum Spells
     SPELL_INVIGORATING_FIELD_JUMP                                 = 353642,
 
     // Platform Change
-    SPELL_SWITCH_PLATFORM_AURA                                    = 354141, // 27887 areatrigger forces MovementForce 1 with Magnitude -14 on players for 150ms
+    SPELL_SWITCH_PLATFORM_AURA                                    = 354141,
 
     // Banshee's Heartseeker
     SPELL_BANSHEE_HEARTSEEKER_AURA                                = 353966,
@@ -259,24 +258,25 @@ enum Events
 {
     EVENT_INTRODUCTION                                            = 1,
     EVENT_WINDRUNNER                                              = 22,
-    EVENT_RANGER_HEARTSEEKER                                      = 23,
-    EVENT_WITHERING_FIRE                                          = 24,
-    EVENT_SHADOW_DAGGER                                           = 42,
-    EVENT_DESECRATING_SHOT                                        = 60,
-    EVENT_DESECRATING_SHOT_LAUNCH                                 = 61,
-    EVENT_DOMINATION_CHAINS                                       = 62,
-    EVENT_DOMINATION_CHAINS_JUMP                                  = 75,
-    EVENT_WAILING_ARROW                                           = 130,
-    EVENT_WAILING_ARROW_MARKER                                    = 131,
-    EVENT_VEIL_OF_DARKNESS                                        = 132,
-    EVENT_RIVE                                                    = 138,
-    EVENT_FINISH_INTERMISSION                                     = 160,
-    EVENT_BANE_ARROWS                                             = 180,
+    EVENT_WITHERING_FIRE                                          = 34,
+    EVENT_SHADOW_DAGGER                                           = 62,
+    EVENT_DESECRATING_SHOT                                        = 80,
+    EVENT_DESECRATING_SHOT_LAUNCH                                 = 81,
+    EVENT_DOMINATION_CHAINS                                       = 82,
+    EVENT_DOMINATION_CHAINS_JUMP                                  = 95,
+    EVENT_WAILING_ARROW                                           = 150,
+    EVENT_WAILING_ARROW_MARKER                                    = 151,
+    EVENT_VEIL_OF_DARKNESS                                        = 152,
+    EVENT_RIVE                                                    = 158,
+    EVENT_FINISH_INTERMISSION                                     = 170,
+    EVENT_BANE_ARROWS                                             = 200,
     EVENT_RAZE,
     EVENT_BANSHEE_SCREAM,
     EVENT_BANSHEES_FURY,
-    EVENT_SWITCH_PLATFORM                                         = 200,
-    EVENT_SIZE_MAX                                                = 250
+    EVENT_BLACK_ARROW                                             = 210,
+    EVENT_MERCILESS                                               = 290,
+    EVENT_SWITCH_PLATFORM                                         = 297,
+    EVENT_SIZE_MAX                                                = 300
 };
 
 enum EventGroups
@@ -299,7 +299,15 @@ enum EventCounterValues
     EVENT_COUNTER_RIVE                                            = 8,
     EVENT_COUNTER_HAUNTING_WAVE                                   = 9,
     EVENT_COUNTER_MELEE_COMBO                                     = 10,
-    EVENT_COUNTER_MAX                                             = 11
+    EVENT_COUNTER_BANE_ARROWS                                     = 11,
+    EVENT_COUNTER_SHADOW_DAGGER                                   = 12,
+    EVENT_COUNTER_BANSHEE_SCREAM                                  = 13,
+    EVENT_COUNTER_RAZE                                            = 14,
+    EVENT_COUNTER_BANSHEES_FURY                                   = 15,
+    EVENT_COUNTER_BLACK_ARROW                                     = 16,
+    EVENT_COUNTER_DEATH_KNIVES                                    = 17,
+    EVENT_COUNTER_MERCILESS                                       = 18,
+    EVENT_COUNTER_MAX                                             = 18
 };
 
 enum Actions
@@ -322,8 +330,9 @@ enum Actions
     ACTION_PREPARE_PHASE_THREE,
     ACTION_OPEN_PORTAL_TO_PHASE_THREE,
     ACTION_INITIATE_PHASE_THREE,
+    ACTION_START_TIMERS_PHASE_THREE                               = 25,
     ACTION_START_PHASE_THREE,
-    ACTION_SWITCH_PLATFORM                                        = 21,
+    ACTION_SWITCH_PLATFORM,
     ACTION_PREPARE_FINISH_BOSS
 };
 
@@ -471,9 +480,9 @@ enum SpellVisuals
     SPELL_VISUAL_JAILER_BOLT                                      = 107337, // At 90.0f, false as time
     SPELL_VISUAL_BANSHEES_BANE_ABSORB                             = 108093, // At 0.5f
     SPELL_VISUAL_BANSHEES_BANE_DROP                               = 107839, // At 0.349999994039535522f
+    SPELL_VISUAL_SHADOW_DAGGER_PHASE_THREE                        = 108096, // At 100.0f, false as time
+    SPELL_VISUAL_SHADOW_DAGGER_MARKER_PHASE_THREE                 = 108094, // At 1.5f
 
-    SPELL_VISUAL_UNK_02                                           = 108094, // At 1.5f
-    SPELL_VISUAL_SHADOW_DAGGER                                    = 108096, // At 100.0f, false as time
     SPELL_VISUAL_MOST_LIKELY_SPREAD_OUT_FOG                       = 108092, // At 0.64f - 0.52f
     SPELL_VISUAL_UNK01_177054                                     = 107069, // At 1.0f
     SPELL_VISUAL_BANSHEE_FURY_IDK                                 = 107476, // At 1.5f
@@ -673,42 +682,50 @@ uint32 const EventTimersPhaseTwo[4][6][11] =
     }
 };
 
-uint32 const EventTimersPhaseThree[4][9][11] =
+uint32 const EventTimersPhaseThree[4][10][11] =
 {
+    // Looking for Raid
     {
         { 36100, 87800, 87900, 88800, 87900               }, // Bane Arrows
         { 54000, 89100, 93200, 84800                      }, // Shadow Dagger
-        { 105700, 62100, 62000, 63100, 59900              }, // Banshee Scream
-        { 86100, 64800, 64900, 64400, 65000               }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 84600, 63300, 63400, 62900, 63500               }, // Wailing Arrow (Marker)
+        { 86100, 64800, 64900, 64400, 65000               }, // Wailing Arrow
         { 44000, 68700, 66200, 67200, 67400, 67400,       }, // Veil of Darkness
+        { 105700, 62100, 62000, 63100, 59900              }, // Banshee Scream
         { 95200, 89400, 86500, 90100                      }  // Raze
     },
 
+    // Normal
     {
         { 30700, 80400, 76200, 79300, 78600               }, // Bane Arrows
         { 48100, 80000, 83600, 76900, 87600               }, // Shadow Dagger
-        { 96600, 51000, 55700, 55700, 58200, 59800        }, // Banshee Scream
-        { 77000, 57800, 57600, 58600, 58200, 59300        }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 75500, 56300, 56100, 57100, 56700, 57800        }, // Wailing Arrow (Marker)
+        { 77000, 57800, 57600, 58600, 58200, 59300        }, // Wailing Arrow
         { 41800, 64300, 68600, 46500, 62700, 57500, 61900 }, // Veil of Darkness
+        { 96600, 51000, 55700, 55700, 58200, 59800        }, // Banshee Scream
         { 86000, 76100, 78200, 85400                      }  // Raze
     },
 
+    // Heroic
     {
         { 29100, 76800, 73200, 76100, 74500               }, // Bane Arrows
         { 45500, 77400, 79900, 73400                      }, // Shadow Dagger
-        { 93300, 47400, 54500, 52000, 54900               }, // Banshee Scream
-        { 73700, 55800, 53700, 55000, 57800               }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 72200, 54300, 52200, 53500, 56300               }, // Wailing Arrow (Marker)
+        { 73700, 55800, 53700, 55000, 57800               }, // Wailing Arrow
         { 41600, 61600, 50400, 58000, 61900               }, // Veil of Darkness
+        { 93300, 47400, 54500, 52000, 54900               }, // Banshee Scream
         { 82700, 73600, 71300, 81200                      }, // Raze
         { 17200, 49400, 49600, 52600, 47400, 47800, 58000 }  // Banshee's Fury
     },
 
+    // Mythic
     {
         { 15400, 93900, 100000, 93000                     }, // Bane Arrows
         { 45500, 77400, 79900, 73400                      }, // Shadow Dagger
-        { 71600, 111000, 112000                           }, // Banshee Scream
-        { 59500, 69500, 68000, 69000, 69000               }, // Wailing Arrow (TODO: verify whether it is start or marker).
+        { 58000, 68000, 66500, 67500, 67500               }, // Wailing Arrow (Marker)
+        { 59500, 69500, 68000, 69000, 69000               }, // Wailing Arrow
         { 23500, 58000, 55000, 55000, 57000, 57000, 63000 }, // Veil of Darkness
+        { 71600, 111000, 112000                           }, // Banshee Scream
         { 45400, 105000, 106000, 104000                   }, // Raze
         { 38300, 60800, 64000, 58000, 62000, 66000        }, // Banshee's Fury
         { 65700, 54700, 54300, 55000, 54000, 50000        }, // Death Knives
@@ -1080,10 +1097,15 @@ struct DesecratingShotsStorage
     float TravelSpeed;
 };
 
+uint8 GetWorldStatePhase(Unit* unit)
+{
+    return unit->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE);
+}
+
 Position GetNearPositionWithHeight(Unit* unit, float dist)
 {
     Position pos = unit->GetNearPosition(-dist, 0.0f);
-    pos.m_positionZ = 4105.00f;
+    pos.m_positionZ = GetWorldStatePhase(unit) == PHASE_THREE ? 5671.90f : 4105.00f;
     return pos;
 }
 
@@ -1167,17 +1189,51 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             // TESTING: remove unitlist.
             case ACTION_START_WITHERING_FIRE:
             {
-                std::list<Unit*> witheringFireTargets;
-                sylvanas->GetAI()->SelectTargetList(witheringFireTargets, 5, SelectTargetMethod::Random, 0, 500.0f, false, true);
+                switch (GetWorldStatePhase(me))
+                {
+                    case PHASE_ONE:
+                    {
+                        // Note: we need to find a way to make this dynamic because the size changes per windrunner cast, difficulty and raid size.
+                        std::list<Unit*> witheringFireTargets;
+                        sylvanas->GetAI()->SelectTargetList(witheringFireTargets, 5, SelectTargetMethod::Random, 0, 500.0f, false, true);
 
-                for (Unit* target : witheringFireTargets)
-                    _witheringFireTargetGUIDs.push_back(target->GetGUID());
+                        for (Unit* target : witheringFireTargets)
+                            _witheringFireTargetGUIDs.push_back(target->GetGUID());
 
-                Trinity::Containers::RandomShuffle(_witheringFireTargetGUIDs);
+                        Trinity::Containers::RandomShuffle(_witheringFireTargetGUIDs);
 
-                if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[0]))
-                    TeleportShadowcopyToPosition(GetNearPositionWithHeight(target, 15.0f), SPELL_VISUAL_WINDRUNNER_02);
-                _events.ScheduleEvent(EVENT_WITHERING_FIRE, 48ms, 1, PHASE_ONE);
+                        if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[0]))
+                            TeleportShadowcopyToPosition(GetNearPositionWithHeight(target, 15.0f), SPELL_VISUAL_WINDRUNNER_02);
+
+                        _events.ScheduleEvent(EVENT_WITHERING_FIRE, 48ms, 1, PHASE_ONE);
+                        break;
+                    }
+
+                    case PHASE_THREE:
+                    {
+                        // Note: we need to find a way to make this dynamic because the size changes per raid size and difficulty cast.
+                        std::list<Unit*> witheringFireTargets;
+                        sylvanas->GetAI()->SelectTargetList(witheringFireTargets, 3, SelectTargetMethod::Random, 0, 500.0f, false, true);
+
+                        for (Unit* target : witheringFireTargets)
+                            _witheringFireTargetGUIDs.push_back(target->GetGUID());
+
+                        Trinity::Containers::RandomShuffle(_witheringFireTargetGUIDs);
+
+                        for (uint8 witheringCount = _witheringFireTargetGUIDs.size(); witheringCount > 0; witheringCount--)
+                        {
+                            if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_00 + witheringCount)))
+                            {
+                                if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[witheringCount]))
+                                    shadowCopyAI->ExecuteWitheringFirePhaseThree(_witheringFireTargetGUIDs, witheringCount);
+                            }
+                        }
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
                 break;
             }
 
@@ -1229,6 +1285,12 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             case ACTION_START_PHASE_TWO:
             {
                 _events.SetPhase(PHASE_TWO);
+                break;
+            }
+
+            case ACTION_START_PHASE_THREE:
+            {
+                _events.SetPhase(PHASE_THREE);
                 break;
             }
 
@@ -1299,7 +1361,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case EVENT_WITHERING_FIRE + 4:
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->ExecuteWitheringFire(DATA_JUMP_TIME_CERO);
+                        shadowCopy1AI->ExecuteWitheringFirePhaseOne(DATA_JUMP_TIME_CERO);
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[2]))
                         me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
                     if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
@@ -1318,7 +1380,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case EVENT_WITHERING_FIRE + 6:
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->ExecuteWitheringFire(DATA_JUMP_TIME_ONE);
+                        shadowCopy1AI->ExecuteWitheringFirePhaseOne(DATA_JUMP_TIME_ONE);
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[3]))
                         me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
                     if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
@@ -1339,7 +1401,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
                     break;
 
                 case EVENT_WITHERING_FIRE + 9:
-                    ExecuteWitheringFire(DATA_JUMP_TIME_TWO);
+                    ExecuteWitheringFirePhaseOne(DATA_JUMP_TIME_TWO);
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _witheringFireTargetGUIDs[4]))
                         if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
                             shadowCopy1AI->TeleportShadowcopyToPosition(GetNearPositionWithHeight(target, 15.0f), SPELL_VISUAL_WINDRUNNER_02);
@@ -1368,7 +1430,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case EVENT_WITHERING_FIRE + 13:
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->ExecuteWitheringFire(DATA_JUMP_TIME_THREE);
+                        shadowCopy1AI->ExecuteWitheringFirePhaseOne(DATA_JUMP_TIME_THREE);
                     if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
                         shadowCopy1->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
                     sylvanas->SetNameplateAttachToGUID(ObjectGuid::Empty);
@@ -1384,7 +1446,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
 
                 case EVENT_WITHERING_FIRE + 15:
                     if (npc_sylvanas_windrunner_shadowcopy* shadowCopy1AI = CAST_AI(npc_sylvanas_windrunner_shadowcopy, GetShadowcopyAI(_instance, DATA_INDEX_01)))
-                        shadowCopy1AI->ExecuteWitheringFire(DATA_JUMP_TIME_FOUR);
+                        shadowCopy1AI->ExecuteWitheringFirePhaseOne(DATA_JUMP_TIME_FOUR);
                     if (Creature* shadowCopy1 = GetShadowcopy(_instance, DATA_INDEX_01))
                         shadowCopy1->SendPlayOrphanSpellVisual(sylvanas->GetPosition(), SPELL_VISUAL_WINDRUNNER_02, 0.25f, true, false);
                     _events.ScheduleEvent(EVENT_WITHERING_FIRE + 16, 100ms, 1, PHASE_ONE);
@@ -1687,7 +1749,7 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
             sylvanas->SendPlayOrphanSpellVisual(chosenPos, spellVisual, speed, true, false);
     }
 
-    void ExecuteWitheringFire(uint8 jumpTime)
+    void ExecuteWitheringFirePhaseOne(uint8 jumpTime)
     {
         uint32 currentWitheringFires = 0;
 
@@ -1954,6 +2016,45 @@ struct npc_sylvanas_windrunner_shadowcopy : public ScriptedAI
         sylvanas->CastSpell(targetPos, SPELL_VEIL_OF_DARKNESS_PHASE_2_AREA, true);
     }
 
+    void ExecuteWitheringFirePhaseThree(std::vector<ObjectGuid> witheringFireGuids, uint8 targetCount)
+    {
+        uint32 additionalTimer = 150 * targetCount;
+
+        if (Unit* target = ObjectAccessor::GetUnit(*me, witheringFireGuids[targetCount]))
+            TeleportShadowcopyToPosition(GetNearPositionWithHeight(target, 25.0f), SPELL_VISUAL_WINDRUNNER_02);
+
+        _scheduler.Schedule(Milliseconds(50 + additionalTimer), [this, witheringFireGuids, targetCount](TaskContext /*task*/)
+        {
+            if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00 + targetCount))
+                if (Unit* target = ObjectAccessor::GetUnit(*me, witheringFireGuids[targetCount]))
+                    me->CastSpell(target->GetPosition(), SPELL_WITHERING_FIRE_COPY, true);
+        });
+
+        _scheduler.Schedule(Milliseconds(573 + additionalTimer), [this, witheringFireGuids, targetCount](TaskContext /*task*/)
+        {
+            if (Creature* shadowCopy = GetShadowcopy(_instance, DATA_INDEX_00 + targetCount))
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*me, witheringFireGuids[targetCount]))
+                {
+                    float speed = 48.0f;
+
+                    me->SendPlaySpellVisual(target, SPELL_VISUAL_WITHERING_FIRE_PHASE_ONE, 0, 0, speed, false);
+
+                    ObjectGuid targetGUID = target->GetGUID();
+
+                    uint32 timer = uint32(me->GetDistance(target) * 0.02083 * 1000);
+
+                    _scheduler.Schedule(Milliseconds(timer), [this, targetGUID](TaskContext /*task*/)
+                    {
+                        if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
+                                sylvanas->CastSpell(target, SPELL_WITHERING_FIRE);
+                    });
+                }
+            }
+        });
+    }
+
     std::array<uint32, 3> SplitArrowCasts(uint32 totalArrows)
     {
         std::array<uint32, 3> arrowsPerWave = { };
@@ -2146,9 +2247,6 @@ struct boss_sylvanas_windrunner : public BossAI
 
         Talk(SAY_AGGRO);
 
-        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
-
-        events.SetPhase(PHASE_ONE);
         DoAction(ACTION_PREPARE_PHASE_THREE);
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
@@ -2199,14 +2297,8 @@ struct boss_sylvanas_windrunner : public BossAI
                 events.CancelEventGroup(EVENT_GROUP_WINDRUNNER_EVENTS);
                 scheduler.CancelAll();
 
-                instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_INTERMISSION_WORLD_STATE);
+                ScheduleEventsForPhaseIntermission();
 
-                for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
-                    if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
-                        if (shadowCopy->IsAIEnabled())
-                            shadowCopy->GetAI()->DoAction(ACTION_PREPARE_INTERMISSION);
-
-                events.SetPhase(PHASE_INTERMISSION);
                 events.ScheduleEvent(EVENT_DOMINATION_CHAINS, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_INTERMISSION);
                 break;
             }
@@ -2219,17 +2311,8 @@ struct boss_sylvanas_windrunner : public BossAI
                         jaina->GetAI()->DoAction(ACTION_OPEN_PORTAL_TO_PHASE_TWO);
 
                     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_INTERMISSION_STUN);
-                    instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
-                    events.SetPhase(PHASE_TWO);
 
-                    for (ObjectGuid const& shadowCopiesGUID : _shadowCopyGUID)
-                    {
-                        if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, shadowCopiesGUID))
-                        {
-                            if (shadowCopy->IsAIEnabled())
-                                shadowCopy->GetAI()->DoAction(ACTION_START_PHASE_TWO);
-                        }
-                    }
+                    ScheduleEventsForPhaseTwo();
                 }
                 break;
             }
@@ -2349,6 +2432,12 @@ struct boss_sylvanas_windrunner : public BossAI
                 break;
             }
 
+            case ACTION_START_TIMERS_PHASE_THREE:
+            {
+                ScheduleEventsForPhaseThree();
+                break;
+            }
+
             case ACTION_START_PHASE_THREE:
             {
                 DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_02, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 650));
@@ -2378,17 +2467,6 @@ struct boss_sylvanas_windrunner : public BossAI
                 scheduler.Schedule(1s, [this](TaskContext /*task*/)
                 {
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false), me->m_Events.CalculateTime(0ms));
-
-                    instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
-
-                    events.SetPhase(PHASE_THREE);
-                    events.ScheduleEvent(EVENT_BANSHEES_FURY, 1s + 500ms, 1, PHASE_THREE);
-                    events.ScheduleEvent(EVENT_WITHERING_FIRE, 8s, 1, PHASE_THREE);
-                    events.ScheduleEvent(EVENT_BANE_ARROWS, 16s, 1, PHASE_THREE);
-                    events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 28s, 1, PHASE_THREE);
-                    events.ScheduleEvent(EVENT_SHADOW_DAGGER, 32s, 1, PHASE_THREE);
-                    events.ScheduleEvent(EVENT_RAZE, 70s, 1, PHASE_THREE);
-                    events.ScheduleEvent(EVENT_BANSHEE_SCREAM, 80s, 1, PHASE_THREE);
 
                     me->SetPower(me->GetPowerType(), 0);
                     DoCastSelf(SPELL_BANSHEE_HEARTSEEKER_AURA, true);
@@ -2550,9 +2628,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_WITHERING_FIRE:
                 {
-                    switch (events.GetPhaseMask())
+                    switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
+                        {
                             TeleportShadowcopiesToMe();
                             DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 2062));
                             DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3800));
@@ -2560,6 +2639,7 @@ struct boss_sylvanas_windrunner : public BossAI
                                 if (shadowCopy->IsAIEnabled())
                                     shadowCopy->GetAI()->DoAction(ACTION_START_WITHERING_FIRE);
                             break;
+                        }
 
                         case PHASE_TWO:
                         {
@@ -2600,7 +2680,14 @@ struct boss_sylvanas_windrunner : public BossAI
                         }
 
                         case PHASE_THREE:
+                        {
+                            TeleportShadowcopiesToMe();
+                            if (Creature* shadowCopy = GetShadowcopy(instance, DATA_INDEX_00))
+                                if (shadowCopy->IsAIEnabled())
+                                    shadowCopy->GetAI()->DoAction(ACTION_START_WITHERING_FIRE);
+                            events.Repeat(9s);
                             break;
+                        }
 
                         default:
                             break;
@@ -2611,7 +2698,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_SHADOW_DAGGER:
                 {
-                    switch (events.GetPhaseMask())
+                    switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
                             TeleportShadowcopiesToMe();
@@ -2626,6 +2713,8 @@ struct boss_sylvanas_windrunner : public BossAI
                             break;
 
                         case PHASE_THREE:
+                            DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_THREE);
+                            events.Repeat(Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][1][_eventCounter[EVENT_COUNTER_SHADOW_DAGGER]]));
                             break;
 
                         default:
@@ -2691,9 +2780,6 @@ struct boss_sylvanas_windrunner : public BossAI
                     break;
                 }
 
-                case EVENT_RANGER_HEARTSEEKER:
-                    break;
-
                 case EVENT_DOMINATION_CHAINS:
                 {
                     TeleportShadowcopiesToMe();
@@ -2711,29 +2797,68 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_WAILING_ARROW_MARKER:
                 {
-                    scheduler.Schedule(Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER]]), [this](TaskContext /*task*/)
+                    switch (GetWorldStatePhase(me))
                     {
-                        std::list<Player*> everyPlayerButCurrentTank;
-                        GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
-
-                        if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true, true))
+                        case PHASE_ONE:
                         {
-                            _arrowTargetGUID = currentTank->GetGUID();
+                            scheduler.Schedule(Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER]]), [this](TaskContext /*task*/)
+                            {
+                                std::list<Player*> everyPlayerButCurrentTank;
+                                GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
 
-                            Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, currentTank);
+                                if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true, true))
+                                {
+                                    _arrowTargetGUID = currentTank->GetGUID();
 
-                            me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
+                                    Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, currentTank);
 
-                            if (Player* currentTankToPlayer = currentTank->ToPlayer())
-                                everyPlayerButCurrentTank.remove(currentTankToPlayer);
+                                    me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
 
-                            if (events.IsInPhase(PHASE_ONE))
-                                for (Player* nonTank : everyPlayerButCurrentTank)
-                                    Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
+                                    if (Player* currentTankToPlayer = currentTank->ToPlayer())
+                                        everyPlayerButCurrentTank.remove(currentTankToPlayer);
 
-                            ++_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER];
+                                    if (events.IsInPhase(PHASE_ONE))
+                                        for (Player* nonTank : everyPlayerButCurrentTank)
+                                            Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
+
+                                    ++_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER];
+                                }
+                            });
+                            break;
                         }
-                    });
+
+                        case PHASE_THREE:
+                        {
+                            scheduler.Schedule(Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][2][_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER]]), [this](TaskContext /*task*/)
+                            {
+                                std::list<Player*> everyPlayerButCurrentTank;
+                                GetPlayerListInGrid(everyPlayerButCurrentTank, me, 500.0f);
+
+                                if (Unit* currentTank = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true, true))
+                                {
+                                    _arrowTargetGUID = currentTank->GetGUID();
+
+                                    Talk(SAY_ANNOUNCE_WAILING_ARROW_AFFECTED, currentTank);
+
+                                    me->CastSpell(currentTank, SPELL_WAILING_ARROW_POINTER, true);
+
+                                    if (Player* currentTankToPlayer = currentTank->ToPlayer())
+                                        everyPlayerButCurrentTank.remove(currentTankToPlayer);
+
+                                    if (events.IsInPhase(PHASE_ONE))
+                                        for (Player* nonTank : everyPlayerButCurrentTank)
+                                            Talk(SAY_ANNOUNCE_WAILING_ARROW, nonTank);
+
+                                    ++_eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER];
+                                }
+                            });
+                            break;
+                        }
+
+                        default:
+                            break;
+                    }
+
                     break;
                 }
 
@@ -2742,20 +2867,49 @@ struct boss_sylvanas_windrunner : public BossAI
                     // Note: we must ensure Ranger Shot doesn't reset AttackTimer incorrectly.
                     me->m_Events.KillAllEvents(true);
 
-                    Talk(SAY_WAILING_ARROW);
+                    switch (GetWorldStatePhase(me))
+                    {
+                        case PHASE_ONE:
+                        {
+                            Talk(SAY_WAILING_ARROW);
 
-                    if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
-                        me->CastSpell(target, SPELL_WAILING_ARROW);
-                    else
-                        if (Unit* newTarget = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true))
-                            me->CastSpell(newTarget, SPELL_WAILING_ARROW);
+                            if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
+                                me->CastSpell(target, SPELL_WAILING_ARROW);
+                            else
+                                if (Unit* newTarget = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true))
+                                    me->CastSpell(newTarget, SPELL_WAILING_ARROW);
 
-                    me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(4s + 484ms));
+                            me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(4s + 484ms));
 
-                    ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
+                            ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
 
-                    events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                    events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+                            break;
+                        }
+
+                        case PHASE_THREE:
+                        {
+                            Talk(SAY_WAILING_ARROW);
+
+                            if (Player* target = ObjectAccessor::GetPlayer(*me, _arrowTargetGUID))
+                                me->CastSpell(target, SPELL_WAILING_ARROW);
+                            else
+                                if (Unit* newTarget = SelectTarget(SelectTargetMethod::MaxThreat, 0, 500.0f, true))
+                                    me->CastSpell(newTarget, SPELL_WAILING_ARROW);
+
+                            me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, false, true), me->m_Events.CalculateTime(3s));
+
+                            ++_eventCounter[EVENT_COUNTER_WAILING_ARROW];
+
+                            events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            break;
+                        }
+
+                        default:
+                            break;
+                    }
                     break;
                 }
 
@@ -2766,7 +2920,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     me->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(me, true), me->m_Events.CalculateTime(5ms));
                     Talk(SAY_ANNOUNCE_VEIL_OF_DARKNESS);
 
-                    switch (events.GetPhaseMask())
+                    switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
                             Talk(SAY_VEIL_OF_DARKNESS_PHASE_ONE);
@@ -2788,22 +2942,22 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_VEIL_OF_DARKNESS + 1:
                 {
-                    switch (events.GetPhaseMask())
+                    _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
+
+                    switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE);
-                            _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
                             break;
                         case PHASE_TWO:
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_2_FADE);
-                            _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseTwo[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
                             break;
                         case PHASE_THREE:
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE);
-                            _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]++;
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
                             break;
@@ -2817,7 +2971,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 {
                     me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 100.0f, me->GetOrientation(), false);
 
-                    switch (events.GetPhaseMask())
+                    switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 3, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
@@ -2836,7 +2990,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_VEIL_OF_DARKNESS + 3:
                 {
-                    switch (events.GetPhaseMask())
+                    switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 5000));
@@ -2859,7 +3013,7 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case EVENT_VEIL_OF_DARKNESS + 4:
                 {
-                    switch (events.GetPhaseMask())
+                    switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_1);
@@ -3079,9 +3233,11 @@ struct boss_sylvanas_windrunner : public BossAI
                     break;
 
                 case EVENT_BANE_ARROWS:
+                {
                     DoCastSelf(SPELL_BANE_ARROWS);
-                    events.Repeat(76s);
+                    events.Repeat(Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][0][_eventCounter[EVENT_COUNTER_BANE_ARROWS]]));
                     break;
+                }
 
                 case EVENT_RAZE:
                 {
@@ -3094,15 +3250,17 @@ struct boss_sylvanas_windrunner : public BossAI
                         me->CastSpell(GetPointInCurrentPlatform(me, DATA_PLATFORM_MIDDLE_POINT), SPELL_RAZE);
                     });
 
-                    events.Repeat(75s);
+                    events.Repeat(Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][6][_eventCounter[EVENT_COUNTER_RAZE]]));
                     break;
                 }
 
                 case EVENT_BANSHEE_SCREAM:
+                {
                     Talk(SAY_BANSHEE_SCREAM);
                     DoCastSelf(SPELL_BANSHEE_SCREAM);
-                    events.Repeat(80s);
+                    events.Repeat(Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][2][_eventCounter[EVENT_COUNTER_BANSHEE_SCREAM]]));
                     break;
+                }
 
                 case EVENT_BANSHEES_FURY:
                 {
@@ -3152,7 +3310,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     {
                         DoCastSelf(SPELL_BANSHEES_FURY);
 
-                        events.Repeat(49s);
+                        events.Repeat(Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][7][_eventCounter[EVENT_COUNTER_BANSHEES_FURY]]));
                     });
 
                     break;
@@ -3244,9 +3402,9 @@ struct boss_sylvanas_windrunner : public BossAI
 
                 case DATA_MELEE_COMBO_FINISH:
                 {
-                    Aura* heartseekerAura = me->GetAura(me->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_CHARGE : SPELL_RANGER_HEARTSEEKER_CHARGE);
+                    Aura* heartseekerAura = me->GetAura(GetWorldStatePhase(me) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_CHARGE : SPELL_RANGER_HEARTSEEKER_CHARGE);
                     if (heartseekerAura && heartseekerAura->GetStackAmount() >= 3)
-                        DoCastVictim(me->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER : SPELL_RANGER_HEARTSEEKER,
+                        DoCastVictim(GetWorldStatePhase(me) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER : SPELL_RANGER_HEARTSEEKER,
                             CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 550));
                     else
                         DoCastVictim(SPELL_RANGER_SHOT);
@@ -3274,7 +3432,7 @@ struct boss_sylvanas_windrunner : public BossAI
                 _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_SWITCH_TO_RANGED;
             else
             {
-                Aura* heartseekerAura = me->GetAura(me->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_CHARGE : SPELL_RANGER_HEARTSEEKER_CHARGE);
+                Aura* heartseekerAura = me->GetAura(GetWorldStatePhase(me) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_CHARGE : SPELL_RANGER_HEARTSEEKER_CHARGE);
                 if (heartseekerAura && heartseekerAura->GetStackAmount() >= 3)
                     _eventCounter[EVENT_COUNTER_MELEE_COMBO] = DATA_MELEE_COMBO_FINISH;
                 else if (!me->IsWithinCombatRange(me->GetVictim(), 4.0f))
@@ -3773,43 +3931,80 @@ struct boss_sylvanas_windrunner : public BossAI
     void ScheduleEventsForPhaseOne()
     {
         events.SetPhase(PHASE_ONE);
+        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_ONE);
 
-        switch (me->GetMap()->GetDifficultyID())
+        events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+        events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+        events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+
+        if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+            events.ScheduleEvent(EVENT_BLACK_ARROW, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_BLACK_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+        else
+            events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
+    }
+
+    void ScheduleEventsForPhaseIntermission()
+    {
+        events.SetPhase(PHASE_INTERMISSION);
+        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_INTERMISSION_WORLD_STATE);
+
+        for (ObjectGuid const& copiesGUID : _shadowCopyGUID)
+            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, copiesGUID))
+                if (shadowCopy->IsAIEnabled())
+                    shadowCopy->GetAI()->DoAction(ACTION_PREPARE_INTERMISSION);
+    }
+
+    void ScheduleEventsForPhaseTwo()
+    {
+        events.SetPhase(PHASE_TWO);
+        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_TWO);
+
+        // Note: we need to reset the counters since these are used in other phases.
+        _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS] = 0;
+
+        for (ObjectGuid const& shadowCopiesGUID : _shadowCopyGUID)
         {
-            case DIFFICULTY_LFR_NEW:
+            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, shadowCopiesGUID))
             {
-                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                break;
+                if (shadowCopy->IsAIEnabled())
+                    shadowCopy->GetAI()->DoAction(ACTION_START_PHASE_TWO);
             }
+        }
+    }
 
-            case DIFFICULTY_NORMAL_RAID:
+    void ScheduleEventsForPhaseThree()
+    {
+        events.SetPhase(PHASE_THREE);
+        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
+
+        // Note: we need to reset the counters since these are used in other phases.
+        _eventCounter[EVENT_COUNTER_WAILING_ARROW_MARKER] = 0;
+        _eventCounter[EVENT_COUNTER_WAILING_ARROW] = 0;
+        _eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS] = 0;
+
+        events.ScheduleEvent(EVENT_BANE_ARROWS, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][0][_eventCounter[EVENT_COUNTER_BANE_ARROWS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+        events.ScheduleEvent(EVENT_SHADOW_DAGGER, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][1][_eventCounter[EVENT_COUNTER_SHADOW_DAGGER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+        events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+        events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+        events.ScheduleEvent(EVENT_BANSHEE_SCREAM, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][5][_eventCounter[EVENT_COUNTER_BANSHEE_SCREAM]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+        events.ScheduleEvent(EVENT_RAZE, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][6][_eventCounter[EVENT_COUNTER_RAZE]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+        events.ScheduleEvent(EVENT_WITHERING_FIRE, 25s, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+
+        if (me->GetMap()->GetDifficultyID() == DIFFICULTY_HEROIC_RAID || me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+            events.ScheduleEvent(EVENT_BANSHEES_FURY, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][7][_eventCounter[EVENT_COUNTER_BANSHEES_FURY]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+
+        if (me->GetMap()->GetDifficultyID() == DIFFICULTY_MYTHIC_RAID)
+            events.ScheduleEvent(EVENT_MERCILESS, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][8][_eventCounter[EVENT_COUNTER_MERCILESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+
+        for (ObjectGuid const& shadowCopiesGUID : _shadowCopyGUID)
+        {
+            if (Creature* shadowCopy = ObjectAccessor::GetCreature(*me, shadowCopiesGUID))
             {
-                events.ScheduleEvent(EVENT_WINDRUNNER, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][0][_eventCounter[EVENT_COUNTER_WINDRUNNER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DOMINATION_CHAINS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][1][_eventCounter[EVENT_COUNTER_DOMINATION_CHAINS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW_MARKER, Milliseconds(0), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_WAILING_ARROW, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][3][_eventCounter[EVENT_COUNTER_WAILING_ARROW]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                events.ScheduleEvent(EVENT_RANGER_HEARTSEEKER, Milliseconds(EventTimersPhaseOne[GetDifficultyForTimer(me)][5][_eventCounter[EVENT_COUNTER_RANGER_HEARTSEEKER]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_ONE);
-                break;
+                if (shadowCopy->IsAIEnabled())
+                    shadowCopy->GetAI()->DoAction(ACTION_START_PHASE_THREE);
             }
-
-            case DIFFICULTY_HEROIC_RAID:
-            {
-                break;
-            }
-
-            case DIFFICULTY_MYTHIC_RAID:
-            {
-                break;
-            }
-
-            default:
-                break;
         }
     }
 
@@ -4280,9 +4475,9 @@ class spell_sylvanas_windrunner_disappear : public AuraScript
         {
             if (npc_sylvanas_windrunner_shadowcopy* shadowCopyAI = GetShadowcopyCastAI(instance, DATA_INDEX_00))
             {
-                if (target->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_ONE || shadowCopyAI->GetData(DATA_EVENT_TYPE_SHADOWCOPY) == DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT)
+                if (GetWorldStatePhase(target) == PHASE_ONE || shadowCopyAI->GetData(DATA_EVENT_TYPE_SHADOWCOPY) == DATA_EVENT_COPY_DOMINATION_CHAIN_EVENT)
                     target->CastSpell(target, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3600));
-                else if (target->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE)
+                else if (GetWorldStatePhase(target) == PHASE_THREE)
                     target->CastSpell(target, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 4280));
                 else
                     target->CastSpell(target, SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 1750));
@@ -4361,17 +4556,8 @@ class HeartseekerDamageEvent : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            if (_actor->GetAreaId() == AREA_THE_CRUCIBLE)
-            {
-                _actor->CastSpell(_victim, SPELL_BANSHEE_HEARTSEEKER_PHYSICAL_DAMAGE, true);
-                _actor->CastSpell(_victim, SPELL_BANSHEE_HEARTSEEKER_SHADOW_DAMAGE, true);
-            }
-            else
-            {
-                _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
-                _actor->CastSpell(_victim, SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
-            }
-
+            _actor->CastSpell(_victim, GetWorldStatePhase(_actor) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_PHYSICAL_DAMAGE : SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
+            _actor->CastSpell(_victim, GetWorldStatePhase(_actor) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_SHADOW_DAMAGE : SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
             return true;
         }
 
@@ -4391,10 +4577,10 @@ class HeartseekerMissileEvent : public BasicEvent
 
             uint32 timer = uint32(_actor->GetDistance(_victim) * 0.0277 * 1000);
 
-            _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timer)));
-
             if (Aura* heartseeker = _actor->GetAura(_actor->GetAreaId() == AREA_PINNACLE_OF_DOMINANCE ? SPELL_RANGER_HEARTSEEKER_CHARGE : SPELL_BANSHEE_HEARTSEEKER_CHARGE))
                 heartseeker->ModStackAmount(-1, AuraRemoveMode::AURA_REMOVE_BY_DEFAULT);
+
+            _actor->m_Events.AddEvent(new HeartseekerDamageEvent(_actor, _victim), _actor->m_Events.CalculateTime(Milliseconds(timer)));
 
             return true;
         }
@@ -4635,7 +4821,7 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
 
     int32 CalcCastTime(int32 castTime) override
     {
-        if (GetCaster()->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_THREE)
+        if (GetWorldStatePhase(GetCaster()) == PHASE_THREE)
             return 1500;
 
         return castTime;
@@ -4647,7 +4833,7 @@ class spell_sylvanas_windrunner_wailing_arrow : public SpellScript
         if (!caster)
             return;
 
-        if (caster->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == 1)
+        if (GetWorldStatePhase(caster) == PHASE_ONE)
         {
             caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(1s + 531ms));
             caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(3s + 331ms));
@@ -4869,7 +5055,7 @@ class spell_sylvanas_windrunner_veil_of_darkness_phase_1 : public SpellScript
 
     int32 CalcCastTime(int32 castTime) override
     {
-        if (GetCaster()->GetMap()->GetWorldStateValue(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE) == PHASE_ONE)
+        if (GetWorldStatePhase(GetCaster()) == PHASE_ONE)
             return 4000;
 
         return castTime;
@@ -5299,8 +5485,8 @@ class spell_sylvanas_windrunner_banshee_heartseeker : public SpellScript
             return;
 
         caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(0ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(265ms));
-        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(562ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(281ms));
+        caster->m_Events.AddEvent(new HeartseekerMissileEvent(caster, target), caster->m_Events.CalculateTime(547ms));
     }
 
     void HandleTriggerSpell(SpellEffIndex effIndex)
@@ -5953,6 +6139,57 @@ class spell_sylvanas_windrunner_sylvanas_push : public AuraScript
 private:
     ObjectGuid _playerGUID;
     ObjectGuid _sylvanasPushAreaTriggerGUID;
+};
+
+// 353935 - Shadow Dagger
+class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_shadow_dagger_phase_three);
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        for (uint8 i = 0; i < _visualCount; i++)
+        {
+            float angle = _angleOffset * i;
+
+            Position visualPos(caster->GetPositionX() + (std::cos(angle) * 10.0f), caster->GetPositionY() + (std::sin(angle) * 10.0f), caster->GetPositionZ());
+
+            caster->SendPlaySpellVisual(visualPos, 0.0f, SPELL_VISUAL_SHADOW_DAGGER_MARKER_PHASE_THREE, 0, 0, 1.5f, true);
+
+            Position nextFirstVisualPos(caster->GetPositionX() + (std::cos(angle) * 8.0f), caster->GetPositionY() + (std::sin(angle) * 8.0f), caster->GetPositionZ());
+            _destPos.push_back(nextFirstVisualPos);
+
+            Position nextSecondVisualPos(caster->GetPositionX() + (std::cos(angle) * 22.5f), caster->GetPositionY() + (std::sin(angle) * 22.5f), caster->GetPositionZ());
+            _destPos.push_back(nextSecondVisualPos);
+        }
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
+        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER_SOUND, 0, 0);
+
+        for (Position& destPos : _destPos)
+            caster->SendPlaySpellVisual(destPos, 0.0f, SPELL_VISUAL_SHADOW_DAGGER_PHASE_THREE, 0, 0, 100.0f, false);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_shadow_dagger_phase_three::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+private:
+    uint8 _visualCount = 8;
+    float _angleOffset = float(M_PI * 2) / _visualCount;
+    std::vector<Position> _destPos;
 };
 
 enum BolvarSpells
@@ -7059,6 +7296,12 @@ struct npc_sylvanas_windrunner_jaina : public ScriptedAI
                         if (anduin->IsAIEnabled())
                             anduin->GetAI()->DoAction(ACTION_INITIATE_PHASE_THREE);
                     }
+
+                    if (Creature* sylvanas = _instance->GetCreature(DATA_SYLVANAS_WINDRUNNER))
+                    {
+                        if (sylvanas->IsAIEnabled())
+                            sylvanas->GetAI()->DoAction(ACTION_START_TIMERS_PHASE_THREE);
+                    }
                 });
 
                 _scheduler.Schedule(15s, [this](TaskContext /*task*/)
@@ -7980,13 +8223,13 @@ struct at_sylvanas_windrunner_raze : AreaTriggerAI
         if (!sylvanas)
             return;
 
-        if (boss_sylvanas_windrunner* sylvanasAI = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+        for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
         {
-            for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
-            {
-                if (sylvanas->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
-                    sylvanasAI->DesecratePlatform((Platforms)platform);
-            }
+            if (!at->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
+                continue;
+
+            if (boss_sylvanas_windrunner* sylvanasAI = CAST_AI(boss_sylvanas_windrunner, sylvanas->AI()))
+                sylvanasAI->DesecratePlatform((Platforms)platform);
         }
     }
 
@@ -8186,6 +8429,7 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_banshee_fury);
     RegisterSpellScript(spell_sylvanas_windrunner_raze);
     RegisterSpellScript(spell_sylvanas_windrunner_sylvanas_push);
+    RegisterSpellScript(spell_sylvanas_shadow_dagger_phase_three);
 
     RegisterSpellScript(spell_sylvanas_windrunner_energize_power_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);

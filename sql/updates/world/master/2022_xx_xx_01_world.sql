@@ -595,6 +595,11 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=353967;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (353967, 'spell_sylvanas_windrunner_banshee_heartseeker_shadow_damage');
 
+-- Shadow Dagger
+DELETE FROM `spell_script_names` WHERE `spell_id`=353935;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(353935, 'spell_sylvanas_shadow_dagger_phase_three');
+
  -- The Jailer
 UPDATE `creature_template` SET `minlevel`=63, `maxlevel`=63, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71303168, `unit_flags3`=32769, `VehicleId`=7513 WHERE `entry`=178079;
 
