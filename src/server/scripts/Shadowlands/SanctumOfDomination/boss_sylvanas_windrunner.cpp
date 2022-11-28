@@ -2701,6 +2701,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     switch (GetWorldStatePhase(me))
                     {
                         case PHASE_ONE:
+                        {
                             TeleportShadowcopiesToMe();
                             DoCastSelf(SPELL_WINDRUNNER_DISAPPEAR_01, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 1500));
                             DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 3200));
@@ -2708,14 +2709,25 @@ struct boss_sylvanas_windrunner : public BossAI
                                 if (shadowCopy->IsAIEnabled())
                                     shadowCopy->GetAI()->DoAction(ACTION_START_SHADOW_DAGGER);
                             break;
+                        }
 
                         case PHASE_TWO:
+                        {
+                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
+                            me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER_SOUND, 0, 0);
+                            std::list<Player*> targetList;
+                            GetPlayerListInGrid(targetList, me, 500.0f);
+                            for (Player* target : targetList)
+                                me->CastSpell(target, SPELL_SHADOW_DAGGER_MISSILE, true);
                             break;
+                        }
 
                         case PHASE_THREE:
+                        {
                             DoCastSelf(SPELL_SHADOW_DAGGER_PHASE_THREE);
                             events.Repeat(Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][1][_eventCounter[EVENT_COUNTER_SHADOW_DAGGER]]));
                             break;
+                        }
 
                         default:
                             break;
@@ -6163,8 +6175,14 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
             Position nextFirstVisualPos(caster->GetPositionX() + (std::cos(angle) * 8.0f), caster->GetPositionY() + (std::sin(angle) * 8.0f), caster->GetPositionZ());
             _destPos.push_back(nextFirstVisualPos);
 
-            Position nextSecondVisualPos(caster->GetPositionX() + (std::cos(angle) * 22.5f), caster->GetPositionY() + (std::sin(angle) * 22.5f), caster->GetPositionZ());
+            Position nextSecondVisualPos(caster->GetPositionX() + (std::cos(angle) * 16.0f), caster->GetPositionY() + (std::sin(angle) * 16.0f), caster->GetPositionZ());
             _destPos.push_back(nextSecondVisualPos);
+
+            Position nextThirdVisualPos(caster->GetPositionX() + (std::cos(angle) * 24.0f), caster->GetPositionY() + (std::sin(angle) * 24.0f), caster->GetPositionZ());
+            _destPos.push_back(nextThirdVisualPos);
+
+            Position nextFourthVisualPos(caster->GetPositionX() + (std::cos(angle) * 32.0f), caster->GetPositionY() + (std::sin(angle) * 32.0f), caster->GetPositionZ());
+            _destPos.push_back(nextFourthVisualPos);
         }
     }
 
@@ -6177,8 +6195,19 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
         caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER, 0, 0);
         caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_SHADOW_DAGGER_SOUND, 0, 0);
 
-        for (Position& destPos : _destPos)
-            caster->SendPlaySpellVisual(destPos, 0.0f, SPELL_VISUAL_SHADOW_DAGGER_PHASE_THREE, 0, 0, 100.0f, false);
+        for (uint8 platform = PLATFORM_MALDRAXXI; platform < PLATFORM_MAX; platform++)
+        {
+            if (!caster->IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
+                continue;
+
+            for (Position& destPos : _destPos)
+            {
+                if (!destPos.IsWithinBox(CovenantPlatformPos[platform][DATA_MIDDLE_POS_OUTTER_PLATFORM], 17.0f, 17.0f, 17.0f))
+                    continue;
+
+                caster->SendPlaySpellVisual(destPos, 0.0f, SPELL_VISUAL_SHADOW_DAGGER_PHASE_THREE, 0, 0, 100.0f, false);
+            }
+        }
     }
 
     void Register() override
