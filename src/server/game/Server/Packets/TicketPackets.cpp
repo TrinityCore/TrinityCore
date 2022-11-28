@@ -40,3 +40,11 @@ void WorldPackets::Ticket::Complaint::Read()
             break;
     }
 }
+
+WorldPacket const* WorldPackets::Ticket::ComplaintResult::Write()
+{
+    _worldPacket << uint8(Result);
+    _worldPacket << uint8(ComplaintType);
+
+    return &_worldPacket;
+}

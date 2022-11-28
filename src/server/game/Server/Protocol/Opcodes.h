@@ -717,7 +717,7 @@ enum OpcodeServer
     SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT1           = 0x2126,
     SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT2           = 0x6814,
     SMSG_COMMENTATOR_STATE_CHANGED                    = 0x0737,
-    SMSG_COMPLAIN_RESULT                              = 0x6D24,
+    SMSG_COMPLAINT_RESULT                             = 0x6D24,
     SMSG_COMPRESSED_MOVES                             = 0x0517,
     SMSG_COMSAT_CONNECT_FAIL                          = 0x6317,
     SMSG_COMSAT_DISCONNECT                            = 0x0316,

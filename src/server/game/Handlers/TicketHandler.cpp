@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "Random.h"
 #include "TicketMgr.h"
+#include "TicketPackets.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -280,8 +281,9 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
 void WorldSession::HandleComplaintOpcode(WorldPackets::Ticket::Complaint& /*packet*/)
 {
     // Complaint Received message
-    WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
-    data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
-    data << uint8(0); // value 0xC generates a "CalendarError" in client.
-    SendPacket(&data);
+    WorldPackets::Ticket::ComplaintResult complaintResult;
+    complaintResult.Result = 0; // unknown what to send
+    complaintResult.ComplaintType = 5; // common value found in sniffs. Unrelated to complaint type of the cmsg packet
+
+    SendPacket(complaintResult.Write());
 }

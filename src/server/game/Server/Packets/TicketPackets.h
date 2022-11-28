@@ -52,6 +52,17 @@ namespace WorldPackets
             ComplaintOffender Offender;
             ComplaintChat Chat;
         };
+
+        class ComplaintResult final : public ServerPacket
+        {
+        public:
+            ComplaintResult() : ServerPacket(SMSG_COMPLAINT_RESULT, 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 ComplaintType = 0;
+            uint8 Result = 0;
+        };
     }
 }
 
