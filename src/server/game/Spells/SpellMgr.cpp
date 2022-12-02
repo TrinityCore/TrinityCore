@@ -4650,6 +4650,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Fire Cannon
+    ApplySpellFix({ 181593 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TriggerSpell = 0;
+        });
+    });
+
     // Ray of Frost (Fingers of Frost charges)
     ApplySpellFix({ 269748 }, [](SpellInfo* spellInfo)
     {
