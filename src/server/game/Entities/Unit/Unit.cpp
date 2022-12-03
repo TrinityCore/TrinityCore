@@ -11270,6 +11270,10 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         if (attacker && attacker->GetTypeId() == TYPEID_UNIT && attacker->IsAIEnabled())
             attacker->ToCreature()->AI()->KilledUnit(victim);
 
+        // @tswow-begin
+        FIRE(Unit,OnDeath, TSUnit(victim), TSUnit(attacker));
+        // @tswow-end
+
         // last damage from non duel opponent or opponent controlled creature
         if (plrVictim->duel)
         {
