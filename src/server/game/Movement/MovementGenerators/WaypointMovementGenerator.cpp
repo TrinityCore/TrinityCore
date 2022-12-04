@@ -123,10 +123,9 @@ void WaypointMovementGenerator<Creature>::ProcessWaypointArrival(Creature* creat
         _waypointDelay = waypoint.Delay;
     }
 
-    // Check if the waypoint path has reached its end and may not repeat. Inform AI and update home position.
+    // Check if the waypoint path has reached its end and may not repeat. Inform AI.
     if ((_currentNode == _path->Nodes.size() - 1) && !_repeating && !_done)
     {
-        UpdateHomePosition(creature, waypoint);
         _done = true;
         creature->UpdateCurrentWaypointInfo(0, 0);
 
@@ -134,6 +133,8 @@ void WaypointMovementGenerator<Creature>::ProcessWaypointArrival(Creature* creat
         if (CreatureAI* AI = creature->AI())
             AI->WaypointPathEnded(waypoint.Id, _path->Id);
     }
+
+    UpdateHomePosition(creature, waypoint);
 
     if (waypoint.EventId && urand(0, 99) < waypoint.EventChance)
     {
