@@ -43,7 +43,7 @@ void Trinity::MessageDistDeliverer<PacketSender>::Visit(PlayerMapType& m) const
         if (!target->InSamePhase(*i_phaseShift))
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
+        if ((!required3dDist ? target->GetExactDist2dSq(i_source) : target->GetExactDistSq(i_source)) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the player's vision
@@ -69,7 +69,7 @@ void Trinity::MessageDistDeliverer<PacketSender>::Visit(CreatureMapType& m) cons
         if (!target->InSamePhase(*i_phaseShift))
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
+        if ((!required3dDist ? target->GetExactDist2dSq(i_source) : target->GetExactDistSq(i_source)) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the creature's vision
@@ -92,7 +92,7 @@ void Trinity::MessageDistDeliverer<PacketSender>::Visit(DynamicObjectMapType& m)
         if (!target->InSamePhase(*i_phaseShift))
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
+        if ((!required3dDist ? target->GetExactDist2dSq(i_source) : target->GetExactDistSq(i_source)) > i_distSq)
             continue;
 
         if (Unit* caster = target->GetCaster())
