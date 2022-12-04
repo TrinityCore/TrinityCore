@@ -60,13 +60,15 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
     private:
         void ProcessWaypointArrival(Creature*, WaypointNode const&);
         void StartMove(Creature*, bool relaunch = false);
-        bool IsAllowedToMove(Creature*);
+        bool IsAllowedToMove(Creature*) const;
+        void UpdateWaypointState(Creature*, WaypointNode const&);
 
         uint32 _lastSplineId;
         uint32 _pathId;
         int32 _waypointDelay;
-        int32 _pauseTime;
+        Optional<int32> _pauseTime;
         bool _waypointReached;
+
         bool _recalculateSpeed;
         bool _repeating;
         bool _loadedFromDB;
