@@ -403,6 +403,11 @@ class TC_GAME_API Spell
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
         void EffectLearnTransmogIllusion();
+        void EffectModifyAuraStacks();
+        void EffectModifyCooldown();
+        void EffectModifyCooldowns();
+        void EffectModifyCooldownsByCategory();
+        void EffectModifySpellCharges();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 

@@ -40,7 +40,7 @@ namespace WorldPackets
     }
 }
 
-#define MAX_QUEST_LOG_SIZE 25
+#define MAX_QUEST_LOG_SIZE 35
 
 #define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
@@ -472,6 +472,13 @@ struct QuestRewardDisplaySpell
     uint32 PlayerConditionId;
 };
 
+struct QuestConditionalText
+{
+    int32 PlayerConditionId = 0;
+    int32 QuestgiverCreatureId = 0;
+    std::vector<std::string> Text;
+};
+
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
@@ -492,6 +499,10 @@ class TC_GAME_API Quest
         void LoadQuestMailSender(Field* fields);
         void LoadQuestObjective(Field* fields);
         void LoadQuestObjectiveVisualEffect(Field* fields);
+        void LoadConditionalConditionalQuestDescription(Field* fields);
+        void LoadConditionalConditionalRequestItemsText(Field* fields);
+        void LoadConditionalConditionalOfferRewardText(Field* fields);
+        void LoadConditionalConditionalQuestCompletionLog(Field* fields);
 
         uint32 XPValue(Player const* player) const;
         uint32 MoneyValue(Player const* player) const;
@@ -549,10 +560,14 @@ class TC_GAME_API Quest
         std::string const& GetLogTitle() const { return _logTitle; }
         std::string const& GetLogDescription() const { return _logDescription; }
         std::string const& GetQuestDescription() const { return _questDescription; }
+        std::vector<QuestConditionalText> const& GetConditionalQuestDescription() const { return _conditionalQuestDescription; }
         std::string const& GetAreaDescription() const { return _areaDescription; }
         std::string const& GetOfferRewardText() const { return _offerRewardText; }
+        std::vector<QuestConditionalText> const& GetConditionalOfferRewardText() const { return _conditionalOfferRewardText; }
         std::string const& GetRequestItemsText() const { return _requestItemsText; }
+        std::vector<QuestConditionalText> const& GetConditionalRequestItemsText() const { return _conditionalRequestItemsText; }
         std::string const& GetQuestCompletionLog() const { return _questCompletionLog; }
+        std::vector<QuestConditionalText> const& GetConditionalQuestCompletionLog() const { return _conditionalQuestCompletionLog; }
         std::string const& GetPortraitGiverText() const { return _portraitGiverText; }
         std::string const& GetPortraitGiverName() const { return _portraitGiverName; }
         std::string const& GetPortraitTurnInText() const { return _portraitTurnInText; }
@@ -714,6 +729,12 @@ class TC_GAME_API Quest
         std::string _portraitTurnInName;
         std::string _questCompletionLog;
 
+        // quest_description_conditional
+        std::vector<QuestConditionalText> _conditionalQuestDescription;
+
+        // quest_completion_log_conditional
+        std::vector<QuestConditionalText> _conditionalQuestCompletionLog;
+
         // quest_request_items table
         uint32 _emoteOnComplete = 0;
         uint32 _emoteOnIncomplete = 0;
@@ -721,8 +742,14 @@ class TC_GAME_API Quest
         uint32 _emoteOnIncompleteDelay = 0;
         std::string _requestItemsText;
 
+        // quest_request_items_conditional
+        std::vector<QuestConditionalText> _conditionalRequestItemsText;
+
         // quest_offer_reward table
         std::string _offerRewardText;
+
+        // quest_offer_reward_conditional
+        std::vector<QuestConditionalText> _conditionalOfferRewardText;
 
         // quest_template_addon table (custom data)
         uint32 _maxLevel = 0;

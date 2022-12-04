@@ -18,9 +18,7 @@
 #include "SystemPackets.h"
 #include "Errors.h"
 
-namespace WorldPackets
-{
-namespace System
+namespace WorldPackets::System
 {
 ByteBuffer& operator<<(ByteBuffer& data, SavedThrottleObjectState const& throttleState)
 {
@@ -82,6 +80,7 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
+    _worldPacket << PlayerNameQueryInterval;
 
     for (GameRuleValuePair const& gameRuleValue : GameRuleValues)
         _worldPacket << gameRuleValue;
@@ -94,6 +93,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
     _worldPacket.WriteBit(BrowserEnabled);
+
     _worldPacket.WriteBit(SessionAlert.has_value());
     _worldPacket.WriteBit(RAFSystem.Enabled);
     _worldPacket.WriteBit(RAFSystem.RecruitingEnabled);
@@ -102,6 +102,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(TutorialsEnabled);
     _worldPacket.WriteBit(TwitterEnabled);
+
     _worldPacket.WriteBit(Unk67);
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(KioskModeEnabled);
@@ -110,6 +111,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(WarModeFeatureEnabled);
     _worldPacket.WriteBit(ClubsEnabled);
     _worldPacket.WriteBit(ClubsBattleNetClubTypeAllowed);
+
     _worldPacket.WriteBit(ClubsCharacterClubTypeAllowed);
     _worldPacket.WriteBit(ClubsPresenceUpdateEnabled);
     _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
@@ -118,10 +120,13 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
+
     _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
     _worldPacket.WriteBit(ChatDisabledByDefault);
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);
+    _worldPacket.WriteBit(AddonsDisabled);
+    _worldPacket.WriteBit(Unused1000);
 
     _worldPacket.FlushBits();
 
@@ -180,6 +185,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(Unk14);
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(IsExpansionPreorderInStore);
+
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
     _worldPacket.WriteBit(TrialBoostEnabled);
@@ -188,9 +194,12 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
     _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
     _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
+
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
     _worldPacket.WriteBit(LaunchETA.has_value());
+    _worldPacket.WriteBit(AddonsDisabled);
+    _worldPacket.WriteBit(Unused1000);
     _worldPacket.FlushBits();
 
     if (EuropaTicketSystemStatus)
@@ -210,6 +219,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << uint32(GameRuleValues.size());
     _worldPacket << int16(MaxPlayerNameQueriesPerPacket);
     _worldPacket << int16(PlayerNameQueryTelemetryInterval);
+    _worldPacket << PlayerNameQueryInterval;
 
     if (LaunchETA)
         _worldPacket << int32(*LaunchETA);
@@ -243,12 +253,13 @@ WorldPacket const* SetTimeZoneInformation::Write()
 {
     _worldPacket.WriteBits(ServerTimeTZ.length(), 7);
     _worldPacket.WriteBits(GameTimeTZ.length(), 7);
+    _worldPacket.WriteBits(ServerRegionalTZ.length(), 7);
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(ServerTimeTZ);
     _worldPacket.WriteString(GameTimeTZ);
+    _worldPacket.WriteString(ServerRegionalTZ);
 
     return &_worldPacket;
-}
 }
 }

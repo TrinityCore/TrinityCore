@@ -515,6 +515,15 @@ bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req,
     if (req->ItemModifiedAppearanceID && !GetCollectionMgr()->HasItemAppearance(req->ItemModifiedAppearanceID).first)
         return false;
 
+    if (req->QuestID)
+    {
+        if (!_player)
+            return false;
+
+        if (!_player->IsQuestRewarded(req->QuestID))
+            return false;
+    }
+
     if (checkRequiredDependentChoices)
     {
         if (std::unordered_map<uint32, std::vector<uint32>> const* requiredChoices = sDB2Manager.GetRequiredCustomizationChoices(req->ID))
@@ -667,20 +676,32 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     //}
 
     // prevent character creating Expansion class without Expansion account
-    ClassAvailability const* classExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Race, charCreate.CreateInfo->Class);
-    if (!classExpansionRequirement)
+    if (ClassAvailability const* raceClassExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Race, charCreate.CreateInfo->Class))
+    {
+        if (raceClassExpansionRequirement->ActiveExpansionLevel > GetExpansion() || raceClassExpansionRequirement->AccountExpansionLevel > GetAccountExpansion())
+        {
+            TC_LOG_ERROR("entities.player.cheat", "Account:[%d] tried to create character with race/class %u/%u without required expansion (had %u/%u, required %u/%u)",
+                GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class), GetExpansion(), GetAccountExpansion(),
+                raceClassExpansionRequirement->ActiveExpansionLevel, raceClassExpansionRequirement->AccountExpansionLevel);
+            SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
+            return;
+        }
+    }
+    else if (ClassAvailability const* classExpansionRequirement = sObjectMgr->GetClassExpansionRequirementFallback(charCreate.CreateInfo->Class))
+    {
+        if (classExpansionRequirement->MinActiveExpansionLevel > GetExpansion() || classExpansionRequirement->AccountExpansionLevel > GetAccountExpansion())
+        {
+            TC_LOG_ERROR("entities.player.cheat", "Account:[%d] tried to create character with race/class %u/%u without required expansion (had %u/%u, required %u/%u)",
+                GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class), GetExpansion(), GetAccountExpansion(),
+                classExpansionRequirement->ActiveExpansionLevel, classExpansionRequirement->AccountExpansionLevel);
+            SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
+            return;
+        }
+    }
+    else
     {
         TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character for race/class combination that is missing requirements in db (%u/%u)",
             GetAccountExpansion(), GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class));
-        SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
-        return;
-    }
-
-    if (classExpansionRequirement->ActiveExpansionLevel > GetExpansion() || classExpansionRequirement->AccountExpansionLevel > GetAccountExpansion())
-    {
-        TC_LOG_ERROR("entities.player.cheat", "Account:[%d] tried to create character with race/class %u/%u without required expansion (had %u/%u, required %u/%u)",
-            GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class), GetExpansion(), GetAccountExpansion(),
-            classExpansionRequirement->ActiveExpansionLevel, classExpansionRequirement->AccountExpansionLevel);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }
@@ -792,9 +813,14 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             bool haveSameRace = false;
             uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
             bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
+            uint32 evokerReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_EVOKER);
+            bool hasEvokerReqLevel = (evokerReqLevel == 0);
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
+            bool checkClassLevelReqs = (createInfo->Class == CLASS_DEMON_HUNTER || createInfo->Class == CLASS_EVOKER)
+                                        && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
+            int32 evokerLimit = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_EVOKERS_PER_REALM);
+            bool hasEvokerLimit = evokerLimit != 0;
 
             if (result)
             {
@@ -802,8 +828,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                 Field* field = result->Fetch();
                 uint8 accRace = field[1].GetUInt8();
+                uint8 accClass = field[2].GetUInt8();
 
-                if (checkDemonHunterReqs)
+                if (checkClassLevelReqs)
                 {
                     if (!hasDemonHunterReqLevel)
                     {
@@ -811,7 +838,16 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                         if (accLevel >= demonHunterReqLevel)
                             hasDemonHunterReqLevel = true;
                     }
+                    if (!hasEvokerReqLevel)
+                    {
+                        uint8 accLevel = field[0].GetUInt8();
+                        if (accLevel >= evokerReqLevel)
+                            hasEvokerReqLevel = true;
+                    }
                 }
+
+                if (accClass == CLASS_EVOKER)
+                    --evokerLimit;
 
                 // need to check team only for first character
                 /// @todo what to if account already has characters of both races?
@@ -830,18 +866,19 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
                 // search same race for cinematic or same class if need
                 /// @todo check if cinematic already shown? (already logged in?; cinematic field)
-                while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEMON_HUNTER)
+                while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEMON_HUNTER || createInfo->Class == CLASS_EVOKER)
                 {
                     if (!result->NextRow())
                         break;
 
                     field = result->Fetch();
                     accRace = field[1].GetUInt8();
+                    accClass = field[2].GetUInt8();
 
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
 
-                    if (checkDemonHunterReqs)
+                    if (checkClassLevelReqs)
                     {
                         if (!hasDemonHunterReqLevel)
                         {
@@ -849,13 +886,36 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                             if (accLevel >= demonHunterReqLevel)
                                 hasDemonHunterReqLevel = true;
                         }
+                        if (!hasEvokerReqLevel)
+                        {
+                            uint8 accLevel = field[0].GetUInt8();
+                            if (accLevel >= evokerReqLevel)
+                                hasEvokerReqLevel = true;
+                        }
                     }
+
+                    if (accClass == CLASS_EVOKER)
+                        --evokerLimit;
                 }
             }
 
-            if (checkDemonHunterReqs && !hasDemonHunterReqLevel)
+            if (checkClassLevelReqs)
             {
-                SendCharCreate(CHAR_CREATE_NEW_PLAYER);
+                if (!hasDemonHunterReqLevel)
+                {
+                    SendCharCreate(CHAR_CREATE_NEW_PLAYER);
+                    return;
+                }
+                if (!hasEvokerReqLevel)
+                {
+                    SendCharCreate(CHAR_CREATE_DRACTHYR_LEVEL_REQUIREMENT);
+                    return;
+                }
+            }
+
+            if (createInfo->Class == CLASS_EVOKER && hasEvokerLimit && evokerLimit < 1)
+            {
+                SendCharCreate(CHAR_CREATE_DRACTHYR_DUPLICATE);
                 return;
             }
 
@@ -922,7 +982,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CREATE_INFO);
         stmt->setUInt32(0, GetAccountId());
-        stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEMON_HUNTER) ? 1200 : 1); // 200 (max chars per realm) + 1000 (max deleted chars per realm)
+        stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEMON_HUNTER || createInfo->Class == CLASS_EVOKER) ? 1200 : 1); // 200 (max chars per realm) + 1000 (max deleted chars per realm)
         queryCallback.WithPreparedCallback(std::move(finalizeCharacterCreation)).SetNextQuery(CharacterDatabase.AsyncQuery(stmt));
     }));
 }

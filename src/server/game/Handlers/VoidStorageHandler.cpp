@@ -155,7 +155,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
 
         VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetCreator(),
             item->GetItemRandomBonusListId(), item->GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL), item->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL),
-            item->GetContext(), item->m_itemData->BonusListIDs);
+            item->GetContext(), item->GetBonusListIDs());
 
         WorldPackets::VoidStorage::VoidItem voidItem;
         voidItem.Guid = ObjectGuid::Create<HighGuid::Item>(itemVS.ItemId);

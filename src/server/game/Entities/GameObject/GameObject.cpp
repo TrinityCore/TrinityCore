@@ -2927,8 +2927,9 @@ void GameObject::Use(Unit* user)
                     if (!item)
                         return;
 
-                    WorldPackets::Azerite::OpenHeartForge openHeartForge;
-                    openHeartForge.ForgeGUID = GetGUID();
+                    WorldPackets::GameObject::GameObjectInteraction openHeartForge;
+                    openHeartForge.ObjectGUID = GetGUID();
+                    openHeartForge.InteractionType = PlayerInteractionType::AzeriteForge;
                     player->SendDirectMessage(openHeartForge.Write());
                     break;
                 }
@@ -2943,9 +2944,25 @@ void GameObject::Use(Unit* user)
             if (!player)
                 return;
 
-            WorldPackets::GameObject::GameObjectUILink gameObjectUILink;
+            WorldPackets::GameObject::GameObjectInteraction gameObjectUILink;
             gameObjectUILink.ObjectGUID = GetGUID();
-            gameObjectUILink.UILink = GetGOInfo()->UILink.UILinkType;
+            switch (GetGOInfo()->UILink.UILinkType)
+            {
+                case 0:
+                    gameObjectUILink.InteractionType = PlayerInteractionType::AdventureJournal;
+                    break;
+                case 1:
+                    gameObjectUILink.InteractionType = PlayerInteractionType::ObliterumForge;
+                    break;
+                case 2:
+                    gameObjectUILink.InteractionType = PlayerInteractionType::ScrappingMachine;
+                    break;
+                case 3:
+                    gameObjectUILink.InteractionType = PlayerInteractionType::ItemInteraction;
+                    break;
+                default:
+                    break;
+            }
             player->SendDirectMessage(gameObjectUILink.Write());
             return;
         }

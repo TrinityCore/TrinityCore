@@ -20,6 +20,7 @@
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
 #include "DB2Stores.h"
+#include "NPCPackets.h"
 #include "Player.h"
 #include "SpellHistory.h"
 
@@ -236,5 +237,9 @@ void WorldSession::HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::
 
 void WorldSession::SendAzeriteRespecNPC(ObjectGuid npc)
 {
-    SendPacket(WorldPackets::Azerite::AzeriteRespecNPC(npc).Write());
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = npc;
+    npcInteraction.InteractionType = PlayerInteractionType::AzeriteRespec;
+    npcInteraction.Success = true;
+    SendPacket(npcInteraction.Write());
 }

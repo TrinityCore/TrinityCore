@@ -670,6 +670,12 @@ namespace WorldPackets
                 float InitVertSpeed = 0.0f;
             };
 
+            struct SpeedRange
+            {
+                float Min = 0.0f;
+                float Max = 0.0f;
+            };
+
             struct MoveStateChange
             {
                 MoveStateChange(OpcodeServer messageId, uint32 sequenceIndex) : MessageID(messageId), SequenceIndex(sequenceIndex) { }
@@ -677,12 +683,13 @@ namespace WorldPackets
                 uint16 MessageID = 0;
                 uint32 SequenceIndex = 0;
                 Optional<float> Speed;
+                Optional<SpeedRange> SpeedRange;
                 Optional<KnockBackInfo> KnockBack;
                 Optional<int32> VehicleRecID;
                 Optional<CollisionHeightInfo> CollisionHeight;
                 Optional<MovementForce> MovementForce_;
                 Optional<ObjectGuid> MovementForceGUID;
-                Optional<ObjectGuid> MovementInertiaGUID;
+                Optional<int32> MovementInertiaID;
                 Optional<uint32> MovementInertiaLifetimeMs;
             };
 

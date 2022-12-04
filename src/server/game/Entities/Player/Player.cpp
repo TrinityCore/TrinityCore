@@ -537,7 +537,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     // original items
     for (PlayerCreateInfoItem initialItem : info->item)
-        StoreNewItemInBestSlots(initialItem.item_id, initialItem.item_amount);
+        StoreNewItemInBestSlots(initialItem.item_id, initialItem.item_amount, info->itemContext);
 
     // bags and main-hand weapon must equipped at this moment
     // now second pass for not equipped (offhand weapon/shield if it attempt equipped before main-hand weapon)
@@ -581,46 +581,45 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     return true;
 }
 
-bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
+bool Player::StoreNewItemInBestSlots(uint32 itemId, uint32 amount, ItemContext context)
 {
     TC_LOG_DEBUG("entities.player.items", "Player::StoreNewItemInBestSlots: Player '%s' (%s) creates initial item (ItemID: %u, Count: %u)",
-        GetName().c_str(), GetGUID().ToString().c_str(), titem_id, titem_amount);
+        GetName().c_str(), GetGUID().ToString().c_str(), itemId, amount);
 
-    ItemContext itemContext = ItemContext::New_Character;
     std::vector<int32> bonusListIDs;
-    std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(titem_id, itemContext);
+    std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itemId, context);
     bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
 
     // attempt equip by one
-    while (titem_amount > 0)
+    while (amount > 0)
     {
         uint16 eDest;
-        InventoryResult msg = CanEquipNewItem(NULL_SLOT, eDest, titem_id, false);
+        InventoryResult msg = CanEquipNewItem(NULL_SLOT, eDest, itemId, false);
         if (msg != EQUIP_ERR_OK)
             break;
 
-        Item* item = EquipNewItem(eDest, titem_id, itemContext, true);
+        Item* item = EquipNewItem(eDest, itemId, context, true);
         item->SetBonuses(bonusListIDs);
         AutoUnequipOffhandIfNeed();
-        --titem_amount;
+        --amount;
     }
 
-    if (titem_amount == 0)
+    if (amount == 0)
         return true;                                        // equipped
 
     // attempt store
     ItemPosCountVec sDest;
     // store in main bag to simplify second pass (special bags can be not equipped yet at this moment)
-    InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, titem_id, titem_amount);
+    InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, itemId, amount);
     if (msg == EQUIP_ERR_OK)
     {
-        StoreNewItem(sDest, titem_id, true, GenerateItemRandomBonusListId(titem_id), GuidSet(), itemContext, bonusListIDs);
+        StoreNewItem(sDest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), context, bonusListIDs);
         return true;                                        // stored
     }
 
     // item can't be added
     TC_LOG_ERROR("entities.player.items", "Player::StoreNewItemInBestSlots: Player '%s' (%s) can't equip or store initial item (ItemID: %u, Race: %u, Class: %u, InventoryResult: %u)",
-        GetName().c_str(), GetGUID().ToString().c_str(), titem_id, GetRace(), GetClass(), msg);
+        GetName().c_str(), GetGUID().ToString().c_str(), itemId, GetRace(), GetClass(), msg);
     return false;
 }
 
@@ -2292,7 +2291,6 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     packet.Reason = victim ? LOG_XP_REASON_KILL : LOG_XP_REASON_NO_KILL;
     packet.Amount = xp;
     packet.GroupBonus = group_rate;
-    packet.ReferAFriendBonusType = recruitAFriend ? 1 : 0;
     SendDirectMessage(packet.Write());
 
     uint32 nextLvlXP = GetXPForNextLevel();
@@ -3182,10 +3180,11 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
     {
-        WorldPackets::Spells::LearnedSpells packet;
-        packet.SpellID.push_back(spell_id);
-        packet.SuppressMessaging = suppressMessaging;
-        SendDirectMessage(packet.Write());
+        WorldPackets::Spells::LearnedSpells learnedSpells;
+        WorldPackets::Spells::LearnedSpellInfo& learnedSpellInfo = learnedSpells.ClientLearnedSpellData.emplace_back();
+        learnedSpellInfo.SpellID = spell_id;
+        learnedSpells.SuppressMessaging = suppressMessaging;
+        SendDirectMessage(learnedSpells.Write());
     }
 
     // learn all disabled higher ranks and required spells (recursive)
@@ -3519,7 +3518,7 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 {
     if (target == this)
     {
-        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        for (uint8 i = EQUIPMENT_SLOT_START; i < BANK_SLOT_BAG_END; ++i)
         {
             if (m_items[i] == nullptr)
                 continue;
@@ -3527,23 +3526,7 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
         }
 
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
-        {
-            if (m_items[i] == nullptr)
-                continue;
-
-            m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
-        }
-
-        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
-        {
-            if (m_items[i] == nullptr)
-                continue;
-
-            m_items[i]->BuildCreateUpdateBlockForPlayer(data, target);
-        }
-
-        for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        for (uint8 i = REAGENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
         {
             if (m_items[i] == nullptr)
                 continue;
@@ -3684,7 +3667,7 @@ void Player::DestroyForPlayer(Player* target) const
 
     if (target == this)
     {
-        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        for (uint8 i = EQUIPMENT_SLOT_START; i < BANK_SLOT_BAG_END; ++i)
         {
             if (m_items[i] == nullptr)
                 continue;
@@ -3692,23 +3675,7 @@ void Player::DestroyForPlayer(Player* target) const
             m_items[i]->DestroyForPlayer(target);
         }
 
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
-        {
-            if (m_items[i] == nullptr)
-                continue;
-
-            m_items[i]->DestroyForPlayer(target);
-        }
-
-        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
-        {
-            if (m_items[i] == nullptr)
-                continue;
-
-            m_items[i]->DestroyForPlayer(target);
-        }
-
-        for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+        for (uint8 i = REAGENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
         {
             if (m_items[i] == nullptr)
                 continue;
@@ -4493,7 +4460,7 @@ Corpse* Player::CreateCorpse()
     corpse->SetDisplayId(GetNativeDisplayId());
     corpse->SetFactionTemplate(sChrRacesStore.AssertEntry(GetRace())->FactionID);
 
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
     {
         if (m_items[i])
         {
@@ -8211,8 +8178,9 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
         {
             AddTemporarySpell(artifactPowerRank->SpellID);
             WorldPackets::Spells::LearnedSpells learnedSpells;
+            WorldPackets::Spells::LearnedSpellInfo& learnedSpellInfo = learnedSpells.ClientLearnedSpellData.emplace_back();
+            learnedSpellInfo.SpellID = artifactPowerRank->SpellID;
             learnedSpells.SuppressMessaging = true;
-            learnedSpells.SpellID.push_back(artifactPowerRank->SpellID);
             SendDirectMessage(learnedSpells.Write());
         }
         else if (!apply)
@@ -8898,8 +8866,11 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
 
 void Player::SetBindPoint(ObjectGuid guid) const
 {
-    WorldPackets::Misc::BinderConfirm packet(guid);
-    SendDirectMessage(packet.Write());
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = guid;
+    npcInteraction.InteractionType = PlayerInteractionType::Binder;
+    npcInteraction.Success = true;
+    SendDirectMessage(npcInteraction.Write());
 }
 
 void Player::SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost, SpecResetType respecType) const
@@ -9064,9 +9035,15 @@ uint32 Player::GetFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location /
     uint32 freeSlotCount = 0;
 
     if (location.HasFlag(ItemSearchLocation::Equipment))
+    {
         for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
             if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 ++freeSlotCount;
+
+        for (uint8 i = PROFESSION_SLOT_START; i < PROFESSION_SLOT_END; ++i)
+            if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                ++freeSlotCount;
+    }
 
     if (location.HasFlag(ItemSearchLocation::Inventory))
     {
@@ -9096,9 +9073,17 @@ uint32 Player::GetFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location /
     }
 
     if (location.HasFlag(ItemSearchLocation::ReagentBank))
+    {
+        for (uint8 i = REAGENT_BAG_SLOT_START; i < REAGENT_BAG_SLOT_END; ++i)
+            if (Bag* bag = GetBagByPos(i))
+                for (uint32 j = 0; j < GetBagSize(bag); ++j)
+                    if (!GetItemInBag(bag, j))
+                        ++freeSlotCount;
+
         for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
             if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 ++freeSlotCount;
+    }
 
     return freeSlotCount;
 }
@@ -9233,7 +9218,8 @@ Item* Player::GetUseableItemByPos(uint8 bag, uint8 slot) const
 Bag* Player::GetBagByPos(uint8 bag) const
 {
     if ((bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END)
-        || (bag >= BANK_SLOT_BAG_START && bag < BANK_SLOT_BAG_END))
+        || (bag >= BANK_SLOT_BAG_START && bag < BANK_SLOT_BAG_END)
+        || (bag >= REAGENT_BAG_SLOT_START && bag < REAGENT_BAG_SLOT_END))
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, bag))
             return item->ToBag();
     return nullptr;
@@ -9355,7 +9341,11 @@ bool Player::IsEquipmentPos(uint8 bag, uint8 slot)
 {
     if (bag == INVENTORY_SLOT_BAG_0 && (slot < EQUIPMENT_SLOT_END))
         return true;
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= PROFESSION_SLOT_START && slot < PROFESSION_SLOT_END))
+        return true;
     if (bag == INVENTORY_SLOT_BAG_0 && (slot >= INVENTORY_SLOT_BAG_START && slot < INVENTORY_SLOT_BAG_END))
+        return true;
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_BAG_SLOT_START && slot < REAGENT_BAG_SLOT_END))
         return true;
     return false;
 }
@@ -9388,6 +9378,8 @@ bool Player::IsBagPos(uint16 pos)
         return true;
     if (bag == INVENTORY_SLOT_BAG_0 && (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END))
         return true;
+    if (bag == INVENTORY_SLOT_BAG_0 && (slot >= REAGENT_BAG_SLOT_START && slot < REAGENT_BAG_SLOT_END))
+        return true;
     return false;
 }
 
@@ -9412,8 +9404,16 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const
         if (slot < EQUIPMENT_SLOT_END)
             return true;
 
+        // profession equipment
+        if (slot >= PROFESSION_SLOT_START && slot < PROFESSION_SLOT_END)
+            return true;
+
         // bag equip slots
         if (slot >= INVENTORY_SLOT_BAG_START && slot < INVENTORY_SLOT_BAG_END)
+            return true;
+
+        // reagent bag equip slots
+        if (slot >= REAGENT_BAG_SLOT_START && slot < REAGENT_BAG_SLOT_END)
             return true;
 
         // backpack slots
@@ -11663,7 +11663,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 pItem->RemoveItemFlag2(ITEM_FIELD_FLAG2_EQUIPPED);
 
                 // remove item dependent auras and casts (only weapon and armor slots)
-                if (slot < EQUIPMENT_SLOT_END)
+                if (slot < PROFESSION_SLOT_END)
                 {
                     // update expertise
                     if (slot == EQUIPMENT_SLOT_MAINHAND)
@@ -13648,7 +13648,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
         {
             switch (gossipMenuItem.OptionNpc)
             {
-                case GossipOptionNpc::TaxiNode:
+                case GossipOptionNpc::Taxinode:
                     if (GetSession()->SendLearnNewTaxiNode(creature))
                         return;
                     break;
@@ -13656,7 +13656,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                     if (!isDead())
                         canTalk = false;
                     break;
-                case GossipOptionNpc::BattleMaster:
+                case GossipOptionNpc::Battlemaster:
                     if (!creature->isCanInteractWithBattleMaster(this, false))
                         canTalk = false;
                     break;
@@ -13666,7 +13666,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                     if (!creature->CanResetTalents(this))
                         canTalk = false;
                     break;
-                case GossipOptionNpc::StableMaster:
+                case GossipOptionNpc::Stablemaster:
                 case GossipOptionNpc::PetSpecializationMaster:
                     if (GetClass() != CLASS_HUNTER)
                         canTalk = false;
@@ -13695,29 +13695,29 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                     canTalk = false;                               // Deprecated
                     break;
                 case GossipOptionNpc::GuildBanker:
-                case GossipOptionNpc::SpellClick:
-                case GossipOptionNpc::WorldPVPQueue:
+                case GossipOptionNpc::Spellclick:
+                case GossipOptionNpc::WorldPvPQueue:
                 case GossipOptionNpc::LFGDungeon:
                 case GossipOptionNpc::ArtifactRespec:
                 case GossipOptionNpc::QueueScenario:
                 case GossipOptionNpc::GarrisonArchitect:
-                case GossipOptionNpc::GarrisonMission:
+                case GossipOptionNpc::GarrisonMissionNpc:
                 case GossipOptionNpc::ShipmentCrafter:
-                case GossipOptionNpc::GarrisonTradeskill:
+                case GossipOptionNpc::GarrisonTradeskillNpc:
                 case GossipOptionNpc::GarrisonRecruitment:
                 case GossipOptionNpc::AdventureMap:
                 case GossipOptionNpc::GarrisonTalent:
                 case GossipOptionNpc::ContributionCollector:
-                case GossipOptionNpc::IslandsMission:
+                case GossipOptionNpc::IslandsMissionNpc:
                 case GossipOptionNpc::UIItemInteraction:
                 case GossipOptionNpc::WorldMap:
                 case GossipOptionNpc::Soulbind:
-                case GossipOptionNpc::ChromieTime:
-                case GossipOptionNpc::CovenantPreview:
+                case GossipOptionNpc::ChromieTimeNpc:
+                case GossipOptionNpc::CovenantPreviewNpc:
                 case GossipOptionNpc::RuneforgeLegendaryCrafting:
                 case GossipOptionNpc::NewPlayerGuide:
                 case GossipOptionNpc::RuneforgeLegendaryUpgrade:
-                case GossipOptionNpc::CovenantRenown:
+                case GossipOptionNpc::CovenantRenownNpc:
                     break;                                         // NYI
                 default:
                     TC_LOG_ERROR("sql.sql", "Creature entry %u has an unknown gossip option icon %u for menu %u.", creature->GetEntry(), AsUnderlyingType(gossipMenuItem.OptionNpc), gossipMenuItem.MenuID);
@@ -13740,42 +13740,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
         }
 
         if (canTalk)
-        {
-            std::string strOptionText, strBoxText;
-            BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(gossipMenuItem.OptionBroadcastTextID);
-            BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(gossipMenuItem.BoxBroadcastTextID);
-            LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
-
-            if (optionBroadcastText)
-                strOptionText = DB2Manager::GetBroadcastTextValue(optionBroadcastText, locale, GetGender());
-            else
-                strOptionText = gossipMenuItem.OptionText;
-
-            if (boxBroadcastText)
-                strBoxText = DB2Manager::GetBroadcastTextValue(boxBroadcastText, locale, GetGender());
-            else
-                strBoxText = gossipMenuItem.BoxText;
-
-            if (locale != DEFAULT_LOCALE)
-            {
-                if (!optionBroadcastText)
-                {
-                    /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, gossipMenuItem.OptionID))
-                        ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
-                }
-
-                if (!boxBroadcastText)
-                {
-                    /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, gossipMenuItem.OptionID))
-                        ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
-                }
-            }
-
-            menu->GetGossipMenu().AddMenuItem(gossipMenuItem.OptionID, gossipMenuItem.OptionNpc, strOptionText, 0, AsUnderlyingType(gossipMenuItem.OptionNpc), strBoxText, gossipMenuItem.BoxMoney, gossipMenuItem.BoxCoded);
-            menu->GetGossipMenu().AddGossipMenuItemData(gossipMenuItem.OptionID, gossipMenuItem.ActionMenuID, gossipMenuItem.ActionPoiID);
-        }
+            menu->GetGossipMenu().AddMenuItem(gossipMenuItem, gossipMenuItem.MenuID, gossipMenuItem.OrderIndex);
     }
 }
 
@@ -13804,7 +13769,7 @@ void Player::SendPreparedGossip(WorldObject* source)
     PlayerTalkClass->SendGossipMenu(textId, source->GetGUID());
 }
 
-void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId)
+void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 menuId)
 {
     GossipMenu& gossipMenu = PlayerTalkClass->GetGossipMenu();
 
@@ -13812,7 +13777,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     if (menuId != gossipMenu.GetMenuId())
         return;
 
-    GossipMenuItem const* item = gossipMenu.GetItem(gossipListId);
+    GossipMenuItem const* item = gossipMenu.GetItem(gossipOptionId);
     if (!item)
         return;
 
@@ -13829,10 +13794,6 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         }
     }
 
-    GossipMenuItemData const* menuItemData = gossipMenu.GetItemData(gossipListId);
-    if (!menuItemData)
-        return;
-
     int64 cost = int64(item->BoxMoney);
     if (!HasEnoughMoney(cost))
     {
@@ -13841,51 +13802,37 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
         return;
     }
 
+    if (item->ActionPoiID)
+        PlayerTalkClass->SendPointOfInterest(item->ActionPoiID);
+
+    if (item->ActionMenuID)
+    {
+        PrepareGossipMenu(source, item->ActionMenuID);
+        SendPreparedGossip(source);
+    }
+
+    // types that have their dedicated open opcode dont send WorldPackets::NPC::GossipOptionNPCInteraction
+    bool handled = true;
     switch (gossipOptionNpc)
     {
-        case GossipOptionNpc::None:
-        {
-            if (menuItemData->GossipActionPoi)
-                PlayerTalkClass->SendPointOfInterest(menuItemData->GossipActionPoi);
-
-            if (menuItemData->GossipActionMenuId)
-            {
-                PrepareGossipMenu(source, menuItemData->GossipActionMenuId);
-                SendPreparedGossip(source);
-            }
-
-            break;
-        }
         case GossipOptionNpc::Vendor:
             GetSession()->SendListInventory(guid);
             break;
-        case GossipOptionNpc::TaxiNode:
+        case GossipOptionNpc::Taxinode:
             GetSession()->SendTaxiMenu(source->ToCreature());
             break;
         case GossipOptionNpc::Trainer:
-            GetSession()->SendTrainerList(source->ToCreature(), sObjectMgr->GetCreatureTrainerForGossipOption(source->GetEntry(), menuId, gossipListId));
+            GetSession()->SendTrainerList(source->ToCreature(), sObjectMgr->GetCreatureTrainerForGossipOption(source->GetEntry(), menuId, gossipOptionId));
             break;
         case GossipOptionNpc::SpiritHealer:
-            if (isDead())
-                source->ToCreature()->CastSpell(source->ToCreature(), 17251, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                    .SetOriginalCaster(GetGUID()));
-            break;
-        case GossipOptionNpc::Binder:
-            PlayerTalkClass->SendCloseGossip();
-            SetBindPoint(guid);
-            break;
-        case GossipOptionNpc::Banker:
-            GetSession()->SendShowBank(guid);
+            source->CastSpell(source->ToCreature(), 17251, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(GetGUID()));
+            handled = false;
             break;
         case GossipOptionNpc::PetitionVendor:
             PlayerTalkClass->SendCloseGossip();
             GetSession()->SendPetitionShowList(guid);
             break;
-        case GossipOptionNpc::TabardVendor:
-            PlayerTalkClass->SendCloseGossip();
-            GetSession()->SendTabardVendorActivate(guid);
-            break;
-        case GossipOptionNpc::BattleMaster:
+        case GossipOptionNpc::Battlemaster:
         {
             BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(source->GetEntry());
 
@@ -13906,12 +13853,22 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             PlayerTalkClass->SendCloseGossip();
             SendRespecWipeConfirm(guid, sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost(), SPEC_RESET_TALENTS);
             break;
-        case GossipOptionNpc::StableMaster:
+        case GossipOptionNpc::Stablemaster:
             GetSession()->SendStablePet(guid);
             break;
         case GossipOptionNpc::PetSpecializationMaster:
             PlayerTalkClass->SendCloseGossip();
             SendRespecWipeConfirm(guid, sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost(), SPEC_RESET_PET_TALENTS);
+            break;
+        case GossipOptionNpc::GuildBanker:
+            if (Guild* const guild = GetGuild())
+                guild->SendBankList(GetSession(), 0, true);
+            else
+                Guild::SendCommandResult(GetSession(), GUILD_COMMAND_VIEW_TAB, ERR_GUILD_PLAYER_NOT_IN_GUILD);
+            break;
+        case GossipOptionNpc::Spellclick:
+            if (Unit* sourceUnit = source->ToUnit())
+                sourceUnit->HandleSpellClick(this);
             break;
         case GossipOptionNpc::DisableXPGain:
             PlayerTalkClass->SendCloseGossip();
@@ -13923,9 +13880,6 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             RemoveAurasDueToSpell(SPELL_EXPERIENCE_ELIMINATED);
             RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             break;
-        case GossipOptionNpc::Mailbox:
-            GetSession()->SendShowMailBox(guid);
-            break;
         case GossipOptionNpc::SpecializationMaster:
             PlayerTalkClass->SendCloseGossip();
             SendRespecWipeConfirm(guid, 0, SPEC_RESET_SPECIALIZATION);
@@ -13934,22 +13888,75 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             PlayerTalkClass->SendCloseGossip();
             SendRespecWipeConfirm(guid, 0, SPEC_RESET_GLYPHS);
             break;
-        case GossipOptionNpc::GarrisonTalent:
-        {
-            GossipMenuAddon const* addon = sObjectMgr->GetGossipMenuAddon(menuId);
-            GossipMenuItemAddon const* itemAddon = sObjectMgr->GetGossipMenuItemAddon(menuId, gossipListId);
-            SendGarrisonOpenTalentNpc(guid, itemAddon ? itemAddon->GarrTalentTreeID.value_or(0) : 0, addon ? addon->FriendshipFactionID : 0);
+        case GossipOptionNpc::GarrisonTradeskillNpc: // NYI
             break;
-        }
-        case GossipOptionNpc::Transmogrify:
-            GetSession()->SendOpenTransmogrifier(guid);
+        case GossipOptionNpc::GarrisonRecruitment: // NYI
             break;
-        case GossipOptionNpc::AzeriteRespec:
-            PlayerTalkClass->SendCloseGossip();
-            GetSession()->SendAzeriteRespecNPC(guid);
+        case GossipOptionNpc::ChromieTimeNpc: // NYI
+            break;
+        case GossipOptionNpc::RuneforgeLegendaryCrafting: // NYI
+            break;
+        case GossipOptionNpc::RuneforgeLegendaryUpgrade: // NYI
+            break;
+        case GossipOptionNpc::ProfessionsCraftingOrder: // NYI
+            break;
+        case GossipOptionNpc::ProfessionsCustomerOrder: // NYI
+            break;
+        case GossipOptionNpc::BarbersChoice: // NYI - unknown if needs sending
             break;
         default:
+            handled = false;
             break;
+    }
+
+    if (!handled)
+    {
+        if (item->GossipNpcOptionID)
+        {
+            GossipMenuAddon const* addon = sObjectMgr->GetGossipMenuAddon(menuId);
+
+            WorldPackets::NPC::GossipOptionNPCInteraction npcInteraction;
+            npcInteraction.GossipGUID = source->GetGUID();
+            npcInteraction.GossipNpcOptionID = *item->GossipNpcOptionID;
+            if (addon && addon->FriendshipFactionID)
+                npcInteraction.FriendshipFactionID = addon->FriendshipFactionID;
+
+            SendDirectMessage(npcInteraction.Write());
+        }
+        else
+        {
+            static constexpr std::array<PlayerInteractionType, AsUnderlyingType(GossipOptionNpc::Count)> GossipOptionNpcToInteractionType =
+            {
+                PlayerInteractionType::None, PlayerInteractionType::Vendor, PlayerInteractionType::TaxiNode,
+                PlayerInteractionType::Trainer, PlayerInteractionType::SpiritHealer, PlayerInteractionType::Binder,
+                PlayerInteractionType::Banker, PlayerInteractionType::PetitionVendor, PlayerInteractionType::TabardVendor,
+                PlayerInteractionType::BattleMaster, PlayerInteractionType::Auctioneer, PlayerInteractionType::TalentMaster,
+                PlayerInteractionType::StableMaster, PlayerInteractionType::None, PlayerInteractionType::GuildBanker,
+                PlayerInteractionType::None, PlayerInteractionType::None, PlayerInteractionType::None,
+                PlayerInteractionType::MailInfo, PlayerInteractionType::None, PlayerInteractionType::LFGDungeon,
+                PlayerInteractionType::ArtifactForge, PlayerInteractionType::None, PlayerInteractionType::SpecializationMaster,
+                PlayerInteractionType::None, PlayerInteractionType::None, PlayerInteractionType::GarrArchitect,
+                PlayerInteractionType::GarrMission, PlayerInteractionType::ShipmentCrafter, PlayerInteractionType::GarrTradeskill,
+                PlayerInteractionType::GarrRecruitment, PlayerInteractionType::AdventureMap, PlayerInteractionType::GarrTalent,
+                PlayerInteractionType::ContributionCollector, PlayerInteractionType::Transmogrifier, PlayerInteractionType::AzeriteRespec,
+                PlayerInteractionType::IslandQueue, PlayerInteractionType::ItemInteraction, PlayerInteractionType::WorldMap,
+                PlayerInteractionType::Soulbind, PlayerInteractionType::ChromieTime, PlayerInteractionType::CovenantPreview,
+                PlayerInteractionType::LegendaryCrafting, PlayerInteractionType::NewPlayerGuide, PlayerInteractionType::LegendaryCrafting,
+                PlayerInteractionType::Renown, PlayerInteractionType::BlackMarketAuctioneer, PlayerInteractionType::PerksProgramVendor,
+                PlayerInteractionType::ProfessionsCraftingOrder, PlayerInteractionType::Professions, PlayerInteractionType::ProfessionsCustomerOrder,
+                PlayerInteractionType::TraitSystem, PlayerInteractionType::BarbersChoice, PlayerInteractionType::MajorFactionRenown
+            };
+
+            PlayerInteractionType interactionType = GossipOptionNpcToInteractionType[AsUnderlyingType(gossipOptionNpc)];
+            if (interactionType != PlayerInteractionType::None)
+            {
+                WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+                npcInteraction.Npc = source->GetGUID();
+                npcInteraction.InteractionType = interactionType;
+                npcInteraction.Success = true;
+                SendDirectMessage(npcInteraction.Write());
+            }
+        }
     }
 
     ModifyMoney(-cost);
@@ -16781,7 +16788,7 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
         eqSet.Data.AssignedSpecIndex = fields[5].GetInt32();
         eqSet.State           = EQUIPMENT_SET_UNCHANGED;
 
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        for (uint32 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
             if (ObjectGuid::LowType guid = fields[6 + i].GetUInt64())
                 eqSet.Data.Pieces[i] = ObjectGuid::Create<HighGuid::Item>(guid);
 
@@ -16820,7 +16827,7 @@ void Player::_LoadTransmogOutfits(PreparedQueryResult result)
         eqSet.State = EQUIPMENT_SET_UNCHANGED;
         eqSet.Data.Pieces.fill(ObjectGuid::Empty);
 
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        for (uint32 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
             eqSet.Data.Appearances[i] = fields[5 + i].GetInt32();
 
         for (std::size_t i = 0; i < eqSet.Data.Enchants.size(); ++i)
@@ -17185,16 +17192,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     InitDisplayIds();
 
-    // cleanup inventory related item value fields (it will be filled correctly in _LoadInventory)
-    for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
-    {
-        SetInvSlot(slot, ObjectGuid::Empty);
-        SetVisibleItemSlot(slot, nullptr);
-
-        delete m_items[slot];
-        m_items[slot] = nullptr;
-    }
-
     TC_LOG_DEBUG("entities.player.loading", "Player::LoadFromDB: Load Basic value of player '%s' is: ", m_name.c_str());
     outDebugValues();
 
@@ -17488,6 +17485,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
     time_t now = GameTime::GetGameTime();
     time_t logoutTime = time_t(fields.logout_time);
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::LogoutTime), logoutTime);
 
     // since last logout (in seconds)
     uint32 time_diff = uint32(now - logoutTime); //uint64 is excessive for a time_diff in seconds.. uint32 allows for 136~ year difference.
@@ -19353,7 +19352,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+        for (uint32 i = 0; i < REAGENT_BAG_SLOT_END; ++i)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
@@ -19501,7 +19500,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+        for (uint32 i = 0; i < REAGENT_BAG_SLOT_END; ++i)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
@@ -22350,7 +22349,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
             return false;
         }
 
-        if (iece->MinFactionID && uint32(GetReputationRank(iece->MinFactionID)) < iece->MinReputation)
+        if (iece->MinFactionID && int32(GetReputationRank(iece->MinFactionID)) < iece->MinReputation)
         {
             SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, item, 0);
             return false;
@@ -25897,6 +25896,10 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spe
     if (HasPvpTalent(talentID, GetActiveTalentGroup()))
         return TALENT_FAILED_UNKNOWN;
 
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(talentInfo->PlayerConditionID))
+        if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+            return TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
     if (PvpTalentEntry const* talent = sPvpTalentStore.LookupEntry(GetPvpTalentMap(GetActiveTalentGroup())[slot]))
     {
         if (!HasPlayerFlag(PLAYER_FLAGS_RESTING) && !HasUnitFlag2(UNIT_FLAG2_ALLOW_CHANGING_TALENTS))
@@ -26283,7 +26286,7 @@ void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
                     stmt->setString(j++, eqSet.Data.SetIcon);
                     stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
                     stmt->setInt32(j++, eqSet.Data.AssignedSpecIndex);
-                    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+                    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                         stmt->setUInt64(j++, eqSet.Data.Pieces[i].GetCounter());
                     stmt->setUInt64(j++, GetGUID().GetCounter());
                     stmt->setUInt64(j++, eqSet.Data.Guid);
@@ -26295,7 +26298,7 @@ void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
                     stmt->setString(j++, eqSet.Data.SetName);
                     stmt->setString(j++, eqSet.Data.SetIcon);
                     stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
-                    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+                    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                         stmt->setInt32(j++, eqSet.Data.Appearances[i]);
                     for (std::size_t i = 0; i < eqSet.Data.Enchants.size(); ++i)
                         stmt->setInt32(j++, eqSet.Data.Enchants[i]);
@@ -26320,7 +26323,7 @@ void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
                     stmt->setString(j++, eqSet.Data.SetIcon);
                     stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
                     stmt->setInt32(j++, eqSet.Data.AssignedSpecIndex);
-                    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+                    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                         stmt->setUInt64(j++, eqSet.Data.Pieces[i].GetCounter());
                 }
                 else
@@ -26332,7 +26335,7 @@ void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
                     stmt->setString(j++, eqSet.Data.SetName);
                     stmt->setString(j++, eqSet.Data.SetIcon);
                     stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
-                    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+                    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                         stmt->setInt32(j++, eqSet.Data.Appearances[i]);
                     for (std::size_t i = 0; i < eqSet.Data.Enchants.size(); ++i)
                         stmt->setInt32(j++, eqSet.Data.Enchants[i]);
@@ -27639,8 +27642,9 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
 {
     WorldPackets::Spells::SupercededSpells supercededSpells;
-    supercededSpells.SpellID.push_back(newSpell);
-    supercededSpells.Superceded.push_back(oldSpell);
+    WorldPackets::Spells::LearnedSpellInfo& learnedSpellInfo = supercededSpells.ClientLearnedSpellData.emplace_back();
+    learnedSpellInfo.SpellID = newSpell;
+    learnedSpellInfo.Superceded = oldSpell;
     SendDirectMessage(supercededSpells.Write());
 }
 
@@ -27934,7 +27938,7 @@ void Player::UpdateAverageItemLevelTotal()
     ForEachItem(ItemSearchLocation::Everywhere, [this, &bestItemLevels, &sum](Item* item)
     {
         ItemTemplate const* itemTemplate = item->GetTemplate();
-        if (itemTemplate)
+        if (itemTemplate && itemTemplate->GetInventoryType() < INVTYPE_PROFESSION_TOOL)
         {
             uint16 dest;
             if (item->IsEquipped())
@@ -28132,13 +28136,4 @@ void Player::SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusR
     }
 
     SendDirectMessage(displayToast.Write());
-}
-
-void Player::SendGarrisonOpenTalentNpc(ObjectGuid guid, int32 garrTalentTreeId, int32 friendshipFactionId)
-{
-    WorldPackets::Garrison::GarrisonOpenTalentNpc openTalentNpc;
-    openTalentNpc.NpcGUID = guid;
-    openTalentNpc.GarrTalentTreeID = garrTalentTreeId;
-    openTalentNpc.FriendshipFactionID = friendshipFactionId;
-    SendDirectMessage(openTalentNpc.Write());
 }

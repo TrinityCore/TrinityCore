@@ -3036,6 +3036,12 @@ uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventory
         0.00f, // INVTYPE_RANGEDRIGHT
         0.00f, // INVTYPE_QUIVER
         0.00f, // INVTYPE_RELIC
+        0.00f, // INVTYPE_PROFESSION_TOOL
+        0.00f, // INVTYPE_PROFESSION_GEAR
+        0.00f, // INVTYPE_EQUIPABLE_SPELL_OFFENSIVE
+        0.00f, // INVTYPE_EQUIPABLE_SPELL_UTILITY
+        0.00f, // INVTYPE_EQUIPABLE_SPELL_DEFENSIVE
+        0.00f, // INVTYPE_EQUIPABLE_SPELL_MOBILITY
     };
 
     static float const weaponMultipliers[MAX_ITEM_SUBCLASS_WEAPON] =
@@ -3743,17 +3749,18 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) 
 
 void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
 {
-    if (!_playerInfo[race_][class_])
+    std::unique_ptr<PlayerInfo>* playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race_), Classes(class_) });
+    if (!playerInfo)
         return;
 
     if (count > 0)
-        _playerInfo[race_][class_]->item.emplace_back(itemId, count);
+        playerInfo->get()->item.emplace_back(itemId, count);
     else
     {
         if (count < -1)
             TC_LOG_ERROR("sql.sql", "Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
 
-        PlayerCreateInfoItems& items = _playerInfo[race_][class_]->item;
+        PlayerCreateInfoItems& items = playerInfo->get()->item;
 
         auto erased = std::remove_if(items.begin(), items.end(), [itemId](PlayerCreateInfoItem const& item) { return item.item_id == itemId; });
         if (erased == items.end())
@@ -3888,7 +3895,7 @@ void ObjectMgr::LoadPlayerInfo()
                             introSceneId, current_class, current_race);
                 }
 
-                _playerInfo[current_race][current_class] = std::move(info);
+                _playerInfo[{ Races(current_race), Classes(current_class) }] = std::move(info);
 
                 ++count;
             }
@@ -3920,8 +3927,10 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!characterLoadout->RaceMask.HasRace(raceIndex))
                     continue;
 
-                if (auto& playerInfo = _playerInfo[raceIndex][characterLoadout->ChrClassID])
+                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(characterLoadout->ChrClassID) }))
                 {
+                    playerInfo->get()->itemContext = ItemContext(characterLoadout->ItemContext);
+
                     for (ItemTemplate const* itemTemplate : *items)
                     {
                         // BuyCount by default
@@ -3946,7 +3955,7 @@ void ObjectMgr::LoadPlayerInfo()
                                 count = itemTemplate->GetMaxStackSize();
                         }
 
-                        playerInfo->item.emplace_back(itemTemplate->GetId(), count);
+                        playerInfo->get()->item.emplace_back(itemTemplate->GetId(), count);
                     }
                 }
             }
@@ -4033,8 +4042,8 @@ void ObjectMgr::LoadPlayerInfo()
                     if (rcInfo->RaceMask.HasRace(raceIndex))
                         for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
                             if (rcInfo->ClassMask == -1 || ((1 << (classIndex - 1)) & rcInfo->ClassMask))
-                                if (auto& info = _playerInfo[raceIndex][classIndex])
-                                    info->skills.push_back(rcInfo);
+                                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
+                                    playerInfo->get()->skills.push_back(rcInfo);
 
         TC_LOG_INFO("server.loading", ">> Loaded player create skills in %u ms", GetMSTimeDiffToNow(oldMSTime));
     }
@@ -4081,9 +4090,9 @@ void ObjectMgr::LoadPlayerInfo()
                         {
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
-                                if (auto& info = _playerInfo[raceIndex][classIndex])
+                                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
                                 {
-                                    info->customSpells.push_back(spellId);
+                                    playerInfo->get()->customSpells.push_back(spellId);
                                     ++count;
                                 }
                                 // We need something better here, the check is not accounting for spells used by multiple races/classes but not all of them.
@@ -4148,9 +4157,9 @@ void ObjectMgr::LoadPlayerInfo()
                         {
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
-                                if (auto& info = _playerInfo[raceIndex][classIndex])
+                                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(raceIndex), Classes(classIndex) }))
                                 {
-                                    info->castSpells[playerCreateMode].push_back(spellId);
+                                    playerInfo->get()->castSpells[playerCreateMode].push_back(spellId);
                                     ++count;
                                 }
                             }
@@ -4197,8 +4206,8 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (auto& info = _playerInfo[current_race][current_class])
-                    info->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
+                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(current_race), Classes(current_class) }))
+                    playerInfo->get()->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
 
                 ++count;
             }
@@ -4279,12 +4288,12 @@ void ObjectMgr::LoadPlayerInfo()
 
             for (std::size_t race = 0; race < raceStatModifiers.size(); ++race)
             {
-                if (auto& info = _playerInfo[race][current_class])
+                if (auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(current_class) }))
                 {
-                    if (!info->levelInfo)
-                        info->levelInfo = std::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+                    if (!playerInfo->get()->levelInfo)
+                        playerInfo->get()->levelInfo = std::make_unique<PlayerLevelInfo[]>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
 
-                    PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
+                    PlayerLevelInfo& levelInfo = playerInfo->get()->levelInfo[current_level - 1];
                     for (uint8 i = 0; i < MAX_STATS; ++i)
                         levelInfo.stats[i] = fields[i + 2].GetUInt16() + raceStatModifiers[race].StatModifier[i];
                 }
@@ -4307,8 +4316,8 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!sChrClassesStore.LookupEntry(class_))
                     continue;
 
-                auto& info = _playerInfo[race][class_];
-                if (!info)
+                auto const& playerInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
+                if (!playerInfo)
                     continue;
 
                 // skip expansion races if not playing with expansion
@@ -4330,7 +4339,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
 
                 // fatal error if no level 1 data
-                if (!info->levelInfo || info->levelInfo[0].stats[0] == 0)
+                if (!playerInfo->get()->levelInfo || playerInfo->get()->levelInfo[0].stats[0] == 0)
                 {
                     TC_LOG_ERROR("sql.sql", "Race %i Class %i Level 1 does not have stats data!", race, class_);
                     ABORT();
@@ -4339,10 +4348,10 @@ void ObjectMgr::LoadPlayerInfo()
                 // fill level gaps
                 for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
                 {
-                    if (info->levelInfo[level].stats[0] == 0)
+                    if (playerInfo->get()->levelInfo[level].stats[0] == 0)
                     {
                         TC_LOG_ERROR("sql.sql", "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level + 1, level);
-                        info->levelInfo[level] = info->levelInfo[level - 1];
+                        playerInfo->get()->levelInfo[level] = playerInfo->get()->levelInfo[level - 1];
                     }
                 }
             }
@@ -4431,12 +4440,12 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
     if (level < 1 || race >= MAX_RACES || class_ >= MAX_CLASSES)
         return;
 
-    auto const& pInfo = _playerInfo[race][class_];
+    auto const& pInfo = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
     if (!pInfo)
         return;
 
     if (level <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        *info = pInfo->levelInfo[level - 1];
+        *info = pInfo->get()->levelInfo[level - 1];
     else
         BuildPlayerLevelInfo(race, class_, level, info);
 }
@@ -4444,7 +4453,7 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
 void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, PlayerLevelInfo* info) const
 {
     // base data (last known level)
-    *info = _playerInfo[race][_class]->levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 1];
+    *info = ASSERT_NOTNULL(Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(_class) }))->get()->levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 1];
 
     // if conversion from uint32 to uint8 causes unexpected behaviour, change lvl to uint32
     for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 1; lvl < level; ++lvl)
@@ -4614,7 +4623,19 @@ void ObjectMgr::LoadQuests()
         { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "",                                       "mail sender entries", &Quest::LoadQuestMailSender    },
 
         // 0        1   2     3             4         5       6      7       8                  9
-        { "QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description",                                                             "quest_objectives",     "ORDER BY `Order` ASC, StorageIndex ASC", "quest objectives",    &Quest::LoadQuestObjective     }
+        { "QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description",                                                             "quest_objectives",     "ORDER BY `Order` ASC, StorageIndex ASC", "quest objectives",    &Quest::LoadQuestObjective     },
+
+        // 0        1                  2                     3       4
+        { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_description_conditional", "ORDER BY OrderIndex",           "conditional details", &Quest::LoadConditionalConditionalQuestDescription },
+
+        // 0        1                  2                     3     4
+        { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_request_items_conditional", "ORDER BY OrderIndex",         "conditional request items", &Quest::LoadConditionalConditionalRequestItemsText },
+
+        // 0        1                  2                     3     4
+        { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_offer_reward_conditional", "ORDER BY OrderIndex",          "conditional reward",  &Quest::LoadConditionalConditionalOfferRewardText },
+
+        // 0        1                  2                     3     4
+        { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_completion_log_conditional", "ORDER BY OrderIndex",        "conditional completion log", &Quest::LoadConditionalConditionalQuestCompletionLog }
     };
 
     for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
@@ -9462,7 +9483,7 @@ void ObjectMgr::LoadCreatureTrainers()
                 Trinity::IteratorPair<GossipMenuItemsContainer::const_iterator> gossipMenuItems = GetGossipMenuItemsMapBounds(gossipMenuId);
                 auto gossipOptionItr = std::find_if(gossipMenuItems.begin(), gossipMenuItems.end(), [gossipOptionId](std::pair<uint32 const, GossipMenuItems> const& entry)
                 {
-                    return entry.second.OptionID == gossipOptionId;
+                    return entry.second.OrderIndex == gossipOptionId;
                 });
                 if (gossipOptionItr == gossipMenuItems.end())
                 {
@@ -9627,8 +9648,10 @@ void ObjectMgr::LoadGossipMenuItems()
     _gossipMenuItemsStore.clear();
 
     QueryResult result = WorldDatabase.Query(
-        //      0       1         2          3           4                      5         6             7            8         9         10       11
-        "SELECT MenuID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
+        //      0       1               2         3          4           5                      6         7      8            9             10
+        "SELECT MenuID, GossipOptionID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, Flags, ActionMenuID, ActionPoiID, GossipNpcOptionID, "
+        //11       12        13       14                  15       16
+        "BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID, SpellID, OverrideIconID "
         "FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
     if (!result)
@@ -9637,6 +9660,10 @@ void ObjectMgr::LoadGossipMenuItems()
         return;
     }
 
+    std::unordered_map<int32, int32> optionToNpcOption;
+    for (GossipNPCOptionEntry const* npcOption : sGossipNPCOptionStore)
+        optionToNpcOption[npcOption->GossipOptionID] = npcOption->ID;
+
     do
     {
         Field* fields = result->Fetch();
@@ -9644,21 +9671,31 @@ void ObjectMgr::LoadGossipMenuItems()
         GossipMenuItems gMenuItem;
 
         gMenuItem.MenuID                = fields[0].GetUInt32();
-        gMenuItem.OptionID              = fields[1].GetUInt32();
-        gMenuItem.OptionNpc             = GossipOptionNpc(fields[2].GetUInt8());
-        gMenuItem.OptionText            = fields[3].GetString();
-        gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
-        gMenuItem.Language              = fields[5].GetUInt32();
-        gMenuItem.ActionMenuID          = fields[6].GetUInt32();
-        gMenuItem.ActionPoiID           = fields[7].GetUInt32();
-        gMenuItem.BoxCoded              = fields[8].GetBool();
-        gMenuItem.BoxMoney              = fields[9].GetUInt32();
-        gMenuItem.BoxText               = fields[10].GetString();
-        gMenuItem.BoxBroadcastTextID    = fields[11].GetUInt32();
+        gMenuItem.GossipOptionID        = fields[1].GetInt32();
+        gMenuItem.OrderIndex            = fields[2].GetUInt32();
+        gMenuItem.OptionNpc             = GossipOptionNpc(fields[3].GetUInt8());
+        gMenuItem.OptionText            = fields[4].GetString();
+        gMenuItem.OptionBroadcastTextID = fields[5].GetUInt32();
+        gMenuItem.Language              = fields[6].GetUInt32();
+        gMenuItem.Flags                 = GossipOptionFlags(fields[7].GetInt32());
+        gMenuItem.ActionMenuID          = fields[8].GetUInt32();
+        gMenuItem.ActionPoiID           = fields[9].GetUInt32();
+        if (!fields[10].IsNull())
+            gMenuItem.GossipNpcOptionID = fields[10].GetInt32();
+
+        gMenuItem.BoxCoded              = fields[11].GetBool();
+        gMenuItem.BoxMoney              = fields[12].GetUInt32();
+        gMenuItem.BoxText               = fields[13].GetString();
+        gMenuItem.BoxBroadcastTextID    = fields[14].GetUInt32();
+        if (!fields[15].IsNull())
+            gMenuItem.SpellID           = fields[15].GetInt32();
+
+        if (!fields[16].IsNull())
+            gMenuItem.OverrideIconID    = fields[16].GetInt32();
 
         if (gMenuItem.OptionNpc >= GossipOptionNpc::Count)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown NPC option id %u. Replacing with GossipOptionNpc::None", gMenuItem.MenuID, gMenuItem.OptionID, AsUnderlyingType(gMenuItem.OptionNpc));
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has unknown NPC option id %u. Replacing with GossipOptionNpc::None", gMenuItem.MenuID, gMenuItem.OrderIndex, AsUnderlyingType(gMenuItem.OptionNpc));
             gMenuItem.OptionNpc = GossipOptionNpc::None;
         }
 
@@ -9666,20 +9703,20 @@ void ObjectMgr::LoadGossipMenuItems()
         {
             if (!sBroadcastTextStore.LookupEntry(gMenuItem.OptionBroadcastTextID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible OptionBroadcastTextID %u, ignoring.", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.OptionBroadcastTextID);
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible OptionBroadcastTextID %u, ignoring.", gMenuItem.MenuID, gMenuItem.OrderIndex, gMenuItem.OptionBroadcastTextID);
                 gMenuItem.OptionBroadcastTextID = 0;
             }
         }
 
         if (gMenuItem.Language && !sLanguagesStore.LookupEntry(gMenuItem.Language))
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing Language %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.Language);
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing Language %u, ignoring", gMenuItem.MenuID, gMenuItem.OrderIndex, gMenuItem.Language);
             gMenuItem.Language = 0;
         }
 
         if (gMenuItem.ActionMenuID && gMenuItem.OptionNpc != GossipOptionNpc::None)
         {
-            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc::None, ignoring", gMenuItem.MenuID, gMenuItem.OptionID);
+            TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc::None, ignoring", gMenuItem.MenuID, gMenuItem.OrderIndex);
             gMenuItem.ActionMenuID = 0;
         }
 
@@ -9687,22 +9724,44 @@ void ObjectMgr::LoadGossipMenuItems()
         {
             if (gMenuItem.OptionNpc != GossipOptionNpc::None)
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc::None, ignoring", gMenuItem.MenuID, gMenuItem.OptionID);
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc::None, ignoring", gMenuItem.MenuID, gMenuItem.OrderIndex);
                 gMenuItem.ActionPoiID = 0;
             }
             else if (!GetPointOfInterest(gMenuItem.ActionPoiID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing ActionPoiID %u, ignoring", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.ActionPoiID);
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing ActionPoiID %u, ignoring", gMenuItem.MenuID, gMenuItem.OrderIndex, gMenuItem.ActionPoiID);
                 gMenuItem.ActionPoiID = 0;
             }
         }
+
+        if (gMenuItem.GossipNpcOptionID)
+        {
+            if (!sGossipNPCOptionStore.LookupEntry(*gMenuItem.GossipNpcOptionID))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing GossipNPCOption %u, ignoring",
+                    gMenuItem.MenuID, gMenuItem.OrderIndex, *gMenuItem.GossipNpcOptionID);
+                gMenuItem.GossipNpcOptionID.reset();
+            }
+        }
+        else if (int32 const* npcOptionId = Trinity::Containers::MapGetValuePtr(optionToNpcOption, gMenuItem.GossipOptionID))
+            gMenuItem.GossipNpcOptionID = *npcOptionId;
 
         if (gMenuItem.BoxBroadcastTextID)
         {
             if (!sBroadcastTextStore.LookupEntry(gMenuItem.BoxBroadcastTextID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible BoxBroadcastTextID %u, ignoring.", gMenuItem.MenuID, gMenuItem.OptionID, gMenuItem.BoxBroadcastTextID);
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u has non-existing or incompatible BoxBroadcastTextID %u, ignoring.", gMenuItem.MenuID, gMenuItem.OrderIndex, gMenuItem.BoxBroadcastTextID);
                 gMenuItem.BoxBroadcastTextID = 0;
+            }
+        }
+
+        if (gMenuItem.SpellID)
+        {
+            if (!sSpellMgr->GetSpellInfo(*gMenuItem.SpellID, DIFFICULTY_NONE))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `gossip_menu_option` for menu %u, id %u use non-existing Spell %u, ignoring",
+                    gMenuItem.MenuID, gMenuItem.OrderIndex, *gMenuItem.SpellID);
+                gMenuItem.SpellID.reset();
             }
         }
 
@@ -9753,44 +9812,6 @@ void ObjectMgr::LoadGossipMenuAddon()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_addon IDs in %u ms", uint32(_gossipMenuAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadGossipMenuItemAddon()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _gossipMenuItemAddonStore.clear();
-
-    //                                               0       1         2
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionId, GarrTalentTreeID FROM gossip_menu_option_addon");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 gossip_menu_option_addon IDs. DB table `gossip_menu_option_addon` is empty!");
-        return;
-    }
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 menuId = fields[0].GetUInt32();
-        uint32 optionId = fields[1].GetUInt32();
-        GossipMenuItemAddon& addon = _gossipMenuItemAddonStore[{ menuId, optionId }];
-        if (!fields[2].IsNull())
-        {
-            addon.GarrTalentTreeID = fields[2].GetInt32();
-
-            if (!sGarrTalentTreeStore.LookupEntry(*addon.GarrTalentTreeID))
-            {
-                TC_LOG_ERROR("sql.sql", "Table gossip_menu_option_addon: MenuID %u OptionID %u is using non-existing GarrTalentTree %d",
-                    menuId, optionId, *addon.GarrTalentTreeID);
-                addon.GarrTalentTreeID.reset();
-            }
-        }
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option_addon IDs in %u ms", uint32(_gossipMenuItemAddonStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
@@ -10594,10 +10615,10 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
         return nullptr;
     if (class_ >= MAX_CLASSES)
         return nullptr;
-    auto const& info = _playerInfo[race][class_];
+    auto const& info = Trinity::Containers::MapGetValuePtr(_playerInfo, { Races(race), Classes(class_) });
     if (!info)
         return nullptr;
-    return info.get();
+    return info->get();
 }
 
 void ObjectMgr::LoadRaceAndClassExpansionRequirements()
@@ -10659,6 +10680,8 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
     if (result)
     {
         std::map<uint8, std::map<uint8, std::pair<uint8, uint8>>> temp;
+        std::array<uint8, MAX_CLASSES> minRequirementForClass = { };
+        minRequirementForClass.fill(MAX_ACCOUNT_EXPANSIONS);
         uint32 count = 0;
         do
         {
@@ -10700,6 +10723,7 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
             }
 
             temp[raceID][classID] = { activeExpansionLevel, accountExpansionLevel };
+            minRequirementForClass[classID] = std::min(minRequirementForClass[classID], activeExpansionLevel);
 
             ++count;
         }
@@ -10707,19 +10731,18 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
 
         for (auto&& race : temp)
         {
-            _classExpansionRequirementStore.emplace_back();
+            RaceClassAvailability& raceClassAvailability = _classExpansionRequirementStore.emplace_back();
 
-            RaceClassAvailability& raceClassAvailability = _classExpansionRequirementStore.back();
             raceClassAvailability.RaceID = race.first;
 
             for (auto&& class_ : race.second)
             {
-                raceClassAvailability.Classes.emplace_back();
+                ClassAvailability& classAvailability = raceClassAvailability.Classes.emplace_back();
 
-                ClassAvailability& classAvailability = raceClassAvailability.Classes.back();
                 classAvailability.ClassID = class_.first;
                 classAvailability.ActiveExpansionLevel = class_.second.first;
                 classAvailability.AccountExpansionLevel = class_.second.second;
+                classAvailability.MinActiveExpansionLevel = minRequirementForClass[class_.first];
             }
         }
 
@@ -10802,6 +10825,16 @@ ClassAvailability const* ObjectMgr::GetClassExpansionRequirement(uint8 raceId, u
         return nullptr;
 
     return &(*classItr);
+}
+
+ClassAvailability const* ObjectMgr::GetClassExpansionRequirementFallback(uint8 classId) const
+{
+    for (RaceClassAvailability const& raceClassAvailability : _classExpansionRequirementStore)
+        for (ClassAvailability const& classAvailability : raceClassAvailability.Classes)
+            if (classAvailability.ClassID == classId)
+                return &classAvailability;
+
+    return nullptr;
 }
 
 PlayerChoice const* ObjectMgr::GetPlayerChoice(int32 choiceId) const

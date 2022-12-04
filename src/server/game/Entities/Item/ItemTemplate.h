@@ -402,10 +402,16 @@ enum InventoryType : uint8
     INVTYPE_THROWN                              = 25,
     INVTYPE_RANGEDRIGHT                         = 26,
     INVTYPE_QUIVER                              = 27,
-    INVTYPE_RELIC                               = 28
+    INVTYPE_RELIC                               = 28,
+    INVTYPE_PROFESSION_TOOL                     = 29,
+    INVTYPE_PROFESSION_GEAR                     = 30,
+    INVTYPE_EQUIPABLE_SPELL_OFFENSIVE           = 31,
+    INVTYPE_EQUIPABLE_SPELL_UTILITY             = 32,
+    INVTYPE_EQUIPABLE_SPELL_DEFENSIVE           = 33,
+    INVTYPE_EQUIPABLE_SPELL_MOBILITY            = 34
 };
 
-#define MAX_INVTYPE                               29
+#define MAX_INVTYPE                               35
 
 enum ItemClass : uint8
 {
@@ -427,10 +433,11 @@ enum ItemClass : uint8
     ITEM_CLASS_MISCELLANEOUS                    = 15,
     ITEM_CLASS_GLYPH                            = 16,
     ITEM_CLASS_BATTLE_PETS                      = 17,
-    ITEM_CLASS_WOW_TOKEN                        = 18
+    ITEM_CLASS_WOW_TOKEN                        = 18,
+    ITEM_CLASS_PROFESSION                       = 19
 };
 
-#define MAX_ITEM_CLASS                            19
+#define MAX_ITEM_CLASS                            20
 
 enum ItemSubclassConsumable
 {
@@ -460,10 +467,11 @@ enum ItemSubclassContainer
     ITEM_SUBCLASS_LEATHERWORKING_CONTAINER      = 7,
     ITEM_SUBCLASS_INSCRIPTION_CONTAINER         = 8,
     ITEM_SUBCLASS_TACKLE_CONTAINER              = 9,
-    ITEM_SUBCLASS_COOKING_CONTAINER             = 10
+    ITEM_SUBCLASS_COOKING_CONTAINER             = 10,
+    ITEM_SUBCLASS_REAGENT_CONTAINER             = 11
 };
 
-#define MAX_ITEM_SUBCLASS_CONTAINER               11
+#define MAX_ITEM_SUBCLASS_CONTAINER               12
 
 enum ItemSubclassWeapon
 {
@@ -535,10 +543,11 @@ enum ItemSubclassArmor
 enum ItemSubclassReagent
 {
     ITEM_SUBCLASS_REAGENT                       = 0,
-    ITEM_SUBCLASS_KEYSTONE                      = 1
+    ITEM_SUBCLASS_KEYSTONE                      = 1,
+    ITEM_SUBCLASS_CONTEXT_TOKEN                 = 2
 };
 
-#define MAX_ITEM_SUBCLASS_REAGENT                 2
+#define MAX_ITEM_SUBCLASS_REAGENT                 3
 
 enum ItemSubclassProjectile
 {
@@ -570,10 +579,12 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_ENCHANTMENT                   = 14,
     ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15,
     ITEM_SUBCLASS_INSCRIPTION                   = 16,
-    ITEM_SUBCLASS_EXPLOSIVES_DEVICES            = 17
+    ITEM_SUBCLASS_EXPLOSIVES_DEVICES            = 17,
+    ITEM_SUBCLASS_OPTIONAL_REAGENT              = 18,
+    ITEM_SUBCLASS_FINISHING_REAGENT             = 19,
 };
 
-#define MAX_ITEM_SUBCLASS_TRADE_GOODS             18
+#define MAX_ITEM_SUBCLASS_TRADE_GOODS             20
 
 enum ItemSubclassItemEnhancement
 {
@@ -590,10 +601,11 @@ enum ItemSubclassItemEnhancement
     ITEM_SUBCLASS_ITEM_ENHANCEMENT_FINGER               = 10,
     ITEM_SUBCLASS_ITEM_ENHANCEMENT_WEAPON               = 11,
     ITEM_SUBCLASS_ITEM_ENHANCEMENT_TWO_HANDED_WEAPON    = 12,
-    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHIELD_OFF_HAND      = 13
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHIELD_OFF_HAND      = 13,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_MISC                 = 14
 };
 
-#define MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT                14
+#define MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT                15
 
 enum ItemSubclassRecipe
 {
@@ -662,9 +674,10 @@ enum ItemSubclassJunk
     ITEM_SUBCLASS_MISCELLANEOUS_HOLIDAY         = 3,
     ITEM_SUBCLASS_MISCELLANEOUS_OTHER           = 4,
     ITEM_SUBCLASS_MISCELLANEOUS_MOUNT           = 5,
+    ITEM_SUBCLASS_MISCELLANEOUS_MOUNT_EQUIPMENT = 6
 };
 
-#define MAX_ITEM_SUBCLASS_MISCELLANEOUS           6
+#define MAX_ITEM_SUBCLASS_MISCELLANEOUS           7
 
 enum ItemSubclassGlyph
 {
@@ -698,6 +711,26 @@ enum ItemSubclassWowToken
 
 #define MAX_ITEM_SUBCLASS_WOW_TOKEN               1
 
+enum ItemSubclassPorfession
+{
+    ITEM_SUBCLASS_PROFESSION_BLACKSMITHING      = 0,
+    ITEM_SUBCLASS_PROFESSION_LEATHERWORKING     = 1,
+    ITEM_SUBCLASS_PROFESSION_ALCHEMY            = 2,
+    ITEM_SUBCLASS_PROFESSION_HERBALISM          = 3,
+    ITEM_SUBCLASS_PROFESSION_COOKING            = 4,
+    ITEM_SUBCLASS_PROFESSION_MINING             = 5,
+    ITEM_SUBCLASS_PROFESSION_TAILORING          = 6,
+    ITEM_SUBCLASS_PROFESSION_ENGINEERING        = 7,
+    ITEM_SUBCLASS_PROFESSION_ENCHANTING         = 8,
+    ITEM_SUBCLASS_PROFESSION_FISHING            = 9,
+    ITEM_SUBCLASS_PROFESSION_SKINNING           = 10,
+    ITEM_SUBCLASS_PROFESSION_JEWELCRAFTING      = 11,
+    ITEM_SUBCLASS_PROFESSION_INSCRIPTION        = 12,
+    ITEM_SUBCLASS_PROFESSION_ARCHAEOLOGY        = 13
+};
+
+#define MAX_ITEM_SUBCLASS_PROFESSION              14
+
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
     MAX_ITEM_SUBCLASS_CONSUMABLE,
@@ -718,7 +751,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_MISCELLANEOUS,
     MAX_ITEM_SUBCLASS_GLYPH,
     MAX_ITEM_SUBCLASS_BATTLE_PET,
-    MAX_ITEM_SUBCLASS_WOW_TOKEN
+    MAX_ITEM_SUBCLASS_WOW_TOKEN,
+    MAX_ITEM_SUBCLASS_PROFESSION
 };
 
 #define MAX_ITEM_SUBCLASS_TOTAL 21

@@ -154,6 +154,7 @@ DB2Storage<GlobalCurveEntry>                    sGlobalCurveStore("GlobalCurve.d
 DB2Storage<GlyphBindableSpellEntry>             sGlyphBindableSpellStore("GlyphBindableSpell.db2", GlyphBindableSpellLoadInfo::Instance());
 DB2Storage<GlyphPropertiesEntry>                sGlyphPropertiesStore("GlyphProperties.db2", GlyphPropertiesLoadInfo::Instance());
 DB2Storage<GlyphRequiredSpecEntry>              sGlyphRequiredSpecStore("GlyphRequiredSpec.db2", GlyphRequiredSpecLoadInfo::Instance());
+DB2Storage<GossipNPCOptionEntry>                sGossipNPCOptionStore("GossipNPCOption.db2", GossipNpcOptionLoadInfo::Instance());
 DB2Storage<GuildColorBackgroundEntry>           sGuildColorBackgroundStore("GuildColorBackground.db2", GuildColorBackgroundLoadInfo::Instance());
 DB2Storage<GuildColorBorderEntry>               sGuildColorBorderStore("GuildColorBorder.db2", GuildColorBorderLoadInfo::Instance());
 DB2Storage<GuildColorEmblemEntry>               sGuildColorEmblemStore("GuildColorEmblem.db2", GuildColorEmblemLoadInfo::Instance());
@@ -370,7 +371,7 @@ typedef std::unordered_map<uint32 /*bonusListId*/, DB2Manager::ItemBonusList> It
 typedef std::unordered_map<int16, uint32> ItemBonusListLevelDeltaContainer;
 typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
 typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
-typedef std::array<ItemClassEntry const*, 19> ItemClassByOldEnumContainer;
+typedef std::array<ItemClassEntry const*, 20> ItemClassByOldEnumContainer;
 typedef std::unordered_map<uint32, std::vector<ItemLimitCategoryConditionEntry const*>> ItemLimitCategoryConditionContainer;
 typedef std::set<ItemLevelSelectorQualityEntry const*, ItemLevelSelectorQualityEntryComparator> ItemLevelSelectorQualities;
 typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
@@ -729,6 +730,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphPropertiesStore);
     LOAD_DB2(sGlyphRequiredSpecStore);
+    LOAD_DB2(sGossipNPCOptionStore);
     LOAD_DB2(sGuildColorBackgroundStore);
     LOAD_DB2(sGuildColorBorderStore);
     LOAD_DB2(sGuildColorEmblemStore);
@@ -925,13 +927,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(14083) ||               // last area added in 9.2.7 (45114)
-        !sCharTitlesStore.LookupEntry(727) ||                // last char title added in 9.2.7 (45114)
-        !sGemPropertiesStore.LookupEntry(3922) ||            // last gem property added in 9.2.7 (45114)
-        !sItemStore.LookupEntry(199202) ||                   // last item added in 9.2.7 (45114)
-        !sItemExtendedCostStore.LookupEntry(7316) ||         // last item extended cost added in 9.2.7 (45114)
-        !sMapStore.LookupEntry(2559) ||                      // last map added in 9.2.7 (45114)
-        !sSpellNameStore.LookupEntry(387936))                // last spell added in 9.2.7 (45114)
+    if (!sAreaTableStore.LookupEntry(14618) ||               // last area added in 10.0.2 (46741)
+        !sCharTitlesStore.LookupEntry(749) ||                // last char title added in 10.0.2 (46741)
+        !sGemPropertiesStore.LookupEntry(4028) ||            // last gem property added in 10.0.2 (46741)
+        !sItemStore.LookupEntry(202712) ||                   // last item added in 10.0.2 (46741)
+        !sItemExtendedCostStore.LookupEntry(7862) ||         // last item extended cost added in 10.0.2 (46741)
+        !sMapStore.LookupEntry(2582) ||                      // last map added in 10.0.2 (46741)
+        !sSpellNameStore.LookupEntry(399311))                // last spell added in 10.0.2 (46741)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -1001,7 +1003,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         if (battlemaster->MaxPlayers < battlemaster->MinPlayers)
         {
             TC_LOG_ERROR("db2.hotfix.battlemaster_list", "Battlemaster (%u) contains bad values for MinPlayers (%u) and MaxPlayers (%u). Swapping values.", battlemaster->ID, battlemaster->MinPlayers, battlemaster->MaxPlayers);
-            std::swap(const_cast<BattlemasterListEntry*>(battlemaster)->MaxPlayers, const_cast<BattlemasterListEntry*>(battlemaster)->MinPlayers);
+            int8 minPlayers = battlemaster->MinPlayers;
+            const_cast<BattlemasterListEntry*>(battlemaster)->MinPlayers = battlemaster->MaxPlayers;
+            const_cast<BattlemasterListEntry*>(battlemaster)->MaxPlayers = minPlayers;
         }
     }
 
@@ -1072,16 +1076,16 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     {
         if (ChrModelEntry const* model = sChrModelStore.LookupEntry(raceModel->ChrModelID))
         {
-            _chrModelsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(model->Sex) }] = model;
+            _chrModelsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(raceModel->Sex) }] = model;
 
             if (std::vector<ChrCustomizationOptionEntry const*> const* customizationOptionsForModel = Trinity::Containers::MapGetValuePtr(customizationOptionsByModel, model->ID))
             {
-                std::vector<ChrCustomizationOptionEntry const*>& raceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(model->Sex) }];
+                std::vector<ChrCustomizationOptionEntry const*>& raceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(raceModel->Sex) }];
                 raceOptions.insert(raceOptions.end(), customizationOptionsForModel->begin(), customizationOptionsForModel->end());
 
                 if (uint32 const* parentRace = Trinity::Containers::MapGetValuePtr(parentRaces, raceModel->ChrRacesID))
                 {
-                    std::vector<ChrCustomizationOptionEntry const*>& parentRaceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(*parentRace), uint8(model->Sex) }];
+                    std::vector<ChrCustomizationOptionEntry const*>& parentRaceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(*parentRace), uint8(raceModel->Sex) }];
                     parentRaceOptions.insert(parentRaceOptions.end(), customizationOptionsForModel->begin(), customizationOptionsForModel->end());
                 }
             }
@@ -1089,7 +1093,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             // link shapeshift displays to race/gender/form
             for (std::pair<uint32 const, std::pair<uint32, uint8>> const& shapeshiftOptionsForModel : Trinity::Containers::MapEqualRange(shapeshiftFormByModel, model->ID))
             {
-                ShapeshiftFormModelData& data = _chrCustomizationChoicesForShapeshifts[{ uint8(raceModel->ChrRacesID), uint8(model->Sex), shapeshiftOptionsForModel.second.second }];
+                ShapeshiftFormModelData& data = _chrCustomizationChoicesForShapeshifts[{ uint8(raceModel->ChrRacesID), uint8(raceModel->Sex), shapeshiftOptionsForModel.second.second }];
                 data.OptionID = shapeshiftOptionsForModel.second.first;
                 data.Choices = Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesByOption, shapeshiftOptionsForModel.second.first);
                 if (data.Choices)

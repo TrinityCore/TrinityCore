@@ -256,6 +256,8 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                     if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_COOKING_SUPP))
                         return false;
                     return true;
+                case ITEM_SUBCLASS_REAGENT_CONTAINER:
+                    return pProto->IsCraftingReagent();
                 default:
                     return false;
             }
@@ -610,7 +612,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
             stmt->setUInt8(++index, uint8(m_itemData->Context));
 
             std::ostringstream bonusListIDs;
-            for (int32 bonusListID : *m_itemData->BonusListIDs)
+            for (int32 bonusListID : GetBonusListIDs())
                 bonusListIDs << bonusListID << ' ';
             stmt->setString(++index, bonusListIDs.str());
 
@@ -1240,7 +1242,8 @@ uint8 Item::GetBagSlot() const
 
 bool Item::IsEquipped() const
 {
-    return !IsInBag() && m_slot < EQUIPMENT_SLOT_END;
+    return !IsInBag() && ((m_slot >= EQUIPMENT_SLOT_START && m_slot < EQUIPMENT_SLOT_END)
+        || (m_slot >= PROFESSION_SLOT_START && m_slot < PROFESSION_SLOT_END));
 }
 
 bool Item::CanBeTraded(bool mail, bool trade) const
@@ -2043,6 +2046,12 @@ int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
     EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
     -1,                                                     // INVTYPE_QUIVER
     -1                                                      // INVTYPE_RELIC
+    -1,                                                     // INVTYPE_PROFESSION_TOOL
+    -1,                                                     // INVTYPE_PROFESSION_GEAR
+    -1,                                                     // INVTYPE_EQUIPABLE_SPELL_OFFENSIVE
+    -1,                                                     // INVTYPE_EQUIPABLE_SPELL_UTILITY
+    -1,                                                     // INVTYPE_EQUIPABLE_SPELL_DEFENSIVE
+    -1                                                      // INVTYPE_EQUIPABLE_SPELL_MOBILITY
 };
 
 bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance)
@@ -2501,14 +2510,16 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    if (std::find(m_itemData->BonusListIDs->begin(), m_itemData->BonusListIDs->end(), int32(bonusListID)) != m_itemData->BonusListIDs->end())
+    if (std::find(GetBonusListIDs().begin(), GetBonusListIDs().end(), int32(bonusListID)) != GetBonusListIDs().end())
         return;
 
     if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
     {
-        std::vector<int32> bonusListIDs = m_itemData->BonusListIDs;
-        bonusListIDs.push_back(bonusListID);
-        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::BonusListIDs), std::move(bonusListIDs));
+        WorldPackets::Item::ItemBonusKey itemBonusKey;
+        itemBonusKey.ItemID = GetEntry();
+        itemBonusKey.BonusListIDs = GetBonusListIDs();
+        itemBonusKey.BonusListIDs.push_back(bonusListID);
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemBonusKey), std::move(itemBonusKey));
         for (ItemBonusEntry const* bonus : *bonuses)
             _bonusData.AddBonus(bonus->Type, bonus->Value);
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
@@ -2517,9 +2528,12 @@ void Item::AddBonuses(uint32 bonusListID)
 
 void Item::SetBonuses(std::vector<int32> bonusListIDs)
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::BonusListIDs), std::move(bonusListIDs));
+    WorldPackets::Item::ItemBonusKey itemBonusKey;
+    itemBonusKey.ItemID = GetEntry();
+    itemBonusKey.BonusListIDs = std::move(bonusListIDs);
+    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemBonusKey), std::move(itemBonusKey));
 
-    for (int32 bonusListID : *m_itemData->BonusListIDs)
+    for (int32 bonusListID : GetBonusListIDs())
         _bonusData.AddBonusList(bonusListID);
 
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
@@ -2527,7 +2541,9 @@ void Item::SetBonuses(std::vector<int32> bonusListIDs)
 
 void Item::ClearBonuses()
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::BonusListIDs), std::vector<int32>());
+    WorldPackets::Item::ItemBonusKey itemBonusKey;
+    itemBonusKey.ItemID = GetEntry();
+    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemBonusKey), std::move(itemBonusKey));
     _bonusData.Initialize(GetTemplate());
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
 }
