@@ -222,7 +222,7 @@ struct TC_GAME_API ImmunityInfo
 
     uint32 SchoolImmuneMask = 0;
     uint32 ApplyHarmfulAuraImmuneMask = 0;
-    uint32 MechanicImmuneMask = 0;
+    uint64 MechanicImmuneMask = 0;
     uint32 DispelImmune = 0;
     uint32 DamageSchoolMask = 0;
 
@@ -543,9 +543,9 @@ class TC_GAME_API SpellInfo
         bool CheckTargetCreatureType(Unit const* target) const;
 
         SpellSchoolMask GetSchoolMask() const;
-        uint32 GetAllEffectsMechanicMask() const;
-        uint32 GetEffectMechanicMask(SpellEffIndex effIndex) const;
-        uint32 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
+        uint64 GetAllEffectsMechanicMask() const;
+        uint64 GetEffectMechanicMask(SpellEffIndex effIndex) const;
+        uint64 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
         Mechanics GetEffectMechanic(SpellEffIndex effIndex) const;
         uint32 GetDispelMask() const;
         static uint32 GetDispelMask(DispelType type);
@@ -600,9 +600,9 @@ class TC_GAME_API SpellInfo
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
-        uint32 GetAllowedMechanicMask() const;
+        uint64 GetAllowedMechanicMask() const;
 
-        uint32 GetMechanicImmunityMask(Unit const* caster) const;
+        uint64 GetMechanicImmunityMask(Unit const* caster) const;
 
         // Player Condition
         bool MeetsFutureSpellPlayerCondition(Player const* player) const;
@@ -628,7 +628,7 @@ class TC_GAME_API SpellInfo
         AuraStateType _auraState = AURA_STATE_NONE;
 
         SpellDiminishInfo _diminishInfo;
-        uint32 _allowedMechanicMask = 0;
+        uint64 _allowedMechanicMask = 0;
 };
 
 #endif // _SPELLINFO_H

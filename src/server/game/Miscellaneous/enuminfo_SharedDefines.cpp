@@ -3307,12 +3307,16 @@ TC_API_EXPORT EnumText EnumUtils<Mechanics>::ToString(Mechanics value)
         case MECHANIC_SAPPED: return { "MECHANIC_SAPPED", "MECHANIC_SAPPED", "" };
         case MECHANIC_ENRAGED: return { "MECHANIC_ENRAGED", "MECHANIC_ENRAGED", "" };
         case MECHANIC_WOUNDED: return { "MECHANIC_WOUNDED", "MECHANIC_WOUNDED", "" };
+        case MECHANIC_INFECTED_2: return { "MECHANIC_INFECTED_2", "MECHANIC_INFECTED_2", "" };
+        case MECHANIC_INFECTED_3: return { "MECHANIC_INFECTED_3", "MECHANIC_INFECTED_3", "" };
+        case MECHANIC_INFECTED_4: return { "MECHANIC_INFECTED_4", "MECHANIC_INFECTED_4", "" };
+        case MECHANIC_TAUNTED: return { "MECHANIC_TAUNTED", "MECHANIC_TAUNTED", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Mechanics>::Count() { return 33; }
+TC_API_EXPORT size_t EnumUtils<Mechanics>::Count() { return 37; }
 
 template <>
 TC_API_EXPORT Mechanics EnumUtils<Mechanics>::FromIndex(size_t index)
@@ -3352,6 +3356,10 @@ TC_API_EXPORT Mechanics EnumUtils<Mechanics>::FromIndex(size_t index)
         case 30: return MECHANIC_SAPPED;
         case 31: return MECHANIC_ENRAGED;
         case 32: return MECHANIC_WOUNDED;
+        case 33: return MECHANIC_INFECTED_2;
+        case 34: return MECHANIC_INFECTED_3;
+        case 35: return MECHANIC_INFECTED_4;
+        case 36: return MECHANIC_TAUNTED;
         default: throw std::out_of_range("index");
     }
 }
@@ -3394,6 +3402,10 @@ TC_API_EXPORT size_t EnumUtils<Mechanics>::ToIndex(Mechanics value)
         case MECHANIC_SAPPED: return 30;
         case MECHANIC_ENRAGED: return 31;
         case MECHANIC_WOUNDED: return 32;
+        case MECHANIC_INFECTED_2: return 33;
+        case MECHANIC_INFECTED_3: return 34;
+        case MECHANIC_INFECTED_4: return 35;
+        case MECHANIC_TAUNTED: return 36;
         default: throw std::out_of_range("value");
     }
 }

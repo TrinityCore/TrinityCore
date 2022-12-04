@@ -497,7 +497,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.WidgetSetID            = fields[64].GetInt32();
     creatureTemplate.WidgetSetUnitConditionID = fields[65].GetInt32();
     creatureTemplate.RegenHealth            = fields[66].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[67].GetUInt32();
+    creatureTemplate.MechanicImmuneMask     = fields[67].GetUInt64();
     creatureTemplate.SpellSchoolImmuneMask  = fields[68].GetUInt32();
     creatureTemplate.flags_extra            = fields[69].GetUInt32();
     creatureTemplate.ScriptID               = GetScriptId(fields[70].GetString());
@@ -1019,7 +1019,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         differenceMask = cInfo->MechanicImmuneMask & (~difficultyInfo->MechanicImmuneMask);
         if (differenceMask)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, mechanic_immune_mask: %u) has weaker immunities in difficulty %u mode (Entry: %u, mechanic_immune_mask: %u).",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, mechanic_immune_mask: " UI64FMTD ") has weaker immunities in difficulty %u mode (Entry: %u, mechanic_immune_mask: " UI64FMTD ").",
                 cInfo->Entry, cInfo->MechanicImmuneMask, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->MechanicImmuneMask);
             TC_LOG_ERROR("sql.sql", "Possible FIX: UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`|%u WHERE `entry`=%u;",
                 differenceMask, cInfo->DifficultyEntry[diff]);

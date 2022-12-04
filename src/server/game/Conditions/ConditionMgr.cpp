@@ -3787,7 +3787,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::HasHelpfulAuraMechanic:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {
-                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (UI64LIT(1) << value)) != 0;
             }) != nullptr ? value : 0;
         case UnitConditionVariable::HasHarmfulAuraSpell:
             return unit->GetAuraApplication(value, [](AuraApplication const* aurApp)
@@ -3802,7 +3802,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::HasHarmfulAuraMechanic:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {
-                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (UI64LIT(1) << value)) != 0;
             }) != nullptr ? value : 0;
         case UnitConditionVariable::HasHarmfulAuraSchool:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
