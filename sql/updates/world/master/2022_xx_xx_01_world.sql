@@ -600,6 +600,16 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=353935;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (353935, 'spell_sylvanas_shadow_dagger_phase_three');
 
+-- Veil of Darkness (Grow - Phase 3)
+DELETE FROM `spell_script_names` WHERE `spell_id`=354143;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354143, 'spell_sylvanas_windrunner_veil_of_darkness_grow_phase_3');
+
+-- Veil of Darkness (Cast - Phase 3)
+DELETE FROM `spell_script_names` WHERE `spell_id`=354142;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+(354142, 'spell_sylvanas_windrunner_veil_of_darkness_phase_3');
+
  -- The Jailer
 UPDATE `creature_template` SET `minlevel`=63, `maxlevel`=63, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=71303168, `unit_flags3`=32769, `VehicleId`=7513 WHERE `entry`=178079;
 

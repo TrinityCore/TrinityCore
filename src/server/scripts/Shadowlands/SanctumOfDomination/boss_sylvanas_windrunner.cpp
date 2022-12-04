@@ -117,6 +117,7 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_SCREEN_FOG                             = 354580,
     SPELL_VEIL_OF_DARKNESS_ABSORB_AURA                            = 347704,
     SPELL_VEIL_OF_DARKNESS_VISUAL_SPREAD                          = 355749,
+    SPELL_VEIL_OF_DARKNESS_DAMAGE                                 = 350777,
 
     // Veil of Darkness (Phase 1)
     SPELL_VEIL_OF_DARKNESS_PHASE_1_FADE                           = 352470,
@@ -176,7 +177,7 @@ enum Spells
     SPELL_INVIGORATING_FIELD_JUMP                                 = 353642,
 
     // Platform Change
-    SPELL_SWITCH_PLATFORM_AURA                                    = 354141,
+    SPELL_STOMP_MOVEMENT_FORCE_AURA                               = 354141,
 
     // Banshee's Heartseeker
     SPELL_BANSHEE_HEARTSEEKER_AURA                                = 353966,
@@ -204,7 +205,7 @@ enum Spells
     SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE                           = 354168,
     SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW                           = 354143,
     SPELL_VEIL_OF_DARKNESS_PHASE_3                                = 354142,
-    SPELL_VEIL_OF_DARKNESS_PHASE_3_TARGETED                       = 357876,
+    SPELL_VEIL_OF_DARKNESS_PHASE_3_MARKER                         = 357876,
 
     // Banshee's Fury
     SPELL_BANSHEES_FURY                                           = 354068,
@@ -697,12 +698,12 @@ uint32 const EventTimersPhaseThree[4][10][11] =
 
     // Normal
     {
-        { 30700, 80400, 76200, 79300, 78600               }, // Bane Arrows
-        { 48100, 80000, 83600, 76900, 87600               }, // Shadow Dagger
-        { 75500, 56300, 56100, 57100, 56700, 57800        }, // Wailing Arrow (Marker)
+        { 30700, 80400, 79200, 79300, 78600               }, // Bane Arrows
+        { 48100, 81000, 83600, 76900, 87600               }, // Shadow Dagger
+        { 69500, 50300, 50100, 51100, 50700, 51800        }, // Wailing Arrow (Marker)
         { 77000, 57800, 57600, 58600, 58200, 59300        }, // Wailing Arrow
         { 41800, 64300, 68600, 46500, 62700, 57500, 61900 }, // Veil of Darkness
-        { 96600, 51000, 55700, 55700, 58200, 59800        }, // Banshee Scream
+        { 96600, 52000, 55700, 55700, 58200, 59800        }, // Banshee Scream
         { 86000, 76100, 78200, 85400                      }  // Raze
     },
 
@@ -2247,7 +2248,10 @@ struct boss_sylvanas_windrunner : public BossAI
 
         Talk(SAY_AGGRO);
 
-        DoAction(ACTION_PREPARE_PHASE_THREE);
+        /*events.SetPhase(PHASE_THREE);
+        instance->DoUpdateWorldState(WORLD_STATE_SYLVANAS_ENCOUNTER_PHASE, PHASE_THREE);
+        events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, 50ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);*/
+        //DoAction(ACTION_PREPARE_PHASE_THREE);
 
         DoCastSelf(SPELL_SYLVANAS_POWER_ENERGIZE_AURA, true);
         DoCastSelf(SPELL_RANGER_HEARTSEEKER_AURA, true);
@@ -2971,7 +2975,7 @@ struct boss_sylvanas_windrunner : public BossAI
                         case PHASE_THREE:
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_FADE);
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS, Milliseconds(EventTimersPhaseThree[GetDifficultyForTimer(me)][4][_eventCounter[EVENT_COUNTER_VEIL_OF_DARKNESS]]), EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
-                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 500ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 2, 50ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
                             break;
                         default:
                             break;
@@ -3014,8 +3018,8 @@ struct boss_sylvanas_windrunner : public BossAI
                             events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 250ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_TWO);
                             break;
                         case PHASE_THREE:
-                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW, CastSpellExtraArgs(TRIGGERED_NONE).AddSpellMod(SPELLVALUE_DURATION, 2000));
-                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 1s, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 4, 750ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
                             break;
                         default:
                             break;
@@ -3041,7 +3045,7 @@ struct boss_sylvanas_windrunner : public BossAI
                             break;
                         case PHASE_THREE:
                             DoCastSelf(SPELL_VEIL_OF_DARKNESS_PHASE_3);
-                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 5, 2s, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_VEIL_OF_DARKNESS + 5, 1s + 50ms, EVENT_GROUP_NORMAL_EVENTS, PHASE_THREE);
                             break;
                         default:
                             break;
@@ -3362,8 +3366,7 @@ struct boss_sylvanas_windrunner : public BossAI
                     GetPlayerListInGrid(targetList, me, 5.0f);
 
                     for (Player* target : targetList)
-                        target->AddAura(SPELL_SWITCH_PLATFORM_AURA, target);
-
+                        target->AddAura(SPELL_STOMP_MOVEMENT_FORCE_AURA, target);
                     break;
                 }
 
@@ -4212,8 +4215,8 @@ struct boss_sylvanas_windrunner : public BossAI
             case PLATFORM_MALDRAXXI:
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[0]);
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[1]);
-                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[7]);
                 invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[2]);
+                invigoratingFieldToDesecrateGUID.push_back(_invigoratingFieldGUID[7]);
                 break;
 
             case PLATFORM_NIGHTFAE:
@@ -4570,6 +4573,7 @@ class HeartseekerDamageEvent : public BasicEvent
         {
             _actor->CastSpell(_victim, GetWorldStatePhase(_actor) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_PHYSICAL_DAMAGE : SPELL_RANGER_HEARTSEEKER_PHYSICAL_DAMAGE, true);
             _actor->CastSpell(_victim, GetWorldStatePhase(_actor) == PHASE_THREE ? SPELL_BANSHEE_HEARTSEEKER_SHADOW_DAMAGE : SPELL_RANGER_HEARTSEEKER_SHADOW_DAMAGE, true);
+
             return true;
         }
 
@@ -4610,6 +4614,8 @@ class spell_sylvanas_windrunner_ranger_heartseeker : public SpellScript
     void OnPrecast() override
     {
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
         // Note: according to sniff, there's only a SMSG_AURA_UPDATE sent after Ranger's Heartseeker's SMSG_SPELL_START. There's no SMSG_SPELL_START or SMSG_SPELL_GO for this case.
         caster->AddAura(SPELL_RANGER_BOW_STANCE, caster);
@@ -6164,6 +6170,8 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
         if (!caster)
             return;
 
+        caster->CastSpell(caster, SPELL_RANGER_DAGGERS_STANCE, true);
+
         for (uint8 i = 0; i < _visualCount; i++)
         {
             float angle = _angleOffset * i;
@@ -6189,7 +6197,7 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
         }
     }
 
-    void HandleDummyEffect(SpellEffIndex effIndex)
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -6224,7 +6232,7 @@ class spell_sylvanas_shadow_dagger_phase_three : public SpellScript
 
                 for (uint8 i = 0; i < _visualCount; i++)
                 {
-                    if (player->IsInBetween(caster->GetPosition(), _finalDestPos[_visualCount], 1.0f))
+                    if (player->IsInBetween(caster->GetPosition(), _finalDestPos[i], 1.0f))
                         caster->CastSpell(player, SPELL_SHADOW_DAGGER, true);
                 }
             }
@@ -6241,6 +6249,147 @@ private:
     float _angleOffset = float(M_PI * 2) / _visualCount;
     std::vector<Position> _visualDestPos;
     std::vector<Position> _finalDestPos;
+};
+
+// 354143 - Veil of Darkness (Grow - Phase 3)
+class spell_sylvanas_windrunner_veil_of_darkness_grow_phase_3 : public AuraScript
+{
+    PrepareAuraScript(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_3);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Fly);
+        target->SetDisableGravity(true);
+
+        target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_BANSHEE_MODEL);
+
+        for (uint8 virtualItem = 0; virtualItem < 3; ++virtualItem)
+            target->SetVirtualItem(virtualItem, 0);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        target->SetAnimTier(AnimTier::Ground);
+        target->SetDisableGravity(false);
+
+        target->SetDisplayId(DATA_DISPLAY_ID_SYLVANAS_ELF_MODEL);
+
+        target->SetVirtualItem(0, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(1, DATA_DISPLAY_ID_SYLVANAS_DAGGER);
+        target->SetVirtualItem(2, DATA_DISPLAY_ID_SYLVANAS_BOW);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_3::OnApply, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_3::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SCALE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 354142 - Veil of Darkness (Cast - Phase 3)
+class spell_sylvanas_windrunner_veil_of_darkness_phase_3 : public SpellScript
+{
+    PrepareSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_3);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_VEIL_OF_DARKNESS_PHASE_3_MARKER,
+            SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW,
+            SPELL_VEIL_OF_DARKNESS_DAMAGE,
+            SPELL_VEIL_OF_DARKNESS_ABSORB_AURA,
+            SPELL_STOMP_MOVEMENT_FORCE_AURA
+        });
+    }
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Unit* target = caster->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 500.0f, true, true))
+        {
+            _targetGUID = target->GetGUID();
+
+            target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_THREE, 0, 0);
+            target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_THREE_FLOOR, 0, 0);
+
+            target->CastSpell(target, SPELL_VEIL_OF_DARKNESS_PHASE_3_MARKER, true);
+        }
+
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_RIDING_COPY, 0), caster->m_Events.CalculateTime(0ms));
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_STOMP, 0, 0);
+
+        caster->RemoveAura(SPELL_VEIL_OF_DARKNESS_PHASE_3_GROW);
+
+        if (Player* target = ObjectAccessor::GetPlayer(*caster, _targetGUID))
+        {
+            target->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_SYLVANAS_VEIL_OF_DARKNESS_PHASE_THREE_FINISH, 0, 0);
+
+            caster->NearTeleportTo(target->GetPosition());
+        }
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        std::list<Player*> playerList;
+        GetPlayerListInGrid(playerList, caster, 5.0f);
+
+        for (Player* player : playerList)
+        {
+            uint8 auraCount = 1;
+
+            switch (caster->GetMap()->GetDifficultyID())
+            {
+                case DIFFICULTY_HEROIC_RAID: auraCount = 5; break;
+                case DIFFICULTY_MYTHIC_RAID: auraCount = 6; break;
+                default: break;
+            }
+
+            for (auraCount; auraCount > 0; auraCount--)
+                caster->CastSpell(player, SPELL_VEIL_OF_DARKNESS_ABSORB_AURA, true);
+
+            caster->CastSpell(player, SPELL_VEIL_OF_DARKNESS_DAMAGE, true);
+
+            player->AddAura(SPELL_STOMP_MOVEMENT_FORCE_AURA, player);
+        }
+
+        caster->m_Events.AddEvent(new SetSheatheOrNameplateOrAttackSpeed(caster, DATA_CHANGE_NAMEPLATE_TO_SYLVANAS, 0), caster->m_Events.CalculateTime(0ms));
+
+        caster->setAttackTimer(WeaponAttackType::BASE_ATTACK, 1500);
+
+        if (caster->IsAIEnabled())
+            caster->GetAI()->DoAction(ACTION_RESET_MELEE_KIT);
+
+        caster->m_Events.AddEvent(new PauseAttackStateOrResetAttackTimer(caster, false, true), caster->m_Events.CalculateTime(1s + 500ms));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sylvanas_windrunner_veil_of_darkness_phase_3::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_sylvanas_windrunner_veil_of_darkness_phase_3::HandleAfterCast);
+    }
+
+private:
+    ObjectGuid _targetGUID;
 };
 
 enum BolvarSpells
@@ -8481,6 +8630,8 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterSpellScript(spell_sylvanas_windrunner_raze);
     RegisterSpellScript(spell_sylvanas_windrunner_sylvanas_push);
     RegisterSpellScript(spell_sylvanas_shadow_dagger_phase_three);
+    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_grow_phase_3);
+    RegisterSpellScript(spell_sylvanas_windrunner_veil_of_darkness_phase_3);
 
     RegisterSpellScript(spell_sylvanas_windrunner_energize_power_aura);
     RegisterSpellScript(spell_sylvanas_windrunner_activate_phase_intermission);
