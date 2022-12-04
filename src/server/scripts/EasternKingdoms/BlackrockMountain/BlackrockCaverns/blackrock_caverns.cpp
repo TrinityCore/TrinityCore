@@ -590,6 +590,12 @@ struct npc_raz_the_crazed : public EscortAI
         DoCastSelf(SPELL_AGGRO_NEARBY_TARGETS, true);
     }
 
+    void JustEngagedWith(Unit* who) override
+    {
+        EscortAI::JustEngagedWith(who);
+        me->SetHomePosition(me->GetPosition());
+    }
+
     void JustAppeared() override
     {
         SetRun(true);
