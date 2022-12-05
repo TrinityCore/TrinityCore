@@ -6661,9 +6661,7 @@ void Player::SendCurrencies() const
     for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
         CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-
-        // not send init meta currencies.
-        if (!entry || entry->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
+        if (!entry)
             continue;
 
         uint32 precision = (entry->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
@@ -6813,7 +6811,7 @@ void Player::ModifyCurrency(uint32 currencyId, int32 amount, bool supressChatLog
     // Arena and rated battleground have two seperate currency Ids but display them both in a unified currency.
     if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
     {
-        ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, amount, supressChatLog);
+        ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, amount, supressChatLog, ignoreModifiersAndTracking);
         return;
     }
 
