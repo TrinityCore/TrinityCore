@@ -69,6 +69,8 @@ void WorldSession::HandleGuildAcceptOpcode(WorldPackets::Guild::AcceptGuildInvit
 void WorldSession::HandleGuildDeclineOpcode(WorldPackets::Guild::GuildDeclineInvitation& /*decline*/)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_DECLINE [%s]", GetPlayerInfo().c_str());
+    if (GetPlayer()->GetGuildId())
+        return;
 
     GetPlayer()->SetGuildIdInvited(0);
 }
