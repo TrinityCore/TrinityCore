@@ -24,6 +24,7 @@
 #include "Item.h"
 #include "ItemPackets.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -571,8 +572,14 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         TC_LOG_DEBUG("network", "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
 }
 
-void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& /*packet*/)
+void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& packet)
 {
+    PlayerCurrenciesMap::iterator itr = _player->_currencyStorage.find(packet.CurrencyID);
+    if (itr == _player->_currencyStorage.end())
+        return;
+
+    itr->second.Flags = packet.Flags;
+    itr->second.State = PLAYERCURRENCY_CHANGED;
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)

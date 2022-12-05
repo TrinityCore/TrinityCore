@@ -186,7 +186,7 @@ void Archaeology::CompleteProject(uint16 projectId)
     ASSERT(_branches[project->branch].Project == projectId);
     ASSERT(_archData);
 
-    _player->ModifyCurrency(_archData->FragId, -int32(_archData->FragCount), false, true);
+    _player->ModifyCurrency(_archData->FragId, -int32(_archData->FragCount), false, false);
     _player->DestroyItemCount(_archData->KeyId, _archData->KeyCount, true, false);
 
     WorldPackets::Archaeology::ResearchComplete packet;

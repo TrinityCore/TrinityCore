@@ -541,6 +541,20 @@ namespace WorldPackets
             uint32 UniqueID = 0;
             std::vector<uint8> Events;
         };
+
+        class SetCurrency final : public ServerPacket
+        {
+        public:
+            SetCurrency() : ServerPacket(SMSG_SET_CURRENCY, 13) { }
+
+            WorldPacket const* Write() override;
+
+            bool SuppressChatLog = false;
+            int32 Quantity = 0;
+            int32 Type = 0;
+            Optional<int32> TrackedQuantity;
+            Optional<int32> WeeklyQuantity;
+        };
     }
 }
 

@@ -203,7 +203,7 @@ void WorldSession::SendLfgPlayerLockInfo()
                 if (uint32 currencyId = currentQuest->RewardCurrencyId[i])
                     if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId))
                     {
-                        if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                        if (currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay))
                             playerDungeonInfo.Rewards.Currency.emplace_back(currencyId, currentQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION);
                         else
                             playerDungeonInfo.Rewards.Currency.emplace_back(currencyId, currentQuest->RewardCurrencyCount[i]);
@@ -223,7 +223,7 @@ void WorldSession::SendLfgPlayerLockInfo()
                 if (uint32 currencyId = shortageQuest->RewardCurrencyId[i])
                     if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId))
                     {
-                        if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                        if (currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay))
                             playerDungeonInfo.ShortageReward.Currency.emplace_back(currencyId, shortageQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION);
                         else
                             playerDungeonInfo.ShortageReward.Currency.emplace_back(currencyId, shortageQuest->RewardCurrencyCount[i]);
@@ -520,7 +520,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
         if (uint32 currencyId = rewardData.quest->RewardCurrencyId[i])
             if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId))
             {
-                if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                if (currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay))
                     lfgPlayerReward.Rewards.emplace_back(currencyId, rewardData.quest->RewardCurrencyCount[i] * CURRENCY_PRECISION, true);
                 else
                     lfgPlayerReward.Rewards.emplace_back(currencyId, rewardData.quest->RewardCurrencyCount[i], true);
@@ -533,7 +533,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
             if (uint32 currencyId = rewardData.shortageQuest->RewardCurrencyId[i])
                 if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId))
                 {
-                    if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                    if (currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay))
                         lfgPlayerReward.Rewards.emplace_back(currencyId, rewardData.shortageQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION, true);
                     else
                         lfgPlayerReward.Rewards.emplace_back(currencyId, rewardData.shortageQuest->RewardCurrencyCount[i], true);

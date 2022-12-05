@@ -207,7 +207,9 @@ enum PlayerCurrencyState
 
 struct PlayerCurrency
 {
-    PlayerCurrencyState state;
+    PlayerCurrency() : State(PLAYERCURRENCY_NEW), Quantity(0), WeeklyQuantity(0), TrackedQuantity(0), Flags(0) { }
+
+    PlayerCurrencyState State;
     uint32 Quantity;
     uint32 WeeklyQuantity;
     uint32 TrackedQuantity;
@@ -1222,19 +1224,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /// return presence related currency
         bool HasCurrency(uint32 id, uint32 count) const;
         /// initialize currency count for custom initialization at create character
-        void SetCurrency(uint32 id, uint32 count, bool printLog = true);
+        void SetCurrency(uint32 currencyId, uint32 amount);
         void ResetCurrencyWeekCap();
-
-        /**
-          * @name   ModifyCurrency
-          * @brief  Change specific currency and send result to client
-
-          * @param  id currency entry from CurrencyTypes.dbc
-          * @param  count integer value for adding/removing curent currency
-          * @param  printLog used on SMSG_UPDATE_CURRENCY
-          * @param  ignore gain multipliers
-        */
-        void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool isRefund = false);
+        void ModifyCurrency(uint32 currencyId, int32 amount, bool supressChatLog = false, bool ignoreModifiersAndTracking = false);
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);

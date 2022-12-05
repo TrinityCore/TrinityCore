@@ -588,6 +588,8 @@ struct CurrencyTypesEntry
     uint32 MaxEarnablePerWeek;                              // 8
     uint32 Flags;                                           // 9
     //uint32 Description;                                   // 10
+
+    EnumFlag<CurrencyTypeFlags> GetFlags() const { return static_cast<CurrencyTypeFlags>(Flags); }
 };
 
 struct DestructibleModelDataEntry

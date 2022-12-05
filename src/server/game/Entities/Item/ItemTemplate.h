@@ -229,15 +229,6 @@ enum ItemFlagsCustom
     ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004    // Item will always follow group/master/need before greed looting rules
 };
 
-enum CurrencyFlags
-{
-    CURRENCY_FLAG_TRADEABLE          = 0x01,
-    // ...
-    CURRENCY_FLAG_HIGH_PRECISION     = 0x08,
-    // ...
-    CURRENCY_FLAG_COUNT_SEASON_TOTAL = 0x80,
-};
-
 enum CurrencyCategory
 {
     // ...

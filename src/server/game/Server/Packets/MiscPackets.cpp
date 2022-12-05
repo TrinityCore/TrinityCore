@@ -500,3 +500,22 @@ WorldPacket const* WorldPackets::Misc::MapObjEvents::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
+{
+    _worldPacket.WriteBit(WeeklyQuantity.has_value());
+    _worldPacket.WriteBit(TrackedQuantity.has_value());
+    _worldPacket.WriteBit(SuppressChatLog);
+    _worldPacket.FlushBits();
+
+    if (TrackedQuantity.has_value())
+        _worldPacket << int32(*TrackedQuantity);
+
+    _worldPacket << int32(Quantity);
+    _worldPacket << int32(Type);
+
+    if (WeeklyQuantity.has_value())
+        _worldPacket << int32(*WeeklyQuantity);
+
+    return &_worldPacket;
+}

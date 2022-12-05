@@ -6564,7 +6564,6 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     return true;
 }
 
-
 void Player::_LoadCurrency(PreparedQueryResult result)
 {
     if (!result)
@@ -6581,11 +6580,11 @@ void Player::_LoadCurrency(PreparedQueryResult result)
             continue;
 
         PlayerCurrency cur;
-        cur.state = PLAYERCURRENCY_UNCHANGED;
-        cur.Quantity = fields[1].GetUInt32();
-        cur.WeeklyQuantity = fields[2].GetUInt32();
+        cur.State           = PLAYERCURRENCY_UNCHANGED;
+        cur.Quantity        = fields[1].GetUInt32();
+        cur.WeeklyQuantity  = fields[2].GetUInt32();
         cur.TrackedQuantity = fields[3].GetUInt32();
-        cur.Flags = fields[4].GetUInt8();
+        cur.Flags           = fields[4].GetUInt8();
 
         _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
 
@@ -6601,7 +6600,7 @@ void Player::_SaveCurrency(CharacterDatabaseTransaction& trans)
         if (!entry) // should never happen
             continue;
 
-        switch (itr->second.state)
+        switch (itr->second.State)
         {
             case PLAYERCURRENCY_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
@@ -6627,7 +6626,7 @@ void Player::_SaveCurrency(CharacterDatabaseTransaction& trans)
                 break;
         }
 
-        itr->second.state = PLAYERCURRENCY_UNCHANGED;
+        itr->second.State = PLAYERCURRENCY_UNCHANGED;
     }
 }
 
@@ -6667,18 +6666,22 @@ void Player::SendCurrencies() const
         if (!entry || entry->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
             continue;
 
-        uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+        uint32 precision = (entry->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
 
         WorldPackets::Misc::SetupCurrency::Record record;
         record.Type = entry->ID;
         record.Quantity = itr->second.Quantity / precision;
-        record.WeeklyQuantity = itr->second.WeeklyQuantity / precision;
-        record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / precision;
 
-        if (entry->Flags & CURRENCY_FLAG_COUNT_SEASON_TOTAL)
+        if (itr->second.WeeklyQuantity / precision > 0)
+            record.WeeklyQuantity = itr->second.WeeklyQuantity / precision;
+
+        if (entry->GetFlags().HasFlag(CurrencyTypeFlags::ComputedWeeklyMaximum) || entry->MaxEarnablePerWeek)
+            record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry) / precision;
+
+        if (entry->GetFlags().HasFlag(CurrencyTypeFlags::TrackQuantity))
             record.TrackedQuantity = itr->second.TrackedQuantity / precision;
 
-        record.Flags = itr->second.state;
+        record.Flags = itr->second.Flags;
         packet.Data.push_back(record);
     }
 
@@ -6705,7 +6708,7 @@ uint32 Player::GetCurrency(uint32 id, bool usePrecision) const
         return 0;
 
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
-    uint32 precision = (usePrecision && currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+    uint32 precision = (usePrecision && currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
 
     return itr->second.Quantity / precision;
 }
@@ -6717,7 +6720,7 @@ uint32 Player::GetCurrencyOnWeek(uint32 id, bool usePrecision) const
         return 0;
 
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
-    uint32 precision = (usePrecision && currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+    uint32 precision = (usePrecision && currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
 
     return itr->second.WeeklyQuantity / precision;
 }
@@ -6737,147 +6740,114 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.Quantity >= count;
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool isRefund/* = false*/)
+void Player::ModifyCurrency(uint32 currencyId, int32 amount, bool supressChatLog /*= false*/, bool ignoreModifiersAndTracking /*= false*/)
 {
-    if (!count)
+    if (amount == 0)
         return;
 
-    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
-    ASSERT(currency);
+    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
+    if (!currency)
+    {
+        TC_LOG_ERROR("player", "Player %s was attempting to modify a invalid currency (Id: %u).", GetGUID().ToString().c_str(), currencyId);
+        return;
+    }
 
-    if (!ignoreMultipliers && !isRefund)
-        count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
+    if (!ignoreModifiersAndTracking)
+        amount *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, currencyId);
 
-    int32 precision = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
-    uint32 oldTotalCount = 0;
-    uint32 oldWeekCount = 0;
-    uint32 oldTrackedCount = 0;
-    bool hasSeasonCount = false;
-    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
+    PlayerCurrency* playerCurrency = nullptr;
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(currencyId);
     if (itr == _currencyStorage.end())
     {
-        PlayerCurrency cur;
-        cur.state = PLAYERCURRENCY_NEW;
-        cur.Quantity = 0;
-        cur.WeeklyQuantity = 0;
-        cur.TrackedQuantity = 0;
-        cur.Flags = 0;
-        _currencyStorage[id] = cur;
-        itr = _currencyStorage.find(id);
-    }
-    else
-    {
-        oldTotalCount = itr->second.Quantity;
-        oldWeekCount = itr->second.WeeklyQuantity;
-        oldTrackedCount = itr->second.TrackedQuantity;
+        _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyId, PlayerCurrency()));
+        itr = _currencyStorage.find(currencyId);
     }
 
-    // count can't be more then weekCap if used (weekCap > 0)
-    uint32 weekCap = GetCurrencyWeekCap(currency);
-    if (!isRefund && weekCap && weekCap == oldWeekCount && count > 0)
+    playerCurrency = &itr->second;
+
+    // Weekly cap
+    uint32 weeklyCap = GetCurrencyWeekCap(currency);
+    if (!ignoreModifiersAndTracking) // Refunds and commands bypass the weekly limit
+        if (weeklyCap > 0 && amount > 0 && (playerCurrency->WeeklyQuantity + amount) > weeklyCap)
+            amount = weeklyCap - playerCurrency->WeeklyQuantity;
+
+    // Total cap
+    if (currency->MaxQty > 0 && amount > 0 && (playerCurrency->Quantity + amount) > currency->MaxQty)
+    {
+        // Patch 4.0.3a (2010-11-23): Justice Points over the 4,000 hard cap will be immediately converted at a ratio of 47s 50c per Justice Point
+        // Apparently there are no currency type flags for this so we assume that this is a hardcoded behavior
+        if (currency->ID == CURRENCY_TYPE_JUSTICE_POINTS)
+        {
+            int32 surplousAmount = amount - (currency->MaxQty - playerCurrency->Quantity);
+            if (surplousAmount > 0)
+                ModifyMoney(static_cast<int64>(surplousAmount) * JUSTICE_POINTS_CONVERSION_MONEY / CURRENCY_PRECISION, false);
+        }
+
+        amount = currency->MaxQty - playerCurrency->Quantity;
+    }
+
+    // Underflow protection
+    if (amount < 0 && uint32(std::abs(amount)) > playerCurrency->Quantity)
+        amount = playerCurrency->Quantity * -1;
+
+    if (amount == 0)
         return;
 
-    if (!isRefund && weekCap && count > int32(weekCap))
-        count = weekCap;
+    if (playerCurrency->State != PLAYERCURRENCY_NEW)
+        playerCurrency->State = PLAYERCURRENCY_CHANGED;
 
-    // count can't be more then totalCap if used (totalCap > 0)
-    uint32 totalCap = GetCurrencyTotalCap(currency);
+    playerCurrency->Quantity += amount;
 
-    // Patch 4.0.3a - Justice Points over the hard cap of 4000 will be converted to 47 silver and 50 copper per point.
-    uint32 surplousJusticePoints = 0;
-    if (totalCap && count > int32(totalCap))
+    if (!ignoreModifiersAndTracking)
     {
-        if (id == CURRENCY_TYPE_JUSTICE_POINTS)
-            surplousJusticePoints = (oldTotalCount + count - totalCap) / precision;
-        count = totalCap;
+        if (weeklyCap)
+            playerCurrency->WeeklyQuantity += amount;
+
+        if (currency->GetFlags().HasFlag(CurrencyTypeFlags::TrackQuantity))
+            playerCurrency->TrackedQuantity += amount;
+
+        if (amount > 0)
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, currencyId, amount);
     }
 
-    if (surplousJusticePoints)
-        ModifyMoney(surplousJusticePoints * JUSTICE_POINTS_CONVERSION_MONEY, false);
-
-    int32 newTotalCount = int32(oldTotalCount) + count;
-    if (newTotalCount < 0)
-        newTotalCount = 0;
-
-    int32 newWeekCount = int32(oldWeekCount) + (count > 0 ? count : 0);
-    if (newWeekCount < 0)
-        newWeekCount = 0;
-
-    // if we get more than weekCap just set to limit
-    if (!isRefund && weekCap && int32(weekCap) < newWeekCount)
+    // Arena and rated battleground have two seperate currency Ids but display them both in a unified currency.
+    if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
     {
-        newWeekCount = int32(weekCap);
-        // weekCap - oldWeekCount always >= 0 as we set limit before!
-        newTotalCount = oldTotalCount + (weekCap - oldWeekCount);
+        ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, amount, supressChatLog);
+        return;
     }
 
-    // if we get more then totalCap set to maximum;
-    if (totalCap && int32(totalCap) < newTotalCount)
-    {
-        newTotalCount = int32(totalCap);
-        newWeekCount = weekCap;
-    }
+    uint8 precision = (currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
 
-    if (uint32(newTotalCount) != oldTotalCount)
-    {
-        if (currency->Flags & CURRENCY_FLAG_COUNT_SEASON_TOTAL && !isRefund)
-            hasSeasonCount = true;
+    WorldPackets::Misc::SetCurrency setCurrency;
+    setCurrency.Type = currency->ID;
+    setCurrency.Quantity = playerCurrency->Quantity / precision;
+    if (uint32 trackedQuantity = playerCurrency->TrackedQuantity / precision)
+        setCurrency.TrackedQuantity = trackedQuantity;
+    if (uint32 weeklyQuantity = playerCurrency->WeeklyQuantity / precision)
+        setCurrency.WeeklyQuantity = weeklyQuantity;
+    setCurrency.SuppressChatLog = supressChatLog;
 
-        if (itr->second.state != PLAYERCURRENCY_NEW)
-            itr->second.state = PLAYERCURRENCY_CHANGED;
+    SendDirectMessage(setCurrency.Write());
 
-        itr->second.Quantity = newTotalCount;
-        itr->second.WeeklyQuantity = isRefund ? oldWeekCount : newWeekCount;
-
-        if (!isRefund && count > 0)
-        {
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
-            if (hasSeasonCount)
-                oldTrackedCount += count;
-            itr->second.TrackedQuantity = oldTrackedCount;
-        }
-
-        if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
-        {
-            // count was changed to week limit, now we can modify original points.
-            ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog);
-            return;
-        }
-
-        if (itr->second.state == PLAYERCURRENCY_NEW && HasSkill(SKILL_ARCHAEOLOGY) &&
-            currency->CategoryID == CURRENCY_CATEGORY_ARCHAEOLOGY)
-            _archaeology->ActivateBranch(sArchaeologyMgr->Currency2BranchId(currency->ID));
-
-        WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
-
-        packet.WriteBit(weekCap != 0);
-        packet.WriteBit(hasSeasonCount); // hasSeasonCount
-        packet.WriteBit(!printLog); // print in log
-
-        if (hasSeasonCount)
-            packet << uint32(oldTrackedCount / precision);
-
-        packet << uint32(newTotalCount / precision);
-        packet << uint32(id);
-        if (weekCap)
-            packet << uint32((!isRefund ? newWeekCount : oldWeekCount) / precision);
-
-        SendDirectMessage(&packet);
-    }
+    // Archaeology branch activation
+    if (itr->second.State == PLAYERCURRENCY_NEW && HasSkill(SKILL_ARCHAEOLOGY) &&
+        currency->CategoryID == CURRENCY_CATEGORY_ARCHAEOLOGY)
+        _archaeology->ActivateBranch(sArchaeologyMgr->Currency2BranchId(currency->ID));
 }
 
-void Player::SetCurrency(uint32 id, uint32 count, bool /*printLog*/ /*= true*/)
+void Player::SetCurrency(uint32 currencyId, uint32 amount)
 {
-    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(currencyId);
     if (itr == _currencyStorage.end())
     {
         PlayerCurrency cur;
-        cur.state = PLAYERCURRENCY_NEW;
-        cur.Quantity = count;
+        cur.State = PLAYERCURRENCY_NEW;
+        cur.Quantity = amount;
         cur.WeeklyQuantity = 0;
         cur.TrackedQuantity = 0;
         cur.Flags = 0;
-        _currencyStorage[id] = cur;
+        _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyId, cur));
     }
 }
 
@@ -6887,7 +6857,7 @@ uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision) const
     if (!entry)
         return 0;
 
-    uint32 precision = (usePrecision && entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+    uint32 precision = (usePrecision && entry->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
 
     return GetCurrencyWeekCap(entry) / precision;
 }
@@ -6908,7 +6878,7 @@ void Player::ResetCurrencyWeekCap()
     for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
         itr->second.WeeklyQuantity = 0;
-        itr->second.state = PLAYERCURRENCY_CHANGED;
+        itr->second.State = PLAYERCURRENCY_CHANGED;
     }
 
     WorldPacket data(SMSG_WEEKLY_RESET_CURRENCY, 0);
@@ -6917,17 +6887,22 @@ void Player::ResetCurrencyWeekCap()
 
 uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
 {
-    switch (currency->ID)
+    if (currency->GetFlags().HasFlag(CurrencyTypeFlags::ComputedWeeklyMaximum))
     {
+        switch (currency->ID)
+        {
             //original conquest not have week cap
-        case CURRENCY_TYPE_CONQUEST_POINTS:
-            return std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, false), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, false));
-        case CURRENCY_TYPE_CONQUEST_META_ARENA:
-            // should add precision mod = 100
-            return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
-        case CURRENCY_TYPE_CONQUEST_META_RBG:
-            // should add precision mod = 100
-            return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
+            case CURRENCY_TYPE_CONQUEST_POINTS:
+                return std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, false), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, false));
+            case CURRENCY_TYPE_CONQUEST_META_ARENA:
+                // should add precision mod = 100
+                return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
+            case CURRENCY_TYPE_CONQUEST_META_RBG:
+                // should add precision mod = 100
+                return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
+            default:
+                return 0;
+        }
     }
 
     return currency->MaxEarnablePerWeek;
@@ -6968,7 +6943,7 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
         if (!currencyEntry)
             continue;
 
-        uint32 precision = (currencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+        uint32 precision = (currencyEntry->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? 100 : 1;
         uint32 cap = GetCurrencyWeekCap(currencyEntry);
 
         WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
@@ -14899,7 +14874,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             uint32 rewardCurrencyCount = quest->RewardCurrencyCount[i];
 
             CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(quest->RewardCurrencyId[i]);
-            if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+            if (currency->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay))
                 rewardCurrencyCount = rewardCurrencyCount * CURRENCY_PRECISION;
 
             ModifyCurrency(quest->RewardCurrencyId[i], rewardCurrencyCount, !quest->IsDFQuest());
@@ -22139,7 +22114,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
         if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
             continue;
 
-        ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]) * stacks, false, true);
+        ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]) * stacks, true, true);
     }
 
     return true;
@@ -27033,7 +27008,7 @@ void Player::SendRefundInfo(Item* item)
         }
 
         CurrencyTypesEntry const* currencyType = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
-        uint32 precision = (currencyType && currencyType->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+        uint32 precision = (currencyType && currencyType->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
 
         data << uint32(iece->RequiredCurrencyCount[i] / precision);
         data << uint32(iece->RequiredCurrency[i]);
@@ -27097,7 +27072,7 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
             }
 
             CurrencyTypesEntry const* currencyType = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
-            uint32 precision = (currencyType && currencyType->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
+            uint32 precision = (currencyType && currencyType->GetFlags().HasFlag(CurrencyTypeFlags::Uses1To100ScalarForDisplay)) ? CURRENCY_PRECISION : 1;
 
             data << uint32(iece->RequiredCurrencyCount[i] / precision);
             data << uint32(iece->RequiredCurrency[i]);
@@ -27218,7 +27193,7 @@ void Player::RefundItem(Item* item)
             continue;
 
         if (count && currencyid)
-            ModifyCurrency(currencyid, count, false, false, true);
+            ModifyCurrency(currencyid, count, true, true);
     }
 
     // Grant back money

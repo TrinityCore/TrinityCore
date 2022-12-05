@@ -783,4 +783,22 @@ enum CurrencyTypes
     CURRENCY_TYPE_TOLVIR_FRAGMENT       = 401,
 };
 
+enum class CurrencyTypeFlags : uint32
+{
+    None                                            = 0x000,
+    Tradable                                        = 0x001,
+    AppearsInLootWindow                             = 0x002,
+    ComputedWeeklyMaximum                           = 0x004,
+    Uses1To100ScalarForDisplay                      = 0x008,
+    NoLowLevelLoot                                  = 0x010,
+    IgnoreMaxQuantityOnLoad                         = 0x020,
+    LogQuantityWhenChangingWorlds                   = 0x040,
+    TrackQuantity                                   = 0x080,
+    ResetTrackedQuantityWhenUpdatingVersion         = 0x100,
+    GainsFromUpdatingVersionsIgnoresMaximumQuantity = 0x200,
+    SupressGainMessageWhenUpdatingVersions          = 0x400
+};
+
+DEFINE_ENUM_FLAG(CurrencyTypeFlags);
+
 #endif
