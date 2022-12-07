@@ -579,7 +579,8 @@ void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& 
         return;
 
     itr->second.Flags = packet.Flags;
-    itr->second.State = PLAYERCURRENCY_CHANGED;
+    if (itr->second.State != PLAYERCURRENCY_NEW)
+        itr->second.State = PLAYERCURRENCY_CHANGED;
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
