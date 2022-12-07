@@ -125,12 +125,12 @@ namespace Trinity
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
-            // @tswow-begin
+        bool required3dDist;
+        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr, bool req3dDist = false)
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_phase_id(src->m_phase_id), i_distSq(dist * dist)
-            // @tswow-end
             , team(0)
             , skipped_receiver(skipped)
+            , required3dDist(req3dDist)
         {
             if (own_team_only)
                 if (Player const* player = src->ToPlayer())

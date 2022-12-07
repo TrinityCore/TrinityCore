@@ -267,8 +267,16 @@ void MessageDistDeliverer::Visit(PlayerMapType &m)
         // @tswow-end
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
-            continue;
+        if (required3dDist)
+        {
+            if (target->GetExactDistSq(i_source) > i_distSq)
+                continue;
+        }
+        else
+        {
+            if (target->GetExactDist2dSq(i_source) > i_distSq)
+                continue;
+        }
 
         // Send packet to all who are sharing the player's vision
         if (target->HasSharedVision())
@@ -294,8 +302,16 @@ void MessageDistDeliverer::Visit(CreatureMapType &m)
         // @tswow-end
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
-            continue;
+        if (required3dDist)
+        {
+            if (target->GetExactDistSq(i_source) > i_distSq)
+                continue;
+        }
+        else
+        {
+            if (target->GetExactDist2dSq(i_source) > i_distSq)
+                continue;
+        }
 
         // Send packet to all who are sharing the creature's vision
         if (target->HasSharedVision())
@@ -318,8 +334,16 @@ void MessageDistDeliverer::Visit(DynamicObjectMapType &m)
         // @tswow-end
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
-            continue;
+        if (required3dDist)
+        {
+            if (target->GetExactDistSq(i_source) > i_distSq)
+                continue;
+        }
+        else
+        {
+            if (target->GetExactDist2dSq(i_source) > i_distSq)
+                continue;
+        }
 
         if (Unit* caster = target->GetCaster())
         {
