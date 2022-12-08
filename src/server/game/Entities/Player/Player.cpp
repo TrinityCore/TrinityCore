@@ -6756,10 +6756,7 @@ void Player::ModifyCurrency(uint32 currencyId, int32 amount, bool supressChatLog
     PlayerCurrency* playerCurrency = nullptr;
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(currencyId);
     if (itr == _currencyStorage.end())
-    {
-        _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyId, PlayerCurrency()));
-        itr = _currencyStorage.find(currencyId);
-    }
+        itr = _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyId, PlayerCurrency())).first;
 
     playerCurrency = &itr->second;
 
