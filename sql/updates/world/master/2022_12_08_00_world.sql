@@ -1,0 +1,74 @@
+SET @CGUID := 396569;
+SET @OGUID := 249542;
+SET @EVENT := 26;
+
+-- Creature spawns
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+(@CGUID+0, 32823, 530, 3433, 3488, '0', 0, 0, 0, 0, 7584.57275390625, -6763.36962890625, 86.72222900390625, 0, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Tranquillien - Difficulty: 0) (Auras: )
+(@CGUID+1, 34654, 530, 3433, 3488, '0', 0, 0, 0, 0, 7580.23095703125, -6769.03662109375, 86.875, 4.502949237823486328, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741); -- Bountiful Feast Hostess (Area: Tranquillien - Difficulty: 0)
+
+-- Gameobject spawns
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+25;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 179968, 530, 3433, 3488, '0', 0, 0, 7582.15283203125, -6767.5712890625, 86.64583587646484375, 1.029743075370788574, 0, 0, 0.492423057556152343, 0.870355963706970214, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+1, 179968, 530, 3433, 3488, '0', 0, 0, 7588.36474609375, -6768.595703125, 86.36458587646484375, 1.989672422409057617, 0, 0, 0.838669776916503906, 0.544640243053436279, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+2, 179968, 530, 3433, 3488, '0', 0, 0, 7585.71337890625, -6769.0400390625, 86.43064117431640625, 1.48352813720703125, 0, 0, 0.675589561462402343, 0.737277925014495849, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+3, 179968, 530, 3433, 3488, '0', 0, 0, 7586.58837890625, -6757.90087890625, 87.3211822509765625, 4.729844093322753906, 0, 0, -0.70090866088867187, 0.713251054286956787, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+4, 179968, 530, 3433, 3488, '0', 0, 0, 7591.1181640625, -6762.20654296875, 87.14409637451171875, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+5, 179968, 530, 3433, 3488, '0', 0, 0, 7580.8818359375, -6765.734375, 86.798614501953125, 3.43830275535583496, 0, 0, -0.98901557922363281, 0.147811368107795715, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+6, 179968, 530, 3433, 3488, '0', 0, 0, 7591.14599609375, -6764.564453125, 86.82465362548828125, 2.809975385665893554, 0, 0, 0.986285209655761718, 0.165049895644187927, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+7, 179968, 530, 3433, 3488, '0', 0, 0, 7581.83349609375, -6759.046875, 87.03472137451171875, 2.076939344406127929, 0, 0, 0.861628532409667968, 0.50753939151763916, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+8, 179968, 530, 3433, 3488, '0', 0, 0, 7579.91845703125, -6761.18212890625, 87.26041412353515625, 5.794494152069091796, 0, 0, -0.24192142486572265, 0.970295846462249755, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+9, 179968, 530, 3433, 3488, '0', 0, 0, 7588.6005859375, -6758.54150390625, 87.3975677490234375, 4.1538848876953125, 0, 0, -0.8746194839477539, 0.484810054302215576, 120, 255, 1, 46741), -- Haystack 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+10, 180353, 530, 3433, 3488, '0', 0, 0, 7587.1650390625, -6768.7900390625, 86.4017181396484375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+11, 180353, 530, 3433, 3488, '0', 0, 0, 7581.26220703125, -6766.658203125, 86.71353912353515625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+12, 180353, 530, 3433, 3488, '0', 0, 0, 7591.18212890625, -6763.3212890625, 86.98784637451171875, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+13, 180353, 530, 3433, 3488, '0', 0, 0, 7587.59033203125, -6758.06103515625, 87.375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+14, 180353, 530, 3433, 3488, '0', 0, 0, 7580.6181640625, -6759.95654296875, 87.1336822509765625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Tranquillien - Difficulty: 0)
+(@OGUID+15, 195164, 530, 3433, 3488, '0', 0, 0, 7582.0849609375, -6767.501953125, 87.35654449462890625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+16, 195164, 530, 3433, 3488, '0', 0, 0, 7585.6630859375, -6768.970703125, 87.1362457275390625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+17, 195164, 530, 3433, 3488, '0', 0, 0, 7588.50537109375, -6768.4775390625, 87.0614013671875, 2.635444164276123046, 0, 0, 0.96814727783203125, 0.250381410121917724, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+18, 195164, 530, 3433, 3488, '0', 0, 0, 7581.814453125, -6759.09228515625, 87.7402191162109375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+19, 195164, 530, 3433, 3488, '0', 0, 0, 7591.02587890625, -6762.234375, 87.83744049072265625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+20, 195164, 530, 3433, 3488, '0', 0, 0, 7586.546875, -6757.99462890625, 87.99716949462890625, 4.223697185516357421, 0, 0, -0.85716724395751953, 0.515038192272186279, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+21, 195164, 530, 3433, 3488, '0', 0, 0, 7591.0087890625, -6764.70654296875, 87.49542999267578125, 5.113816738128662109, 0, 0, -0.55193614959716796, 0.833886384963989257, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+22, 195164, 530, 3433, 3488, '0', 0, 0, 7580.015625, -6761.2275390625, 87.94161224365234375, 3.473210096359252929, 0, 0, -0.98628520965576171, 0.165049895644187927, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+23, 195164, 530, 3433, 3488, '0', 0, 0, 7588.5400390625, -6758.52587890625, 88.1013336181640625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+24, 195164, 530, 3433, 3488, '0', 0, 0, 7580.9306640625, -6765.689453125, 87.5058441162109375, 3.752462387084960937, 0, 0, -0.95371627807617187, 0.300707906484603881, 120, 255, 1, 46741), -- Pumpkin (Area: Tranquillien - Difficulty: 0)
+(@OGUID+25, 195664, 530, 3433, 3488, '0', 0, 0, 7584.572265625, -6763.36962890625, 86.63889312744140625, 0, 0, 0, 0, 1, 120, 255, 1, 46741); -- [DND] Collision Thanksgiving Table Size (Area: Tranquillien - Difficulty: 0)
+
+-- Event spawns
+DELETE FROM `game_event_creature` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @CGUID+0 AND @CGUID+1;
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
+(@EVENT, @CGUID+0), 
+(@EVENT, @CGUID+1);
+
+DELETE FROM `game_event_gameobject` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @OGUID+0 AND @OGUID+25;
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
+(@EVENT, @OGUID+0),
+(@EVENT, @OGUID+1),
+(@EVENT, @OGUID+2),
+(@EVENT, @OGUID+3),
+(@EVENT, @OGUID+4),
+(@EVENT, @OGUID+5),
+(@EVENT, @OGUID+6),
+(@EVENT, @OGUID+7),
+(@EVENT, @OGUID+8),
+(@EVENT, @OGUID+9),
+(@EVENT, @OGUID+10),
+(@EVENT, @OGUID+11),
+(@EVENT, @OGUID+12),
+(@EVENT, @OGUID+13),
+(@EVENT, @OGUID+14),
+(@EVENT, @OGUID+15),
+(@EVENT, @OGUID+16),
+(@EVENT, @OGUID+17),
+(@EVENT, @OGUID+18),
+(@EVENT, @OGUID+19),
+(@EVENT, @OGUID+20),
+(@EVENT, @OGUID+21),
+(@EVENT, @OGUID+22),
+(@EVENT, @OGUID+23),
+(@EVENT, @OGUID+24),
+(@EVENT, @OGUID+25);
