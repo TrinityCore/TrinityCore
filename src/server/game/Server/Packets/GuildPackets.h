@@ -635,6 +635,16 @@ namespace WorldPackets
             std::vector<GuildBankLogEntry> Entry;
             Optional<uint64> WeeklyBonusMoney;
         };
+
+        class GuildReputationReactionChanged final : public ServerPacket
+        {
+        public:
+            GuildReputationReactionChanged() : ServerPacket(SMSG_GUILD_REPUTATION_REACTION_CHANGED, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MemberGUID;
+        };
     }
 }
 
