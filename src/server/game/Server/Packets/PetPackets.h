@@ -35,6 +35,16 @@ namespace WorldPackets
             int32 ModelID = 0;
             TaggedPosition<Position::XYZ> ModelPosition;
         };
+
+        class PetGuids final : public ServerPacket
+        {
+        public:
+            PetGuids() : ServerPacket(SMSG_PET_GUIDS, 1) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<ObjectGuid> PetGUIDs;
+        };
     }
 }
 

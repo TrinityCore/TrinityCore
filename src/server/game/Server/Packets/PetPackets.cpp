@@ -24,3 +24,12 @@ WorldPacket const* WorldPackets::Pet::PetDismissSound::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetGuids::Write()
+{
+    _worldPacket << int32(PetGUIDs.size());
+    for (ObjectGuid const& guid : PetGUIDs)
+        _worldPacket << guid;
+
+    return &_worldPacket;
+}
