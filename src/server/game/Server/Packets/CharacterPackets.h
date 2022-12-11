@@ -256,6 +256,16 @@ namespace WorldPackets
             int32 MapID = -1;
             bool Showing = false;
         };
+
+        class FailedPlayerCondition final : public ServerPacket
+        {
+        public:
+            FailedPlayerCondition() : ServerPacket(SMSG_FAILED_PLAYER_CONDITION, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ConditionID = 0;
+        };
     }
 }
 

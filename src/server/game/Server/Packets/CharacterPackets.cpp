@@ -323,3 +323,10 @@ void WorldPackets::Character::LoadingScreenNotify::Read()
     _worldPacket >> MapID;
     Showing = _worldPacket.ReadBit();
 }
+
+WorldPacket const* WorldPackets::Character::FailedPlayerCondition::Write()
+{
+    _worldPacket << int32(ConditionID);
+
+    return &_worldPacket;
+}
