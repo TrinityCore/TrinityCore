@@ -964,6 +964,7 @@ void WorldSession::SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID
     petAdded.Flags = PET_STABLE_ACTIVE | (petSlot > PET_SLOT_LAST_ACTIVE_SLOT ? PET_STABLE_INACTIVE : 0);
     petAdded.CreatureID = creatureID;
     petAdded.Name = name;
+    petAdded.PetNumber = petNumber;
 
     SendPacket(petAdded.Write());
 }
