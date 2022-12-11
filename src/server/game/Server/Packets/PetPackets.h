@@ -57,6 +57,17 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             uint32 PetMode = 0;
         };
+
+        class PetActionFeedback final : public ServerPacket
+        {
+        public:
+            PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            uint8 Response = 0;
+        };
     }
 }
 

@@ -1693,7 +1693,7 @@ class TC_GAME_API Unit : public WorldObject
         int8 m_comboPoints;
 
         ///----------Pet responses methods-----------------
-        void SendPetActionFeedback (uint8 msg);
+        void SendPetActionFeedback (uint8 response, uint32 spellId = 0);
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(ObjectGuid guid);
         ///----------End of Pet responses methods----------

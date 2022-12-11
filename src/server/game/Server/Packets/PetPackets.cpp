@@ -16,6 +16,7 @@
 */
 
 #include "PetPackets.h"
+#include "PetDefines.h"
 
 WorldPacket const* WorldPackets::Pet::PetDismissSound::Write()
 {
@@ -38,6 +39,23 @@ WorldPacket const* WorldPackets::Pet::SPetMode::Write()
 {
     _worldPacket << PetGUID;
     _worldPacket << uint32(PetMode);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetActionFeedback::Write()
+{
+    _worldPacket << uint8(Response);
+
+    switch (Response)
+    {
+        case FEEDBACK_NOTHING_TO_ATT:
+        case FEEDBACK_CANT_ATT_TARGET:
+            _worldPacket << int32(SpellID);
+            break;
+        default:
+            break;
+    }
 
     return &_worldPacket;
 }
