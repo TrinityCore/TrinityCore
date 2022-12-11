@@ -81,6 +81,7 @@
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "PetitionMgr.h"
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
@@ -20850,6 +20851,17 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
         if (GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_PET);
+
+        if (mode == PET_SAVE_DISMISS && getClass() == CLASS_WARLOCK)
+        {
+            if (CreatureDisplayInfoEntry const* creatureDisplay = sCreatureDisplayInfoStore.LookupEntry(pet->GetDisplayId()))
+            {
+                WorldPackets::Pet::PetDismissSound dismissSound;
+                dismissSound.ModelID = creatureDisplay->ModelID;
+                dismissSound.ModelPosition = pet->GetPosition();
+                pet->SendMessageToSet(dismissSound.Write(), false);
+            }
+        }
     }
 }
 

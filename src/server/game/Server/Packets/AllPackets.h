@@ -36,6 +36,7 @@
 #include "MovementPackets.h"
 #include "NPCPackets.h"
 #include "PartyPackets.h"
+#include "PetPackets.h"
 #include "QuestPackets.h"
 #include "QueryPackets.h"
 #include "SpellPackets.h"
