@@ -10209,16 +10209,16 @@ void Unit::SendPetActionFeedback(uint8 response, uint32 spellId /*=0*/)
     owner->ToPlayer()->SendDirectMessage(actionFeedback.Write());
 }
 
-void Unit::SendPetTalk(uint32 pettalk)
+void Unit::SendPetActionSound(int32 action)
 {
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    data << uint64(GetGUID());
-    data << uint32(pettalk);
-    owner->ToPlayer()->SendDirectMessage(&data);
+    WorldPackets::Pet::PetActionSound actionSound;
+    actionSound.UnitGUID = GetGUID();
+    actionSound.Action = action;
+    owner->ToPlayer()->SendDirectMessage(actionSound.Write());
 }
 
 void Unit::SendPetAIReaction(ObjectGuid guid)

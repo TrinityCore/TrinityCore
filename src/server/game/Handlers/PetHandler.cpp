@@ -231,7 +231,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
                             //10% chance to play special pet attack talk, else growl
                             if (pet->IsPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
-                                pet->SendPetTalk((uint32)PET_TALK_ATTACK);
+                                pet->SendPetActionSound((uint32)PET_TALK_ATTACK);
                             else
                             {
                                 // 90% chance for pet and 100% chance for charmed creature
@@ -370,7 +370,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 //10% chance to play special pet attack talk, else growl
                 //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
                 if (pet->IsPet() && (((Pet*)pet)->getPetType() == SUMMON_PET) && (pet != unit_target) && (urand(0, 100) < 10))
-                    pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
+                    pet->SendPetActionSound(PET_TALK_SPECIAL_SPELL);
                 else
                 {
                     pet->SendPetAIReaction(guid1);
@@ -813,7 +813,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
                 // 10% chance to play special pet attack talk, else growl
                 // actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
                 if (pet->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
-                    pet->SendPetTalk(PET_TALK_SPECIAL_SPELL);
+                    pet->SendPetActionSound(PET_TALK_SPECIAL_SPELL);
                 else
                     pet->SendPetAIReaction(guid);
             }

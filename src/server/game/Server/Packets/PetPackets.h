@@ -68,6 +68,17 @@ namespace WorldPackets
             int32 SpellID = 0;
             uint8 Response = 0;
         };
+
+        class PetActionSound final : public ServerPacket
+        {
+        public:
+            PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            int32 Action = 0;
+        };
     }
 }
 

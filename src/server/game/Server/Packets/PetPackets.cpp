@@ -59,3 +59,11 @@ WorldPacket const* WorldPackets::Pet::PetActionFeedback::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetActionSound::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << int32(Action);
+
+    return &_worldPacket;
+}
