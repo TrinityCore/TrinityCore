@@ -540,7 +540,7 @@ enum OpcodeClient : uint16
     CMSG_TAXIQUERYAVAILABLENODES                      = 0x6C06,
     CMSG_TAXISHOWNODES                                = 0x0000,
     CMSG_TELEPORT_TO_UNIT                             = 0x4206,
-    CMSG_TEXT_EMOTE                                   = 0x2E24,
+    CMSG_SEND_TEXT_EMOTE                              = 0x2E24,
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0x3818,
     CMSG_TIME_SYNC_RESP                               = 0x3B0C,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0x710A,

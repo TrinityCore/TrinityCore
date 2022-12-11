@@ -99,6 +99,11 @@ namespace WorldPackets
         enum class LoginFailureReason : uint8;
     }
 
+    namespace Chat
+    {
+        class SendTextEmote;
+    }
+
     namespace Combat
     {
         class AttackSwing;
@@ -996,7 +1001,7 @@ class TC_GAME_API WorldSession
         void SendPlayerAmbiguousNotice(std::string const& name);
         void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
-        void HandleTextEmoteOpcode(WorldPacket& recvPacket);
+        void HandleSendTextEmoteOpcode(WorldPackets::Chat::SendTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);

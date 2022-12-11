@@ -610,7 +610,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_TAXINODE_STATUS_QUERY,                            STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTaxiNodeStatusQueryOpcode );
     DEFINE_HANDLER(CMSG_TAXIQUERYAVAILABLENODES,                          STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTaxiQueryAvailableNodes   );
     DEFINE_HANDLER(CMSG_TELEPORT_TO_UNIT,                                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_HANDLER(CMSG_TEXT_EMOTE,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleTextEmoteOpcode           );
+    DEFINE_HANDLER(CMSG_SEND_TEXT_EMOTE,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSendTextEmoteOpcode       );
     DEFINE_HANDLER(CMSG_TIME_ADJUSTMENT_RESPONSE,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_TIME_SYNC_RESP,                                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTimeSyncResp              );
     DEFINE_HANDLER(CMSG_TIME_SYNC_RESP_FAILED,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

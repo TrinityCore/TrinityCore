@@ -24,6 +24,7 @@
 #include "AuthenticationPackets.h"
 #include "BattlegroundPackets.h"
 #include "CharacterPackets.h"
+#include "ChatPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "GuildPackets.h"
