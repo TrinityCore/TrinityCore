@@ -26,6 +26,7 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "PetAI.h"
 #include "Player.h"
 #include "Spell.h"
@@ -957,17 +958,14 @@ void WorldSession::SendPetSlotUpdated(int32 petNumberA, int32 petSlotA, int32 pe
 
 void WorldSession::SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID, int32 level, std::string name)
 {
-    WorldPacket data(SMSG_PET_ADDED, 4 + 4 + 1 + 4 + 4 + name.length());
+    WorldPackets::Pet::PetAdded petAdded;
+    petAdded.Level = level;
+    petAdded.PetSlot = petSlot;
+    petAdded.Flags = PET_STABLE_ACTIVE | (petSlot > PET_SLOT_LAST_ACTIVE_SLOT ? PET_STABLE_INACTIVE : 0);
+    petAdded.CreatureID = creatureID;
+    petAdded.Name = name;
 
-    data << uint32(level);
-    data << uint32(petSlot);
-    data << uint8(PET_STABLE_ACTIVE | (petSlot > PET_SLOT_LAST_ACTIVE_SLOT ? PET_STABLE_INACTIVE : 0));
-    data << uint32(creatureID);
-    data << uint32(petNumber);
-    data.WriteBits(uint32(name.length()), 8);
-    data << name;
-
-    SendPacket(&data);
+    SendPacket(petAdded.Write());
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData*/)

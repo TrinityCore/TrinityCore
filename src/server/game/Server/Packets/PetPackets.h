@@ -79,6 +79,21 @@ namespace WorldPackets
             ObjectGuid UnitGUID;
             int32 Action = 0;
         };
+
+        class PetAdded final : public ServerPacket
+        {
+        public:
+            PetAdded() : ServerPacket(SMSG_PET_ADDED, 4 + 4 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+            int32 CreatureID = 0;
+            int32 Level = 0;
+            int32 PetSlot = 0;
+            uint32 PetNumber = 0;
+            uint8 Flags = 0;
+        };
     }
 }
 

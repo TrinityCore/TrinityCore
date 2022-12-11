@@ -67,3 +67,16 @@ WorldPacket const* WorldPackets::Pet::PetActionSound::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::PetAdded::Write()
+{
+    _worldPacket << int32(Level);
+    _worldPacket << int32(PetSlot);
+    _worldPacket << uint8(Flags);
+    _worldPacket << int32(CreatureID);
+    _worldPacket << int32(PetNumber);
+    _worldPacket.WriteBits(Name.length(), 8);
+    _worldPacket << Name;
+
+    return &_worldPacket;
+}
