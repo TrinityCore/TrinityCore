@@ -19,6 +19,7 @@
 #define PetPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 #include "Position.h"
 
 namespace WorldPackets
@@ -44,6 +45,17 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<ObjectGuid> PetGUIDs;
+        };
+
+        class SPetMode final : public ServerPacket
+        {
+        public:
+            SPetMode() : ServerPacket(SMSG_PET_MODE, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PetGUID;
+            uint32 PetMode = 0;
         };
     }
 }

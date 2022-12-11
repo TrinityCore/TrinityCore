@@ -33,3 +33,11 @@ WorldPacket const* WorldPackets::Pet::PetGuids::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Pet::SPetMode::Write()
+{
+    _worldPacket << PetGUID;
+    _worldPacket << uint32(PetMode);
+
+    return &_worldPacket;
+}
