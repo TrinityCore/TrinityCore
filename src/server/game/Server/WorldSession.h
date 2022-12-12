@@ -234,6 +234,11 @@ namespace WorldPackets
         class Complaint;
     }
 
+    namespace Totem
+    {
+        class TotemDestroyed;
+    }
+
     namespace Trade
     {
         class AcceptTrade;
@@ -1061,7 +1066,7 @@ class TC_GAME_API WorldSession
 
         void HandleSetActionBarToggles(WorldPacket& recvData);
 
-        void HandleTotemDestroyed(WorldPacket& recvData);
+        void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& packet);
         void HandleDismissCritter(WorldPacket& recvData);
 
         //Battleground

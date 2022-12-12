@@ -42,6 +42,7 @@
 #include "SpellPackets.h"
 #include "SystemPackets.h"
 #include "TicketPackets.h"
+#include "TotemPackets.h"
 #include "TradePackets.h"
 #include "VehiclePackets.h"
 #include "WhoPackets.h"

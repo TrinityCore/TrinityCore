@@ -39,6 +39,7 @@
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "Totem.h"
+#include "TotemPackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 
@@ -415,26 +416,20 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
-void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
+void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& packet)
 {
     // ignore for remote control state
     if (_player->IsCharming())
         return;
 
-    uint8 slotId;
-    uint64 guid;
-    recvPacket >> slotId;
-    recvPacket >> guid;
-
-    ++slotId;
-    if (slotId >= MAX_TOTEM_SLOT)
+    if (packet.Slot +1 >= MAX_TOTEM_SLOT)
         return;
 
-    if (!_player->m_SummonSlot[slotId])
+    if (!_player->m_SummonSlot[packet.Slot + 1])
         return;
 
-    Creature* totem = ObjectAccessor::GetCreature(*GetPlayer(), _player->m_SummonSlot[slotId]);
-    if (totem && totem->IsTotem() && totem->GetGUID() == guid)
+    Creature* totem = ObjectAccessor::GetCreature(*GetPlayer(), _player->m_SummonSlot[packet.Slot + 1]);
+    if (totem && totem->IsTotem() && totem->GetGUID() == packet.TotemGUID)
         totem->ToTotem()->UnSummon();
 }
 
