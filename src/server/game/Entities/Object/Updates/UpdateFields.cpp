@@ -2545,6 +2545,7 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
         GlyphInfos[i].WriteCreate(data, owner, receiver);
     }
     data << uint8(GlyphsEnabled);
+    data << uint8(Unk340);
     for (std::size_t i = 0; i < KnownTitles.size(); ++i)
     {
         data << uint64(KnownTitles[i]);
@@ -3267,172 +3268,176 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         {
             data << uint8(GlyphsEnabled);
         }
+        if (changesMask[108])
+        {
+            data << uint8(Unk340);
+        }
     }
-    if (changesMask[108])
+    if (changesMask[109])
     {
         for (std::size_t i = 0; i < 129; ++i)
         {
-            if (changesMask[109 + i])
+            if (changesMask[110 + i])
             {
                 data << InvSlots[i];
             }
         }
     }
-    if (changesMask[238])
+    if (changesMask[239])
     {
         for (std::size_t i = 0; i < 2; ++i)
         {
-            if (changesMask[239 + i])
+            if (changesMask[240 + i])
             {
                 data << uint32(TrackResourceMask[i]);
             }
         }
     }
-    if (changesMask[241])
+    if (changesMask[242])
     {
         for (std::size_t i = 0; i < 7; ++i)
         {
-            if (changesMask[242 + i])
+            if (changesMask[243 + i])
             {
                 data << float(SpellCritPercentage[i]);
             }
-            if (changesMask[249 + i])
+            if (changesMask[250 + i])
             {
                 data << int32(ModDamageDonePos[i]);
             }
-            if (changesMask[256 + i])
+            if (changesMask[257 + i])
             {
                 data << int32(ModDamageDoneNeg[i]);
             }
-            if (changesMask[263 + i])
+            if (changesMask[264 + i])
             {
                 data << float(ModDamageDonePercent[i]);
             }
         }
     }
-    if (changesMask[270])
+    if (changesMask[271])
     {
         for (std::size_t i = 0; i < 240; ++i)
         {
-            if (changesMask[271 + i])
+            if (changesMask[272 + i])
             {
                 data << uint64(ExploredZones[i]);
             }
         }
     }
-    if (changesMask[511])
+    if (changesMask[512])
     {
         for (std::size_t i = 0; i < 2; ++i)
         {
-            if (changesMask[512 + i])
+            if (changesMask[513 + i])
             {
                 RestInfo[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[514])
+    if (changesMask[515])
     {
         for (std::size_t i = 0; i < 3; ++i)
         {
-            if (changesMask[515 + i])
+            if (changesMask[516 + i])
             {
                 data << float(WeaponDmgMultipliers[i]);
             }
-            if (changesMask[518 + i])
+            if (changesMask[519 + i])
             {
                 data << float(WeaponAtkSpeedMultipliers[i]);
             }
         }
     }
-    if (changesMask[521])
+    if (changesMask[522])
     {
         for (std::size_t i = 0; i < 12; ++i)
         {
-            if (changesMask[522 + i])
+            if (changesMask[523 + i])
             {
                 data << uint32(BuybackPrice[i]);
             }
-            if (changesMask[534 + i])
+            if (changesMask[535 + i])
             {
                 data << int64(BuybackTimestamp[i]);
             }
         }
     }
-    if (changesMask[546])
+    if (changesMask[547])
     {
         for (std::size_t i = 0; i < 32; ++i)
         {
-            if (changesMask[547 + i])
+            if (changesMask[548 + i])
             {
                 data << int32(CombatRatings[i]);
             }
         }
     }
-    if (changesMask[586])
+    if (changesMask[587])
     {
         for (std::size_t i = 0; i < 4; ++i)
         {
-            if (changesMask[587 + i])
+            if (changesMask[588 + i])
             {
                 data << uint32(NoReagentCostMask[i]);
             }
         }
     }
-    if (changesMask[591])
+    if (changesMask[592])
     {
         for (std::size_t i = 0; i < 2; ++i)
         {
-            if (changesMask[592 + i])
+            if (changesMask[593 + i])
             {
                 data << int32(ProfessionSkillLine[i]);
             }
         }
     }
-    if (changesMask[594])
+    if (changesMask[595])
     {
         for (std::size_t i = 0; i < 4; ++i)
         {
-            if (changesMask[595 + i])
+            if (changesMask[596 + i])
             {
                 data << uint32(BagSlotFlags[i]);
             }
         }
     }
-    if (changesMask[599])
+    if (changesMask[600])
     {
         for (std::size_t i = 0; i < 7; ++i)
         {
-            if (changesMask[600 + i])
+            if (changesMask[601 + i])
             {
                 data << uint32(BankBagSlotFlags[i]);
             }
         }
     }
-    if (changesMask[607])
+    if (changesMask[608])
     {
         for (std::size_t i = 0; i < 875; ++i)
         {
-            if (changesMask[608 + i])
+            if (changesMask[609 + i])
             {
                 data << uint64(QuestCompleted[i]);
             }
         }
     }
-    if (changesMask[1483])
+    if (changesMask[1484])
     {
         for (std::size_t i = 0; i < 6; ++i)
         {
-            if (changesMask[1484 + i])
+            if (changesMask[1485 + i])
             {
                 GlyphInfos[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[579])
+    if (changesMask[580])
     {
         for (std::size_t i = 0; i < 6; ++i)
         {
-            if (changesMask[580 + i])
+            if (changesMask[581 + i])
             {
                 PvpInfo[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
@@ -3546,6 +3551,7 @@ void ActivePlayerData::ClearChangesMask()
     Base::ClearChangesMask(NumBankSlots);
     Base::ClearChangesMask(TransportServerTime);
     Base::ClearChangesMask(GlyphsEnabled);
+    Base::ClearChangesMask(Unk340);
     Base::ClearChangesMask(InvSlots);
     Base::ClearChangesMask(TrackResourceMask);
     Base::ClearChangesMask(SpellCritPercentage);
