@@ -654,6 +654,61 @@ enum TotemCategoryType
 };
 
 // SummonProperties.dbc, col 1
+enum class SummonPropertiesControl : uint8
+{
+    None                = 0, // Wild
+    Guardian            = 1,
+    Pet                 = 2,
+    Possessed           = 3,
+    PossessedVehicle    = 4,
+    Vehicle             = 5 // Wild, but Ride Spell will be cast
+};
+
+// SummonProperties.dbc, col 4
+enum class SummonPropertiesSlot : int8
+{
+    None                = 0,
+    Totem1              = 1,
+    Totem2              = 2,
+    Totem3              = 3,
+    Totem4              = 4,
+    Critter             = 5,
+    Quest               = 6, // Players Only
+
+    Max,
+    AnyAvailableTotem   = -1
+};
+
+// SummonProperties.dbc, col 5
+enum class SummonPropertiesFlags : uint32
+{
+    None                              = 0x000000,
+    AttackSummoner                    = 0x000001,
+    HelpWhenSummonedInCombat          = 0x000002,
+    UseLevelOffset                    = 0x000004,
+    DespawnOnSummonerDeath            = 0x000008,
+    OnlyVisibleToSummoner             = 0x000010,
+    CannotDismissPet                  = 0x000020,
+    UseDemonTimeout                   = 0x000040,
+    UnlimitedSummons                  = 0x000080,
+    UseCreatureLevel                  = 0x000100,
+    JoinSummonerSpawnGroup            = 0x000200,
+    DoNotToggle                       = 0x000400,
+    DespawnWhenExpired                = 0x000800,
+    UseSummonerFaction                = 0x001000,
+    DoNotFollowMountedSummoner        = 0x002000,
+    SavePetAutocast                   = 0x004000,
+    IgnoreSummonerPhase               = 0x008000,
+    OnlyVisibleToSummonerGroup        = 0x010000,
+    DespawnOnSummonerLogout           = 0x020000,
+    CastRideVehicleSpellOnSummoner    = 0x040000,
+    GuardianActsLikePet               = 0x080000,
+    DontSnapSessileToGround           = 0x100000 
+};
+
+DEFINE_ENUM_FLAG(SummonPropertiesFlags);
+
+// SummonProperties.dbc, col 1
 enum SummonPropGroup
 {
     SUMMON_PROP_GROUP_UNKNOWN1       = 0,                   // 1160 spells in 3.0.3

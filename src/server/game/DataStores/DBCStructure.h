@@ -1999,6 +1999,8 @@ struct SummonPropertiesEntry
     int32   Title;                                          // 3, see enum
     int32   Slot;                                           // 4, 0-6
     uint32  Flags;                                          // 5
+
+    EnumFlag<SummonPropertiesFlags> GetFlags() const { return static_cast<SummonPropertiesFlags>(Flags); }
 };
 
 struct TalentEntry
