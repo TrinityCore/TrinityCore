@@ -42,7 +42,7 @@ public:
     static char* AddString(char const** holder, std::string const& value);
 
 private:
-    std::string _storageName;
+    std::string const& _storageName;
     DB2LoadInfo const* _loadInfo;
 };
 

@@ -615,7 +615,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     if (!availableDb2Locales[defaultLocale])
         return 0;
 
-#define LOAD_DB2(store) LoadDB2(availableDb2Locales, loadErrors, _stores, &store, db2Path, defaultLocale, GetCppRecordSize(store))
+#define LOAD_DB2(store) LoadDB2(availableDb2Locales, loadErrors, _stores, &(store), db2Path, defaultLocale, GetCppRecordSize(store))
 
     LOAD_DB2(sAchievementStore);
     LOAD_DB2(sAchievementCategoryStore);

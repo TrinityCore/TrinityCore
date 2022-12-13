@@ -32,7 +32,7 @@ public:
     using reference = T&;
 
     DBStorageIterator() : _index(nullptr), _pos(0), _end(0) { }
-    DBStorageIterator(T** index, uint32 size, uint32 pos = 0) : _index(index), _pos(pos), _end(size)
+    DBStorageIterator(T const* const* index, uint32 size, uint32 pos = 0) : _index(index), _pos(pos), _end(size)
     {
         if (_pos < _end)
         {
@@ -67,7 +67,7 @@ public:
     }
 
 private:
-    T** _index;
+    T const* const* _index;
     uint32 _pos;
     uint32 _end;
 };
