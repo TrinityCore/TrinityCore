@@ -1069,7 +1069,7 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
     case ItemRandomEnchantmentType::Property:
         if (ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(randomPropId.Id))
         {
-            if (m_itemData->RandomPropertiesID != randomPropId.Id)
+            if (m_itemData->RandomPropertiesID != int32(randomPropId.Id))
             {
                 SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::RandomPropertiesID), randomPropId.Id);
                 SetState(ITEM_CHANGED, GetOwner());
