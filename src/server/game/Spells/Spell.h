@@ -576,6 +576,7 @@ class TC_GAME_API Spell
                 uint32 Data[2];
             } Raw;
         } m_misc;
+        std::any m_customArg;
         SpellCastVisual m_SpellVisual;
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
