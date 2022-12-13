@@ -75,6 +75,8 @@ namespace WorldPackets
             void Initialize(::VoidStorageItem const* voidItem);
 
             uint32 ItemID = 0;
+            uint32 RandomPropertiesSeed = 0;
+            uint32 RandomPropertiesID = 0;
             Optional<ItemBonuses> ItemBonus;
             ItemModList Modifications;
 

@@ -45,7 +45,7 @@
 #include "WorldSession.h"
 
 Roll::Roll(LootItem const& li) : itemid(li.itemid),
-itemRandomBonusListId(li.randomBonusListId), itemCount(li.count),
+itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
 totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0),
 rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT) { }
 
@@ -1354,7 +1354,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot, allowedMap);
                         roll->getLoot()->unlootedCount--;
-                        player->StoreNewItem(dest, roll->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
+                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
                     }
                     else
                     {
@@ -1421,7 +1421,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                             item->is_looted = true;
                             roll->getLoot()->NotifyItemRemoved(roll->itemSlot, allowedMap);
                             roll->getLoot()->unlootedCount--;
-                            player->StoreNewItem(dest, roll->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
+                            player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
                         }
                         else
                         {

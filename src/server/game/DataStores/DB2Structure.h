@@ -2096,6 +2096,23 @@ struct ItemPriceBaseEntry
     float Weapon;
 };
 
+#define MAX_ITEM_RANDOM_PROPERTIES 5
+
+struct ItemRandomPropertiesEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    uint16 Enchantment[MAX_ITEM_RANDOM_PROPERTIES];
+};
+
+struct ItemRandomSuffixEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    uint16 Enchantment[MAX_ITEM_RANDOM_PROPERTIES];
+    uint16 AllocationPct[MAX_ITEM_RANDOM_PROPERTIES];
+};
+
 #define MAX_ITEM_SET_ITEMS 17
 
 struct ItemSetEntry

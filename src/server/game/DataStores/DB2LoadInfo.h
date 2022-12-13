@@ -3220,6 +3220,49 @@ struct ItemPriceBaseLoadInfo
     }
 };
 
+struct ItemRandomPropertiesLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "Enchantment1" },
+            { false, FT_SHORT, "Enchantment2" },
+            { false, FT_SHORT, "Enchantment3" },
+            { false, FT_SHORT, "Enchantment4" },
+            { false, FT_SHORT, "Enchantment5" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), ItemRandomPropertiesMeta::Instance(), HOTFIX_SEL_ITEM_RANDOM_PROPERTIES);
+        return &loadInfo;
+    }
+};
+
+struct ItemRandomSuffixLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "Enchantment1" },
+            { false, FT_SHORT, "Enchantment2" },
+            { false, FT_SHORT, "Enchantment3" },
+            { false, FT_SHORT, "Enchantment4" },
+            { false, FT_SHORT, "Enchantment5" },
+            { false, FT_SHORT, "AllocationPct1" },
+            { false, FT_SHORT, "AllocationPct2" },
+            { false, FT_SHORT, "AllocationPct3" },
+            { false, FT_SHORT, "AllocationPct4" },
+            { false, FT_SHORT, "AllocationPct5" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), ItemRandomSuffixMeta::Instance(), HOTFIX_SEL_ITEM_RANDOM_SUFFIX);
+        return &loadInfo;
+    }
+};
+
 struct ItemSetLoadInfo
 {
     static DB2LoadInfo const* Instance()

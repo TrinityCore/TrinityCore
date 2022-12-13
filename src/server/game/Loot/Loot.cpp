@@ -47,7 +47,8 @@ LootItem::LootItem(LootStoreItem const& li)
 
     needs_quest = li.needs_quest;
 
-    randomBonusListId = GenerateItemRandomBonusListId(itemid);
+    randomSuffix = GenerateEnchSuffixFactor(itemid);
+    randomPropertyId = GenerateItemRandomPropertyId(itemid);
     context = ItemContext::NONE;
     count = 0;
     is_looted = 0;
