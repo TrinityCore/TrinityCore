@@ -205,7 +205,6 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
     data << int32(itemInstance.RandomPropertiesSeed);
     data << int32(itemInstance.RandomPropertiesID);
 
-
     data.WriteBit(itemInstance.ItemBonus.has_value());
     data.FlushBits();
 
