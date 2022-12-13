@@ -26,7 +26,8 @@ enum HotfixDatabaseStatements : uint32;
 
 struct TC_SHARED_API DB2LoadInfo : public DB2FileLoadInfo
 {
-    DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement);
+    constexpr explicit DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement)
+        : DB2FileLoadInfo(fields, fieldCount, meta), Statement(statement) { }
 
     HotfixDatabaseStatements Statement;
 };
