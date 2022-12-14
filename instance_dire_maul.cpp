@@ -281,11 +281,16 @@ public:
 
         bool IsImmoDead()
         {
-            if(!instance->GetCreature(_immoGUID)->IsAlive())
+            Creature* immo = instance->GetCreature(_immoGUID);
+            if (immo != nullptr && !immo->IsAlive())
             {
-                instance->GetCreature(_tortheldrinGUID)->SetFaction(FACTION_ENEMY);
+                Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID);
+                if (tortheldrin != nullptr)
+                    tortheldrin->SetFaction(FACTION_ENEMY);
                 return true;
             }
+            else if (immo == nullptr)
+                return true;
             return false;
         }
 
