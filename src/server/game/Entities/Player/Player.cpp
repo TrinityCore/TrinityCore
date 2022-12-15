@@ -6021,13 +6021,6 @@ bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) co
                     action, button, GetName().c_str(), GetGUID().ToString().c_str());
                 return false;
             }
-
-            if (!HasSpell(action))
-            {
-                TC_LOG_DEBUG("entities.player", "Player::IsActionButtonDataValid: Spell action " UI64FMTD " not added into button %u for player %s (%s): player does not known this spell, this can be due to a player changing their talents",
-                    action, button, GetName().c_str(), GetGUID().ToString().c_str());
-                return false;
-            }
             break;
         case ACTION_BUTTON_ITEM:
             if (!sObjectMgr->GetItemTemplate(action))
@@ -6049,7 +6042,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint64 action, uint8 type) co
         }
         case ACTION_BUTTON_MOUNT:
         {
-            auto mount = sDB2Manager.GetMountById(action);
+            MountEntry const* mount = sDB2Manager.GetMountById(action);
             if (!mount)
             {
                 TC_LOG_ERROR("entities.player", "Player::IsActionButtonDataValid: Mount action " UI64FMTD " not added into button %u for player %s (%s): mount does not exist",
