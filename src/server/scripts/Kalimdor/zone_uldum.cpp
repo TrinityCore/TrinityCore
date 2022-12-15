@@ -453,6 +453,37 @@ class spell_summon_schnottz : public SpellScript
     }
 };
 
+static constexpr uint32 NPC_VENOMBLOOD_SCORPID = 45859;
+static constexpr uint32 NPC_DRAINED_VENOMBLOOD_SCORPID = 47750;
+
+// 88882 - Draining Venom
+class spell_uldum_draining_venom : public SpellScript
+{
+    SpellCastResult CheckCast()
+    {
+        Unit* target = GetExplTargetUnit();
+        if (!target || target == GetCaster() || target->GetEntry() != NPC_VENOMBLOOD_SCORPID)
+            return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+
+        if (target->IsAlive())
+            return SPELL_FAILED_TARGET_NOT_DEAD;
+
+        return SPELL_CAST_OK;
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitCreature())
+            creature->UpdateEntry(NPC_DRAINED_VENOMBLOOD_SCORPID, nullptr, false);
+    }
+
+    void Register() override
+    {
+        OnCheckCast.Register(&spell_uldum_draining_venom::CheckCast);
+        OnEffectHitTarget.Register(&spell_uldum_draining_venom::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_uldum()
 {
     /*
@@ -466,4 +497,5 @@ void AddSC_uldum()
     */
     RegisterSpellScript(spell_gobbles_initialize);
     RegisterSpellScript(spell_summon_schnottz);
+    RegisterSpellScript(spell_uldum_draining_venom);
 }
