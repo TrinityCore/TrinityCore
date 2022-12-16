@@ -198,6 +198,16 @@ namespace WorldPackets
             return _storage.back();
         }
 
+        iterator erase(const_iterator first, const_iterator last)
+        {
+            return _storage.erase(first, last);
+        }
+
+        void clear()
+        {
+            _storage.clear();
+        }
+
     private:
         storage_type _storage;
     };

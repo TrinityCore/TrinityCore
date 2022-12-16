@@ -1893,6 +1893,24 @@ enum class TraitCombatConfigFlags : int32
 
 DEFINE_ENUM_FLAG(TraitCombatConfigFlags);
 
+enum class TraitCondFlags : int32
+{
+    None            = 0x0,
+    IsGate          = 0x1,
+    IsAlwaysMet     = 0x2,
+    IsSufficient    = 0x4,
+};
+
+DEFINE_ENUM_FLAG(TraitCondFlags);
+
+enum class TraitConditionType : int32
+{
+    Available   = 0,
+    Visible     = 1,
+    Granted     = 2,
+    Increased   = 3
+};
+
 enum class TraitConfigType : int32
 {
     Invalid     = 0,
@@ -1900,6 +1918,68 @@ enum class TraitConfigType : int32
     Profession  = 2,
     Generic     = 3
 };
+
+enum class TraitCurrencyType : int32
+{
+    Gold                = 0,
+    CurrencyTypesBased  = 1,
+    TraitSourced        = 2
+};
+
+enum class TraitEdgeType : int32
+{
+    VisualOnly                  = 0,
+    DeprecatedRankConnection    = 1,
+    SufficientForAvailability   = 2,
+    RequiredForAvailability     = 3,
+    MutuallyExclusive           = 4,
+    DeprecatedSelectionOption   = 5
+};
+
+enum class TraitNodeEntryType : int32
+{
+    SpendHex            = 0,
+    SpendSquare         = 1,
+    SpendCircle         = 2,
+    SpendSmallCircle    = 3,
+    DeprecatedSelect    = 4,
+    DragAndDrop         = 5,
+    SpendDiamond        = 6,
+    ProfPath            = 7,
+    ProfPerk            = 8,
+    ProfPathUnlock      = 9
+};
+
+enum class TraitNodeGroupFlag : int32
+{
+    None                = 0x0,
+    AvailableByDefault  = 0x1
+};
+
+DEFINE_ENUM_FLAG(TraitNodeGroupFlag);
+
+enum class TraitNodeType : int32
+{
+    Single      = 0,
+    Tiered      = 1,
+    Selection   = 2
+};
+
+enum class TraitPointsOperationType : int32
+{
+    None        = -1,
+    Set         = 0,
+    Multiply    = 1
+};
+
+enum class TraitTreeFlag : int32
+{
+    None                    = 0x0,
+    CannotRefund            = 0x1,
+    HideSingleRankNumbers   = 0x2
+};
+
+DEFINE_ENUM_FLAG(TraitTreeFlag);
 
 enum class UiMapFlag : int32
 {

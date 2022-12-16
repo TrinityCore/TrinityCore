@@ -75,6 +75,8 @@
 #include "TalentPackets.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
+#include "TraitMgr.h"
+#include "TraitPacketsCommon.h"
 #include "Unit.h"
 #include "Util.h"
 #include "World.h"
@@ -386,8 +388,8 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectUnused,                                   //300 SPELL_EFFECT_300
     &Spell::EffectNULL,                                     //301 SPELL_EFFECT_CRAFT_ENCHANT
     &Spell::EffectNULL,                                     //302 SPELL_EFFECT_GATHERING
-    &Spell::EffectNULL,                                     //303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
-    &Spell::EffectNULL,                                     //304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
+    &Spell::EffectCreateTraitTreeConfig,                    //303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
+    &Spell::EffectChangeActiveCombatTraitConfig,            //304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
 };
 
 void Spell::EffectNULL()
@@ -5872,4 +5874,38 @@ void Spell::EffectModifySpellCharges()
 
     for (int32 i = 0; i < damage; ++i)
         unitTarget->GetSpellHistory()->RestoreCharge(effectInfo->MiscValue);
+}
+
+void Spell::EffectCreateTraitTreeConfig()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    WorldPackets::Traits::TraitConfig newConfig;
+    newConfig.Type = TraitMgr::GetConfigTypeForTree(effectInfo->MiscValue);
+    if (newConfig.Type != TraitConfigType::Generic)
+        return;
+
+    newConfig.TraitSystemID = sTraitTreeStore.AssertEntry(effectInfo->MiscValue)->TraitSystemID;
+    target->CreateTraitConfig(newConfig);
+}
+
+void Spell::EffectChangeActiveCombatTraitConfig()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    WorldPackets::Traits::TraitConfig* traitConfig = std::any_cast<WorldPackets::Traits::TraitConfig>(&m_customArg);
+    if (!traitConfig)
+        return;
+
+    target->UpdateTraitConfig(std::move(*traitConfig), damage, false);
 }

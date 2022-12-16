@@ -408,6 +408,8 @@ class TC_GAME_API Spell
         void EffectModifyCooldowns();
         void EffectModifyCooldownsByCategory();
         void EffectModifySpellCharges();
+        void EffectCreateTraitTreeConfig();
+        void EffectChangeActiveCombatTraitConfig();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 

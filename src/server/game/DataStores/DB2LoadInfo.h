@@ -5134,6 +5134,22 @@ struct SkillLineAbilityLoadInfo
     }
 };
 
+struct SkillLineXTraitTreeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "SkillLineID" },
+            { true, FT_INT, "TraitTreeID" },
+            { true, FT_INT, "OrderIndex" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), SkillLineXTraitTreeMeta::Instance(), HOTFIX_SEL_SKILL_LINE_X_TRAIT_TREE);
+        return &loadInfo;
+    }
+};
+
 struct SkillRaceClassInfoLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -6310,6 +6326,396 @@ struct TransmogHolidayLoadInfo
             { true, FT_INT, "RequiredTransmogHoliday" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TransmogHolidayMeta::Instance(), HOTFIX_SEL_TRANSMOG_HOLIDAY);
+        return &loadInfo;
+    }
+};
+
+struct TraitCondLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "CondType" },
+            { true, FT_INT, "TraitTreeID" },
+            { true, FT_INT, "GrantedRanks" },
+            { true, FT_INT, "QuestID" },
+            { true, FT_INT, "AchievementID" },
+            { true, FT_INT, "SpecSetID" },
+            { true, FT_INT, "TraitNodeGroupID" },
+            { true, FT_INT, "TraitNodeID" },
+            { true, FT_INT, "TraitCurrencyID" },
+            { true, FT_INT, "SpentAmountRequired" },
+            { true, FT_INT, "Flags" },
+            { true, FT_INT, "RequiredLevel" },
+            { true, FT_INT, "FreeSharedStringID" },
+            { true, FT_INT, "SpendMoreSharedStringID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitCondMeta::Instance(), HOTFIX_SEL_TRAIT_COND);
+        return &loadInfo;
+    }
+};
+
+struct TraitCostLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_STRING_NOT_LOCALIZED, "InternalName" },
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "Amount" },
+            { true, FT_INT, "TraitCurrencyID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitCostMeta::Instance(), HOTFIX_SEL_TRAIT_COST);
+        return &loadInfo;
+    }
+};
+
+struct TraitCurrencyLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "Type" },
+            { true, FT_INT, "CurrencyTypesID" },
+            { true, FT_INT, "Flags" },
+            { true, FT_INT, "Icon" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitCurrencyMeta::Instance(), HOTFIX_SEL_TRAIT_CURRENCY);
+        return &loadInfo;
+    }
+};
+
+struct TraitCurrencySourceLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_STRING, "Requirement" },
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitCurrencyID" },
+            { true, FT_INT, "Amount" },
+            { true, FT_INT, "QuestID" },
+            { true, FT_INT, "AchievementID" },
+            { true, FT_INT, "PlayerLevel" },
+            { true, FT_INT, "TraitNodeEntryID" },
+            { true, FT_INT, "OrderIndex" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitCurrencySourceMeta::Instance(), HOTFIX_SEL_TRAIT_CURRENCY_SOURCE);
+        return &loadInfo;
+    }
+};
+
+struct TraitDefinitionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_STRING, "OverrideName" },
+            { false, FT_STRING, "OverrideSubtext" },
+            { false, FT_STRING, "OverrideDescription" },
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "SpellID" },
+            { true, FT_INT, "OverrideIcon" },
+            { true, FT_INT, "OverridesSpellID" },
+            { true, FT_INT, "VisibleSpellID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitDefinitionMeta::Instance(), HOTFIX_SEL_TRAIT_DEFINITION);
+        return &loadInfo;
+    }
+};
+
+struct TraitDefinitionEffectPointsLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitDefinitionID" },
+            { true, FT_INT, "EffectIndex" },
+            { true, FT_INT, "OperationType" },
+            { true, FT_INT, "CurveID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitDefinitionEffectPointsMeta::Instance(), HOTFIX_SEL_TRAIT_DEFINITION_EFFECT_POINTS);
+        return &loadInfo;
+    }
+};
+
+struct TraitEdgeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "VisualStyle" },
+            { true, FT_INT, "LeftTraitNodeID" },
+            { true, FT_INT, "RightTraitNodeID" },
+            { true, FT_INT, "Type" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitEdgeMeta::Instance(), HOTFIX_SEL_TRAIT_EDGE);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitTreeID" },
+            { true, FT_INT, "PosX" },
+            { true, FT_INT, "PosY" },
+            { true, FT_BYTE, "Type" },
+            { true, FT_INT, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeMeta::Instance(), HOTFIX_SEL_TRAIT_NODE);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeEntryLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitDefinitionID" },
+            { true, FT_INT, "MaxRanks" },
+            { false, FT_BYTE, "NodeEntryType" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeEntryMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_ENTRY);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeEntryXTraitCondLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitCondID" },
+            { false, FT_INT, "TraitNodeEntryID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeEntryXTraitCondMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_ENTRY_X_TRAIT_COND);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeEntryXTraitCostLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitNodeEntryID" },
+            { true, FT_INT, "TraitCostID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeEntryXTraitCostMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_ENTRY_X_TRAIT_COST);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeGroupLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitTreeID" },
+            { true, FT_INT, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeGroupMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_GROUP);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeGroupXTraitCondLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitCondID" },
+            { true, FT_INT, "TraitNodeGroupID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeGroupXTraitCondMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_COND);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeGroupXTraitCostLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitNodeGroupID" },
+            { true, FT_INT, "TraitCostID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeGroupXTraitCostMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_COST);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeGroupXTraitNodeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitNodeGroupID" },
+            { true, FT_INT, "TraitNodeID" },
+            { true, FT_INT, "Index" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeGroupXTraitNodeMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_NODE);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeXTraitCondLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitCondID" },
+            { true, FT_INT, "TraitNodeID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeXTraitCondMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_X_TRAIT_COND);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeXTraitCostLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TraitNodeID" },
+            { true, FT_INT, "TraitCostID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeXTraitCostMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_X_TRAIT_COST);
+        return &loadInfo;
+    }
+};
+
+struct TraitNodeXTraitNodeEntryLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitNodeID" },
+            { true, FT_INT, "TraitNodeEntryID" },
+            { true, FT_INT, "Index" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitNodeXTraitNodeEntryMeta::Instance(), HOTFIX_SEL_TRAIT_NODE_X_TRAIT_NODE_ENTRY);
+        return &loadInfo;
+    }
+};
+
+struct TraitTreeLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitSystemID" },
+            { true, FT_INT, "Unused1000_1" },
+            { true, FT_INT, "FirstTraitNodeID" },
+            { true, FT_INT, "PlayerConditionID" },
+            { true, FT_INT, "Flags" },
+            { false, FT_FLOAT, "Unused1000_2" },
+            { false, FT_FLOAT, "Unused1000_3" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitTreeMeta::Instance(), HOTFIX_SEL_TRAIT_TREE);
+        return &loadInfo;
+    }
+};
+
+struct TraitTreeLoadoutLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitTreeID" },
+            { true, FT_INT, "ChrSpecializationID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitTreeLoadoutMeta::Instance(), HOTFIX_SEL_TRAIT_TREE_LOADOUT);
+        return &loadInfo;
+    }
+};
+
+struct TraitTreeLoadoutEntryLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "TraitTreeLoadoutID" },
+            { true, FT_INT, "SelectedTraitNodeID" },
+            { true, FT_INT, "SelectedTraitNodeEntryID" },
+            { true, FT_INT, "NumPoints" },
+            { true, FT_INT, "OrderIndex" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitTreeLoadoutEntryMeta::Instance(), HOTFIX_SEL_TRAIT_TREE_LOADOUT_ENTRY);
+        return &loadInfo;
+    }
+};
+
+struct TraitTreeXTraitCostLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TraitTreeID" },
+            { true, FT_INT, "TraitCostID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitTreeXTraitCostMeta::Instance(), HOTFIX_SEL_TRAIT_TREE_X_TRAIT_COST);
+        return &loadInfo;
+    }
+};
+
+struct TraitTreeXTraitCurrencyLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static constexpr DB2FieldMeta fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "Index" },
+            { true, FT_INT, "TraitTreeID" },
+            { true, FT_INT, "TraitCurrencyID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::size(fields), TraitTreeXTraitCurrencyMeta::Instance(), HOTFIX_SEL_TRAIT_TREE_X_TRAIT_CURRENCY);
         return &loadInfo;
     }
 };

@@ -17,15 +17,83 @@
 
 #include "TraitPacketsCommon.h"
 #include "DBCEnums.h"
+#include "UpdateFields.h"
 
 namespace WorldPackets::Traits
 {
+TraitEntry::TraitEntry() = default;
+
+TraitEntry::TraitEntry(UF::TraitEntry const& ufEntry)
+{
+    TraitNodeID = ufEntry.TraitNodeID;
+    TraitNodeEntryID = ufEntry.TraitNodeEntryID;
+    Rank = ufEntry.Rank;
+    GrantedRanks = ufEntry.GrantedRanks;
+}
+
+TraitConfig::TraitConfig() = default;
+
+TraitConfig::TraitConfig(UF::TraitConfig const& ufConfig)
+{
+    ID = ufConfig.ID;
+    Type = static_cast<TraitConfigType>(*ufConfig.Type);
+    ChrSpecializationID = ufConfig.ChrSpecializationID;
+    CombatConfigFlags = static_cast<TraitCombatConfigFlags>(*ufConfig.CombatConfigFlags);
+    LocalIdentifier = ufConfig.LocalIdentifier;
+    SkillLineID = ufConfig.SkillLineID;
+    TraitSystemID = ufConfig.TraitSystemID;
+    for (UF::TraitEntry const& ufEntry : ufConfig.Entries)
+        Entries.emplace_back(ufEntry);
+    Name = ufConfig.Name;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, TraitEntry& traitEntry)
+{
+    data >> traitEntry.TraitNodeID;
+    data >> traitEntry.TraitNodeEntryID;
+    data >> traitEntry.Rank;
+    data >> traitEntry.GrantedRanks;
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, TraitEntry const& traitEntry)
 {
     data << int32(traitEntry.TraitNodeID);
     data << int32(traitEntry.TraitNodeEntryID);
     data << int32(traitEntry.Rank);
     data << int32(traitEntry.GrantedRanks);
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
+{
+    data >> traitConfig.ID;
+    traitConfig.Type = data.read<TraitConfigType, int32>();
+    traitConfig.Entries.resize(data.read<uint32>());
+    switch (traitConfig.Type)
+    {
+        case TraitConfigType::Combat:
+            data >> traitConfig.ChrSpecializationID;
+            traitConfig.CombatConfigFlags = data.read<TraitCombatConfigFlags, int32>();
+            data >> traitConfig.LocalIdentifier;
+            break;
+        case TraitConfigType::Profession:
+            data >> traitConfig.SkillLineID;
+            break;
+        case TraitConfigType::Generic:
+            data >> traitConfig.TraitSystemID;
+            break;
+        default:
+            break;
+    }
+
+    for (TraitEntry& traitEntry : traitConfig.Entries)
+        data >> traitEntry;
+
+    uint32 nameLength = data.ReadBits(9);
+    traitConfig.Name = data.ReadString(nameLength, false);
 
     return data;
 }

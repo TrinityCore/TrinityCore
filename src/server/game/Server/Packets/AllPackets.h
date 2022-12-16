@@ -77,6 +77,7 @@
 #include "TotemPackets.h"
 #include "ToyPackets.h"
 #include "TradePackets.h"
+#include "TraitPackets.h"
 #include "TransmogrificationPackets.h"
 #include "VehiclePackets.h"
 #include "VoidStoragePackets.h"

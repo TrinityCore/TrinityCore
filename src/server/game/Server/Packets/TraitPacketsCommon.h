@@ -23,10 +23,19 @@
 enum class TraitCombatConfigFlags : int32;
 enum class TraitConfigType : int32;
 
+namespace UF
+{
+struct TraitConfig;
+struct TraitEntry;
+}
+
 namespace WorldPackets::Traits
 {
 struct TraitEntry
 {
+    TraitEntry();
+    explicit TraitEntry(UF::TraitEntry const& ufEntry);
+
     int32 TraitNodeID = 0;
     int32 TraitNodeEntryID = 0;
     int32 Rank = 0;
@@ -35,6 +44,9 @@ struct TraitEntry
 
 struct TraitConfig
 {
+    TraitConfig();
+    explicit TraitConfig(UF::TraitConfig const& ufConfig);
+
     int32 ID = 0;
     TraitConfigType Type = {};
     int32 ChrSpecializationID = 0;
@@ -46,7 +58,9 @@ struct TraitConfig
     String<259> Name;
 };
 
+ByteBuffer& operator>>(ByteBuffer& data, TraitEntry& traitEntry);
 ByteBuffer& operator<<(ByteBuffer& data, TraitEntry const& traitEntry);
+ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig);
 ByteBuffer& operator<<(ByteBuffer& data, TraitConfig const& traitConfig);
 }
 

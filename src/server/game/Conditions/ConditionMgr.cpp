@@ -3992,13 +3992,17 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsEnemy:
             return otherUnit && unit->GetReactionTo(otherUnit) <= REP_HOSTILE;
         case UnitConditionVariable::IsSpecMelee:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
         case UnitConditionVariable::IsSpecTank:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
         case UnitConditionVariable::IsSpecRanged:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
         case UnitConditionVariable::IsSpecHealer:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
         case UnitConditionVariable::IsPlayerControlledNPC:
             return unit->IsCreature() && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
         case UnitConditionVariable::IsDying:

@@ -265,6 +265,7 @@ DB2Storage<SceneScriptPackageEntry>             sSceneScriptPackageStore("SceneS
 DB2Storage<SceneScriptTextEntry>                sSceneScriptTextStore("SceneScriptText.db2", SceneScriptTextLoadInfo::Instance());
 DB2Storage<SkillLineEntry>                      sSkillLineStore("SkillLine.db2", SkillLineLoadInfo::Instance());
 DB2Storage<SkillLineAbilityEntry>               sSkillLineAbilityStore("SkillLineAbility.db2", SkillLineAbilityLoadInfo::Instance());
+DB2Storage<SkillLineXTraitTreeEntry>            sSkillLineXTraitTreeStore("SkillLineXTraitTree.db2", SkillLineXTraitTreeLoadInfo::Instance());
 DB2Storage<SkillRaceClassInfoEntry>             sSkillRaceClassInfoStore("SkillRaceClassInfo.db2", SkillRaceClassInfoLoadInfo::Instance());
 DB2Storage<SoulbindConduitRankEntry>            sSoulbindConduitRankStore("SoulbindConduitRank.db2", SoulbindConduitRankLoadInfo::Instance());
 DB2Storage<SoundKitEntry>                       sSoundKitStore("SoundKit.db2", SoundKitLoadInfo::Instance());
@@ -316,6 +317,29 @@ DB2Storage<TaxiPathEntry>                       sTaxiPathStore("TaxiPath.db2", T
 DB2Storage<TaxiPathNodeEntry>                   sTaxiPathNodeStore("TaxiPathNode.db2", TaxiPathNodeLoadInfo::Instance());
 DB2Storage<TotemCategoryEntry>                  sTotemCategoryStore("TotemCategory.db2", TotemCategoryLoadInfo::Instance());
 DB2Storage<ToyEntry>                            sToyStore("Toy.db2", ToyLoadInfo::Instance());
+DB2Storage<TraitCondEntry>                      sTraitCondStore("TraitCond.db2", TraitCondLoadInfo::Instance());
+DB2Storage<TraitCostEntry>                      sTraitCostStore("TraitCost.db2", TraitCostLoadInfo::Instance());
+DB2Storage<TraitCurrencyEntry>                  sTraitCurrencyStore("TraitCurrency.db2", TraitCurrencyLoadInfo::Instance());
+DB2Storage<TraitCurrencySourceEntry>            sTraitCurrencySourceStore("TraitCurrencySource.db2", TraitCurrencySourceLoadInfo::Instance());
+DB2Storage<TraitDefinitionEntry>                sTraitDefinitionStore("TraitDefinition.db2", TraitDefinitionLoadInfo::Instance());
+DB2Storage<TraitDefinitionEffectPointsEntry>    sTraitDefinitionEffectPointsStore("TraitDefinitionEffectPoints.db2", TraitDefinitionEffectPointsLoadInfo::Instance());
+DB2Storage<TraitEdgeEntry>                      sTraitEdgeStore("TraitEdge.db2", TraitEdgeLoadInfo::Instance());
+DB2Storage<TraitNodeEntry>                      sTraitNodeStore("TraitNode.db2", TraitNodeLoadInfo::Instance());
+DB2Storage<TraitNodeEntryEntry>                 sTraitNodeEntryStore("TraitNodeEntry.db2", TraitNodeEntryLoadInfo::Instance());
+DB2Storage<TraitNodeEntryXTraitCondEntry>       sTraitNodeEntryXTraitCondStore("TraitNodeEntryXTraitCond.db2", TraitNodeEntryXTraitCondLoadInfo::Instance());
+DB2Storage<TraitNodeEntryXTraitCostEntry>       sTraitNodeEntryXTraitCostStore("TraitNodeEntryXTraitCost.db2", TraitNodeEntryXTraitCostLoadInfo::Instance());
+DB2Storage<TraitNodeGroupEntry>                 sTraitNodeGroupStore("TraitNodeGroup.db2", TraitNodeGroupLoadInfo::Instance());
+DB2Storage<TraitNodeGroupXTraitCondEntry>       sTraitNodeGroupXTraitCondStore("TraitNodeGroupXTraitCond.db2", TraitNodeGroupXTraitCondLoadInfo::Instance());
+DB2Storage<TraitNodeGroupXTraitCostEntry>       sTraitNodeGroupXTraitCostStore("TraitNodeGroupXTraitCost.db2", TraitNodeGroupXTraitCostLoadInfo::Instance());
+DB2Storage<TraitNodeGroupXTraitNodeEntry>       sTraitNodeGroupXTraitNodeStore("TraitNodeGroupXTraitNode.db2", TraitNodeGroupXTraitNodeLoadInfo::Instance());
+DB2Storage<TraitNodeXTraitCondEntry>            sTraitNodeXTraitCondStore("TraitNodeXTraitCond.db2", TraitNodeXTraitCondLoadInfo::Instance());
+DB2Storage<TraitNodeXTraitCostEntry>            sTraitNodeXTraitCostStore("TraitNodeXTraitCost.db2", TraitNodeXTraitCostLoadInfo::Instance());
+DB2Storage<TraitNodeXTraitNodeEntryEntry>       sTraitNodeXTraitNodeEntryStore("TraitNodeXTraitNodeEntry.db2", TraitNodeXTraitNodeEntryLoadInfo::Instance());
+DB2Storage<TraitTreeEntry>                      sTraitTreeStore("TraitTree.db2", TraitTreeLoadInfo::Instance());
+DB2Storage<TraitTreeLoadoutEntry>               sTraitTreeLoadoutStore("TraitTreeLoadout.db2", TraitTreeLoadoutLoadInfo::Instance());
+DB2Storage<TraitTreeLoadoutEntryEntry>          sTraitTreeLoadoutEntryStore("TraitTreeLoadoutEntry.db2", TraitTreeLoadoutEntryLoadInfo::Instance());
+DB2Storage<TraitTreeXTraitCostEntry>            sTraitTreeXTraitCostStore("TraitTreeXTraitCost.db2", TraitTreeXTraitCostLoadInfo::Instance());
+DB2Storage<TraitTreeXTraitCurrencyEntry>        sTraitTreeXTraitCurrencyStore("TraitTreeXTraitCurrency.db2", TraitTreeXTraitCurrencyLoadInfo::Instance());
 DB2Storage<TransmogHolidayEntry>                sTransmogHolidayStore("TransmogHoliday.db2", TransmogHolidayLoadInfo::Instance());
 DB2Storage<TransmogIllusionEntry>               sTransmogIllusionStore("TransmogIllusion.db2", TransmogIllusionLoadInfo::Instance());
 DB2Storage<TransmogSetEntry>                    sTransmogSetStore("TransmogSet.db2", TransmogSetLoadInfo::Instance());
@@ -841,6 +865,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSceneScriptTextStore);
     LOAD_DB2(sSkillLineStore);
     LOAD_DB2(sSkillLineAbilityStore);
+    LOAD_DB2(sSkillLineXTraitTreeStore);
     LOAD_DB2(sSkillRaceClassInfoStore);
     LOAD_DB2(sSoulbindConduitRankStore);
     LOAD_DB2(sSoundKitStore);
@@ -892,6 +917,29 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTaxiPathNodeStore);
     LOAD_DB2(sTotemCategoryStore);
     LOAD_DB2(sToyStore);
+    LOAD_DB2(sTraitCondStore);
+    LOAD_DB2(sTraitCostStore);
+    LOAD_DB2(sTraitCurrencyStore);
+    LOAD_DB2(sTraitCurrencySourceStore);
+    LOAD_DB2(sTraitDefinitionStore);
+    LOAD_DB2(sTraitDefinitionEffectPointsStore);
+    LOAD_DB2(sTraitEdgeStore);
+    LOAD_DB2(sTraitNodeStore);
+    LOAD_DB2(sTraitNodeEntryStore);
+    LOAD_DB2(sTraitNodeEntryXTraitCondStore);
+    LOAD_DB2(sTraitNodeEntryXTraitCostStore);
+    LOAD_DB2(sTraitNodeGroupStore);
+    LOAD_DB2(sTraitNodeGroupXTraitCondStore);
+    LOAD_DB2(sTraitNodeGroupXTraitCostStore);
+    LOAD_DB2(sTraitNodeGroupXTraitNodeStore);
+    LOAD_DB2(sTraitNodeXTraitCondStore);
+    LOAD_DB2(sTraitNodeXTraitCostStore);
+    LOAD_DB2(sTraitNodeXTraitNodeEntryStore);
+    LOAD_DB2(sTraitTreeStore);
+    LOAD_DB2(sTraitTreeLoadoutStore);
+    LOAD_DB2(sTraitTreeLoadoutEntryStore);
+    LOAD_DB2(sTraitTreeXTraitCostStore);
+    LOAD_DB2(sTraitTreeXTraitCurrencyStore);
     LOAD_DB2(sTransmogHolidayStore);
     LOAD_DB2(sTransmogIllusionStore);
     LOAD_DB2(sTransmogSetStore);
@@ -2942,20 +2990,28 @@ std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbiliti
     return Trinity::Containers::MapGetValuePtr(_skillLineAbilitiesBySkillupSkill, skillId);
 }
 
-SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)
+SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_) const
 {
-    auto bounds = _skillRaceClassInfoBySkill.equal_range(skill);
-    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    for (auto&& [_, skllRaceClassInfo] : Trinity::Containers::MapEqualRange(_skillRaceClassInfoBySkill, skill))
     {
-        if (!itr->second->RaceMask.IsEmpty() && !(itr->second->RaceMask.HasRace(race)))
+        if (!skllRaceClassInfo->RaceMask.IsEmpty() && !(skllRaceClassInfo->RaceMask.HasRace(race)))
             continue;
-        if (itr->second->ClassMask && !(itr->second->ClassMask & (1 << (class_ - 1))))
+        if (skllRaceClassInfo->ClassMask && !(skllRaceClassInfo->ClassMask & (1 << (class_ - 1))))
             continue;
 
-        return itr->second;
+        return skllRaceClassInfo;
     }
 
     return nullptr;
+}
+
+std::vector<SkillRaceClassInfoEntry const*> DB2Manager::GetSkillRaceClassInfo(uint32 skill) const
+{
+    std::vector<SkillRaceClassInfoEntry const*> result;
+    for (auto const& [_, skillRaceClassInfo] : Trinity::Containers::MapEqualRange(_skillRaceClassInfoBySkill, skill))
+        result.push_back(skillRaceClassInfo);
+
+    return result;
 }
 
 SoulbindConduitRankEntry const* DB2Manager::GetSoulbindConduitRank(int32 soulbindConduitId, int32 rank) const

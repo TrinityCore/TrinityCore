@@ -8,3 +8,40 @@ ALTER TABLE `character_inventory` ADD UNIQUE KEY `uk_location` (`guid`,`bag`,`sl
 ALTER TABLE `character_inventory` DROP `newSlot`;
 
 UPDATE `characters` SET `equipmentCache`=CONCAT(`equipmentCache`, '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ');
+
+--
+-- Table structure for table `character_trait_entry`
+--
+DROP TABLE IF EXISTS `character_trait_entry`;
+CREATE TABLE `character_trait_entry` (
+  `guid` bigint unsigned NOT NULL,
+  `traitConfigId` int NOT NULL,
+  `traitNodeId` int NOT NULL,
+  `traitNodeEntryId` int NOT NULL,
+  `rank` int NOT NULL DEFAULT '0',
+  `grantedRanks` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`traitConfigId`,`traitNodeId`,`traitNodeEntryId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `character_trait_config`
+--
+DROP TABLE IF EXISTS `character_trait_config`;
+CREATE TABLE `character_trait_config` (
+  `guid` bigint unsigned NOT NULL,
+  `traitConfigId` int NOT NULL,
+  `type` int NOT NULL,
+  `chrSpecializationId` int DEFAULT NULL,
+  `combatConfigFlags` int DEFAULT NULL,
+  `localIdentifier` int DEFAULT NULL,
+  `skillLineId` int DEFAULT NULL,
+  `traitSystemId` int DEFAULT NULL,
+  `name` varchar(260) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`guid`,`traitConfigId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `character_action` ADD `traitConfigId` int NOT NULL DEFAULT 0 AFTER `spec`;
+ALTER TABLE `character_action` DROP PRIMARY KEY;
+ALTER TABLE `character_action` ADD PRIMARY KEY (`guid`,`spec`,`traitConfigId`,`button`);
+
+DELETE FROM `character_talent`;

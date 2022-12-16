@@ -1346,6 +1346,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SKILL_LINE_ABILITY, "SELECT ID, AbilityVerb_lang, AbilityAllVerb_lang FROM skill_line_ability_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
+    // SkillLineXTraitTree.db2
+    PrepareStatement(HOTFIX_SEL_SKILL_LINE_X_TRAIT_TREE, "SELECT ID, SkillLineID, TraitTreeID, OrderIndex FROM skill_line_x_trait_tree"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SKILL_LINE_X_TRAIT_TREE, "SELECT MAX(ID) + 1 FROM skill_line_x_trait_tree", CONNECTION_SYNCH);
+
     // SkillRaceClassInfo.db2
     PrepareStatement(HOTFIX_SEL_SKILL_RACE_CLASS_INFO, "SELECT ID, RaceMask, SkillID, ClassMask, Flags, Availability, MinLevel, SkillTierID"
         " FROM skill_race_class_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -1639,6 +1644,122 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // TransmogHoliday.db2
     PrepareStatement(HOTFIX_SEL_TRANSMOG_HOLIDAY, "SELECT ID, RequiredTransmogHoliday FROM transmog_holiday WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRANSMOG_HOLIDAY, "SELECT MAX(ID) + 1 FROM transmog_holiday", CONNECTION_SYNCH);
+
+    // TraitCond.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_COND, "SELECT ID, CondType, TraitTreeID, GrantedRanks, QuestID, AchievementID, SpecSetID, TraitNodeGroupID, "
+        "TraitNodeID, TraitCurrencyID, SpentAmountRequired, Flags, RequiredLevel, FreeSharedStringID, SpendMoreSharedStringID FROM trait_cond"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_COND, "SELECT MAX(ID) + 1 FROM trait_cond", CONNECTION_SYNCH);
+
+    // TraitCost.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_COST, "SELECT InternalName, ID, Amount, TraitCurrencyID FROM trait_cost WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_COST, "SELECT MAX(ID) + 1 FROM trait_cost", CONNECTION_SYNCH);
+
+    // TraitCurrency.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_CURRENCY, "SELECT ID, Type, CurrencyTypesID, Flags, Icon FROM trait_currency WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_CURRENCY, "SELECT MAX(ID) + 1 FROM trait_currency", CONNECTION_SYNCH);
+
+    // TraitCurrencySource.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_CURRENCY_SOURCE, "SELECT Requirement, ID, TraitCurrencyID, Amount, QuestID, AchievementID, PlayerLevel, "
+        "TraitNodeEntryID, OrderIndex FROM trait_currency_source WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_CURRENCY_SOURCE, "SELECT MAX(ID) + 1 FROM trait_currency_source", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRAIT_CURRENCY_SOURCE, "SELECT ID, Requirement_lang FROM trait_currency_source_locale"
+        " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
+    // TraitDefinition.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_DEFINITION, "SELECT OverrideName, OverrideSubtext, OverrideDescription, ID, SpellID, OverrideIcon, "
+        "OverridesSpellID, VisibleSpellID FROM trait_definition WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_DEFINITION, "SELECT MAX(ID) + 1 FROM trait_definition", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRAIT_DEFINITION, "SELECT ID, OverrideName_lang, OverrideSubtext_lang, OverrideDescription_lang"
+        " FROM trait_definition_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
+    // TraitDefinitionEffectPoints.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_DEFINITION_EFFECT_POINTS, "SELECT ID, TraitDefinitionID, EffectIndex, OperationType, CurveID"
+        " FROM trait_definition_effect_points WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_DEFINITION_EFFECT_POINTS, "SELECT MAX(ID) + 1 FROM trait_definition_effect_points", CONNECTION_SYNCH);
+
+    // TraitEdge.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_EDGE, "SELECT ID, VisualStyle, LeftTraitNodeID, RightTraitNodeID, Type FROM trait_edge"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_EDGE, "SELECT MAX(ID) + 1 FROM trait_edge", CONNECTION_SYNCH);
+
+    // TraitNode.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE, "SELECT ID, TraitTreeID, PosX, PosY, Type, Flags FROM trait_node WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE, "SELECT MAX(ID) + 1 FROM trait_node", CONNECTION_SYNCH);
+
+    // TraitNodeEntry.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_ENTRY, "SELECT ID, TraitDefinitionID, MaxRanks, NodeEntryType FROM trait_node_entry"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_ENTRY, "SELECT MAX(ID) + 1 FROM trait_node_entry", CONNECTION_SYNCH);
+
+    // TraitNodeEntryXTraitCond.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_ENTRY_X_TRAIT_COND, "SELECT ID, TraitCondID, TraitNodeEntryID FROM trait_node_entry_x_trait_cond"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_ENTRY_X_TRAIT_COND, "SELECT MAX(ID) + 1 FROM trait_node_entry_x_trait_cond", CONNECTION_SYNCH);
+
+    // TraitNodeEntryXTraitCost.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_ENTRY_X_TRAIT_COST, "SELECT ID, TraitNodeEntryID, TraitCostID FROM trait_node_entry_x_trait_cost"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_ENTRY_X_TRAIT_COST, "SELECT MAX(ID) + 1 FROM trait_node_entry_x_trait_cost", CONNECTION_SYNCH);
+
+    // TraitNodeGroup.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_GROUP, "SELECT ID, TraitTreeID, Flags FROM trait_node_group WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_GROUP, "SELECT MAX(ID) + 1 FROM trait_node_group", CONNECTION_SYNCH);
+
+    // TraitNodeGroupXTraitCond.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_COND, "SELECT ID, TraitCondID, TraitNodeGroupID FROM trait_node_group_x_trait_cond"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_COND, "SELECT MAX(ID) + 1 FROM trait_node_group_x_trait_cond", CONNECTION_SYNCH);
+
+    // TraitNodeGroupXTraitCost.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_COST, "SELECT ID, TraitNodeGroupID, TraitCostID FROM trait_node_group_x_trait_cost"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_COST, "SELECT MAX(ID) + 1 FROM trait_node_group_x_trait_cost", CONNECTION_SYNCH);
+
+    // TraitNodeGroupXTraitNode.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_NODE, "SELECT ID, TraitNodeGroupID, TraitNodeID, `Index` FROM trait_node_group_x_trait_node"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_GROUP_X_TRAIT_NODE, "SELECT MAX(ID) + 1 FROM trait_node_group_x_trait_node", CONNECTION_SYNCH);
+
+    // TraitNodeXTraitCond.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_X_TRAIT_COND, "SELECT ID, TraitCondID, TraitNodeID FROM trait_node_x_trait_cond"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_X_TRAIT_COND, "SELECT MAX(ID) + 1 FROM trait_node_x_trait_cond", CONNECTION_SYNCH);
+
+    // TraitNodeXTraitCost.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_X_TRAIT_COST, "SELECT ID, TraitNodeID, TraitCostID FROM trait_node_x_trait_cost"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_X_TRAIT_COST, "SELECT MAX(ID) + 1 FROM trait_node_x_trait_cost", CONNECTION_SYNCH);
+
+    // TraitNodeXTraitNodeEntry.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_NODE_X_TRAIT_NODE_ENTRY, "SELECT ID, TraitNodeID, TraitNodeEntryID, `Index` FROM trait_node_x_trait_node_entry"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_NODE_X_TRAIT_NODE_ENTRY, "SELECT MAX(ID) + 1 FROM trait_node_x_trait_node_entry", CONNECTION_SYNCH);
+
+    // TraitTree.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_TREE, "SELECT ID, TraitSystemID, Unused1000_1, FirstTraitNodeID, PlayerConditionID, Flags, Unused1000_2, "
+        "Unused1000_3 FROM trait_tree WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_TREE, "SELECT MAX(ID) + 1 FROM trait_tree", CONNECTION_SYNCH);
+
+    // TraitTreeLoadout.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_TREE_LOADOUT, "SELECT ID, TraitTreeID, ChrSpecializationID FROM trait_tree_loadout"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_TREE_LOADOUT, "SELECT MAX(ID) + 1 FROM trait_tree_loadout", CONNECTION_SYNCH);
+
+    // TraitTreeLoadoutEntry.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_TREE_LOADOUT_ENTRY, "SELECT ID, TraitTreeLoadoutID, SelectedTraitNodeID, SelectedTraitNodeEntryID, NumPoints, "
+        "OrderIndex FROM trait_tree_loadout_entry WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_TREE_LOADOUT_ENTRY, "SELECT MAX(ID) + 1 FROM trait_tree_loadout_entry", CONNECTION_SYNCH);
+
+    // TraitTreeXTraitCost.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_TREE_X_TRAIT_COST, "SELECT ID, TraitTreeID, TraitCostID FROM trait_tree_x_trait_cost"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_TREE_X_TRAIT_COST, "SELECT MAX(ID) + 1 FROM trait_tree_x_trait_cost", CONNECTION_SYNCH);
+
+    // TraitTreeXTraitCurrency.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_TREE_X_TRAIT_CURRENCY, "SELECT ID, `Index`, TraitTreeID, TraitCurrencyID FROM trait_tree_x_trait_currency"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_TREE_X_TRAIT_CURRENCY, "SELECT MAX(ID) + 1 FROM trait_tree_x_trait_currency", CONNECTION_SYNCH);
 
     // TransmogIllusion.db2
     PrepareStatement(HOTFIX_SEL_TRANSMOG_ILLUSION, "SELECT ID, UnlockConditionID, TransmogCost, SpellItemEnchantmentID, Flags FROM transmog_illusion"

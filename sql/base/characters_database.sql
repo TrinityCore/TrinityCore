@@ -458,10 +458,11 @@ DROP TABLE IF EXISTS `character_action`;
 CREATE TABLE `character_action` (
   `guid` bigint unsigned NOT NULL DEFAULT '0',
   `spec` tinyint unsigned NOT NULL DEFAULT '0',
+  `traitConfigId` int NOT NULL DEFAULT '0',
   `button` tinyint unsigned NOT NULL DEFAULT '0',
   `action` bigint unsigned NOT NULL DEFAULT '0',
   `type` tinyint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`spec`,`button`)
+  PRIMARY KEY (`guid`,`spec`,`traitConfigId`,`button`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1697,6 +1698,63 @@ CREATE TABLE `character_talent` (
 LOCK TABLES `character_talent` WRITE;
 /*!40000 ALTER TABLE `character_talent` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_talent` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_trait_config`
+--
+
+DROP TABLE IF EXISTS `character_trait_config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_trait_config` (
+  `guid` bigint unsigned NOT NULL,
+  `traitConfigId` int NOT NULL,
+  `type` int NOT NULL,
+  `chrSpecializationId` int DEFAULT NULL,
+  `combatConfigFlags` int DEFAULT NULL,
+  `localIdentifier` int DEFAULT NULL,
+  `skillLineId` int DEFAULT NULL,
+  `traitSystemId` int DEFAULT NULL,
+  `name` varchar(260) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`guid`,`traitConfigId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_trait_config`
+--
+
+LOCK TABLES `character_trait_config` WRITE;
+/*!40000 ALTER TABLE `character_trait_config` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_trait_config` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_trait_entry`
+--
+
+DROP TABLE IF EXISTS `character_trait_entry`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `character_trait_entry` (
+  `guid` bigint unsigned NOT NULL,
+  `traitConfigId` int NOT NULL,
+  `traitNodeId` int NOT NULL,
+  `traitNodeEntryId` int NOT NULL,
+  `rank` int NOT NULL DEFAULT '0',
+  `grantedRanks` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`traitConfigId`,`traitNodeId`,`traitNodeEntryId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_trait_entry`
+--
+
+LOCK TABLES `character_trait_entry` WRITE;
+/*!40000 ALTER TABLE `character_trait_entry` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_trait_entry` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3606,7 +3664,8 @@ INSERT INTO `updates` VALUES
 ('2022_10_03_00_characters.sql','7B062787230D9158A622EB4AFE7FA6D18AB47BB3','ARCHIVED','2022-10-03 22:32:58',0),
 ('2022_10_03_01_characters.sql','7CF58BD9CC366301CC992017028568C8774C4BC2','ARCHIVED','2022-10-03 22:36:38',0),
 ('2022_10_03_02_characters.sql','33135AB3132943F15F4849A16EC5EFEA402F24F6','ARCHIVED','2022-10-03 22:38:27',0),
-('2022_11_20_00_characters.sql','4EB8BB24CAF16B0962DF3EF92C77BE05E234CFA6','ARCHIVED','2022-11-20 11:05:20',0);
+('2022_11_20_00_characters.sql','4EB8BB24CAF16B0962DF3EF92C77BE05E234CFA6','ARCHIVED','2022-11-20 11:05:20',0),
+('2022_12_16_00_characters.sql','ABD1E101FE6629E0520C91E98942E55067EDD492','RELEASED','2022-12-16 22:52:19',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
