@@ -111,3 +111,11 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& 
 
     GetPlayer()->SetSkill(packet.SkillLine, 0, 0, 0);
 }
+
+void WorldSession::HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite)
+{
+    if (!_player->HasSpell(tradeSkillSetFavorite.RecipeID))
+        return;
+
+    _player->SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
+}

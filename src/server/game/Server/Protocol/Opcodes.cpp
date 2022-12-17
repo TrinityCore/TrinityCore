@@ -928,7 +928,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_TOGGLE_PVP,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTogglePvP);
     DEFINE_HANDLER(CMSG_TOTEM_DESTROYED,                                    STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleTotemDestroyed);
     DEFINE_HANDLER(CMSG_TOY_CLEAR_FANFARE,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleToyClearFanfare);
-    DEFINE_HANDLER(CMSG_TRADE_SKILL_SET_FAVORITE,                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_TRADE_SKILL_SET_FAVORITE,                           STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleTradeSkillSetFavorite);
     DEFINE_HANDLER(CMSG_TRAINER_BUY_SPELL,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleTrainerBuySpellOpcode);
     DEFINE_HANDLER(CMSG_TRAINER_LIST,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleTrainerListOpcode);
     DEFINE_HANDLER(CMSG_TRAITS_COMMIT_CONFIG,                               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleTraitsCommitConfig);

@@ -1048,4 +1048,10 @@ WorldPacket const* MissileCancel::Write()
 
     return &_worldPacket;
 }
+
+void TradeSkillSetFavorite::Read()
+{
+    _worldPacket >> RecipeID;
+    IsFavorite = _worldPacket.ReadBit();
+}
 }
