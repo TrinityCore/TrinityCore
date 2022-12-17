@@ -626,6 +626,7 @@ enum AuraType : uint32
     SPELL_AURA_532                                          = 532,
     SPELL_AURA_DISABLE_NAVIGATION                           = 533, // disables map pins
     SPELL_AURA_534                                          = 534,
+    SPELL_AURA_535                                          = 535, // related to profession equipment; NYI; MiscValue[0] = Profession (enum, not id)
     TOTAL_AURAS
 };
 
