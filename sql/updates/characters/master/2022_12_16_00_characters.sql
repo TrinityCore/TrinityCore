@@ -1,3 +1,11 @@
+
+DROP PROCEDURE IF EXISTS apply_if_not_exists_2022_12_16_00_characters;
+
+DELIMITER ';;'
+CREATE PROCEDURE apply_if_not_exists_2022_12_16_00_characters() BEGIN
+
+IF NOT EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='character_action' AND `column_name`='traitConfigId') THEN
+
 ALTER TABLE `character_inventory` ADD `newSlot` tinyint unsigned;
 ALTER TABLE `character_inventory` DROP INDEX `guid`;
 UPDATE `character_inventory` SET `newSlot`=`slot`;
@@ -45,3 +53,11 @@ ALTER TABLE `character_action` DROP PRIMARY KEY;
 ALTER TABLE `character_action` ADD PRIMARY KEY (`guid`,`spec`,`traitConfigId`,`button`);
 
 DELETE FROM `character_talent`;
+
+END IF;
+END;;
+
+DELIMITER ';'
+CALL apply_if_not_exists_2022_12_16_00_characters();
+
+DROP PROCEDURE IF EXISTS apply_if_not_exists_2022_12_16_00_characters;
