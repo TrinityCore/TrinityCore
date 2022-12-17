@@ -1242,7 +1242,7 @@ uint8 Item::GetBagSlot() const
 
 bool Item::IsEquipped() const
 {
-    return !IsInBag() && ((m_slot >= EQUIPMENT_SLOT_START && m_slot < EQUIPMENT_SLOT_END)
+    return !IsInBag() && (m_slot < EQUIPMENT_SLOT_END
         || (m_slot >= PROFESSION_SLOT_START && m_slot < PROFESSION_SLOT_END));
 }
 
