@@ -211,7 +211,7 @@ enum ItemFlags2 : uint32
 {
     ITEM_FLAG2_FACTION_HORDE                            = 0x00000001,
     ITEM_FLAG2_FACTION_ALLIANCE                         = 0x00000002,
-    ITEM_FLAG2_DONT_IGNORE_BUY_PRICE                    = 0x00000004, // when item uses extended cost, gold is also required
+    ITEM_FLAG2_DONT_IGNORE_BUY_PRICE                    = 0x00000004, // when item uses extended cost, gold is also required // deprecated
     ITEM_FLAG2_CLASSIFY_AS_CASTER                       = 0x00000008,
     ITEM_FLAG2_CLASSIFY_AS_PHYSICAL                     = 0x00000010,
     ITEM_FLAG2_EVERYONE_CAN_ROLL_NEED                   = 0x00000020,

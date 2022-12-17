@@ -22453,7 +22453,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     }
 
     uint64 price = 0;
-    if (crItem->IsGoldRequired(pProto) && pProto->GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (pProto->GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
     {
         double buyPricePerItem = double(pProto->GetBuyPrice()) / pProto->GetBuyCount();
         uint64 maxCount = MAX_MONEY_AMOUNT / buyPricePerItem;
@@ -22467,6 +22467,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
         // reputation discount
         price = uint64(floor(price * GetReputationPriceDiscount(creature)));
+        price = pProto->GetBuyPrice() > 0 ? std::max(uint64(1), price) : price;
 
         if (int32 priceMod = GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
             price -= CalculatePct(price, priceMod);
