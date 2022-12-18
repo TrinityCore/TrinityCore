@@ -3095,7 +3095,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
 
             bool bagScanReachedEnd = referencePlayer->ForEachItem(ItemSearchLocation::Everywhere, [&bonusListIDs](Item const* item)
             {
-                bool hasBonus = std::any_of(item->m_itemData->BonusListIDs->begin(), item->m_itemData->BonusListIDs->end(), [&bonusListIDs](int32 bonusListID)
+                bool hasBonus = std::any_of(item->GetBonusListIDs().begin(), item->GetBonusListIDs().end(), [&bonusListIDs](int32 bonusListID)
                 {
                     return bonusListIDs.find(bonusListID) != bonusListIDs.end();
                 });
@@ -3759,6 +3759,109 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return ItemSearchCallbackResult::Stop;
             });
             if (bagScanReachedEnd)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerAuraWithLabelStackCountEqualOrGreaterThan: // 335
+        {
+            uint32 count = 0;
+            referencePlayer->HasAura([secondaryAsset, &count](Aura const* aura)
+            {
+                if (aura->GetSpellInfo()->HasLabel(secondaryAsset))
+                    count += aura->GetStackAmount();
+                return false;
+            });
+            if (count < reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerAuraWithLabelStackCountEqual: // 336
+        {
+            uint32 count = 0;
+            referencePlayer->HasAura([secondaryAsset, &count](Aura const* aura)
+            {
+                if (aura->GetSpellInfo()->HasLabel(secondaryAsset))
+                    count += aura->GetStackAmount();
+                return false;
+            });
+            if (count != reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerAuraWithLabelStackCountEqualOrLessThan: // 337
+        {
+            uint32 count = 0;
+            referencePlayer->HasAura([secondaryAsset, &count](Aura const* aura)
+            {
+                if (aura->GetSpellInfo()->HasLabel(secondaryAsset))
+                    count += aura->GetStackAmount();
+                return false;
+            });
+            if (count > reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerIsInCrossFactionGroup: // 338
+        {
+            Group const* group = referencePlayer->GetGroup();
+            if (!(group->GetGroupFlags() & GROUP_FLAG_CROSS_FACTION))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasTraitNodeEntryInActiveConfig: // 340
+        {
+            auto hasTraitNodeEntry = [referencePlayer, reqValue]()
+            {
+                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
+                {
+                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
+                    {
+                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
+                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                            continue;
+                    }
+
+                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                        if (traitEntry.TraitNodeEntryID == int32(reqValue))
+                            return true;
+                }
+                return false;
+            }();
+            if (!hasTraitNodeEntry)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasTraitNodeEntryInActiveConfigRankGreaterOrEqualThan: // 341
+        {
+            auto traitNodeEntryRank = [referencePlayer, secondaryAsset]() -> Optional<uint16>
+            {
+                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
+                {
+                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
+                    {
+                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
+                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                            continue;
+                    }
+
+                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                        if (traitEntry.TraitNodeEntryID == int32(secondaryAsset))
+                            return traitEntry.Rank;
+                }
+                return {};
+            }();
+            if (!traitNodeEntryRank || traitNodeEntryRank < int32(reqValue))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerDaysSinceLogout: // 344
+            if (GameTime::GetGameTime() - referencePlayer->m_playerData->LogoutTime < int64(reqValue) * DAY)
+                return false;
+            break;
+        case ModifierTreeType::PlayerCanUseItem: // 351
+        {
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(reqValue);
+            if (!itemTemplate || !referencePlayer->CanUseItem(itemTemplate))
                 return false;
             break;
         }

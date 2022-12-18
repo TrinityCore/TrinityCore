@@ -133,7 +133,7 @@ uint32 Battlenet::GameUtilitiesService::HandleRealmJoinRequest(std::unordered_ma
 
 uint32 Battlenet::GameUtilitiesService::HandleGetAllValuesForAttribute(game_utilities::v1::GetAllValuesForAttributeRequest const* request, game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
-    if (request->attribute_key() == "Command_RealmListRequest_v1")
+    if (request->attribute_key().find("Command_RealmListRequest_v1") == 0)
     {
         sRealmList->WriteSubRegions(response);
         return ERROR_OK;

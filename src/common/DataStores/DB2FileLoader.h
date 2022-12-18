@@ -75,7 +75,8 @@ struct DB2FieldMeta
 
 struct TC_COMMON_API DB2FileLoadInfo
 {
-    DB2FileLoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta);
+    constexpr explicit DB2FileLoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta)
+        : Fields(fields), FieldCount(fieldCount), Meta(meta) { }
 
     uint32 GetStringFieldCount(bool localizedOnly) const;
     std::pair<int32/*fieldIndex*/, int32/*arrayIndex*/> GetFieldIndexByName(char const* fieldName) const;
@@ -84,7 +85,6 @@ struct TC_COMMON_API DB2FileLoadInfo
     DB2FieldMeta const* Fields;
     std::size_t FieldCount;
     DB2Meta const* Meta;
-    std::string TypesString;
 };
 
 enum class DB2EncryptedSectionHandling
