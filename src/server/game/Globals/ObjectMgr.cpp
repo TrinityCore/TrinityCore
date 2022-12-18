@@ -9120,7 +9120,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
         gMenuItem.MenuID                = fields[0].GetUInt32();
         gMenuItem.OptionID              = fields[1].GetUInt32();
-        gMenuItem.OptionIcon            = fields[2].GetUInt8();
+        gMenuItem.OptionIcon            = GossipOptionIcon(fields[2].GetUInt8());
         gMenuItem.OptionText            = fields[3].GetString();
         gMenuItem.OptionBroadcastTextID = fields[4].GetUInt32();
         gMenuItem.OptionType            = fields[5].GetUInt32();

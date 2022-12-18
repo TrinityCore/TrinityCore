@@ -33,27 +33,27 @@ GossipMenu::~GossipMenu()
     ClearMenu();
 }
 
-uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
+uint32 GossipMenu::AddMenuItem(int32 menuItemId, GossipOptionIcon icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
 {
     ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 
     // Find a free new id - script case
-    if (optionIndex == -1)
+    if (menuItemId == -1)
     {
-        optionIndex = 0;
+        menuItemId = 0;
         if (!_menuItems.empty())
         {
             for (GossipMenuItemContainer::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
             {
-                if (int32(itr->first) > optionIndex)
+                if (int32(itr->first) > menuItemId)
                     break;
 
-                optionIndex = itr->first + 1;
+                menuItemId = itr->first + 1;
             }
         }
     }
 
-    GossipMenuItem& menuItem = _menuItems[optionIndex];
+    GossipMenuItem& menuItem = _menuItems[menuItemId];
 
     menuItem.MenuItemIcon    = icon;
     menuItem.Message         = message;
@@ -62,7 +62,8 @@ uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const&
     menuItem.OptionType      = action;
     menuItem.BoxMessage      = boxMessage;
     menuItem.BoxMoney        = boxMoney;
-    return optionIndex;
+
+    return menuItemId;
 }
 
 /**
@@ -124,8 +125,8 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
         }
 
         /// Add menu item with existing method. Menu item id -1 is also used in ADD_GOSSIP_ITEM macro.
-        uint32 optionIndex = AddMenuItem(-1, itr->second.OptionIcon, strOptionText, sender, action, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
-        AddGossipMenuItemData(optionIndex, itr->second.ActionMenuID, itr->second.ActionPoiID);
+        uint32 newOptionId = AddMenuItem(-1, itr->second.OptionIcon, strOptionText, sender, action, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+        AddGossipMenuItemData(newOptionId, itr->second.ActionMenuID, itr->second.ActionPoiID);
     }
 }
 
