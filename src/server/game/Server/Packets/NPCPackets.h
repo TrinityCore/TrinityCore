@@ -130,6 +130,40 @@ namespace WorldPackets
             std::vector<VendorItem> Items;
             ObjectGuid Vendor;
         };
+
+        struct GossipText
+        {
+            int32 QuestID = 0;
+            int32 QuestType = 0;
+            int32 QuestLevel = 0;
+            int32 QuestFlags = 0;
+            std::string QuestTitle;
+            bool Repeatable = false;
+        };
+
+        struct GossipOptions
+        {
+            int32 ClientOption = 0;
+            int32 OptionCost = 0;
+            uint8 OptionNPC = 0;
+            int8 OptionFlags = 0;
+            std::string Text;
+            std::string Confirm;
+        };
+
+        class GossipMessage final : public ServerPacket
+        {
+        public:
+            GossipMessage() : ServerPacket(SMSG_GOSSIP_MESSAGE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GossipGUID;
+            int32 TextID = 0;
+            int32 GossipID = 0;
+            std::vector<GossipOptions> GossipOptions;
+            std::vector<GossipText> GossipQuestText;
+        };
     }
 }
 

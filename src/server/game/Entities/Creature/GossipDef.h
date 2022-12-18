@@ -248,6 +248,11 @@ class TC_GAME_API QuestMenu
             return _questMenuItems[index];
         }
 
+        QuestMenuItemList const& GetQuestMenuItems() const
+        {
+            return _questMenuItems;
+        }
+
     private:
         QuestMenuItemList _questMenuItems;
 };

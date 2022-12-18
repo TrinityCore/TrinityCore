@@ -131,3 +131,44 @@ WorldPacket const* WorldPackets::NPC::VendorInventory::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::GossipOptions const& gossipOption)
+{
+    data << int32(gossipOption.ClientOption);
+    data << uint8(gossipOption.OptionNPC);
+    data << int8(gossipOption.OptionFlags);
+    data << int32(gossipOption.OptionCost);
+    data << gossipOption.Text;
+    data << gossipOption.Confirm;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::GossipText const& gossipText)
+{
+    data << int32(gossipText.QuestID);
+    data << int32(gossipText.QuestType);
+    data << int32(gossipText.QuestLevel);
+    data << int32(gossipText.QuestFlags);
+    data << bool(gossipText.Repeatable);
+    data << gossipText.QuestTitle;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
+{
+    _worldPacket << GossipGUID;
+    _worldPacket << uint32(GossipID);
+    _worldPacket << uint32(TextID);
+
+    _worldPacket << uint32(GossipOptions.size());
+    for (WorldPackets::NPC::GossipOptions const& gossipOption : GossipOptions)
+        _worldPacket << gossipOption;
+
+    _worldPacket << uint32(GossipQuestText.size());
+    for (WorldPackets::NPC::GossipText const& gossipText : GossipQuestText)
+        _worldPacket << gossipText;
+
+    return &_worldPacket;
+}
