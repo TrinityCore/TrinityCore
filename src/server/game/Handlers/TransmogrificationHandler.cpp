@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "Item.h"
 #include "Log.h"
+#include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "TransmogrificationPackets.h"
@@ -331,5 +332,9 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
 
 void WorldSession::SendOpenTransmogrifier(ObjectGuid const& guid)
 {
-    SendPacket(WorldPackets::Transmogrification::TransmogrifyNPC(guid).Write());
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = guid;
+    npcInteraction.InteractionType = PlayerInteractionType::Transmogrifier;
+    npcInteraction.Success = true;
+    SendPacket(npcInteraction.Write());
 }

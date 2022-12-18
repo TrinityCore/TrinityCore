@@ -80,8 +80,8 @@ ByteBuffer& operator<<(ByteBuffer& data, AuctionBucketKey const& itemKey)
 
 ByteBuffer& operator>>(ByteBuffer& data, AuctionListFilterSubClass& filterSubClass)
 {
-    data >> filterSubClass.ItemSubclass;
     data >> filterSubClass.InvTypeMask;
+    data >> filterSubClass.ItemSubclass;
 
     return data;
 }
@@ -595,7 +595,7 @@ WorldPacket const* AuctionHelloResponse::Write()
 
 WorldPacket const* AuctionListBiddedItemsResult::Write()
 {
-    _worldPacket << int32(Items.size());
+    _worldPacket << uint32(Items.size());
     _worldPacket << uint32(DesiredDelay);
     _worldPacket.WriteBit(HasMoreResults);
     _worldPacket.FlushBits();

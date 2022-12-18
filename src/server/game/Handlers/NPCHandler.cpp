@@ -29,7 +29,6 @@
 #include "Item.h"
 #include "ItemPackets.h"
 #include "Log.h"
-#include "MailPackets.h"
 #include "Map.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
@@ -39,7 +38,6 @@
 #include "ReputationMgr.h"
 #include "SpellInfo.h"
 #include "Trainer.h"
-#include "World.h"
 #include "WorldPacket.h"
 
 enum class StableResult : uint8
@@ -71,16 +69,20 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& pa
 
 void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 {
-    WorldPackets::NPC::PlayerTabardVendorActivate packet;
-    packet.Vendor = guid;
-    SendPacket(packet.Write());
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = guid;
+    npcInteraction.InteractionType = PlayerInteractionType::TabardVendor;
+    npcInteraction.Success = true;
+    SendPacket(npcInteraction.Write());
 }
 
 void WorldSession::SendShowMailBox(ObjectGuid guid)
 {
-    WorldPackets::Mail::ShowMailbox packet;
-    packet.PostmasterGUID = guid;
-    SendPacket(packet.Write());
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = guid;
+    npcInteraction.InteractionType = PlayerInteractionType::MailInfo;
+    npcInteraction.Success = true;
+    SendPacket(npcInteraction.Write());
 }
 
 void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
@@ -188,7 +190,8 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 
 void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet)
 {
-    if (!_player->PlayerTalkClass->GetGossipMenu().GetItem(packet.GossipIndex))
+    GossipMenuItem const* gossipMenuItem = _player->PlayerTalkClass->GetGossipMenu().GetItem(packet.GossipOptionID);
+    if (!gossipMenuItem)
         return;
 
     // Prevent cheating on C++ scripted menus
@@ -242,26 +245,26 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     {
         if (unit)
         {
-            if (!unit->AI()->OnGossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
-                _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
+            if (!unit->AI()->OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem->OrderIndex, packet.PromotionCode.c_str()))
+                _player->OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
         }
         else
         {
-            if (!go->AI()->OnGossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
-                _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
+            if (!go->AI()->OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem->OrderIndex, packet.PromotionCode.c_str()))
+                _player->OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
         }
     }
     else
     {
         if (unit)
         {
-            if (!unit->AI()->OnGossipSelect(_player, packet.GossipID, packet.GossipIndex))
-                _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
+            if (!unit->AI()->OnGossipSelect(_player, packet.GossipID, gossipMenuItem->OrderIndex))
+                _player->OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
         }
         else
         {
-            if (!go->AI()->OnGossipSelect(_player, packet.GossipID, packet.GossipIndex))
-                _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
+            if (!go->AI()->OnGossipSelect(_player, packet.GossipID, gossipMenuItem->OrderIndex))
+                _player->OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
         }
     }
 }

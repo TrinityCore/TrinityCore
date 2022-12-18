@@ -40,7 +40,7 @@ struct GameObjectTemplate
     int32   ContentTuningId;
     union
     {
-        // 0 GAMEOBJECT_TYPE_DOOR
+    // 0 GAMEOBJECT_TYPE_DOOR
         struct
         {
             uint32 startOpen;                               // 0 startOpen, enum { false, true, }; Default: false
@@ -56,6 +56,7 @@ struct GameObjectTemplate
             uint32 InfiniteAOI;                             // 10 Infinite AOI, enum { false, true, }; Default: false
             uint32 NotLOSBlocking;                          // 11 Not LOS Blocking, enum { false, true, }; Default: false
             uint32 InteractRadiusOverride;                  // 12 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Collisionupdatedelayafteropen;           // 13 Collision update delay(ms) after open, int, Min value: 0, Max value: 2147483647, Default value: 0
         } door;
         // 1 GAMEOBJECT_TYPE_BUTTON
         struct
@@ -196,6 +197,13 @@ struct GameObjectTemplate
             uint32 floatOnWater;                            // 7 floatOnWater, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 8 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 gossipID;                                // 10 gossipID, References: Gossip, NoValue = 0
+            uint32 spellFocusType2;                         // 11 spellFocusType 2, References: SpellFocusObject, NoValue = 0
+            uint32 spellFocusType3;                         // 12 spellFocusType 3, References: SpellFocusObject, NoValue = 0
+            uint32 spellFocusType4;                         // 13 spellFocusType 4, References: SpellFocusObject, NoValue = 0
+            uint32 Profession;                              // 14 Profession, enum { First Aid, Blacksmithing, Leatherworking, Alchemy, Herbalism, Cooking, Mining, Tailoring, Engineering, Enchanting, Fishing, Skinning, Jewelcrafting, Inscription, Archaeology, }; Default: Blacksmithing
+            uint32 Profession2;                             // 15 Profession 2, enum { First Aid, Blacksmithing, Leatherworking, Alchemy, Herbalism, Cooking, Mining, Tailoring, Engineering, Enchanting, Fishing, Skinning, Jewelcrafting, Inscription, Archaeology, }; Default: Blacksmithing
+            uint32 Profession3;                             // 16 Profession 3, enum { First Aid, Blacksmithing, Leatherworking, Alchemy, Herbalism, Cooking, Mining, Tailoring, Engineering, Enchanting, Fishing, Skinning, Jewelcrafting, Inscription, Archaeology, }; Default: Blacksmithing
         } spellFocus;
         // 9 GAMEOBJECT_TYPE_TEXT
         struct
@@ -483,7 +491,7 @@ struct GameObjectTemplate
         // 31 GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY
         struct
         {
-            uint32 InstanceType;                            // 0 Instance Type, enum { Not Instanced, Party Dungeon, Raid Dungeon, PVP Battlefield, Arena Battlefield, Scenario, }; Default: Party Dungeon
+            uint32 InstanceType;                            // 0 Instance Type, enum { Not Instanced, Party Dungeon, Raid Dungeon, PVP Battlefield, Arena Battlefield, Scenario, WoWLabs, }; Default: Party Dungeon
             uint32 DifficultyNormal;                        // 1 Difficulty Normal, References: animationdata, NoValue = 0
             uint32 DifficultyHeroic;                        // 2 Difficulty Heroic, References: animationdata, NoValue = 0
             uint32 DifficultyEpic;                          // 3 Difficulty Epic, References: animationdata, NoValue = 0
@@ -503,6 +511,7 @@ struct GameObjectTemplate
             int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
             uint32 SitAnimKit;                              // 2 Sit Anim Kit, References: AnimKit, NoValue = 0
             uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 CustomizationScope;                      // 4 Customization Scope, int, Min value: 0, Max value: 2147483647, Default value: 0
         } barberChair;
         // 33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
@@ -794,6 +803,7 @@ struct GameObjectTemplate
             uint32 WhenAvailable;                           // 0 When Available, References: GameObjectDisplayInfo, NoValue = 0
             uint32 open;                                    // 1 open, References: Lock_, NoValue = 0
             uint32 InteractRadiusOverride;                  // 2 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 ExpansionLevel;                          // 3 Expansion Level, int, Min value: 0, Max value: 2147483647, Default value: 0
         } weeklyRewardChest;
         // 60 GAMEOBJECT_TYPE_CLIENT_MODEL
         struct
@@ -803,6 +813,11 @@ struct GameObjectTemplate
             uint32 InfiniteAOI;                             // 2 Infinite AOI, enum { false, true, }; Default: false
             uint32 TrueInfiniteAOI;                         // 3 True Infinite AOI (programmer only!), enum { false, true, }; Default: false
         } clientModel;
+        // 61 GAMEOBJECT_TYPE_CRAFTING_TABLE
+        struct
+        {
+            uint32 Profession;                              // 0 Profession, enum { First Aid, Blacksmithing, Leatherworking, Alchemy, Herbalism, Cooking, Mining, Tailoring, Engineering, Enchanting, Fishing, Skinning, Jewelcrafting, Inscription, Archaeology, }; Default: Blacksmithing
+        } craftingTable;
         struct
         {
             uint32 data[MAX_GAMEOBJECT_DATA];

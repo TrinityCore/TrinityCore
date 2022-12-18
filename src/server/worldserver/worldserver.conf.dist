@@ -699,7 +699,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     8 - (Expansion 8)
+#        Default:     9 - (Expansion 9)
+#                     8 - (Expansion 8)
 #                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
 #                     5 - (Expansion 5)
@@ -709,7 +710,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 8
+Expansion = 9
 
 #
 #    MinPlayerName
@@ -834,9 +835,17 @@ CharactersPerAccount = 50
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
 #        Range:       1-200
-#        Default:     50
+#        Default:     60
 
-CharactersPerRealm = 50
+CharactersPerRealm = 60
+
+#
+#    CharacterCreating.EvokersPerRealm
+#        Description: Limit number of death knight characters per account on this realm.
+#        Range:       1-60
+#        Default:     1
+
+CharacterCreating.EvokersPerRealm = 1
 
 #
 #    CharacterCreating.MinLevelForDemonHunter
@@ -846,6 +855,15 @@ CharactersPerRealm = 50
 #                     1  - (Enabled, Requires at least another level 1 character)
 
 CharacterCreating.MinLevelForDemonHunter = 0
+
+#
+#    CharacterCreating.MinLevelForEvoker
+#        Description: Limit creating demon hunters only for account with another
+#                     character of specific level.
+#        Default:     50  - (Enabled, Requires at least another level 50 character)
+#                     0  - (Disabled, No requirement)
+
+CharacterCreating.MinLevelForEvoker = 0
 
 #
 #    CharacterCreating.DisableAlliedRaceAchievementRequirement

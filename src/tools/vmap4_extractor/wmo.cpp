@@ -204,10 +204,10 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
 }
 
 WMOGroup::WMOGroup(const std::string &filename) :
-    filename(filename), MOPY(nullptr), MOVX(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
+    filename(filename), MPY2(nullptr), MOVX(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
     hlq(nullptr), LiquEx(nullptr), LiquBytes(nullptr), groupName(0), descGroupName(0), mogpFlags(0),
     moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), nBatchC(0), fogIdx(0),
-    groupLiquid(0), groupWMOID(0), mopy_size(0), moba_size(0), LiquEx_size(0),
+    groupLiquid(0), groupWMOID(0), moba_size(0), LiquEx_size(0),
     nVertices(0), nTriangles(0), liquflags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
@@ -262,10 +262,17 @@ bool WMOGroup::open(WMORoot* rootWMO)
         }
         else if (!strcmp(fourcc,"MOPY"))
         {
-            MOPY = new char[size];
-            mopy_size = size;
+            MPY2 = std::make_unique<uint16[]>(size);
+            std::unique_ptr<uint8[]> MOPY = std::make_unique<uint8[]>(size);
             nTriangles = (int)size / 2;
-            f.read(MOPY, size);
+            f.read(MOPY.get(), size);
+            std::copy_n(MOPY.get(), size, MPY2.get());
+        }
+        else if (!strcmp(fourcc,"MPY2"))
+        {
+            MPY2 = std::make_unique<uint16[]>(size / 2);
+            nTriangles = (int)size / 4;
+            f.read(MPY2.get(), size);
         }
         else if (!strcmp(fourcc,"MOVI"))
         {
@@ -440,15 +447,15 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
         delete [] MobaEx;
 
         //-------INDX------------------------------------
-        //-------MOPY--------
+        //-------MOPY/MPY2--------
         std::unique_ptr<uint32[]> MovxEx = std::make_unique<uint32[]>(nTriangles*3); // "worst case" size...
         std::unique_ptr<int32[]> IndexRenum = std::make_unique<int32[]>(nVertices);
         std::fill_n(IndexRenum.get(), nVertices, -1);
         for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
-            bool isRenderFace = (MOPY[2 * i] & WMO_MATERIAL_RENDER) && !(MOPY[2 * i] & WMO_MATERIAL_DETAIL);
-            bool isCollision = MOPY[2 * i] & WMO_MATERIAL_COLLISION || isRenderFace;
+            bool isRenderFace = (MPY2[2 * i] & WMO_MATERIAL_RENDER) && !(MPY2[2 * i] & WMO_MATERIAL_DETAIL);
+            bool isCollision = MPY2[2 * i] & WMO_MATERIAL_COLLISION || isRenderFace;
 
             if (!isCollision)
                 continue;
@@ -563,7 +570,6 @@ bool WMOGroup::ShouldSkip(WMORoot const* root) const
 
 WMOGroup::~WMOGroup()
 {
-    delete [] MOPY;
     delete [] MOVT;
     delete [] MOBA;
     delete hlq;
