@@ -484,6 +484,73 @@ class spell_uldum_draining_venom : public SpellScript
     }
 };
 
+enum UnderTheChockingSands
+{
+    SPELL_SAND_BURST            = 85377,
+    SPELL_CHOKING_SANDS_VISUAL  = 85704,
+    SAY_RESCUED                 = 0
+};
+
+// 85372 - Rescue Survivor
+class spell_uldum_rescue_survivor : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SAND_BURST, SPELL_CHOKING_SANDS_VISUAL });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Creature* creature = GetHitCreature();
+        if (!creature || !caster)
+            return;
+
+        creature->RemoveAurasDueToSpell(SPELL_CHOKING_SANDS_VISUAL);
+        creature->CastSpell(nullptr, SPELL_SAND_BURST);
+        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+
+        if (Vehicle* vehicle = creature->GetVehicle())
+            if (vehicle->GetBase()->IsCreature())
+                vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(5s);
+
+        // All of this here should be a native vehicle functionality. So we have to move this to the vehicle class in the near future.
+        {
+            creature->ExitVehicle();
+            creature->SetDisableGravity(false);
+            creature->SetAnimationTier(AnimationTier::Ground, false);
+            creature->DespawnOrUnsummon(30s);
+
+            Position dest = creature->GetPosition();
+            dest.m_positionZ = creature->GetMapHeight(dest.GetPositionX(), dest.GetPositionY(), creature->GetPositionZ() + 5.f);
+            creature->MovePositionToFirstCollision(dest, 1.f, Position::NormalizeOrientation(creature->GetRelativeAngle(caster) + float(M_PI)));
+
+            Movement::MoveSplineInit init(creature);
+            init.SetFall();
+            init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
+            init.Launch();
+        }
+
+        ObjectGuid casterGuid = caster->GetGUID();
+        creature->m_Events.AddEventAtOffset([creature, casterGuid]()
+        {
+            if (Unit* caster = ObjectAccessor::GetUnit(*creature, casterGuid))
+            {
+                if (CreatureAI* ai = creature->AI())
+                    ai->Talk(SAY_RESCUED, caster);
+
+                if (Player* player = caster->ToPlayer())
+                    player->KilledMonsterCredit(creature->GetEntry());
+            }
+        }, 4s);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_uldum_rescue_survivor::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_uldum()
 {
     /*
@@ -498,4 +565,5 @@ void AddSC_uldum()
     RegisterSpellScript(spell_gobbles_initialize);
     RegisterSpellScript(spell_summon_schnottz);
     RegisterSpellScript(spell_uldum_draining_venom);
+    RegisterSpellScript(spell_uldum_rescue_survivor);
 }
