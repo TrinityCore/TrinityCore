@@ -63,16 +63,6 @@ namespace WorldPackets
             std::vector<uint32> FavoriteAppearances;
             std::vector<uint32> NewAppearances;
         };
-
-        class TransmogrifyNPC final : public ServerPacket
-        {
-        public:
-            TransmogrifyNPC(ObjectGuid const& guid) : ServerPacket(SMSG_TRANSMOGRIFY_NPC, 16), Guid(guid) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-        };
     }
 }
 

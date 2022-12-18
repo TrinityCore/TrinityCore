@@ -531,14 +531,8 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         InitializeLeg(leg, &transport->Events, pathPoints, pauses, events, goInfo, totalTime);
 
     if (transport->MapIds.size() > 1)
-    {
         for (uint32 mapId : transport->MapIds)
             ASSERT(!sMapStore.LookupEntry(mapId)->Instanceable());
-
-        transport->InInstance = false;
-    }
-    else
-        transport->InInstance = sMapStore.LookupEntry(*transport->MapIds.begin())->Instanceable();
 
     transport->TotalPathTime = totalTime;
 }
@@ -578,6 +572,12 @@ Transport* TransportMgr::CreateTransport(uint32 entry, Map* map, ObjectGuid::Low
         return nullptr;
     }
 
+    if (tInfo->MapIds.find(map->GetId()) == tInfo->MapIds.end())
+    {
+        TC_LOG_ERROR("entities.transport", "Transport %u attempted creation on map it has no path for %u!", entry, map->GetId());
+        return nullptr;
+    }
+
     Optional<Position> startingPosition = tInfo->ComputePosition(0, nullptr, nullptr);
     if (!startingPosition)
     {
@@ -589,7 +589,6 @@ Transport* TransportMgr::CreateTransport(uint32 entry, Map* map, ObjectGuid::Low
     Transport* trans = new Transport();
 
     // ...at first waypoint
-    uint32 mapId = tInfo->PathLegs.front().MapId;
     float x = startingPosition->GetPositionX();
     float y = startingPosition->GetPositionY();
     float z = startingPosition->GetPositionZ();
@@ -604,16 +603,6 @@ Transport* TransportMgr::CreateTransport(uint32 entry, Map* map, ObjectGuid::Low
     }
 
     PhasingHandler::InitDbPhaseShift(trans->GetPhaseShift(), phaseUseFlags, phaseId, phaseGroupId);
-
-    if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
-    {
-        if (mapEntry->Instanceable() != tInfo->InInstance)
-        {
-            TC_LOG_ERROR("entities.transport", "Transport %u (name: %s) attempted creation in instance map (id: %u) but it is not an instanced transport!", entry, trans->GetName().c_str(), mapId);
-            delete trans;
-            return nullptr;
-        }
-    }
 
     // use preset map for instances (need to know which instance)
     trans->SetMap(map);

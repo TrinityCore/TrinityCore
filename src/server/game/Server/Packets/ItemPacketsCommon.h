@@ -82,6 +82,16 @@ namespace WorldPackets
             bool operator!=(ItemInstance const& r) const { return !(*this == r); }
         };
 
+        struct ItemBonusKey
+        {
+            int32 ItemID = 0;
+            std::vector<int32> BonusListIDs;
+            std::vector<ItemMod> Modifications;
+
+            bool operator==(ItemBonusKey const& right) const;
+            bool operator!=(ItemBonusKey const& r) const { return !(*this == r); }
+        };
+
         struct ItemEnchantData
         {
             ItemEnchantData(int32 id, uint32 expiration, int32 charges, uint8 slot) : ID(id), Expiration(expiration), Charges(charges), Slot(slot) { }
@@ -107,23 +117,27 @@ namespace WorldPackets
 
             std::vector<InvItem> Items;
         };
+
+        struct UiEventToast
+        {
+            int32 UiEventToastID = 0;
+            int32 Asset = 0;
+        };
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemEnchantData const& itemEnchantData);
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemGemData const& itemGemInstanceData);
+        ByteBuffer& operator>>(ByteBuffer& data, ItemGemData& itemGemInstanceData);
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance);
+        ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance);
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemBonusKey const& itemBonusKey);
+
+        ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
+
+        ByteBuffer& operator<<(ByteBuffer& data, UiEventToast const& uiEventToast);
     }
-}
-
-namespace WorldPackets
-{
-namespace Item
-{
-ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance);
-ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance);
-
-ByteBuffer& operator<<(ByteBuffer& data, ItemEnchantData const& itemEnchantData);
-
-ByteBuffer& operator<<(ByteBuffer& data, ItemGemData const& itemGemInstanceData);
-ByteBuffer& operator>>(ByteBuffer& data, ItemGemData& itemGemInstanceData);
-
-ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
-}
 }
 
 #endif // ItemPacketsCommon_h__
