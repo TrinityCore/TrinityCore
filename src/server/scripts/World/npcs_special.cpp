@@ -1965,7 +1965,6 @@ class npc_experience : public CreatureScript
             bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-                ClearGossipMenuFor(player);
 
                 switch (action)
                 {
@@ -1977,7 +1976,7 @@ class npc_experience : public CreatureScript
                         break;
                 }
                 CloseGossipMenuFor(player);
-                return true;
+                return false;
             }
 
             bool GossipHello(Player* player) override
