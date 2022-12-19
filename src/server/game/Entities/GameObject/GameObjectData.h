@@ -200,6 +200,7 @@ struct GameObjectTemplate
             uint32 WorldStateSetsState;                     //20
             uint32 floatOnWater;                            //21
             uint32 conditionID1;                            //22
+            uint32 playerCast;                              //23
         } goober;
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
