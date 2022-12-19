@@ -1515,7 +1515,7 @@ class TC_GAME_API ObjectMgr
         {
             return GetCreatureTrainerForGossipOption(creatureId, 0, 0);
         }
-        uint32 GetCreatureTrainerForGossipOption(uint32 creatureId, uint32 gossipMenuId, uint32 gossipOptionIndex) const;
+        uint32 GetCreatureTrainerForGossipOption(uint32 creatureId, uint32 gossipMenuId, uint32 gossipOptionId) const;
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {

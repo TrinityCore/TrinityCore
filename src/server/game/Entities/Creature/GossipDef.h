@@ -173,7 +173,7 @@ class TC_GAME_API GossipMenu
         void SetLocale(LocaleConstant locale) { _locale = locale; }
         LocaleConstant GetLocale() const { return _locale; }
 
-        void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
+        void AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi);
 
         uint32 GetMenuItemCount() const
         {
