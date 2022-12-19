@@ -62,6 +62,7 @@ enum PaladinSpells
     SPELL_PALADIN_FORBEARANCE                           = 25771,
     SPELL_PALADIN_GLYPH_OF_DIVINITY                     = 54986,
     SPELL_PALADIN_GLYPH_OF_SALVATION                    = 63225,
+    SPELL_PALADIN_GUARDED_BY_THE_LIGHT                  = 88063,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY        = 86669,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_PROTECTION  = 86659,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_RETRIBUTION = 86698,
@@ -120,7 +121,8 @@ enum PaladinSpellIcons
     PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 5154,
     PALADIN_ICON_ID_GLYPH_OF_EXORCISM            = 292,
     PALADIN_ICON_ID_SEALS_OF_COMMAND             = 561,
-    PALADIN_ICON_ID_LONG_ARM_OF_THE_LAW          = 3013
+    PALADIN_ICON_ID_LONG_ARM_OF_THE_LAW          = 3013,
+    PALADIN_ICON_ID_GUARDED_BY_THE_LIGHT         = 3026
 };
 
 enum PaladinCreatures
@@ -1177,8 +1179,12 @@ class spell_pal_word_of_glory: public SpellScript
         heal *= power;
 
         if (caster != target)
-            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
+        {
+            if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
                 AddPct(heal, aurEff->GetAmount());
+        }
+        else if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GUARDED_BY_THE_LIGHT, EFFECT_0))
+            AddPct(heal, aurEff->GetAmount());
 
         SetEffectValue(heal);
     }
@@ -1826,6 +1832,30 @@ class spell_pal_judgements_of_the_just : public AuraScript
     }
 };
 
+// 85646 - Guarded by the Light (Rank 2)
+class spell_pal_guarded_by_the_light : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_GUARDED_BY_THE_LIGHT });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        int32 bp = eventInfo.GetHealInfo()->GetHeal() - eventInfo.GetHealInfo()->GetEffectiveHeal();
+        if (bp <= 0)
+            return;
+
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_GUARDED_BY_THE_LIGHT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(bp));
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_pal_guarded_by_the_light::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     RegisterSpellScript(spell_pal_ardent_defender);
@@ -1848,6 +1878,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_eye_for_an_eye);
     RegisterSpellScript(spell_pal_glyph_of_holy_light);
     RegisterSpellScript(spell_pal_grand_crusader);
+    RegisterSpellScript(spell_pal_guarded_by_the_light);
     RegisterSpellScript(spell_pal_guardian_of_ancient_kings);
     RegisterSpellScript(spell_pal_hand_of_light);
     RegisterSpellAndAuraScriptPair(spell_pal_holy_radiance, spell_pal_holy_radiance_AuraScript);
