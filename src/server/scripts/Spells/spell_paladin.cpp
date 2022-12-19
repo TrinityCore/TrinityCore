@@ -63,6 +63,7 @@ enum PaladinSpells
     SPELL_PALADIN_GLYPH_OF_DIVINITY                     = 54986,
     SPELL_PALADIN_GLYPH_OF_SALVATION                    = 63225,
     SPELL_PALADIN_GUARDED_BY_THE_LIGHT                  = 88063,
+    SPELL_PALADIN_GUARDED_BY_THE_LIGHT_R2               = 85646,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY        = 86669,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_PROTECTION  = 86659,
     SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_RETRIBUTION = 86698,
@@ -1832,12 +1833,12 @@ class spell_pal_judgements_of_the_just : public AuraScript
     }
 };
 
-// 85646 - Guarded by the Light (Rank 2)
+// -85639 - Guarded by the Light
 class spell_pal_guarded_by_the_light : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_GUARDED_BY_THE_LIGHT });
+        return ValidateSpellInfo({ SPELL_PALADIN_GUARDED_BY_THE_LIGHT, SPELL_PALADIN_GUARDED_BY_THE_LIGHT_R2 });
     }
 
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1852,7 +1853,8 @@ class spell_pal_guarded_by_the_light : public AuraScript
 
     void Register() override
     {
-        OnEffectProc.Register(&spell_pal_guarded_by_the_light::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        if (m_scriptSpellId == SPELL_PALADIN_GUARDED_BY_THE_LIGHT_R2) // This effect only exists for rank 2
+            OnEffectProc.Register(&spell_pal_guarded_by_the_light::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
