@@ -129,7 +129,7 @@ void AuraApplication::_Remove()
 void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
 {
     // mark as selfcast if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
+    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NOCASTER : AFLAG_NONE;
 
     // aura is cast by self or an enemy
     // one negative effect and we know aura is negative
@@ -175,7 +175,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
     }();
 
     if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) || effectNeedsAmount)
-        _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
+        _flags |= AFLAG_SCALABLE;
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
@@ -255,7 +255,9 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     // stack amount has priority over charges (checked on retail with spell 50262)
     auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
 
-    if (!(auraData.Flags & AFLAG_CASTER))
+    if (!aura->GetCasterGUID().IsUnit())
+        auraData.CastUnit = ObjectGuid::Empty; // optional data is filled in, but cast unit contains empty guid in packet
+    else if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
 
     if (auraData.Flags & AFLAG_DURATION)
@@ -264,10 +266,10 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
         auraData.Remaining = aura->GetDuration();
     }
 
-    if (auraData.Flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+    if (auraData.Flags & AFLAG_SCALABLE)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (AuraEffect const* effect = aura->GetEffect(i))
-                if (HasEffect(i))       // Not all of aura's effects have to be applied on every target
+                if (HasEffect(i)) // Not all of aura's effects have to be applied on every target
                     auraData.Points[i] = effect->GetAmount();
 }
 

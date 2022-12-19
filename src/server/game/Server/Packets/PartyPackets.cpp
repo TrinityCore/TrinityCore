@@ -125,7 +125,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
             aura.SpellID = aurApp->GetBase()->GetId();
             aura.Flags = aurApp->GetFlags();
 
-            if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+            if (aurApp->GetFlags() & AFLAG_SCALABLE)
             {
                 for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
                 {
@@ -174,7 +174,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
                 aura.SpellID = aurApp->GetBase()->GetId();
                 aura.Flags = aurApp->GetFlags();
 
-                if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                if (aurApp->GetFlags() & AFLAG_SCALABLE)
                 {
                     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
                     {
