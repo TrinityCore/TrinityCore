@@ -4867,14 +4867,13 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     uint32 name_id = m_spellInfo->Effects[effIndex].MiscValue;
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(name_id);
-
     if (!goinfo)
     {
         TC_LOG_ERROR("sql.sql", "Gameobject (Entry: %u) does not exist and is not created by spell (ID: %u) cast.", name_id, m_spellInfo->Id);
         return;
     }
 
-    float fx = 0.f, fy = 0.f, fz = 0.f, fo = 0.f;
+    float fx, fy, fz, fo;
 
     if (m_targets.HasDst())
         destTarget->GetPosition(fx, fy, fz, fo);
@@ -4901,26 +4900,25 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
         unitCaster->GetPosition(fx, fy, fz, fo);
 
+    Position pos = { fx, fy, fz, fo };
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(fo, 0.f, 0.f);
 
-    GameObject* pGameObj = new GameObject;
-
-    if (!pGameObj->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
+    GameObject* go = new GameObject;
+    if (!go->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
     {
-        delete pGameObj;
+        delete go;
         return;
     }
 
-    PhasingHandler::InheritPhaseShift(pGameObj, m_caster);
-
-    int32 duration = m_spellInfo->GetDuration();
+    PhasingHandler::InheritPhaseShift(go, m_caster);
+    int32 duration = m_spellInfo->CalcDuration(m_caster);
 
     switch (goinfo->type)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
-            unitCaster->SetChannelObjectGuid(pGameObj->GetGUID());
-            unitCaster->AddGameObject(pGameObj);              // will removed at spell cancel
+            unitCaster->SetChannelObjectGuid(go->GetGUID());
+            unitCaster->AddGameObject(go);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
             // start time == fish-FISHING_BOBBER_READY_TIME (0..GetDuration(m_spellInfo)-FISHING_BOBBER_READY_TIME)
@@ -4940,13 +4938,13 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         {
             if (unitCaster->GetTypeId() == TYPEID_PLAYER)
             {
-                pGameObj->AddUniqueUse(unitCaster->ToPlayer());
-                unitCaster->AddGameObject(pGameObj);      // will be removed at spell cancel
+                go->AddUniqueUse(unitCaster->ToPlayer());
+                unitCaster->AddGameObject(go);      // will be removed at spell cancel
             }
             break;
         }
         case GAMEOBJECT_TYPE_DUEL_ARBITER: // 52991
-            unitCaster->AddGameObject(pGameObj);
+            unitCaster->AddGameObject(go);
             break;
         case GAMEOBJECT_TYPE_SPELLCASTER:
         case GAMEOBJECT_TYPE_GUILD_BANK:
@@ -4954,8 +4952,8 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             {
                 if (ObjectGuid guildGUID = m_caster->GetGuidValue(OBJECT_FIELD_DATA))
                 {
-                    pGameObj->SetGuidValue(OBJECT_FIELD_DATA, m_caster->GetGuidValue(OBJECT_FIELD_DATA));
-                    pGameObj->SetUInt16Value(OBJECT_FIELD_TYPE, 1, 1); // Has guild data
+                    go->SetGuidValue(OBJECT_FIELD_DATA, m_caster->GetGuidValue(OBJECT_FIELD_DATA));
+                    go->SetUInt16Value(OBJECT_FIELD_TYPE, 1, 1); // Has guild data
                 }
             }
             break;
@@ -4963,22 +4961,22 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             break;
     }
 
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
+    go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
 
-    pGameObj->SetOwnerGUID(unitCaster->GetGUID());
+    go->SetOwnerGUID(unitCaster->GetGUID());
 
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->getLevel());
-    pGameObj->SetSpellId(m_spellInfo->Id);
+    go->SetSpellId(m_spellInfo->Id);
 
-    ExecuteLogEffectSummonObject(effIndex, pGameObj);
+    ExecuteLogEffectSummonObject(effIndex, go);
 
     TC_LOG_DEBUG("spells", "AddObject at SpellEfects.cpp EffectTransmitted");
     //m_caster->AddGameObject(pGameObj);
     //m_ObjToDel.push_back(pGameObj);
 
-    cMap->AddToMap(pGameObj);
+    cMap->AddToMap(go);
 
-    if (GameObject* linkedTrap = pGameObj->GetLinkedTrap())
+    if (GameObject* linkedTrap = go->GetLinkedTrap())
     {
         PhasingHandler::InheritPhaseShift(linkedTrap, m_caster);
 
