@@ -182,7 +182,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
         explicit InstanceScript(InstanceMap* map);
-
+        InstanceScript(InstanceScript const& right) = delete;
+        InstanceScript(InstanceScript&& right) = delete;
+        InstanceScript& operator=(InstanceScript const& right) = delete;
+        InstanceScript& operator=(InstanceScript&& right) = delete;
         virtual ~InstanceScript();
 
         InstanceMap* instance;

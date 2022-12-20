@@ -157,7 +157,11 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
     public:
 
         // ctor
-        OutdoorPvP(Map* map);
+        explicit OutdoorPvP(Map* map);
+        OutdoorPvP(OutdoorPvP const& right) = delete;
+        OutdoorPvP(OutdoorPvP&& right) = delete;
+        OutdoorPvP& operator=(OutdoorPvP const& right) = delete;
+        OutdoorPvP& operator=(OutdoorPvP&& right) = delete;
 
         // dtor
         virtual ~OutdoorPvP();
