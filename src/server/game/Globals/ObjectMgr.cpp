@@ -286,14 +286,14 @@ ObjectMgr::~ObjectMgr()
         delete itr->second;
 }
 
-void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeConstant, std::vector<std::string>& data)
+void ObjectMgr::AddLocaleString(std::string const&& value, LocaleConstant localeConstant, std::vector<std::string>& data)
 {
     if (!value.empty())
     {
         if (data.size() <= size_t(localeConstant))
             data.resize(localeConstant + 1);
 
-        data[localeConstant] = value;
+        data[localeConstant] = std::move(value);
     }
 }
 
@@ -343,18 +343,14 @@ void ObjectMgr::LoadCreatureLocales()
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
 
-        std::string name        = fields[2].GetString();
-        std::string femaleName  = fields[3].GetString();
-        std::string title       = fields[4].GetString();
-
-        CreatureLocale& data = _creatureLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(name,       locale, data.Name);
-        AddLocaleString(femaleName, locale, data.FemaleName);
-        AddLocaleString(title,      locale, data.Title);
+        CreatureLocale& data = _creatureLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Name);
+        AddLocaleString(fields[3].GetString(), locale, data.FemaleName);
+        AddLocaleString(fields[4].GetString(), locale, data.Title);
 
     } while (result->NextRow());
 
@@ -411,12 +407,13 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
-        std::string name        = fields[2].GetString();
+
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
-        LocaleConstant locale = GetLocaleByName(localeName);
-
-        AddLocaleString(name, locale, data.Name);
+        AddLocaleString(fields[2].GetString(), locale, data.Name);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u points_of_interest locale strings in %u ms", uint32(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -4950,10 +4947,12 @@ void ObjectMgr::LoadQuestLocales()
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
 
-        QuestLocale& data = _questLocaleStore[id];
 
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
+        QuestLocale& data = _questLocaleStore[id];
         AddLocaleString(fields[2].GetString(), locale, data.Title);
         AddLocaleString(fields[3].GetString(), locale, data.Details);
         AddLocaleString(fields[4].GetString(), locale, data.Objectives);
@@ -5599,15 +5598,13 @@ void ObjectMgr::LoadPageTextLocales()
 
         uint32 id                   = fields[0].GetUInt32();
         std::string localeName      = fields[1].GetString();
-        std::string text            = fields[2].GetString();
-
-        PageTextLocale& data = _pageTextLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
 
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(text, locale, data.Text);
+        PageTextLocale& data = _pageTextLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -6193,14 +6190,13 @@ void ObjectMgr::LoadQuestGreetingsLocales()
         }
 
         std::string localeName      = fields[2].GetString();
-        std::string greeting        = fields[3].GetString();
 
-        QuestGreetingLocale& data   = _questGreetingLocaleStore[MAKE_PAIR32(id, type)];
-        LocaleConstant locale       = GetLocaleByName(localeName);
+        LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(greeting, locale, data.greeting);
+        QuestGreetingLocale& data = _questGreetingLocaleStore[MAKE_PAIR32(id, type)];
+        AddLocaleString(fields[3].GetString(), locale, data.greeting);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u quest greeting locale strings in %u ms", uint32(_questGreetingLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -7039,16 +7035,13 @@ void ObjectMgr::LoadGameObjectLocales()
         uint32 id                   = fields[0].GetUInt32();
         std::string localeName      = fields[1].GetString();
 
-        std::string name            = fields[2].GetString();
-        std::string castBarCaption  = fields[3].GetString();
-
-        GameObjectLocale& data = _gameObjectLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(name, locale, data.Name);
-        AddLocaleString(castBarCaption, locale, data.CastBarCaption);
+        GameObjectLocale& data = _gameObjectLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.Name);
+        AddLocaleString(fields[3].GetString(), locale, data.CastBarCaption);
 
     } while (result->NextRow());
 
@@ -9500,8 +9493,10 @@ void ObjectMgr::LoadBroadcastTextLocales()
 
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
-        std::string Text    = fields[2].GetString();
-        std::string Text1  = fields[3].GetString();
+
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         BroadcastTextContainer::iterator bct = _broadcastTextStore.find(id);
         if (bct == _broadcastTextStore.end())
@@ -9510,12 +9505,8 @@ void ObjectMgr::LoadBroadcastTextLocales()
             continue;
         }
 
-        LocaleConstant locale = GetLocaleByName(localeName);
-        if (locale == LOCALE_enUS)
-            continue;
-
-        AddLocaleString(Text, locale, bct->second.Text);
-        AddLocaleString(Text1, locale, bct->second.Text1);
+        AddLocaleString(fields[2].GetString(), locale, bct->second.Text);
+        AddLocaleString(fields[3].GetString(), locale, bct->second.Text1);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u broadcast text locales in %u ms", uint32(_broadcastTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
