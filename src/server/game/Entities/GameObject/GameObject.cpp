@@ -2215,25 +2215,30 @@ void GameObject::Use(Unit* user)
         }
         case GAMEOBJECT_TYPE_SPELLCASTER:                   //22
         {
-            GameObjectTemplate const* info = GetGOInfo();
-            if (!info)
-                return;
-
-            if (info->spellcaster.partyOnly)
+            if (m_goInfo->spellcaster.partyOnly)
             {
-                Unit* caster = GetOwner();
-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (user->GetTypeId() != TYPEID_PLAYER || !user->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
+                Unit const* caster = GetOwner();
+                if (!caster || !caster->IsPlayer() || !user->IsPlayer() || !user->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
                     return;
             }
 
-            user->RemoveAurasByType(SPELL_AURA_MOUNTED);
-            spellId = info->spellcaster.spellId;
+            if (!m_goInfo->spellcaster.allowMounted)
+                user->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-            AddUse();
-            break;
+            spellId = m_goInfo->spellcaster.spellId;
+            if (!sSpellMgr->GetSpellInfo(spellId))
+            {
+                TC_LOG_ERROR("misc", "SpellCaster gameobject (Entry: %u) attempted to cast a non-existant spell (ID: %u).", GetEntry(), spellId);
+                return;
+            }
+
+            if (Player* player = user->ToPlayer())
+                sOutdoorPvPMgr->HandleCustomSpell(player, spellId, this);
+
+            // Only count successful spell casts as uses
+            if (CastSpell(user, spellId) == SPELL_CAST_OK)
+                AddUse();
+            return;
         }
         case GAMEOBJECT_TYPE_MEETINGSTONE:                  //23
         {
