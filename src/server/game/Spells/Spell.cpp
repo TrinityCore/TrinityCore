@@ -7042,19 +7042,18 @@ SpellCastResult Spell::CheckPower() const
 
 SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/) const
 {
-    Player* player = m_caster->ToPlayer();
-    if (!player)
-        return SPELL_CAST_OK;
+    // We expect a cast item but we don't have one. Fail cast right away
+    if (!m_CastItem && !m_castItemGUID.IsEmpty())
+        return SPELL_FAILED_ITEM_NOT_READY;
 
-    if (!m_CastItem)
+    Player* player = m_caster->ToPlayer();
+    if (m_CastItem)
     {
-        if (m_castItemGUID)
+        // Casting spells from an item always requires a player using it.
+        if (!player)
             return SPELL_FAILED_ITEM_NOT_READY;
-    }
-    else
-    {
-        uint32 itemid = m_CastItem->GetEntry();
-        if (!player->HasItemCount(itemid))
+
+        if (!player->HasItemCount(m_CastItem->GetEntry()))
             return SPELL_FAILED_ITEM_NOT_READY;
 
         ItemTemplate const* proto = m_CastItem->GetTemplate();
@@ -7066,14 +7065,14 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 if (m_CastItem->GetSpellCharges(i) == 0)
                     return SPELL_FAILED_NO_CHARGES_REMAIN;
 
-        // consumable cast item checks
+        // Consumable cast item checks
         if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && m_targets.GetUnitTarget())
         {
-            // such items should only fail if there is no suitable effect at all - see Rejuvenation Potions for example
+            // Such items should only fail if there is no suitable effect at all - see Rejuvenation Potions for example
             SpellCastResult failReason = SPELL_CAST_OK;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                // skip check, pet not required like checks, and for TARGET_UNIT_PET m_targets.GetUnitTarget() is not the real target but the caster
+                // Skip check, pet not required like checks, and for TARGET_UNIT_PET m_targets.GetUnitTarget() is not the real target but the caster
                 if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET)
                     continue;
 
@@ -7118,68 +7117,77 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
         }
     }
 
-    // check target item
+    // Check target item
     if (m_targets.GetItemTargetGUID())
     {
         Item* item = m_targets.GetItemTarget();
-        if (!item)
+        if (!item || item->GetGUID() != m_targets.GetItemTargetGUID())
             return SPELL_FAILED_ITEM_GONE;
 
         if (!item->IsFitToSpellRequirements(m_spellInfo))
             return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
     }
-    // if not item target then required item must be equipped
-    else
+    else if (player)
     {
+        // Check item requirements
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT))
             if (!player->HasItemFitToSpellRequirements(m_spellInfo))
                 return SPELL_FAILED_EQUIPPED_ITEM_CLASS;
     }
 
-    // do not take reagents for these item casts
-    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_REAGENT_COST))
+    // Check reagent requirements
+    bool needReagentCheck = [&]()
     {
-        bool checkReagents = !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST) && !player->CanNoReagentCast(m_spellInfo);
-        // Not own traded item (in trader trade slot) requires reagents even if triggered spell
-        if (!checkReagents)
-            if (Item* targetItem = m_targets.GetItemTarget())
-                if (targetItem->GetOwnerGUID() != player->GetGUID())
-                    checkReagents = true;
+        if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_REAGENT_COST)
+            return false;
 
-        // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
-        if (checkReagents)
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST) || (player && !player->CanNoReagentCast(m_spellInfo)))
+            return false;
+
+        return true;
+    }();
+
+    // Enchanting other players items always requires a reagent check so we do not skip its checks
+    if (!needReagentCheck)
+        if (Item* targetItem = m_targets.GetItemTarget())
+            if (player && targetItem->GetOwnerGUID() != player->GetGUID())
+                needReagentCheck = true;
+
+    if (needReagentCheck)
+    {
+        for (uint32 i = 0; i < MAX_SPELL_REAGENTS; ++i)
         {
-            for (uint32 i = 0; i < MAX_SPELL_REAGENTS; i++)
+            // No reagent required, check the next entry
+            if (m_spellInfo->Reagent[i] <= 0)
+                continue;
+
+            uint32 requiredItemId = m_spellInfo->Reagent[i];
+            uint32 requiredItemQuantity = m_spellInfo->ReagentCount[i];
+
+            // if CastItem is also spell reagent
+            if (m_CastItem && m_CastItem->GetEntry() == requiredItemId)
             {
-                if (m_spellInfo->Reagent[i] <= 0)
-                    continue;
+                ItemTemplate const* proto = m_CastItem->GetTemplate();
+                if (!proto)
+                    return SPELL_FAILED_ITEM_NOT_READY;
 
-                uint32 itemid    = m_spellInfo->Reagent[i];
-                uint32 itemcount = m_spellInfo->ReagentCount[i];
-
-                // if CastItem is also spell reagent
-                if (m_CastItem && m_CastItem->GetEntry() == itemid)
+                for (uint8 s = 0; s < proto->Effects.size(); ++s)
                 {
-                    ItemTemplate const* proto = m_CastItem->GetTemplate();
-                    if (!proto)
-                        return SPELL_FAILED_ITEM_NOT_READY;
-                    for (uint8 s = 0; s < proto->Effects.size(); ++s)
+                    // CastItem will be used up and does not count as reagent
+                    int32 charges = m_CastItem->GetSpellCharges(s);
+                    if (proto->Effects[s].Charges < 0 && abs(charges) < 2)
                     {
-                        // CastItem will be used up and does not count as reagent
-                        int32 charges = m_CastItem->GetSpellCharges(s);
-                        if (proto->Effects[s].Charges < 0 && abs(charges) < 2)
-                        {
-                            ++itemcount;
-                            break;
-                        }
+                        ++requiredItemQuantity;
+                        break;
                     }
                 }
-                if (!player->HasItemCount(itemid, itemcount))
-                {
-                    if (param1)
-                        *param1 = itemid;
-                    return SPELL_FAILED_REAGENTS;
-                }
+            }
+
+            if (!player || !player->HasItemCount(requiredItemId, requiredItemQuantity))
+            {
+                if (param1)
+                    *param1 = requiredItemId;
+                return SPELL_FAILED_REAGENTS;
             }
         }
     }
@@ -7193,15 +7201,19 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
             case SPELL_EFFECT_CREATE_ITEM_2:
             {
                 // m_targets.GetUnitTarget() means explicit cast, otherwise we dont check for possible equip error
-                Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : player;
-                if (target->GetTypeId() == TYPEID_PLAYER && !IsTriggered())
+                Player* playerTarget = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->ToPlayer() : player;
+                if (!playerTarget)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!IsTriggered())
                 {
                     // SPELL_EFFECT_CREATE_ITEM_2 differs from SPELL_EFFECT_CREATE_ITEM in that it picks the random item to create from a pool of potential items,
                     // so we need to make sure there is at least one free space in the player's inventory
                     if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_CREATE_ITEM_2)
-                        if (target->ToPlayer()->GetFreeInventorySpace() == 0)
+                        if (playerTarget->GetFreeInventorySpace() == 0)
                         {
-                            player->SendEquipError(EQUIP_ERR_INV_FULL, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
+                            if (player)
+                                player->SendEquipError(EQUIP_ERR_INV_FULL, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
                             return SPELL_FAILED_DONT_REPORT;
                         }
 
@@ -7213,13 +7225,14 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
 
                         uint32 createCount = std::clamp<uint32>(m_spellInfo->Effects[i].CalcValue(), 1u, itemTemplate->GetMaxStackSize());
                         ItemPosCountVec dest;
-                        InventoryResult msg = target->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->Effects[i].ItemType, createCount);
+                        InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->Effects[i].ItemType, createCount);
                         if (msg != EQUIP_ERR_OK)
                         {
                             /// @todo Needs review
                             if (!itemTemplate->GetItemLimitCategory())
                             {
-                                player->SendEquipError(msg, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
+                                if (player)
+                                    player->SendEquipError(msg, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
                                 return SPELL_FAILED_DONT_REPORT;
                             }
                             else
@@ -7227,14 +7240,15 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                                 // Conjure Food/Water/Refreshment spells
                                 if (m_spellInfo->SpellFamilyName != SPELLFAMILY_MAGE || (!(m_spellInfo->SpellFamilyFlags[0] & 0x40000000)))
                                     return SPELL_FAILED_TOO_MANY_OF_ITEM;
-                                else if (!(target->ToPlayer()->HasItemCount(m_spellInfo->Effects[i].ItemType)))
+                                else if (!(playerTarget->HasItemCount(m_spellInfo->Effects[i].ItemType)))
                                 {
-                                    player->SendEquipError(msg, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
+                                    if (player)
+                                        player->SendEquipError(msg, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
                                     return SPELL_FAILED_DONT_REPORT;
                                 }
                                 else
-                                    player->CastSpell(player, m_spellInfo->Effects[EFFECT_1].CalcValue(), CastSpellExtraArgs()
-                                    .SetTriggeringSpell(this));        // move this to anywhere
+                                    if (player)
+                                        player->CastSpell(player, m_spellInfo->Effects[EFFECT_1].CalcValue(), CastSpellExtraArgs().SetTriggeringSpell(this));        // move this to anywhere
                                 return SPELL_FAILED_DONT_REPORT;
                             }
                         }
@@ -7242,6 +7256,19 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 }
                 break;
             }
+            default:
+                break;
+        }
+    }
+
+    // From this point forward, we will only check player based requirements so we end this procedure here for creature and gameobject casts.
+    if (!player)
+        return SPELL_CAST_OK;
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        switch (m_spellInfo->Effects[i].Effect)
+        {
             case SPELL_EFFECT_ENCHANT_ITEM:
                 if (m_spellInfo->Effects[i].ItemType && m_targets.GetItemTarget()
                     && (m_targets.GetItemTarget()->IsVellum()))
