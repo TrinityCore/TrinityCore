@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "ZoneScript.h"
 #include <map>
 #include <vector>
 
@@ -250,7 +251,7 @@ This class is used to:
 3. some certain cases, same for all battlegrounds
 4. It has properties same for all battlegrounds
 */
-class TC_GAME_API Battleground
+class TC_GAME_API Battleground : public ZoneScript
 {
     public:
         Battleground(BattlegroundTemplate const* battlegroundTemplate);
@@ -271,7 +272,7 @@ class TC_GAME_API Battleground
 
         virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) { }
 
-        void TriggerGameEvent(uint32 gameEventId);
+        void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr) override;
 
         /* Battleground */
         // Get methods:
@@ -429,7 +430,7 @@ class TC_GAME_API Battleground
         virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/) { }
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
-        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = nullptr) { }
+        void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/) override { }
 
         // this function can be used by spell to interact with the BG map
         virtual void DoAction(uint32 /*action*/, ObjectGuid /*var*/) { }

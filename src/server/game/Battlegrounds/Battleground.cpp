@@ -1929,9 +1929,10 @@ WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
     return sObjectMgr->GetClosestGraveyard(*player, GetPlayerTeam(player->GetGUID()), player);
 }
 
-void Battleground::TriggerGameEvent(uint32 gameEventId)
+void Battleground::TriggerGameEvent(uint32 gameEventId, WorldObject* source /*= nullptr*/, WorldObject* target /*= nullptr*/)
 {
-    GameEvents::TriggerForMap(gameEventId, GetBgMap());
+    ProcessEvent(target, gameEventId, source);
+    GameEvents::TriggerForMap(gameEventId, GetBgMap(), source, target);
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             GameEvents::TriggerForPlayer(gameEventId, player);
