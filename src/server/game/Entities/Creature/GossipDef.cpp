@@ -238,8 +238,9 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
         {
             WorldPackets::NPC::ClientGossipText& text = packet.GossipText[count];
             text.QuestID = questID;
-            text.ContentTuningID = quest->GetContentTuningId();
             text.QuestType = item.QuestIcon;
+            text.QuestLevel = quest->GetQuestLevel();
+            text.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();
             text.Repeatable = quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly();
@@ -368,8 +369,9 @@ void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
             questList.QuestDataText.emplace_back();
             WorldPackets::NPC::ClientGossipText& text = questList.QuestDataText.back();
             text.QuestID = questID;
-            text.ContentTuningID = quest->GetContentTuningId();
             text.QuestType = questMenuItem.QuestIcon;
+            text.QuestLevel = quest->GetQuestLevel();
+            text.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
             text.QuestFlags[0] = quest->GetFlags();
             text.QuestFlags[1] = quest->GetFlagsEx();
             text.Repeatable = quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly();

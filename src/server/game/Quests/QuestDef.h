@@ -520,9 +520,12 @@ class TC_GAME_API Quest
         uint32 GetQuestId() const { return _id; }
         uint32 GetQuestType() const { return _type; }
         uint32 GetQuestPackageID() const { return _packageID; }
-        uint32 GetContentTuningId() const { return _contentTuningID; }
         int32  GetZoneOrSort() const { return _questSortID; }
+        int32  GetMinLevel() const { return _minLevel; }
         uint32 GetMaxLevel() const { return _maxLevel; }
+        int32  GetQuestLevel() const { return _level; }
+        int32  GetQuestScalingFactionGroup() const { return _scalingFactionGroup; }
+        int32  GetQuestMaxScalingLevel() const { return _maxScalingLevel; }
         uint32 GetQuestInfoID() const { return _questInfoID; }
         uint32 GetAllowableClasses() const { return _allowableClasses; }
         Trinity::RaceMask<uint64> GetAllowableRaces() const { return _allowableRaces; }
@@ -612,7 +615,7 @@ class TC_GAME_API Quest
         bool CanIncreaseRewardedQuestCounters() const;
 
         // multiple values
-        std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
+        std::array<uint32, QUEST_REWARD_DISPLAY_SPELL_COUNT> RewardDisplaySpell = { };
         std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemId = { };
         std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemCount = { };
         std::array<uint32, QUEST_ITEM_DROP_COUNT> ItemDrop = { };
@@ -658,8 +661,11 @@ class TC_GAME_API Quest
         // wdb data (quest query response)
         uint32 _id = 0;
         uint32 _type = 0;
+        int32  _level = 0;
+        int32  _scalingFactionGroup = 0;
+        int32  _maxScalingLevel = 0;
         uint32 _packageID = 0;
-        uint32 _contentTuningID = 0;
+        int32 _minLevel = 0;
         int32 _questSortID = 0;
         uint32 _questInfoID = 0;
         uint32 _suggestedPlayers = 0;

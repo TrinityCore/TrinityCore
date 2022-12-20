@@ -27,6 +27,8 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText)
     data << int32(gossipText.QuestID);
     data << int32(gossipText.ContentTuningID);
     data << int32(gossipText.QuestType);
+    data << int32(gossipText.QuestLevel);
+    data << int32(gossipText.QuestMaxScalingLevel);
     data << int32(gossipText.QuestFlags[0]);
     data << int32(gossipText.QuestFlags[1]);
 

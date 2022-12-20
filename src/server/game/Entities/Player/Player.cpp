@@ -14400,18 +14400,15 @@ uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
 
 int32 Player::GetQuestMinLevel(Quest const* quest) const
 {
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(), 0))
+    if (quest->GetQuestLevel() == -1 && quest->GetQuestScalingFactionGroup())
     {
         ChrRacesEntry const* race = sChrRacesStore.AssertEntry(GetRace());
         FactionTemplateEntry const* raceFaction = sFactionTemplateStore.AssertEntry(race->FactionID);
-        int32 questFactionGroup = sContentTuningStore.AssertEntry(quest->GetContentTuningId())->GetScalingFactionGroup();
-        if (questFactionGroup && raceFaction->FactionGroup != questFactionGroup)
-            return questLevels->MaxLevel;
-
-        return questLevels->MinLevelWithDelta;
+        if (raceFaction->FactionGroup != quest->GetQuestScalingFactionGroup())
+            return quest->GetQuestMaxScalingLevel();
     }
 
-    return 0;
+    return quest->GetMinLevel();
 }
 
 int32 Player::GetQuestLevel(Quest const* quest) const
@@ -14419,10 +14416,10 @@ int32 Player::GetQuestLevel(Quest const* quest) const
     if (!quest)
         return 0;
 
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(), 0))
+    if (quest->GetQuestLevel() == -1)
     {
         int32 minLevel = GetQuestMinLevel(quest);
-        int32 maxLevel = questLevels->MaxLevel;
+        int32 maxLevel = quest->GetQuestMaxScalingLevel();
         int32 level = GetLevel();
         if (level >= minLevel)
             return std::min(level, maxLevel);
@@ -14430,7 +14427,7 @@ int32 Player::GetQuestLevel(Quest const* quest) const
         return minLevel;
     }
 
-    return 0;
+    return quest->GetQuestLevel();
 }
 
 void Player::PrepareQuestMenu(ObjectGuid guid)
@@ -15322,13 +15319,12 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     }
     else
     {
-        for (QuestRewardDisplaySpell displaySpell : quest->RewardDisplaySpell)
+        for (uint32 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
         {
-            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(displaySpell.PlayerConditionId))
-                if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
-                    continue;
+            if (!quest->RewardDisplaySpell[i])
+                continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(displaySpell.SpellId, GetMap()->GetDifficultyID());
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(quest->RewardDisplaySpell[i], GetMap()->GetDifficultyID());
             Unit* caster = this;
             if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
                 if (Unit* unit = questGiver->ToUnit())
@@ -15471,7 +15467,7 @@ bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestMinLevel(Quest const* qInfo, bool msg) const
 {
-    if (GetLevel() < GetQuestMinLevel(qInfo))
+    if (qInfo->GetMinLevel() > 0 && GetLevel() < qInfo->GetMinLevel())
     {
         if (msg)
         {
