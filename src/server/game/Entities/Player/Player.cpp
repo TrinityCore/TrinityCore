@@ -8767,13 +8767,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
 
     sWorldStateMgr->FillInitialWorldStates(packet, GetMap(), areaId);
 
-    packet.Worldstates.emplace_back(2264, 0);              // 1
-    packet.Worldstates.emplace_back(2263, 0);              // 2
-    packet.Worldstates.emplace_back(2262, 0);              // 3
-    packet.Worldstates.emplace_back(2261, 0);              // 4
-    packet.Worldstates.emplace_back(2260, 0);              // 5
-    packet.Worldstates.emplace_back(2259, 0);              // 6
-
     SendDirectMessage(packet.Write());
 }
 
