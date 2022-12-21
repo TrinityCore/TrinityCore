@@ -167,8 +167,6 @@ class OPvPCapturePointNA : public OPvPCapturePoint
 
         void ChangeState() override;
 
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
-
         bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
 
         int32 HandleOpenGo(Player* player, GameObject* go) override;
@@ -219,8 +217,6 @@ class OutdoorPvPNA : public OutdoorPvP
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
 
         bool Update(uint32 diff) override;
-
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*data*/) override;
 
         void SendRemoveWorldStates(Player* player) override;
 

@@ -28,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "WorldPacket.h"
+#include "WorldStateMgr.h"
 
 class DefenseMessageBuilder
 {
@@ -240,7 +241,7 @@ void OutdoorPvP::DeleteSpawns()
     m_capturePoints.clear();
 }
 
-OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_sendUpdate(true), m_map(nullptr) { }
+OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_map(nullptr) { }
 
 OutdoorPvP::~OutdoorPvP()
 {
@@ -399,13 +400,14 @@ bool OPvPCapturePoint::Update(uint32 diff)
     return false;
 }
 
-void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
+int32 OutdoorPvP::GetWorldState(int32 worldStateId) const
 {
-    if (m_sendUpdate)
-        for (int i = 0; i < 2; ++i)
-            for (GuidSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
-                if (Player* const player = ObjectAccessor::FindPlayer(*itr))
-                    player->SendUpdateWorldState(field, value);
+    return sWorldStateMgr->GetValue(worldStateId, m_map);
+}
+
+void OutdoorPvP::SetWorldState(int32 worldStateId, int32 value)
+{
+    sWorldStateMgr->SetValue(worldStateId, value, false, m_map);
 }
 
 void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
