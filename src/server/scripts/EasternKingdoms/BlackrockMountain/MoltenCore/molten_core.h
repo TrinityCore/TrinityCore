@@ -25,6 +25,8 @@ struct Position;
 #define MCScriptName "instance_molten_core"
 #define DataHeader "MC"
 
+uint32 const EncounterCount = 10;
+
 enum MCEncounters
 {
     BOSS_LUCIFRON                   = 0,
@@ -37,7 +39,6 @@ enum MCEncounters
     BOSS_GOLEMAGG_THE_INCINERATOR   = 7,
     BOSS_MAJORDOMO_EXECUTUS         = 8,
     BOSS_RAGNAROS                   = 9,
-    MAX_ENCOUNTER,
 };
 
 enum MCActions

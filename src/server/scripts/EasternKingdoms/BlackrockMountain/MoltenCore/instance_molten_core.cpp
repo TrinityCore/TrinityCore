@@ -64,7 +64,7 @@ class instance_molten_core : public InstanceMapScript
             instance_molten_core_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(EncounterCount);
                 LoadDungeonEncounterData(encounters);
                 _executusSchedule = false;
                 _ragnarosAddDeaths = 0;
