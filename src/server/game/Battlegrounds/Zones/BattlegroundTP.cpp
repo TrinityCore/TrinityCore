@@ -25,7 +25,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldStatePackets.h"
 
  // these variables aren't used outside of this file, so declare them only here
 enum BG_TP_Rewards
@@ -344,55 +343,6 @@ void BattlegroundTP::Reset()
     _flagsDropTimer[TEAM_HORDE]      = 0;
     _flagsTimer[TEAM_ALLIANCE]       = 0;
     _flagsTimer[TEAM_HORDE]          = 0;
-}
-
-void BattlegroundTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
-{ 
-    /// Show how many flags had been captured
-    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_CAPTURES_ALLIANCE), uint32(GetTeamScore(TEAM_ALLIANCE)));
-    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_CAPTURES_HORDE), uint32(GetTeamScore(TEAM_HORDE)));
-    
-    /// Show MAX number of flags (x/3)
-    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_CAPTURES_MAX), uint32(BG_TP_MAX_TEAM_SCORE));
-
-    /// Next Stuff showed only if BG is in progress
-    if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        /// Show Flag state - if flag is on player / ground / in base
-        for (uint8 team = TEAM_ALLIANCE; team <= TEAM_HORDE; ++team)
-        {
-            switch(_flagState[team])
-            {
-                case BG_TP_FLAG_STATE_ON_GROUND:
-                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE + team), uint32(-1));
-                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE + team), uint32(3)); ///< Show if team's flag is carried
-                    break;
-                case BG_TP_FLAG_STATE_ON_PLAYER:
-                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE + team), uint32(1));
-                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE + team), uint32(2)); ///< Show if team's flag is carried
-                    break;
-                default: ///< In Base
-                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE + team), uint32(0));
-                    data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE + team), uint32(1)); ///< Show if team's flag is carried
-                    break;
-            }
-        }
-
-        /// Show Timer
-        data.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER_ACTIVE), uint32(1));
-        data.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER), uint32(25 - _minutesElapsed));
-    }
-    else
-    {
-        /// No timer for begining
-        data.Worldstates.emplace_back(uint32(BG_TP_STATE_TIMER_ACTIVE), uint32(0));
-
-        /// Just show the maxscore and actual score (0)
-        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_ALLIANCE), uint32(0));
-        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_UNK_HORDE), uint32(0));
-        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_HORDE), uint32(1));
-        data.Worldstates.emplace_back(uint32(BG_TP_FLAG_STATE_ALLIANCE), uint32(1));
-    }
 }
 
 void BattlegroundTP::EndBattleground(uint32 winner)
@@ -905,18 +855,4 @@ uint32 BattlegroundTP::GetPrematureWinner()
         return HORDE;
 
     return Battleground::GetPrematureWinner();
-}
-
-bool BattlegroundTP::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* player, Unit const* target, uint32 miscValue)
-{
-    switch (criteriaId)
-    {
-    case BG_CRITERIA_CHECK_SAVE_THE_DAY:
-        if (target)
-            if (Player const* playerTarget = target->ToPlayer())
-                return GetFlagState(playerTarget->GetTeam()) == BG_TP_FLAG_STATE_ON_BASE;
-        return false;
-    }
-
-    return Battleground::CheckAchievementCriteriaMeet(criteriaId, player, target, miscValue);
 }

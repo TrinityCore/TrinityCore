@@ -26,7 +26,6 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "WorldStatePackets.h"
 
 void ArenaScore::AppendToPacket(WorldPacket& data, ByteBuffer& content)
 {
@@ -154,12 +153,6 @@ void Arena::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*
 
     UpdateArenaWorldState();
     CheckWinConditions();
-}
-
-void Arena::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data)
-{
-    data.Worldstates.emplace_back(uint32(ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN), uint32(GetAlivePlayersCountByTeam(HORDE)));
-    data.Worldstates.emplace_back(uint32(ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD), uint32(GetAlivePlayersCountByTeam(ALLIANCE)));
 }
 
 void Arena::UpdateArenaWorldState()

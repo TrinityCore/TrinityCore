@@ -50,7 +50,6 @@ class BattlegroundRL : public Arena
         BattlegroundRL();
 
         /* inherited from BattlegroundClass */
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& d) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 

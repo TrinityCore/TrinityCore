@@ -272,17 +272,12 @@ class BattlegroundTP : public Battleground
         }
 
         ObjectGuid GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)]; }
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& data) override;
-
         /* Scorekeeping */
         void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
         void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
         void RemovePoint(uint32 TeamID, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
 
         uint32 GetPrematureWinner() override;
-
-        /* Achievements*/
-        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
 
     private:
         ObjectGuid m_FlagKeepers[2];                            // 0 - alliance, 1 - horde
