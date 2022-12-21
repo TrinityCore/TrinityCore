@@ -33,7 +33,7 @@ namespace WorldPackets
             int32 Value;
         };
 
-        class InitWorldStates final : public ServerPacket
+        class TC_GAME_API InitWorldStates final : public ServerPacket
         {
         public:
             InitWorldStates();
