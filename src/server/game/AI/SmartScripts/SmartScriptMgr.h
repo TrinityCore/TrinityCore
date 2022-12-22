@@ -568,7 +568,7 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
-    SMART_ACTION_MOVE_OFFSET                        = 114,
+    SMART_ACTION_MOVE_OFFSET                        = 114,    // PointId
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
@@ -1071,6 +1071,11 @@ struct SmartAction
         {
             uint32 wps[SMART_ACTION_PARAM_COUNT];
         } closestWaypointFromList;
+
+        struct
+        {
+            uint32 PointId;
+        } moveOffset;
 
         struct
         {
