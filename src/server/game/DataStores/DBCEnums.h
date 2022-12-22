@@ -191,24 +191,25 @@ enum AzeriteTierUnlockSetFlags
     AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
 };
 
-enum class BattlePetSpeciesFlags : uint16
+enum class BattlePetSpeciesFlags : int32
 {
-    NoRename                 = 0x0001,
-    WellKnown                = 0x0002,
-    NotAccountWide           = 0x0004,
-    Capturable               = 0x0008,
-    NotTradable              = 0x0010,
-    HideFromJournal          = 0x0020,
-    LegacyAccountUnique      = 0x0040,
-    CantBattle               = 0x0080,
-    HordeOnly                = 0x0100,
-    AllianceOnly             = 0x0200,
-    Boss                     = 0x0400,
-    RandomDisplay            = 0x0800,
-    NoLicenseRequired        = 0x1000,
-    AddsAllowedWithBoss      = 0x2000,
-    HideUntilLearned         = 0x4000,
-    MatchPlayerHighPetLevel  = 0x8000
+    NoRename                 = 0x00001,
+    WellKnown                = 0x00002,
+    NotAccountWide           = 0x00004,
+    Capturable               = 0x00008,
+    NotTradable              = 0x00010,
+    HideFromJournal          = 0x00020,
+    LegacyAccountUnique      = 0x00040,
+    CantBattle               = 0x00080,
+    HordeOnly                = 0x00100,
+    AllianceOnly             = 0x00200,
+    Boss                     = 0x00400,
+    RandomDisplay            = 0x00800,
+    NoLicenseRequired        = 0x01000,
+    AddsAllowedWithBoss      = 0x02000,
+    HideUntilLearned         = 0x04000,
+    MatchPlayerHighPetLevel  = 0x08000,
+    NoWildPetAddsAllowed     = 0x10000,
 };
 
 DEFINE_ENUM_FLAG(BattlePetSpeciesFlags);
@@ -607,6 +608,14 @@ enum class CriteriaType : uint8
     SpentTalentPoint                               = 231, /*NYI*/ // (Player) spent talent point
 
     MythicPlusDisplaySeasonEnded                   = 234, /*NYI*/ // {DisplaySeason}
+
+    WinRatedSoloShuffleRound                       = 239, /*NYI*/
+    ParticipateInRatedSoloShuffleRound             = 240, /*NYI*/
+
+    ReputationAmountGained                         = 243, /*NYI*/ // Gain reputation amount with {FactionID}; accumulate, not highest
+
+    FulfillAnyCraftingOrder                        = 245, /*NYI*/
+    FulfillCraftingOrderType                       = 246, /*NYI*/ // {CraftingOrderType}
     Count
 };
 
@@ -781,24 +790,6 @@ enum class GlobalCurve : int32
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
-enum MapTypes                                               // Lua_IsInInstance
-{
-    MAP_COMMON          = 0,                                // none
-    MAP_INSTANCE        = 1,                                // party
-    MAP_RAID            = 2,                                // raid
-    MAP_BATTLEGROUND    = 3,                                // pvp
-    MAP_ARENA           = 4,                                // arena
-    MAP_SCENARIO        = 5                                 // scenario
-};
-
-enum MapFlags
-{
-    MAP_FLAG_CAN_TOGGLE_DIFFICULTY  = 0x0100,
-    MAP_FLAG_FLEX_LOCKING           = 0x8000, // All difficulties share completed encounters lock, not bound to a single instance id
-                                              // heroic difficulty flag overrides it and uses instance id bind
-    MAP_FLAG_GARRISON               = 0x4000000
-};
-
 enum GlyphSlotType
 {
     GLYPH_SLOT_MAJOR = 0,
@@ -958,6 +949,20 @@ enum class ItemContext : uint8
     Raid_Heroic_Extended                = 84,
     Raid_Mythic_Extended                = 85,
     Character_Template_9_1              = 86,
+    Challenge_Mode_4                    = 87,
+    Pvp_Ranked_9                        = 88,
+    Raid_Normal_Extended_2              = 89,
+    Raid_Finder_Extended_2              = 90,
+    Raid_Heroic_Extended_2              = 91,
+    Raid_Mythic_Extended_2              = 92,
+    Raid_Normal_Extended_3              = 93,
+    Raid_Finder_Extended_3              = 94,
+    Raid_Heroic_Extended_3              = 95,
+    Raid_Mythic_Extended_3              = 96,
+    Template_Character_1                = 97,
+    Template_Character_2                = 98,
+    Template_Character_3                = 99,
+    Template_Character_4                = 100,
 
     Max
 };
@@ -1019,9 +1024,97 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_NONE             = 40
 };
 
-enum MapDifficultyFlags : uint8
+enum MapTypes                                               // Lua_IsInInstance
 {
-    MAP_DIFFICULTY_FLAG_CANNOT_EXTEND   = 0x10
+    MAP_COMMON          = 0,                                // none
+    MAP_INSTANCE        = 1,                                // party
+    MAP_RAID            = 2,                                // raid
+    MAP_BATTLEGROUND    = 3,                                // pvp
+    MAP_ARENA           = 4,                                // arena
+    MAP_SCENARIO        = 5                                 // scenario
+};
+
+enum class MapFlags : uint32
+{
+    Optimize                    = 0x00000001,
+    DevelopmentMap              = 0x00000002,
+    WeightedBlend               = 0x00000004,
+    VertexColoring              = 0x00000008,
+    SortObjects                 = 0x00000010,
+    LimitToPlayersFromOneRealm  = 0x00000020,
+    EnableLighting              = 0x00000040,
+    InvertedTerrain             = 0x00000080,
+    DynamicDifficulty           = 0x00000100,
+    ObjectFile                  = 0x00000200,
+    TextureFile                 = 0x00000400,
+    GenerateNormals             = 0x00000800,
+    FixBorderShadowSeams        = 0x00001000,
+    InfiniteOcean               = 0x00002000,
+    UnderwaterMap               = 0x00004000,
+    FlexibleRaidLocking         = 0x00008000,
+    LimitFarclip                = 0x00010000,
+    UseParentMapFlightBounds    = 0x00020000,
+    NoRaceChangeOnThisMap       = 0x00040000,
+    DisabledForNonGMs           = 0x00080000,
+    WeightedNormals1            = 0x00100000,
+    DisableLowDetailTerrain     = 0x00200000,
+    EnableOrgArenaBlinkRule     = 0x00400000,
+    WeightedHeightBlend         = 0x00800000,
+    CoalescingAreaSharing       = 0x01000000,
+    ProvingGrounds              = 0x02000000,
+    Garrison                    = 0x04000000,
+    EnableAINeedSystem          = 0x08000000,
+    SingleVServer               = 0x10000000,
+    UseInstancePool             = 0x20000000,
+    MapUsesRaidGraphics         = 0x40000000,
+    ForceCustomUIMap            = 0x80000000,
+};
+
+DEFINE_ENUM_FLAG(MapFlags);
+
+enum class MapFlags2 : uint32
+{
+    DontActivateShowMap                         = 0x00000001,
+    NoVoteKicks                                 = 0x00000002,
+    NoIncomingTransfers                         = 0x00000004,
+    DontVoxelizePathData                        = 0x00000008,
+    TerrainLOD                                  = 0x00000010,
+    UnclampedPointLights                        = 0x00000020,
+    PVP                                         = 0x00000040,
+    IgnoreInstanceFarmLimit                     = 0x00000080,
+    DontInheritAreaLightsFromParent             = 0x00000100,
+    ForceLightBufferOn                          = 0x00000200,
+    WMOLiquidScale                              = 0x00000400,
+    SpellClutterOn                              = 0x00000800,
+    SpellClutterOff                             = 0x00001000,
+    ReducedPathMapHeightValidation              = 0x00002000,
+    NewMinimapGeneration                        = 0x00004000,
+    AIBotsDetectedLikePlayers                   = 0x00008000,
+    LinearlyLitTerrain                          = 0x00010000,
+    FogOfWar                                    = 0x00020000,
+    DisableSharedWeatherSystems                 = 0x00040000,
+    HonorSpellAttribute11LosHitsNocamcollide    = 0x00080000,
+    BelongsToLayer                              = 0x00100000,
+};
+
+DEFINE_ENUM_FLAG(MapFlags2);
+
+enum class MapDifficultyFlags : uint8
+{
+    LimitToPlayersFromOneRealm              = 0x01,
+    UseLootBasedLockInsteadOfInstanceLock   = 0x02, // Lock to single encounters
+    LockedToSoloOwner                       = 0x04,
+    ResumeDungeonProgressBasedOnLockout     = 0x08, // Mythic dungeons with this flag zone into leaders instance instead of always using a fresh one (Return to Karazhan, Operation: Mechagon)
+    DisableLockExtension                    = 0x10,
+};
+
+DEFINE_ENUM_FLAG(MapDifficultyFlags);
+
+enum MapDifficultyResetInterval : uint8
+{
+    MAP_DIFFICULTY_RESET_ANYTIME    = 0,
+    MAP_DIFFICULTY_RESET_DAILY      = 1,
+    MAP_DIFFICULTY_RESET_WEEKLY     = 2
 };
 
 enum class ModifierTreeType : int32
@@ -1357,7 +1450,23 @@ enum class ModifierTreeType : int32
 
     PlayerMythicPlusRatingInDisplaySeasonEqualOrGreaterThan             = 329, /*NYI*/ // Player has Mythic+ Rating of at least "{#DungeonScore}" in {DisplaySeason}
 
-    MythicPlusRatingIsInTop01Percent                                    = 334, // top 0.1% rating
+    PlayerMythicPlusLadderRatingInDisplaySeasonEqualOrGreaterThan       = 333, /*NYI*/ // Player has Mythic+ Ladder Rating of at least "{#DungeonScore}" in {DisplaySeason}
+    MythicPlusRatingIsInTop01Percent                                    = 334, /*NYI*/ // top 0.1% rating
+    PlayerAuraWithLabelStackCountEqualOrGreaterThan                     = 335, // Player has at least {#Stacks} stacks of aura "{Label}"
+    PlayerAuraWithLabelStackCountEqual                                  = 336, // Target has exactly {#Stacks} stacks of aura with label "{Label}"
+    PlayerAuraWithLabelStackCountEqualOrLessThan                        = 337, // Player has at most {#Stacks} stacks of aura "{Label}"
+    PlayerIsInCrossFactionGroup                                         = 338, // Player is in a cross faction group
+
+    PlayerHasTraitNodeEntryInActiveConfig                               = 340, // Player has {TraitNodeEntry} node in currently active config
+    PlayerHasTraitNodeEntryInActiveConfigRankGreaterOrEqualThan         = 341, // Player has at least {#Rank} for {TraitNodeEntry} node in currently active config
+    PlayerHasPurchasedCombatTraitRanks                                  = 342, /*NYI*/ // Player has purchased at least {#Count} talent points in active combat config
+    PlayerHasPurchasedTraitRanksInTraitTree                             = 343, /*NYI*/ // Player has purchased at least {#Count} ranks in {#TraitTree}
+    PlayerDaysSinceLogout                                               = 344,
+
+    CraftingOrderSkillLineAbility                                       = 347, /*NYI*/
+    CraftingOrderProfession                                             = 348, /*NYI*/ // ProfessionEnum
+
+    PlayerCanUseItem                                                    = 351, // Player can use item {#Item}
 };
 
 enum class ModifierTreeOperator : int8
@@ -1422,6 +1531,75 @@ enum class PlayerConditionLfgStatus : uint8
     VoteKickCount           = 6,
     BootCount               = 7,
     GearDiff                = 8
+};
+
+enum class PlayerInteractionType : int32
+{
+    None                        = 0,
+    TradePartner                = 1,
+    Item                        = 2,
+    Gossip                      = 3,
+    QuestGiver                  = 4,
+    Merchant                    = 5,
+    TaxiNode                    = 6,
+    Trainer                     = 7,
+    Banker                      = 8,
+    AlliedRaceDetailsGiver      = 9,
+    GuildBanker                 = 10,
+    Registrar                   = 11,
+    Vendor                      = 12,
+    PetitionVendor              = 13,
+    TabardVendor                = 14,
+    TalentMaster                = 15,
+    SpecializationMaster        = 16,
+    MailInfo                    = 17,
+    SpiritHealer                = 18,
+    AreaSpiritHealer            = 19,
+    Binder                      = 20,
+    Auctioneer                  = 21,
+    StableMaster                = 22,
+    BattleMaster                = 23,
+    Transmogrifier              = 24,
+    LFGDungeon                  = 25,
+    VoidStorageBanker           = 26,
+    BlackMarketAuctioneer       = 27,
+    AdventureMap                = 28,
+    WorldMap                    = 29,
+    GarrArchitect               = 30,
+    GarrTradeskill              = 31,
+    GarrMission                 = 32,
+    ShipmentCrafter             = 33,
+    GarrRecruitment             = 34,
+    GarrTalent                  = 35,
+    Trophy                      = 36,
+    PlayerChoice                = 37,
+    ArtifactForge               = 38,
+    ObliterumForge              = 39,
+    ScrappingMachine            = 40,
+    ContributionCollector       = 41,
+    AzeriteRespec               = 42,
+    IslandQueue                 = 43,
+    ItemInteraction             = 44,
+    ChromieTime                 = 45,
+    CovenantPreview             = 46,
+    AnimaDiversion              = 47,
+    LegendaryCrafting           = 48,
+    WeeklyRewards               = 49,
+    Soulbind                    = 50,
+    CovenantSanctum             = 51,
+    NewPlayerGuide              = 52,
+    ItemUpgrade                 = 53,
+    AdventureJournal            = 54,
+    Renown                      = 55,
+    AzeriteForge                = 56,
+    PerksProgramVendor          = 57,
+    ProfessionsCraftingOrder    = 58,
+    Professions                 = 59,
+    ProfessionsCustomerOrder    = 60,
+    TraitSystem                 = 61,
+    BarbersChoice               = 62,
+    JailersTowerBuffs           = 63,
+    MajorFactionRenown          = 64
 };
 
 enum PrestigeLevelInfoFlags : uint8
@@ -1704,6 +1882,104 @@ enum TaxiPathNodeFlags
     TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
     TAXI_PATH_NODE_FLAG_STOP        = 0x2
 };
+
+enum class TraitCombatConfigFlags : int32
+{
+    None                = 0x0,
+    ActiveForSpec       = 0x1,
+    StarterBuild        = 0x2,
+    SharedActionBars    = 0x4
+};
+
+DEFINE_ENUM_FLAG(TraitCombatConfigFlags);
+
+enum class TraitCondFlags : int32
+{
+    None            = 0x0,
+    IsGate          = 0x1,
+    IsAlwaysMet     = 0x2,
+    IsSufficient    = 0x4,
+};
+
+DEFINE_ENUM_FLAG(TraitCondFlags);
+
+enum class TraitConditionType : int32
+{
+    Available   = 0,
+    Visible     = 1,
+    Granted     = 2,
+    Increased   = 3
+};
+
+enum class TraitConfigType : int32
+{
+    Invalid     = 0,
+    Combat      = 1,
+    Profession  = 2,
+    Generic     = 3
+};
+
+enum class TraitCurrencyType : int32
+{
+    Gold                = 0,
+    CurrencyTypesBased  = 1,
+    TraitSourced        = 2
+};
+
+enum class TraitEdgeType : int32
+{
+    VisualOnly                  = 0,
+    DeprecatedRankConnection    = 1,
+    SufficientForAvailability   = 2,
+    RequiredForAvailability     = 3,
+    MutuallyExclusive           = 4,
+    DeprecatedSelectionOption   = 5
+};
+
+enum class TraitNodeEntryType : int32
+{
+    SpendHex            = 0,
+    SpendSquare         = 1,
+    SpendCircle         = 2,
+    SpendSmallCircle    = 3,
+    DeprecatedSelect    = 4,
+    DragAndDrop         = 5,
+    SpendDiamond        = 6,
+    ProfPath            = 7,
+    ProfPerk            = 8,
+    ProfPathUnlock      = 9
+};
+
+enum class TraitNodeGroupFlag : int32
+{
+    None                = 0x0,
+    AvailableByDefault  = 0x1
+};
+
+DEFINE_ENUM_FLAG(TraitNodeGroupFlag);
+
+enum class TraitNodeType : int32
+{
+    Single      = 0,
+    Tiered      = 1,
+    Selection   = 2
+};
+
+enum class TraitPointsOperationType : int32
+{
+    None        = -1,
+    Set         = 0,
+    Multiply    = 1
+};
+
+enum class TraitTreeFlag : int32
+{
+    None                    = 0x0,
+    CannotRefund            = 0x1,
+    HideSingleRankNumbers   = 0x2
+};
+
+DEFINE_ENUM_FLAG(TraitTreeFlag);
 
 enum class UiMapFlag : int32
 {

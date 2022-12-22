@@ -36,8 +36,8 @@ namespace WorldPackets
 
         struct DungeonScoreSummary
         {
-            float CurrentSeasonScore = 0.0f;
-            float LifetimeBestSeasonScore = 0.0f;
+            float OverallScoreCurrentSeason = 0.0f;
+            float LadderScoreCurrentSeason = 0.0f;
             std::vector<DungeonScoreMapSummary> Runs;
         };
 
@@ -82,16 +82,15 @@ namespace WorldPackets
             int32 MapChallengeModeID = 0;
             std::vector<DungeonScoreBestRunForAffix> BestRuns;
             float OverAllScore = 0.0f;
-
         };
 
         struct DungeonScoreSeasonData
         {
             int32 Season = 0;
-            std::vector<DungeonScoreMapData> Maps;
-            std::vector<DungeonScoreMapData> Maps2;
+            std::vector<DungeonScoreMapData> SeasonMaps;
+            std::vector<DungeonScoreMapData> LadderMaps;
             float SeasonScore = 0.0f;
-            float SeasonScore2 = 0.0f;
+            float LadderScore = 0.0f;
         };
 
         struct DungeonScoreData

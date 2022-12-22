@@ -24,6 +24,7 @@
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
+#include "Loot.h"
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -112,13 +113,12 @@ void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction tran
     if (m_mailTemplateId == 123)
         m_money = 1000000;
 
-    Loot mailLoot;
+    Loot mailLoot(nullptr, ObjectGuid::Empty, LOOT_NONE, nullptr);
 
     // can be empty
     mailLoot.FillLoot(m_mailTemplateId, LootTemplates_Mail, receiver, true, true, LOOT_MODE_DEFAULT, ItemContext::NONE);
 
-    uint32 max_slot = mailLoot.GetMaxSlotInLootFor(receiver);
-    for (uint32 i = 0; m_items.size() < MAX_MAIL_ITEMS && i < max_slot; ++i)
+    for (uint32 i = 0; m_items.size() < MAX_MAIL_ITEMS && i < mailLoot.items.size(); ++i)
     {
         if (LootItem* lootitem = mailLoot.LootItemInSlot(i, receiver))
         {

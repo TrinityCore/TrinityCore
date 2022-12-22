@@ -1592,6 +1592,75 @@ public:
     }
 };
 
+/*######
+## Quest 10769, 10776: Dissension Amongst the Ranks...
+######*/
+
+enum DissensionAmongstTheRanks
+{
+    SPELL_ILLIDARI_DISGUISE_MALE          = 38225,
+    SPELL_ILLIDARI_DISGUISE_FEMALE        = 38227,
+    SPELL_KILL_CREDIT_CRAZED_COLOSSUS     = 38228
+};
+
+// 38224 - Illidari Agent Illusion
+class spell_shadowmoon_illidari_agent_illusion : public AuraScript
+{
+    PrepareAuraScript(spell_shadowmoon_illidari_agent_illusion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ILLIDARI_DISGUISE_MALE, SPELL_ILLIDARI_DISGUISE_FEMALE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            target->CastSpell(target, target->GetNativeGender() == GENDER_MALE ?
+            SPELL_ILLIDARI_DISGUISE_MALE : SPELL_ILLIDARI_DISGUISE_FEMALE);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_ILLIDARI_DISGUISE_MALE);
+        target->RemoveAurasDueToSpell(SPELL_ILLIDARI_DISGUISE_FEMALE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_shadowmoon_illidari_agent_illusion::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_shadowmoon_illidari_agent_illusion::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 38223 - Quest Credit: Crazed Colossus
+class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
+{
+    PrepareSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+        {
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            SPELL_KILL_CREDIT_CRAZED_COLOSSUS
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (target->HasAura(uint32(GetEffectValue())))
+            target->CastSpell(target, SPELL_KILL_CREDIT_CRAZED_COLOSSUS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_quest_credit_crazed_colossus::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_shadowmoon_valley()
 {
     new npc_invis_infernal_caster();
@@ -1606,4 +1675,6 @@ void AddSC_shadowmoon_valley()
     new npc_enraged_spirit();
     new spell_unlocking_zuluheds_chains();
     new npc_shadowmoon_tuber_node();
+    RegisterSpellScript(spell_shadowmoon_illidari_agent_illusion);
+    RegisterSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
 }

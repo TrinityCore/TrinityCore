@@ -195,22 +195,6 @@ bool OutdoorPvPMgr::HandleOpenGo(Player* player, GameObject* go)
     return false;
 }
 
-void OutdoorPvPMgr::HandleGossipOption(Player* player, Creature* creature, uint32 gossipid)
-{
-    if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HasPlayer(player))
-            pvp->HandleGossipOption(player, creature, gossipid);
-}
-
-bool OutdoorPvPMgr::CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso)
-{
-    if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HasPlayer(player))
-            return pvp->CanTalkTo(player, creature, gso);
-
-    return false;
-}
-
 void OutdoorPvPMgr::HandleDropFlag(Player* player, uint32 spellId)
 {
     if (OutdoorPvP* pvp = player->GetOutdoorPvP())

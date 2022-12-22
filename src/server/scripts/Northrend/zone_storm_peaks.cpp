@@ -1320,6 +1320,38 @@ class spell_storm_peaks_unstable_explosive_detonation : public SpellScript
     }
 };
 
+/*######
+## Quest 12915: Mending Fences
+######*/
+
+enum MendingFences
+{
+    SPELL_SUMMON_EARTHEN    = 55528
+};
+
+// 55512 - Call of Earth
+class spell_storm_peaks_call_of_earth : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_call_of_earth);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_EARTHEN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        uint8 count = urand(2, 6);
+        for (uint8 i = 0; i < count; i++)
+            GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_EARTHEN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_call_of_earth::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     RegisterCreatureAI(npc_brunnhildar_prisoner);
@@ -1348,4 +1380,5 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_storm_peaks_bear_flank_fail);
     RegisterSpellScript(spell_storm_peaks_mammoth_explosion_master);
     RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
+    RegisterSpellScript(spell_storm_peaks_call_of_earth);
 }

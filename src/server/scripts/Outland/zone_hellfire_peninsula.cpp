@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum ExorcismSpells
@@ -794,6 +795,60 @@ struct npc_fear_controller : public ScriptedAI
         EventMap _events;
 };
 
+/*######
+## Quest 10909: Fel Spirits
+######*/
+
+enum FelSpirits
+{
+    SPELL_SEND_VENGEANCE_TO_PLAYER   = 39202,
+    SPELL_SUMMON_FEL_SPIRIT          = 39206
+};
+
+// 39190 - Send Vengeance
+class spell_hellfire_peninsula_send_vengeance : public SpellScript
+{
+    PrepareSpellScript(spell_hellfire_peninsula_send_vengeance);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SEND_VENGEANCE_TO_PLAYER });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* target = GetHitUnit()->ToTempSummon())
+            if (Unit* summoner = target->GetSummonerUnit())
+                target->CastSpell(summoner, SPELL_SEND_VENGEANCE_TO_PLAYER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hellfire_peninsula_send_vengeance::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 39202 - Send Vengeance to Player
+class spell_hellfire_peninsula_send_vengeance_to_player : public SpellScript
+{
+    PrepareSpellScript(spell_hellfire_peninsula_send_vengeance_to_player);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_FEL_SPIRIT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_FEL_SPIRIT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hellfire_peninsula_send_vengeance_to_player::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_hellfire_peninsula()
 {
     new npc_colonel_jules();
@@ -802,4 +857,6 @@ void AddSC_hellfire_peninsula()
     RegisterCreatureAI(npc_watch_commander_leonus);
     RegisterCreatureAI(npc_infernal_rain_hellfire);
     RegisterCreatureAI(npc_fear_controller);
+    RegisterSpellScript(spell_hellfire_peninsula_send_vengeance);
+    RegisterSpellScript(spell_hellfire_peninsula_send_vengeance_to_player);
 }

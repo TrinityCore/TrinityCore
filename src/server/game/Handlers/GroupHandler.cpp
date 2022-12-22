@@ -21,7 +21,7 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Log.h"
-#include "LootPackets.h"
+#include "Loot.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "PartyPackets.h"
@@ -360,13 +360,14 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& /*pac
     }
 }
 
-void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& packet)
+void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& /*packet*/)
 {
+    // not allowed to change
+    /*
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
@@ -389,32 +390,13 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
 
     if (packet.LootMethod == MASTER_LOOT && !group->IsMember(packet.LootMasterGUID))
         return;
-    /********************/
 
     // everything's fine, do it
     group->SetLootMethod(static_cast<LootMethod>(packet.LootMethod));
     group->SetMasterLooterGuid(packet.LootMasterGUID);
     group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
-}
-
-void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
-{
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-        return;
-
-    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.LootListID - 1, packet.RollType);
-
-    switch (packet.RollType)
-    {
-        case ROLL_NEED:
-            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyNeed, 1);
-            break;
-        case ROLL_GREED:
-            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyGreed, 1);
-            break;
-    }
+    */
 }
 
 void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)
@@ -432,7 +414,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClien
 void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
 {
     /** error handling **/
-    if (packet.Min > packet.Max || packet.Max > 10000)                // < 32768 for urand call
+    if (packet.Min > packet.Max || packet.Max > 1000000)
         return;
     /********************/
 

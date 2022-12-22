@@ -115,6 +115,7 @@ static DWORD OpenDataStream(TCascFile * hf, PCASC_FILE_SPAN pFileSpan, PCASC_CKE
                     return ERROR_SUCCESS;
                 }
             }
+            return dwErrCode;
         }
 
         return ERROR_FILE_OFFLINE;
@@ -182,9 +183,9 @@ static DWORD ParseBlteHeader(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEn
     if(ConvertBytesToInteger_4_LE(pBlteHeader->Signature) != BLTE_HEADER_SIGNATURE)
     {
         // There must be at least some bytes
-        if (cbEncodedBuffer < FIELD_OFFSET(BLTE_ENCODED_HEADER, MustBe0F))
+        if(cbEncodedBuffer < FIELD_OFFSET(BLTE_ENCODED_HEADER, MustBe0F))
             return ERROR_BAD_FORMAT;
-        if (pEncodedHeader->EncodedSize != pCKeyEntry->EncodedSize)
+        if(pEncodedHeader->EncodedSize != pCKeyEntry->EncodedSize)
             return ERROR_BAD_FORMAT;
 
 #ifdef _DEBUG
@@ -204,15 +205,15 @@ static DWORD ParseBlteHeader(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEn
     // Capture the header size. If this is non-zero, then array
     // of chunk headers follow. Otherwise, the file is just one chunk
     HeaderSize = ConvertBytesToInteger_4(pBlteHeader->HeaderSize);
-    if (HeaderSize != 0)
+    if(HeaderSize != 0)
     {
-        if (pBlteHeader->MustBe0F != 0x0F)
+        if(pBlteHeader->MustBe0F != 0x0F)
             return ERROR_BAD_FORMAT;
         
         // Verify the header size
         FrameCount = ConvertBytesToInteger_3(pBlteHeader->FrameCount);
         ExpectedHeaderSize = 0x0C + FrameCount * sizeof(BLTE_FRAME);
-        if (ExpectedHeaderSize != HeaderSize)
+        if(ExpectedHeaderSize != HeaderSize)
             return ERROR_BAD_FORMAT;
 
         // Give the values
@@ -233,12 +234,12 @@ static LPBYTE ReadMissingHeaderData(PCASC_FILE_SPAN pFileSpan, ULONGLONG DataFil
     LPBYTE pbNewBuffer;
 
     // Reallocate the buffer
-    pbNewBuffer = CASC_REALLOC(BYTE, pbEncodedBuffer, cbTotalHeaderSize);
-    if (pbNewBuffer != NULL)
+    pbNewBuffer = CASC_REALLOC(pbEncodedBuffer, cbTotalHeaderSize);
+    if(pbNewBuffer != NULL)
     {
         // Load the missing data
         DataFileOffset += cbEncodedBuffer;
-        if (FileStream_Read(pFileSpan->pStream, &DataFileOffset, pbNewBuffer + cbEncodedBuffer, (DWORD)(cbTotalHeaderSize - cbEncodedBuffer)))
+        if(FileStream_Read(pFileSpan->pStream, &DataFileOffset, pbNewBuffer + cbEncodedBuffer, (DWORD)(cbTotalHeaderSize - cbEncodedBuffer)))
         {
             return pbNewBuffer;
         }
@@ -273,14 +274,14 @@ static DWORD LoadSpanFrames(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEnt
     assert(pFileSpan->pStream != NULL);
     assert(pFileSpan->pFrames == NULL);
 
-    if (pFileSpan->FrameCount != 0)
+    if(pFileSpan->FrameCount != 0)
     {
         // Move the raw archive offset
-        DataFileOffset += (pFileSpan->FrameCount * sizeof(BLTE_FRAME));
+        DataFileOffset += ((ULONGLONG)pFileSpan->FrameCount * sizeof(BLTE_FRAME));
 
         // Allocate array of file frames
         pFrames = CASC_ALLOC<CASC_FILE_FRAME>(pFileSpan->FrameCount);
-        if (pFrames != NULL)
+        if(pFrames != NULL)
         {
             // Copy the frames to the file structure
             for (DWORD i = 0; i < pFileSpan->FrameCount; i++)
@@ -321,7 +322,7 @@ static DWORD LoadSpanFrames(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEnt
     {
         // Allocate single "dummy" frame
         pFrames = CASC_ALLOC<CASC_FILE_FRAME>(1);
-        if (pFrames != NULL)
+        if(pFrames != NULL)
         {
             // Fill the single frame
             memset(&pFrames->FrameHash, 0, sizeof(CONTENT_KEY));
@@ -357,7 +358,7 @@ static DWORD LoadSpanFramesForPlainFile(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_EN
 
     // Allocate single "dummy" frame
     pFrames = CASC_ALLOC<CASC_FILE_FRAME>(1);
-    if (pFrames != NULL)
+    if(pFrames != NULL)
     {
         // Setup the size
         pFileSpan->EndOffset = pFileSpan->StartOffset + pCKeyEntry->ContentSize;
@@ -392,7 +393,7 @@ static DWORD LoadEncodedHeaderAndSpanFrames(PCASC_FILE_SPAN pFileSpan, PCASC_CKE
 
     // Allocate the initial buffer for the encoded headers
     pbEncodedBuffer = CASC_ALLOC<BYTE>(MAX_ENCODED_HEADER);
-    if (pbEncodedBuffer != NULL)
+    if(pbEncodedBuffer != NULL)
     {
         ULONGLONG ReadOffset = pFileSpan->ArchiveOffs;
         size_t cbTotalHeaderSize;
@@ -407,24 +408,24 @@ static DWORD LoadEncodedHeaderAndSpanFrames(PCASC_FILE_SPAN pFileSpan, PCASC_CKE
         // Load the entire (eventual) header area. This is faster than doing
         // two read operations in a row. Read as much as possible. If the file is cut,
         // the FileStream will pad it with zeros
-        if (FileStream_Read(pFileSpan->pStream, &ReadOffset, pbEncodedBuffer, (DWORD)cbEncodedBuffer))
+        if(FileStream_Read(pFileSpan->pStream, &ReadOffset, pbEncodedBuffer, (DWORD)cbEncodedBuffer))
         {
             // Parse the BLTE header
             dwErrCode = ParseBlteHeader(pFileSpan, pCKeyEntry, ReadOffset, pbEncodedBuffer, cbEncodedBuffer, &cbHeaderSize);
-            if (dwErrCode == ERROR_SUCCESS)
+            if(dwErrCode == ERROR_SUCCESS)
             {
                 // If the headers are larger than the initial read size, we read the missing data
                 pFileSpan->HeaderSize = (DWORD)(cbTotalHeaderSize = cbHeaderSize + (pFileSpan->FrameCount * sizeof(BLTE_FRAME)));
-                if (cbTotalHeaderSize > cbEncodedBuffer)
+                if(cbTotalHeaderSize > cbEncodedBuffer)
                 {
                     pbEncodedBuffer = ReadMissingHeaderData(pFileSpan, ReadOffset, pbEncodedBuffer, cbEncodedBuffer, cbTotalHeaderSize);
-                    if (pbEncodedBuffer == NULL)
+                    if(pbEncodedBuffer == NULL)
                         dwErrCode = GetCascError();
                     cbEncodedBuffer = cbTotalHeaderSize;
                 }
 
                 // Load the array of frame headers
-                if (dwErrCode == ERROR_SUCCESS)
+                if(dwErrCode == ERROR_SUCCESS)
                 {
                     assert((ReadOffset + cbHeaderSize) > ReadOffset);
                     dwErrCode = LoadSpanFrames(pFileSpan, pCKeyEntry, ReadOffset + cbHeaderSize, pbEncodedBuffer + cbHeaderSize, pbEncodedBuffer + cbEncodedBuffer, cbHeaderSize);

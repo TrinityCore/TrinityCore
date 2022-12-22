@@ -17,6 +17,7 @@
 
 #include "Trainer.h"
 #include "BattlePetMgr.h"
+#include "ConditionMgr.h"
 #include "Creature.h"
 #include "Log.h"
 #include "NPCPackets.h"

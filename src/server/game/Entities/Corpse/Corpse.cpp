@@ -22,6 +22,7 @@
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "Log.h"
+#include "Loot.h"
 #include "Map.h"
 #include "PhasingHandler.h"
 #include "Player.h"
@@ -92,6 +93,14 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     return true;
 }
 
+void Corpse::Update(uint32 diff)
+{
+    WorldObject::Update(diff);
+
+    if (m_loot)
+        m_loot->Update();
+}
+
 void Corpse::SaveToDB()
 {
     // prevent DB data inconsistence problems and duplicates
@@ -99,7 +108,7 @@ void Corpse::SaveToDB()
     DeleteFromDB(trans);
 
     std::ostringstream items;
-    for (uint16 index = 0; index < EQUIPMENT_SLOT_END; ++index)
+    for (size_t index = 0; index < m_corpseData->Items.size(); ++index)
         items << m_corpseData->Items[index] << ' ';
 
     uint16 index = 0;
@@ -185,8 +194,8 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
     std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
-    if (items.size() == EQUIPMENT_SLOT_END)
-        for (uint32 index = 0; index < EQUIPMENT_SLOT_END; ++index)
+    if (items.size() == m_corpseData->Items.size())
+        for (size_t index = 0; index < m_corpseData->Items.size(); ++index)
             SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
 
     SetRace(fields[7].GetUInt8());
@@ -266,7 +275,7 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
     if (requestedCorpseMask.IsAnySet())
         valuesMask.Set(TYPEID_CORPSE);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -279,7 +288,7 @@ void Corpse::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
 }
 
 void Corpse::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

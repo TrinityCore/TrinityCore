@@ -63,7 +63,7 @@ class StoredLootContainer
         void RemoveMoney();
         void RemoveItem(uint32 itemId, uint32 count, uint32 itemIndex);
 
-        uint32 GetContainer() const { return _containerId; }
+        uint64 GetContainer() const { return _containerId; }
         uint32 GetMoney() const { return _money; }
         StoredLootItemContainer const& GetLootItems() const { return _lootItems; }
 
@@ -84,7 +84,7 @@ class LootItemStorage
         void RemoveStoredMoneyForContainer(uint64 containerId);
         void RemoveStoredLootForContainer(uint64 containerId);
         void RemoveStoredLootItemForContainer(uint64 containerId, uint32 itemId, uint32 count, uint32 itemIndex);
-        void AddNewStoredLoot(Loot* loot, Player* player);
+        void AddNewStoredLoot(uint64 containerId, Loot* loot, Player* player);
 
     private:
         LootItemStorage() { }

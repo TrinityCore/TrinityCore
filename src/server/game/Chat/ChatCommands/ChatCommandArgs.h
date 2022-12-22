@@ -319,6 +319,13 @@ namespace Trinity::Impl::ChatCommands
         static ChatCommandResult TryConsume(ItemTemplate const*&, ChatHandler const*, std::string_view);
     };
 
+    // Quest* from numeric id or link
+    template <>
+    struct TC_GAME_API ArgInfo<Quest const*>
+    {
+        static ChatCommandResult TryConsume(Quest const*&, ChatHandler const*, std::string_view);
+    };
+
     // SpellInfo const* from spell id or link
     template <>
     struct TC_GAME_API ArgInfo<SpellInfo const*>

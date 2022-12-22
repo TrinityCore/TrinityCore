@@ -64,6 +64,11 @@ static MLDataTypes const collapseObjectDatas[] =
     DATA_MAGTHERIDON_COLUMN_5,
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_MAGTHERIDON, {{ 651 }} }
+};
+
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
@@ -78,6 +83,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadBossBoundaries(boundaries);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override

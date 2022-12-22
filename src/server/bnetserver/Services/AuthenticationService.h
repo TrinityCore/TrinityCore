@@ -36,6 +36,7 @@ namespace Battlenet
 
             uint32 HandleLogon(authentication::v1::LogonRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
             uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleGenerateWebCredentials(authentication::v1::GenerateWebCredentialsRequest const* request, authentication::v1::GenerateWebCredentialsResponse* response, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation) override;
         };
     }
 }

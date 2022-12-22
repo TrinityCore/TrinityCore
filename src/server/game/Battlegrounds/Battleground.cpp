@@ -31,6 +31,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "KillRewarder.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
@@ -1928,9 +1929,10 @@ WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
     return sObjectMgr->GetClosestGraveyard(*player, GetPlayerTeam(player->GetGUID()), player);
 }
 
-void Battleground::TriggerGameEvent(uint32 gameEventId)
+void Battleground::TriggerGameEvent(uint32 gameEventId, WorldObject* source /*= nullptr*/, WorldObject* target /*= nullptr*/)
 {
-    GameEvents::TriggerForMap(gameEventId, GetBgMap());
+    ProcessEvent(target, gameEventId, source);
+    GameEvents::TriggerForMap(gameEventId, GetBgMap(), source, target);
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             GameEvents::TriggerForPlayer(gameEventId, player);
@@ -1944,7 +1946,10 @@ void Battleground::SetBracket(PVPDifficultyEntry const* bracketEntry)
 void Battleground::RewardXPAtKill(Player* killer, Player* victim)
 {
     if (sWorld->getBoolConfig(CONFIG_BG_XP_FOR_KILL) && killer && victim)
-        killer->RewardPlayerAndGroupAtKill(victim, true);
+    {
+        Player* killers[] = { killer };
+        KillRewarder(Trinity::IteratorPair(std::begin(killers), std::end(killers)), victim, true).Reward();
+    }
 }
 
 uint32 Battleground::GetTeamScore(uint32 teamId) const

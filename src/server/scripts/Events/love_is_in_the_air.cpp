@@ -105,6 +105,10 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
     }
 };
 
+/*######
+## Item 21813: Bag of Heart Candies
+######*/
+
 enum CreateHeartCandy
 {
     SPELL_CREATE_HEART_CANDY_1     = 26668,
@@ -135,7 +139,7 @@ class spell_love_is_in_the_air_create_heart_candy : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CreateHeartCandySpells), true);
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CreateHeartCandySpells));
     }
 
     void Register() override
@@ -144,8 +148,207 @@ class spell_love_is_in_the_air_create_heart_candy : public SpellScript
     }
 };
 
+/*######
+## Quest 24536, 24655: Something Stinks
+######*/
+
+enum SomethingStinks
+{
+    SPELL_HEAVILY_PERFUMED     = 71507
+};
+
+// 70192 - Fragrant Air Analysis
+class spell_love_is_in_the_air_fragrant_air_analysis : public SpellScript
+{
+    PrepareSpellScript(spell_love_is_in_the_air_fragrant_air_analysis);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_love_is_in_the_air_fragrant_air_analysis::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 71507 - Heavily Perfumed
+class spell_love_is_in_the_air_heavily_perfumed : public AuraScript
+{
+    PrepareAuraScript(spell_love_is_in_the_air_heavily_perfumed);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), uint32(GetEffectInfo(EFFECT_0).CalcValue()));
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_love_is_in_the_air_heavily_perfumed::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 71508 - Recently Analyzed
+class spell_love_is_in_the_air_recently_analyzed : public AuraScript
+{
+    PrepareAuraScript(spell_love_is_in_the_air_recently_analyzed);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HEAVILY_PERFUMED });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_HEAVILY_PERFUMED);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_love_is_in_the_air_recently_analyzed::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 24629, 24635, 24636: A Perfect Puff of Perfume & A Cloudlet of Classy Cologne & Bonbon Blitz
+######*/
+
+// 69438 - Sample Satisfaction
+class spell_love_is_in_the_air_sample_satisfaction : public AuraScript
+{
+    PrepareAuraScript(spell_love_is_in_the_air_sample_satisfaction);
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (roll_chance_i(30))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_love_is_in_the_air_sample_satisfaction::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+/*######
+## Quest 24541, 24656: Pilfering Perfume
+######*/
+
+enum PilferingPerfume
+{
+    SPELL_SERVICE_UNIFORM       = 71450,
+
+    MODEL_GOBLIN_MALE           = 31002,
+    MODEL_GOBLIN_FEMALE         = 31003
+};
+
+// 71450 - Crown Parcel Service Uniform
+class spell_love_is_in_the_air_service_uniform : public AuraScript
+{
+    PrepareAuraScript(spell_love_is_in_the_air_service_uniform);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (target->GetNativeGender() == GENDER_MALE)
+                target->SetDisplayId(MODEL_GOBLIN_MALE);
+            else
+                target->SetDisplayId(MODEL_GOBLIN_FEMALE);
+        }
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(uint32(GetEffectInfo(EFFECT_0).CalcValue()));
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_love_is_in_the_air_service_uniform::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_love_is_in_the_air_service_uniform::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 71522 - Crown Chemical Co. Supplies
+// 71539 - Crown Chemical Co. Supplies
+class spell_love_is_in_the_air_cancel_service_uniform : public SpellScript
+{
+    PrepareSpellScript(spell_love_is_in_the_air_cancel_service_uniform);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SERVICE_UNIFORM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_SERVICE_UNIFORM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_love_is_in_the_air_cancel_service_uniform::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Item 49351, 49352: Perfume Neutralizer & Cologne Neutralizer
+######*/
+
+// 68529 - Perfume Immune
+// 68530 - Cologne Immune
+class spell_love_is_in_the_air_perfume_cologne_immune : public SpellScript
+{
+    PrepareSpellScript(spell_love_is_in_the_air_perfume_cologne_immune);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+        {
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_love_is_in_the_air_perfume_cologne_immune::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHit += SpellEffectFn(spell_love_is_in_the_air_perfume_cologne_immune::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_event_love_is_in_the_air()
 {
     RegisterSpellScript(spell_love_is_in_the_air_romantic_picnic);
     RegisterSpellScript(spell_love_is_in_the_air_create_heart_candy);
+    RegisterSpellScript(spell_love_is_in_the_air_fragrant_air_analysis);
+    RegisterSpellScript(spell_love_is_in_the_air_heavily_perfumed);
+    RegisterSpellScript(spell_love_is_in_the_air_recently_analyzed);
+    RegisterSpellScript(spell_love_is_in_the_air_sample_satisfaction);
+    RegisterSpellScript(spell_love_is_in_the_air_service_uniform);
+    RegisterSpellScript(spell_love_is_in_the_air_cancel_service_uniform);
+    RegisterSpellScript(spell_love_is_in_the_air_perfume_cologne_immune);
 }

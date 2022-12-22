@@ -699,7 +699,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     8 - (Expansion 8)
+#        Default:     9 - (Expansion 9)
+#                     8 - (Expansion 8)
 #                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
 #                     5 - (Expansion 5)
@@ -709,7 +710,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 8
+Expansion = 9
 
 #
 #    MinPlayerName
@@ -834,9 +835,17 @@ CharactersPerAccount = 50
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
 #        Range:       1-200
-#        Default:     50
+#        Default:     60
 
-CharactersPerRealm = 50
+CharactersPerRealm = 60
+
+#
+#    CharacterCreating.EvokersPerRealm
+#        Description: Limit number of death knight characters per account on this realm.
+#        Range:       1-60
+#        Default:     1
+
+CharacterCreating.EvokersPerRealm = 1
 
 #
 #    CharacterCreating.MinLevelForDemonHunter
@@ -846,6 +855,15 @@ CharactersPerRealm = 50
 #                     1  - (Enabled, Requires at least another level 1 character)
 
 CharacterCreating.MinLevelForDemonHunter = 0
+
+#
+#    CharacterCreating.MinLevelForEvoker
+#        Description: Limit creating demon hunters only for account with another
+#                     character of specific level.
+#        Default:     50  - (Enabled, Requires at least another level 50 character)
+#                     0  - (Disabled, No requirement)
+
+CharacterCreating.MinLevelForEvoker = 0
 
 #
 #    CharacterCreating.DisableAlliedRaceAchievementRequirement
@@ -999,14 +1017,6 @@ Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
 
 #
-#    Instance.ResetTimeHour
-#        Description: Hour of the day when the global instance reset occurs.
-#        Range:       0-23
-#        Default:     4 - (04:00 AM)
-
-Instance.ResetTimeHour = 4
-
-#
 #    Instance.UnloadDelay
 #        Description: Time (in milliseconds) before instance maps are unloaded from memory if no
 #                     characters are inside.
@@ -1023,6 +1033,22 @@ Instance.UnloadDelay = 1800000
 #                     true  - (Enabled, show)
 
 InstancesResetAnnounce = false
+
+#
+#    ResetSchedule.WeekDay
+#        Description: Day of the week when the global weekly reset occurs.
+#        Range:       0-6
+#        Default:     2 - (Tuesday)
+
+ResetSchedule.WeekDay = 2
+
+#
+#    ResetSchedule.Hour
+#        Description: Hour of the day when the global daily reset occurs.
+#        Range:       0-23
+#        Default:     8 - (08:00 AM)
+
+ResetSchedule.Hour = 8
 
 #
 #    Quests.EnableQuestTracker
@@ -1138,6 +1164,13 @@ Guild.BankEventLogRecordsCount = 25
 #        Default:     250
 
 Guild.NewsLogRecordsCount = 250
+
+#
+#    Guild.SaveInterval
+#        Description: Time (in minutes) for guild save interval.
+#        Default:     15
+
+Guild.SaveInterval = 15
 
 #
 #    MaxPrimaryTradeSkill
@@ -4134,6 +4167,7 @@ Logger.mmaps=3,Server
 #Logger.entities.vehicle=3,Console Server
 #Logger.gameevent=3,Console Server
 #Logger.guild=3,Console Server
+#Logger.instance.locks=3,Console Server
 #Logger.lfg=3,Console Server
 #Logger.loot=3,Console Server
 #Logger.maps.script=3,Console Server

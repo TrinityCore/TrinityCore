@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "Map.h"
 #include "nexus.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -28,7 +29,18 @@ enum Spells
     SPELL_FRENZY                                = 48017,
     SPELL_SUMMON_CRYSTALLINE_TANGLER            = 61564,
     SPELL_CRYSTAL_SPIKES                        = 47958,
+
+    SPELL_SUMMON_CRYSTAL_SPIKE_1                = 47954,
+    SPELL_SUMMON_CRYSTAL_SPIKE_2                = 47955,
+    SPELL_SUMMON_CRYSTAL_SPIKE_3                = 47956,
+    SPELL_SUMMON_CRYSTAL_SPIKE_4                = 47957,
+
+    SPELL_SUMMON_CRYSTAL_SPIKE_1_H              = 57077,
+    SPELL_SUMMON_CRYSTAL_SPIKE_2_H              = 57078,
+    SPELL_SUMMON_CRYSTAL_SPIKE_3_H              = 57080,
+    SPELL_SUMMON_CRYSTAL_SPIKE_4_H              = 57081
 };
+
 enum Yells
 {
     SAY_AGGRO                                   = 1,
@@ -243,10 +255,43 @@ private:
 
 };
 
-// 47941 - Crystal Spike
-class spell_crystal_spike : public AuraScript
+std::array<uint32, 4> const SummonSpells =
 {
-    PrepareAuraScript(spell_crystal_spike);
+    SPELL_SUMMON_CRYSTAL_SPIKE_1, SPELL_SUMMON_CRYSTAL_SPIKE_2, SPELL_SUMMON_CRYSTAL_SPIKE_3, SPELL_SUMMON_CRYSTAL_SPIKE_4
+};
+
+std::array<uint32, 4> const SummonSpellsHeroic =
+{
+    SPELL_SUMMON_CRYSTAL_SPIKE_1_H, SPELL_SUMMON_CRYSTAL_SPIKE_2_H, SPELL_SUMMON_CRYSTAL_SPIKE_3_H, SPELL_SUMMON_CRYSTAL_SPIKE_4_H
+};
+
+// 47958, 57082 - Crystal Spikes
+class spell_ormorok_summon_crystal_spikes : public SpellScript
+{
+    PrepareSpellScript(spell_ormorok_summon_crystal_spikes);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(SummonSpells) && ValidateSpellInfo(SummonSpellsHeroic);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        for (uint32 spells : (caster->GetMap()->IsHeroic() ? SummonSpellsHeroic : SummonSpells))
+            caster->CastSpell(caster, spells);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_ormorok_summon_crystal_spikes::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 47941 - Crystal Spike
+class spell_ormorok_crystal_spike : public AuraScript
+{
+    PrepareAuraScript(spell_ormorok_crystal_spike);
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -262,7 +307,7 @@ class spell_crystal_spike : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_crystal_spike::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ormorok_crystal_spike::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -270,5 +315,6 @@ void AddSC_boss_ormorok()
 {
     RegisterNexusCreatureAI(boss_ormorok);
     RegisterNexusCreatureAI(npc_crystal_spike_trigger);
-    RegisterSpellScript(spell_crystal_spike);
+    RegisterSpellScript(spell_ormorok_summon_crystal_spikes);
+    RegisterSpellScript(spell_ormorok_crystal_spike);
 }

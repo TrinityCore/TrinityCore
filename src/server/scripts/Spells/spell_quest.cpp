@@ -1911,6 +1911,70 @@ class spell_quest_portal_with_condition : public SpellScript
     }
 };
 
+enum TributeSpells
+{
+    SPELL_GROMS_TROLL_TRIBUTE       = 24101,
+    SPELL_GROMS_TAUREN_TRIBUTE      = 24102,
+    SPELL_GROMS_UNDEAD_TRIBUTE      = 24103,
+    SPELL_GROMS_ORC_TRIBUTE         = 24104,
+    SPELL_GROMS_BLOODELF_TRIBUTE    = 69530,
+    SPELL_UTHERS_HUMAN_TRIBUTE      = 24105,
+    SPELL_UTHERS_GNOME_TRIBUTE      = 24106,
+    SPELL_UTHERS_DWARF_TRIBUTE      = 24107,
+    SPELL_UTHERS_NIGHTELF_TRIBUTE   = 24108,
+    SPELL_UTHERS_DRAENEI_TRIBUTE    = 69533
+};
+
+// 24194 - Uther's Tribute
+// 24195 - Grom's Tribute
+class spell_quest_uther_grom_tribute : public SpellScript
+{
+    PrepareSpellScript(spell_quest_uther_grom_tribute);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_GROMS_TROLL_TRIBUTE,    SPELL_UTHERS_HUMAN_TRIBUTE,
+            SPELL_GROMS_TAUREN_TRIBUTE,   SPELL_UTHERS_GNOME_TRIBUTE,
+            SPELL_GROMS_UNDEAD_TRIBUTE,   SPELL_UTHERS_DWARF_TRIBUTE,
+            SPELL_GROMS_ORC_TRIBUTE,      SPELL_UTHERS_NIGHTELF_TRIBUTE,
+            SPELL_GROMS_BLOODELF_TRIBUTE, SPELL_UTHERS_DRAENEI_TRIBUTE
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        uint32 spell = 0;
+        switch (caster->GetRace())
+        {
+            case RACE_TROLL:    spell = SPELL_GROMS_TROLL_TRIBUTE; break;
+            case RACE_TAUREN:   spell = SPELL_GROMS_TAUREN_TRIBUTE; break;
+            case RACE_UNDEAD_PLAYER: spell = SPELL_GROMS_UNDEAD_TRIBUTE; break;
+            case RACE_ORC:      spell = SPELL_GROMS_ORC_TRIBUTE; break;
+            case RACE_BLOODELF: spell = SPELL_GROMS_BLOODELF_TRIBUTE; break;
+            case RACE_HUMAN:    spell = SPELL_UTHERS_HUMAN_TRIBUTE; break;
+            case RACE_GNOME:    spell = SPELL_UTHERS_GNOME_TRIBUTE; break;
+            case RACE_DWARF:    spell = SPELL_UTHERS_DWARF_TRIBUTE; break;
+            case RACE_NIGHTELF: spell = SPELL_UTHERS_NIGHTELF_TRIBUTE; break;
+            case RACE_DRAENEI:  spell = SPELL_UTHERS_DRAENEI_TRIBUTE; break;
+            default: break;
+        }
+
+        if (spell)
+            caster->CastSpell(caster, spell);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_quest_uther_grom_tribute::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 /*######
 ## Quest 14386 Leader of the Pack
 ######*/
@@ -2005,5 +2069,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11306_failed_mix_43378);
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
+    RegisterSpellScript(spell_quest_uther_grom_tribute);
     RegisterSpellScript(spell_q14386_call_attack_mastiffs);
 }

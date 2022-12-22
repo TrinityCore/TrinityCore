@@ -454,7 +454,7 @@ public:
             QuestStatus status = player->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
             if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, GOSSIP_OUTHOUSE_VACANT, me->GetGUID());
             }
             else
@@ -1104,6 +1104,12 @@ public:
                 if (_rings == 0) // 00:00 and 12:00
                 {
                     _rings = 12;
+                }
+
+                // Dwarf hourly horn should only play a single time, each time the next hour begins.
+                if (_soundId == BELLTOLLDWARFGNOME)
+                {
+                    _rings = 1;
                 }
 
                 for (auto i = 0; i < _rings; ++i)

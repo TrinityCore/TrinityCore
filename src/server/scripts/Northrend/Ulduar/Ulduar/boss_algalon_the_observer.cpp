@@ -152,9 +152,6 @@ enum Events
     EVENT_OUTRO_9,
     EVENT_OUTRO_10,
     EVENT_OUTRO_11,
-    EVENT_DESPAWN_ALGALON_1,
-    EVENT_DESPAWN_ALGALON_2,
-    EVENT_DESPAWN_ALGALON_3,
 
     // Living Constellation
     EVENT_ARCANE_BARRAGE
@@ -334,18 +331,6 @@ struct boss_algalon_the_observer : public BossAI
                 events.CancelEvent(EVENT_RESUME_UPDATING);
                 events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1s + 500ms);
                 break;
-            case EVENT_DESPAWN_ALGALON:
-                events.Reset();
-                events.SetPhase(PHASE_ROLE_PLAY);
-                if (me->IsInCombat())
-                    events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1ms);
-                events.ScheduleEvent(EVENT_DESPAWN_ALGALON_1, 5s);
-                events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17s);
-                events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26s);
-                me->DespawnOrUnsummon(34s);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                me->SetImmuneToNPC(true);
-                break;
             case ACTION_INIT_ALGALON:
                 _firstPull = false;
                 me->SetImmuneToPC(false);
@@ -385,7 +370,6 @@ struct boss_algalon_the_observer : public BossAI
             DoZoneInCombat();
             introDelay = 26500ms;
             summons.DespawnEntry(NPC_AZEROTH);
-            instance->SetData(EVENT_DESPAWN_ALGALON, 0);
             events.ScheduleEvent(EVENT_START_COMBAT, 16s);
         }
 
@@ -686,15 +670,6 @@ struct boss_algalon_the_observer : public BossAI
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     DoCastSelf(SPELL_TELEPORT);
                     me->DespawnOrUnsummon(1s + 200ms);
-                    break;
-                case EVENT_DESPAWN_ALGALON_1:
-                    Talk(SAY_ALGALON_DESPAWN_1);
-                    break;
-                case EVENT_DESPAWN_ALGALON_2:
-                    Talk(SAY_ALGALON_DESPAWN_2);
-                    break;
-                case EVENT_DESPAWN_ALGALON_3:
-                    Talk(SAY_ALGALON_DESPAWN_3);
                     break;
                 default:
                     break;

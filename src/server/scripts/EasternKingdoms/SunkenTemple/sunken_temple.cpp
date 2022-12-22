@@ -31,6 +31,8 @@ EndContentData */
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "sunken_temple.h"
 
 /*#####
@@ -86,8 +88,68 @@ class go_atalai_statue : public GameObjectScript
         }
 };
 
+enum HexOfJammalan
+{
+    SPELL_HEX_OF_JAMMALAN_TRANSFORM    = 12480,
+    SPELL_HEX_OF_JAMMALAN_CHARM        = 12483
+};
+
+// 12479 - Hex of Jammal'an
+class spell_sunken_temple_hex_of_jammalan : public AuraScript
+{
+    PrepareAuraScript(spell_sunken_temple_hex_of_jammalan);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HEX_OF_JAMMALAN_TRANSFORM, SPELL_HEX_OF_JAMMALAN_CHARM });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        Unit* caster = GetCaster();
+
+        if (!caster || !caster->IsAlive())
+            return;
+
+        caster->CastSpell(target, SPELL_HEX_OF_JAMMALAN_TRANSFORM, true);
+        caster->CastSpell(target, SPELL_HEX_OF_JAMMALAN_CHARM, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sunken_temple_hex_of_jammalan::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 12480 - Hex of Jammal'an
+class spell_sunken_temple_hex_of_jammalan_transform : public AuraScript
+{
+    PrepareAuraScript(spell_sunken_temple_hex_of_jammalan_transform);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HEX_OF_JAMMALAN_CHARM });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_HEX_OF_JAMMALAN_CHARM);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sunken_temple_hex_of_jammalan_transform::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_sunken_temple()
 {
     new at_malfurion_stormrage();
     new go_atalai_statue();
+    RegisterSpellScript(spell_sunken_temple_hex_of_jammalan);
+    RegisterSpellScript(spell_sunken_temple_hex_of_jammalan_transform);
 }

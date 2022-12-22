@@ -827,7 +827,8 @@ enum TrinityStrings
     LANG_RBAC_EMAIL_REQUIRED              = 881,
     //                                    = 882, LANG_PINFO_CHR_MAP_WITH_AREA
     LANG_ACCOUNT                          = 883,
-    // Room for in-game strings             884-999 not used
+    LANG_COMMAND_QUEST_OBJECTIVE_NOTFOUND = 884,
+    // Room for in-game strings             885-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                     = 1000,
@@ -1011,6 +1012,7 @@ enum TrinityStrings
     LANG_CMDPARSER_SPELL_NO_EXIST         = 1514,
     LANG_CMDPARSER_EXACT_SEQ_MISMATCH     = 1515,
     LANG_CMDPARSER_CURRENCY_NO_EXIST      = 1516,
+    LANG_CMDPARSER_QUEST_NO_EXIST         = 1517,
 
     // 1516-1998 - free
     LANG_DEBUG_AREATRIGGER_LEFT           = 1999,
@@ -1098,14 +1100,14 @@ enum TrinityStrings
     // Instance commands
     LANG_COMMAND_LIST_BIND_INFO           = 5045,
     LANG_COMMAND_LIST_BIND_PLAYER_BINDS   = 5046,
-    LANG_COMMAND_LIST_BIND_GROUP_BINDS    = 5047,
+    LANG_COMMAND_INST_UNBIND_FAILED       = 5047,
     LANG_COMMAND_INST_UNBIND_UNBINDING    = 5048,
     LANG_COMMAND_INST_UNBIND_UNBOUND      = 5049,
     LANG_COMMAND_INST_STAT_LOADED_INST    = 5050,
     LANG_COMMAND_INST_STAT_PLAYERS_IN     = 5051,
     LANG_COMMAND_INST_STAT_SAVES          = 5052,
     LANG_COMMAND_INST_STAT_PLAYERSBOUND   = 5053,
-    LANG_COMMAND_INST_STAT_GROUPSBOUND    = 5054,
+    //                                    = 5054, // old LANG_COMMAND_INST_STAT_GROUPSBOUND
     LANG_NOT_DUNGEON                      = 5055, // Map is not a dungeon.
     LANG_NO_INSTANCE_DATA                 = 5056, // Map has no instance data.
     LANG_COMMAND_INST_SET_BOSS_STATE      = 5057,

@@ -122,13 +122,14 @@ class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
         bool Update(uint32 diff) override;
         void ChangeState() override { }
         int32 HandleOpenGo(Player* player, GameObject* go) override;
-        bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid) override;
         bool HandleDropFlag(Player* player, uint32 spellId) override;
-        bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso) override;
 
         void UpdateTowerState();
         void SetBeaconState(uint32 controlling_team); // not good atm
         uint32 GetGraveyardState() const;
+
+        ObjectGuid GetFlagCarrierGUID() const { return m_FlagCarrierGUID; }
+        void SetFlagCarrierGUID(ObjectGuid guid) { m_FlagCarrierGUID = guid; }
 
     protected:
         uint32 m_BothControllingFaction;
@@ -154,6 +155,8 @@ class OutdoorPvPZM : public OutdoorPvP
         void SetAllianceTowersControlled(uint32 count);
         uint32 GetHordeTowersControlled() const;
         void SetHordeTowersControlled(uint32 count);
+
+        OPvPCapturePointZM_Graveyard* GetGraveyard() { return m_Graveyard; }
 
     private:
         OPvPCapturePointZM_Graveyard* m_Graveyard;

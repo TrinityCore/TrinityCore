@@ -60,9 +60,9 @@ struct MovementInfo
 
     struct Inertia
     {
-        Inertia() : lifetime(0) { }
+        Inertia() : id(0), lifetime(0) { }
 
-        ObjectGuid guid;
+        int32 id;
         Position force;
         uint32 lifetime;
     };
@@ -84,11 +84,19 @@ struct MovementInfo
 
     } jump;
 
-    // spline
-    float splineElevation;
+    float stepUpStartElevation;
+
+    // advflying
+    struct AdvFlying
+    {
+        float forwardVelocity;
+        float upVelocity;
+    };
+
+    Optional<AdvFlying> advFlying;
 
     MovementInfo() :
-        flags(0), flags2(0), flags3(0), time(0), pitch(0.0f), splineElevation(0.0f)
+        flags(0), flags2(0), flags3(0), time(0), pitch(0.0f), stepUpStartElevation(0.0f)
     {
         pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         transport.Reset();

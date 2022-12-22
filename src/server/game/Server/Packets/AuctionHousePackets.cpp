@@ -80,8 +80,8 @@ ByteBuffer& operator<<(ByteBuffer& data, AuctionBucketKey const& itemKey)
 
 ByteBuffer& operator>>(ByteBuffer& data, AuctionListFilterSubClass& filterSubClass)
 {
-    data >> filterSubClass.ItemSubclass;
     data >> filterSubClass.InvTypeMask;
+    data >> filterSubClass.ItemSubclass;
 
     return data;
 }
@@ -450,6 +450,7 @@ void AuctionRemoveItem::Read()
 {
     _worldPacket >> Auctioneer;
     _worldPacket >> AuctionID;
+    _worldPacket >> ItemID;
     if (_worldPacket.ReadBit())
     {
         TaintedBy.emplace();
@@ -585,6 +586,7 @@ WorldPacket const* AuctionFavoriteList::Write()
 WorldPacket const* AuctionHelloResponse::Write()
 {
     _worldPacket << Guid;
+    _worldPacket << uint32(DeliveryDelay);
     _worldPacket.WriteBit(OpenForBusiness);
     _worldPacket.FlushBits();
 
@@ -593,7 +595,7 @@ WorldPacket const* AuctionHelloResponse::Write()
 
 WorldPacket const* AuctionListBiddedItemsResult::Write()
 {
-    _worldPacket << int32(Items.size());
+    _worldPacket << uint32(Items.size());
     _worldPacket << uint32(DesiredDelay);
     _worldPacket.WriteBit(HasMoreResults);
     _worldPacket.FlushBits();

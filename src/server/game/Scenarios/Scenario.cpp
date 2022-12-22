@@ -16,7 +16,6 @@
  */
 
 #include "Scenario.h"
-#include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -326,7 +325,7 @@ std::vector<WorldPackets::Achievement::CriteriaProgress> Scenario::GetCriteriasP
 
 CriteriaList const& Scenario::GetCriteriaByType(CriteriaType type, uint32 /*asset*/) const
 {
-    return sCriteriaMgr->GetScenarioCriteriaByType(type);
+    return sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(type, _data->Entry->ID);
 }
 
 void Scenario::SendBootPlayer(Player* player)

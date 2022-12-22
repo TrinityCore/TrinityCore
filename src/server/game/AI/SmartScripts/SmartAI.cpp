@@ -17,6 +17,7 @@
 
 #include "SmartAI.h"
 #include "AreaTrigger.h"
+#include "ConditionMgr.h"
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "DB2Structure.h"
@@ -674,6 +675,11 @@ void SmartAI::SummonedCreatureDespawn(Creature* unit)
 void SmartAI::CorpseRemoved(uint32& respawnDelay)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_CORPSE_REMOVED, nullptr, respawnDelay);
+}
+
+void SmartAI::OnDespawn()
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_DESPAWN);
 }
 
 void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)

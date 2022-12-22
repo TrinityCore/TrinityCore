@@ -44,7 +44,8 @@ class Item;
 class Unit;
 class Vehicle;
 class Map;
-enum class GossipOptionIcon : uint8;
+enum class GossipOptionFlags : int32;
+enum class GossipOptionNpc : uint8;
 struct AccessRequirement;
 struct DeclinedName;
 struct DungeonEncounterEntry;
@@ -662,6 +663,7 @@ struct PlayerInfo
     CreatePosition createPosition;
     Optional<CreatePosition> createPositionNPE;
 
+    ItemContext itemContext;
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
     PlayerCreateInfoSpells castSpells[size_t(PlayerCreateMode::Max)];
@@ -736,26 +738,29 @@ struct PointOfInterest
     uint32 Icon;
     uint32 Flags;
     uint32 Importance;
-    uint32 Unknown905;
+    int32 WMOGroupID;
     std::string Name;
 };
 
 struct GossipMenuItems
 {
     uint32              MenuID;
-    uint32              OptionID;
-    GossipOptionIcon    OptionIcon;
+    int32               GossipOptionID;
+    uint32              OrderIndex;
+    GossipOptionNpc     OptionNpc;
     std::string         OptionText;
     uint32              OptionBroadcastTextID;
-    uint32              OptionType;
-    uint32              OptionNpcFlag;
     uint32              Language;
+    GossipOptionFlags   Flags;
     uint32              ActionMenuID;
     uint32              ActionPoiID;
+    Optional<int32>     GossipNpcOptionID;
     bool                BoxCoded;
     uint32              BoxMoney;
     std::string         BoxText;
     uint32              BoxBroadcastTextID;
+    Optional<int32>     SpellID;
+    Optional<int32>     OverrideIconID;
     ConditionContainer  Conditions;
 };
 
@@ -766,12 +771,16 @@ struct GossipMenus
     ConditionContainer  Conditions;
 };
 
+struct GossipMenuAddon
+{
+    int32 FriendshipFactionID;
+};
+
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
 typedef std::pair<GossipMenusContainer::const_iterator, GossipMenusContainer::const_iterator> GossipMenusMapBounds;
 typedef std::pair<GossipMenusContainer::iterator, GossipMenusContainer::iterator> GossipMenusMapBoundsNonConst;
 typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
-typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
-typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
+typedef std::unordered_map<uint32, GossipMenuAddon> GossipMenuAddonContainer;
 
 struct QuestPOIBlobPoint
 {
@@ -1035,6 +1044,7 @@ struct ClassAvailability
     uint8 ClassID = 0;
     uint8 ActiveExpansionLevel = 0;
     uint8 AccountExpansionLevel = 0;
+    uint8 MinActiveExpansionLevel = 0;
 };
 
 struct RaceClassAvailability
@@ -1392,6 +1402,7 @@ class TC_GAME_API ObjectMgr
 
         void LoadGossipMenu();
         void LoadGossipMenuItems();
+        void LoadGossipMenuAddon();
 
         void LoadVendors();
         void LoadTrainers();
@@ -1679,13 +1690,20 @@ class TC_GAME_API ObjectMgr
             return _gossipMenusStore.equal_range(uiMenuId);
         }
 
-        GossipMenuItemsMapBounds GetGossipMenuItemsMapBounds(uint32 uiMenuId) const
+        Trinity::IteratorPair<GossipMenuItemsContainer::const_iterator> GetGossipMenuItemsMapBounds(uint32 uiMenuId) const
         {
-            return _gossipMenuItemsStore.equal_range(uiMenuId);
+            return Trinity::Containers::MapEqualRange(_gossipMenuItemsStore, uiMenuId);
         }
-        GossipMenuItemsMapBoundsNonConst GetGossipMenuItemsMapBoundsNonConst(uint32 uiMenuId)
+        Trinity::IteratorPair<GossipMenuItemsContainer::iterator> GetGossipMenuItemsMapBoundsNonConst(uint32 uiMenuId)
         {
-            return _gossipMenuItemsStore.equal_range(uiMenuId);
+            return Trinity::Containers::MapEqualRange(_gossipMenuItemsStore, uiMenuId);
+        }
+        GossipMenuAddon const* GetGossipMenuAddon(uint32 menuId) const
+        {
+            GossipMenuAddonContainer::const_iterator itr = _gossipMenuAddonStore.find(menuId);
+            if (itr != _gossipMenuAddonStore.end())
+                return &itr->second;
+            return nullptr;
         }
 
         // for wintergrasp only
@@ -1757,6 +1775,7 @@ class TC_GAME_API ObjectMgr
 
         std::vector<RaceClassAvailability> const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
         ClassAvailability const* GetClassExpansionRequirement(uint8 raceId, uint8 classId) const;
+        ClassAvailability const* GetClassExpansionRequirementFallback(uint8 classId) const;
 
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
         {
@@ -1820,6 +1839,7 @@ class TC_GAME_API ObjectMgr
 
         GossipMenusContainer _gossipMenusStore;
         GossipMenuItemsContainer _gossipMenuItemsStore;
+        GossipMenuAddonContainer _gossipMenuAddonStore;
         PointOfInterestContainer _pointsOfInterestStore;
 
         QuestPOIContainer _questPOIStore;
@@ -1887,7 +1907,7 @@ class TC_GAME_API ObjectMgr
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
-        std::unique_ptr<PlayerInfo> _playerInfo[MAX_RACES][MAX_CLASSES];
+        std::unordered_map<std::pair<Races, Classes>, std::unique_ptr<PlayerInfo>> _playerInfo;
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel _playerXPperLevel;
