@@ -22,6 +22,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 
+//500501
 struct go_nyalotha_entrance : public GameObjectAI
 {
 	go_nyalotha_entrance(GameObject* go) : GameObjectAI(go) { timer = 1500; }
@@ -31,15 +32,22 @@ struct go_nyalotha_entrance : public GameObjectAI
 		if (timer <= diff)
 		{
 			std::list<Player*> players;
+		//	go->GetPlayerListInGrid(players, 5.f);
 			for (Player* plr : players)
 			{	
 				if (plr->GetLevel() >= 120 && plr->GetMapId() != 2217 && !plr->IsInCombat())
 				{
-                    
+                    /*plr->GetScheduler().Schedule(100ms, [plr](TaskContext context)
+					{
+                        plr->TeleportTo(2217, -1799.0f, -43.0f, -1476.0f, 6.24f);
+					});*/
 				}
                 if (plr->GetLevel() >= 120 && plr->GetMapId() == 2217 && !plr->IsInCombat())
                 {
-					
+					/*plr->GetScheduler().Schedule(100ms, [plr](TaskContext context)
+                    {
+                        plr->TeleportTo(870, 1138.0f, 1361.0f, 349.4f, 4.76f);
+                    });*/
                 }
 			}
 		}
@@ -59,6 +67,7 @@ enum
 
 const Position annex_of_prophecy_first_elevator_pos = { -1099.468f, -45.313f, -237.333f, 0.043f };
 
+//161720, used as custom mini event because of first elevator
 struct npc_wrathion_special : public ScriptedAI
 {
 	npc_wrathion_special(Creature* c) : ScriptedAI(c) { }
@@ -70,6 +79,7 @@ private:
 	{
 		ScriptedAI::Reset();
 		Talk = false;
+		me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 		//me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);//暂时注释
 	}
 
@@ -88,6 +98,7 @@ private:
     InstanceScript* instance;
 };
 
+//500528
 struct npc_generic_bunny_nyalotha : public ScriptedAI
 {
 	npc_generic_bunny_nyalotha(Creature* c) : ScriptedAI(c) { }
