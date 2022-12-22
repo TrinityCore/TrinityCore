@@ -303,6 +303,13 @@ TC_GAME_API extern TaxiPathSetBySource                              sTaxiPathSet
 TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
 TC_GAME_API extern std::unordered_set<uint32>                       sPetTalentSpells;
 
+enum ContentLevels : uint8
+{
+    CONTENT_1_60 = 0,
+    CONTENT_61_70,
+    CONTENT_71_80
+};
+
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
     struct structure ## Comparator \
     { \

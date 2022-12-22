@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "GameTables.h"
+#include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptMgr.h"

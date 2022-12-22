@@ -81,6 +81,7 @@ struct WorldStateTemplate;
 namespace Trinity::ChatCommands { struct ChatCommandBuilder; }
 
 enum BattlegroundTypeId : uint32;
+enum ContentLevels : uint8;
 enum Difficulty : uint8;
 enum DuelCompleteType : uint8;
 enum Emote : uint32;

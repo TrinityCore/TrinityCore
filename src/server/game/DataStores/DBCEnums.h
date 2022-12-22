@@ -647,13 +647,6 @@ enum class ChrCustomizationReqFlag : int32
 
 DEFINE_ENUM_FLAG(ChrCustomizationReqFlag);
 
-enum ContentLevels : uint8
-{
-    CONTENT_1_60 = 0,
-    CONTENT_61_70,
-    CONTENT_71_80
-};
-
 enum Curves
 {
     CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS    = 1718,
