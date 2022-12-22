@@ -475,6 +475,7 @@ public:
         int32* uiMapId = nullptr, DBCPosition2D* newPos = nullptr);
     TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
     uint32 GetTalentSpellCost(uint32 spellId);
+    ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
     bool Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     bool IsUiMapPhase(uint32 phaseId) const;

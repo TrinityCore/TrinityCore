@@ -1347,7 +1347,6 @@ void ExtractGameTables()
         { 1391659, "SandboxScaling.txt" },
         { 1391660, "SpellScaling.txt" },
         { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" },
         { 2200979, "ShieldBlockRegular.txt" },
         { 2238239, "OCTRegenMP.txt" },
         { 2238240, "RegenMPPerSpt.txt" },

@@ -3211,6 +3211,44 @@ uint32 DB2Manager::GetTalentSpellCost(uint32 spellId)
     return 0;
 }
 
+ContentLevels DB2Manager::GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
+{
+    if (mapid == 530 || mapid == 571)
+    {
+        switch (zoneId)
+        {
+            case 3430: // Eversong Woods
+            case 3433: // Ghostlands
+            case 3487: // SilvermoonCity
+                return CONTENT_1_60;
+            case 3524: // Azurmyst Isle
+            case 3557: // The Exodar
+            case 3525: // Bloodmyst Isle
+                return CONTENT_1_60;
+            default:
+                break;
+        }
+    }
+
+    // Special Case
+    if (mapid == 609) // DeathknightStart Ebon Hold
+        return CONTENT_61_70;
+
+    if (mapid < 2)
+        return CONTENT_1_60;
+
+    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+    if (!mapEntry)
+        return CONTENT_1_60;
+
+    switch (mapEntry->Expansion())
+    {
+        default: return CONTENT_1_60;
+        case 1:  return CONTENT_61_70;
+        case 2:  return CONTENT_71_80;
+    }
+}
+
 bool DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
 {
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);

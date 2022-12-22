@@ -38,7 +38,6 @@ GameTable<GtOCTRegenHPEntry>                    sOCTRegenHPGameTable;
 GameTable<GtRegenHPPerSptEntry>                 sRegenHPPerSptGameTable;
 GameTable<GtRegenMPPerSptEntry>                 sRegenMPPerSptGameTable;
 GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
-GameTable<GtXpEntry>                            sXpGameTable;
 
 template<class T>
 inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& storage, boost::filesystem::path const& path)
@@ -126,7 +125,6 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sRegenHPPerSptGameTable, "RegenHPPerSpt.txt");
     LOAD_GT(sRegenMPPerSptGameTable, "RegenMPPerSpt.txt");
     LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
-    LOAD_GT(sXpGameTable, "xp.txt");
 
 #undef LOAD_GT
 
