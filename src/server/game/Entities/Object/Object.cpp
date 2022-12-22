@@ -2635,23 +2635,23 @@ ReputationRank WorldObject::GetReactionTo(WorldObject const* target) const
     if (this == target)
         return REP_FRIENDLY;
 
-    auto isAttackableBySummoner = [&](WorldObject const* me, WorldObject const* target)
+    auto isAttackableBySummoner = [&](Unit const* me, ObjectGuid const& targetGuid)
     {
-        if (!me->ToUnit())
+        if (!me)
             return false;
 
-        TempSummon const* tempSummon = me->ToUnit()->ToTempSummon();
+        TempSummon const* tempSummon = me->ToTempSummon();
         if (!tempSummon || !tempSummon->m_Properties)
             return false;
 
         if (tempSummon->m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::AttackableBySummoner)
-            && target->GetGUID() == tempSummon->GetSummonerGUID())
+            && targetGuid == tempSummon->GetSummonerGUID())
             return true;
 
         return false;
     };
 
-    if (isAttackableBySummoner(this, target) || isAttackableBySummoner(target, this))
+    if (isAttackableBySummoner(ToUnit(), target->GetGUID()) || isAttackableBySummoner(target->ToUnit(), GetGUID()))
         return REP_NEUTRAL;
 
     // always friendly to charmer or owner
