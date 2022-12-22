@@ -15,3 +15,13 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "brewmoon_festival.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "ScriptedGossip.h"
+#include "ScriptedEscortAI.h"
+#include "CreatureAI.h"
+#include "MoveSplineInit.h"
+#include "SpellScript.h"
+#include "Vehicle.h"
+

@@ -21,7 +21,6 @@
 #include "ScriptedEscortAI.h"
 #include "timeless_isle.h"
 
-// Anduin Wrynn - 73061
 class npc_prince_anduin : public CreatureScript
 {
     public:
@@ -68,7 +67,6 @@ class npc_prince_anduin : public CreatureScript
         }
 };
 
-// Kairoz - 72870
 class npc_kairoz : public CreatureScript
 {
     public:
@@ -219,7 +217,6 @@ public:
         void Register()
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_jadefire_bolt_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-           // OnHit += SpellHitFn(spell_jadefire_bolt_SpellScript::HandleOnHit);
         }
     };
 
@@ -246,7 +243,6 @@ public:
         void Register()
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_crackling_lightning_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-          //  OnHit += SpellHitFn(spell_crackling_lightning_SpellScript::HandleOnHit);
         }
     };
 
@@ -273,7 +269,6 @@ public:
         void Register()
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_chi_barrage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-           // OnHit += SpellHitFn(spell_chi_barrage_SpellScript::HandleOnHit);
         }
     };
 
@@ -304,7 +299,6 @@ public:
         void Reset()
         {
             SpiritStrangle_timer = 0;
-            //me->GetMotionMaster()->MoveRandom(10.0f);
             DoCast(SPELL_GHOSTLY_VOID);
             DoCast(SPELL_DESATURATE);
         }
