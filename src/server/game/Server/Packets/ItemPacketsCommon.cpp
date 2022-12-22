@@ -20,9 +20,7 @@
 #include "Loot.h"
 #include "Player.h"
 
-namespace WorldPackets
-{
-namespace Item
+namespace WorldPackets::Item
 {
 bool ItemBonuses::operator==(ItemBonuses const& r) const
 {
@@ -51,7 +49,7 @@ bool ItemModList::operator==(ItemModList const& r) const
 void ItemInstance::Initialize(::Item const* item)
 {
     ItemID = item->GetEntry();
-    std::vector<int32> const& bonusListIds = item->m_itemData->BonusListIDs;
+    std::vector<int32> const& bonusListIds = item->GetBonusListIDs();
     if (!bonusListIds.empty())
     {
         ItemBonus.emplace();
@@ -121,6 +119,20 @@ bool ItemInstance::operator==(ItemInstance const& r) const
         return false;
 
     if (ItemBonus.has_value() && *ItemBonus != *r.ItemBonus)
+        return false;
+
+    return true;
+}
+
+bool ItemBonusKey::operator==(ItemBonusKey const& right) const
+{
+    if (ItemID != right.ItemID)
+        return false;
+
+    if (BonusListIDs != right.BonusListIDs)
+        return false;
+
+    if (Modifications != right.Modifications)
         return false;
 
     return true;
@@ -224,6 +236,21 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance)
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, ItemBonusKey const& itemBonusKey)
+{
+    data << int32(itemBonusKey.ItemID);
+    data << uint32(itemBonusKey.BonusListIDs.size());
+    data << uint32(itemBonusKey.Modifications.size());
+
+    if (!itemBonusKey.BonusListIDs.empty())
+        data.append(itemBonusKey.BonusListIDs.data(), itemBonusKey.BonusListIDs.size());
+
+    for (ItemMod const& modification : itemBonusKey.Modifications)
+        data << modification;
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, ItemEnchantData const& itemEnchantData)
 {
     data << int32(itemEnchantData.ID);
@@ -259,5 +286,12 @@ ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate)
 
     return data;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, UiEventToast const& uiEventToast)
+{
+    data << int32(uiEventToast.UiEventToastID);
+    data << int32(uiEventToast.Asset);
+
+    return data;
 }
 }

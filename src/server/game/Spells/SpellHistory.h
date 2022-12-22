@@ -113,8 +113,19 @@ public:
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown = false);
     void ModifyCooldown(SpellInfo const* spellInfo, Duration cooldownMod, bool withoutCategoryCooldown = false);
+    template<typename Predicate>
+    void ModifyCoooldowns(Predicate&& predicate, Duration cooldownMod, bool withoutCategoryCooldown = false)
+    {
+        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+        {
+            if (predicate(itr))
+                ModifySpellCooldown(itr, cooldownMod, withoutCategoryCooldown);
+            else
+                ++itr;
+        }
+    }
+
     void ResetCooldown(uint32 spellId, bool update = false);
-    void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
     void ResetCooldowns(Predicate predicate, bool update = false)
     {
@@ -166,7 +177,9 @@ public:
 
 private:
     Player* GetPlayerOwner() const;
-    void ModifySpellCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown = false);
+    void ModifySpellCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown);
+    void ModifySpellCooldown(CooldownStorageType::iterator& itr, Duration cooldownMod, bool withoutCategoryCooldown);
+    void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
     {

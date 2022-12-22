@@ -78,6 +78,7 @@ namespace WorldPackets
 
     public:
         bool empty() const { return _storage.empty(); }
+        std::size_t length() const { return _storage.length(); }
         char const* c_str() const { return _storage.c_str(); }
 
         operator std::string_view() const { return _storage; }
@@ -132,11 +133,11 @@ namespace WorldPackets
     /**
      * Utility class for automated prevention of loop counter spoofing in client packets
      */
-    template<typename T, std::size_t N>
+    template<typename T, std::size_t N, typename Container = boost::container::static_vector<T, N>>
     class Array
     {
     public:
-        typedef boost::container::static_vector<T, N> storage_type;
+        typedef Container storage_type;
 
         typedef std::integral_constant<std::size_t, N> max_capacity;
 
@@ -195,6 +196,16 @@ namespace WorldPackets
         {
             _storage.emplace_back(std::forward<Args>(args)...);
             return _storage.back();
+        }
+
+        iterator erase(const_iterator first, const_iterator last)
+        {
+            return _storage.erase(first, last);
+        }
+
+        void clear()
+        {
+            _storage.clear();
         }
 
     private:

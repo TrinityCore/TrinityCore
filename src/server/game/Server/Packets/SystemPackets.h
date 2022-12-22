@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -131,6 +132,7 @@ namespace WorldPackets
             int32 ActiveSeason                           = 0; ///< Currently active Classic season
             int16 MaxPlayerNameQueriesPerPacket          = 50;
             int16 PlayerNameQueryTelemetryInterval       = 600;
+            Duration<Seconds, uint32> PlayerNameQueryInterval = 10s;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -159,6 +161,8 @@ namespace WorldPackets
             bool ChatDisabledByDefault               = false;
             bool ChatDisabledByPlayer                = false;
             bool LFGListCustomRequiresAuthenticator  = false;
+            bool AddonsDisabled                      = false;
+            bool Unused1000                          = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
@@ -190,6 +194,8 @@ namespace WorldPackets
             bool LiveRegionAccountCopyEnabled        = false; // NYI
             bool LiveRegionKeyBindingsCopyEnabled    = false;
             bool Unknown901CheckoutRelated           = false; // NYI
+            bool AddonsDisabled                      = false;
+            bool Unused1000                          = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
@@ -205,6 +211,7 @@ namespace WorldPackets
             std::vector<GameRuleValuePair> GameRuleValues;
             int16 MaxPlayerNameQueriesPerPacket = 50;
             int16 PlayerNameQueryTelemetryInterval = 600;
+            Duration<Seconds, uint32> PlayerNameQueryInterval = 10s;
             Optional<int32> LaunchETA;
         };
 
@@ -227,6 +234,7 @@ namespace WorldPackets
 
             std::string ServerTimeTZ;
             std::string GameTimeTZ;
+            std::string ServerRegionalTZ;
         };
     }
 }

@@ -162,7 +162,7 @@ namespace WorldPackets
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
                 Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
                 Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
-                Optional<int32> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
+                Optional<Timestamp<>> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
             };
 
             AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }

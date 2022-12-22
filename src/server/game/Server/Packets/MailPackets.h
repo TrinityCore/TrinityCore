@@ -235,16 +235,6 @@ namespace WorldPackets
 
             float Delay = 0.0f;
         };
-
-        class ShowMailbox final : public ServerPacket
-        {
-        public:
-            ShowMailbox() : ServerPacket(SMSG_SHOW_MAILBOX, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid PostmasterGUID;
-        };
     }
 }
 

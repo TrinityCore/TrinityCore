@@ -142,7 +142,7 @@ void AzeriteEmpoweredItem::ClearSelectedAzeritePowers()
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteEmpoweredItem::m_azeriteEmpoweredItemData).ModifyValue(&UF::AzeriteEmpoweredItemData::Selections, i), 0);
 
     _bonusData.Initialize(GetTemplate());
-    for (int32 bonusListID : *m_itemData->BonusListIDs)
+    for (int32 bonusListID : GetBonusListIDs())
         _bonusData.AddBonusList(bonusListID);
 }
 

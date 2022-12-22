@@ -44,6 +44,7 @@ class Item;
 class Unit;
 class Vehicle;
 class Map;
+enum class GossipOptionFlags : int32;
 enum class GossipOptionNpc : uint8;
 struct AccessRequirement;
 struct DeclinedName;
@@ -662,6 +663,7 @@ struct PlayerInfo
     CreatePosition createPosition;
     Optional<CreatePosition> createPositionNPE;
 
+    ItemContext itemContext;
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
     PlayerCreateInfoSpells castSpells[size_t(PlayerCreateMode::Max)];
@@ -743,23 +745,23 @@ struct PointOfInterest
 struct GossipMenuItems
 {
     uint32              MenuID;
-    uint32              OptionID;
+    int32               GossipOptionID;
+    uint32              OrderIndex;
     GossipOptionNpc     OptionNpc;
     std::string         OptionText;
     uint32              OptionBroadcastTextID;
     uint32              Language;
+    GossipOptionFlags   Flags;
     uint32              ActionMenuID;
     uint32              ActionPoiID;
+    Optional<int32>     GossipNpcOptionID;
     bool                BoxCoded;
     uint32              BoxMoney;
     std::string         BoxText;
     uint32              BoxBroadcastTextID;
+    Optional<int32>     SpellID;
+    Optional<int32>     OverrideIconID;
     ConditionContainer  Conditions;
-};
-
-struct GossipMenuItemAddon
-{
-    Optional<int32> GarrTalentTreeID;
 };
 
 struct GossipMenus
@@ -779,7 +781,6 @@ typedef std::pair<GossipMenusContainer::const_iterator, GossipMenusContainer::co
 typedef std::pair<GossipMenusContainer::iterator, GossipMenusContainer::iterator> GossipMenusMapBoundsNonConst;
 typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
 typedef std::unordered_map<uint32, GossipMenuAddon> GossipMenuAddonContainer;
-typedef std::unordered_map<std::pair<uint32, uint32>, GossipMenuItemAddon> GossipMenuItemAddonContainer;
 
 struct QuestPOIBlobPoint
 {
@@ -1043,6 +1044,7 @@ struct ClassAvailability
     uint8 ClassID = 0;
     uint8 ActiveExpansionLevel = 0;
     uint8 AccountExpansionLevel = 0;
+    uint8 MinActiveExpansionLevel = 0;
 };
 
 struct RaceClassAvailability
@@ -1401,7 +1403,6 @@ class TC_GAME_API ObjectMgr
         void LoadGossipMenu();
         void LoadGossipMenuItems();
         void LoadGossipMenuAddon();
-        void LoadGossipMenuItemAddon();
 
         void LoadVendors();
         void LoadTrainers();
@@ -1704,13 +1705,6 @@ class TC_GAME_API ObjectMgr
                 return &itr->second;
             return nullptr;
         }
-        GossipMenuItemAddon const* GetGossipMenuItemAddon(uint32 menuId, uint32 optionId) const
-        {
-            auto itr = _gossipMenuItemAddonStore.find({ menuId, optionId });
-            if (itr != _gossipMenuItemAddonStore.end())
-                return &itr->second;
-            return nullptr;
-        }
 
         // for wintergrasp only
         GraveyardContainer GraveyardStore;
@@ -1781,6 +1775,7 @@ class TC_GAME_API ObjectMgr
 
         std::vector<RaceClassAvailability> const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
         ClassAvailability const* GetClassExpansionRequirement(uint8 raceId, uint8 classId) const;
+        ClassAvailability const* GetClassExpansionRequirementFallback(uint8 classId) const;
 
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
         {
@@ -1845,7 +1840,6 @@ class TC_GAME_API ObjectMgr
         GossipMenusContainer _gossipMenusStore;
         GossipMenuItemsContainer _gossipMenuItemsStore;
         GossipMenuAddonContainer _gossipMenuAddonStore;
-        GossipMenuItemAddonContainer _gossipMenuItemAddonStore;
         PointOfInterestContainer _pointsOfInterestStore;
 
         QuestPOIContainer _questPOIStore;
@@ -1913,7 +1907,7 @@ class TC_GAME_API ObjectMgr
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
-        std::unique_ptr<PlayerInfo> _playerInfo[MAX_RACES][MAX_CLASSES];
+        std::unordered_map<std::pair<Races, Classes>, std::unique_ptr<PlayerInfo>> _playerInfo;
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel _playerXPperLevel;

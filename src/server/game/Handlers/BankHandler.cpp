@@ -197,13 +197,13 @@ void WorldSession::HandleReagentBankDepositOpcode(WorldPackets::Bank::ReagentBan
         if (msg != EQUIP_ERR_OK)
         {
             if (msg != EQUIP_ERR_REAGENT_BANK_FULL || !anyDeposited)
-                _player->SendEquipError(msg, item, NULL);
+                _player->SendEquipError(msg, item, nullptr);
             break;
         }
 
         if (dest.size() == 1 && dest[0].pos == item->GetPos())
         {
-            _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, NULL);
+            _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, nullptr);
             continue;
         }
 
@@ -236,13 +236,13 @@ void WorldSession::HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReage
     InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, item, NULL);
+        _player->SendEquipError(msg, item, nullptr);
         return;
     }
 
     if (dest.size() == 1 && dest[0].pos == item->GetPos())
     {
-        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, nullptr);
         return;
     }
 
@@ -274,7 +274,7 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
         InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, pItem, nullptr);
             return;
         }
 
@@ -287,7 +287,7 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
         InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false, true, true);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, pItem, nullptr);
             return;
         }
 
@@ -299,7 +299,9 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
     m_currentBankerGUID = guid;
-    WorldPackets::NPC::ShowBank packet;
-    packet.Guid = guid;
-    SendPacket(packet.Write());
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = guid;
+    npcInteraction.InteractionType = PlayerInteractionType::Banker;
+    npcInteraction.Success = true;
+    SendPacket(npcInteraction.Write());
 }

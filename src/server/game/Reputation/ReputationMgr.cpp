@@ -277,7 +277,6 @@ void ReputationMgr::SendForceReactions()
 void ReputationMgr::SendState(FactionState const* faction)
 {
     WorldPackets::Reputation::SetFactionStanding setFactionStanding;
-    setFactionStanding.ReferAFriendBonus = 0.0f;
     setFactionStanding.BonusFromAchievementSystem = 0.0f;
 
     if (faction)

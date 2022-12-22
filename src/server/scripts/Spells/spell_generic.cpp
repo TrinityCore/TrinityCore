@@ -3382,8 +3382,10 @@ class spell_gen_spirit_healer_res : public SpellScript
         Player* originalCaster = GetOriginalCaster()->ToPlayer();
         if (Unit* target = GetHitUnit())
         {
-            WorldPackets::NPC::SpiritHealerConfirm spiritHealerConfirm;
-            spiritHealerConfirm.Unit = target->GetGUID();
+            WorldPackets::NPC::NPCInteractionOpenResult spiritHealerConfirm;
+            spiritHealerConfirm.Npc = target->GetGUID();
+            spiritHealerConfirm.InteractionType = PlayerInteractionType::SpiritHealer;
+            spiritHealerConfirm.Success = true;
             originalCaster->SendDirectMessage(spiritHealerConfirm.Write());
         }
     }

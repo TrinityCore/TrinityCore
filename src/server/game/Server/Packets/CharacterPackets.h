@@ -87,6 +87,7 @@ namespace WorldPackets
         struct CharRaceOrFactionChangeInfo
         {
             uint8 RaceID            = RACE_NONE;
+            uint8 InitialRaceID     = RACE_NONE;
             uint8 SexID             = GENDER_NONE;
             ObjectGuid Guid;
             bool FactionChange      = false;
@@ -159,7 +160,7 @@ namespace WorldPackets
                     uint8 Subclass          = 0;
                 };
 
-                std::array<VisualItemInfo, 23> VisualItems = { };
+                std::array<VisualItemInfo, 35> VisualItems = { };
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
             };
@@ -178,6 +179,18 @@ namespace WorldPackets
                 int32 Unused = 0;
             };
 
+            struct RaceLimitDisableInfo
+            {
+                enum
+                {
+                    Server,
+                    Level
+                };
+
+                int32 RaceID = 0;
+                int32 BlockReason = 0;
+            };
+
             EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
 
             WorldPacket const* Write() override;
@@ -187,6 +200,7 @@ namespace WorldPackets
             bool IsNewPlayerRestrictionSkipped    = false; ///< allows client to skip new player restrictions
             bool IsNewPlayerRestricted            = false; ///< forbids using level boost and class trials
             bool IsNewPlayer                      = false; ///< forbids hero classes and allied races
+            bool IsTrialAccountRestricted         = false;
             bool IsAlliedRacesCreationAllowed     = false;
 
             int32 MaxCharacterLevel     = 1;
@@ -195,6 +209,7 @@ namespace WorldPackets
             std::vector<CharacterInfo> Characters; ///< all characters on the list
             std::vector<RaceUnlock> RaceUnlockData; ///<
             std::vector<UnlockedConditionalAppearance> UnlockedConditionalAppearances;
+            std::vector<RaceLimitDisableInfo> RaceLimitDisables;
         };
 
         class CheckCharacterNameAvailability final : public ClientPacket
@@ -623,6 +638,7 @@ namespace WorldPackets
 
             uint8 NewSex = 0;
             Array<ChrCustomizationChoice, 50> Customizations;
+            int32 CustomizedRace = 0;
         };
 
         class BarberShopResult final : public ServerPacket
@@ -646,7 +662,7 @@ namespace WorldPackets
         class LogXPGain final : public ServerPacket
         {
         public:
-            LogXPGain() : ServerPacket(SMSG_LOG_XP_GAIN, 30) { }
+            LogXPGain() : ServerPacket(SMSG_LOG_XP_GAIN, 16 + 4 + 1 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -654,8 +670,7 @@ namespace WorldPackets
             int32 Original = 0;
             uint8 Reason = 0;
             int32 Amount = 0;
-            float GroupBonus = 0;
-            uint8 ReferAFriendBonusType = 0;    // 1 - 300% of normal XP; 2 - 150% of normal XP
+            float GroupBonus = 0.0f;
         };
 
         class TitleEarned final : public ServerPacket

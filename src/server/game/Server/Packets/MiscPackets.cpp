@@ -53,11 +53,13 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket.WriteBit(WeeklyQuantity.has_value());
     _worldPacket.WriteBit(TrackedQuantity.has_value());
     _worldPacket.WriteBit(MaxQuantity.has_value());
-    _worldPacket.WriteBit(Unused901.has_value());
+    _worldPacket.WriteBit(TotalEarned.has_value());
     _worldPacket.WriteBit(SuppressChatLog);
     _worldPacket.WriteBit(QuantityChange.has_value());
-    _worldPacket.WriteBit(QuantityGainSource.has_value());
     _worldPacket.WriteBit(QuantityLostSource.has_value());
+    _worldPacket.WriteBit(QuantityGainSource.has_value());
+    _worldPacket.WriteBit(FirstCraftOperationID.has_value());
+    _worldPacket.WriteBit(LastSpendTime.has_value());
     _worldPacket.FlushBits();
 
     if (WeeklyQuantity)
@@ -69,17 +71,23 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     if (MaxQuantity)
         _worldPacket << int32(*MaxQuantity);
 
-    if (Unused901)
-        _worldPacket << int32(*Unused901);
+    if (TotalEarned)
+        _worldPacket << int32(*TotalEarned);
 
     if (QuantityChange)
         _worldPacket << int32(*QuantityChange);
 
+    if (QuantityLostSource)
+        _worldPacket << int32(*QuantityLostSource);
+
     if (QuantityGainSource)
         _worldPacket << int32(*QuantityGainSource);
 
-    if (QuantityLostSource)
-        _worldPacket << int32(*QuantityLostSource);
+    if (FirstCraftOperationID)
+        _worldPacket << uint32(*FirstCraftOperationID);
+
+    if (LastSpendTime)
+        _worldPacket << *LastSpendTime;
 
     return &_worldPacket;
 }
@@ -102,7 +110,8 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
         _worldPacket.WriteBit(data.MaxWeeklyQuantity.has_value());
         _worldPacket.WriteBit(data.TrackedQuantity.has_value());
         _worldPacket.WriteBit(data.MaxQuantity.has_value());
-        _worldPacket.WriteBit(data.Unused901.has_value());
+        _worldPacket.WriteBit(data.TotalEarned.has_value());
+        _worldPacket.WriteBit(data.LastSpendTime.has_value());
         _worldPacket.WriteBits(data.Flags, 5);
         _worldPacket.FlushBits();
 
@@ -114,8 +123,10 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
             _worldPacket << uint32(*data.TrackedQuantity);
         if (data.MaxQuantity)
             _worldPacket << int32(*data.MaxQuantity);
-        if (data.Unused901)
-            _worldPacket << int32(*data.Unused901);
+        if (data.TotalEarned)
+            _worldPacket << int32(*data.TotalEarned);
+        if (data.LastSpendTime)
+            _worldPacket << *data.LastSpendTime;
     }
 
     return &_worldPacket;
@@ -317,13 +328,6 @@ WorldPacket const* WorldPackets::Misc::PlayerBound::Write()
 {
     _worldPacket << BinderID;
     _worldPacket << uint32(AreaID);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
-{
-    _worldPacket << Unit;
 
     return &_worldPacket;
 }
