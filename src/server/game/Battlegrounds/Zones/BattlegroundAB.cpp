@@ -26,6 +26,7 @@
 #include "Random.h"
 #include "Util.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 void BattlegroundABScore::BuildObjectivesBlock(WorldPacket& data, ByteBuffer& content)
 {
@@ -309,7 +310,6 @@ void BattlegroundAB::_SendNodeUpdate(uint8 node)
 {
     // Send node owner state update to refresh map icons on client
     constexpr int32 idPlusArray[] = { 0, 2, 3, 0, 1 };
-    constexpr int32 statePlusArray[] = { 0, 2, 0, 2, 0 };
 
     if (m_prevNodes[node])
         UpdateWorldState(BG_AB_OP_NODESTATES[node] + idPlusArray[m_prevNodes[node]], 0);

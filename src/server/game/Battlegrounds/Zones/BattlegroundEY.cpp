@@ -19,6 +19,7 @@
 #include "WorldPacket.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
+#include "DBCStores.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
