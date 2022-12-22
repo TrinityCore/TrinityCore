@@ -1138,10 +1138,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 if (blocked)
                 {
                     // double blocked amount if block is critical
-                    uint32 value = victim->GetBlockPercent(GetLevel());
+                    uint32 value = victim->GetShieldBlockValue();
                     if (victim->isBlockCritical())
-                        value *= 2; // double blocked percent
-                    damageInfo->blocked = CalculatePct(damage, value);
+                        value *= 2;
+                    damageInfo->blocked = value;
                     if (damage <= int32(damageInfo->blocked))
                     {
                         damageInfo->blocked = uint32(damage);
@@ -1352,8 +1352,8 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
         case MELEE_HIT_BLOCK:
             damageInfo->TargetState = VICTIMSTATE_HIT;
             damageInfo->HitInfo    |= HITINFO_BLOCK;
-            // 30% damage blocked, double blocked amount if block is critical
-            damageInfo->Blocked = CalculatePct(damageInfo->Damage, damageInfo->Target->GetBlockPercent(GetLevel()));
+            damageInfo->Blocked = damageInfo->Target->GetShieldBlockValue();
+            // double blocked amount if block is critical
             if (damageInfo->Target->isBlockCritical())
                 damageInfo->Blocked *= 2;
 
@@ -1575,7 +1575,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     return !spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_IGNORE_ARMOR);
 }
 
-/*static*/ uint32 Unit::CalcArmorReducedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, WeaponAttackType /*attackType*/ /*= MAX_ATTACK*/, uint8 attackerLevel /*= 0*/)
+/*static*/ uint32 Unit::CalcArmorReducedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType /*= MAX_ATTACK*/, uint8 attackerLevel /*= 0*/)
 {
     float armor = float(victim->GetArmor());
 
@@ -1610,6 +1610,12 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
         {
             float arpPct = attacker->ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION);
 
+            Item const* weapon = attacker->ToPlayer()->GetWeaponForAttack(attackType, true);
+            arpPct += attacker->GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT, [weapon](AuraEffect const* aurEff) -> bool
+                {
+                    return aurEff->GetSpellInfo()->IsItemFitToSpellRequirements(weapon);
+                });
+
             // no more than 100%
             RoundToInterval(arpPct, 0.f, 100.f);
 
@@ -1629,21 +1635,15 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     if (G3D::fuzzyLe(armor, 0.0f))
         return damage;
 
-    Classes attackerClass = CLASS_WARRIOR;
-    if (attacker)
-    {
-        attackerLevel = attacker->GetLevelForTarget(victim);
-        attackerClass = Classes(attacker->GetClass());
-    }
+    float levelModifier = attacker ? attacker->GetLevel() : attackerLevel;
+    if (levelModifier > 59.f)
+        levelModifier = levelModifier + 4.5f * (levelModifier - 59.f);
 
-    // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
-    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, attackerClass);
+    float damageReduction = 0.1f * armor / (8.5f * levelModifier + 40.f);
+    damageReduction /= (1.0f + damageReduction);
 
-    if (!(armor + armorConstant))
-        return damage;
-
-    float mitigation = std::min(armor / (armor + armorConstant), 0.85f);
-    return uint32(std::max(damage * (1.0f - mitigation), 0.0f));
+    RoundToInterval(damageReduction, 0.f, 0.75f);
+    return uint32(std::ceil(std::max(damage * (1.0f - damageReduction), 0.0f)));
 }
 
 /*static*/ uint32 Unit::CalcSpellResistedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellSchoolMask schoolMask, SpellInfo const* spellInfo)
@@ -2592,6 +2592,21 @@ float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) con
     else
         chance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) / 4.0f;
     return std::max(chance, 0.0f);
+}
+
+uint32 Unit::GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const
+{
+    uint32 value = GetShieldBlockValue();
+    if (value >= hard_cap)
+    {
+        value = (soft_cap + hard_cap) / 2;
+    }
+    else if (value > soft_cap)
+    {
+        value = soft_cap + ((value - soft_cap) / 2);
+    }
+
+    return value;
 }
 
 float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const

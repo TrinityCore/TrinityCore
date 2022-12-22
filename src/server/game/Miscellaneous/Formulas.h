@@ -36,12 +36,6 @@ namespace Trinity
             return EXPANSION_THE_BURNING_CRUSADE;
         else if (level < 80)
             return EXPANSION_WRATH_OF_THE_LICH_KING;
-        else if (level < 85)
-            return EXPANSION_CATACLYSM;
-        else if (level < 90)
-            return EXPANSION_MISTS_OF_PANDARIA;
-        else if (level < 100)
-            return EXPANSION_WARLORDS_OF_DRAENOR;
         else
             return CURRENT_EXPANSION;
     }

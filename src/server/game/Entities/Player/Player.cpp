@@ -5100,6 +5100,7 @@ void Player::UpdateBaseModGroup(BaseModGroup modGroup)
         case CRIT_PERCENTAGE:              UpdateCritPercentage(BASE_ATTACK);                          break;
         case RANGED_CRIT_PERCENTAGE:       UpdateCritPercentage(RANGED_ATTACK);                        break;
         case OFFHAND_CRIT_PERCENTAGE:      UpdateCritPercentage(OFF_ATTACK);                           break;
+        case SHIELD_BLOCK_VALUE:           UpdateShieldBlockValue();                                   break;
         default: break;
     }
 }
@@ -5126,6 +5127,12 @@ float Player::GetTotalBaseModValue(BaseModGroup modGroup) const
     }
 
     return m_auraBaseFlatMod[modGroup] * m_auraBasePctMod[modGroup];
+}
+
+uint32 Player::GetShieldBlockValue() const
+{
+    float value = std::max(0.f, (m_auraBaseFlatMod[SHIELD_BLOCK_VALUE] + GetStat(STAT_STRENGTH) * 0.5f - 10) * m_auraBasePctMod[SHIELD_BLOCK_VALUE]);
+    return uint32(value);
 }
 
 void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing*/) const
@@ -7823,6 +7830,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 break;
             case ITEM_MOD_SPELL_PENETRATION:
                 ApplySpellPenetrationBonus(val, apply);
+                break;
+            case ITEM_MOD_BLOCK_VALUE:
+                HandleBaseModFlatValue(SHIELD_BLOCK_VALUE, float(val), apply);
                 break;
             case ITEM_MOD_MASTERY_RATING:
                 ApplyRatingMod(CR_MASTERY, int32(val * combatRatingMultiplier), apply);

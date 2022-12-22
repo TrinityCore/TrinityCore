@@ -108,6 +108,9 @@ bool Player::UpdateStats(Stats stat)
 
     switch (stat)
     {
+        case STAT_STRENGTH:
+            UpdateShieldBlockValue();
+            break;
         case STAT_AGILITY:
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
@@ -207,6 +210,7 @@ bool Player::UpdateAllStats()
     UpdateBlockPercentage();
     UpdateParryPercentage();
     UpdateDodgePercentage();
+    UpdateShieldBlockValue();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     UpdateExpertise(BASE_ATTACK);

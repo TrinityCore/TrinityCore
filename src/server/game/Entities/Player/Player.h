@@ -2024,6 +2024,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateMaxPower(Powers power) override;
         uint32 GetPowerIndex(Powers power) const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
+        void UpdateShieldBlockValue() { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), GetShieldBlockValue()); }
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
         void ApplyModDamageDonePos(SpellSchools school, int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModDamageDonePos, school), mod, apply); }
@@ -2279,6 +2280,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendCorpseReclaimDelay(uint32 delay) const;
 
         float GetBlockPercent(uint8 attackerLevel) const override;
+        uint32 GetShieldBlockValue() const override;                 // overwrite Unit version (virtual)
         bool CanParry() const { return m_canParry; }
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
