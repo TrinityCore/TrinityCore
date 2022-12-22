@@ -1083,6 +1083,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual float GetBlockPercent(uint8 /*attackerLevel*/) const { return 30.0f; }
         virtual uint32 GetShieldBlockValue() const = 0;
         uint32 GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const;
+        uint32 GetDefenseSkillValue(Unit const* target = nullptr) const;
 
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM, SpellInfo const* spellProto) const;

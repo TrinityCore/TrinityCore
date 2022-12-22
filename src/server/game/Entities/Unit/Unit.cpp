@@ -2609,6 +2609,21 @@ uint32 Unit::GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const
     return value;
 }
 
+uint32 Unit::GetDefenseSkillValue(Unit const* target) const
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        // in PvP use full skill instead current skill value
+        uint32 value = (target && target->GetTypeId() == TYPEID_PLAYER)
+            ? ToPlayer()->GetMaxSkillValue(SKILL_DEFENSE)
+            : ToPlayer()->GetSkillValue(SKILL_DEFENSE);
+        value += uint32(ToPlayer()->GetRatingBonusValue(CR_DEFENSE_SKILL));
+        return value;
+    }
+    else
+        return GetMaxSkillValueForLevel(target);
+}
+
 float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const
 {
     int32 const levelDiff = victim->GetLevelForTarget(this) - GetLevelForTarget(victim);
@@ -9820,7 +9835,7 @@ ProcFlagsHit createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo mi
     return hitMask;
 }
 
-void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, ProcFlagsInit const& typeMask, ProcFlagsHit hitMask, WeaponAttackType /*attType*/)
+void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, ProcFlagsInit const& typeMask, ProcFlagsHit hitMask, WeaponAttackType attType)
 {
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())
@@ -9829,6 +9844,24 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, ProcFlagsInit
     // For melee/ranged based attack need update skills and set some Aura states if victim present
     if (typeMask & MELEE_BASED_TRIGGER_MASK && procTarget)
     {
+        // Update skills here for players
+        // only when you are not fighting other players or their pets/totems (pvp)
+        if (GetTypeId() == TYPEID_PLAYER &&
+            procTarget->GetTypeId() != TYPEID_PLAYER &&
+            !(procTarget->IsTotem() && procTarget->ToTotem()->GetOwner()->IsPlayer()) &&
+            !procTarget->IsPet()
+            )
+        {
+            // On melee based hit/miss/resist need update skill (for victim and attacker)
+            if (hitMask & (PROC_HIT_NORMAL | PROC_HIT_MISS | PROC_HIT_FULL_RESIST))
+            {
+                if (procTarget->GetTypeId() != TYPEID_PLAYER && !procTarget->IsCritter())
+                    ToPlayer()->UpdateCombatSkills(procTarget, attType, isVictim);
+            }
+            // Update defense if player is victim and parry/dodge/block
+            else if (isVictim && (hitMask & (PROC_HIT_DODGE | PROC_HIT_PARRY | PROC_HIT_BLOCK)))
+                ToPlayer()->UpdateCombatSkills(procTarget, attType, true);
+        }
         // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
         if (hitMask & (PROC_HIT_CRITICAL | PROC_HIT_PARRY | PROC_HIT_DODGE | PROC_HIT_BLOCK))
         {

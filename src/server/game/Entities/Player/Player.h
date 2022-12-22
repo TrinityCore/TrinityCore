@@ -2005,10 +2005,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static Difficulty CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty);
         void SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const;
 
+        bool UpdateSkill(uint32 skill_id, uint32 step);
         bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
         bool UpdateCraftSkill(SpellInfo const* spellInfo);
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
         bool UpdateFishingSkill();
+
+        uint32 GetBaseDefenseSkillValue() const { return GetBaseSkillValue(SKILL_DEFENSE); }
+        uint32 GetBaseWeaponSkillValue(WeaponAttackType attType) const;
 
         float GetHealthBonusFromStamina() const;
         Stats GetPrimaryStat() const;
@@ -2041,6 +2045,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) const override;
 
+        void UpdateDefenseBonusesMod();
         void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing) const;
         float OCTRegenHPPerSpirit() const;
@@ -2176,6 +2181,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         typedef std::list<Channel*> JoinedChannelsList;
         JoinedChannelsList const& GetJoinedChannels() const { return m_channels; }
+
+        void UpdateDefense();
+        void UpdateWeaponSkill(Unit* victim, WeaponAttackType attType);
+        void UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defense);
 
         void InitializeSkillFields();
         void SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal);
