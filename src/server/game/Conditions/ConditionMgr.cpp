@@ -1547,7 +1547,7 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond) const
     Trinity::IteratorPair pMenuItemBounds = sObjectMgr->GetGossipMenuItemsMapBoundsNonConst(cond->SourceGroup);
     for (auto& [_, gossipMenuItem] : pMenuItemBounds)
     {
-        if (gossipMenuItem.MenuID == cond->SourceGroup && gossipMenuItem.OptionID == uint32(cond->SourceEntry))
+        if (gossipMenuItem.MenuID == cond->SourceGroup && gossipMenuItem.OrderIndex == uint32(cond->SourceEntry))
         {
             gossipMenuItem.Conditions.push_back(cond);
             return true;
@@ -3350,6 +3350,46 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
         return false;
 
+    if (std::any_of(condition->TraitNodeEntryID.begin(), condition->TraitNodeEntryID.end(), [](int32 traitNodeEntryId) { return traitNodeEntryId != 0; }))
+    {
+        auto getTraitNodeEntryRank = [player](int32 traitNodeEntryId) -> Optional<uint16>
+        {
+            for (UF::TraitConfig const& traitConfig : player->m_activePlayerData->TraitConfigs)
+            {
+                if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
+                {
+                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
+                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                        continue;
+                }
+
+                for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                    if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
+                        return traitEntry.Rank;
+            }
+            return {};
+        };
+
+        std::array<bool, std::tuple_size_v<decltype(condition->TraitNodeEntryID)>> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < condition->TraitNodeEntryID.size(); ++i)
+        {
+            if (!condition->TraitNodeEntryID[i])
+                continue;
+
+            Optional<int32> rank = getTraitNodeEntryRank(condition->TraitNodeEntryID[i]);
+            if (!rank)
+                results[i] = false;
+            else if (condition->TraitNodeEntryMinRank[i] && rank < condition->TraitNodeEntryMinRank[i])
+                results[i] = false;
+            else if (condition->TraitNodeEntryMaxRank[i] && rank > condition->TraitNodeEntryMaxRank[i])
+                results[i] = false;
+        }
+
+        if (!PlayerConditionLogic(condition->TraitNodeEntryLogic, results))
+            return false;
+    }
+
     return true;
 }
 
@@ -3787,7 +3827,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::HasHelpfulAuraMechanic:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {
-                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (UI64LIT(1) << value)) != 0;
             }) != nullptr ? value : 0;
         case UnitConditionVariable::HasHarmfulAuraSpell:
             return unit->GetAuraApplication(value, [](AuraApplication const* aurApp)
@@ -3802,7 +3842,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::HasHarmfulAuraMechanic:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {
-                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (UI64LIT(1) << value)) != 0;
             }) != nullptr ? value : 0;
         case UnitConditionVariable::HasHarmfulAuraSchool:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
@@ -3952,13 +3992,17 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsEnemy:
             return otherUnit && unit->GetReactionTo(otherUnit) <= REP_HOSTILE;
         case UnitConditionVariable::IsSpecMelee:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
         case UnitConditionVariable::IsSpecTank:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
         case UnitConditionVariable::IsSpecRanged:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
         case UnitConditionVariable::IsSpecHealer:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
         case UnitConditionVariable::IsPlayerControlledNPC:
             return unit->IsCreature() && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
         case UnitConditionVariable::IsDying:

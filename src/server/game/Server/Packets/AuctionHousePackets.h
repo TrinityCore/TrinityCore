@@ -51,7 +51,7 @@ namespace WorldPackets
         struct AuctionListFilterSubClass
         {
             int32 ItemSubclass = 0;
-            uint32 InvTypeMask = 0;
+            uint64 InvTypeMask = 0;
         };
 
         struct AuctionListFilterClass

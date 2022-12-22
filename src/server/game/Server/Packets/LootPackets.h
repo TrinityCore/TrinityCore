@@ -22,6 +22,8 @@
 #include "ObjectGuid.h"
 #include "ItemPacketsCommon.h"
 
+enum class LootRollIneligibilityReason : uint32;
+
 namespace WorldPackets
 {
     namespace Loot
@@ -34,6 +36,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Unit;
+            bool IsSoftInteract = false;
         };
 
         struct LootItemData
@@ -221,6 +224,7 @@ namespace WorldPackets
             Duration<Milliseconds, uint32> RollTime;
             uint8 Method = 0;
             uint8 ValidRolls = 0;
+            std::array<LootRollIneligibilityReason, 4> LootRollIneligibleReason = { };
             LootItemData Item;
         };
 

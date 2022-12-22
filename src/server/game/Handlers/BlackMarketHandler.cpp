@@ -21,8 +21,8 @@
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Log.h"
+#include "NPCPackets.h"
 #include "Player.h"
-#include "WorldPacket.h"
 
 void WorldSession::HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketOpen& blackMarketOpen)
 {
@@ -42,10 +42,11 @@ void WorldSession::HandleBlackMarketOpen(WorldPackets::BlackMarket::BlackMarketO
 
 void WorldSession::SendBlackMarketOpenResult(ObjectGuid guid, Creature* /*auctioneer*/)
 {
-    WorldPackets::BlackMarket::BlackMarketOpenResult packet;
-    packet.Guid = guid;
-    packet.Enable = sBlackMarketMgr->IsEnabled();
-    SendPacket(packet.Write());
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = guid;
+    npcInteraction.InteractionType = PlayerInteractionType::BlackMarketAuctioneer;
+    npcInteraction.Success = sBlackMarketMgr->IsEnabled();
+    SendPacket(npcInteraction.Write());
 }
 
 void WorldSession::HandleBlackMarketRequestItems(WorldPackets::BlackMarket::BlackMarketRequestItems& blackMarketRequestItems)

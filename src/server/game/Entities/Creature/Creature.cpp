@@ -81,11 +81,6 @@ std::string CreatureMovementData::ToString() const
 VendorItemCount::VendorItemCount(uint32 _item, uint32 _count)
     : itemId(_item), count(_count), lastIncrementTime(GameTime::GetGameTime()) { }
 
-bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
-{
-    return pProto->HasFlag(ITEM_FLAG2_DONT_IGNORE_BUY_PRICE) || !ExtendedCost;
-}
-
 bool VendorItemData::RemoveItem(uint32 item_id, uint8 type)
 {
     auto newEnd = std::remove_if(m_items.begin(), m_items.end(), [=](VendorItem const& vendorItem)
@@ -2326,11 +2321,11 @@ void Creature::LoadTemplateImmunities()
     if (GetOwnerGUID().IsPlayer() && IsHunterPet())
         return;
 
-    if (uint32 mask = GetCreatureTemplate()->MechanicImmuneMask)
+    if (uint64 mask = GetCreatureTemplate()->MechanicImmuneMask)
     {
         for (uint32 i = MECHANIC_NONE + 1; i < MAX_MECHANIC; ++i)
         {
-            if (mask & (1 << (i - 1)))
+            if (mask & (UI64LIT(1) << (i - 1)))
                 ApplySpellImmune(placeholderSpellId, IMMUNITY_MECHANIC, i, true);
         }
     }
@@ -2783,7 +2778,7 @@ void Creature::UpdateMovementFlags()
     bool canHover = CanHover();
     bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? *m_unitData->HoverHeight : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
 
-    if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
+    if (GetMovementTemplate().IsFlightAllowed() && (isInAir || !GetMovementTemplate().IsGroundAllowed()) && !IsFalling())
     {
         if (GetMovementTemplate().Flight == CreatureFlightMovementType::CanFly)
             SetCanFly(true);

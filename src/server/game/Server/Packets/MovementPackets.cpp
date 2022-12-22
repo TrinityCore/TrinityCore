@@ -29,6 +29,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     bool hasFallData = hasFallDirection || movementInfo.jump.fallTime != 0;
     bool hasSpline = false; // todo 6.x send this infos
     bool hasInertia = movementInfo.inertia.has_value();
+    bool hasAdvFlying = movementInfo.advFlying.has_value();
 
     data << movementInfo.guid;
     data << uint32(movementInfo.flags);
@@ -57,6 +58,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     data.WriteBit(false); // HeightChangeFailed
     data.WriteBit(false); // RemoteTimeValid
     data.WriteBit(hasInertia);
+    data.WriteBit(hasAdvFlying);
 
     data.FlushBits();
 
@@ -65,9 +67,15 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 
     if (hasInertia)
     {
-        data << movementInfo.inertia->guid;
+        data << uint32(movementInfo.inertia->id);
         data << movementInfo.inertia->force.PositionXYZStream();
         data << uint32(movementInfo.inertia->lifetime);
+    }
+
+    if (hasAdvFlying)
+    {
+        data << float(movementInfo.advFlying->forwardVelocity);
+        data << float(movementInfo.advFlying->upVelocity);
     }
 
     if (hasFallData)
@@ -120,6 +128,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     data.ReadBit(); // HeightChangeFailed
     data.ReadBit(); // RemoteTimeValid
     bool hasInertia = data.ReadBit();
+    bool hasAdvFlying = data.ReadBit();
 
     if (hasTransport)
         data >> movementInfo.transport;
@@ -128,9 +137,17 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     {
         movementInfo.inertia.emplace();
 
-        data >> movementInfo.inertia->guid;
+        data >> movementInfo.inertia->id;
         data >> movementInfo.inertia->force.PositionXYZStream();
         data >> movementInfo.inertia->lifetime;
+    }
+
+    if (hasAdvFlying)
+    {
+        movementInfo.advFlying.emplace();
+
+        data >> movementInfo.advFlying->forwardVelocity;
+        data >> movementInfo.advFlying->upVelocity;
     }
 
     if (hasFall)
@@ -1008,12 +1025,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     data << uint16(stateChange.MessageID);
     data << uint32(stateChange.SequenceIndex);
     data.WriteBit(stateChange.Speed.has_value());
+    data.WriteBit(stateChange.SpeedRange.has_value());
     data.WriteBit(stateChange.KnockBack.has_value());
     data.WriteBit(stateChange.VehicleRecID.has_value());
     data.WriteBit(stateChange.CollisionHeight.has_value());
     data.WriteBit(stateChange.MovementForce_.has_value());
     data.WriteBit(stateChange.MovementForceGUID.has_value());
-    data.WriteBit(stateChange.MovementInertiaGUID.has_value());
+    data.WriteBit(stateChange.MovementInertiaID.has_value());
     data.WriteBit(stateChange.MovementInertiaLifetimeMs.has_value());
     data.FlushBits();
 
@@ -1022,6 +1040,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
 
     if (stateChange.Speed)
         data << float(*stateChange.Speed);
+
+    if (stateChange.SpeedRange)
+    {
+        data << float(stateChange.SpeedRange->Min);
+        data << float(stateChange.SpeedRange->Max);
+    }
 
     if (stateChange.KnockBack)
     {
@@ -1043,8 +1067,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     if (stateChange.MovementForceGUID)
         data << *stateChange.MovementForceGUID;
 
-    if (stateChange.MovementInertiaGUID)
-        data << *stateChange.MovementInertiaGUID;
+    if (stateChange.MovementInertiaID)
+        data << int32(*stateChange.MovementInertiaID);
 
     if (stateChange.MovementInertiaLifetimeMs)
         data << uint32(*stateChange.MovementInertiaLifetimeMs);

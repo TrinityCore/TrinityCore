@@ -25,23 +25,18 @@ namespace WorldPackets
 {
     namespace Reputation
     {
-        static uint16 const FactionCount = 400;
+        static constexpr uint16 FactionCount = 443;
 
         class InitializeFactions final : public ServerPacket
         {
         public:
-            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, FactionCount * (4 + 1) + FactionCount / 8)
-            {
-                FactionStandings.fill(0);
-                FactionHasBonus.fill(false);
-                FactionFlags.fill(0);
-            }
+            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, FactionCount * (4 + 2) + FactionCount / 8) { }
 
             WorldPacket const* Write() override;
 
-            std::array<int32, FactionCount> FactionStandings;
-            std::array<bool, FactionCount> FactionHasBonus; ///< @todo: implement faction bonus
-            std::array<uint8, FactionCount> FactionFlags; ///< @see enum FactionFlags
+            std::array<int32, FactionCount> FactionStandings = { };
+            std::array<bool, FactionCount> FactionHasBonus = { }; ///< @todo: implement faction bonus
+            std::array<uint16, FactionCount> FactionFlags = { }; ///< @see enum FactionFlags
         };
 
         class RequestForcedReactions final : public ClientPacket
@@ -84,7 +79,6 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            float ReferAFriendBonus = 0.0f;
             float BonusFromAchievementSystem = 0.0f;
             std::vector<FactionStandingData> Faction;
             bool ShowVisual = false;
