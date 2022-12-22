@@ -1,0 +1,13 @@
+#include "ScriptMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "InstanceScript.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "Spell.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "nyalotha.h"
+

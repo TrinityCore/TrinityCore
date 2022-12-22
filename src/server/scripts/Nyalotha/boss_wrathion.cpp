@@ -1,0 +1,12 @@
+#include "nyalotha.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "CombatAI.h"
+#include "Conversation.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "InstanceScript.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellAuras.h"
+
