@@ -626,7 +626,7 @@ enum OpcodeClient : uint16
     CMSG_SERVER_TIME_OFFSET_REQUEST                   = 0x369A,
     CMSG_SET_ACHIEVEMENTS_HIDDEN                      = 0x3224,
     CMSG_SET_ACTION_BAR_TOGGLES                       = 0x3532,
-    CMSG_SET_ACTION_BUTTON                            = 0x3637,
+    CMSG_SET_ACTION_BUTTON                            = 0x355D,
     CMSG_SET_ACTIVE_MOVER                             = 0x3A3D,
     CMSG_SET_ADVANCED_COMBAT_LOGGING                  = 0x32AE,
     CMSG_SET_ASSISTANT_LEADER                         = 0x3651,
