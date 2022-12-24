@@ -397,8 +397,10 @@ void InstanceLockMgr::UpdateSharedInstanceLock(CharacterDatabaseTransaction tran
     auto sharedDataItr = _instanceLockDataById.find(updateEvent.InstanceId);
     ASSERT(sharedDataItr != _instanceLockDataById.end());
     std::shared_ptr<SharedInstanceLockData> sharedData = sharedDataItr->second.lock();
-    ASSERT(sharedData && sharedData->InstanceId == updateEvent.InstanceId);
+    ASSERT(sharedData);
+    ASSERT(!sharedData->InstanceId || sharedData->InstanceId == updateEvent.InstanceId);
     sharedData->Data = std::move(updateEvent.NewData);
+    sharedData->InstanceId = updateEvent.InstanceId;
     if (updateEvent.CompletedEncounter)
     {
         sharedData->CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter->Bit;
