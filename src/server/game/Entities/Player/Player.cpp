@@ -18178,11 +18178,12 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
             Field* fields = result->Fetch();
             uint32 quest_id = fields[0].GetUInt32();
             uint32 event_id = fields[1].GetUInt32();
+            uint32 completedTime = fields[2].GetInt64();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
 
-            m_seasonalquests[event_id].insert(quest_id);
+            m_seasonalquests[event_id][quest_id] = completedTime;
             TC_LOG_DEBUG("entities.player.loading", "Player::_LoadSeasonalQuestStatus: Loaded seasonal quest cooldown (QuestID: %u) for player '%s' (%s)",
                 quest_id, GetName().c_str(), GetGUID().ToString().c_str());
         }
@@ -19717,18 +19718,20 @@ void Player::_SaveSeasonalQuestStatus(CharacterDatabaseTransaction& trans)
     if (m_seasonalquests.empty())
         return;
 
-    for (SeasonalEventQuestMap::const_iterator iter = m_seasonalquests.begin(); iter != m_seasonalquests.end(); ++iter)
+    for (SeasonalQuestMapByEvent::const_iterator iter = m_seasonalquests.begin(); iter != m_seasonalquests.end(); ++iter)
     {
         uint16 eventId = iter->first;
 
-        for (SeasonalQuestSet::const_iterator itr = iter->second.begin(); itr != iter->second.end(); ++itr)
+        for (SeasonalQuestMapByQuest::const_iterator itr = iter->second.begin(); itr != iter->second.end(); ++itr)
         {
-            uint32 questId = *itr;
+            uint32 questId = itr->first;
+            time_t completedTime = itr->second;
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_QUESTSTATUS_SEASONAL);
             stmt->setUInt32(0, GetGUID().GetCounter());
             stmt->setUInt32(1, questId);
             stmt->setUInt32(2, eventId);
+            stmt->setInt64(3, completedTime);
             trans->Append(stmt);
         }
     }
@@ -23310,7 +23313,7 @@ void Player::SetSeasonalQuestStatus(uint32 quest_id)
     if (!quest)
         return;
 
-    m_seasonalquests[quest->GetEventIdForQuest()].insert(quest_id);
+    m_seasonalquests[quest->GetEventIdForQuest()][quest_id] = GameTime::GetGameTime();
     m_SeasonalQuestChanged = true;
 }
 
@@ -23353,14 +23356,28 @@ void Player::ResetWeeklyQuestStatus()
 
 }
 
-void Player::ResetSeasonalQuestStatus(uint16 event_id)
+void Player::ResetSeasonalQuestStatus(uint16 event_id, time_t eventStartTime)
 {
-    if (m_seasonalquests.empty() || m_seasonalquests[event_id].empty())
-        return;
-
-    m_seasonalquests.erase(event_id);
     // DB data deleted in caller
     m_SeasonalQuestChanged = false;
+
+    auto eventItr = m_seasonalquests.find(event_id);
+    if (eventItr == m_seasonalquests.end())
+        return;
+
+    if (eventItr->second.empty())
+        return;
+
+    for (auto questItr = eventItr->second.begin(); questItr != eventItr->second.end();)
+    {
+        if (questItr->second < eventStartTime)
+            questItr = eventItr->second.erase(questItr);
+        else
+            ++questItr;
+    }
+
+    if (eventItr->second.empty())
+        m_seasonalquests.erase(eventItr);
 }
 
 void Player::ResetMonthlyQuestStatus()

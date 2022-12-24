@@ -1376,7 +1376,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResetDailyQuestStatus();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
-        void ResetSeasonalQuestStatus(uint16 event_id);
+        void ResetSeasonalQuestStatus(uint16 event_id, time_t eventStartTime);
         void ResetWeeklyLFGRewardStatus();
         void ResetDailyLFGRewardStatus();
 
@@ -2405,8 +2405,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
         typedef std::set<uint32> QuestSet;
-        typedef std::set<uint32> SeasonalQuestSet;
-        typedef std::unordered_map<uint32, SeasonalQuestSet> SeasonalEventQuestMap;
+        typedef std::unordered_map<uint32, time_t> SeasonalQuestMapByQuest;
+        typedef std::unordered_map<uint32, SeasonalQuestMapByQuest> SeasonalQuestMapByEvent;
 
         struct LFGRewardInfo
         {
@@ -2422,7 +2422,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;
         QuestSet m_monthlyquests;
-        SeasonalEventQuestMap m_seasonalquests;
+        SeasonalQuestMapByEvent m_seasonalquests;
         LFGRewardStatusMap m_lfgrewardstatus;
 
         ObjectGuid m_playerSharingQuest;

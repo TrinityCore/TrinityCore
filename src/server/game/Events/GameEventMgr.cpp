@@ -1175,7 +1175,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     // update bg holiday
     UpdateBattlegroundSettings();
     // check for seasonal quest reset.
-    sWorld->ResetEventSeasonalQuests(event_id);
+    sWorld->ResetEventSeasonalQuests(event_id, GetLastStartTime(event_id));
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
@@ -1813,6 +1813,21 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
             // if none is found we don't modify start date and use the one in game_event
         }
     }
+}
+
+time_t GameEventMgr::GetLastStartTime(uint16 event_id) const
+{
+    if (event_id >= mGameEvent.size())
+        return 0;
+
+    if (mGameEvent[event_id].state != GAMEEVENT_NORMAL)
+        return 0;
+
+    std::chrono::system_clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    std::chrono::system_clock::time_point eventInitialStart = std::chrono::system_clock::from_time_t(mGameEvent[event_id].start);
+    Minutes occurence(mGameEvent[event_id].occurence);
+    std::chrono::system_clock::time_point::duration durationSinceLastStart = (now - eventInitialStart) % occurence;
+    return std::chrono::system_clock::to_time_t(now - durationSinceLastStart);
 }
 
 bool IsHolidayActive(HolidayIds id)
