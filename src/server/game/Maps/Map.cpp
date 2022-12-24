@@ -582,7 +582,7 @@ bool Map::AddToMap(Transport* obj)
         // Broadcast creation to players
         for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         {
-            if (itr->GetSource()->GetTransport() != obj && itr->GetSource()->IsInPhase(obj))
+            if (itr->GetSource()->GetTransport() != obj && itr->GetSource()->InSamePhase(obj))
             {
                 UpdateData data(GetId());
                 obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
@@ -1839,7 +1839,7 @@ void Map::SendInitTransports(Player* player)
     UpdateData transData(GetId());
     for (Transport* transport : _transports)
     {
-        if (transport->IsInWorld() && transport != player->GetTransport() && player->IsInPhase(transport))
+        if (transport->IsInWorld() && transport != player->GetTransport() && player->InSamePhase(transport))
         {
             transport->BuildCreateUpdateBlockForPlayer(&transData, player);
             player->m_visibleTransports.insert(transport->GetGUID());
@@ -1879,7 +1879,7 @@ void Map::SendUpdateTransportVisibility(Player* player)
             continue;
 
         auto transportItr = player->m_visibleTransports.find(transport->GetGUID());
-        if (player->IsInPhase(transport))
+        if (player->InSamePhase(transport))
         {
             if (transportItr == player->m_visibleTransports.end())
             {

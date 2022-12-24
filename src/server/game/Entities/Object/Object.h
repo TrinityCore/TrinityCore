@@ -463,19 +463,23 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
-        bool IsInPhase(WorldObject const* obj) const
+        PhaseShift& GetPhaseShift() { return _phaseShift; }
+        PhaseShift const& GetPhaseShift() const { return _phaseShift; }
+        PhaseShift& GetSuppressedPhaseShift() { return _suppressedPhaseShift; }
+        PhaseShift const& GetSuppressedPhaseShift() const { return _suppressedPhaseShift; }
+        bool InSamePhase(PhaseShift const& phaseShift) const
+        {
+            return GetPhaseShift().CanSee(phaseShift);
+        }
+        bool InSamePhase(WorldObject const* obj) const
         {
             return GetPhaseShift().CanSee(obj->GetPhaseShift());
         }
         static bool InSamePhase(WorldObject const* a, WorldObject const* b)
         {
-            return a && b && a->IsInPhase(b);
+            return a && b && a->InSamePhase(b);
         }
 
-        PhaseShift& GetPhaseShift() { return _phaseShift; }
-        PhaseShift const& GetPhaseShift() const { return _phaseShift; }
-        PhaseShift& GetSuppressedPhaseShift() { return _suppressedPhaseShift; }
-        PhaseShift const& GetSuppressedPhaseShift() const { return _suppressedPhaseShift; }
         int32 GetDBPhase() const { return _dbPhase; }
 
         // if negative it is used as PhaseGroupId
